@@ -1,9 +1,7 @@
-require 'rubygems'
-require 'bundler/setup'
 require 'brb'
 
 Dir.glob("#{ENV['MAHOUT_DIR']}/libexec/*.jar").each { |d| require d }
-Dir.glob("/Users/anton-zh/rees46-libs/*.jar").each { |d| require d }
+Dir.glob("#{ENV['REES46_LIBRARIES_DIR']}/libexec/*.jar").each { |d| require d }
 
 ReloadDataModel = org.apache.mahout.cf.taste.impl.model.jdbc.ReloadFromJDBCDataModel
 PgDataModel = org.apache.mahout.cf.taste.impl.model.jdbc.PostgreSQLJDBCDataModel

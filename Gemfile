@@ -18,7 +18,7 @@ gem 'brb', '0.3.1'
 
 # Development tools
 group :development do
-  gem 'thin', '1.6.1'
+  #gem 'thin', '1.6.1'
   gem 'jazz_hands', '0.5.2'
 end
 
