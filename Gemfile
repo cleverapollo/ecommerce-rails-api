@@ -13,6 +13,9 @@ gem 'squeel', '1.1.1'
 gem 'rollbar', '0.11.1'
 gem 'newrelic_rpm', '3.7.1.188'
 
+# BrB
+gem 'brb', '0.3.1'
+
 # Development tools
 group :development do
   gem 'thin', '1.6.1'
