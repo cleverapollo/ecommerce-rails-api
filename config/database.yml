@@ -1,0 +1,19 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: recommender_development
+  pool: 5
+  username: recommender
+  password: recommender
+  host: localhost
+  timeout: 5000
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: recommender_test
+  pool: 5
+  username: recommender
+  password: recommender
+  host: localhost
+  timeout: 5000
