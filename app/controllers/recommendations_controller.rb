@@ -1,5 +1,5 @@
 class RecommendationsController < ApplicationController
   def get
-    render json: $brb.recommend_block(155).to_s
+    render json: BrbService.recommend(155)
   end
 end

@@ -5,6 +5,9 @@ ruby '2.0.0'
 gem 'rails', '4.0.2'
 gem 'rails-api', '0.2.0'
 
+# Server
+gem 'unicorn', '4.8.1'
+
 # Database
 gem 'pg', '0.17.1'
 gem 'squeel', '1.1.1'
@@ -16,10 +19,14 @@ gem 'newrelic_rpm', '3.7.1.188'
 # BrB
 gem 'brb', '0.3.1'
 
+# Tools
+gem 'foreman', '0.63.0'
+gem 'subcontractor', '0.8.0'
+
 # Development tools
 group :development do
-  #gem 'thin', '1.6.1'
   gem 'jazz_hands', '0.5.2'
+  gem 'dotenv-rails', '0.8.0'
 end
 
 # Rspec

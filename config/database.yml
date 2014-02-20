@@ -6,6 +6,7 @@ development:
   username: recommender
   password: recommender
   host: localhost
+  port: 5432
   timeout: 5000
 
 test:
@@ -16,4 +17,5 @@ test:
   username: recommender
   password: recommender
   host: localhost
+  port: 5432
   timeout: 5000

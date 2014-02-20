@@ -1,4 +1,7 @@
 require 'brb'
+require 'yaml'
+
+EM.threadpool_size = 100
 
 Dir.glob("#{ENV['MAHOUT_DIR']}/libexec/*.jar").each { |d| require d }
 Dir.glob("#{ENV['REES46_LIBRARIES_DIR']}/libexec/*.jar").each { |d| require d }
@@ -12,12 +15,14 @@ Recommender = org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecomm
 
 class CommonDriver
   def self.get_data_source
+    db_config = YAML.load_file(File.expand_path('../../config/database.yml', __FILE__))[ENV['RAILS_ENV']]
+
     ds = DataSource.new
-    ds.setServerName('localhost')
-    ds.setUser('recommender')
-    ds.setPassword('recommender')
-    ds.setDatabaseName('recommender_development')
-    ds.setPortNumber(5432)
+    ds.setServerName(db_config['host'])
+    ds.setUser(db_config['username'])
+    ds.setPassword(db_config['password'])
+    ds.setDatabaseName(db_config['database'])
+    ds.setPortNumber(db_config['port'])
 
     ds
   end
@@ -41,11 +46,20 @@ class MahoutServiceGateway
   REFRESH_TIME = 100
 
   def initialize
+    @mahout_service = nil
+  end
+
+  def initialize_service
     @mahout_service = MahoutService.new
   end
 
   def recommend(user_id)
-    @mahout_service.recommend(user_id)
+    puts "Asked for recommendations for #{user_id}"
+    if @mahout_service
+      @mahout_service.recommend(user_id)
+    else
+      'not initialized'
+    end
   end
 
   def refresh_scheduled
@@ -64,6 +78,8 @@ service_gateway = MahoutServiceGateway.new
 
 EM::run do
   BrB::Service.start_service(object: service_gateway, host: 'localhost', port: 5555)
+
+  EM.defer { service_gateway.initialize_service }
 
   EM.add_timer(MahoutServiceGateway::REFRESH_TIME) { EM.defer { service_gateway.refresh_scheduled } }
 end
