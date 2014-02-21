@@ -26,5 +26,7 @@ module Rees46Api
     end
 
     config.secret_key_base = '07bc8d279a1bb8a2836576da1e1020bd88c7'
+
+    config.middleware.use ActionDispatch::Cookies
   end
 end

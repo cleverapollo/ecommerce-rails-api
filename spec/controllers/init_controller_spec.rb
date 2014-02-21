@@ -14,6 +14,10 @@ describe InitController do
       it 'assigns session to @session' do
         expect(assigns(:session)).to eq Session.first!
       end
+
+      it 'stores session_id to cookies' do
+        expect(response.cookies[Rees46.cookie_name]).to eq Session.first.uniqid
+      end
     end
 
     shared_examples 'an api initializer with data' do
