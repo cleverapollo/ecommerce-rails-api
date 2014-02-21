@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe PushService do
-  describe '.extract_parameters' do
+describe ActionPush::ParamsExtractor do
+  describe '.extract' do
     context 'parameters validation' do
       before {
         @session = create(:session_with_user)
@@ -12,7 +12,7 @@ describe PushService do
         @params = { ssid: @session.uniqid, action: @action, shop_id: @shop.uniqid, rating: @rating }
       }
 
-      subject { PushService.extract_parameters(@params) }
+      subject { ActionPush::ParamsExtractor.extract(@params) }
       shared_examples 'raising error' do
         it 'raises error' do
           expect{ subject }.to raise_error(PushEventError)
@@ -71,9 +71,5 @@ describe PushService do
       end
 
     end
-  end
-
-  describe '.process' do
-
   end
 end
