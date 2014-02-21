@@ -168,10 +168,9 @@ ActiveRecord::Schema.define(version: 20140218103712) do
     t.boolean  "success",                                       null: false
   end
 
-  create_table "sessions", id: false, force: true do |t|
-    t.integer "id",        limit: 8, default: "nextval('sessions_id_seq'::regclass)", null: false
-    t.integer "user_id",   limit: 8,                                                  null: false
-    t.string  "uniqid",                                                               null: false
+  create_table "sessions", force: true do |t|
+    t.integer "user_id",   limit: 8,                null: false
+    t.string  "uniqid",                             null: false
     t.boolean "is_active",           default: true
     t.string  "useragent"
   end

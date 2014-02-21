@@ -24,5 +24,7 @@ module Rees46Api
     config.generators do |g|
       g.test_framework :rspec
     end
+
+    config.secret_key_base = '07bc8d279a1bb8a2836576da1e1020bd88c7'
   end
 end

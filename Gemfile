@@ -22,6 +22,7 @@ gem 'brb', '0.3.1'
 # Tools
 gem 'foreman', '0.63.0'
 gem 'subcontractor', '0.8.0'
+gem 'zeus', '0.13.3'
 
 # Development tools
 group :development do
@@ -36,5 +37,6 @@ end
 
 # Test tools
 group :test do
+  gem 'pry'
   gem 'factory_girl_rails', '4.3.0'
 end
