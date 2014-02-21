@@ -13,5 +13,14 @@ FactoryGirl.define do
 
   factory :session do
     uniqid sample_session_id
+
+    factory :session_with_user do
+      user
+    end
+  end
+
+  factory :shop do
+    uniqid '1234567890'
+    name 'Megashop'
   end
 end
