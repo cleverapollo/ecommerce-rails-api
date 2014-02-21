@@ -25,6 +25,8 @@ module Rees46Api
       g.test_framework :rspec
     end
 
+    config.autoload_paths += ["#{Rails.root}/app/exceptions"]
+
     config.secret_key_base = '07bc8d279a1bb8a2836576da1e1020bd88c7'
 
     config.middleware.use ActionDispatch::Cookies

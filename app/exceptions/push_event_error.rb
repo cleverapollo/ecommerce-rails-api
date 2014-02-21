@@ -1,0 +1,2 @@
+class PushEventError < StandardError
+end
