@@ -1,18 +1,15 @@
 class InitController < ApplicationController
   def init_script
-    @session_id = request.cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
+    session_id = request.cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-    @session = Session.find_by(uniqid: @session_id)
+    @session = Session.fetch(uniqid: session_id, useragent: request.env['HTTP_USER_AGENT'])
 
-    if @session.present?
-      @user = @session.user
-    else
-      @session = Session.create_with_uniqid_and_user(useragent: request.env['HTTP_USER_AGENT'])
-      @user = @session.user
-    end
+    render text: init_server_string(@session)
+  end
 
-    @ab_testing_group = @user.ab_testing_group
+  private
 
-    render text: "REES46.initServer('#{@session.uniqid}', '#{Rees46.base_url}', #{@ab_testing_group});"
+  def init_server_string(session)
+    "REES46.initServer('#{session.uniqid}', '#{Rees46.base_url}', #{session.user.ab_testing_group});"
   end
 end

@@ -33,6 +33,7 @@ end
 # Rspec
 group :development, :test do
   gem 'rspec-rails', '2.14.1'
+  gem 'guard-rspec', '4.2.6', require: false
 end
 
 # Test tools
