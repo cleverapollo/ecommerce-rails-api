@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Action do
-  describe '.get_factory' do
-    subject { Action.get_factory(@action_type) }
+  describe '.get_implementation_for' do
+    subject { Action.get_implementation_for(@action_type) }
 
     context 'with existing action type' do
       Action::TYPES.each do |type|
@@ -22,14 +22,6 @@ describe Action do
       it 'raises ArgumentError' do
         expect{ subject }.to raise_error(ArgumentError)
       end
-    end
-  end
-
-  describe '.push' do
-    subject { Action.push({}) }
-
-    it 'raises NotImplementedError' do
-      expect{ subject }.to raise_error(NotImplementedError)
     end
   end
 end

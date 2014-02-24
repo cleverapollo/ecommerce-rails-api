@@ -1,19 +1,35 @@
 require 'spec_helper'
 
 describe ActionPush::Processor do
-  describe '.process' do
-    before { @params = OpenStruct.new(action: 'view') }
-    subject { ActionPush::Processor.process(@params) }
-    before { allow(Action).to receive(:get_factory).and_return(Actions::View) }
-    before { allow(Actions::View).to receive(:push).and_return(true) }
-    before { subject }
+  before do
+    @user = create(:user_with_session)
+    @session = @user.sessions.first
+    @shop = create(:shop)
+    @items = [ OpenStruct.new(item_id: 123, price: 5000, is_available: 1, category_id: 1) ]
 
-    it 'gets action factory' do
-      expect(Action).to have_received(:get_factory).with(@params.action)
+    @sample_params = OpenStruct.new(action: 'view', items: @items, user: @user, shop: @shop)
+  end
+
+  describe '.new' do
+    subject { ActionPush::Processor.new(@sample_params) }
+
+    it 'stores accepted params and stores it in @params' do
+      expect(subject.params).to eq(@sample_params)
     end
 
-    it 'passes params to factory.push' do
-      expect(Actions::View).to have_received(:push).with(@params)
+    it 'fetches concrete action class and stores it in @concrete_action_class' do
+      expect(subject.concrete_action_class).to eq(Actions::View)
     end
+  end
+
+  describe '#process' do
+    before { @instance = ActionPush::Processor.new(@sample_params) }
+
+    it 'fetches every items action' do
+      @instance.process
+    end
+  end
+
+  describe '#fetch_action_for' do
   end
 end

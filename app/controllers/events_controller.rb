@@ -1,7 +1,7 @@
 class EventsController < ApplicationController
   def push
     parameters = ActionPush::ParamsExtractor.extract params
-    ActionPush::Processor.process(parameters)
+    ActionPush::Processor.new(parameters).process
 
     respond_with_success
   rescue PushEventError => e

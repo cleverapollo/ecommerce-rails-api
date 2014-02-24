@@ -9,7 +9,7 @@ describe ActionPush::ParamsExtractor do
         @shop = create(:shop)
         @action = 'view'
         @rating = 3
-        @params = { ssid: @session.uniqid, action: @action, shop_id: @shop.uniqid, rating: @rating }
+        @params = { ssid: @session.uniqid, event: @action, shop_id: @shop.uniqid, rating: @rating, item_id: [] }
       }
 
       subject { ActionPush::ParamsExtractor.extract(@params) }
@@ -51,12 +51,12 @@ describe ActionPush::ParamsExtractor do
       end
 
       context 'without action' do
-        before { @params[:action] = nil }
+        before { @params[:event] = nil }
         it_behaves_like 'raising error'
       end
 
       context 'with unknown action' do
-        before { @params[:action] = 'potato' }
+        before { @params[:event] = 'potato' }
         it_behaves_like 'raising error'
       end
 

@@ -2,8 +2,9 @@ require 'spec_helper'
 
 describe EventsController do
   describe 'POST push' do
-    before { allow(ActionPush::ParamsExtractor).to receive(:extract).and_return({ some_parameters: 1 }) }
-    before { allow(ActionPush::Processor).to receive(:process).and_return(true) }
+    before { allow(ActionPush::ParamsExtractor).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
+    before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
+    before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
 
     it 'extracts parameters' do
       post :push
@@ -14,7 +15,7 @@ describe EventsController do
     it 'passes extracted parameters to push service' do
       post :push
 
-      expect(ActionPush::Processor).to have_received(:process).with({ some_parameters: 1 })
+      expect(ActionPush::Processor).to have_received(:new)
     end
 
     context 'when all goes fine' do
