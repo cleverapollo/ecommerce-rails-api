@@ -29,6 +29,27 @@ describe 'Pushing an event' do
     expect(@action.user_id).to eq(@user.id)
     expect(@action.rating).to eq(3.2)
     expect(@action.recommended_by).to eq('similar')
-    puts @action.inspect
+  end
+
+  it 'updates view event to cart' do
+    post 'push', @params
+
+    @params[:event] = 'cart'
+
+    expect(Action.all.map(&:rating)).to match_array([3.2, 3.2])
+
+    post 'push', @params
+
+    expect(Action.count).to eq(2)
+
+    @action = Action.last
+
+    expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
+
+    expect(@action.shop_id).to eq(@shop.id)
+    expect(@action.user_id).to eq(@user.id)
+    expect(@action.rating).to eq(4.2)
+    expect(@action.last_action).to eq(2)
+    expect(@action.recommended_by).to eq('similar')
   end
 end
