@@ -51,5 +51,15 @@ describe 'Pushing an event' do
     expect(@action.rating).to eq(4.2)
     expect(@action.last_action).to eq(2)
     expect(@action.recommended_by).to eq('similar')
+
+    @params[:event] = 'view'
+    post 'push', @params
+
+    expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
+
+    @params[:event] = 'remove_from_cart'
+    post 'push', @params
+
+    expect(Action.all.map(&:rating)).to match_array([3.7, 3.7])
   end
 end

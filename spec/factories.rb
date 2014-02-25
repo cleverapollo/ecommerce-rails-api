@@ -23,4 +23,11 @@ FactoryGirl.define do
     uniqid '1234567890'
     name 'Megashop'
   end
+
+  factory :item do
+    uniqid '123'
+    price 100
+    category_uniqid '5'
+    is_available true
+  end
 end

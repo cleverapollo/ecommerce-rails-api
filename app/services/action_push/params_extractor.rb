@@ -21,13 +21,12 @@ module ActionPush
         parameters.items = []
 
         params[:item_id].each_with_index do |item_id, i|
-          parameters.items << OpenStruct.new({
-            item_id: item_id,
-            category_id: params[:category][i],
-            price: params[:price][i],
-            is_available: params[:is_available][i],
-            recommended_by: params[:recommended_by]
-          })
+          item_object = OpenStruct.new(uniqid: item_id,
+                                       category_uniqid: params[:category][i],
+                                       price: params[:price][i],
+                                       is_available: params[:is_available][i],
+                                       )
+          parameters.items << Item.fetch(parameters.shop.id, item_object)
         end
 
         parameters
