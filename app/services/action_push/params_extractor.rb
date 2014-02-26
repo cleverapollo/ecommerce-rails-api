@@ -21,9 +21,15 @@ module ActionPush
         parameters.order_id = params[:order_id]
         parameters.user = UserFetcher.new(uniqid: parameters.user_uniqid, shop_id: parameters.shop.id, ssid: parameters.ssid).fetch
 
+        [:item_id, :category, :price, :is_available, :amount].each do |key|
+          unless params[key].is_a?(Array)
+            params[key] = params[key].to_a.map(&:last)
+          end
+        end
+
         params[:item_id].each_with_index do |item_id, i|
           item_object = OpenStruct.new(uniqid: item_id,
-                                       category_uniqid: params[:category][i].to_i,
+                                       category_uniqid: params[:category][i].to_s,
                                        price: params[:price][i],
                                        is_available: params[:is_available][i],
                                        amount: params[:amount].present? ? params[:amount][i] : 1

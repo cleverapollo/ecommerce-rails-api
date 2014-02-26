@@ -28,6 +28,8 @@ gem 'zeus', '0.13.3'
 group :development do
   gem 'jazz_hands', '0.5.2'
   gem 'dotenv-rails', '0.8.0'
+  gem 'better_errors', '1.0.1'
+  gem 'binding_of_caller', '0.7.2'
 end
 
 # Rspec
