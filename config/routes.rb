@@ -6,4 +6,5 @@ Rees46Api::Application.routes.draw do
   get 'init_script', to: 'init#init_script'
 
   post 'push', to: 'events#push'
+  get 'push', to: 'events#push'
 end

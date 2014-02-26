@@ -13,6 +13,8 @@ module ActionPush
         action = fetch_action_for item
         action.process params
       end
+
+      concrete_action_class.mass_process(params)
     end
 
     def fetch_action_for(item)

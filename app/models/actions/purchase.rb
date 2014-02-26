@@ -3,6 +3,12 @@ module Actions
     CODE = 3
     RATING = 5
 
+    class << self
+      def mass_process(params)
+        Order.persist(params.shop, params.user, params.order_id, params.items)
+      end
+    end
+
     def update_rating_and_last_action(rating)
       self.last_action = CODE
       self.rating = RATING

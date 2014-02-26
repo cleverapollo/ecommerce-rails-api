@@ -30,4 +30,10 @@ FactoryGirl.define do
     category_uniqid '5'
     is_available true
   end
+
+  factory :user_shop_relation do
+    shop
+    user
+    uniqid '12345'
+  end
 end

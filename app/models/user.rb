@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   has_many :sessions
+  has_many :actions
 
   after_initialize :assign_ab_testing_group
 

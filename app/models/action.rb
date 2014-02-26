@@ -8,6 +8,9 @@ class Action < ActiveRecord::Base
       action_implementation_class_name(action_type).constantize
     end
 
+    def mass_process(params)
+    end
+
     private
 
     def action_implementation_class_name(type)

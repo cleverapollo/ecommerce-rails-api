@@ -24,8 +24,8 @@ describe ActionPush::ParamsExtractor do
           expect(subject).to be_an_instance_of(OpenStruct)
         end
 
-        it 'contains session' do
-          expect(subject.session).to eq(@session)
+        it 'contains ssid' do
+          expect(subject.ssid).to eq(@session.uniqid)
         end
 
         it 'contains user' do
