@@ -1,5 +1,5 @@
 module Recommendations
-  class ParamsExtractor
+  class Params
     attr_accessor :user
     attr_accessor :shop
     attr_accessor :type

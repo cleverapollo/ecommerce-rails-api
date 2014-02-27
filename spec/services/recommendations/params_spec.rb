@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Recommendations::ParamsExtractor do
+describe Recommendations::Params do
   describe '.extract' do
     before do
       @shop = create(:shop)
@@ -14,7 +14,7 @@ describe Recommendations::ParamsExtractor do
       }
     end
 
-    subject { Recommendations::ParamsExtractor.extract(@params) }
+    subject { Recommendations::Params.extract(@params) }
 
     context 'params validation' do
       [:ssid, :shop_id, :recommender_type].each do |attr|

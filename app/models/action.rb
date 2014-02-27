@@ -14,7 +14,7 @@ class Action < ActiveRecord::Base
     private
 
     def action_implementation_class_name(type)
-      'Actions::' + type.split('_').map(&:capitalize).join
+      'Actions::' + type.camelize
     end
   end
 

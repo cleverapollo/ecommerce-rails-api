@@ -2,18 +2,17 @@ require 'spec_helper'
 
 describe RecommendationsController do
   before { @extracted_params = { recommender_type: 'interesting' } }
-  before { allow(Recommendations::ParamsExtractor).to receive(:extract).and_return(@extracted_params) }
+  before { allow(Recommendations::Params).to receive(:extract).and_return(@extracted_params) }
+  before { @sample_recommendations = [1, 2, 3] }
+  before { allow(Recommendations::Processor).to receive(:process).and_return(@sample_recommendations) }
 
   it 'extracts parameters' do
     get :get, @params
 
-    expect(Recommendations::ParamsExtractor).to have_received(:extract)
+    expect(Recommendations::Params).to have_received(:extract)
   end
 
   context 'when all goes fine' do
-    before { @sample_recommendations = [1, 2, 3] }
-    before { allow(Recommendations::Processor).to receive(:process).and_return(@sample_recommendations) }
-
     it 'passes parameters to recommendations handler' do
       get :get, @params
 
@@ -28,7 +27,7 @@ describe RecommendationsController do
   end
 
   context 'when error happens' do
-    before { allow(Recommendations::ParamsExtractor).to receive(:extract).and_raise(Recommendations::Error.new) }
+    before { allow(Recommendations::Params).to receive(:extract).and_raise(Recommendations::Error.new) }
 
     it 'responds with client error' do
       get :get, @params
