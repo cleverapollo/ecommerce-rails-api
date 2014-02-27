@@ -41,5 +41,6 @@ end
 # Test tools
 group :test do
   gem 'pry'
+  gem 'simplecov', '0.7.1', require: false
   gem 'factory_girl_rails', '4.3.0'
 end

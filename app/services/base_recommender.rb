@@ -9,6 +9,10 @@ module Recommenders
         recommender_implementation_class_name(recommender_type).constantize
       end
 
+      def recommendations(params)
+        raise NotImplementedError.new('This method should be called on concrete recommender type class')
+      end
+
       def recommender_implementation_class_name(recommender_type)
         "Recommenders::#{recommender_type.camelize}"
       end

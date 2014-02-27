@@ -20,6 +20,12 @@ $ foreman start -e .env
 Запустится демон рекомендаций и unicorn в development mode
 
 #### 3. Тесты
+Простой запуск:
 ```
-$ rspec
+$ bundle exec rspec
+```
+
+С генерацией отчета о покрытии кода:
+```
+$ COVERAGE=true bundle exec rspec
 ```
