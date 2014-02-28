@@ -18,6 +18,7 @@ module Recommenders
                                         item_id not in (select item_id from actions where purchase_count > 0 and user_id = #{params.user.id}) and
                                         user_id in (select distinct user_id from actions where purchase_count > 0 and item_id = #{params.item_id}) and
                                         #{cart_query}
+                                        actions.shop_id = #{params.shop.id} and
                                         purchase_count > 0
                                         group by actions.item_id
                                         having sum(purchase_count) > 0
