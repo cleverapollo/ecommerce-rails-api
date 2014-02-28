@@ -6,6 +6,7 @@ module Recommendations
     attr_accessor :category_uniqid
     attr_accessor :item_id
     attr_accessor :cart_item_ids
+    attr_accessor :limit
 
     def initialize
       @cart_item_ids = []

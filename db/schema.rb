@@ -11,36 +11,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140218103712) do
+ActiveRecord::Schema.define(version: 20140206145309) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "actions", force: true do |t|
-    t.integer  "user_id",          limit: 8,               null: false
-    t.integer  "item_id",          limit: 8,               null: false
-    t.integer  "view_count",                 default: 0,   null: false
+    t.integer  "user_id",          limit: 8,                                             null: false
+    t.integer  "item_id",          limit: 8,                                             null: false
+    t.integer  "view_count",                 default: 0,                                 null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                 default: 0,   null: false
+    t.integer  "cart_count",                 default: 0,                                 null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",             default: 0,   null: false
+    t.integer  "purchase_count",             default: 0,                                 null: false
     t.datetime "purchase_date"
     t.float    "rating",                     default: 0.0
-    t.integer  "shop_id",          limit: 8,               null: false
-    t.integer  "timestamp",                  default: 0,   null: false
+    t.integer  "shop_id",          limit: 8,                                             null: false
+    t.integer  "timestamp",                  default: "date_part('epoch'::text, now())", null: false
     t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2, default: 1,   null: false
-    t.integer  "rate_count",                 default: 0,   null: false
+    t.integer  "last_action",      limit: 2, default: 1,                                 null: false
+    t.integer  "rate_count",                 default: 0,                                 null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
   end
 
-  add_index "actions", ["cart_date"], name: "index_actions_on_cart_date", using: :btree
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["purchase_date"], name: "index_actions_on_purchase_date", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
-  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", using: :btree
-  add_index "actions", ["view_date"], name: "index_actions_on_view_date", using: :btree
+  add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
+  add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
 
   create_table "active_admin_comments", force: true do |t|
     t.string   "namespace"
@@ -98,14 +96,6 @@ ActiveRecord::Schema.define(version: 20140218103712) do
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
 
-  create_table "insales_shops", force: true do |t|
-    t.string   "token"
-    t.string   "shop"
-    t.string   "insales_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8, null: false
     t.integer "uniqid",                    null: false
@@ -125,12 +115,12 @@ ActiveRecord::Schema.define(version: 20140218103712) do
   end
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                                 null: false
-    t.integer  "user_id",                                 null: false
-    t.string   "uniqid",                                  null: false
-    t.datetime "date",    default: '2014-02-25 11:54:36', null: false
-    t.integer  "items",   default: [],                    null: false, array: true
-    t.integer  "amounts", default: [],                    null: false, array: true
+    t.integer  "shop_id",                   null: false
+    t.integer  "user_id",                   null: false
+    t.string   "uniqid",                    null: false
+    t.datetime "date",    default: "now()", null: false
+    t.integer  "items",   default: [],      null: false, array: true
+    t.integer  "amounts", default: [],      null: false, array: true
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -155,17 +145,17 @@ ActiveRecord::Schema.define(version: 20140218103712) do
   end
 
   create_table "schema_version", id: false, force: true do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2014-02-25 11:54:36', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", force: true do |t|
