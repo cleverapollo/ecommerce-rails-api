@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe HomeController do
+describe Recommenders::Interesting do
   it 'pending'
 end

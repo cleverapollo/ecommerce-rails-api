@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe HomeController do
+describe Actions::RemoveFromCart do
   it 'pending'
 end

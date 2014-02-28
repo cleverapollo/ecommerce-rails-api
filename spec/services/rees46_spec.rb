@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe HomeController do
+describe Rees46 do
   it 'pending'
 end

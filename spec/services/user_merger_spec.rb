@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe HomeController do
+describe UserMerger do
   it 'pending'
 end
