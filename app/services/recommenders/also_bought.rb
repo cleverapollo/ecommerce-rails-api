@@ -1,7 +1,5 @@
 module Recommenders
   class AlsoBought < Base
-    LIMIT = 20
-
     def items_to_estimate
       Rails.cache.fetch([:also_bought, params.shop.id, params.user.id, params.item_id, params.cart_item_ids], expires_in: 20.minutes) do
         cart_query = if params.cart_item_ids.any?

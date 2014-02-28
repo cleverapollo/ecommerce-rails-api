@@ -21,22 +21,32 @@ module Recommenders
     end
 
     def recommendations
-      est = items_to_estimate
-      r = if est.any?
-        MahoutService.recommendations(self.params.user.id,
-                                          items_to_include: [],
-                                          items_to_exclude: [],
-                                          items_to_estimate: est,
-                                          limit: 10)
+      result = nil
+
+      if raw = raw_recommendations and raw.is_a?(Array)
+        result = raw
       else
-        MahoutService.recommendations(self.params.user.id,
-                                          items_to_include: items_to_include,
-                                          items_to_exclude: items_to_exclude,
-                                          items_to_estimate: [],
-                                          limit: 10)
+        est = items_to_estimate
+        result = if est.any?
+          MahoutService.recommendations(self.params.user.id,
+                                            items_to_include: [],
+                                            items_to_exclude: [],
+                                            items_to_estimate: est,
+                                            limit: 10)
+        else
+          MahoutService.recommendations(self.params.user.id,
+                                            items_to_include: items_to_include,
+                                            items_to_exclude: items_to_exclude,
+                                            items_to_estimate: [],
+                                            limit: 10)
+        end
       end
 
-      translate_to_external_ids(r, params.shop)
+      translate_to_external_ids(result, params.shop)
+    end
+
+    def raw_recommendations
+      nil
     end
 
     def items_to_include
