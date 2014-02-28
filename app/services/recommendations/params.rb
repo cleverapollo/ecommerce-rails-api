@@ -3,6 +3,13 @@ module Recommendations
     attr_accessor :user
     attr_accessor :shop
     attr_accessor :type
+    attr_accessor :category_uniqid
+    attr_accessor :item_id
+    attr_accessor :cart_item_ids
+
+    def initialize
+      @cart_item_ids = []
+    end
 
     class << self
       def extract(params)
@@ -15,6 +22,24 @@ module Recommendations
         extracted_params.shop = Shop.find_by!(uniqid: params[:shop_id])
         extracted_params.user = UserFetcher.new(uniqid: params[:user_id], ssid: params[:ssid], shop_id: extracted_params.shop.id).fetch
         extracted_params.type = params[:recommender_type]
+        extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
+        extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
+
+        extracted_params.item_id = if params[:item_id].present?
+          Item.find_by(uniqid: params[:item_id]).try(:id)
+        end
+
+        [:cart_item_id].each do |key|
+          unless params[key].is_a?(Array)
+            params[key] = params[key].to_a.map(&:last)
+          end
+        end
+
+        params[:cart_item_id].each do |i|
+          if item = Item.find_by(uniqid: i)
+            extracted_params.cart_item_ids << item.id
+          end
+        end
 
         extracted_params
       end

@@ -1,4 +1,8 @@
 class Action < ActiveRecord::Base
+  belongs_to :user
+  belongs_to :item
+  belongs_to :shop
+
   TYPES = Dir.glob(Rails.root + 'app/models/actions/*').map{|a| a.split('/').last.split('.').first }
 
   class << self

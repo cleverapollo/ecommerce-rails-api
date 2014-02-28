@@ -1,5 +1,5 @@
 module Recommenders
-  class RecentlyViewed
+  class RecentlyViewed < Base
     def recommendations(params)
 
     end

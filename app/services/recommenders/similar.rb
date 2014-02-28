@@ -1,5 +1,5 @@
 module Recommenders
-  class Similar
+  class Similar < Base
     def recommendations(params)
 
     end

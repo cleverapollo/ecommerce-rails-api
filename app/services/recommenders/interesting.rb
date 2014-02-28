@@ -1,7 +1,5 @@
 module Recommenders
-  class Interesting
-    def recommendations(params)
+  class Interesting < Base
 
-    end
   end
 end

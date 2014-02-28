@@ -2,6 +2,8 @@ class Item < ActiveRecord::Base
   belongs_to :shop
   attr_accessor :amount
 
+  scope :available, -> { where("is_available != false") }
+
   class << self
     def fetch(shop_id, item)
       i = find_or_initialize_by(shop_id: shop_id, uniqid: item.uniqid)

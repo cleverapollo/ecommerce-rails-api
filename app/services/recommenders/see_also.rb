@@ -1,5 +1,5 @@
 module Recommenders
-  class SeeAlso
+  class SeeAlso < Base
     def recommendations(params)
 
     end
