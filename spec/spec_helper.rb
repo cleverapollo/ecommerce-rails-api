@@ -1,6 +1,8 @@
 if ENV["COVERAGE"]
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter '/spec/'
+  end
 end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
