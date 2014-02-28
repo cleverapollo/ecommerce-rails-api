@@ -36,4 +36,11 @@ FactoryGirl.define do
     user
     uniqid '12345'
   end
+
+  factory :action do
+  end
+
+  factory :order do
+    uniqid SecureRandom.uuid
+  end
 end

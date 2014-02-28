@@ -24,4 +24,23 @@ describe Action do
       end
     end
   end
+
+  describe '#update_concrete_action_attrs' do
+    it 'raises NotImplementedError' do
+      expect{ Action.new.update_concrete_action_attrs }.to raise_error(NotImplementedError)
+    end
+  end
+
+  describe '#update_rating_and_last_action' do
+    it 'raises NotImplementedError' do
+      expect{ Action.new.update_rating_and_last_action('anything') }.to raise_error(NotImplementedError)
+    end
+  end
+
+  describe '#needs_to_update_rating?' do
+    it 'raises NotImplementedError' do
+      expect{ Action.new.needs_to_update_rating? }.to raise_error(NotImplementedError)
+    end
+  end
+
 end
