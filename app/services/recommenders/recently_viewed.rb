@@ -12,7 +12,7 @@ module Recommenders
           view_count > 0
           AND user_id = #{params.user.id}
         ORDER BY view_date desc
-        LIMIT #{params[:limit] || LIMIT}
+        LIMIT #{params.limit || LIMIT}
       ")
 
       q = q.map{|i| i['item_id'].to_i }
