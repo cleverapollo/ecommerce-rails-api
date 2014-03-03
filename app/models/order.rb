@@ -17,7 +17,7 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        Order.where(uniqid: uniqid).any?
+        Order.where(uniqid: uniqid, shop_id: shop.id).any?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
              .where("date > (localtimestamp - interval '5 minute')").any?

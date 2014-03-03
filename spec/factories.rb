@@ -42,5 +42,6 @@ FactoryGirl.define do
 
   factory :order do
     uniqid SecureRandom.uuid
+    date Time.current
   end
 end
