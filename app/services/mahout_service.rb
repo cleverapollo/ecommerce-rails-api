@@ -1,7 +1,15 @@
 class MahoutService
   class << self
-    def recommendations(user_id, options = {})
-      brb.recommend_block(user_id, options)
+    def user_based(user_id, options)
+      brb.user_based_block(user_id, options)
+    end
+
+    def item_based_weight(user_id, options)
+      brb.item_based_weight_block(user_id, options)
+    end
+
+    def item_based_filter(user_id, options)
+      brb.item_based_filter_block(user_id, options)
     end
 
     private

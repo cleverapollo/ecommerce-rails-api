@@ -2,7 +2,7 @@ class Item < ActiveRecord::Base
   belongs_to :shop
   attr_accessor :amount
 
-  scope :available, -> { where("is_available != false") }
+  scope :available, -> { where("is_available = true") }
 
   class << self
     def fetch(shop_id, item)
