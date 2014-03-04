@@ -27,7 +27,7 @@ module Recommenders
         GROUP BY item_id
         ORDER BY avg(rating) desc
         LIMIT #{LIMIT}
-      ").map{|i| i['item_id'].to_i
+      ").map{|i| i['item_id']}.to_i
     end
 
     def cache_key
