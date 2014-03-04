@@ -3,19 +3,15 @@ module Recommenders
     LIMIT = 10
 
     def raw_recommendations
-      q = Action.connection.execute("
+      Action.connection.execute("
         SELECT item_id FROM actions
-        INNER JOIN items
-          ON items.id = actions.item_id
-          AND items.shop_id = #{params.shop.id}
         WHERE
-          view_count > 0
+          shop_id = #{params.shop.id}
           AND user_id = #{params.user.id}
-        ORDER BY view_date desc
-        LIMIT #{params.limit || LIMIT}
-      ")
-
-      q = q.map{|i| i['item_id'].to_i }
+          AND view_count > 0
+        ORDER BY view_date DESC
+        LIMIT #{LIMIT}
+      ").map{|i| i['item_id'].to_i }
     end
   end
 end

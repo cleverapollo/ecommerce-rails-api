@@ -4,6 +4,7 @@ module Recommendations
     attr_accessor :shop
     attr_accessor :type
     attr_accessor :category_uniqid
+    attr_accessor :item
     attr_accessor :item_id
     attr_accessor :cart_item_ids
     attr_accessor :limit
@@ -26,8 +27,9 @@ module Recommendations
         extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
 
-        extracted_params.item_id = if params[:item_id].present?
-          Item.find_by(uniqid: params[:item_id]).try(:id)
+        if params[:item_id].present?
+          extracted_params.item = Item.find_by(uniqid: params[:item_id])
+          extracted_params.item_id = extracted_params.item.try(:id)
         end
 
         [:cart_item_id].each do |key|
