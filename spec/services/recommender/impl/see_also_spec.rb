@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Recommenders::Interesting do
+describe Recommender::Impl::SeeAlso do
   it 'pending'
 end

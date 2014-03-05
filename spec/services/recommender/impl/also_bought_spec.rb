@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Recommenders::SeeAlso do
+describe Recommender::Impl::AlsoBought do
   it 'pending'
 end

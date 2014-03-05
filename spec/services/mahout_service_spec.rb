@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe MahoutService do
-  describe '.recommendations' do
+  describe '.user_based' do
     before do
       @tunnel = Object.new
-      allow(@tunnel).to receive(:recommend_block) {
+      allow(@tunnel).to receive(:user_based_block) {
         [1, 2, 3]
       }
 
@@ -14,9 +14,9 @@ describe MahoutService do
     end
 
     it 'calls recommend_block on brb tunnel' do
-      MahoutService.recommendations(1, {})
+      MahoutService.user_based(1, {})
 
-      expect(@tunnel).to have_received(:recommend_block).with(1, {})
+      expect(@tunnel).to have_received(:user_based_block).with(1, {})
     end
   end
 end

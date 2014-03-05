@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Recommenders::Base do
+describe Recommender::Base do
   it 'pending'
 end

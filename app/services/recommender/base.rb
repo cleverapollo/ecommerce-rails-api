@@ -12,7 +12,7 @@ module Recommender
       end
 
       def recommender_implementation_class_name(recommender_type)
-        "Recommenders::Impl::#{recommender_type.camelize}"
+        "Recommender::Impl::#{recommender_type.camelize}"
       end
     end
 

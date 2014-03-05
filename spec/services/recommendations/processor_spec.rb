@@ -7,10 +7,10 @@ describe Recommendations::Processor do
                                 type: 'interesting'
       @recommendations = [1, 2, 3]
 
-      allow(Recommenders::Base).to receive(:get_implementation_for) {
-        Recommenders::Interesting
+      allow(Recommender::Base).to receive(:get_implementation_for) {
+        Recommender::Impl::Interesting
       }
-      allow_any_instance_of(Recommenders::Interesting).to receive(:recommendations) {
+      allow_any_instance_of(Recommender::Impl::Interesting).to receive(:recommendations) {
         @recommendations
       }
     end
@@ -19,7 +19,7 @@ describe Recommendations::Processor do
     it 'fetches recommender implementation' do
       subject
 
-      expect(Recommenders::Base).to have_received(:get_implementation_for).with(@params.type)
+      expect(Recommender::Base).to have_received(:get_implementation_for).with(@params.type)
     end
 
     it 'calls recommendations on it' do

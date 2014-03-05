@@ -9,6 +9,9 @@ class Item < ActiveRecord::Base
       i = find_or_initialize_by(shop_id: shop_id, uniqid: item.uniqid)
       i.assign_attributes(category_uniqid: item.category_uniqid, price: item.price, is_available: item.is_available)
       i.amount = item.amount
+      if i.persisted? and i.changed?
+        Action.where(item_id: i.id).update_all(is_available: i.is_available, price: i.price, category_uniqid: i.category_uniqid)
+      end
       i.save!
       i
     end

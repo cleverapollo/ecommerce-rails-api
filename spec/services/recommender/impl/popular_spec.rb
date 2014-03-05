@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Recommenders::Similar do
+describe Recommender::Impl::Popular do
   it 'pending'
 end
