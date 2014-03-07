@@ -30,6 +30,10 @@ group :development do
   gem 'dotenv-rails', '0.8.0'
   gem 'better_errors', '1.0.1'
   gem 'binding_of_caller', '0.7.2'
+
+  # Deploy
+  gem 'capistrano', '~> 2.15.5'
+  gem 'rvm-capistrano', '~> 1.5.0'
 end
 
 # Rspec
