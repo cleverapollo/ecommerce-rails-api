@@ -4,6 +4,7 @@ class DataSchemaRework < ActiveRecord::Migration
 
     change_table :actions do |t|
       t.boolean :is_available, null: false, default: true
+      t.decimal :price
       t.string :category_uniqid
     end
 
@@ -11,7 +12,8 @@ class DataSchemaRework < ActiveRecord::Migration
       UPDATE actions
       SET
         category_uniqid = items.category_uniqid,
-        is_available = items.is_available
+        is_available = items.is_available,
+        price = items.price
       FROM items
       WHERE actions.item_id = items.id;
     SQL

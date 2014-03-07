@@ -1,12 +1,12 @@
 module Recommender
   module Impl
-    class Similar < Recommender::Filtered
+    class Similar < Recommender::Weighted
       PRICE_UP = 1.25
       PRICE_DOWN = 0.85
       LIMIT = 20
 
       def category_query
-        if params.category.present?
+        if params.item.category_uniqid.present?
           "AND category_uniqid = '#{params.item.category_uniqid}'"
         end
       end

@@ -1,6 +1,6 @@
 module Recommender
   class Base
-    TYPES = Dir.glob(Rails.root + 'app/services/recommenders/impl/*').map{|a| a.split('/').last.split('.').first }
+    TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
     attr_accessor :params
 

@@ -9,7 +9,7 @@ class InitController < ApplicationController
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.uniqid
 
-    render text: init_server_string(@session)
+    render js: init_server_string(@session)
   end
 
   private
