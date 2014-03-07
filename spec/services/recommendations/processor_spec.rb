@@ -3,8 +3,10 @@ require 'spec_helper'
 describe Recommendations::Processor do
   describe '.process' do
     before do
+      @shop = create(:shop)
       @params = OpenStruct.new \
-                                type: 'interesting'
+                                type: 'interesting',
+                                shop: @shop
       @recommendations = [1, 2, 3]
 
       allow(Recommender::Base).to receive(:get_implementation_for) {
