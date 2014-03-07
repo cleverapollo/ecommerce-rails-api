@@ -10,7 +10,7 @@ module Recommender
       end
 
       def min_date
-        1.month.ago.to_date.to_time.to_i
+        3.month.ago.to_date.to_time.to_i
       end
 
       def items_to_weight
