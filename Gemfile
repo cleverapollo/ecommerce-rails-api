@@ -14,7 +14,7 @@ gem 'squeel', '1.1.1'
 
 # Services
 gem 'rollbar', '0.12.12'
-#gem 'newrelic_rpm', '3.7.1.188'
+gem 'newrelic_rpm', '3.7.3.199'
 
 # BrB
 gem 'brb', '0.3.1'
