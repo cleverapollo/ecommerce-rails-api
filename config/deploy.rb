@@ -29,6 +29,8 @@ set :deploy_to, "/home/rails/#{application}"
 set :branch, 'master'
 set :rails_env, 'production'
 
+set :normalize_asset_timestamps, false
+
 # Deploy tasks
 namespace :deploy do
   desc "Zero-downtime restart of Unicorn"
