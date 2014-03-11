@@ -5,7 +5,7 @@ class Rees46
     end
 
     def base_url
-      'http://api.rees46.com'
+      'http://api2.rees46.com'
     end
   end
 end
