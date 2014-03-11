@@ -1,21 +1,25 @@
 class MahoutService
-  class << self
-    def user_based(user_id, options)
-      brb.user_based_block(user_id, options)
-    end
+  BRB_ADDRESS = 'brb://localhost:5555'
 
-    def item_based_weight(user_id, options)
-      brb.item_based_weight_block(user_id, options)
-    end
+  attr_reader :tunnel
 
-    def item_based_filter(user_id, options)
-      brb.item_based_filter_block(user_id, options)
-    end
+  def initialize
+    @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
+  end
 
-    private
+  def user_based(user_id, options)
+    return [] unless tunnel_active?
+    tunnel.user_based_block(user_id, options)
+  end
 
-    def brb
-      BrB::Tunnel.create(nil, 'brb://localhost:5555')
-    end
+  def item_based_weight(user_id, options)
+    return options[:weight].slice(0, options[:limit]) unless tunnel_active?
+    tunnel.item_based_weight_block(user_id, options)
+  end
+
+  private
+
+  def tunnel_active?
+    tunnel.active?
   end
 end

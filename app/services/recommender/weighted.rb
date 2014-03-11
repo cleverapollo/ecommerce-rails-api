@@ -1,9 +1,9 @@
 module Recommender
-  class Weighted < ItemBased
+  class Weighted < Base
     def recommended_ids
-      MahoutService.item_based_weight(params.user.id,
-                                      weight: items_to_weight,
-                                      limit: params.limit)
+      MahoutService.new.item_based_weight(params.user.id,
+                                          weight: items_to_weight,
+                                          limit: params.limit)
     end
 
     def items_to_weight
