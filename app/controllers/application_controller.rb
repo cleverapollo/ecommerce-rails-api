@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
     def set_headers
       headers['Access-Control-Allow-Origin'] = '*'
       headers['Access-Control-Request-Method'] = '*'
-      headers['Access-Control-Allow-Credentials'] = 'true'
+      headers['Access-Control-Allow-Credentials'] = 'false'
     end
 
     def respond_with_success
