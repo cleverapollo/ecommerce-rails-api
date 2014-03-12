@@ -31,7 +31,7 @@ module ActionPush
           item_object = OpenStruct.new(uniqid: item_id,
                                        category_uniqid: params[:category][i].to_s,
                                        price: params[:price][i],
-                                       is_available: params[:is_available][i],
+                                       is_available: (params[:is_available][i].present? ? params[:is_available][i] : true),
                                        amount: params[:amount].present? ? params[:amount][i] : 1
                                        )
           parameters.raw_items << item_object
