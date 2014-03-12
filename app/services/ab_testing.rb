@@ -1,7 +1,11 @@
 class AbTesting
   class << self
     def give_recommendations?(shop, user)
-      !shop.ab_testing? or (shop.ab_testing? and user.ab_testing_group == 2)
+      if shop.ab_testing?
+        user.ab_testing_group == 2
+      else
+        true
+      end
     end
   end
 end
