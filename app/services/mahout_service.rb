@@ -11,8 +11,8 @@ class MahoutService
     if tunnel_active?
       tunnel.user_based_block(user_id, options)
     else
-      return []
       puts "Tunnel inactive!"
+      return []
     end
   end
 
