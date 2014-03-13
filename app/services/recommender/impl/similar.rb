@@ -11,6 +11,12 @@ module Recommender
         end
       end
 
+      def price_query
+        if params.item.price.present?
+          "AND (price BETWEEN #{PRICE_DOWN * params.item.price} AND #{PRICE_UP * params.item.price})"
+        end
+      end
+
       def min_date
         1.month.ago.to_date.to_time.to_i
       end
@@ -21,7 +27,7 @@ module Recommender
           WHERE
             shop_id = #{params.shop.id}
             AND is_available = true
-            AND (price BETWEEN #{PRICE_DOWN * params.item.price} AND #{PRICE_UP * params.item.price})
+            #{price_query}
             AND timestamp > #{min_date}
             #{category_query}
           GROUP BY item_id
