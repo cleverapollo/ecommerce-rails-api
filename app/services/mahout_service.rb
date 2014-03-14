@@ -8,21 +8,25 @@ class MahoutService
   end
 
   def user_based(user_id, options)
-    if tunnel_active?
+    res =if tunnel_active?
       tunnel.user_based_block(user_id, options)
     else
       puts "Tunnel inactive!"
-      return []
+      []
     end
+    EM.stop
+    return res
   end
 
   def item_based_weight(user_id, options)
-    if tunnel_active?
+    res =if tunnel_active?
       tunnel.item_based_weight_block(user_id, options)
     else
       puts "Tunnel inactive!"
-      return options[:weight].slice(0, options[:limit])
+      options[:weight].slice(0, options[:limit])
     end
+    EM.stop
+    return res
   end
 
   private
