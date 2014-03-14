@@ -11,7 +11,10 @@ module ActionPush
         raise ArgumentError.new('Incorrect rating') if params[:rating].present? and !(1..5).include?(params[:rating])
 
         parameters.ssid = params[:ssid]
-        parameters.shop = Shop.find_by!(uniqid: params[:shop_id])
+
+        parameters.shop = Shop.find_by(uniqid: params[:shop_id])
+        raise ArgumentError.new("Shop not found: #{params[:shop_id]}") if parameters.shop.blank?
+
         parameters.action = params[:event]
         parameters.rating = params[:rating]
         parameters.recommended_by = params[:recommended_by]
