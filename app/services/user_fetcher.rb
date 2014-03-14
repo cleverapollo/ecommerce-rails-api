@@ -42,7 +42,7 @@ class UserFetcher
         rescue ActiveRecord::RecordNotUnique => e
           # Значит, связь уже создана
           u.destroy
-          return UserShopRelation.find_by!(uniqid: uniqid, shop_id: shop_id)
+          return UserShopRelation.find_by!(uniqid: uniqid, shop_id: shop_id).user
         end
       end
     end
