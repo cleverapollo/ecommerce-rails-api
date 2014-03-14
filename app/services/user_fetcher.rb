@@ -37,7 +37,11 @@ class UserFetcher
       u_s_r.user
     else
       User.create.tap do |u|
-        UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid)
+        begin
+          UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid)
+        rescue ActiveRecord::RecordNotUnique => e
+          # Значит, связь уже создана
+        end
       end
     end
   end
