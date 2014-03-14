@@ -21,7 +21,9 @@ module Recommendations
         raise ArgumentError.new('Shop ID not provided') if params[:shop_id].blank?
         raise ArgumentError.new('Recommender type not provided') if params[:recommender_type].blank?
 
-        extracted_params.shop = Shop.find_by!(uniqid: params[:shop_id])
+        extracted_params.shop = Shop.find_by(uniqid: params[:shop_id])
+        raise ArgumentError.new("Shop not found: #{params[:shop_id]}") if extracted_params.shop.blank?
+
         extracted_params.user = UserFetcher.new(uniqid: params[:user_id], ssid: params[:ssid], shop_id: extracted_params.shop.id).fetch
         extracted_params.type = params[:recommender_type]
         extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
