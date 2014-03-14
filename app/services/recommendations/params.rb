@@ -44,6 +44,10 @@ module Recommendations
           end
         end
 
+        if extracted_params.item.blank? and extracted_params.cart_item_ids.any?
+          extracted_params.item = Item.find_by(id: extracted_params.cart_item_ids.first)
+        end
+
         extracted_params
       end
     end
