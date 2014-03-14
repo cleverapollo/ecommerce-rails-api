@@ -28,7 +28,7 @@ module Recommendations
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
 
         if params[:item_id].present?
-          extracted_params.item = Item.find_by(uniqid: params[:item_id])
+          extracted_params.item = Item.find_by(uniqid: params[:item_id], shop_id: extracted_params.shop.id)
           extracted_params.item_id = extracted_params.item.try(:id)
         end
 
@@ -39,7 +39,7 @@ module Recommendations
         end
 
         params[:cart_item_id].each do |i|
-          if item = Item.find_by(uniqid: i)
+          if item = Item.find_by(uniqid: i, shop_id: extracted_params.shop.id)
             extracted_params.cart_item_ids << item.id
           end
         end
