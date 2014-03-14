@@ -8,10 +8,14 @@ class Order < ActiveRecord::Base
 
       uniqid = generate_uniqid if uniqid.blank?
 
-      order = Order.create(shop_id: shop.id, user_id: user.id, uniqid: uniqid)
+      begin
+        order = Order.create(shop_id: shop.id, user_id: user.id, uniqid: uniqid)
 
-      items.each do |item|
-        OrderItem.persist(order, item, item.amount)
+        items.each do |item|
+          OrderItem.persist(order, item, item.amount)
+        end
+      rescue ActiveRecord::RecordNotUnique => e
+
       end
     end
 
