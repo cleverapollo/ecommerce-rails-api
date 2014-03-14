@@ -4,11 +4,11 @@ module ActionPush
       def extract(params)
         parameters = OpenStruct.new
 
-        raise PushEventError.new('Session ID not provided') if params[:ssid].blank?
-        raise PushEventError.new('Shop ID not provided') if params[:shop_id].blank?
-        raise PushEventError.new('Action not provided') if params[:event].blank?
-        raise PushEventError.new('Unknown action') unless Action::TYPES.include?(params[:event])
-        raise PushEventError.new('Incorrect rating') if params[:rating].present? and !(1..5).include?(params[:rating])
+        raise ArgumentError.new('Session ID not provided') if params[:ssid].blank?
+        raise ArgumentError.new('Shop ID not provided') if params[:shop_id].blank?
+        raise ArgumentError.new('Action not provided') if params[:event].blank?
+        raise ArgumentError.new('Unknown action') unless Action::TYPES.include?(params[:event])
+        raise ArgumentError.new('Incorrect rating') if params[:rating].present? and !(1..5).include?(params[:rating])
 
         parameters.ssid = params[:ssid]
         parameters.shop = Shop.find_by!(uniqid: params[:shop_id])
