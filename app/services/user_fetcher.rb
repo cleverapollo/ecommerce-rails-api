@@ -41,6 +41,8 @@ class UserFetcher
           UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid)
         rescue ActiveRecord::RecordNotUnique => e
           # Значит, связь уже создана
+          u.destroy
+          return UserShopRelation.find_by!(uniqid: uniqid, shop_id: shop_id)
         end
       end
     end
