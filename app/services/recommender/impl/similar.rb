@@ -5,6 +5,10 @@ module Recommender
       PRICE_DOWN = 0.85
       LIMIT = 20
 
+      def check_params
+        raise ArgumentError.new('Item not imported yet') if params.item.blank?
+      end
+
       def category_query
         if params.item.category_uniqid.present?
           "AND category_uniqid = '#{params.item.category_uniqid}'"
