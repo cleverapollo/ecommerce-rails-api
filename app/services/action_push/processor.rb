@@ -15,6 +15,15 @@ module ActionPush
       end
 
       concrete_action_class.mass_process(params)
+
+      report
+    end
+
+    def report
+      if params.shop.connected_events[params.action.to_sym] == false
+        params.shop.connected_events[params.action.to_sym] = true
+        params.shop.save
+      end
     end
 
     def fetch_action_for(item)
