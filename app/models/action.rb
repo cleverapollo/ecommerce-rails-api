@@ -26,7 +26,11 @@ class Action < ActiveRecord::Base
     update_concrete_action_attrs
     update_rating_and_last_action(params.rating) if needs_to_update_rating?
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
-    save
+    begin
+      save
+    rescue ActiveRecord::RecordNotUnique => e
+      # Action already saved
+    end
   end
 
   def update_concrete_action_attrs
