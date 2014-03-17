@@ -17,7 +17,12 @@ module Recommender
     end
 
     def recommendations
-      translate_to_external_ids(recommended_ids)
+      check_params
+      ids = recommended_ids
+      translate_to_external_ids(ids)
+    end
+
+    def check_params
     end
 
     def recommended_ids

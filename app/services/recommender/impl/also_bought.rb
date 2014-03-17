@@ -3,6 +3,10 @@ module Recommender
     class AlsoBought < Recommender::Weighted
       LIMIT = 20
 
+      def check_params
+        raise ArgumentError.new('Item not imported yet') if params.item.blank?
+      end
+
       def shared_orders
         OrderItem.where(item_id: params.item.id).pluck(:order_id)
       end
