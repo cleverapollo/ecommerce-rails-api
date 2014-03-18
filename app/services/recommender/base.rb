@@ -17,7 +17,10 @@ module Recommender
     end
 
     def recommendations
-      check_params
+      if check_params == false
+        return []
+      end
+
       ids = recommended_ids
       result = translate_to_external_ids(ids)
       report
@@ -32,6 +35,7 @@ module Recommender
     end
 
     def check_params
+      true
     end
 
     def recommended_ids

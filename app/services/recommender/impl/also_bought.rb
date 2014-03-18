@@ -4,7 +4,7 @@ module Recommender
       LIMIT = 20
 
       def check_params
-        raise ArgumentError.new('Item not imported yet') if params.item.blank?
+        params.item.present?
       end
 
       def shared_orders
