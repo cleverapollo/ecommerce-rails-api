@@ -3,6 +3,7 @@ class UserMerger
     def merge(master, slave)
       Session.where(user_id: slave.id).update_all(user_id: master.id)
       UserShopRelation.where(user_id: slave.id).update_all(user_id: master.id)
+      ShopsUser.where(user_id: slave.id).update_all(user_id: master.id, ab_testing_group: master.ab_testing_group)
 
       slave.actions.each do |slave_action|
         master_action = Action.find_by(user_id: master.id, shop_id: slave_action.shop_id, item_id: slave_action.item_id)
