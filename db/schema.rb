@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140304094357) do
+ActiveRecord::Schema.define(version: 20140319101857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,9 +35,11 @@ ActiveRecord::Schema.define(version: 20140304094357) do
     t.integer  "last_user_rating"
     t.boolean  "is_available",               default: true,                              null: false
     t.string   "category_uniqid"
+    t.decimal  "price"
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
+  add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -64,6 +66,15 @@ ActiveRecord::Schema.define(version: 20140304094357) do
 
   add_index "actions2", ["purchase_count"], name: "pc_index", using: :btree
   add_index "actions2", ["shop_id", "timestamp"], name: "shop_timestamp_index", using: :btree
+
+  create_table "actions_purchases", id: false, force: true do |t|
+    t.integer "user_id",   limit: 8
+    t.integer "item_id",   limit: 8
+    t.float   "rating"
+    t.integer "shop_id",   limit: 8
+    t.integer "timestamp"
+    t.integer "id"
+  end
 
   create_table "active_admin_comments", force: true do |t|
     t.string   "namespace"
@@ -120,6 +131,14 @@ ActiveRecord::Schema.define(version: 20140304094357) do
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "insales_shops", force: true do |t|
+    t.string   "token"
+    t.string   "shop"
+    t.string   "insales_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8,                null: false
@@ -233,10 +252,22 @@ ActiveRecord::Schema.define(version: 20140304094357) do
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
     t.datetime "ab_testing_finished_at"
+    t.text     "connection_status"
   end
 
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
+
+  create_table "shops_users", id: false, force: true do |t|
+    t.integer  "shop_id",                          null: false
+    t.integer  "user_id",                          null: false
+    t.boolean  "bought_something", default: false, null: false
+    t.integer  "ab_testing_group"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
 
   create_table "subscriptions", force: true do |t|
     t.integer "shop_id"

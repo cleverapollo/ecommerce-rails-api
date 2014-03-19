@@ -28,9 +28,14 @@ class Action < ActiveRecord::Base
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
     begin
       save
+      post_process
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
+  end
+
+  def post_process
+
   end
 
   def update_concrete_action_attrs
