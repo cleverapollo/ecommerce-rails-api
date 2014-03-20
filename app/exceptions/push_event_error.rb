@@ -1,2 +1,0 @@
-class PushEventError < StandardError
-end

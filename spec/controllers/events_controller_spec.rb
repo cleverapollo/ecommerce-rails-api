@@ -33,7 +33,7 @@ describe EventsController do
     end
 
     context 'when error happens' do
-      before { allow(ActionPush::ParamsExtractor).to receive(:extract).and_raise(PushEventError.new) }
+      before { allow(ActionPush::ParamsExtractor).to receive(:extract).and_raise(ArgumentError.new) }
       it 'responds with client error' do
         post :push
 

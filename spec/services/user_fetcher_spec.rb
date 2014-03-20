@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 describe UserFetcher do
+  before { @shop = create(:shop) }
   describe '.new' do
-    before { @opts = { ssid: 1, uniqid: 2, shop_id: 3 } }
+    before { @opts = { ssid: 1, uniqid: 2, shop_id: @shop.id } }
     before { @fetcher = UserFetcher.new(@opts) }
 
     it 'accepts hash as options' do
@@ -17,6 +18,7 @@ describe UserFetcher do
   end
 
   describe '#fetch' do
+    before { @opts = { ssid: '1', uniqid: '2', shop_id: @shop.id } }
     shared_examples 'creates session and user' do
       it 'creates session' do
         expect{ subject }.to change(Session, :count).from(0).to(1)
@@ -36,7 +38,7 @@ describe UserFetcher do
       end
     end
 
-    subject { UserFetcher.new(@opts || {}).fetch }
+    subject { UserFetcher.new(@opts).fetch }
     context 'without any params' do
       it_behaves_like 'creates session and user'
     end
@@ -45,8 +47,9 @@ describe UserFetcher do
       context 'when session exists' do
         before do
           @session = create(:session_with_user)
-          @opts = { ssid: @session.uniqid }
+          @opts = { ssid: @session.uniqid, shop_id: @shop.id }
         end
+        subject { UserFetcher.new(@opts).fetch }
 
         it 'not creates new session' do
           expect{ subject }.not_to change(Session, :count)
@@ -92,7 +95,7 @@ describe UserFetcher do
 
     context 'only with uniqid' do
       before do
-        @u_s_r = create(:user_shop_relation)
+        @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
         @opts = { uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
       end
 
@@ -128,7 +131,7 @@ describe UserFetcher do
     context 'with ssid and uniqid' do
       context 'when they are for equal user' do
         before do
-          @u_s_r = create(:user_shop_relation)
+          @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
           @session = create(:session, user: @u_s_r.user)
           @opts = { ssid: @session.uniqid, uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
         end
@@ -152,7 +155,7 @@ describe UserFetcher do
 
       context 'when they are for different users' do
         before do
-          @u_s_r = create(:user_shop_relation)
+          @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
           @session = create(:session, user: create(:user))
           @opts = { ssid: @session.uniqid, uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
         end

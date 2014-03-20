@@ -27,7 +27,7 @@ describe RecommendationsController do
   end
 
   context 'when error happens' do
-    before { allow(Recommendations::Params).to receive(:extract).and_raise(Recommendations::Error.new) }
+    before { allow(Recommendations::Params).to receive(:extract).and_raise(ArgumentError.new) }
 
     it 'responds with client error' do
       get :get, @params

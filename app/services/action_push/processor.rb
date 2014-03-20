@@ -20,7 +20,7 @@ module ActionPush
     end
 
     def report
-      if params.shop.connected_events[params.action.to_sym] == false
+      if params.shop.connected_events[params.action.to_sym] != true
         params.shop.connected_events[params.action.to_sym] = true
         params.shop.save
       end

@@ -24,7 +24,7 @@ class Order < ActiveRecord::Base
         Order.where(uniqid: uniqid, shop_id: shop.id).any?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
-             .where("date > (localtimestamp - interval '5 minute')").any?
+             .where("date > ?", 5.minutes.ago).any?
       end
     end
 

@@ -22,6 +22,15 @@ FactoryGirl.define do
   factory :shop do
     uniqid '1234567890'
     name 'Megashop'
+    connection_status do
+      { connected_events: {}, connected_recommenders: {} }
+    end
+    connected_events do
+      { }
+    end
+    connected_recommenders do
+      { }
+    end
   end
 
   factory :item do
@@ -42,6 +51,6 @@ FactoryGirl.define do
 
   factory :order do
     uniqid SecureRandom.uuid
-    date Time.current
+    sequence(:date) {|n| Time.current }
   end
 end
