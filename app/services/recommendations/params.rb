@@ -29,6 +29,8 @@ module Recommendations
         extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
 
+        raise ArgumentError.new('Item should not be array') if params[:item_id].is_a?(Hash)
+
         if params[:item_id].present?
           extracted_params.item = Item.find_by(uniqid: params[:item_id], shop_id: extracted_params.shop.id)
           extracted_params.item_id = extracted_params.item.try(:id)
