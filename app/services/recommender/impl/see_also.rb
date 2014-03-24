@@ -11,7 +11,7 @@ module Recommender
         ids = []
         ids += Action.where('purchase_count > 0').where(user_id: params.user.id).pluck(:item_id)
         ids += params.cart_item_ids
-        ids += params.item.id if params.item.present?
+        ids += [params.item.id] if params.item.present?
         ids.uniq.compact
       end
 
