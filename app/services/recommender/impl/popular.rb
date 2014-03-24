@@ -21,6 +21,7 @@ module Recommender
             timestamp > #{min_date}
             AND shop_id = #{params.shop.id}
             #{category_query}
+            #{item_query}
             AND is_available = true
           GROUP BY item_id
           HAVING SUM(purchase_count) > 0

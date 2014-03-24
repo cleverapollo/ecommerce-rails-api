@@ -57,5 +57,11 @@ module Recommender
     def bought_or_carted_by_user
       params.user.actions.where('rating > ?', '4.2').where(shop: params.shop).pluck(:item_id)
     end
+
+    def item_query
+      if params.item.present?
+        "AND item_id != #{params.item.id}"
+      end
+    end
   end
 end

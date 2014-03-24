@@ -14,7 +14,7 @@ module Recommender
       def excluded_items
         ids = []
         ids += Action.where('purchase_count > 0').where(user_id: params.user.id).pluck(:item_id)
-        ids += [params.item.id]
+        ids += [params.item.id] if params.item.present?
         ids += params.cart_item_ids
         ids.uniq.compact
       end
