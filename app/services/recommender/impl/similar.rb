@@ -34,6 +34,7 @@ module Recommender
             #{price_query}
             AND timestamp > #{min_date}
             #{category_query}
+            AND item_id != #{params.item.id}
           GROUP BY item_id
           ORDER BY avg(rating) desc
           LIMIT #{LIMIT}
