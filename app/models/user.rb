@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   has_and_belongs_to_many :shops
-  has_many :shops_users, dependent: :destroy
+  has_many :shops_users, dependent: :delete_all
   has_many :sessions, dependent: :destroy
   has_many :actions, dependent: :destroy
 
