@@ -1,8 +1,8 @@
 class User < ActiveRecord::Base
   has_and_belongs_to_many :shops
-  has_many :shops_users
-  has_many :sessions
-  has_many :actions
+  has_many :shops_users, dependent: :destroy
+  has_many :sessions, dependent: :destroy
+  has_many :actions, dependent: :destroy
 
   after_initialize :assign_ab_testing_group
 

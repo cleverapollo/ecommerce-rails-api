@@ -12,6 +12,9 @@ gem 'unicorn', '4.8.1'
 gem 'pg', '0.17.1'
 gem 'squeel', '1.1.1'
 
+# Workers
+gem 'sidekiq', '2.17.7'
+
 # Services
 gem 'rollbar', '0.12.14'
 gem 'newrelic_rpm', '3.7.3.199'
@@ -23,6 +26,7 @@ gem 'brb', '0.3.1'
 gem 'foreman', '0.63.0'
 gem 'subcontractor', '0.8.0'
 gem 'zeus', '0.13.3'
+gem 'httparty', '0.12.0'
 
 # Development tools
 group :development do
@@ -32,8 +36,9 @@ group :development do
   gem 'binding_of_caller', '0.7.2'
 
   # Deploy
-  gem 'capistrano', '~> 2.15.5'
-  gem 'rvm-capistrano', '~> 1.5.0'
+  gem 'capistrano', '2.15.5'
+  gem 'rvm-capistrano', '1.5.0'
+  gem 'capistrano-sidekiq', '0.1.1'
 end
 
 # Rspec

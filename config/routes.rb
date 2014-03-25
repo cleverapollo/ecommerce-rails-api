@@ -7,4 +7,9 @@ Rees46Api::Application.routes.draw do
 
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
+
+  resource :import, only: :none do
+    post :items
+    post :orders
+  end
 end

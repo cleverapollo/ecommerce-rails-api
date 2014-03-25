@@ -1,2 +1,5 @@
+require 'capistrano/sidekiq'
+require 'bundler/capistrano'
+require 'rvm/capistrano'
 load 'deploy'
 load 'config/deploy'

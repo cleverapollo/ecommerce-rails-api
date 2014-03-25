@@ -3,6 +3,8 @@ class Shop < ActiveRecord::Base
 
   has_and_belongs_to_many :users
   has_many :shops_users
+  has_many :actions
+  has_many :orders
 
   has_many :user_shop_relations
   has_many :items
