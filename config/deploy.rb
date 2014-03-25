@@ -27,6 +27,9 @@ set :rails_env, 'production'
 
 set :normalize_asset_timestamps, false
 
+# Sidekiq
+set :sidekiq_env, 'production'
+
 # Deploy tasks
 namespace :deploy do
   desc "Zero-downtime restart of Unicorn"
