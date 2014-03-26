@@ -10,7 +10,11 @@ class User < ActiveRecord::Base
 
   def ensure_linked_to_shop(shop_id)
     begin
-      shops_users.create(shop_id: shop_id)
+      if s_u = shops_users.find_by(shop_id: shop_id)
+        s_u
+      else
+        shops_users.create(shop_id: shop_id)
+      end
     rescue ActiveRecord::RecordNotUnique => e
       shops_users.find_by(shop_id: shop_id)
     end
