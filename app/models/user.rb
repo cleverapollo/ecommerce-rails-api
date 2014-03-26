@@ -8,7 +8,15 @@ class User < ActiveRecord::Base
     actions.where(shop_id: shop.id).where('purchase_count > 0').pluck(:item_id)
   end
 
+  def ensure_linked_to_shop(shop_id)
+    begin
+      shops_users.create(shop_id: shop_id)
+    rescue ActiveRecord::RecordNotUnique => e
+      shops_users.find_by(shop_id: shop_id)
+    end
+  end
+
   def ab_testing_group_in(shop)
-    shops_users.find_by(shop_id: shop.id).ab_testing_group
+    ensure_linked_to_shop(shop.id).ab_testing_group
   end
 end

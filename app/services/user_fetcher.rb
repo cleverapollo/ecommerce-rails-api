@@ -23,17 +23,9 @@ class UserFetcher
     session.user = master
     session.save
 
-    link_user_and_shop(master, shop_id)
+    master.ensure_linked_to_shop(shop_id)
 
     return master
-  end
-
-  def link_user_and_shop(user, shop_id)
-    begin
-      ShopsUser.create(user_id: user.id, shop_id: shop_id)
-    rescue ActiveRecord::RecordNotUnique => e
-
-    end
   end
 
   def fetch_session
