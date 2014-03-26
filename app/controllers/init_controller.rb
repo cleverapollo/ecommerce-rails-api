@@ -8,6 +8,10 @@ class InitController < ApplicationController
 
     shop = Shop.find_by(uniqid: params[:shop_id])
 
+    if shop.blank?
+      render(js: 'REES46.log("Магазин не найден");') and return
+    end
+
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.uniqid
 
