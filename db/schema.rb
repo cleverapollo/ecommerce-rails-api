@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140319101857) do
+ActiveRecord::Schema.define(version: 20140326084835) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -253,6 +253,7 @@ ActiveRecord::Schema.define(version: 20140319101857) do
     t.datetime "ab_testing_started_at"
     t.datetime "ab_testing_finished_at"
     t.text     "connection_status"
+    t.string   "secret"
   end
 
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
@@ -287,7 +288,6 @@ ActiveRecord::Schema.define(version: 20140319101857) do
   add_index "user_shop_relations", ["uniqid", "shop_id"], name: "user_shop_relations_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "users", force: true do |t|
-    t.integer "ab_testing_group"
   end
 
 end

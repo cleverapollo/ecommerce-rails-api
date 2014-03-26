@@ -6,16 +6,19 @@ class InitController < ApplicationController
 
     @session = Session.fetch(uniqid: session_id, useragent: user_agent)
 
+    shop = Shop.find_by(uniqid: params[:shop_id])
+
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.uniqid
 
-    render js: init_server_string(@session)
+    render js: init_server_string(@session, shop)
   end
 
   private
 
-  def init_server_string(session)
-    "REES46.initServer('#{session.uniqid}', '#{Rees46.base_url}', #{session.user.ab_testing_group});"
+  def init_server_string(session, shop)
+    ab_testing_group = session.user.ab_testing_group_in(shop)
+    "REES46.initServer('#{session.uniqid}', '#{Rees46.base_url}', #{ab_testing_group});"
   end
 
   def user_agent

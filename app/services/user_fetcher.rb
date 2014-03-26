@@ -30,7 +30,7 @@ class UserFetcher
 
   def link_user_and_shop(user, shop_id)
     begin
-      ShopsUser.create(user_id: user.id, shop_id: shop_id, ab_testing_group: user.ab_testing_group)
+      ShopsUser.create(user_id: user.id, shop_id: shop_id)
     rescue ActiveRecord::RecordNotUnique => e
 
     end

@@ -11,6 +11,7 @@ gem 'unicorn', '4.8.1'
 # Database
 gem 'pg', '0.17.1'
 gem 'squeel', '1.1.1'
+gem 'redis-objects', '0.9.0'
 
 # Workers
 gem 'sidekiq', '2.17.7'

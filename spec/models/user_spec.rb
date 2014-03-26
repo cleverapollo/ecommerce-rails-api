@@ -9,9 +9,4 @@ describe User do
       expect(@user.items_ids_bought_in_shop(@shop)).to eq([1])
     end
   end
-
-  it 'assigns ab_testing_group when initialized' do
-    user = User.new
-    expect([1, 2]).to include(user.ab_testing_group)
-  end
 end
