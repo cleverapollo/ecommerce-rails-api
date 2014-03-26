@@ -6,6 +6,8 @@ class ShopsUser < ActiveRecord::Base
 
   protected
     def assign_ab_testing_group
+      return if self.ab_testing_group.present?
+
       if shop.group_1_count.to_i > shop.group_2_count.to_i
         self.ab_testing_group = 2
       else
