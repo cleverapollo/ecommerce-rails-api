@@ -8,6 +8,7 @@ class MahoutService
   end
 
   def user_based(user_id, options)
+    options.merge!(preferences: Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id))
     res = nil
     if tunnel_active?
       res = tunnel.user_based_block(user_id, options)
@@ -20,6 +21,7 @@ class MahoutService
   end
 
   def item_based_weight(user_id, options)
+    options.merge!(preferences: Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id))
     res = nil
     if tunnel_active?
       res = tunnel.item_based_weight_block(user_id, options)
