@@ -11,6 +11,11 @@ class CreateMahoutActions < ActiveRecord::Migration
     SQL
 
     add_index :mahout_actions, :shop_id
+
+    execute <<-SQL
+      DELETE FROM mahout_actions where user_id=1493477 and item_id=30005
+    SQL
+
     add_index :mahout_actions, [:user_id, :item_id], unique: true
   end
 
