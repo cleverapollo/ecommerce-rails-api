@@ -29,6 +29,7 @@ class Action < ActiveRecord::Base
     begin
       save
       post_process
+      save_to_mahout if self.rating >= 3.7
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
@@ -52,5 +53,9 @@ class Action < ActiveRecord::Base
 
   def set_recommended_by(recommended_by)
     self.recommended_by = recommended_by
+  end
+
+  def save_to_mahout
+    MahoutAction.find_or_create_by(user_id: user.id, item_id: item.id, shop_id: shop.id)
   end
 end

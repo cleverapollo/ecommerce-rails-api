@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140326084835) do
+ActiveRecord::Schema.define(version: 20140328142720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -91,31 +91,13 @@ ActiveRecord::Schema.define(version: 20140326084835) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
-  create_table "client_requests", force: true do |t|
-    t.string   "name"
-    t.string   "url"
-    t.string   "platform"
-    t.string   "category"
-    t.string   "hosting"
-    t.integer  "catalog_size"
-    t.integer  "turnover"
-    t.text     "comment"
-    t.string   "person"
-    t.string   "mobile"
-    t.string   "email"
-    t.string   "skype"
-    t.text     "other_contacts"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "customers", force: true do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
+    t.string   "email",                  default: "",   null: false
+    t.string   "encrypted_password",     default: "",   null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",          default: 0,    null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -127,6 +109,8 @@ ActiveRecord::Schema.define(version: 20140326084835) do
     t.string   "phone"
     t.string   "city"
     t.string   "company"
+    t.boolean  "subscribed",             default: true, null: false
+    t.string   "unsubscribe_token"
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -150,6 +134,17 @@ ActiveRecord::Schema.define(version: 20140326084835) do
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
 
+  create_table "mahout_actions", id: false, force: true do |t|
+    t.integer "id",                  null: false
+    t.integer "user_id",   limit: 8
+    t.integer "item_id",   limit: 8
+    t.integer "shop_id",   limit: 8
+    t.integer "timestamp"
+  end
+
+  add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
+  add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
+
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
     t.integer "item_id",        limit: 8,             null: false
@@ -169,24 +164,6 @@ ActiveRecord::Schema.define(version: 20140326084835) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
-
-  create_table "partner_requests", force: true do |t|
-    t.string   "name"
-    t.string   "url"
-    t.string   "platform_type"
-    t.string   "language"
-    t.string   "framework"
-    t.integer  "clients_base_size"
-    t.string   "payment_type"
-    t.text     "comment"
-    t.string   "person"
-    t.string   "mobile"
-    t.string   "email"
-    t.string   "skype"
-    t.text     "other_contacts"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "schema_version", id: false, force: true do |t|
     t.integer  "version_rank",                                  null: false
@@ -269,15 +246,6 @@ ActiveRecord::Schema.define(version: 20140326084835) do
   end
 
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
-
-  create_table "subscriptions", force: true do |t|
-    t.integer "shop_id"
-    t.string  "paypal_customer_token"
-    t.string  "paypal_recurring_profile_token"
-    t.string  "paypal_payment_token"
-    t.string  "state"
-    t.string  "rate_plan"
-  end
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false
