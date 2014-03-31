@@ -1,5 +1,5 @@
 class MahoutPreferences
-  def initialize(user_id)
+  def initialize(user_id, shop_id)
     @user_id = user_id
     @shop_id = shop_id
   end
