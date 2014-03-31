@@ -7,12 +7,12 @@ class MahoutService
     @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
   end
 
-  def user_based(user_id, options)
-    preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
+  def user_based(user_id, shop_id, options)
+    preferences = MahoutPreferences.new(user_id, shop_id).fetch
     options.merge!(preferences: preferences)
     res = nil
     if tunnel_active? and preferences.any?
-      res = tunnel.user_based_block(user_id, options)
+      res = tunnel.user_based_block(nil, options)
       EM.stop
     else
       puts "Tunnel inactive!"
