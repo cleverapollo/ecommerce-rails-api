@@ -55,7 +55,7 @@ module Recommender
     end
 
     def bought_or_carted_by_user
-      params.user.actions.where('rating > ?', '4.2').where(shop: params.shop).pluck(:item_id)
+      params.user.actions.where('rating >= ?', '4.2').where(shop: params.shop).pluck(:item_id)
     end
 
     def item_query
