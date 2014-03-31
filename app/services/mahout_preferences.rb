@@ -1,7 +1,8 @@
 class MahoutPreferences
-  def initialize(user_id, shop_id)
+  def initialize(user_id, shop_id, item_id = nil)
     @user_id = user_id
     @shop_id = shop_id
+    @item_id = item_id
   end
 
   def fetch(limit = 10)
@@ -9,6 +10,8 @@ class MahoutPreferences
 
     result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(10).pluck(:item_id)
 
+    if result.none? and @item_id.present?
+      result << @item_id
     result
   end
 end

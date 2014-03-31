@@ -7,8 +7,8 @@ class MahoutService
     @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
   end
 
-  def user_based(user_id, shop_id, options)
-    preferences = MahoutPreferences.new(user_id, shop_id).fetch
+  def user_based(user_id, shop_id, item_id, options)
+    preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch
     options.merge!(preferences: preferences)
     res = nil
     if tunnel_active? and preferences.any?
