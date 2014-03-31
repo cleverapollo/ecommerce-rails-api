@@ -31,6 +31,14 @@ class UserMerger
         end
       end
 
+      MahoutAction.where(user_id: slave.id).find_each do |ma|
+        if MahoutAction.where(user_id: master.id, item_id: ma.item_id).none?
+          ma.update(user_id: master.id)
+        else
+          ma.destroy
+        end
+      end
+
       slave.destroy
     end
   end
