@@ -66,7 +66,7 @@ describe UserFetcher do
         end
 
         context 'when session\'s user not exists' do
-          before { User.destroy_all }
+          before { User.delete_all }
 
           it 'creates new user' do
             expect{ subject }.to change(User, :count).from(0).to(1)

@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe InitController do
   describe 'GET init_script' do
-    before { @params = {} }
+    before { @shop = create(:shop) }
+    before { @params = { shop_id: @shop.uniqid } }
 
     shared_examples 'an api initializer' do
       before { get :init_script, @params }
@@ -52,14 +53,14 @@ describe InitController do
     end
 
     context 'with parameter' do
-      before { @params = { rees46_session_id: sample_session_id } }
+      before { @params = @params.merge(rees46_session_id: sample_session_id) }
 
       it_behaves_like 'an api initializer with data'
     end
 
     context 'with cookie and parameter' do
       before { request.cookies[Rees46.cookie_name] = sample_session_id }
-      before { @params = { rees46_session_id: sample_session_id } }
+      before { @params = @params.merge(rees46_session_id: sample_session_id) }
 
       it_behaves_like 'an api initializer with data'
     end
