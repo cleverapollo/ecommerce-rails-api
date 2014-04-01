@@ -249,7 +249,7 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    yard (0.8.7.3)
+    yard (0.8.7.4)
     zeus (0.13.3)
       method_source (>= 0.6.7)
 
@@ -282,4 +282,5 @@ DEPENDENCIES
   squeel (= 1.1.1)
   subcontractor (= 0.8.0)
   unicorn (= 4.8.1)
+  yard (= 0.8.7.4)
   zeus (= 0.13.3)

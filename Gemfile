@@ -54,3 +54,8 @@ group :test do
   gem 'simplecov', '0.7.1', require: false
   gem 'factory_girl_rails', '4.3.0'
 end
+
+# Documentation
+group :doc do
+  gem 'yard', '0.8.7.4'
+end
