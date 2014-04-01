@@ -134,8 +134,7 @@ ActiveRecord::Schema.define(version: 20140328142720) do
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
 
-  create_table "mahout_actions", id: false, force: true do |t|
-    t.integer "id",                  null: false
+  create_table "mahout_actions", force: true do |t|
     t.integer "user_id",   limit: 8
     t.integer "item_id",   limit: 8
     t.integer "shop_id",   limit: 8

@@ -22,7 +22,7 @@ module ActionPush
         parameters.raw_items = []
         parameters.user_uniqid = params[:user_id]
         parameters.order_id = params[:order_id]
-        parameters.user = UserFetcher.new(uniqid: parameters.user_uniqid, shop_id: parameters.shop.id, ssid: parameters.ssid).fetch
+        parameters.user = UserFetcher.new(uniqid: parameters.user_id, shop_id: parameters.shop.id, ssid: parameters.ssid).fetch
 
         [:item_id, :category, :price, :is_available, :amount].each do |key|
           unless params[key].is_a?(Array)
