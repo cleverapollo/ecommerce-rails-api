@@ -12,6 +12,8 @@ class MahoutPreferences
 
     if result.none? and @item_id.present?
       result << @item_id
+    end
+
     result
   end
 end
