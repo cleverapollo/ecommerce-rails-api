@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActionPush::ParamsExtractor do
+describe ActionPush::Params do
   describe '.extract' do
     context 'parameters validation' do
       before {
@@ -12,7 +12,7 @@ describe ActionPush::ParamsExtractor do
         @params = { ssid: @session.uniqid, event: @action, shop_id: @shop.uniqid, rating: @rating, item_id: [] }
       }
 
-      subject { ActionPush::ParamsExtractor.extract(@params) }
+      subject { ActionPush::Params.extract(@params) }
       shared_examples 'raising error' do
         it 'raises error' do
           expect{ subject }.to raise_error(ArgumentError)
@@ -20,12 +20,8 @@ describe ActionPush::ParamsExtractor do
       end
 
       context 'with all correct' do
-        it 'returns openstruct wrapper' do
-          expect(subject).to be_an_instance_of(OpenStruct)
-        end
-
-        it 'contains ssid' do
-          expect(subject.ssid).to eq(@session.uniqid)
+        it 'returns ActionPush::Params object' do
+          expect(subject).to be_an_instance_of(ActionPush::Params)
         end
 
         it 'contains user' do

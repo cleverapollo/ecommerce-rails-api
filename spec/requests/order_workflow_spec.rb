@@ -83,8 +83,8 @@ describe 'Order workflow' do
     expect(User.count).to eq(1)
 
     # Action should modyfied
-    expect(@user.actions.count).to eq(1)
-    @action = @user.actions.first
+    expect(Action.count).to eq(1)
+    @action = Action.first
     expect(@action.item_id).to eq(@item.id)
     expect(@action.rating).to eq(5)
     expect(@action.price.to_i).to eq(99)
