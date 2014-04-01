@@ -23,7 +23,7 @@ class UserMerger
             purchase_date: [master_action.purchase_date, slave_action.purchase_date].compact.max,
             rating: [master_action.rating, slave_action.rating].compact.max,
             timestamp: [master_action.timestamp, slave_action.timestamp].compact.max,
-            recommended_by: master_action.recommended_by || slave_action.recommended_by
+            recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : slave_action.recommended_by
 
           slave_action.destroy
         else
