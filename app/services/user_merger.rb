@@ -39,7 +39,7 @@ class UserMerger
         end
       end
 
-      slave.destroy
+      slave.reload.destroy
     end
   end
 end
