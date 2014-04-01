@@ -10,11 +10,16 @@ class Item < ActiveRecord::Base
       i.assign_attributes \
                           category_uniqid: item.category_uniqid.present? ? item.category_uniqid : i.category_uniqid,
                           price: item.price.present? ? item.price : i.price,
-                          is_available: item.is_available
+                          is_available: item.is_available,
+                          locations: item.locations
 
       i.amount = item.amount
       if i.persisted? and i.changed?
-        Action.where(item_id: i.id).update_all(is_available: i.is_available, price: i.price, category_uniqid: i.category_uniqid)
+        Action.where(item_id: i.id).update_all \
+          is_available: i.is_available,
+          price: i.price,
+          category_uniqid: i.category_uniqid,
+          locations: i.locations
       end
       i.save!
       i

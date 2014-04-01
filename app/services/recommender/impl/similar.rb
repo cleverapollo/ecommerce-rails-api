@@ -35,6 +35,7 @@ module Recommender
             AND timestamp > #{min_date}
             #{category_query}
             #{item_query}
+            #{locations_query}
           GROUP BY item_id
           ORDER BY avg(rating) desc
           LIMIT #{LIMIT}

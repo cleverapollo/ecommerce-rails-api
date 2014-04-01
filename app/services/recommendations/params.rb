@@ -8,6 +8,7 @@ module Recommendations
     attr_accessor :item_id
     attr_accessor :cart_item_ids
     attr_accessor :limit
+    attr_accessor :locations
 
     def initialize
       @cart_item_ids = []
@@ -28,6 +29,7 @@ module Recommendations
         extracted_params.type = params[:recommender_type]
         extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
+        extracted_params.locations = params[:locations] if params[:locations].present?
 
         raise ArgumentError.new('Item should not be array') if params[:item_id].is_a?(Hash)
 

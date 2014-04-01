@@ -51,11 +51,26 @@ module Recommender
     end
 
     def items_in_shop
-      params.shop.items.available.pluck(:id)
+      i = params.shop.items.available
+      i = i.where(locations_clause) if params.locations.present?
+      i.pluck(:id)
     end
 
     def bought_or_carted_by_user
       params.user.actions.where('rating >= ?', '4.2').where(shop: params.shop).pluck(:item_id)
+    end
+
+    def locations_query
+      if params.locations.present?
+        "AND #{locations_clause}"
+      end
+    end
+
+    def locations_clause
+      if params.locations.present?
+        l = locations.split(',').map{|l| "'#{l}'" }.join(',')
+        "ARRAY[]::varchar[#{l}] <@ locations"
+      end
     end
 
     def item_query

@@ -32,7 +32,8 @@ module ActionPush
                           category_uniqid: item.category_uniqid,
                           is_available: item.is_available,
                           price: item.price,
-                          timestamp: (params.date || Date.current.to_time.to_i)
+                          timestamp: (params.date || Date.current.to_time.to_i),
+                          locations: item.locations
       a
     end
   end
