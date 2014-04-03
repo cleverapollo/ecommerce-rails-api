@@ -14,7 +14,7 @@ class UserFetcher
     master = user_by_session = session.user || session.build_user
     user_by_uniqid = fetch_by_uniqid
 
-    if (user_by_uniqid.present? && user_by_session.present? && (user_by_session != user_by_uniqid))
+    if (user_by_uniqid.present? && user_by_session.persisted? && (user_by_session != user_by_uniqid))
       UserMerger.merge(user_by_uniqid, user_by_session) if user_by_session.persisted?
       master = user_by_uniqid
     end
