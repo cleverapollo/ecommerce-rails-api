@@ -9,6 +9,15 @@ module ActionPush
     end
 
     def process
+      if params.shop.id == 27 && params.action == 'purchase'
+        Logger.new("#{Rails.root}/log/debug.log").debug("
+          ===================================\n
+          NEW PURCHASE\n
+          -----------------------------------\n
+          #{params.inspect}
+        ")
+      end
+
       params.items.each do |item|
         action = fetch_action_for item
         action.process params

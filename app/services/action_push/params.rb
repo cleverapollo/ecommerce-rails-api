@@ -48,6 +48,14 @@ module ActionPush
     # @private
     # @param params [Hash] входящие параметры
     def initialize(params)
+      if params[:shop_id] == 'ca4d9238983e2ec4823e8de828ead8' && params[:event] == 'purchase'
+        Logger.new("#{Rails.root}/log/debug.log").debug("
+          * ===================================\n
+          * NEW PURCHASE PARAMS\n
+          * -----------------------------------\n
+          * #{params.inspect}
+        ")
+      end
       @raw = params
       check
     end
