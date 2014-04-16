@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140401130601) do
+ActiveRecord::Schema.define(version: 20140416083124) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,8 +34,8 @@ ActiveRecord::Schema.define(version: 20140401130601) do
     t.datetime "rate_date"
     t.integer  "last_user_rating"
     t.boolean  "is_available",               default: true,                              null: false
-    t.string   "category_uniqid"
     t.decimal  "price"
+    t.string   "category_uniqid"
     t.string   "locations",                  default: [],                                             array: true
   end
 
@@ -45,36 +45,12 @@ ActiveRecord::Schema.define(version: 20140401130601) do
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
 
-  create_table "actions2", id: false, force: true do |t|
-    t.integer  "user_id",          limit: 8
-    t.integer  "item_id",          limit: 8
-    t.integer  "view_count"
-    t.datetime "view_date"
-    t.integer  "cart_count"
-    t.datetime "cart_date"
-    t.integer  "purchase_count"
-    t.datetime "purchase_date"
-    t.float    "rating"
-    t.integer  "shop_id",          limit: 8
-    t.integer  "timestamp"
-    t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2
-    t.integer  "rate_count"
-    t.datetime "rate_date"
-    t.integer  "last_user_rating"
-    t.integer  "id"
-  end
-
-  add_index "actions2", ["purchase_count"], name: "pc_index", using: :btree
-  add_index "actions2", ["shop_id", "timestamp"], name: "shop_timestamp_index", using: :btree
-
-  create_table "actions_purchases", id: false, force: true do |t|
+  create_table "actions_bool", id: false, force: true do |t|
+    t.integer "id",                  null: false
     t.integer "user_id",   limit: 8
     t.integer "item_id",   limit: 8
-    t.float   "rating"
     t.integer "shop_id",   limit: 8
     t.integer "timestamp"
-    t.integer "id"
   end
 
   create_table "active_admin_comments", force: true do |t|
@@ -127,7 +103,7 @@ ActiveRecord::Schema.define(version: 20140401130601) do
 
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8,                null: false
-    t.integer "uniqid",                                   null: false
+    t.string  "uniqid",                                   null: false
     t.decimal "price"
     t.string  "category_uniqid"
     t.boolean "is_available",              default: true, null: false

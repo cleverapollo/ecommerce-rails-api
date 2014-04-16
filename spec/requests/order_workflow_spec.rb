@@ -30,7 +30,7 @@ describe 'Order workflow' do
     # Item should be created
     expect(@shop.items.count).to eq(1)
     @item = @shop.items.first
-    expect(@item.uniqid).to eq(100)
+    expect(@item.uniqid).to eq('100')
     expect(@item.price.to_i).to eq(99)
     expect(@item.is_available).to eq(true)
     expect(@item.category_uniqid).to eq('5')
