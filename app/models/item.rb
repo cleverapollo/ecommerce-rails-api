@@ -6,7 +6,7 @@ class Item < ActiveRecord::Base
 
   class << self
     def fetch(shop_id, item)
-      i = find_or_initialize_by(shop_id: shop_id, uniqid: item.uniqid)
+      i = find_or_initialize_by(shop_id: shop_id, uniqid: item.uniqid.to_s)
       i.assign_attributes \
                           category_uniqid: item.category_uniqid.present? ? item.category_uniqid : i.category_uniqid,
                           price: item.price.present? ? item.price : i.price,
