@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140416083124) do
+ActiveRecord::Schema.define(version: 20140421111115) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -102,12 +102,18 @@ ActiveRecord::Schema.define(version: 20140416083124) do
   end
 
   create_table "items", force: true do |t|
-    t.integer "shop_id",         limit: 8,                null: false
-    t.string  "uniqid",                                   null: false
+    t.integer "shop_id",         limit: 8,                 null: false
+    t.string  "uniqid",                                    null: false
     t.decimal "price"
     t.string  "category_uniqid"
-    t.boolean "is_available",              default: true, null: false
-    t.string  "locations",                 default: [],                array: true
+    t.boolean "is_available",              default: true,  null: false
+    t.string  "locations",                 default: [],                 array: true
+    t.string  "name"
+    t.text    "description"
+    t.string  "url"
+    t.string  "image_url"
+    t.string  "tags",                      default: [],                 array: true
+    t.boolean "widgetable",                default: false, null: false
   end
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree

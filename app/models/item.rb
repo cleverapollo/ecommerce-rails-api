@@ -11,7 +11,13 @@ class Item < ActiveRecord::Base
                           category_uniqid: item.category_uniqid.present? ? item.category_uniqid : i.category_uniqid,
                           price: item.price.present? ? item.price : i.price,
                           is_available: item.is_available,
-                          locations: item.locations
+                          locations: item.locations,
+                          tags: item.tags,
+                          name: item.name,
+                          description: item.description,
+                          url: item.url,
+                          image_url: item.image_url,
+                          widgetable: item.widgetable
 
       i.amount = item.amount
       if i.persisted? and i.changed?

@@ -48,14 +48,6 @@ module ActionPush
     # @private
     # @param params [Hash] входящие параметры
     def initialize(params)
-      if params[:shop_id] == 'ca4d9238983e2ec4823e8de828ead8'
-        Logger.new("#{Rails.root}/log/debug.log").debug("
-          * ===================================\n
-          * NEW MELEON PARAMS\n
-          * -----------------------------------\n
-          * #{params.inspect}
-        ")
-      end
       @raw = params
       check
     end
@@ -108,7 +100,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -127,13 +119,25 @@ module ActionPush
         is_available = raw[:is_available][i].present? ? raw[:is_available][i] : true
         amount = raw[:amount].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
+        tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
+        name = raw[:name].present? ? raw[:name][i] : ''
+        description = raw[:description].present? ? raw[:description][i] : ''
+        url = raw[:url].present? ? raw[:url][i] : ''
+        image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
+        widgetable = name.present? && url.present? && image_url.present?
 
         item_object = OpenStruct.new(uniqid: item_id,
                                      category_uniqid: category,
                                      price: price,
                                      is_available: is_available,
                                      amount: amount,
-                                     locations: locations)
+                                     locations: locations,
+                                     tags: tags,
+                                     name: name,
+                                     description: description,
+                                     url: url,
+                                     image_url: image_url,
+                                     widgetable: widgetable)
 
         @items << Item.fetch(shop.id, item_object)
       end
