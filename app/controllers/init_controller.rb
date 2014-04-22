@@ -6,10 +6,10 @@ class InitController < ApplicationController
 
     @session = Session.fetch \
                              uniqid: session_id,
-                             useragent: user_agent,
-                             city: request.headers['HTTP_CITY'],
-                             country: request.headers['HTTP_COUNTRY'],
-                             language: request.env['HTTP_ACCEPT_LANGUAGE']
+                             useragent: user_agent.encode('UTF-8'),
+                             city: request.headers['HTTP_CITY'].encode('UTF-8'),
+                             country: request.headers['HTTP_COUNTRY'].encode('UTF-8'),
+                             language: request.env['HTTP_ACCEPT_LANGUAGE'].encode('UTF-8')
 
     shop = Shop.find_by(uniqid: params[:shop_id])
 
