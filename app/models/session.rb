@@ -10,14 +10,10 @@ class Session < ActiveRecord::Base
           session.create_user
         end
 
-        if session.city.nil? && opts[:city].present? && opts[:city] != 'Undefined'
-          session.city = opts[:city]
-        end
-        if session.country.nil? && opts[:country].present? && opts[:country] != 'Undefined'
-          session.country = opts[:country]
-        end
-        if session.language.nil? && opts[:language].present?
-          session.language = opts[:language]
+        [:useragent, :city, :country, :language].each do |field|
+          if session.send(field).blank? && opts[field].present?
+            session.send("#{field}=", opts[:field])
+          end
         end
 
         session.save if session.changed?
@@ -45,8 +41,8 @@ class Session < ActiveRecord::Base
       s.assign_attributes \
                           user: user,
                           useragent: options[:useragent],
-                          country: options[:country].present? && options[:country] != 'Undefined' ? options[:country] : nil,
-                          city: options[:city].present? && options[:city] != 'Undefined' ? options[:city] : nil,
+                          country: options[:country].present? ? options[:country] : nil,
+                          city: options[:city].present? ? options[:city] : nil,
                           language: options[:language]
       s.save
       s

@@ -6,10 +6,10 @@ class InitController < ApplicationController
 
     @session = Session.fetch \
                              uniqid: session_id,
-                             useragent: user_agent.encode('UTF-8'),
-                             city: request.headers['HTTP_CITY'].encode('UTF-8'),
-                             country: request.headers['HTTP_COUNTRY'].encode('UTF-8'),
-                             language: request.env['HTTP_ACCEPT_LANGUAGE'].encode('UTF-8')
+                             useragent: user_agent,
+                             city: city,
+                             country: country,
+                             language: language
 
     shop = Shop.find_by(uniqid: params[:shop_id])
 
@@ -31,10 +31,38 @@ class InitController < ApplicationController
   end
 
   def user_agent
-    if request.env['HTTP_USER_AGENT'].present?
-      request.env['HTTP_USER_AGENT'].truncate(250)
+    c = request.env['HTTP_USER_AGENT']
+    if c.present?
+      StringHelper.encode_and_truncate(c)
     else
-      ''
+      nil
+    end
+  end
+
+  def city
+    c = request.headers['HTTP_CITY']
+    if c.present? && c != 'Undefined'
+      StringHelper.encode_and_truncate(c)
+    else
+      nil
+    end
+  end
+
+  def country
+    c = request.headers['HTTP_COUNTRY']
+    if c.present? && c != 'Undefined'
+      StringHelper.encode_and_truncate(c)
+    else
+      nil
+    end
+  end
+
+  def language
+    c = request.env['HTTP_ACCEPT_LANGUAGE']
+    if c.present?
+      StringHelper.encode_and_truncate(c)
+    else
+      nil
     end
   end
 end
