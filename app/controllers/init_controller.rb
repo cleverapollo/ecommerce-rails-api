@@ -4,7 +4,12 @@ class InitController < ApplicationController
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-    @session = Session.fetch(uniqid: session_id, useragent: user_agent)
+    @session = Session.fetch \
+                             uniqid: session_id,
+                             useragent: user_agent,
+                             city: request.headers['HTTP_CITY'],
+                             country: request.headers['HTTP_COUNTRY'],
+                             language: request.env['HTTP_ACCEPT_LANGUAGE']
 
     shop = Shop.find_by(uniqid: params[:shop_id])
 
@@ -14,17 +19,6 @@ class InitController < ApplicationController
 
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.uniqid
-
-    begin
-      Logger.new("#{Rails.root}/log/geo.log").debug("
-        * ===========================
-        * Visitor from #{request.headers['HTTP_COUNTRY']} - #{request.headers['HTTP_CITY']}
-        * or #{request.headers['Country']} - #{request.headers['City']}
-        * or #{request.headers['COUNTRY']} - #{request.headers['CITY']}
-      ")
-    rescue Exception => e
-
-    end
 
     render js: init_server_string(@session, shop)
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140421111115) do
+ActiveRecord::Schema.define(version: 20140422122041) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -167,6 +167,9 @@ ActiveRecord::Schema.define(version: 20140421111115) do
     t.string  "uniqid",                             null: false
     t.boolean "is_active",           default: true
     t.string  "useragent"
+    t.string  "city"
+    t.string  "country"
+    t.string  "language"
   end
 
   add_index "sessions", ["uniqid"], name: "sessions_uniqid_key", unique: true, using: :btree
