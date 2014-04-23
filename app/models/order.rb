@@ -10,7 +10,13 @@ class Order < ActiveRecord::Base
       uniqid = generate_uniqid if uniqid.blank?
 
       begin
-        order = Order.create(shop_id: shop.id, user_id: user.id, uniqid: uniqid)
+        order = Order.create \
+                             shop_id: shop.id,
+                             user_id: user.id,
+                             uniqid: uniqid,
+                             value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum,
+                             recommended: Action.where(id: items.map(&:id)).where('recommended_by is not null').any?,
+                             ab_testing_group: ShopsUser.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
 
         items.each do |item|
           OrderItem.persist(order, item, item.amount)

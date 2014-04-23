@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140422122041) do
+ActiveRecord::Schema.define(version: 20140423074002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,12 +137,15 @@ ActiveRecord::Schema.define(version: 20140422122041) do
   end
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                   null: false
-    t.integer  "user_id",                   null: false
-    t.string   "uniqid",                    null: false
-    t.datetime "date",    default: "now()", null: false
-    t.integer  "items",   default: [],      null: false, array: true
-    t.integer  "amounts", default: [],      null: false, array: true
+    t.integer  "shop_id",                            null: false
+    t.integer  "user_id",                            null: false
+    t.string   "uniqid",                             null: false
+    t.datetime "date",             default: "now()", null: false
+    t.integer  "items",            default: [],      null: false, array: true
+    t.integer  "amounts",          default: [],      null: false, array: true
+    t.decimal  "value",            default: 0.0,     null: false
+    t.boolean  "recommended",      default: false,   null: false
+    t.integer  "ab_testing_group"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -173,6 +176,7 @@ ActiveRecord::Schema.define(version: 20140422122041) do
   end
 
   add_index "sessions", ["uniqid"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: true do |t|
     t.integer "shop_id"
