@@ -23,10 +23,10 @@ module Recommender
             #{category_query}
             #{item_query}
             #{locations_query}
+            AND purchase_count > 0
             AND is_available = true
           GROUP BY item_id
-          HAVING SUM(purchase_count) > 0
-          ORDER BY AVG(rating) DESC
+          ORDER BY SUM(purchase_count) DESC
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
       end
