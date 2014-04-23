@@ -3,10 +3,6 @@ module Recommender
     class SeeAlso < Recommender::Weighted
       LIMIT = 20
 
-      def shared_orders
-        OrderItem.where(item_id: params.cart_item_ids).pluck(:order_id)
-      end
-
       def excluded_items
         ids = []
         ids += Action.where('purchase_count > 0').where(user_id: params.user.id).pluck(:item_id)
@@ -17,7 +13,7 @@ module Recommender
 
       def items_to_weight
         items = OrderItem.select('item_id')
-                         .where('order_id IN (?)', shared_orders)
+                         .where('order_id IN (SELECT DISTINCT order_id FROM order_items WHERE item_id IN (?))', params.cart_item_ids.join(', '))
                          .where('item_id NOT IN (?)', excluded_items)
                          .group('item_id')
                          .order('count(item_id) desc')
