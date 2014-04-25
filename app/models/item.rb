@@ -17,6 +17,7 @@ class Item < ActiveRecord::Base
                           description: item.description,
                           url: item.url,
                           image_url: item.image_url,
+                          brand: item.brand,
                           widgetable: item.widgetable
 
       i.amount = item.amount
@@ -25,7 +26,8 @@ class Item < ActiveRecord::Base
           is_available: i.is_available,
           price: i.price,
           category_uniqid: i.category_uniqid,
-          locations: i.locations
+          locations: i.locations,
+          brand: i.brand
       end
       i.save!
       i

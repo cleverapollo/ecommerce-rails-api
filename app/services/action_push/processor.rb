@@ -33,7 +33,8 @@ module ActionPush
                           is_available: item.is_available,
                           price: item.price,
                           timestamp: (params.date || Date.current.to_time.to_i),
-                          locations: item.locations
+                          locations: item.locations,
+                          brand: item.brand
       a
     end
   end

@@ -100,7 +100,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -124,6 +124,7 @@ module ActionPush
         description = raw[:description].present? ? raw[:description][i] : ''
         url = raw[:url].present? ? raw[:url][i] : ''
         image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
+        brand = raw[:brand].present? ? raw[:brand][i] : ''
         widgetable = name.present? && url.present? && image_url.present?
 
         item_object = OpenStruct.new(uniqid: item_id,
@@ -137,6 +138,7 @@ module ActionPush
                                      description: description,
                                      url: url,
                                      image_url: image_url,
+                                     brand: brand,
                                      widgetable: widgetable)
 
         @items << Item.fetch(shop.id, item_object)

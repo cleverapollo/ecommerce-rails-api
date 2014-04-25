@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140423074002) do
+ActiveRecord::Schema.define(version: 20140425073424) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(version: 20140423074002) do
     t.decimal  "price"
     t.string   "category_uniqid"
     t.string   "locations",                  default: [],                                             array: true
+    t.string   "brand"
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -114,6 +115,7 @@ ActiveRecord::Schema.define(version: 20140423074002) do
     t.string  "image_url"
     t.string  "tags",                      default: [],                 array: true
     t.boolean "widgetable",                default: false, null: false
+    t.string  "brand"
   end
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
