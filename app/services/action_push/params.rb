@@ -124,7 +124,7 @@ module ActionPush
         description = raw[:description].present? ? raw[:description][i] : ''
         url = raw[:url].present? ? raw[:url][i] : ''
         image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
-        brand = raw[:brand].present? ? raw[:brand][i] : ''
+        brand = raw[:brand].present? ? raw[:brand][i].mb_chars.downcase.strip : ''
         widgetable = name.present? && url.present? && image_url.present?
 
         item_object = OpenStruct.new(uniqid: item_id,
