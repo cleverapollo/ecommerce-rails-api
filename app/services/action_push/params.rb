@@ -115,7 +115,7 @@ module ActionPush
 
       raw[:item_id].each_with_index do |item_id, i|
         category = raw[:category][i].to_s
-        price = raw[:price][i]
+        price = raw[:price][i].to_i > 0 ? raw[:price][i] : nil
         is_available = raw[:is_available][i].present? ? raw[:is_available][i] : true
         amount = raw[:amount].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
