@@ -10,7 +10,7 @@ class Item < ActiveRecord::Base
       i.assign_attributes \
                           category_uniqid: item.category_uniqid.present? ? item.category_uniqid : i.category_uniqid,
                           price: item.price.present? ? item.price : i.price,
-                          is_available: item.is_available,
+                          is_available: item.is_available ? item.is_available : true,
                           locations: item.locations,
                           tags: item.tags,
                           name: item.name,
@@ -18,8 +18,8 @@ class Item < ActiveRecord::Base
                           url: item.url,
                           image_url: item.image_url,
                           brand: item.brand,
-                          repeatable: item.repeatable,
-                          widgetable: item.widgetable
+                          repeatable: item.repeatable ? item.repeatable : false,
+                          widgetable: item.widgetable ? item.widgetable : false
 
       i.amount = item.amount
       if i.persisted? and i.changed?
