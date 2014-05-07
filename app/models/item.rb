@@ -18,6 +18,7 @@ class Item < ActiveRecord::Base
                           url: item.url,
                           image_url: item.image_url,
                           brand: item.brand,
+                          repeatable: item.repeatable,
                           widgetable: item.widgetable
 
       i.amount = item.amount
@@ -27,7 +28,8 @@ class Item < ActiveRecord::Base
           price: i.price,
           category_uniqid: i.category_uniqid,
           locations: i.locations,
-          brand: i.brand
+          brand: i.brand,
+          repeatable: i.repeatable
       end
       i.save!
       i

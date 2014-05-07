@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140425073424) do
+ActiveRecord::Schema.define(version: 20140507095050) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 20140425073424) do
     t.string   "category_uniqid"
     t.string   "locations",                  default: [],                                             array: true
     t.string   "brand"
+    t.boolean  "repeatable",                 default: false,                             null: false
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -96,11 +97,14 @@ ActiveRecord::Schema.define(version: 20140425073424) do
 
   create_table "insales_shops", force: true do |t|
     t.string   "token"
-    t.string   "shop"
+    t.string   "insales_shop"
     t.string   "insales_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "shop_id"
   end
+
+  add_index "insales_shops", ["shop_id"], name: "index_insales_shops_on_shop_id", using: :btree
 
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8,                 null: false
@@ -116,6 +120,7 @@ ActiveRecord::Schema.define(version: 20140425073424) do
     t.string  "tags",                      default: [],                 array: true
     t.boolean "widgetable",                default: false, null: false
     t.string  "brand"
+    t.boolean "repeatable",                default: false, null: false
   end
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
