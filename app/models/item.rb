@@ -1,6 +1,6 @@
 class Item < ActiveRecord::Base
   belongs_to :shop
-  attr_accessor :amount
+  attr_accessor :amount, :action_id
 
   scope :available, -> { where("is_available = true") }
 

@@ -1,48 +1,84 @@
 class OrdersImportWorker
   include Sidekiq::Worker
+  sidekiq_options :retry => false
 
-  attr_accessor :shop
-  attr_accessor :current_order
-  attr_accessor :current_user
-  attr_accessor :processed_items
+  def perform(opts)
+    @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
 
-  def perform(shop_id, orders)
-    self.shop = Shop.find(shop_id)
+    opts['orders'].each do |order|
+      @current_order = order
+      @current_user = fetch_user(@current_shop.id, @current_order['user_id'])
 
-    orders.each do |order|
-      self.current_order = HashWithIndifferentAccess.new(order)
-      self.current_user = UserFetcher.new(shop_id: shop.id, uniqid: current_order[:user_id]).fetch
-      process_order
+      next if order_already_saved?(order, @current_shop.id)
+
+      items = []
+      order['items'].each do |i|
+        item = fetch_item(i, @current_shop.id)
+        item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
+        item.amount = i['amount'].to_i
+        items << item
+      end
+
+      persist_order(@current_order, items, @current_shop.id, @current_user.id)
     end
   end
 
-  def process_order
-    self.processed_items = []
-    current_order[:items].each do |item|
-      processed_items << process_item(item)
+  def fetch_user(shop_id, user_id)
+    u_s_r = UserShopRelation.find_by(shop_id: shop_id, uniqid: user_id.to_s)
+    if u_s_r.present?
+      return u_s_r.user
+    else
+      user = User.create
+      UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id)
+      return user
     end
-
-    ActionPush::Processor.new(action_processor_params).process
   end
 
-  def action_processor_params
-    OpenStruct.new \
-                   action: 'purchase',
-                   user: current_user,
-                   shop: shop,
-                   items: processed_items,
-                   date: current_order[:date],
-                   order_id: current_order[:id]
+  def fetch_item(item_raw, shop_id)
+    item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
+
+    return item unless item.new_record?
+    item.update \
+                price: item_raw['price'].to_f,
+                category_uniqid: item_raw['category_id'],
+                is_available: item_raw['is_available'].present?,
+                repeatable: item_raw['repeatable'].present?
+    item
   end
 
-  def process_item(item)
-    item_proxy = OpenStruct.new \
-                   category_uniqid: item[:category_id],
-                   price: item[:price],
-                   amount: item[:amount],
-                   is_available: item[:is_available],
-                   uniqid: item[:id]
+  def fetch_actions(item, shop_id, user_id)
+    action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+    return action.id if action.persisted?
 
-    Item.fetch(shop.id, item_proxy)
+    action.save \
+                  price: item.price,
+                  category_uniqid: item.category_uniqid,
+                  is_available: item.is_available,
+                  repeatable: item.repeatable,
+                  rating: 5.0,
+                  purchase_count: 1
+
+    MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+    action.id
+  end
+
+  def order_already_saved?(order, shop_id)
+    Order.where(uniqid: order['id'].to_s, shop_id: shop_id).any?
+  end
+
+  def persist_order(order, items, shop_id, user_id)
+    order = Order.create \
+                         shop_id: shop_id,
+                         user_id: user_id,
+                         uniqid: order['id'],
+                         date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current
+
+    items.each do |item|
+      OrderItem.create \
+                       order_id: order.id,
+                       item_id: item.id,
+                       action_id: item.action_id,
+                       amount: item.amount
+    end
   end
 end

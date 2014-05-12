@@ -11,7 +11,7 @@ class Order < ActiveRecord::Base
 
       begin
         is_recommended = Action.where(item_id: items.map(&:id), shop_id: shop.id, user_id: user.id).where('recommended_by is not null').any?
-        order = Order.create \
+        order = Order.create! \
                              shop_id: shop.id,
                              user_id: user.id,
                              uniqid: uniqid,
