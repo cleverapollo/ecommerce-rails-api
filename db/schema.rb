@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140507095050) do
+ActiveRecord::Schema.define(version: 20140513152430) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -248,6 +248,7 @@ ActiveRecord::Schema.define(version: 20140507095050) do
     t.integer "user_id", limit: 8, null: false
     t.integer "shop_id", limit: 8, null: false
     t.string  "uniqid"
+    t.string  "email"
   end
 
   add_index "user_shop_relations", ["uniqid", "shop_id"], name: "user_shop_relations_uniqid_shop_id_key", unique: true, using: :btree

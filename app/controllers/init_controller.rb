@@ -7,6 +7,7 @@ class InitController < ApplicationController
     @session = Session.fetch \
                              uniqid: session_id,
                              useragent: user_agent,
+                             email: params[:user_email],
                              city: city,
                              country: country,
                              language: language
@@ -26,7 +27,7 @@ class InitController < ApplicationController
   private
 
   def init_server_string(session, shop)
-    ab_testing_group = session.user.ab_testing_group_in(shop)
+    ab_testing_group = shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0
     "REES46.initServer('#{session.uniqid}', '#{Rees46.base_url}', #{ab_testing_group});"
   end
 

@@ -2,11 +2,13 @@ class UserFetcher
   attr_accessor :uniqid
   attr_accessor :ssid
   attr_accessor :shop_id
+  attr_accessor :email
 
   def initialize(opts)
     self.uniqid = opts[:uniqid]
     self.ssid = opts[:ssid]
     self.shop_id = opts[:shop_id]
+    self.email = opts[:email]
   end
 
   def fetch
@@ -42,7 +44,7 @@ class UserFetcher
     else
       User.create.tap do |u|
         begin
-          UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid)
+          UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid, email: self.email)
         rescue ActiveRecord::RecordNotUnique => e
           # Значит, связь уже создана
           u.destroy

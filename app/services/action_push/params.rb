@@ -91,6 +91,7 @@ module ActionPush
     def extract_user
       user_fetcher = UserFetcher.new \
                                      uniqid: raw[:user_id],
+                                     email: raw[:user_email],
                                      shop_id: shop.id,
                                      ssid: raw[:ssid]
       @user = user_fetcher.fetch
