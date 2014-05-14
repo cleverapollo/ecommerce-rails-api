@@ -19,6 +19,7 @@ FactoryGirl.define do
 
   factory :shop do
     uniqid '1234567890'
+    secret '0987654321'
     name 'Megashop'
     connection_status do
       { connected_events: {}, connected_recommenders: {} }
@@ -50,5 +51,11 @@ FactoryGirl.define do
   factory :order do
     uniqid SecureRandom.uuid
     sequence(:date) {|n| Time.current }
+  end
+
+  factory :mailers_digest_params, class: HashWithIndifferentAccess do
+    skip_create
+
+    initialize_with { attributes }
   end
 end
