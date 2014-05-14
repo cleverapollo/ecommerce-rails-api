@@ -37,10 +37,18 @@ class DigestMailerWorker
     u_s_r = UserShopRelation.find_by(shop_id: shop.id, uniqid: user_id)
 
     if u_s_r.nil?
-      items.sample(recommendations_limit)
+      #items.sample(recommendations_limit)
+      [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
     else
-      # Mahout
-      items.sample(recommendations_limit)
+      mahout_ids = MahoutService.new.user_based(u_s_r.user_id,
+                                                shop.id,
+                                                nil,
+                                                include: items.map{|i| i['internal_id'].to_i },
+                                                exclude: [],
+                                                limit: recommendations_limit)
+      res = items.select{|i| mahout_ids.include?(i['internal_id']) }
+
+      res.any? ? res : [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
     end
   end
 
@@ -58,6 +66,10 @@ class DigestMailerWorker
 
     @items = params.fetch('items')
     raise ArgumentError.new('Items must be an array') if @items.none?
+
+    @items.map do |i|
+      i['internal_id'] = Item.find_by!(uniqid: i.fetch('id'), shop_id: @shop.id).id
+    end
 
     @recommendations_limit = params.fetch('recommendations_limit').to_i
   end
