@@ -123,7 +123,7 @@ module ActionPush
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
         name = raw[:name].present? ? raw[:name][i] : ''
         description = raw[:description].present? ? raw[:description][i] : ''
-        url = raw[:url].present? ? raw[:url][i] : ''
+        url = raw[:url].present? ? raw[:url][i] : nil
         image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
         brand = raw[:brand].present? ? raw[:brand][i].mb_chars.downcase.strip : ''
         repeatable = raw[:repeatable].present? ? raw[:repeatable][i] : false

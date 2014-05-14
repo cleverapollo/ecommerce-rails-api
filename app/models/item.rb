@@ -15,7 +15,7 @@ class Item < ActiveRecord::Base
                           tags: item.tags,
                           name: item.name,
                           description: item.description,
-                          url: item.url,
+                          url: item.url.present? ? item.url : i.url,
                           image_url: item.image_url,
                           brand: item.brand,
                           repeatable: item.repeatable ? item.repeatable : false,
