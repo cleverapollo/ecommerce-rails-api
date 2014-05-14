@@ -121,7 +121,7 @@ module ActionPush
         amount = raw[:amount].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
-        name = raw[:name].present? ? raw[:name][i] : ''
+        name = raw[:name].present? ? raw[:name][i].truncate(250) : ''
         description = raw[:description].present? ? raw[:description][i] : ''
         url = raw[:url].present? ? raw[:url][i] : nil
         image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
