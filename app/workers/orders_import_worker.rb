@@ -48,17 +48,21 @@ class OrdersImportWorker
 
   def fetch_actions(item, shop_id, user_id)
     action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
-    return action.id if action.persisted?
 
-    action.save \
-                  price: item.price,
-                  category_uniqid: item.category_uniqid,
-                  is_available: item.is_available,
-                  repeatable: item.repeatable,
-                  rating: 5.0,
-                  purchase_count: 1
+    if action.persisted?
+      action.increment!(:purchase_count)
+    else
+      action.update \
+                    price: item.price,
+                    category_uniqid: item.category_uniqid,
+                    is_available: item.is_available,
+                    repeatable: item.repeatable,
+                    rating: 5.0,
+                    purchase_count: 1
 
-    MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+      MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+    end
+
     action.id
   end
 
@@ -71,14 +75,16 @@ class OrdersImportWorker
                          shop_id: shop_id,
                          user_id: user_id,
                          uniqid: order['id'],
-                         date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current
+                         date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current,
+                         recommended: false,
+                         value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum
 
     items.each do |item|
       OrderItem.create \
                        order_id: order.id,
                        item_id: item.id,
                        action_id: item.action_id,
-                       amount: item.amount
+                       amount: item.amount,
     end
   end
 end

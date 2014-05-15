@@ -18,6 +18,9 @@
 # Ignore coverage reports
 /coverage
 
+# Ignore snippets
+/snippets
+
 # Ignore documentation
 /.yardoc
 /doc
