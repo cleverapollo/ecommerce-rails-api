@@ -26,7 +26,7 @@ module Recommender
           SELECT item_id
           FROM actions
           WHERE
-            timestamp > #{min_date}
+            timestamp >= #{min_date}
             AND shop_id = #{params.shop.id}
             #{locations_query}
             #{excluded_query}
