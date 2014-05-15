@@ -1,6 +1,8 @@
 REES46 API
 ----------
 
+![Codeship](https://www.codeship.io/projects/d543d470-be61-0131-e6b6-6ea1a21f61c4/status)
+
 Back-end для приема событий и выдачи рекомендаций
 =================================================
 
