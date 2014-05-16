@@ -165,6 +165,8 @@ GEM
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
+    rack-utf8_sanitizer (1.1.0)
+      rack (~> 1.0)
     rails (4.0.3)
       actionmailer (= 4.0.3)
       actionpack (= 4.0.3)
@@ -249,7 +251,6 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    utf8-cleaner (0.0.9)
     yard (0.8.7.4)
     zeus (0.13.3)
       method_source (>= 0.6.7)
@@ -272,6 +273,7 @@ DEPENDENCIES
   newrelic_rpm (= 3.7.3.199)
   pg (= 0.17.1)
   pry
+  rack-utf8_sanitizer (= 1.1.0)
   rails (= 4.0.3)
   rails-api (= 0.2.0)
   redis-objects (= 0.9.0)
@@ -283,6 +285,5 @@ DEPENDENCIES
   squeel (= 1.1.1)
   subcontractor (= 0.8.0)
   unicorn (= 4.8.1)
-  utf8-cleaner (= 0.0.9)
   yard (= 0.8.7.4)
   zeus (= 0.13.3)
