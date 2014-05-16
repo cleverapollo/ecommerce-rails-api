@@ -39,7 +39,11 @@ class UserMerger
         end
       end
 
-      slave.reload.destroy
+      begin
+        slave.reload.destroy
+      rescue ActiveRecord::RecordNotFound => e
+
+      end
     end
   end
 end
