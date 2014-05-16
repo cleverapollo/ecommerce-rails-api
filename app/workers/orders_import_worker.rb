@@ -84,7 +84,7 @@ class OrdersImportWorker
                        order_id: order.id,
                        item_id: item.id,
                        action_id: item.action_id,
-                       amount: item.amount,
+                       amount: item.amount
     end
   end
 end
