@@ -29,6 +29,7 @@ class OrdersImportWorker
       return u_s_r.user
     else
       user = User.create
+      user.ensure_linked_to_shop(@current_shop.id)
       UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id)
       return user
     end
@@ -41,7 +42,7 @@ class OrdersImportWorker
     item.update \
                 price: item_raw['price'].to_f,
                 category_uniqid: item_raw['category_id'],
-                is_available: item_raw['is_available'].present?,
+                is_available: IncomingDataTranslator.is_available?(item_raw['is_available']),
                 repeatable: item_raw['repeatable'].present?
     item
   end

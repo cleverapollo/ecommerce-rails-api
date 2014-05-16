@@ -117,7 +117,7 @@ module ActionPush
       raw[:item_id].each_with_index do |item_id, i|
         category = raw[:category][i].to_s
         price = raw[:price][i].to_i > 0 ? raw[:price][i] : nil
-        is_available = raw[:is_available][i].present? ? raw[:is_available][i] : true
+        is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
         amount = raw[:amount].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
