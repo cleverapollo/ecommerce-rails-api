@@ -28,6 +28,7 @@ gem 'foreman', '0.63.0'
 gem 'subcontractor', '0.8.0'
 gem 'zeus', '0.13.3'
 gem 'httparty', '0.12.0'
+gem 'utf8-cleaner', '0.0.9'
 
 # Development tools
 group :development do
