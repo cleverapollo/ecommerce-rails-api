@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20140513152430) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
+  add_index "actions", ["shop_id", "is_available", "purchase_count", "timestamp", "category_uniqid"], name: "tmpidx2", using: :btree
   add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree

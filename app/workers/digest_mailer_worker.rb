@@ -2,11 +2,18 @@ class DigestMailerWorker
   include Sidekiq::Worker
   sidekiq_options :retry => false
 
-  attr_accessor :shop, :send_from, :subject, :template, :users, :items, :recommendations_limit
+  attr_accessor :shop, :send_from, :subject, :template, :users, :items, :recommendations_limit, :results
 
   def perform(params)
+    @results = {
+      total: 0,
+      recommendations: 0,
+      empty_recommendations: 0,
+      no_recommendations: 0
+    }
     extract_params(params)
     send_mails
+    puts @results.inspect
   end
 
   def send_mails
@@ -37,8 +44,8 @@ class DigestMailerWorker
     u_s_r = UserShopRelation.find_by(shop_id: shop.id, uniqid: user_id)
 
     if u_s_r.nil?
-      #items.sample(recommendations_limit)
-      [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
+      results[:no_recommendations] += 1
+      return [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
     else
       mahout_ids = MahoutService.new.user_based(u_s_r.user_id,
                                                 shop.id,
@@ -48,8 +55,15 @@ class DigestMailerWorker
                                                 limit: recommendations_limit)
       res = items.select{|i| mahout_ids.include?(i['internal_id']) }
 
-      res.any? ? res : [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
+      if res.any?
+        results[:recommendations] += 1
+        return res
+      else
+        results[:empty_recommendations] += 1
+        return [{ 'template' => '<h1>Мы лохи и не нашли рекомендаций</h1>' }]
+      end
     end
+    results[:total] += 1
   end
 
   def extract_params(params)
