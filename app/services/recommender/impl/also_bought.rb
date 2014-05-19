@@ -15,10 +15,24 @@ module Recommender
         ids.uniq.compact
       end
 
+      def excluded_items_query
+        q = "item_id NOT IN (SELECT item_id FROM actions WHERE user_id = #{params.user.id} AND purchase_count > 0 AND repeatable = false)"
+
+        if params.item.id.present?
+          q += " AND item_id != #{params.item.id}"
+        end
+
+        if params.cart_item_ids.any?
+          q += " AND item_id NOT IN (#{params.cart_item_ids.join(',')})"
+        end
+
+        q
+      end
+
       def items_to_weight
         items = OrderItem.select('item_id')
                          .where('order_id IN (SELECT DISTINCT order_id FROM order_items WHERE item_id = ?)', params.item.id)
-                         .where('item_id NOT IN (?)', excluded_items)
+                         .where(excluded_items_query)
                          .group('item_id')
                          .order('count(item_id) desc')
                          .limit(LIMIT)
