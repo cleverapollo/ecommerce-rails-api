@@ -4,14 +4,18 @@ class MahoutService
   attr_reader :tunnel
 
   def initialize
-    @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
+    @tunnel = begin
+      BrB::Tunnel.create(nil, BRB_ADDRESS)
+    rescue
+      nil
+    end
   end
 
   def user_based(user_id, shop_id, item_id, options)
     preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch
     options.merge!(preferences: preferences)
     res = nil
-    if tunnel_active? and preferences.any?
+    if tunnel_active? && preferences.any?
       res = tunnel.user_based_block(nil, options)
       EM.stop
     else
@@ -25,7 +29,7 @@ class MahoutService
     preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
     options.merge!(preferences: preferences)
     res = nil
-    if tunnel_active? and preferences.any?
+    if tunnel_active? && preferences.any?
       res = tunnel.item_based_weight_block(user_id, options)
       EM.stop
     else
@@ -38,6 +42,6 @@ class MahoutService
   private
 
   def tunnel_active?
-    tunnel.active?
+    tunnel && tunnel.active?
   end
 end
