@@ -4,6 +4,7 @@ Rees46Api::Application.routes.draw do
   get 'recommend', to: 'recommendations#get'
 
   get 'init_script', to: 'init#init_script'
+  get 'generate_ssid', to: 'init#generate_ssid'
 
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
