@@ -1,6 +1,14 @@
 class InitController < ApplicationController
   include ActionController::Cookies
 
+  def generate_ssid
+    if Shop.find_by(uniqid: params[:shop_id]).present?
+      render text: Session.fetch.uniqid
+    else
+      render nothing: true
+    end
+  end
+
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
