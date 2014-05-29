@@ -61,7 +61,7 @@ module ActionPush
       raise ArgumentError.new('Shop ID not provided') if raw[:shop_id].blank?
       raise ArgumentError.new('Action not provided') if raw[:event].blank?
       raise ArgumentError.new('Unknown action') unless Action::TYPES.include?(raw[:event])
-      raise ArgumentError.new('Incorrect rating') if raw[:rating].present? and !(1..5).include?(raw[:rating])
+      raise ArgumentError.new('Incorrect rating') if raw[:rating].present? and !(1..5).include?(raw[:rating].to_i)
       raise ArgumentError.new('Unknown recommender') if raw[:recommended_by].present? and !Recommender::Base::TYPES.include?(raw[:recommended_by])
     end
 
@@ -80,7 +80,7 @@ module ActionPush
     # @private
     def extract_static_attributes
       @action         = raw[:event]
-      @rating         = raw[:rating]
+      @rating         = raw[:rating].present? ? raw[:rating].to_i : nil
       @recommended_by = raw[:recommended_by]
       @order_id       = raw[:order_id]
     end
