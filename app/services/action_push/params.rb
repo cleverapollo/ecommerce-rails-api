@@ -118,15 +118,15 @@ module ActionPush
         category = raw[:category][i].to_s
         price = raw[:price][i].to_i > 0 ? raw[:price][i] : nil
         is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
-        amount = raw[:amount].present? ? raw[:amount][i] : 1
+        amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
-        name = raw[:name].present? ? raw[:name][i].truncate(250) : ''
-        description = raw[:description].present? ? raw[:description][i] : ''
-        url = raw[:url].present? ? raw[:url][i] : nil
-        image_url = raw[:image_url].present? ? raw[:image_url][i] : ''
-        brand = raw[:brand].present? ? raw[:brand][i].mb_chars.downcase.strip : ''
-        repeatable = raw[:repeatable].present? ? raw[:repeatable][i] : false
+        name = raw[:name][i].present? ? raw[:name][i].truncate(250) : ''
+        description = raw[:description][i].present? ? raw[:description][i] : ''
+        url = raw[:url][i].present? ? raw[:url][i] : nil
+        image_url = raw[:image_url][i].present? ? raw[:image_url][i] : ''
+        brand = raw[:brand][i].present? ? raw[:brand][i].mb_chars.downcase.strip : ''
+        repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
 
         item_object = OpenStruct.new(uniqid: item_id,

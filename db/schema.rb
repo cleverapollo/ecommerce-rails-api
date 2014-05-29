@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140513152430) do
+ActiveRecord::Schema.define(version: 20140527075753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -91,6 +91,7 @@ ActiveRecord::Schema.define(version: 20140513152430) do
     t.string   "company"
     t.boolean  "subscribed",             default: true, null: false
     t.string   "unsubscribe_token"
+    t.integer  "partner_id"
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -136,6 +137,15 @@ ActiveRecord::Schema.define(version: 20140513152430) do
   add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
+  create_table "mailer_jobs", force: true do |t|
+    t.string   "state",      default: "enqueued", null: false
+    t.integer  "shop_id",                         null: false
+    t.text     "statistics"
+    t.text     "params",                          null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
     t.integer "item_id",        limit: 8,             null: false
@@ -158,6 +168,40 @@ ActiveRecord::Schema.define(version: 20140513152430) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
+
+  create_table "partners", force: true do |t|
+    t.string   "email",                  default: "", null: false
+    t.string   "encrypted_password",     default: "", null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.string   "name"
+    t.string   "phone"
+    t.string   "city"
+    t.string   "company"
+    t.integer  "role",                   default: 1
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "token",                               null: false
+  end
+
+  add_index "partners", ["email"], name: "index_partners_on_email", unique: true, using: :btree
+  add_index "partners", ["reset_password_token"], name: "index_partners_on_reset_password_token", unique: true, using: :btree
+
+  create_table "potential_customers", force: true do |t|
+    t.string   "name"
+    t.string   "email"
+    t.string   "phone"
+    t.text     "comment"
+    t.boolean  "subscribe",  default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "schema_version", id: false, force: true do |t|
     t.integer  "version_rank",                                  null: false
@@ -229,6 +273,7 @@ ActiveRecord::Schema.define(version: 20140513152430) do
     t.datetime "ab_testing_finished_at"
     t.text     "connection_status"
     t.string   "secret"
+    t.integer  "partner_id"
   end
 
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
