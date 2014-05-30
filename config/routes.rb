@@ -16,4 +16,10 @@ Rees46Api::Application.routes.draw do
   resource :mailer, only: :none do
     post :digest
   end
+
+  resources :mailings, only: :create do
+    member do
+      post :perform
+    end
+  end
 end

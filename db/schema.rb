@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140527075753) do
+ActiveRecord::Schema.define(version: 20140529094135) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -145,6 +145,29 @@ ActiveRecord::Schema.define(version: 20140527075753) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "mailing_batches", force: true do |t|
+    t.integer  "mailing_id",                      null: false
+    t.text     "users",                           null: false
+    t.string   "state",      default: "enqueued", null: false
+    t.text     "statistics",                      null: false
+    t.text     "failed",                          null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "mailing_batches", ["mailing_id"], name: "index_mailing_batches_on_mailing_id", using: :btree
+
+  create_table "mailings", force: true do |t|
+    t.integer  "shop_id",           null: false
+    t.string   "token",             null: false
+    t.text     "delivery_settings", null: false
+    t.text     "items",             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "mailings", ["token"], name: "index_mailings_on_token", unique: true, using: :btree
 
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
