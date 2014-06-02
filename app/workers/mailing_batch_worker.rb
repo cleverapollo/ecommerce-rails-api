@@ -30,7 +30,15 @@ class MailingBatchWorker
     @mailing = @mailing_batch.mailing
     @shop = @mailing_batch.mailing.shop
     @mahout_service = MahoutService.new
-    @mahout_service.open
+
+    begin
+      Timeout::timeout(5) {
+        @mahout_service.open
+      }
+    rescue Timeout::Error => e
+      retry
+    end
+
     @items_internal_ids = @mailing_batch.mailing.items.map{|i| i['internal_id'] }.compact
   end
 
@@ -73,11 +81,19 @@ class MailingBatchWorker
     result = []
 
     if u_s_r.present?
-      mahout_ids = @mahout_service.user_based(u_s_r.user_id, shop.id, nil,
-        include: items_internal_ids,
-        exclude: Recommender::Base.exclude_in_recommendations(user_id, shop.id),
-        limit: 5
-      )
+      mahout_ids = []
+
+      begin
+        Timeout::timeout(5) {
+          mahout_ids = @mahout_service.user_based(u_s_r.user_id, shop.id, nil,
+            include: items_internal_ids,
+            exclude: Recommender::Base.exclude_in_recommendations(user_id, shop.id),
+            limit: mailing.recommendations_limit.to_i
+          )
+        }
+      rescue Timeout::Error => e
+        retry
+      end
 
       if mahout_ids.any?
         mailing_batch.statistics[:with_recommendations] += 1
