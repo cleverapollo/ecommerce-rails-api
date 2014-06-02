@@ -9,8 +9,8 @@ class MailingBatchWorker
   attr_accessor :mahout_service
 
   def perform(mailing_batch_id)
+    @mailing_batch = MailingBatch.find(mailing_batch_id)
     begin
-      @mailing_batch = MailingBatch.find(mailing_batch_id)
       @mailing_batch.process!
 
       prepare_attrs
@@ -19,11 +19,11 @@ class MailingBatchWorker
 
       @mahout_service.close
       @mailing_batch.finish!
-      @mailing_batch.save
     rescue StandardError => e
       @mailing_batch.fail!
       raise e
     end
+    @mailing_batch.save
   end
 
   def prepare_attrs
@@ -44,13 +44,11 @@ class MailingBatchWorker
 
         recommendations = recommendations_for(id)
 
-        letter = compose_letter(user, recommendations)
-
         Mailer.digest(
           email: email,
           subject: mailing.subject,
           send_from: mailing.send_from,
-          body: letter
+          body: compose_letter(user, recommendations)
         ).deliver
       rescue StandardError => e
         mailing_batch.failed << user
@@ -60,8 +58,13 @@ class MailingBatchWorker
     end
   end
 
-  def compose_letter(*args)
-    'lol letter'
+  def compose_letter(user, recommendations)
+    recommendations_template = recommendations.map{|i| i.fetch('template') }.join()
+
+    template_for_user = mailing.template
+    template_for_user = template_for_user.gsub('{{name}}', user['name']) if user['name'].present?
+    template_for_user = template_for_user.gsub('{{recommendations}}', recommendations_template)
+    template_for_user
   end
 
   def recommendations_for(user_id)

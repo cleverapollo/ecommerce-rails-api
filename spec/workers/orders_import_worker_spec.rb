@@ -8,7 +8,7 @@ describe OrdersImportWorker do
 
       'orders' => [
         {
-          'id' => '123', 'user_id' => '456', 'date' => 1.month.ago.to_i.to_s,
+          'id' => '123', 'user_id' => '456', 'user_email' => 'test@test.te', 'date' => 1.month.ago.to_i.to_s,
 
           'items' => [
             {
@@ -31,6 +31,7 @@ describe OrdersImportWorker do
     u_s_r = shop.user_shop_relations.first!
     user = u_s_r.user
     expect(u_s_r.uniqid).to eq(params['orders'][0]['user_id'])
+    expect(u_s_r.email).to eq(params['orders'][0]['user_email'])
     s_u = ShopsUser.first!
     expect(s_u.user_id).to eq(user.id)
     expect(s_u.shop_id).to eq(shop.id)

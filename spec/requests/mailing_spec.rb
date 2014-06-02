@@ -36,9 +36,7 @@ describe "Mailing" do
     }
 
     Sidekiq::Testing.inline! do
-      puts Benchmark.measure {
-        post "mailings/#{mailing.token}/perform", perform_params
-      }
+      post "mailings/#{mailing.token}/perform", perform_params
     end
 
     expect(ActionMailer::Base.deliveries.count).to eq(3)

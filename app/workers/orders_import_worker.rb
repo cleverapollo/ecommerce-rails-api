@@ -7,7 +7,7 @@ class OrdersImportWorker
 
     opts['orders'].each do |order|
       @current_order = order
-      @current_user = fetch_user(@current_shop.id, @current_order['user_id'])
+      @current_user = fetch_user(@current_shop.id, @current_order['user_id'], @current_order['user_email'])
 
       next if order_already_saved?(order, @current_shop.id)
 
@@ -23,14 +23,18 @@ class OrdersImportWorker
     end
   end
 
-  def fetch_user(shop_id, user_id)
+  def fetch_user(shop_id, user_id, user_email = nil)
+    if user_email.present?
+      user_email = IncomingDataTranslator.email(user_email)
+    end
+
     u_s_r = UserShopRelation.find_by(shop_id: shop_id, uniqid: user_id.to_s)
     if u_s_r.present?
       return u_s_r.user
     else
       user = User.create
       user.ensure_linked_to_shop(@current_shop.id)
-      UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id)
+      UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id, email: user_email)
       return user
     end
   end
