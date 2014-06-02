@@ -5,7 +5,7 @@ module Recommender
       ms.open
       result = ms.item_based_weight(params.user.id,
                                     weight: items_to_weight,
-                                    imit: params.limit)
+                                    limit: params.limit)
       ms.close
 
       result
