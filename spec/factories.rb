@@ -33,7 +33,7 @@ FactoryGirl.define do
   end
 
   factory :item do
-    uniqid '123'
+    sequence(:uniqid) {|i| "#{i}" }
     price 100
     category_uniqid '5'
     is_available true
@@ -57,5 +57,20 @@ FactoryGirl.define do
     skip_create
 
     initialize_with { attributes }
+  end
+
+  factory :mailing do
+    shop
+    sequence(:token) {|n| SecureRandom.hex(8) }
+    delivery_settings do
+      {
+        send_from: 'tester <tester@tester.ru>'
+      }
+    end
+    items do
+      [
+        { id: 123 }
+      ]
+    end
   end
 end

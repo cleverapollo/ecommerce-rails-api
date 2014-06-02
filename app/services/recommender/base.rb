@@ -60,6 +60,12 @@ module Recommender
       params.user.actions.where('rating >= ?', '4.2').where(shop: params.shop, repeatable: false).pluck(:item_id)
     end
 
+    class << self
+      def exclude_in_recommendations(user_id, shop_id)
+        Action.where(user_id: user_id).where('rating >= ?', 4.2).where(shop_id: shop_id, repeatable: false).pluck(:item_id)
+      end
+    end
+
     def locations_query
       if params.locations.present?
         "AND #{locations_clause}"
