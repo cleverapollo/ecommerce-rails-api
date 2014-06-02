@@ -73,4 +73,8 @@ FactoryGirl.define do
       ]
     end
   end
+
+  factory :mailing_batch do
+    users { [ id: 1 ] }
+  end
 end
