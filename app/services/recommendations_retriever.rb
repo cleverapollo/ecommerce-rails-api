@@ -21,7 +21,12 @@ class RecommendationsRetriever
 
   def popular(count)
     unless @popular.present?
-      @popular = shop.actions.where('purchase_count > 0').where(is_available: true).select(:item_id).group(:item_id).order('SUM(purchase_count) desc').limit(15).map(&:item_id)
+      @popular = shop.actions.where('purchase_count > 0').where(is_available: true).select(:item_id).group(:item_id).order('SUM(purchase_count) desc').limit(20).map(&:item_id)
+
+      @popular = Item.where(id: @popular).select(&:widgetable?).map do |item|
+        item.url += "?utm_source=rees46&utm_meta=email_digest&utm_campaign=popular"
+        item
+      end
     end
 
     @popular.slice(0, count)
@@ -30,31 +35,31 @@ class RecommendationsRetriever
 
   def for(user)
     flush_caches
-
     @user = user
+    result = []
+    result_hash = {interesting: [], popular: []}
 
-    puts 'viewed_but_not_bought'
-    v_b_n_b = viewed_but_not_bought
-    puts v_b_n_b.join(', ')
-    puts '====================='
+    i = interesting(self.limit)
+    result += i
+    result_hash[:interesting] += i
+    if result.count < self.limit
+      p = popular(self.limit - result.count)
+      result += p
+      result_hash[:popular] += p
+    end
 
-    puts 'also_bought_with'
-    puts also_bought_with(bought_ids).join(', ')
-    puts '====================='
-
-    puts 'popular'
-    puts popular.join(', ')
-    puts '====================='
-
-    puts 'interesting'
-    puts interesting.join(', ')
-    puts '====================='
+    puts result_hash
+    result
   end
 
   def flush_caches
     @bought_ids = nil
     @bought_categories = nil
     @also_bought_with = nil
+  end
+
+  def business_rules
+    []
   end
 
   def bought_relation
@@ -73,10 +78,6 @@ class RecommendationsRetriever
     user.actions.where('rating <= 3.2').where('item_id NOT IN (?)', bought_ids).where('category_uniqid NOT IN (?)', bought_categories).where('timestamp >= ?', 1.week.ago.to_i).pluck(:item_id)
   end
 
-  def popular
-    @popular ||= shop.actions.select(:item_id).where('timestamp > ?', 1.month.ago.to_i).where('purchase_count > 0').where(is_available: true).group(:item_id).order('SUM(purchase_count) DESC').limit(20).map(&:item_id)
-  end
-
   def also_bought_with(ids)
     @also_bought_with ||= OrderItem.select(:item_id)
                          .where('order_id IN (SELECT DISTINCT order_id FROM order_items WHERE item_id IN (?))', ids)
@@ -89,20 +90,25 @@ class RecommendationsRetriever
     @items_in_shop ||= shop.items.available.pluck(:id)
   end
 
-  def interesting
+  def interesting(limit)
     mahout_ids = []
     begin
       Timeout::timeout(2) {
         mahout_ids = mahout_service.user_based(user.id, shop.id, nil,
           include: items_in_shop,
           exclude: Recommender::Base.exclude_in_recommendations(user.id, shop.id),
-          limit: 20
+          limit: limit
         )
       }
     rescue Timeout::Error => e
       retry
     end
-    mahout_ids
+
+    res = Item.where(id: mahout_ids).select(&:widgetable?).map do |item|
+      item.url += "?utm_source=rees46&utm_meta=email_digest&utm_campaign=interesting"
+      item
+    end
+    res
   end
 
   def init_recommendations

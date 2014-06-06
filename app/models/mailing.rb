@@ -11,7 +11,7 @@ class Mailing < ActiveRecord::Base
   store :statistics
 
   after_initialize :assign_default_values, if: :new_record?
-  before_create :process_items
+  #before_create :process_items
 
   has_many :mailing_batches
 

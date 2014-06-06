@@ -23,6 +23,9 @@ class MahoutService
     res = nil
     if preferences.any? && tunnel_active?
       res = tunnel.user_based_block(nil, options)
+    elsif preferences.none?
+      puts 'No preferences'
+      res = []
     else
       puts "Tunnel inactive!"
       res = []

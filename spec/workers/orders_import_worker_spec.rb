@@ -14,7 +14,7 @@ describe OrdersImportWorker do
             {
               'id' => '888',
               'price' => '1500.44',
-              'category_id' => '55',
+              'category_uniqid' => '55',
               'is_available' => '1',
               'amount' => '4'
             }
@@ -46,7 +46,7 @@ describe OrdersImportWorker do
     item_raw = params['orders'][0]['items'][0]
     item = Item.find_by!(shop_id: shop.id, uniqid: item_raw['id'])
     expect(item.price).to eq(item_raw['price'].to_f)
-    expect(item.category_uniqid).to eq(item_raw['category_id'])
+    expect(item.category_uniqid).to eq(item_raw['category_uniqid'])
     expect(item.is_available).to eq(item_raw['is_available'] == '1')
 
     # Check actions
