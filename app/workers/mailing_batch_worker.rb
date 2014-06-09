@@ -22,6 +22,7 @@ class MailingBatchWorker
       raise e
     end
     @mailing_batch.save
+    ActionMailer::Base.deliveries = []
   end
 
   def prepare_attrs
@@ -38,6 +39,16 @@ class MailingBatchWorker
         email = user.fetch('email')
 
         recommendations = recommendations_for(id)
+
+        mailing.business_rules.map do |business_rule|
+          item = Item.find(business_rule['internal_id'])
+          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+          item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+          item.url = UrlHelper.add_param(item.url, utm_campaign: 'business_rule')
+          item
+        end.each do |business_rule|
+          recommendations.unshift(business_rule)
+        end
 
         Mailer.digest(
           email: email,

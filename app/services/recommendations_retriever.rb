@@ -24,7 +24,9 @@ class RecommendationsRetriever
       @popular = shop.actions.where('purchase_count > 0').where(is_available: true).select(:item_id).group(:item_id).order('SUM(purchase_count) desc').limit(20).map(&:item_id)
 
       @popular = Item.where(id: @popular).select(&:widgetable?).map do |item|
-        item.url += "?utm_source=rees46&utm_meta=email_digest&utm_campaign=popular"
+        item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+        item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+        item.url = UrlHelper.add_param(item.url, utm_campaign: 'popular')
         item
       end
     end
@@ -37,18 +39,11 @@ class RecommendationsRetriever
     flush_caches
     @user = user
     result = []
-    result_hash = {interesting: [], popular: []}
 
-    i = interesting(self.limit)
-    result += i
-    result_hash[:interesting] += i
-    if result.count < self.limit
-      p = popular(self.limit - result.count)
-      result += p
-      result_hash[:popular] += p
-    end
+    result = result + viewed_but_not_bought(3) + interesting(3)
 
-    puts result_hash
+    result = result + popular(self.limit - result.count)
+
     result
   end
 
@@ -74,8 +69,18 @@ class RecommendationsRetriever
     @bought_categories ||= bought_relation.to_a.map(&:category_uniqid).uniq.compact
   end
 
-  def viewed_but_not_bought
-    user.actions.where('rating <= 3.2').where('item_id NOT IN (?)', bought_ids).where('category_uniqid NOT IN (?)', bought_categories).where('timestamp >= ?', 1.week.ago.to_i).pluck(:item_id)
+  def viewed_but_not_bought(limit)
+    return [] unless user.persisted?
+
+    ids = user.actions.where('rating <= 3.2').where('item_id NOT IN (?)', bought_ids).where('category_uniqid NOT IN (?)', bought_categories).where('timestamp >= ?', 1.month.ago.to_i).order('view_count desc, timestamp desc').limit(limit).pluck(:item_id)
+
+    res = Item.where(id: ids).select(&:widgetable?).map do |item|
+      item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+      item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+      item.url = UrlHelper.add_param(item.url, utm_campaign: 'viewed_but_not_bought')
+      item
+    end
+    res
   end
 
   def also_bought_with(ids)
@@ -105,7 +110,9 @@ class RecommendationsRetriever
     end
 
     res = Item.where(id: mahout_ids).select(&:widgetable?).map do |item|
-      item.url += "?utm_source=rees46&utm_meta=email_digest&utm_campaign=interesting"
+      item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+      item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+      item.url = UrlHelper.add_param(item.url, utm_campaign: 'interesting')
       item
     end
     res

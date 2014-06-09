@@ -4,14 +4,15 @@ class Mailing < ActiveRecord::Base
   validates :shop, presence: true
   validates :token, presence: true
   validates :delivery_settings, presence: true
-  validates :items, presence: true
 
   store :delivery_settings, coder: JSON, accessors: [:send_from, :subject, :template, :recommendations_limit]
   serialize :items, JSON
+  serialize :business_rules, JSON
   store :statistics
 
   after_initialize :assign_default_values, if: :new_record?
-  #before_create :process_items
+  before_create :process_items
+  before_create :process_business_rules
 
   has_many :mailing_batches
 
@@ -46,8 +47,18 @@ class Mailing < ActiveRecord::Base
   end
 
   def process_items
+    return if items.none?
+
     items.each do |item|
       item['internal_id'] = Item.find_by(shop_id: shop.id, uniqid: item['id']).try(:id)
+    end
+  end
+
+  def process_business_rules
+    return if business_rules.none?
+
+    business_rules.each do |business_rule|
+      business_rule['internal_id'] = Item.find_by(shop_id: shop.id, uniqid: business_rule['id']).try(:id)
     end
   end
 end

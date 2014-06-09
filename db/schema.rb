@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140529094135) do
+ActiveRecord::Schema.define(version: 20140609090101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -165,6 +165,7 @@ ActiveRecord::Schema.define(version: 20140529094135) do
     t.text     "items",             null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "business_rules"
   end
 
   add_index "mailings", ["token"], name: "index_mailings_on_token", unique: true, using: :btree
@@ -297,6 +298,7 @@ ActiveRecord::Schema.define(version: 20140529094135) do
     t.text     "connection_status"
     t.string   "secret"
     t.integer  "partner_id"
+    t.text     "css"
   end
 
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
