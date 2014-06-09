@@ -121,11 +121,11 @@ module ActionPush
         amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
-        name = raw[:name][i].present? ? raw[:name][i].truncate(250) : ''
-        description = raw[:description][i].present? ? raw[:description][i] : ''
-        url = raw[:url][i].present? ? raw[:url][i] : nil
-        image_url = raw[:image_url][i].present? ? raw[:image_url][i] : ''
-        brand = raw[:brand][i].present? ? raw[:brand][i].mb_chars.downcase.strip : ''
+        name = raw[:name][i].present? ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
+        description = raw[:description][i].present? ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
+        url = raw[:url][i].present? ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+        image_url = raw[:image_url][i].present? ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
+        brand = raw[:brand][i].present? ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
         repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
 

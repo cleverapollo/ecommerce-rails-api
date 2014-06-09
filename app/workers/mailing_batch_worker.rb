@@ -5,8 +5,7 @@ class MailingBatchWorker
   attr_accessor :mailing_batch
   attr_accessor :mailing
   attr_accessor :shop
-  attr_accessor :items_internal_ids
-  attr_accessor :mahout_service
+  attr_accessor :recommendations_retriever
 
   def perform(mailing_batch_id)
     @mailing_batch = MailingBatch.find(mailing_batch_id)
@@ -17,29 +16,19 @@ class MailingBatchWorker
 
       process_users
 
-      @mahout_service.close
       @mailing_batch.finish!
     rescue StandardError => e
       @mailing_batch.fail!
       raise e
     end
     @mailing_batch.save
+    ActionMailer::Base.deliveries = []
   end
 
   def prepare_attrs
     @mailing = @mailing_batch.mailing
     @shop = @mailing_batch.mailing.shop
-    @mahout_service = MahoutService.new
-
-    begin
-      Timeout::timeout(5) {
-        @mahout_service.open
-      }
-    rescue Timeout::Error => e
-      retry
-    end
-
-    @items_internal_ids = @mailing_batch.mailing.items.map{|i| i['internal_id'] }.compact
+    @recommendations_retriever = RecommendationsRetriever.new(shop, 9)
   end
 
   def process_users
@@ -48,9 +37,18 @@ class MailingBatchWorker
       begin
         id = user.fetch('id')
         email = user.fetch('email')
-        additional_params = user['additional_params']
 
         recommendations = recommendations_for(id)
+
+        mailing.business_rules.map do |business_rule|
+          item = Item.find(business_rule['internal_id'])
+          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+          item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+          item.url = UrlHelper.add_param(item.url, utm_campaign: 'business_rule')
+          item
+        end.each do |business_rule|
+          recommendations.unshift(business_rule)
+        end
 
         Mailer.digest(
           email: email,
@@ -67,71 +65,25 @@ class MailingBatchWorker
   end
 
   def compose_letter(user, recommendations)
-    recommendations_template = recommendations.map{|i| i.fetch('template') }.join()
-
     template_for_user = mailing.template
+
     template_for_user = template_for_user.gsub('{{name}}', user['name']) if user['name'].present?
-    template_for_user = template_for_user.gsub('{{recommendations}}', recommendations_template)
+    template_for_user = template_for_user.gsub('{{unsubscribe_url}}', user['unsubscribe_url']) if user['unsubscribe_url'].present?
+
+    recommendations.to_a.each_with_index do |item, i|
+      template_for_user = template_for_user.gsub("{{item[#{i}].name}}", item.name.to_s)
+      template_for_user = template_for_user.gsub("{{item[#{i}].url}}", item.url.to_s)
+      template_for_user = template_for_user.gsub("{{item[#{i}].image_url}}", item.image_url.to_s)
+      template_for_user = template_for_user.gsub("{{item[#{i}].price}}", StringHelper.format_money(item.price))
+    end
+
     template_for_user
   end
 
   def recommendations_for(user_id)
-    u_s_r = UserShopRelation.find_by(shop_id: shop.id, uniqid: user_id)
+    user = UserShopRelation.find_by(shop_id: shop.id, uniqid: user_id).try(:user)
+    user ||= User.new
 
-    result = []
-
-    if u_s_r.present?
-      mahout_ids = []
-
-      begin
-        Timeout::timeout(5) {
-          mahout_ids = @mahout_service.user_based(u_s_r.user_id, shop.id, nil,
-            include: items_internal_ids,
-            exclude: Recommender::Base.exclude_in_recommendations(user_id, shop.id),
-            limit: mailing.recommendations_limit.to_i
-          )
-        }
-      rescue Timeout::Error => e
-        retry
-      end
-
-      if mahout_ids.any?
-        mailing_batch.statistics[:with_recommendations] += 1
-        result = mailing_batch.mailing.items.select{|i| mahout_ids.include?(i['internal_id']) }
-      else
-        mailing_batch.statistics[:no_recommendations] += 1
-        result = default_recommendations
-      end
-    else
-      mailing_batch.statistics[:no_recommendations] += 1
-      result = default_recommendations
-    end
-    result
-  end
-
-  def default_recommendations
-    []
+    @recommendations_retriever.for(user)
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

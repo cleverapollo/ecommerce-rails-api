@@ -6,5 +6,9 @@ class StringHelper
       res = res.truncate(length)
       res
     end
+
+    def format_money(value)
+      ActiveSupport::NumberHelper.number_to_rounded(value, precision: 0, delimiter: "'")
+    end
   end
 end

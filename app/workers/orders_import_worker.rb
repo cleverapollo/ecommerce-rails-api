@@ -42,12 +42,12 @@ class OrdersImportWorker
   def fetch_item(item_raw, shop_id)
     item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
 
-    return item unless item.new_record?
-    item.update \
-                price: item_raw['price'].to_f,
-                category_uniqid: item_raw['category_id'],
-                is_available: IncomingDataTranslator.is_available?(item_raw['is_available']),
-                repeatable: item_raw['repeatable'].present?
+    if item.new_record?
+      item_proxy = OpenStruct.new(item_raw)
+      item.merge_attributes(item_proxy)
+      item.save!
+    end
+
     item
   end
 
@@ -57,13 +57,7 @@ class OrdersImportWorker
     if action.persisted?
       action.increment!(:purchase_count)
     else
-      action.update \
-                    price: item.price,
-                    category_uniqid: item.category_uniqid,
-                    is_available: item.is_available,
-                    repeatable: item.repeatable,
-                    rating: 5.0,
-                    purchase_count: 1
+      action.update(item.attributes_for_actions.merge(rating: 5.0, purchase_count: 1))
 
       MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
     end
