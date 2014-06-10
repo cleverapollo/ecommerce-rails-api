@@ -3,4 +3,9 @@ class ImportsController < ApplicationController
     OrdersImportWorker.perform_async(params)
     render text: 'OK'
   end
+
+  def items
+    ItemsImportWorker.perform_async(params)
+    render text: 'OK'
+  end
 end
