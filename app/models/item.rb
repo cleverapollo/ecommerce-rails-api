@@ -41,7 +41,9 @@ class Item < ActiveRecord::Base
   end
 
   def merge_attributes(new_item)
-    new_item.is_available = IncomingDataTranslator.is_available?(new_item.is_available)
+    if new_item.is_available.blank?
+      new_item.is_available = IncomingDataTranslator.is_available?(new_item.is_available)
+    end
 
     attrs = {
         category_uniqid: ValuesHelper.present_one(new_item, self, :category_uniqid),
