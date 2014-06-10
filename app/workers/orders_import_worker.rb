@@ -34,7 +34,11 @@ class OrdersImportWorker
     else
       user = User.create
       user.ensure_linked_to_shop(@current_shop.id)
-      UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id, email: user_email)
+      begin
+        UserShopRelation.create(shop_id: shop_id, uniqid: user_id.to_s, user_id: user.id, email: user_email)
+      rescue PG::UniqueViolation => e
+        user = UserShopRelation.find_by(shop_id: shop_id, uniqid: user_id.to_s).user
+      end
       return user
     end
   end
