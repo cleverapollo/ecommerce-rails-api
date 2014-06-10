@@ -30,6 +30,7 @@ set :normalize_asset_timestamps, false
 # Sidekiq
 set :sidekiq_env, 'production'
 set :sidekiq_pid, File.join(shared_path, 'pids', 'sidekiq.pid')
+set :sidekiq_concurrency, 4
 
 # Deploy tasks
 namespace :deploy do
