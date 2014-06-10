@@ -23,7 +23,7 @@ class RecommendationsRetriever
     unless @popular.present?
       @popular = shop.actions.where('purchase_count > 0').where(is_available: true).select(:item_id).group(:item_id).order('SUM(purchase_count) desc').limit(20).map(&:item_id)
 
-      @popular = Item.where(id: @popular).select(&:widgetable?).map do |item|
+      @popular = Item.where(id: @popular).available.select(&:widgetable?).map do |item|
         item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
         item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
         item.url = UrlHelper.add_param(item.url, utm_campaign: 'popular')
@@ -74,7 +74,7 @@ class RecommendationsRetriever
 
     ids = user.actions.where('rating <= 3.2').where('item_id NOT IN (?)', bought_ids).where('category_uniqid NOT IN (?)', bought_categories).where('timestamp >= ?', 1.month.ago.to_i).order('view_count desc, timestamp desc').limit(limit).pluck(:item_id)
 
-    res = Item.where(id: ids).select(&:widgetable?).map do |item|
+    res = Item.where(id: ids).available.select(&:widgetable?).map do |item|
       item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
       item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
       item.url = UrlHelper.add_param(item.url, utm_campaign: 'viewed_but_not_bought')

@@ -67,8 +67,23 @@ class MailingBatchWorker
   def compose_letter(user, recommendations)
     template_for_user = mailing.template
 
-    template_for_user = template_for_user.gsub('{{name}}', user['name']) if user['name'].present?
-    template_for_user = template_for_user.gsub('{{unsubscribe_url}}', user['unsubscribe_url']) if user['unsubscribe_url'].present?
+    greeting = if user['name'].present?
+      "Здравствуйте, #{user['name']}"
+    else
+      "Здравствуйте"
+    end
+
+    template_for_user = template_for_user.gsub('{{greeting}}', greeting)
+
+    unsubscribe_url = nil
+    if user['unsubscribe_url'].present?
+      unsubscribe_url = user['unsubscribe_url']
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_source: 'rees46')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_meta: 'email_digest')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_campaign: 'unsubscribe')
+    end
+
+    template_for_user = template_for_user.gsub('{{unsubscribe_url}}', unsubscribe_url) if unsubscribe_url.present?
 
     recommendations.to_a.each_with_index do |item, i|
       template_for_user = template_for_user.gsub("{{item[#{i}].name}}", item.name.to_s)
