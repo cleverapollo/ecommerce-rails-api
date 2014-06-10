@@ -2,7 +2,11 @@ class IncomingDataTranslator
   class << self
     def is_available?(value)
       if value.present?
-        value == '1' || value == 1 || value == true || value == 'true'
+        if (value == '1' || value == 1 || value == true || value == 'true')
+          return true
+        else
+          return false
+        end
       else
         return true
       end
