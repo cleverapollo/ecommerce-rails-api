@@ -53,12 +53,12 @@ class Item < ActiveRecord::Base
                     url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
               image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
                   brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
-           is_available: ValuesHelper.true_one(new_item, self, :is_available),
-             repeatable: ValuesHelper.true_one(new_item, self, :repeatable),
-             widgetable: ValuesHelper.false_one(new_item, self, :widgetable)
+           is_available: new_item.is_available,
+             repeatable: ValuesHelper.false_one(new_item, self, :repeatable)
     }
 
     assign_attributes(attrs)
+    self.widgetable = self.name.present? && self.url.present? && self.image_url.present?
 
     attrs
   end
