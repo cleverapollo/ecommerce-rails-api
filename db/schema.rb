@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140609090101) do
+ActiveRecord::Schema.define(version: 20140611104523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,6 +123,7 @@ ActiveRecord::Schema.define(version: 20140609090101) do
     t.boolean "widgetable",                default: false, null: false
     t.string  "brand"
     t.boolean "repeatable",                default: false, null: false
+    t.date    "available_till"
   end
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree

@@ -30,6 +30,9 @@ gem 'zeus', '0.13.3'
 gem 'httparty', '0.12.0'
 gem 'rack-utf8_sanitizer', '1.1.0'
 
+# Crontab
+gem "whenever", '0.9.2', require: false
+
 # Development tools
 group :development do
   gem 'jazz_hands', '0.5.2'

@@ -101,7 +101,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable, :available_till].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -128,6 +128,7 @@ module ActionPush
         brand = raw[:brand][i].present? ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
         repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
+        available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
 
         item_object = OpenStruct.new(uniqid: item_id,
                                      category_uniqid: category,
@@ -142,7 +143,8 @@ module ActionPush
                                      image_url: image_url,
                                      brand: brand,
                                      repeatable: repeatable,
-                                     widgetable: widgetable)
+                                     widgetable: widgetable,
+                                     available_till: available_till)
 
         @items << Item.fetch(shop.id, item_object)
       end

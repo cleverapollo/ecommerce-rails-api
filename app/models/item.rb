@@ -11,8 +11,16 @@ class Item < ActiveRecord::Base
   end
 
   scope :available, -> { where(is_available: true) }
+  scope :expired, -> { where('available_till IS NOT NULL').where('available_till >= ?', Date.current) }
 
   class << self
+    def disable_expired
+      Item.available.expired.find_each do |item|
+        item.actions.update_all(is_available: false)
+        item.update(is_available: false)
+      end
+    end
+
     def fetch(shop_id, item_proxy)
       item = find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
 
@@ -54,6 +62,7 @@ class Item < ActiveRecord::Base
               image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
                   brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
            is_available: new_item.is_available,
+         available_till: ValuesHelper.present_one(new_item, self, :available_till),
              repeatable: ValuesHelper.false_one(new_item, self, :repeatable)
     }
 

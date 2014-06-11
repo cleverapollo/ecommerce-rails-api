@@ -32,6 +32,9 @@ set :sidekiq_env, 'production'
 set :sidekiq_pid, File.join(shared_path, 'pids', 'sidekiq.pid')
 set :sidekiq_concurrency, 4
 
+# Whenever
+set :whenever_identifier, defer { "#{application}_#{rails_env}" }
+
 # Deploy tasks
 namespace :deploy do
   desc "Zero-downtime restart of Unicorn"
