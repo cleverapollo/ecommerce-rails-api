@@ -10,7 +10,7 @@ module Actions
 
     def update_concrete_action_attrs
       self.view_count += 1
-      self.view_date = Date.current
+      self.view_date = Time.current
     end
 
     def needs_to_update_rating?
