@@ -47,7 +47,8 @@ module Recommender
     end
 
     def translate_to_external_ids(array_of_internal_ids)
-      Item.where(id: array_of_internal_ids, shop_id: params.shop.id).pluck(:uniqid)
+      array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
+      array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
     end
 
     def items_in_shop
