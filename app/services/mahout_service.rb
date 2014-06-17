@@ -10,6 +10,8 @@ class MahoutService
       }
     rescue Timeout::Error => e
       retry
+    rescue RuntimeError => e1
+      retry
     end
   end
 

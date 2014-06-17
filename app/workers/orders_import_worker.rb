@@ -49,7 +49,11 @@ class OrdersImportWorker
     if item.new_record?
       item_proxy = OpenStruct.new(item_raw)
       item.merge_attributes(item_proxy)
-      item.save!
+      begin
+        item.save!
+      rescue PG::UniqueViolation => e
+        item = Item.find_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
+      end
     end
 
     item
