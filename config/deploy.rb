@@ -31,6 +31,7 @@ set :normalize_asset_timestamps, false
 set :sidekiq_env, 'production'
 set :sidekiq_pid, File.join(shared_path, 'pids', 'sidekiq.pid')
 set :sidekiq_concurrency, 4
+set :sidekiq_options, '-c 4'
 
 # Whenever
 set :whenever_identifier, defer { "#{application}_#{rails_env}" }
