@@ -26,10 +26,8 @@ class MahoutService
     if preferences.any? && tunnel_active?
       res = tunnel.user_based_block(nil, options)
     elsif preferences.none?
-      puts 'No preferences'
       res = []
     else
-      puts "Tunnel inactive!"
       res = []
     end
     return res
@@ -42,7 +40,6 @@ class MahoutService
     if tunnel_active? && preferences.any?
       res = tunnel.item_based_weight_block(user_id, options)
     else
-      puts "Tunnel inactive!"
       res = options[:weight].slice(0, options[:limit])
     end
     return res
