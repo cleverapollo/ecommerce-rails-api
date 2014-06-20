@@ -28,7 +28,8 @@ class MailingBatchWorker
   def prepare_attrs
     @mailing = @mailing_batch.mailing
     @shop = @mailing_batch.mailing.shop
-    @recommendations_retriever = RecommendationsRetriever.new(shop, 9)
+    item_ids = Item.where(shop_id: @shop.id, uniqid: @mailing.items).pluck(:id)
+    @recommendations_retriever = RecommendationsRetriever.new(shop, 15, item_ids)
   end
 
   def process_users

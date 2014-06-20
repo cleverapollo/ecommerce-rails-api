@@ -48,10 +48,6 @@ class Mailing < ActiveRecord::Base
 
   def process_items
     return if items.none?
-
-    items.each do |item|
-      item['internal_id'] = Item.find_by(shop_id: shop.id, uniqid: item['id']).try(:id)
-    end
   end
 
   def process_business_rules

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140611104523) do
+ActiveRecord::Schema.define(version: 20140617112513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,15 +137,6 @@ ActiveRecord::Schema.define(version: 20140611104523) do
 
   add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
-
-  create_table "mailer_jobs", force: true do |t|
-    t.string   "state",      default: "enqueued", null: false
-    t.integer  "shop_id",                         null: false
-    t.text     "statistics"
-    t.text     "params",                          null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "mailing_batches", force: true do |t|
     t.integer  "mailing_id",                      null: false
@@ -300,6 +291,7 @@ ActiveRecord::Schema.define(version: 20140611104523) do
     t.string   "secret"
     t.integer  "partner_id"
     t.text     "css"
+    t.datetime "connected_at"
   end
 
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
