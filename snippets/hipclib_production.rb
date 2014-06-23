@@ -14,8 +14,8 @@ def hipclub_mailer
     'shop_secret' => shop_secret,
     'send_from'   => send_from,
     'subject'     => subject,
-    'template'    => File.read('snippets/hipclub_template.html'),
-    'items'       => ["travel6851", "travel6855", "travel6862", "travel6829", "travel6867", "travel6869", "travel6870", "travel6874", "travel6877", "travel6881", "travel6884", "travel6885", "travel6853", "travel6858", "travel6883", "travel6875", "travel6864", "travel6846", "travel6842", "travel6879", "travel6878", "travel6844", "travel6871", "travel6866", "travel6854", "travel6841", "travel6876", "travel6872", "travel6882", "travel6865", "travel6860", "travel6857", "travel6863", "travel6880", "travel6868", "travel6859", "travel6856", "travel6861", "travel6658", "travel6779", "travel6830", "travel6831", "travel6832"]
+    'template'    => File.read('snippets/hipclub_template_2.html'),
+    'items'       => "travel1798", "travel6851", "travel6855", "travel6862", "travel6829", "travel6867", "travel6869", "travel6870", "travel6874", "travel6877", "travel6884", "travel6853", "travel6858", "travel6883", "travel6875", "travel6864", "travel6842", "travel6879", "travel6878", "travel6844", "travel6871", "travel6854", "travel6876", "travel6860", "travel6861", "travel6880", "travel6868", "travel6859", "travel6885", "travel6881", "travel6863", "travel6882", "travel6865", "travel6866", "travel6856", "travel6857", "travel6872", "travel6886", "travel6887", "travel6658", "travel6830", "travel6831", "travel6832"]
   };
 
   resp = HTTParty.post(url + 'mailings',
@@ -34,7 +34,7 @@ def hipclub_mailer
       'token' => token.to_s
     };
 
-    if batch.count > 1
+    if batch.count > 0
       body = {
         'shop_id' => shop_id,
         'shop_secret' => shop_secret,
