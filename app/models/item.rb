@@ -1,7 +1,7 @@
 class Item < ActiveRecord::Base
   ACTION_ATTRIBUTES = [:is_available, :price, :category_uniqid, :locations, :brand, :repeatable]
 
-  attr_accessor :amount, :action_id
+  attr_accessor :amount, :action_id, :mail_recommended_by
 
   belongs_to :shop
   has_many :actions do

@@ -28,10 +28,14 @@ class RecommendationsRetriever
     result = result + interesting(self.limit)
 
     if result.count < self.limit
-      result = result + (item_ids - result).sample(self.limit - result.count)
+      result = result + more((item_ids - result.map(&:id)), self.limit - result.count)
     end
 
-    Item.where(id: result).to_a
+    result
+  end
+
+  def more(ids, limit)
+    Item.where(id: ids.sample(limit)).map{|item| item.mail_recommended_by = 'default_offer'; item }
   end
 
   def interesting(limit)
@@ -47,6 +51,6 @@ class RecommendationsRetriever
     rescue Timeout::Error => e
       retry
     end
-    mahout_ids
+    Item.where(id: mahout_ids).map{|item| item.mail_recommended_by = 'interesting'; item }
   end
 end
