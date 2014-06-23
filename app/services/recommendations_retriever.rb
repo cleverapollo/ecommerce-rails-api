@@ -28,15 +28,10 @@ class RecommendationsRetriever
     result = result + interesting(self.limit)
 
     if result.count < self.limit
-      #result = result + (item_ids - result).sample(self.limit - result.count)
+      result = result + (item_ids - result).sample(self.limit - result.count)
     end
 
-    Item.where(id: result).map do |item|
-      item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
-      item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
-      item.url = UrlHelper.add_param(item.url, utm_campaign: 'interesting')
-      item
-    end
+    Item.where(id: result).to_a
   end
 
   def interesting(limit)

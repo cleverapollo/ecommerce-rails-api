@@ -34,7 +34,7 @@ def hipclub_mailer
       'token' => token.to_s
     };
 
-    if batch.count > 100
+    if batch.count > 10
       body = {
         'shop_id' => shop_id,
         'shop_secret' => shop_secret,

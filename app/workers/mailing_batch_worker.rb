@@ -51,6 +51,18 @@ class MailingBatchWorker
           recommendations.unshift(business_rule)
         end
 
+        recommendations = recommendations.map do |item|
+          item.url = 'http://hipclub.ru/index/autosignin?code=1800403'
+          item.url = UrlHelper.add_param(item.url, key: user['token'])
+          item_redirect_url = "sales/view/id/#{item.uniqid.split('travel').last}"
+          item.url = UrlHelper.add_param(item.url, redirect_path: item_redirect_url)
+          item.url = UrlHelper.add_param(item.url, utm_term: 'foo')
+          item.url = UrlHelper.add_param(item.url, utm_content: '24.06.2014')
+          item.url = UrlHelper.add_param(item.url, utm_medium: 'text')
+          item.url = UrlHelper.add_param(item.url, utm_source: 'mail_hipclub')
+          item
+        end
+
         Mailer.digest(
           email: email,
           subject: mailing.subject,
