@@ -19,8 +19,8 @@ class MailingsController < ApplicationController
 
     @mailing_batch = @mailing.mailing_batches.create!(users: params.fetch(:users))
 
-    #MailingBatchWorker.perform_async(@mailing_batch.id)
-    MailingBatchWorker.new.perform(@mailing_batch.id)
+    MailingBatchWorker.perform_async(@mailing_batch.id)
+    #MailingBatchWorker.new.perform(@mailing_batch.id)
   #rescue ActiveRecord::RecordNotFound => e
     #respond_with_client_error('Mailing not found')
   end
