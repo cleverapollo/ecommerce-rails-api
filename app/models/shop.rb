@@ -26,7 +26,7 @@ class Shop < ActiveRecord::Base
   def report_recommender(recommender)
     if connected_recommenders[recommender] != true
       ShopEventsReporter.recommendation_given(self) if first_recommender?
-      connected_recommenders[event] = true
+      connected_recommenders[recommender] = true
       check_connection!
       save
     end
