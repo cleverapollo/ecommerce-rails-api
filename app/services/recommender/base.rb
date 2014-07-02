@@ -23,15 +23,10 @@ module Recommender
 
       ids = recommended_ids
       result = translate_to_external_ids(ids)
-      report
-      return result
-    end
 
-    def report
-      if params.shop.connected_recommenders[params.type.to_sym] == false
-        params.shop.connected_recommenders[params.type.to_sym] = true
-        params.shop.save
-      end
+      params.shop.report_recommender(params.type.to_sym)
+
+      return result
     end
 
     def check_params
