@@ -50,7 +50,7 @@ class Shop < ActiveRecord::Base
   end
 
   def connected_now?
-    (connected_events.values.select{|v| v == true }.count > 3) && (connected_recommenders.values.select{|v| v == true }.count > 3)
+    connected_events[:view] == true && connected_events[:purchase] == true && (connected_recommenders.values.select{|v| v == true }.count >= 3)
   end
 
   def available_item_ids
