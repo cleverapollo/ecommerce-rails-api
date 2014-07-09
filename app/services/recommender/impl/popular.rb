@@ -14,7 +14,7 @@ module Recommender
       end
 
       def items_to_weight
-        Action.connection.execute("
+        res = Action.connection.execute("
           SELECT item_id
           FROM actions
           WHERE
@@ -29,6 +29,25 @@ module Recommender
           ORDER BY SUM(purchase_count) DESC
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
+
+        if res.none? 
+          res = Action.connection.execute("
+            SELECT item_id
+            FROM actions
+            WHERE
+              timestamp > #{min_date}
+              AND shop_id = #{params.shop.id}
+              #{category_query}
+              #{item_query}
+              #{locations_query}
+              AND is_available = true
+            GROUP BY item_id
+            ORDER BY SUM(rating) DESC
+            LIMIT #{LIMIT}
+          ").map{|i| i['item_id'].to_i }
+        end
+
+        res
       end
     end
   end
