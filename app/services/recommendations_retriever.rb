@@ -120,12 +120,4 @@ class RecommendationsRetriever
     end
     res
   end
-
-  def init_recommendations
-    @recommendations = [
-      [nil, nil, nil],
-      [nil, nil, nil],
-      [nil, nil, nil]
-    ]
-  end
 end
