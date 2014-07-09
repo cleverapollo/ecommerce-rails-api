@@ -1,14 +1,14 @@
 shop_id     = 'f95342356fa619749015b7225f3b7db3';
 shop_secret = '08d43a570bdeab3c8f5b5e1e5b357491';
-url         = 'http://api.rees46.com/';
+url         = 'http://localhost:8080/';
 
 body = {
   'shop_id'     => shop_id,
   'shop_secret' => shop_secret,
   'send_from'   => 'DOM98.RU <web@dom98.ru>',
-  'subject'     => 'Вы приглашены на закрытую распродажу в DOM98',
-  'template'    => File.read('/home/dom98/dom98.html'),
-  'business_rules' => [{ 'id' => '40865'}]
+  'subject'     => 'Удачная покупка ждет Вас в ДОМ98',
+  'template'    => File.read('/Users/anton-zh/git/rees46_api/snippets/dom98.html'),
+  'business_rules' => []#[{ 'id' => '40865'}]
 };
 
 resp = HTTParty.post(url + 'mailings',
@@ -26,7 +26,7 @@ def filtered_email(email)
   end
 end
 
-User.find_in_batches(batch_size: 100) do |batch|
+User.where(subscribed: true).find_in_batches(batch_size: 10) do |batch|
   users = []
 
   batch.each do |user|
@@ -53,4 +53,5 @@ User.find_in_batches(batch_size: 100) do |batch|
     body: body.to_json,
     headers: { 'Content-Type' => 'application/json' }
   )
+  break
 end

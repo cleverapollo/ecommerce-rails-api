@@ -1,4 +1,4 @@
-class MailingBatchWorker
+class MailingBatchWorkerHipclub
   include Sidekiq::Worker
   sidekiq_options :retry => false
 
@@ -29,7 +29,7 @@ class MailingBatchWorker
     @mailing = @mailing_batch.mailing
     @shop = @mailing_batch.mailing.shop
     item_ids = Item.where(shop_id: @shop.id, uniqid: @mailing.items).pluck(:id)
-    @recommendations_retriever = RecommendationsRetriever.new(shop, 15)
+    @recommendations_retriever = RecommendationsRetriever.new(shop, 15, item_ids)
   end
 
   def process_users
@@ -49,6 +49,17 @@ class MailingBatchWorker
           item
         end.each do |business_rule|
           recommendations.unshift(business_rule)
+        end
+
+        recommendations = recommendations.map do |item|
+          item.url = "http://hipclub.ru/index/autosignin?code=#{user['id']}"
+          item.url = UrlHelper.add_param(item.url, key: user['token'])
+          item_redirect_url = "sales/view/id/#{item.uniqid.split('travel').last}"
+          item.url = UrlHelper.add_param(item.url, redirect_path: item_redirect_url)
+          item.url = UrlHelper.add_param(item.url, utm_content: '24.06.2014')
+          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46_test')
+          item.url = UrlHelper.add_param(item.url, recommended_by: item.mail_recommended_by)
+          item
         end
 
         Mailer.digest(
@@ -79,15 +90,16 @@ class MailingBatchWorker
     unsubscribe_url = nil
     if user['unsubscribe_url'].present?
       unsubscribe_url = user['unsubscribe_url']
-      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_source: 'rees46')
-      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_meta: 'email_digest')
-      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_campaign: 'unsubscribe')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_content: '24.06.2014')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_source: 'rees46_test')
     end
 
     template_for_user = template_for_user.gsub('{{unsubscribe_url}}', unsubscribe_url) if unsubscribe_url.present?
 
     recommendations.to_a.each_with_index do |item, i|
       template_for_user = template_for_user.gsub("{{item[#{i}].name}}", item.name.to_s)
+      template_for_user = template_for_user.gsub("{{code}}", user['id'])
+      template_for_user = template_for_user.gsub("{{token}}", user['token'])
       template_for_user = template_for_user.gsub("{{item[#{i}].url}}", item.url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].image_url}}", item.image_url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].price}}", StringHelper.format_money(item.price))
