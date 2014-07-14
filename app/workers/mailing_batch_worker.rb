@@ -95,7 +95,7 @@ class MailingBatchWorker
       template_for_user = template_for_user.gsub("{{item[#{i}].url}}", item.url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].image_url}}", item.image_url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].price}}", StringHelper.format_money(item.price))
-      template_for_user = template_for_user.gsub("{{utm_params_encoded}}", "%3Futm_content%3D14.07.2014%26utm_source%3Drees46_test%26recommended_by%3Ddefault_offer")
+      template_for_user = template_for_user.gsub("{{utm_params_encoded}}", "%3Futm_content%3D14.07.2014%26utm_source%3Drees46_test%26recommended_by%3Dpopular")
     end
 
     template_for_user

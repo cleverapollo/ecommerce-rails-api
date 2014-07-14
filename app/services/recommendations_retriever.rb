@@ -35,7 +35,7 @@ class RecommendationsRetriever
   end
 
   def more(ids, limit)
-    Item.where(id: ids.sample(limit)).map{|item| item.mail_recommended_by = 'default_offer'; item }
+    Item.where(id: ids.sample(limit)).map{|item| item.mail_recommended_by = 'popular'; item }
   end
 
   def interesting(limit)

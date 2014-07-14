@@ -26,12 +26,11 @@
 
     batch << {
       'id' => id.to_s,
-      #'email' => email,
-      'email' => 'anton.zhavoronkov@mkechinov.ru',
+      'email' => email,
       'token' => token.to_s
     };
 
-    if batch.count > 2
+    if batch.count > 99
       body = {
         'shop_id' => shop_id,
         'shop_secret' => shop_secret,
@@ -41,6 +40,5 @@
       HTTParty.post("#{url}mailings/#{resp}/perform", body: body.to_json, headers: { 'Content-Type' => 'application/json' });
 
       batch = []
-      raise 'lol'
     end
   end
