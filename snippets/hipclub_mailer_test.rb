@@ -7,7 +7,7 @@ def hipclub_mailer
   shop_secret = 'c7b8f06243e90286caa18ba0ac948e5b';
   url         = 'http://localhost:8080/';
   send_from   = 'HIPCLUB <messages@hipclub.ru>'
-  subject     = "Июньские праздники с hipclub: на Скиатос за 5000 рублей, Сардиния от 433€, The Queen of Montenegro 4* в Черногории от 842€, Thalasso & Terroir во Франции, Норвежские фьорды за 43750 рублей, Holiday Inn Lesnaya 4* -46%, Кипр, Родос и многое другое"
+  subject     = "Самое интересное за неделю в hipclub"
 
   body = {
     'shop_id'     => shop_id,

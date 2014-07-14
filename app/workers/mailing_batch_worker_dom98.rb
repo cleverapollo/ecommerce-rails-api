@@ -1,4 +1,4 @@
-class MailingBatchWorker
+class MailingBatchWorkerDom98
   include Sidekiq::Worker
   sidekiq_options :retry => false
 
@@ -22,14 +22,12 @@ class MailingBatchWorker
       raise e
     end
     @mailing_batch.save
-    ActionMailer::Base.deliveries = []
   end
 
   def prepare_attrs
     @mailing = @mailing_batch.mailing
     @shop = @mailing_batch.mailing.shop
-    item_ids = Item.where(shop_id: @shop.id, uniqid: @mailing.items).pluck(:id)
-    @recommendations_retriever = RecommendationsRetriever.new(shop, 15, item_ids)
+    @recommendations_retriever = RecommendationsRetriever.new(shop, 15)
   end
 
   def process_users
@@ -41,17 +39,14 @@ class MailingBatchWorker
 
         recommendations = recommendations_for(id)
 
-        recommendations = recommendations.map do |item|
-          item.url = "http://hipclub.ru/index/autosignin?code=#{user['id']}&key=#{user['token']}"
-
-          item_redirect_path = "sales%2Fview%2Fid%2F#{item.uniqid.split('travel').last}"
-          item_redirect_path += "%26utm_content%3D14.07.2014"
-          item_redirect_path += "%26utm_source%3Drees46_test"
-          item_redirect_path += "%26recommended_by%3D#{item.mail_recommended_by}"
-
-          item.url += "&redirect_path=#{item_redirect_path}"
-
+        mailing.business_rules.map do |business_rule|
+          item = Item.find(business_rule['internal_id'])
+          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
+          item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
+          item.url = UrlHelper.add_param(item.url, utm_campaign: 'business_rule')
           item
+        end.each do |business_rule|
+          recommendations.unshift(business_rule)
         end
 
         Mailer.digest(
@@ -82,20 +77,18 @@ class MailingBatchWorker
     unsubscribe_url = nil
     if user['unsubscribe_url'].present?
       unsubscribe_url = user['unsubscribe_url']
-      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_content: '24.06.2014')
-      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_source: 'rees46_test')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_source: 'rees46')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_meta: 'email_digest')
+      unsubscribe_url = UrlHelper.add_param(unsubscribe_url, utm_campaign: 'unsubscribe')
     end
 
     template_for_user = template_for_user.gsub('{{unsubscribe_url}}', unsubscribe_url) if unsubscribe_url.present?
 
     recommendations.to_a.each_with_index do |item, i|
       template_for_user = template_for_user.gsub("{{item[#{i}].name}}", item.name.to_s)
-      template_for_user = template_for_user.gsub("{{code}}", user['id'])
-      template_for_user = template_for_user.gsub("{{token}}", user['token'])
       template_for_user = template_for_user.gsub("{{item[#{i}].url}}", item.url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].image_url}}", item.image_url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].price}}", StringHelper.format_money(item.price))
-      template_for_user = template_for_user.gsub("{{utm_params_encoded}}", "%3Futm_content%3D14.07.2014%26utm_source%3Drees46_test%26recommended_by%3Ddefault_offer")
     end
 
     template_for_user
