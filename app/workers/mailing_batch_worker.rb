@@ -45,7 +45,7 @@ class MailingBatchWorker
           item.url = "http://hipclub.ru/index/autosignin?code=#{user['id']}&key=#{user['token']}"
 
           item_redirect_path = "sales%2Fview%2Fid%2F#{item.uniqid.split('travel').last}"
-          item_redirect_path += "%26utm_content%3D14.07.2014"
+          item_redirect_path += "%3Futm_content%3D14.07.2014"
           item_redirect_path += "%26utm_source%3Drees46_test"
           item_redirect_path += "%26recommended_by%3D#{item.mail_recommended_by}"
 
