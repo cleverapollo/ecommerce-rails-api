@@ -5,6 +5,7 @@ class Shop < ActiveRecord::Base
 
   store :connection_status, accessors: [:connected_events, :connected_recommenders], coder: JSON
 
+  belongs_to :customer
   has_and_belongs_to_many :users
   has_many :shops_users
   has_many :actions

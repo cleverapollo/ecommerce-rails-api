@@ -1,25 +1,52 @@
 class OrdersImportWorker
+  class OrdersImportError < StandardError; end
+
   include Sidekiq::Worker
   sidekiq_options :retry => false
 
   def perform(opts)
-    @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+    begin
+      @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
 
-    opts['orders'].each do |order|
-      @current_order = order
-      @current_user = fetch_user(@current_shop.id, @current_order['user_id'], @current_order['user_email'])
-
-      next if order_already_saved?(order, @current_shop.id)
-
-      items = []
-      order['items'].each do |i|
-        item = fetch_item(i, @current_shop.id)
-        item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
-        item.amount = i['amount'].to_i
-        items << item
+      if opts['orders'].nil? || !opts['orders'].is_a?(Array)
+        raise OrdersImportError.new('Не передан массив заказов')
+      end
+      if opts['orders'].none?
+        raise OrdersImportError.new('Пустой массив заказов')
       end
 
-      persist_order(@current_order, items, @current_shop.id, @current_user.id)
+      opts['orders'].each do |order|
+        @current_order = order
+
+        if @current_order['id'].blank?
+          raise OrdersImportError.new('Передан заказ без ID')
+        end
+
+        if @current_order['user_id'].blank?
+          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")        
+        end
+
+        @current_user = fetch_user(@current_shop.id, @current_order['user_id'], @current_order['user_email'])
+
+        next if order_already_saved?(order, @current_shop.id)
+
+        items = []
+
+        if @current_order['items'].nil? || @current_order['items'].none?
+          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без массива товаров")
+        end
+
+        order['items'].each do |i|
+          item = fetch_item(i, @current_shop.id)
+          item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
+          item.amount = i['amount'].to_i
+          items << item
+        end
+
+        persist_order(@current_order, items, @current_shop.id, @current_user.id)
+      end
+    rescue OrdersImportError => e
+      ErrorsMailer.orders_import_error(@current_shop.customer, e.message)
     end
   end
 
@@ -44,6 +71,13 @@ class OrdersImportWorker
   end
 
   def fetch_item(item_raw, shop_id)
+    if item_raw['id'].blank?
+      raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар без ID")
+    end
+    if item_raw['price'].blank?
+      raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар ##{item_raw['id']} без цены")
+    end
+
     item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
 
     if item.new_record?

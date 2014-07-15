@@ -1,4 +1,6 @@
 class ImportsController < ApplicationController
+  include ShopAuthenticator
+  
   def orders
     OrdersImportWorker.perform_async(params)
     render text: 'OK'
