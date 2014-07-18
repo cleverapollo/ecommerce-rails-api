@@ -1,5 +1,5 @@
 class Item < ActiveRecord::Base
-  ACTION_ATTRIBUTES = [:is_available, :price, :category_uniqid, :locations, :brand, :repeatable]
+  ACTION_ATTRIBUTES = [:is_available, :price, :category_uniqid, :categories, :locations, :brand, :repeatable]
 
   attr_accessor :amount, :action_id, :mail_recommended_by
 
@@ -65,6 +65,11 @@ class Item < ActiveRecord::Base
          available_till: ValuesHelper.present_one(new_item, self, :available_till),
              repeatable: ValuesHelper.false_one(new_item, self, :repeatable)
     }
+
+    # REES-341.2
+    if attrs[:category_uniqid].present?
+      attrs[:categories] = [attrs[:category_uniqid]]
+    end
 
     assign_attributes(attrs)
     self.widgetable = self.name.present? && self.url.present? && self.image_url.present?

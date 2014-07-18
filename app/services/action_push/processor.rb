@@ -28,6 +28,12 @@ module ActionPush
                           timestamp: (params.date || Date.current.to_time.to_i),
                           locations: item.locations,
                           brand: item.brand
+
+      # REES-341.2
+      if a.category_uniqid.present?
+        a.categories = [a.category_uniqid]
+      end
+
       a
     end
   end

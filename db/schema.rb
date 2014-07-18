@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140617112513) do
+ActiveRecord::Schema.define(version: 20140718090222) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20140617112513) do
     t.string   "locations",                  default: [],                                             array: true
     t.string   "brand"
     t.boolean  "repeatable",                 default: false,                             null: false
+    t.string   "categories",                 default: [],                                             array: true
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -71,6 +72,20 @@ ActiveRecord::Schema.define(version: 20140617112513) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
+  create_table "branches", force: true do |t|
+    t.string   "name"
+    t.boolean  "deletable",  default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "cmses", force: true do |t|
+    t.string   "code",       null: false
+    t.string   "name",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "customers", force: true do |t|
     t.string   "email",                  default: "",   null: false
     t.string   "encrypted_password",     default: "",   null: false
@@ -96,6 +111,18 @@ ActiveRecord::Schema.define(version: 20140617112513) do
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "events", force: true do |t|
+    t.integer  "shop_id",         null: false
+    t.string   "name",            null: false
+    t.text     "additional_info"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "events", ["created_at"], name: "index_events_on_created_at", using: :btree
+  add_index "events", ["name"], name: "index_events_on_name", using: :btree
+  add_index "events", ["shop_id"], name: "index_events_on_shop_id", using: :btree
 
   create_table "insales_shops", force: true do |t|
     t.string   "token"
@@ -124,6 +151,7 @@ ActiveRecord::Schema.define(version: 20140617112513) do
     t.string  "brand"
     t.boolean "repeatable",                default: false, null: false
     t.date    "available_till"
+    t.string  "categories",                default: [],                 array: true
   end
 
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
@@ -275,25 +303,27 @@ ActiveRecord::Schema.define(version: 20140617112513) do
   end
 
   create_table "shops", force: true do |t|
-    t.string   "uniqid",                                 null: false
-    t.string   "name",                                   null: false
-    t.boolean  "active",                 default: true
+    t.string   "uniqid",                                    null: false
+    t.string   "name",                                      null: false
+    t.boolean  "active",                    default: true
     t.integer  "customer_id"
-    t.datetime "pay_before"
-    t.boolean  "pay_notification",       default: false
-    t.boolean  "connected",              default: false
+    t.boolean  "connected",                 default: false
     t.string   "url"
-    t.string   "branch"
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
     t.datetime "ab_testing_finished_at"
     t.text     "connection_status"
     t.string   "secret"
     t.integer  "partner_id"
-    t.text     "css"
     t.datetime "connected_at"
+    t.string   "mean_monthly_orders_count"
+    t.integer  "branch_id"
+    t.boolean  "paid",                      default: false, null: false
+    t.datetime "trial_ends_at"
+    t.integer  "cms_id"
   end
 
+  add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
 
@@ -307,6 +337,17 @@ ActiveRecord::Schema.define(version: 20140617112513) do
   end
 
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
+
+  create_table "styles", force: true do |t|
+    t.integer  "shop_id",     null: false
+    t.string   "shop_uniqid", null: false
+    t.text     "css"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
+  add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false
