@@ -9,6 +9,7 @@ module Recommendations
     attr_accessor :cart_item_ids
     attr_accessor :limit
     attr_accessor :locations
+    attr_accessor :items
 
     def initialize
       @cart_item_ids = []
@@ -36,6 +37,10 @@ module Recommendations
         if params[:item_id].present?
           extracted_params.item = Item.find_by(uniqid: params[:item_id].to_s, shop_id: extracted_params.shop.id)
           extracted_params.item_id = extracted_params.item.try(:id)
+        end
+
+        if params[:items].present?
+          extracted_params.items = params[:items].split(',')
         end
 
         [:cart_item_id].each do |key|
