@@ -11,10 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140718090222) do
+ActiveRecord::Schema.define(version: 20140721094807) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "btree_gist"
+  enable_extension "btree_gin"
 
   create_table "actions", force: true do |t|
     t.integer  "user_id",          limit: 8,                                             null: false
@@ -43,8 +45,8 @@ ActiveRecord::Schema.define(version: 20140718090222) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "is_available", "purchase_count", "timestamp", "category_uniqid"], name: "tmpidx2", using: :btree
   add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
+  add_index "actions", ["shop_id", "timestamp", "categories"], name: "popular_index", where: "((is_available = true) AND (purchase_count > 0))", using: :gin
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
