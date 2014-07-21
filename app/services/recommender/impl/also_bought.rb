@@ -37,7 +37,7 @@ module Recommender
                          .order('count(item_id) desc')
                          .limit(LIMIT)
 
-        items = items.where(locations_clause) if params.locations.present?
+        items = items.where(locations_clause) if params.locations.present? && params.locations.any?
 
         items.map(&:item_id)
       end
