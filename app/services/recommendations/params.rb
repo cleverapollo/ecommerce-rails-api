@@ -19,6 +19,7 @@ module Recommendations
       def extract(params)
         extracted_params = new
         extracted_params.categories = []
+        extracted_params.locations = []
 
         raise ArgumentError.new('Session ID not provided') if params[:ssid].blank?
         raise ArgumentError.new('Shop ID not provided') if params[:shop_id].blank?
