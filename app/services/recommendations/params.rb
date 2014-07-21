@@ -4,6 +4,7 @@ module Recommendations
     attr_accessor :shop
     attr_accessor :type
     attr_accessor :categories
+    attr_accessor :category_uniqid
     attr_accessor :item
     attr_accessor :item_id
     attr_accessor :cart_item_ids
@@ -32,6 +33,7 @@ module Recommendations
         extracted_params.type = params[:recommender_type]
 
         if params[:category].present?
+          extracted_params.category_uniqid = params[:category].to_i.to_s
           extracted_params << params[:category].to_i.to_s
         end
 
