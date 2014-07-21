@@ -10,8 +10,18 @@ module Recommender
       end
 
       def category_query
-        if params.item.category_uniqid.present?
-          "AND category_uniqid = '#{params.item.category_uniqid}'"
+        categories = if params.categories.any?
+          params.categories
+        else
+          if params.item.category_uniqid.present?
+            [params.item.category_uniqid]
+          else
+            []
+          end
+        end
+        
+        if categories.any?
+          "AND (array[#{categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ categories)"
         end
       end
 
