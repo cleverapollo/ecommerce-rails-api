@@ -48,7 +48,7 @@ module Recommender
 
     def items_in_shop
       i = params.shop.items.available
-      i = i.where(locations_clause) if params.locations.present?
+      i = i.where(locations_clause) if params.locations.present? && params.locations.any?
       i.pluck(:id)
     end
 
@@ -63,16 +63,13 @@ module Recommender
     end
 
     def locations_query
-      if params.locations.present?
+      if params.locations.present? && params.locations.any?
         "AND #{locations_clause}"
       end
     end
 
     def locations_clause
-      if params.locations.present?
-        l = locations.split(',').map{|l| "'#{l}'" }.join(',')
-        "ARRAY[]::varchar[#{l}] <@ locations"
-      end
+      "(array[#{params.locations.map{|l| "'#{l}'" }.join(',')}]::VARCHAR[] <@ locations)"
     end
 
     def item_query
