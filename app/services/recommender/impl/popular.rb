@@ -4,7 +4,9 @@ module Recommender
       LIMIT = 20
 
       def category_query
-        if params.categories.any?
+        if params.category_uniqid.present?
+          "AND (array[#{params.category_uniqid}]::VARCHAR[] <@ categories)"
+        elsif params.categories.any?
           "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ categories)"
         end
       end
