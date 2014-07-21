@@ -34,7 +34,7 @@ module Recommendations
 
         if params[:category].present?
           extracted_params.category_uniqid = params[:category].to_i.to_s
-          extracted_params << params[:category].to_i.to_s
+          extracted_params.categories << params[:category].to_i.to_s
         end
 
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
