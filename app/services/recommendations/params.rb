@@ -3,7 +3,7 @@ module Recommendations
     attr_accessor :user
     attr_accessor :shop
     attr_accessor :type
-    attr_accessor :category_uniqid
+    attr_accessor :categories
     attr_accessor :item
     attr_accessor :item_id
     attr_accessor :cart_item_ids
@@ -18,6 +18,7 @@ module Recommendations
     class << self
       def extract(params)
         extracted_params = new
+        extracted_params.categories = []
 
         raise ArgumentError.new('Session ID not provided') if params[:ssid].blank?
         raise ArgumentError.new('Shop ID not provided') if params[:shop_id].blank?
@@ -28,9 +29,12 @@ module Recommendations
 
         extracted_params.user = UserFetcher.new(uniqid: params[:user_id], ssid: params[:ssid], shop_id: extracted_params.shop.id).fetch
         extracted_params.type = params[:recommender_type]
-        extracted_params.category_uniqid = params[:category].present? ? params[:category].to_i.to_s : nil
+
+        if params[:category].present?
+          extracted_params << params[:category].to_i.to_s
+        end
+
         extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
-        extracted_params.locations = params[:locations] if params[:locations].present?
 
         raise ArgumentError.new('Item should not be array') if params[:item_id].is_a?(Hash)
 
@@ -41,6 +45,14 @@ module Recommendations
 
         if params[:items].present?
           extracted_params.items = params[:items].split(',')
+        end
+
+        if params[:categories].present?
+          extracted_params.categories += params[:categories].split(',')
+        end
+
+        if params[:locations].present?
+          extracted_params.locations += params[:locations].split(',')
         end
 
         [:cart_item_id].each do |key|
