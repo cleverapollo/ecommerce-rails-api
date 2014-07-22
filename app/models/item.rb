@@ -68,7 +68,7 @@ class Item < ActiveRecord::Base
     }
 
     # REES-341.2
-    if attrs[:category_uniqid].present? || attrs[:categories].none?
+    if attrs[:category_uniqid].present? && attrs[:categories].none?
       attrs[:categories] = [attrs[:category_uniqid]]
     end
 
