@@ -101,7 +101,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable, :available_till].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable, :available_till, :categories].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -121,6 +121,7 @@ module ActionPush
         amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
+        categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
         name = raw[:name][i].present? ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
         description = raw[:description][i].present? ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
         url = raw[:url][i].present? ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
@@ -137,6 +138,7 @@ module ActionPush
                                      amount: amount,
                                      locations: locations,
                                      tags: tags,
+                                     categories: categories,
                                      name: name,
                                      description: description,
                                      url: url,

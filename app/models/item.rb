@@ -55,6 +55,7 @@ class Item < ActiveRecord::Base
         category_uniqid: ValuesHelper.present_one(new_item, self, :category_uniqid),
                   price: ValuesHelper.present_one(new_item, self, :price),
               locations: ValuesHelper.present_one(new_item, self, :locations),
+             categories: ValuesHelper.present_one(new_item, self, :locations),
                    tags: ValuesHelper.present_one(new_item, self, :tags),
                    name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
             description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
@@ -67,7 +68,7 @@ class Item < ActiveRecord::Base
     }
 
     # REES-341.2
-    if attrs[:category_uniqid].present?
+    if attrs[:category_uniqid].present? || attrs[:categories].none?
       attrs[:categories] = [attrs[:category_uniqid]]
     end
 
