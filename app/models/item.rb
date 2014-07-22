@@ -54,9 +54,9 @@ class Item < ActiveRecord::Base
     attrs = {
         category_uniqid: ValuesHelper.present_one(new_item, self, :category_uniqid),
                   price: ValuesHelper.present_one(new_item, self, :price),
-              locations: ValuesHelper.present_one(new_item, self, :locations),
-             categories: ValuesHelper.present_one(new_item, self, :locations),
-                   tags: ValuesHelper.present_one(new_item, self, :tags),
+              locations: ValuesHelper.with_contents(new_item, self, :locations),
+             categories: ValuesHelper.with_contents(new_item, self, :categories),
+                   tags: ValuesHelper.with_contents(new_item, self, :tags),
                    name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
             description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
                     url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
