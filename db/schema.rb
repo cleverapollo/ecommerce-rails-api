@@ -11,11 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140721094807) do
+ActiveRecord::Schema.define(version: 20140723094916) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "btree_gist"
   enable_extension "btree_gin"
 
   create_table "actions", force: true do |t|
@@ -323,6 +322,7 @@ ActiveRecord::Schema.define(version: 20140721094807) do
     t.boolean  "paid",                      default: false, null: false
     t.datetime "trial_ends_at"
     t.integer  "cms_id"
+    t.string   "currency",                  default: "р."
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
