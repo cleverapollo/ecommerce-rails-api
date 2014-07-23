@@ -46,7 +46,7 @@ class OrdersImportWorker
         persist_order(@current_order, items, @current_shop.id, @current_user.id)
       end
     rescue OrdersImportError => e
-      ErrorsMailer.orders_import_error(@current_shop.customer, e.message)
+      ErrorsMailer.orders_import_error(@current_shop.customer, e.message, opts)
     end
   end
 
