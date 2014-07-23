@@ -9,7 +9,7 @@ describe InitController do
       before { get :init_script, @params }
 
       it 'returns init server string' do
-        expect(response.body).to match /REES46.initServer\('.+', '#{Rees46.base_url}', (0|1|2)\);/
+        expect(response.body).to match /REES46.initServer\('.+', '#{Rees46.base_url}', (0|1|2), '.+'\);/
       end
 
       it 'assigns session to @session' do

@@ -11,7 +11,7 @@ class Shop < ActiveRecord::Base
   has_many :actions
   has_many :mahout_actions
   has_many :orders
-
+  has_one :insales_shop
   has_many :user_shop_relations
   has_many :items
 
