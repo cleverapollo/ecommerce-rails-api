@@ -75,9 +75,10 @@ class OrdersImportWorker
     if item_raw['id'].blank?
       raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар без ID")
     end
-    if item_raw['price'].blank?
-      raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар ##{item_raw['id']} без цены")
-    end
+    
+    item_raw['price'] = 0.0 if item_raw['price'].blank?
+    item_raw['category_uniqid'] = item_raw['category'] if item_raw['category'].present? 
+    item_raw['category_uniqid'] = item_raw['category_id'] if item_raw['category_id'].present? 
 
     item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
 
