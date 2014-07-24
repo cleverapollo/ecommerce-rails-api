@@ -35,6 +35,10 @@ class Action < ActiveRecord::Base
     end
   end
 
+  def name_code
+    self.class.to_s.split(':').last.underscore
+  end
+
   def post_process
 
   end

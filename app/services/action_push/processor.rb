@@ -12,6 +12,12 @@ module ActionPush
       params.items.each do |item|
         action = fetch_action_for item
         action.process params
+
+        Interaction.push(user_id: params.user.id, 
+                         shop_id: params.shop.id, 
+                         item_id: item.id, 
+                         type: action.name_code,
+                         recommended_by: params.recommended_by)
       end
 
       concrete_action_class.mass_process(params)

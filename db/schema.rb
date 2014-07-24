@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140723094916) do
+ActiveRecord::Schema.define(version: 20140724100024) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -135,6 +135,15 @@ ActiveRecord::Schema.define(version: 20140723094916) do
   end
 
   add_index "insales_shops", ["shop_id"], name: "index_insales_shops_on_shop_id", using: :btree
+
+  create_table "interactions", force: true do |t|
+    t.integer  "shop_id",          null: false
+    t.integer  "user_id",          null: false
+    t.integer  "item_id",          null: false
+    t.integer  "code",             null: false
+    t.integer  "recommender_code"
+    t.datetime "created_at",       null: false
+  end
 
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8,                 null: false
