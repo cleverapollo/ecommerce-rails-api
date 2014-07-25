@@ -53,7 +53,7 @@ class InsalesExporter
         break
       else
         items.each do |item|
-          @categories_cache[item['id']] = item['category_id']
+          @categories_cache[item['id']] = item['canonical_url_collection_id']
         end
         page += 1
       end
