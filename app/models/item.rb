@@ -32,7 +32,12 @@ class Item < ActiveRecord::Base
 
       item.amount = item_proxy.amount
 
-      item.save!
+      begin
+        item.save!
+      rescue ActiveRecord::RecordNotUnique => e
+        item = find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
+        item.amount = item_proxy.amount
+      end
 
       item.actions.merge_attributes(attrs) if item.persisted? && item.changed?
 
