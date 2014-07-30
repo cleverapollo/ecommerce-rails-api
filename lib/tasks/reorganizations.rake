@@ -23,7 +23,7 @@ namespace :reorganizations do
 
   desc "Recalculate orders"
   task recalculate_orders: :environment do
-    Order.includes(order_items: :item).where("date >= ?", 1.month.ago).find_each(batch_size: 100) do |order|
+    Order.includes(order_items: :item).where(common_value: 0.0, recommended_value: 0.0).where("date >= ?", 1.month.ago).find_each(batch_size: 100) do |order|
       next if order.user.blank? || order.shop.blank?
       items = order.order_items.map{|oi| i = oi.item; i.amount = oi.amount; i }
       values = Order.order_values(order.shop, order.user, items)
