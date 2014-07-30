@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140724100024) do
+ActiveRecord::Schema.define(version: 20140730074728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,7 +44,9 @@ ActiveRecord::Schema.define(version: 20140724100024) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
+  add_index "actions", ["shop_id", "is_available", "purchase_count", "timestamp", "category_uniqid"], name: "tmpidx2", using: :btree
   add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
+  add_index "actions", ["shop_id", "timestamp", "categories", "rating"], name: "popular_index_rating", where: "(is_available = true)", using: :gin
   add_index "actions", ["shop_id", "timestamp", "categories"], name: "popular_index", where: "((is_available = true) AND (purchase_count > 0))", using: :gin
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
@@ -209,15 +211,17 @@ ActiveRecord::Schema.define(version: 20140724100024) do
   end
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                            null: false
-    t.integer  "user_id",                            null: false
-    t.string   "uniqid",                             null: false
-    t.datetime "date",             default: "now()", null: false
-    t.integer  "items",            default: [],      null: false, array: true
-    t.integer  "amounts",          default: [],      null: false, array: true
-    t.decimal  "value",            default: 0.0,     null: false
-    t.boolean  "recommended",      default: false,   null: false
+    t.integer  "shop_id",                             null: false
+    t.integer  "user_id",                             null: false
+    t.string   "uniqid",                              null: false
+    t.datetime "date",              default: "now()", null: false
+    t.integer  "items",             default: [],      null: false, array: true
+    t.integer  "amounts",           default: [],      null: false, array: true
+    t.decimal  "value",             default: 0.0,     null: false
+    t.boolean  "recommended",       default: false,   null: false
     t.integer  "ab_testing_group"
+    t.decimal  "recommended_value", default: 0.0,     null: false
+    t.decimal  "common_value",      default: 0.0,     null: false
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -246,6 +250,28 @@ ActiveRecord::Schema.define(version: 20140724100024) do
 
   add_index "partners", ["email"], name: "index_partners_on_email", unique: true, using: :btree
   add_index "partners", ["reset_password_token"], name: "index_partners_on_reset_password_token", unique: true, using: :btree
+
+  create_table "payments", force: true do |t|
+    t.integer  "shop_id",           null: false
+    t.integer  "plan_id",           null: false
+    t.string   "paypal_token"
+    t.string   "paypal_payer_id"
+    t.string   "paypal_profile_id"
+    t.string   "state",             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "plans", force: true do |t|
+    t.string   "name",       null: false
+    t.integer  "orders_min", null: false
+    t.integer  "orders_max", null: false
+    t.integer  "price"
+    t.string   "plan_type",  null: false
+    t.text     "mailing"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "potential_customers", force: true do |t|
     t.string   "name"
@@ -332,6 +358,9 @@ ActiveRecord::Schema.define(version: 20140724100024) do
     t.datetime "trial_ends_at"
     t.integer  "cms_id"
     t.string   "currency",                  default: "р."
+    t.integer  "plan_id"
+    t.boolean  "needs_to_pay",              default: false, null: false
+    t.datetime "paid_till"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

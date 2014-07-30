@@ -10,13 +10,16 @@ class Order < ActiveRecord::Base
       uniqid = generate_uniqid if uniqid.blank?
 
       begin
-        is_recommended = Action.where(item_id: items.map(&:id), shop_id: shop.id, user_id: user.id).where('recommended_by is not null').any?
+        values = order_values(shop, user, items)
+
         order = Order.create! \
                              shop_id: shop.id,
                              user_id: user.id,
                              uniqid: uniqid,
-                             value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum,
-                             recommended: is_recommended,
+                             common_value: values[:common_value],
+                             recommended_value: values[:recommended_value],
+                             value: values[:value],
+                             recommended: (values[:recommended_value] > 0),
                              ab_testing_group: ShopsUser.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
 
         items.each do |item|
@@ -25,6 +28,24 @@ class Order < ActiveRecord::Base
       rescue ActiveRecord::RecordNotUnique => e
 
       end
+    end
+
+    def order_values(shop, user, items)
+      result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
+
+      items.each do |item|
+        is_recommended = Action.select(:id).where(item_id: item.id, shop_id: shop.id, user_id: user.id).where('recommended_by is not null').limit(1).present?
+
+        if is_recommended
+          result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
+        else
+          result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
+        end
+      end
+
+      result[:value] = result[:common_value] + result[:recommended_value]
+
+      result
     end
 
     def duplicate?(shop, user, uniqid, items)
