@@ -12,6 +12,7 @@ Rees46Api::Application.routes.draw do
   resource :import, only: :none do
     post :orders
     post :items
+    post :insales
   end
 
   resource :mailer, only: :none do

@@ -1,10 +1,13 @@
-class InsalesExporter
+class InsalesWorker
   APP_LOGIN = 'rees46'
   APP_SECRET = 'c940a1b06136d578d88999c459083b78'
 
+  include Sidekiq::Worker
+  sidekiq_options :retry => false
+
   class InsalesExportError < StandardError; end
 
-  def initialize(shop)
+  def perform(shop)
     if shop.insales_shop.blank?
       raise InsalesExportError.new('Это не InSales-магазин')
     end
@@ -14,9 +17,7 @@ class InsalesExporter
     @url = "http://#{@insales_shop.insales_shop}"
     @auth = { username: APP_LOGIN, password: Digest::MD5.hexdigest(@insales_shop.token + APP_SECRET) }
     @processed_orders = []
-  end
 
-  def perform
     initialize_categories_cache
 
     page = 1; per_page = 25
