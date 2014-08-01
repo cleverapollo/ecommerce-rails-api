@@ -12,7 +12,7 @@ class ImportsController < ApplicationController
   end
 
   def insales
-    InsalesWorker.perform_async(@shop)
+    InsalesWorker.perform_async(@shop.id)
     render text: 'OK'
   end
 end

@@ -7,7 +7,9 @@ class InsalesWorker
 
   class InsalesExportError < StandardError; end
 
-  def perform(shop)
+  def perform(shop_id)
+    shop = Shop.find(shop_id)
+
     if shop.insales_shop.blank?
       raise InsalesExportError.new('Это не InSales-магазин')
     end
