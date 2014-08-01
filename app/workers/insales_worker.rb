@@ -56,7 +56,7 @@ class InsalesWorker
         break
       else
         items.each do |item|
-          @categories_cache[item['id']] = item['canonical_url_collection_id']
+          @categories_cache[item['id']] = item['canonical_url_collection_id'].to_s + item['category_id'].to_s
         end
         page += 1
       end

@@ -20,7 +20,7 @@ loop do
   else
     items.each do |item|
       uniqid = item['id'].to_s;
-      category = item['canonical_url_collection_id'].to_s;
+      category = item['canonical_url_collection_id'].to_s + item['category_id'].to_s;
 
       item = shop.items.find_by(uniqid: uniqid);
 
