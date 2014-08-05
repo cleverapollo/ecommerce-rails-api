@@ -5,9 +5,9 @@ module Recommender
 
       def category_query
         if params.category_uniqid.present?
-          "AND category_uniqid = '#{params.category_uniqid}'"
+          "AND (array['#{params.category_uniqid}']::VARCHAR[] <@ items.categories)"
         elsif params.categories.present? && params.categories.any?
-          "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ categories)"
+          "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ items.categories)"
         end
       end
 
@@ -15,18 +15,25 @@ module Recommender
         3.month.ago.to_date.to_time.to_i
       end
 
+      def items_in_category_query
+        "
+          SELECT items.id FROM items WHERE
+          items.shop_id = #{params.shop.id}
+          #{category_query}
+        "
+      end
+
       def items_to_weight
         res = Action.connection.execute("
           SELECT item_id
           FROM actions
           WHERE
-            timestamp > #{min_date}
+            item_id IN (#{items_in_category_query})
+            AND timestamp > #{min_date}
             AND shop_id = #{params.shop.id}
-            #{category_query}
             #{item_query}
             #{locations_query}
             AND purchase_count > 0
-            AND is_available = true
           GROUP BY item_id
           ORDER BY SUM(purchase_count) DESC
           LIMIT #{LIMIT}
@@ -37,12 +44,11 @@ module Recommender
             SELECT item_id
             FROM actions
             WHERE
-              timestamp > #{min_date}
+              item_id IN (#{items_in_category_query})
+              AND timestamp > #{min_date}
               AND shop_id = #{params.shop.id}
-              #{category_query}
               #{item_query}
               #{locations_query}
-              AND is_available = true
             GROUP BY item_id
             ORDER BY SUM(rating) DESC
             LIMIT #{LIMIT}
