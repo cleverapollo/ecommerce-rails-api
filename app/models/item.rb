@@ -6,8 +6,8 @@ class Item < ActiveRecord::Base
   belongs_to :shop
   has_many :actions do
     def merge_attributes(attrs)
-      ['categories', 'locations'].each do |key|
-        attrs[key] = "{#{attrs[key].join(',')}}"
+      [:categories, :locations].each do |key|
+        attrs[key] = attrs[key].blank? ? '{}' : "{#{attrs[key].join(',')}}"
       end
 
       update_all(attrs.select{|key, _| ACTION_ATTRIBUTES.include?(key.to_sym) })
