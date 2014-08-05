@@ -1,18 +1,11 @@
 class Item < ActiveRecord::Base
+  ARRAY_ATTRIBUTES = [:categories, :locations]
   ACTION_ATTRIBUTES = [:is_available, :price, :category_uniqid, :categories, :locations, :brand, :repeatable]
 
   attr_accessor :amount, :action_id, :mail_recommended_by
 
   belongs_to :shop
-  has_many :actions do
-    def merge_attributes(attrs)
-      [:categories, :locations].each do |key|
-        attrs[key] = attrs[key].blank? ? '{}' : "{#{attrs[key].join(',')}}"
-      end
-
-      update_all(attrs.select{|key, _| ACTION_ATTRIBUTES.include?(key.to_sym) })
-    end
-  end
+  has_many :actions
 
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till >= ?', Date.current) }
@@ -41,7 +34,7 @@ class Item < ActiveRecord::Base
         item.amount = item_proxy.amount
       end
 
-      item.actions.merge_attributes(attrs) if item.persisted? && changed
+      ItemsSynchronizeWorker.perform_async(item.id, attrs) if item.persisted? && changed
 
       item
     end

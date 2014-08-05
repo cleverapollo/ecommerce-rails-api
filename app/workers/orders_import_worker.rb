@@ -2,7 +2,7 @@ class OrdersImportWorker
   class OrdersImportError < StandardError; end
 
   include Sidekiq::Worker
-  sidekiq_options :retry => false
+  sidekiq_options retry: false, queue: 'long'
 
   def perform(opts)
     begin

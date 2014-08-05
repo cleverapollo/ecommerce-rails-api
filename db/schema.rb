@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140730074728) do
+ActiveRecord::Schema.define(version: 20140801081946) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -147,6 +147,12 @@ ActiveRecord::Schema.define(version: 20140730074728) do
     t.datetime "created_at",       null: false
   end
 
+  create_table "ipn_messages", force: true do |t|
+    t.text     "content",    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "items", force: true do |t|
     t.integer "shop_id",         limit: 8,                 null: false
     t.string  "uniqid",                                    null: false
@@ -228,12 +234,12 @@ ActiveRecord::Schema.define(version: 20140730074728) do
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
 
   create_table "partners", force: true do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
+    t.string   "email",                  default: "",    null: false
+    t.string   "encrypted_password",     default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",          default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -245,7 +251,10 @@ ActiveRecord::Schema.define(version: 20140730074728) do
     t.integer  "role",                   default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "token",                               null: false
+    t.string   "token",                                  null: false
+    t.text     "description"
+    t.string   "url"
+    t.boolean  "approved",               default: false, null: false
   end
 
   add_index "partners", ["email"], name: "index_partners_on_email", unique: true, using: :btree
@@ -361,6 +370,7 @@ ActiveRecord::Schema.define(version: 20140730074728) do
     t.integer  "plan_id"
     t.boolean  "needs_to_pay",              default: false, null: false
     t.datetime "paid_till"
+    t.boolean  "manual",                    default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

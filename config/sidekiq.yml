@@ -1,0 +1,13 @@
+---
+:concurrency: 20
+:pidfile: tmp/pids/sidekiq.pid
+production:
+  :concurrency: 20
+:queues:
+  - critical
+  - default
+  - long
+:limits:
+  critical: 5
+  default: 10
+  long:     5

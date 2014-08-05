@@ -3,7 +3,7 @@ class InsalesWorker
   APP_SECRET = 'c940a1b06136d578d88999c459083b78'
 
   include Sidekiq::Worker
-  sidekiq_options :retry => false
+  sidekiq_options retry: false, queue: 'long'
 
   class InsalesExportError < StandardError; end
 

@@ -15,6 +15,7 @@ gem 'redis-objects', '0.9.0'
 
 # Workers
 gem 'sidekiq', '2.17.7'
+gem 'sidekiq-limit_fetch', '2.2.5'
 
 # Services
 gem 'rollbar', '0.12.14'
