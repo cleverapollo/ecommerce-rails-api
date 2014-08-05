@@ -30,6 +30,8 @@ class Item < ActiveRecord::Base
 
       attrs = item.merge_attributes(item_proxy)
 
+      changed = item.changed?
+
       item.amount = item_proxy.amount
 
       begin
@@ -39,7 +41,7 @@ class Item < ActiveRecord::Base
         item.amount = item_proxy.amount
       end
 
-      item.actions.merge_attributes(attrs) if item.persisted? && item.changed?
+      item.actions.merge_attributes(attrs) if item.persisted? && changed
 
       item
     end
