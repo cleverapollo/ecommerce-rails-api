@@ -18,7 +18,8 @@ module Recommender
       def items_in_category_query
         "
           SELECT items.id FROM items WHERE
-          items.shop_id = #{params.shop.id}
+          items.shop_id = #{params.shop.id} AND
+          is_available = true
           #{category_query}
         "
       end
