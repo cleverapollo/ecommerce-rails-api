@@ -1,6 +1,6 @@
 class Item < ActiveRecord::Base
   ARRAY_ATTRIBUTES = [:categories, :locations]
-  ACTION_ATTRIBUTES = [:is_available, :price, :category_uniqid, :categories, :locations, :brand, :repeatable]
+  ACTION_ATTRIBUTES = [:is_available, :locations]
 
   attr_accessor :amount, :action_id, :mail_recommended_by
 
@@ -23,7 +23,7 @@ class Item < ActiveRecord::Base
 
       attrs = item.merge_attributes(item_proxy)
 
-      changed = item.changed?
+      changed = item.is_available_changed? || item.locations_changed?
 
       item.amount = item_proxy.amount
 

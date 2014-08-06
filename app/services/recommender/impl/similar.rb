@@ -11,16 +11,26 @@ module Recommender
 
       def category_query
         if params.categories.present? && params.categories.any? 
-          "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ categories)"
-        elsif params.item.category_uniqid.present?
-          "AND category_uniqid = '#{params.item.category_uniqid}'"
+          "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ items.categories)"
+        else
+          "AND (array[#{params.item.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ items.categories)"
         end
       end
 
       def price_query
         if params.item.price.present?
-          "AND (price BETWEEN #{PRICE_DOWN * params.item.price} AND #{PRICE_UP * params.item.price})"
+          "AND (items.price BETWEEN #{PRICE_DOWN * params.item.price} AND #{PRICE_UP * params.item.price})"
         end
+      end
+
+      def items_in_category_query
+        "
+         SELECT items.id FROM items WHERE
+         is_available = true AND
+         shop_id = #{params.shop.id}
+         #{price_query}
+         #{category_query}
+        "
       end
 
       def min_date
@@ -31,13 +41,10 @@ module Recommender
         Action.connection.execute("
           SELECT item_id FROM actions
           WHERE
-            shop_id = #{params.shop.id}
-            AND is_available = true
-            #{price_query}
+            item_id IN (#{items_in_category_query})
             AND timestamp > #{min_date}
-            #{category_query}
-            #{item_query}
             #{locations_query}
+            #{item_query}
           GROUP BY item_id
           ORDER BY avg(rating) desc
           LIMIT #{LIMIT}
