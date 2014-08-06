@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140806074415) do
+ActiveRecord::Schema.define(version: 20140806092834) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,6 +216,8 @@ ActiveRecord::Schema.define(version: 20140806074415) do
     t.integer "amount",                   default: 1, null: false
     t.string  "recommended_by"
   end
+
+  add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", force: true do |t|
     t.integer  "shop_id",                             null: false
