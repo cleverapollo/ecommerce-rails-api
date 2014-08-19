@@ -95,15 +95,19 @@ class OrdersImportWorker
     item
   end
 
-  def fetch_actions(item, shop_id, user_id)
-    action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+  def fetch_actions(item, shop_id, user_id)\
+    begin
+      action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
 
-    if action.persisted?
-      action.increment!(:purchase_count)
-    else
-      action.update(item.attributes_for_actions.merge(rating: 5.0, purchase_count: 1))
+      if action.persisted?
+        action.increment!(:purchase_count)
+      else
+        action.update(item.attributes_for_actions.merge(rating: 5.0, purchase_count: 1))
 
-      MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+        MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+      end
+    rescue PG::UniqueViolation => e
+      retry
     end
 
     action.id
