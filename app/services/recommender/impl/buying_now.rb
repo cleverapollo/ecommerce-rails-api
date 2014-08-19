@@ -37,6 +37,12 @@ module Recommender
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
 
+        no_dup_query = if res.any?
+          "AND item_id NOT IN (#{res.join(',')})"
+        else
+          ''
+        end
+
         if res.size < params.limit
           res += Action.connection.execute("
           SELECT item_id
@@ -46,6 +52,7 @@ module Recommender
             AND shop_id = #{params.shop.id}
             #{locations_query}
             #{excluded_query}
+            #{no_dup_query}
             AND is_available = true
             AND user_id != #{params.user.id}
           GROUP BY item_id
