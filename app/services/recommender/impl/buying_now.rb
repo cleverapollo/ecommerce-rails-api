@@ -23,7 +23,7 @@ module Recommender
 
       def items_to_weight
         res = Action.connection.execute("
-          SELECT DISTINCT item_id
+          SELECT item_id
           FROM actions
           WHERE
             timestamp >= #{min_date}
@@ -39,7 +39,7 @@ module Recommender
 
         if res.size < params.limit
           res += Action.connection.execute("
-          SELECT DISTINCT item_id
+          SELECT item_id
           FROM actions
           WHERE
             timestamp >= #{min_date}
@@ -49,7 +49,7 @@ module Recommender
             AND is_available = true
             AND user_id != #{params.user.id}
           GROUP BY item_id
-          ORDER BY timestamp DESC
+          ORDER BY MAX(timestamp) DESC
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
         end
