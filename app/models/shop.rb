@@ -14,6 +14,7 @@ class Shop < ActiveRecord::Base
   has_one :insales_shop
   has_many :user_shop_relations
   has_many :items
+  belongs_to :plan
 
   def report_event(event)
     if connected_events[event] != true
@@ -65,5 +66,9 @@ class Shop < ActiveRecord::Base
     mahout_actions.delete_all
     orders.destroy_all
     items.destroy_all
+  end
+
+  def show_promotion?
+    plan.try(:free?) == true
   end
 end

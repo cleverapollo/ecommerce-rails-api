@@ -36,7 +36,17 @@ class InitController < ApplicationController
 
   def init_server_string(session, shop)
     ab_testing_group = shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0
-    "REES46.initServer('#{session.uniqid}', '#{Rees46.base_url}', #{ab_testing_group}, '#{shop.currency}');"
+    show_promotion = shop.show_promotion? ? 'true' : 'false'
+
+    <<-JS
+      REES46.initServer({
+        ssid: '#{session.uniqid}',
+        baseURL: '#{Rees46.base_url}',
+        testingGroup: #{ab_testing_group},
+        currency: '#{shop.currency}',
+        showPromotion: #{show_promotion}
+      });
+    JS
   end
 
   def user_agent
