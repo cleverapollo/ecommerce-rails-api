@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140806092834) do
+ActiveRecord::Schema.define(version: 20140820133302) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(version: 20140806092834) do
   add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index", where: "(purchase_count > 0)", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
+  add_index "actions", ["shop_id", "timestamp", "price", "categories"], name: "tmp_similar_index", where: "(is_available = true)", using: :gin
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -83,10 +84,12 @@ ActiveRecord::Schema.define(version: 20140806092834) do
   end
 
   create_table "cmses", force: true do |t|
-    t.string   "code",       null: false
-    t.string   "name",       null: false
+    t.string   "code",                               null: false
+    t.string   "name",                               null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "supported",          default: false, null: false
+    t.string   "documentation_link"
   end
 
   create_table "customers", force: true do |t|
@@ -295,6 +298,24 @@ ActiveRecord::Schema.define(version: 20140806092834) do
     t.datetime "updated_at"
   end
 
+  create_table "requisites", force: true do |t|
+    t.integer  "requisitable_id",                  null: false
+    t.string   "requisitable_type",                null: false
+    t.text     "name",                             null: false
+    t.string   "inn",                   limit: 12, null: false
+    t.string   "kpp",                   limit: 9,  null: false
+    t.text     "legal_address",                    null: false
+    t.text     "mailing_address",                  null: false
+    t.text     "bank_name",                        null: false
+    t.string   "bik",                   limit: 9,  null: false
+    t.string   "correspondent_account", limit: 20, null: false
+    t.string   "checking_account",      limit: 20, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "requisites", ["requisitable_id", "requisitable_type"], name: "index_requisites_on_requisitable_id_and_requisitable_type", using: :btree
+
   create_table "schema_version", id: false, force: true do |t|
     t.integer  "version_rank",                                  null: false
     t.integer  "installed_rank",                                null: false
@@ -374,6 +395,9 @@ ActiveRecord::Schema.define(version: 20140806092834) do
     t.boolean  "needs_to_pay",              default: false, null: false
     t.datetime "paid_till"
     t.boolean  "manual",                    default: false, null: false
+    t.boolean  "requested_ab_testing",      default: false, null: false
+    t.decimal  "efficiency",                default: 0.0,   null: false
+    t.string   "yml_file_url"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

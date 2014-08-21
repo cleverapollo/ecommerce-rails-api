@@ -5,6 +5,8 @@ class YmlParserWorker
   def perform(shop_id)
     shop = Shop.find(shop_id)
 
+    return if shop.yml_loaded
+
     if shop.yml_file_url.blank?
       raise ArgumentError.new('У магазина не указана ссылка на YML-файл')
     end
@@ -22,5 +24,7 @@ class YmlParserWorker
                   image_url: i['picture'],
                   is_available: i['available'] != 'false')
     end
+
+    shop.update(yml_loaded: true)
   end
 end
