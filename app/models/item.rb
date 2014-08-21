@@ -8,12 +8,15 @@ class Item < ActiveRecord::Base
   has_many :actions
 
   scope :available, -> { where(is_available: true) }
-  scope :expired, -> { where('available_till IS NOT NULL').where('available_till >= ?', Date.current) }
+  scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
 
   class << self
     def disable_expired
       Item.available.expired.find_each do |item|
-        item.actions.update_all(is_available: false)
+        item.actions.find_in_batches(batch_size: 100) do |batch|
+          Action.where(id: batch.map(&:id), item_id: item.id, shop_id: item.shop_id).update_all(is_available: false)
+        end
+
         item.update(is_available: false)
       end
     end
