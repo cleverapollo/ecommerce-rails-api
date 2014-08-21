@@ -13,6 +13,7 @@ Rees46Api::Application.routes.draw do
     post :orders
     post :items
     post :insales
+    post :yml
   end
 
   resource :mailer, only: :none do

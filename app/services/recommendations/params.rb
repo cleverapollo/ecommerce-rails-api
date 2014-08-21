@@ -37,7 +37,7 @@ module Recommendations
           extracted_params.categories << params[:category].to_s
         end
 
-        extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 10
+        extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 6
 
         raise ArgumentError.new('Item should not be array') if params[:item_id].is_a?(Hash)
 

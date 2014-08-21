@@ -38,7 +38,7 @@ module Recommender
       end
 
       def items_to_weight
-        Action.connection.execute("
+        resp = Action.connection.execute("
           SELECT item_id FROM actions
           WHERE
             item_id IN (#{items_in_category_query})
@@ -49,6 +49,15 @@ module Recommender
           ORDER BY avg(rating) desc
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
+
+        if resp.size < params.limit
+          resp = resp + Action.connection.execute("
+            #{items_in_category_query}
+            LIMIT #{params.limit - resp.size}
+          ").map{|i| i['id'].to_i }
+        end
+
+        resp
       end
     end
   end
