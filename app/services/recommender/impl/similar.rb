@@ -30,6 +30,7 @@ module Recommender
          shop_id = #{params.shop.id}
          #{price_query}
          #{category_query}
+         AND id != #{params.item.id}
         "
       end
 
