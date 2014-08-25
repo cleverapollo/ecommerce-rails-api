@@ -16,10 +16,10 @@ module Actions
 
     def update_concrete_action_attrs
       self.cart_count ||= 1
-      self.cart_date ||= Date.current
+      self.cart_date ||= Time.current
 
       self.purchase_count += 1
-      self.purchase_date = Date.current
+      self.purchase_date = Time.current
     end
 
     def post_process

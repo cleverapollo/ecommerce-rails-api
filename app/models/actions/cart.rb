@@ -10,7 +10,7 @@ module Actions
 
     def update_concrete_action_attrs
       self.cart_count += 1
-      self.cart_date = Date.current
+      self.cart_date = Time.current
     end
 
     def needs_to_update_rating?
