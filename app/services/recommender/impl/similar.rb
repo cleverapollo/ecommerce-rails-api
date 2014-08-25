@@ -51,10 +51,10 @@ module Recommender
           LIMIT #{LIMIT}
         ").map{|i| i['item_id'].to_i }
 
-        if resp.size < params.limit
+        if resp.size < LIMIT
           resp = resp + Action.connection.execute("
             #{items_in_category_query}
-            LIMIT #{params.limit - resp.size}
+            LIMIT #{LIMIT - resp.size}
           ").map{|i| i['id'].to_i }
         end
 
