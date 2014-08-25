@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140820133302) do
+ActiveRecord::Schema.define(version: 20140825135441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -149,6 +149,8 @@ ActiveRecord::Schema.define(version: 20140820133302) do
     t.integer  "recommender_code"
     t.datetime "created_at",       null: false
   end
+
+  add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
 
   create_table "ipn_messages", force: true do |t|
     t.text     "content",    null: false
@@ -398,6 +400,7 @@ ActiveRecord::Schema.define(version: 20140820133302) do
     t.boolean  "requested_ab_testing",      default: false, null: false
     t.decimal  "efficiency",                default: 0.0,   null: false
     t.string   "yml_file_url"
+    t.boolean  "yml_loaded",                default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -414,6 +417,7 @@ ActiveRecord::Schema.define(version: 20140820133302) do
   end
 
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
+  add_index "shops_users", ["user_id"], name: "index_shops_users_on_user_id", using: :btree
 
   create_table "styles", force: true do |t|
     t.integer  "shop_id",     null: false
