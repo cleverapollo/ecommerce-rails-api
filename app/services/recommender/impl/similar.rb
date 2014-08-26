@@ -7,6 +7,7 @@ module Recommender
 
       def check_params!
         raise ArgumentError.new('Item ID required for this recommender') if params.item.blank?
+        raise ArgumentError.new('Item price required for this recommender') if params.item.price.blank?
       end
 
       def items_to_weight
