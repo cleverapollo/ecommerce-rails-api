@@ -4,16 +4,9 @@ module Recommender
       LIMIT = 10
 
       def recommended_ids
-        Action.connection.execute("
-          SELECT item_id FROM actions
-          WHERE
-            shop_id = #{params.shop.id}
-            AND user_id = #{params.user.id}
-            AND view_count > 0
-            #{item_query}
-          ORDER BY view_date DESC
-          LIMIT #{LIMIT}
-        ").map{|i| i['item_id'].to_i }
+        relation = shop.actions.where(user: user).where('view_count > 0')
+        relation = relation.where.not(item: item) if item.present?
+        relation.order('view_date DESC').limit(LIMIT).pluck(:item_id)
       end
     end
   end

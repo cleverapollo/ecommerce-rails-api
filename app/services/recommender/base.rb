@@ -16,6 +16,12 @@ module Recommender
       end
     end
 
+    [:shop, :item, :user].each do |accessor|
+      define_method accessor do
+        params.public_send(accessor)
+      end
+    end
+
     def recommendations
       check_params!
 
@@ -29,14 +35,6 @@ module Recommender
 
     def check_params!
       raise ArgumentError.new('Blank user') if params.user.blank?
-    end
-
-    def shop
-      params.shop
-    end
-
-    def item
-      params.item
     end
 
     def recommended_ids
