@@ -1,10 +1,6 @@
 module Recommender
   module Impl
     class Interesting < Recommender::UserBased
-      def check_params
-        params.user.present?
-      end
-
       def recommended_ids
         res = super
         if params.item.present?

@@ -17,9 +17,7 @@ module Recommender
     end
 
     def recommendations
-      if check_params == false
-        return []
-      end
+      check_params!
 
       ids = recommended_ids
       result = translate_to_external_ids(ids)
@@ -29,8 +27,16 @@ module Recommender
       return result
     end
 
-    def check_params
-      true
+    def check_params!
+      raise ArgumentError.new('Blank user') if params.user.blank?
+    end
+
+    def shop
+      params.shop
+    end
+
+    def item
+      params.item
     end
 
     def recommended_ids

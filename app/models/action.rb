@@ -5,6 +5,8 @@ class Action < ActiveRecord::Base
 
   TYPES = Dir.glob(Rails.root + 'app/models/actions/*').map{|a| a.split('/').last.split('.').first }
 
+  scope :by_average_rating, -> { order('AVG(rating) DESC') }
+
   class << self
     def get_implementation_for(action_type)
       raise ArgumentError.new('Unsupported action type') unless TYPES.include?(action_type)

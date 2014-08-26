@@ -3,8 +3,8 @@ module Recommender
     class AlsoBought < Recommender::Weighted
       LIMIT = 20
 
-      def check_params
-        params.item.present?
+      def check_params!
+        raise ArgumentError.new('Item ID required for this recommender') if params.item.blank?
       end
 
       def excluded_items

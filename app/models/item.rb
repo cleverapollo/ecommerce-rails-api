@@ -9,6 +9,9 @@ class Item < ActiveRecord::Base
 
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
+  scope :in_categories, ->(categories) {
+    where("? <@ categories", "{#{categories.join(',')}}")
+  }
 
   class << self
     def disable_expired

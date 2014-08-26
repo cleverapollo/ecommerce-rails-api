@@ -5,60 +5,22 @@ module Recommender
       PRICE_DOWN = 0.85
       LIMIT = 20
 
-      def check_params
-        params.item.present?
-      end
-
-      def category_query
-        if params.categories.present? && params.categories.any? 
-          "AND (array[#{params.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ items.categories)"
-        else
-          "AND (array[#{params.item.categories.map{|c| "'#{c}'" }.join(',')}]::VARCHAR[] <@ items.categories)"
-        end
-      end
-
-      def price_query
-        if params.item.price.present?
-          "AND (items.price BETWEEN #{PRICE_DOWN * params.item.price} AND #{PRICE_UP * params.item.price})"
-        end
-      end
-
-      def items_in_category_query
-        "
-         SELECT items.id FROM items WHERE
-         is_available = true AND
-         shop_id = #{params.shop.id}
-         #{price_query}
-         #{category_query}
-         AND id != #{params.item.id}
-        "
-      end
-
-      def min_date
-        1.month.ago.to_date.to_time.to_i
+      def check_params!
+        raise ArgumentError.new('Item ID required for this recommender') if params.item.blank?
       end
 
       def items_to_weight
-        resp = Action.connection.execute("
-          SELECT item_id FROM actions
-          WHERE
-            item_id IN (#{items_in_category_query})
-            AND timestamp > #{min_date}
-            #{locations_query}
-            #{item_query}
-          GROUP BY item_id
-          ORDER BY avg(rating) desc
-          LIMIT #{LIMIT}
-        ").map{|i| i['item_id'].to_i }
+        price_range = ((item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i)
+        categories = params.categories.try(:any?) ? params.categories : item.categories
+        min_date = 1.month.ago.to_date.to_time.to_i
 
-        if resp.size < LIMIT
-          resp = resp + Action.connection.execute("
-            #{items_in_category_query}
-            LIMIT #{LIMIT - resp.size}
-          ").map{|i| i['id'].to_i }
+        items_relation = shop.items.available.where(price: price_range).in_categories(categories).where.not(id: item.id)
+
+        result = shop.actions.where(item_id: items_relation).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(LIMIT).pluck(:item_id)
+        if result.size < LIMIT
+          result += items_relation.where.not(id: result).limit(LIMIT - result.size).pluck(:id)
         end
-
-        resp
+        result
       end
     end
   end
