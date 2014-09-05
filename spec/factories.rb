@@ -36,6 +36,7 @@ FactoryGirl.define do
     sequence(:uniqid) {|i| "#{i}" }
     price 100
     category_uniqid '5'
+    categories '{5}'
     is_available true
   end
 

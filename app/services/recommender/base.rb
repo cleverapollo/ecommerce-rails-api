@@ -16,7 +16,7 @@ module Recommender
       end
     end
 
-    [:shop, :item, :user].each do |accessor|
+    [:shop, :item, :user, :categories, :locations, :cart_item_ids].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
@@ -80,6 +80,10 @@ module Recommender
       if params.item.present?
         "AND item_id != #{params.item.id}"
       end
+    end
+
+    def excluded_items_ids
+      [item.try(:id), cart_item_ids, shop.item_ids_purchased_by(user)].flatten.uniq.compact
     end
   end
 end

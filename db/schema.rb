@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140825135441) do
+ActiveRecord::Schema.define(version: 20140905093652) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,9 +44,9 @@ ActiveRecord::Schema.define(version: 20140825135441) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "is_available", "purchase_count", "timestamp", "category_uniqid"], name: "tmpidx2", using: :btree
   add_index "actions", ["shop_id", "is_available", "timestamp", "category_uniqid"], name: "actions_shop_id_is_available_timestamp_category_uniqid_idx", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index", where: "(purchase_count > 0)", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "((purchase_count > 0) AND (is_available = true))", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", where: "(is_available = true)", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
   add_index "actions", ["shop_id", "timestamp", "price", "categories"], name: "tmp_similar_index", where: "(is_available = true)", using: :gin
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree

@@ -16,6 +16,10 @@ class Shop < ActiveRecord::Base
   has_many :items
   belongs_to :plan
 
+  def item_ids_purchased_by(user)
+    actions.where('purchase_count > 0').where(user: user).pluck(:item_id)
+  end
+
   def report_event(event)
     if connected_events[event] != true
       ShopEventsReporter.event_tracked(self) if first_event?
