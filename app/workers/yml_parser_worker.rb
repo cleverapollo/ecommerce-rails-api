@@ -15,15 +15,16 @@ class YmlParserWorker
 
     response['yml_catalog']['shop']['offers']['offer'].each do |i|
       begin
-        item = Item.find_or_initialize_by(shop_id: shop.id, uniqid: i.fetch('id'))
+        item = Item.find_or_initialize_by(shop_id: shop.id, uniqid: i.fetch('id').to_s)
 
-        item.update(price: i.fetch('price'), 
-                    category_uniqid: i['categoryId'],
-                    categories: [i['categoryId']],
-                    name: i['name'],
-                    url: i['url'],
-                    image_url: i['picture'],
-                    is_available: i['available'] != 'false')
+        item.price = i.fetch('price').to_f
+        item.category_uniqid = i['categoryId'].to_s
+        item.categories = [category_uniqid]
+        item.name = i['name'].to_s
+        item.url = i['url'].to_s
+        item.image_url = (i['picture'].present? && i['picture'].is_a?(Array)) ? i['picture'].first.to_s : i['picture'].to_s
+        item.is_available = ((i['available'] != 'false') && (i['available'] != false))
+        item.save
       rescue PG::UniqueViolation => e
         retry
       end
