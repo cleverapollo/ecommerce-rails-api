@@ -19,7 +19,7 @@ class YmlParserWorker
 
         item.price = i.fetch('price').to_f
         item.category_uniqid = i['categoryId'].to_s
-        item.categories = [category_uniqid]
+        item.categories = [item.category_uniqid]
         item.name = i['name'].to_s
         item.url = i['url'].to_s
         item.image_url = (i['picture'].present? && i['picture'].is_a?(Array)) ? i['picture'].first.to_s : i['picture'].to_s
