@@ -1,12 +1,13 @@
 shop_id     = 'f95342356fa619749015b7225f3b7db3';
 shop_secret = '08d43a570bdeab3c8f5b5e1e5b357491';
-url         = 'http://api.rees46.com/';
+#url         = 'http://api.rees46.com/';
+url = 'http://localhost:8080/'
 
 body = {
   'shop_id'     => shop_id,
   'shop_secret' => shop_secret,
   'send_from'   => 'DOM98.RU <web@dom98.ru>',
-  'subject'     => 'Удачная покупка ждет Вас в ДОМ98',
+  'subject'     => 'Мебельные хиты сезона – оцените и купите!',
   'template'    => File.read('/Users/anton-zh/git/rees46_api/snippets/dom98.html'),
   'business_rules' => []#[{ 'id' => '40865'}]
 };
@@ -26,7 +27,7 @@ def filtered_email(email)
   end
 end
 
-User.where(subscribed: true).find_in_batches(batch_size: 2) do |batch|
+User.where(subscribed: true).find_in_batches(batch_size: 10) do |batch|
   users = []
 
   batch.each do |user|
@@ -34,8 +35,8 @@ User.where(subscribed: true).find_in_batches(batch_size: 2) do |batch|
     next if email.nil?
     user_object = {
       'id' => user.id.to_s,
-      #'email' => email,
-      'email' => 'anton.zhavoronkov@mkechinov.ru',
+      'email' => email,
+      #'email' => 'anton.zhavoronkov@mkechinov.ru',
       'name' => user.name,
       'unsubscribe_url' => "http://dom98.ru/users/#{user.id}/dashboard"
     }

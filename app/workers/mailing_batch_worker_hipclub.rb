@@ -1,4 +1,4 @@
-class MailingBatchWorkerHipclub
+class MailingBatchWorkerHipclib
   include Sidekiq::Worker
   sidekiq_options :retry => false
 
@@ -41,24 +41,16 @@ class MailingBatchWorkerHipclub
 
         recommendations = recommendations_for(id)
 
-        mailing.business_rules.map do |business_rule|
-          item = Item.find(business_rule['internal_id'])
-          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
-          item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
-          item.url = UrlHelper.add_param(item.url, utm_campaign: 'business_rule')
-          item
-        end.each do |business_rule|
-          recommendations.unshift(business_rule)
-        end
-
         recommendations = recommendations.map do |item|
-          item.url = "http://hipclub.ru/index/autosignin?code=#{user['id']}"
-          item.url = UrlHelper.add_param(item.url, key: user['token'])
-          item_redirect_url = "sales/view/id/#{item.uniqid.split('travel').last}"
-          item.url = UrlHelper.add_param(item.url, redirect_path: item_redirect_url)
-          item.url = UrlHelper.add_param(item.url, utm_content: '24.06.2014')
-          item.url = UrlHelper.add_param(item.url, utm_source: 'rees46_test')
-          item.url = UrlHelper.add_param(item.url, recommended_by: item.mail_recommended_by)
+          item.url = "http://hipclub.ru/index/autosignin?code=#{user['id']}&key=#{user['token']}"
+
+          item_redirect_path = "sales%2Fview%2Fid%2F#{item.uniqid.split('travel').last}"
+          item_redirect_path += "%3Futm_content%3D14.07.2014"
+          item_redirect_path += "%26utm_source%3Drees46_test"
+          item_redirect_path += "%26recommended_by%3D#{item.mail_recommended_by}"
+
+          item.url += "&redirect_path=#{item_redirect_path}"
+
           item
         end
 
@@ -103,6 +95,7 @@ class MailingBatchWorkerHipclub
       template_for_user = template_for_user.gsub("{{item[#{i}].url}}", item.url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].image_url}}", item.image_url.to_s)
       template_for_user = template_for_user.gsub("{{item[#{i}].price}}", StringHelper.format_money(item.price))
+      template_for_user = template_for_user.gsub("{{utm_params_encoded}}", "%3Futm_content%3D14.07.2014%26utm_source%3Drees46_test%26recommended_by%3Dpopular")
     end
 
     template_for_user
