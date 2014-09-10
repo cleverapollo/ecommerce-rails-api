@@ -27,6 +27,7 @@ class RecommendationsRetriever
         item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
         item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
         item.url = UrlHelper.add_param(item.url, utm_campaign: 'popular')
+        item.url = UrlHelper.add_param(item.url, recommended_by: 'popular')
         item
       end
     end
@@ -78,6 +79,7 @@ class RecommendationsRetriever
       item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
       item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
       item.url = UrlHelper.add_param(item.url, utm_campaign: 'viewed_but_not_bought')
+      item.url = UrlHelper.add_param(item.url, recommended_by: 'interesting')
       item
     end
     res
@@ -113,6 +115,7 @@ class RecommendationsRetriever
       item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
       item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
       item.url = UrlHelper.add_param(item.url, utm_campaign: 'interesting')
+      item.url = UrlHelper.add_param(item.url, recommended_by: 'interesting')
       item
     end
     res
