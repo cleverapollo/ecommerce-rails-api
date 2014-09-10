@@ -12,10 +12,10 @@ module Recommender
 
       def items_to_weight
         price_range = ((item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i)
-        categories = params.categories.try(:any?) ? params.categories : item.categories
+        categories_for_query = params.categories.try(:any?) ? params.categories : item.categories
         min_date = 1.month.ago.to_date.to_time.to_i
 
-        items_relation = shop.items.available.where(price: price_range).in_categories(categories).where.not(id: item.id)
+        items_relation = shop.items.available.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
 
         result = shop.actions.where(item_id: items_relation).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(LIMIT).pluck(:item_id)
         if result.size < LIMIT
