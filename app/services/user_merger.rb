@@ -5,8 +5,13 @@ class UserMerger
       UserShopRelation.where(user_id: slave.id).update_all(user_id: master.id)
 
       ShopsUser.where(user_id: slave.id).each do |su|
-        if ShopsUser.where(user_id: master.id, shop_id: su.shop_id).none?
-          ShopsUser.where(user_id: slave.id, shop_id: su.shop_id).update_all(user_id: master.id)
+        if ShopsUser.where(user_id: master.id, shop_id: su.shop_id).any?
+          su.where(user_id: slave.id, shop_id: su.shop_id).delete_all
+        else
+          begin
+            ShopsUser.where(user_id: slave.id, shop_id: su.shop_id).update_all(user_id: master.id)
+          rescue PG::UniqueViolation
+          end
         end
       end
 
@@ -27,7 +32,10 @@ class UserMerger
 
           slave_action.destroy
         else
-          slave_action.update(user_id: master.id)
+          begin
+            slave_action.update(user_id: master.id)
+          rescue PG::UniqueViolation
+          end
         end
       end
 
@@ -36,7 +44,10 @@ class UserMerger
 
       MahoutAction.where(user_id: slave.id).find_each do |ma|
         if MahoutAction.where(user_id: master.id, item_id: ma.item_id).none?
-          ma.update(user_id: master.id)
+          begin
+            ma.update(user_id: master.id)
+          rescue PG::UniqueViolation
+          end
         else
           ma.destroy
         end
@@ -44,7 +55,7 @@ class UserMerger
 
       begin
         slave.reload.destroy
-      rescue ActiveRecord::RecordNotFound => e
+      rescue PG::UniqueViolation
 
       end
     end
