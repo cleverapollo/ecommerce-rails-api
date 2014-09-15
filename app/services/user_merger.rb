@@ -10,7 +10,7 @@ class UserMerger
         else
           begin
             ShopsUser.where(user_id: slave.id, shop_id: su.shop_id).update_all(user_id: master.id)
-          rescue PG::UniqueViolation
+          rescue ActiveRecord::RecordNotUnique
           end
         end
       end
@@ -34,7 +34,7 @@ class UserMerger
         else
           begin
             slave_action.update(user_id: master.id)
-          rescue PG::UniqueViolation
+          rescue ActiveRecord::RecordNotUnique
           end
         end
       end
@@ -46,7 +46,7 @@ class UserMerger
         if MahoutAction.where(user_id: master.id, item_id: ma.item_id).none?
           begin
             ma.update(user_id: master.id)
-          rescue PG::UniqueViolation
+          rescue ActiveRecord::RecordNotUnique
           end
         else
           ma.destroy
@@ -55,7 +55,7 @@ class UserMerger
 
       begin
         slave.reload.destroy
-      rescue PG::UniqueViolation, ActiveRecord::RecordNotFound
+      rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordNotFound
 
       end
     end
