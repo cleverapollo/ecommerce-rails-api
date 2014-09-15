@@ -55,7 +55,7 @@ class UserMerger
 
       begin
         slave.reload.destroy
-      rescue PG::UniqueViolation
+      rescue PG::UniqueViolation, ActiveRecord::RecordNotFound
 
       end
     end
