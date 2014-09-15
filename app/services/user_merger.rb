@@ -6,7 +6,7 @@ class UserMerger
 
       ShopsUser.where(user_id: slave.id).each do |su|
         if ShopsUser.where(user_id: master.id, shop_id: su.shop_id).any?
-          su.where(user_id: slave.id, shop_id: su.shop_id).delete_all
+          ShopsUser.where(user_id: slave.id, shop_id: su.shop_id).delete_all
         else
           begin
             ShopsUser.where(user_id: slave.id, shop_id: su.shop_id).update_all(user_id: master.id)
