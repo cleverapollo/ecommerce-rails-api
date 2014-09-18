@@ -1,3 +1,5 @@
+require 'whenever/capistrano'
+
 set :application, 'rees46_api'
 
 set :rvm_ruby_string, "2.1.1"
