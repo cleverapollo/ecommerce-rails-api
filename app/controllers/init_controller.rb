@@ -28,6 +28,10 @@ class InitController < ApplicationController
 
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.uniqid
+    cookies[Rees46.cookie_name] = {
+      value: @session.uniqid,
+      expires: 1.year.from_now
+    }
 
     render js: init_server_string(@session, shop)
   end
