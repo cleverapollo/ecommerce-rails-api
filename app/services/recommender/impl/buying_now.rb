@@ -12,7 +12,7 @@ module Recommender
         result = shop.actions.available.where('timestamp >= ?', min_date)
         result = result.where.not(item_id: excluded_items_ids)
         result = result.in_locations(locations)
-        result.group(:item_id).order('AVG(rating) DESC').limit(LIMIT).pluck(:item_id)
+        result.group(:item_id).order('AVG(rating) DESC, SUM(rating) DESC').limit(LIMIT).pluck(:item_id)
       end
     end
   end
