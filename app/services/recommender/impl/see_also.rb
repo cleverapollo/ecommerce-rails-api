@@ -11,11 +11,11 @@ module Recommender
         ids.uniq.compact
       end
 
+      # TODO: Locations check
       def items_to_weight
         items = OrderItem.select('item_id')
                          .where('order_id IN (SELECT DISTINCT order_id FROM order_items WHERE item_id IN (?))', params.cart_item_ids)
                          .where('item_id NOT IN (?)', excluded_items)
-                         .in_locations(locations)
                          .group('item_id')
                          .order('count(item_id) desc')
                          .limit(LIMIT)
