@@ -18,11 +18,11 @@ class YmlParserWorker
         item = Item.find_or_initialize_by(shop_id: shop.id, uniqid: i.fetch('id').to_s)
 
         item.price = i.fetch('price').to_f
-        item.category_uniqid = i['categoryId'].to_s
+        item.category_uniqid = i['categoryId'].to_s.truncate(250)
         item.categories = [item.category_uniqid]
-        item.name = i['name'].to_s
-        item.url = i['url'].to_s
-        item.image_url = (i['picture'].present? && i['picture'].is_a?(Array)) ? i['picture'].first.to_s : i['picture'].to_s
+        item.name = i['name'].to_s.truncate(250)
+        item.url = i['url'].to_s.truncate(250)
+        item.image_url = (i['picture'].present? && i['picture'].is_a?(Array)) ? i['picture'].first.to_s.truncate(250) : i['picture'].to_s.truncate(250)
         item.is_available = ((i['available'] != 'false') && (i['available'] != false))
         item.save
       rescue PG::UniqueViolation => e
