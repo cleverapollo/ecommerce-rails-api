@@ -6,6 +6,7 @@ class Item < ActiveRecord::Base
 
   belongs_to :shop
   has_many :actions
+  has_many :order_items
 
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
