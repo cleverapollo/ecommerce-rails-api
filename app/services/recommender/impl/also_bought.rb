@@ -33,11 +33,10 @@ module Recommender
         items = OrderItem.select('item_id')
                          .where('order_id IN (SELECT DISTINCT order_id FROM order_items WHERE item_id = ?)', params.item.id)
                          .where(excluded_items_query)
+                         .in_locations(locations)
                          .group('item_id')
                          .order('count(item_id) desc')
                          .limit(LIMIT)
-
-        items = items.where(locations_clause) if params.locations.present? && params.locations.any?
 
         items.map(&:item_id)
       end

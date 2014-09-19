@@ -51,39 +51,11 @@ module Recommender
     end
 
     def items_in_shop
-      i = params.shop.items.available
-      i = i.where(locations_clause) if params.locations.present? && params.locations.any?
-      i.pluck(:id)
-    end
-
-    def bought_or_carted_by_user
-      params.user.actions.where('rating >= ?', '4.2').where(shop: params.shop, repeatable: false).pluck(:item_id)
-    end
-
-    class << self
-      def exclude_in_recommendations(user_id, shop_id)
-        Action.where(user_id: user_id).where('rating >= ?', 4.2).where(shop_id: shop_id, repeatable: false).pluck(:item_id)
-      end
-    end
-
-    def locations_query
-      if params.locations.present? && params.locations.any?
-        "AND #{locations_clause}"
-      end
-    end
-
-    def locations_clause
-      "(array[#{params.locations.map{|l| "'#{l}'" }.join(',')}]::VARCHAR[] <@ locations)"
-    end
-
-    def item_query
-      if params.item.present?
-        "AND item_id != #{params.item.id}"
-      end
+      shop.items.available.in_locations(locations).pluck(:id)
     end
 
     def excluded_items_ids
-      [item.try(:id), cart_item_ids, shop.item_ids_purchased_by(user)].flatten.uniq.compact
+      [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user)].flatten.uniq.compact
     end
   end
 end

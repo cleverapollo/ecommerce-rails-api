@@ -101,7 +101,7 @@ class RecommendationsRetrieverDom98
       Timeout::timeout(2) {
         mahout_ids = mahout_service.user_based(user.id, shop.id, nil,
           include: items_in_shop,
-          exclude: Recommender::Base.exclude_in_recommendations(user.id, shop.id),
+          exclude: shop.item_ids_bought_or_carted_by(user),
           limit: limit
         )
       }

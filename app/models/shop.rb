@@ -16,8 +16,8 @@ class Shop < ActiveRecord::Base
   has_many :items
   belongs_to :plan
 
-  def item_ids_purchased_by(user)
-    actions.where('purchase_count > 0').where(user: user).pluck(:item_id)
+  def item_ids_bought_or_carted_by(user)
+    actions.where('RATING >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
   end
 
   def report_event(event)

@@ -7,6 +7,11 @@ class Action < ActiveRecord::Base
 
   scope :by_average_rating, -> { order('AVG(rating) DESC') }
   scope :available, -> { where(is_available: true) }
+  scope :in_locations, ->(locations) {
+    if locations.any?
+      where("? <@ locations", "{#{locations.join(',')}}")
+    end 
+  }
 
   class << self
     def get_implementation_for(action_type)

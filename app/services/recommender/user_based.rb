@@ -8,7 +8,7 @@ module Recommender
                              params.item_id,
                              #include: items_in_shop,
                              include: [],
-                             exclude: bought_or_carted_by_user,
+                             exclude: shop.item_ids_bought_or_carted_by(user),
                              limit: params.limit)
       ms.close
 
