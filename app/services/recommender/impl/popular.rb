@@ -18,7 +18,8 @@ module Recommender
           result += by_rating(relation, LIMIT - result.size)
         end
 
-        result
+        # Если уж и так недостаточно - рандом
+        result = inject_random_items(result)
       end
 
       # Общие условия, работают для всех типов выборок

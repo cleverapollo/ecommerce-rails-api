@@ -16,7 +16,7 @@ module Recommender
       end
     end
 
-    [:shop, :item, :user, :categories, :locations, :cart_item_ids].each do |accessor|
+    [:shop, :item, :user, :categories, :locations, :cart_item_ids, :limit].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
@@ -56,6 +56,13 @@ module Recommender
 
     def excluded_items_ids
       [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user)].flatten.uniq.compact
+    end
+
+    def inject_random_items(given_ids)
+      return given_ids if given_ids.size >= limit
+
+      additional_ids = shop.items.available.in_locations(locations).where.not(id: given_ids).order('RANDOM()').limit(limit - given_ids.count).pluck(:id)
+      given_ids + additional_ids
     end
   end
 end

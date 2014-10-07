@@ -5,10 +5,10 @@ describe Recommender::Impl::Popular do
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop) }
-  let!(:params) { OpenStruct.new(shop: shop, user: user) }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7) }
 
   def create_action(item, is_buy = false)
-    a = item.actions.new(user: other_user, 
+    a = item.actions.new(user: other_user,
                          shop: shop,
                          is_available: true,
                          timestamp: 1.day.ago.to_i,

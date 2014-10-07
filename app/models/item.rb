@@ -12,12 +12,12 @@ class Item < ActiveRecord::Base
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
   scope :in_categories, ->(categories) {
-    if categories.any?
+    if categories && categories.any?
       where("? <@ categories", "{#{categories.join(',')}}")
     end
   }
   scope :in_locations, ->(locations) {
-    if locations.any?
+    if locations && locations.any?
       where("? <@ locations", "{#{locations.join(',')}}")
     end
   }

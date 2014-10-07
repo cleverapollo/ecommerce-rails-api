@@ -2,26 +2,23 @@ module Recommender
   module Impl
     class Interesting < Recommender::UserBased
       def recommended_ids
-        res = super
-        if params.item.present?
-          res = res - [params.item.id]
-        end
-
-        id = not_bought_but_carted_id
-        if id.present? && id != params.item.try(:id)
-          res = res.insert(2, id)
-          res.compact!
-        end
-
-        res
+        result = super
+        result = inject_not_bought_but_carted_id_in(result)
+        result = inject_random_items(result)
       end
 
-      def not_bought_but_carted_id 
-        relation = params.user.actions.where(shop_id: params.shop.id)
+      def inject_not_bought_but_carted_id_in(ids)
+        relation = user.actions.where(shop_id: shop.id)
         relation = relation.where("rating = '#{Actions::Cart::RATING}'::real")
         relation = relation.where('cart_date <= ?', 30.minutes.ago)
         relation = relation.where('cart_date >= ?', 24.hours.ago)
-        relation.limit(1).pluck(:item_id).first
+        id = relation.limit(1).pluck(:item_id).first
+
+        if id.present? && id != item.try(:id) && !ids.include?(id)
+          ids.insert(2, id).first(limit)
+        else
+          ids
+        end
       end
     end
   end

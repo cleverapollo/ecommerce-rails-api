@@ -8,9 +8,9 @@ class Action < ActiveRecord::Base
   scope :by_average_rating, -> { order('AVG(rating) DESC') }
   scope :available, -> { where(is_available: true) }
   scope :in_locations, ->(locations) {
-    if locations.any?
+    if locations && locations.any?
       where("? <@ locations", "{#{locations.join(',')}}")
-    end 
+    end
   }
 
   class << self
