@@ -7,6 +7,7 @@ class Item < ActiveRecord::Base
   belongs_to :shop
   has_many :actions
   has_many :order_items
+  has_many :mahout_actions
 
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
@@ -18,7 +19,7 @@ class Item < ActiveRecord::Base
   scope :in_locations, ->(locations) {
     if locations.any?
       where("? <@ locations", "{#{locations.join(',')}}")
-    end 
+    end
   }
 
   class << self
