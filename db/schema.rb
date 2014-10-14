@@ -11,11 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140919110001) do
+ActiveRecord::Schema.define(version: 20140919143244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
+  enable_extension "btree_gist"
 
   create_table "actions", force: true do |t|
     t.integer  "user_id",          limit: 8,                                             null: false
@@ -374,11 +375,11 @@ ActiveRecord::Schema.define(version: 20140919110001) do
   end
 
   create_table "shops", force: true do |t|
-    t.string   "uniqid",                                    null: false
-    t.string   "name",                                      null: false
-    t.boolean  "active",                    default: true
+    t.string   "uniqid",                                       null: false
+    t.string   "name",                                         null: false
+    t.boolean  "active",                       default: true
     t.integer  "customer_id"
-    t.boolean  "connected",                 default: false
+    t.boolean  "connected",                    default: false
     t.string   "url"
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
@@ -389,20 +390,21 @@ ActiveRecord::Schema.define(version: 20140919110001) do
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count"
     t.integer  "branch_id"
-    t.boolean  "paid",                      default: false, null: false
+    t.boolean  "paid",                         default: false, null: false
     t.datetime "trial_ends_at"
     t.integer  "cms_id"
-    t.string   "currency",                  default: "р."
+    t.string   "currency",                     default: "р."
     t.integer  "plan_id"
-    t.boolean  "needs_to_pay",              default: false, null: false
+    t.boolean  "needs_to_pay",                 default: false, null: false
     t.datetime "paid_till"
-    t.boolean  "manual",                    default: false, null: false
-    t.boolean  "requested_ab_testing",      default: false, null: false
-    t.decimal  "efficiency",                default: 0.0,   null: false
+    t.boolean  "manual",                       default: false, null: false
+    t.boolean  "requested_ab_testing",         default: false, null: false
+    t.decimal  "efficiency",                   default: 0.0,   null: false
     t.string   "yml_file_url"
-    t.boolean  "yml_loaded",                default: false, null: false
+    t.boolean  "yml_loaded",                   default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "tracked_monthly_orders_count", default: 0,     null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
