@@ -5,7 +5,7 @@ class EventsController < ApplicationController
     ActionPush::Processor.new(parameters).process
 
     respond_with_success
-  rescue ArgumentError => e
+  rescue ActionPush::Error => e
     respond_with_client_error(e)
   end
 

@@ -20,7 +20,7 @@ describe Recommendations::Params do
       [:ssid, :shop_id, :recommender_type].each do |attr|
         it "raises an exception without a #{attr}" do
           @params[attr] = nil
-          expect{ subject }.to raise_error(ArgumentError)
+          expect{ subject }.to raise_error(Recommendations::IncorrectParams)
         end
       end
     end

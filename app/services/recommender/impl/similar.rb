@@ -6,8 +6,8 @@ module Recommender
       LIMIT = 20
 
       def check_params!
-        raise ArgumentError.new('Item ID required for this recommender') if params.item.blank?
-        raise ArgumentError.new('That item has no price') if params.item.price.blank?
+        raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
+        raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
       def items_to_weight

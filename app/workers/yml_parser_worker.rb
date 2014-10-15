@@ -1,4 +1,6 @@
 class YmlParserWorker
+  class Error < StandardError; end
+
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
@@ -8,7 +10,7 @@ class YmlParserWorker
     return if shop.yml_loaded
 
     if shop.yml_file_url.blank?
-      raise ArgumentError.new('У магазина не указана ссылка на YML-файл')
+      raise YmlParserWorker::Error.new('У магазина не указана ссылка на YML-файл')
     end
 
     response = HTTParty.get(shop.yml_file_url)

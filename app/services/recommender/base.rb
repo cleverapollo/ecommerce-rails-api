@@ -6,7 +6,7 @@ module Recommender
 
     class << self
       def get_implementation_for(recommender_type)
-        raise ArgumentError.new('Unsupported recommender type') unless TYPES.include?(recommender_type)
+        raise Recommendations::Error.new('Unsupported recommender type') unless TYPES.include?(recommender_type)
 
         recommender_implementation_class_name(recommender_type).constantize
       end
@@ -34,7 +34,7 @@ module Recommender
     end
 
     def check_params!
-      raise ArgumentError.new('Blank user') if params.user.blank?
+      raise Recommendations::Error.new('Blank user') if params.user.blank?
     end
 
     def recommended_ids

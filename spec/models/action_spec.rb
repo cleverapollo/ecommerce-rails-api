@@ -19,8 +19,8 @@ describe Action do
     context 'without existing aciton type' do
       before { @action_type = 'potato' }
 
-      it 'raises ArgumentError' do
-        expect{ subject }.to raise_error(ArgumentError)
+      it 'raises ActionPush::Error' do
+        expect{ subject }.to raise_error(ActionPush::Error)
       end
     end
   end

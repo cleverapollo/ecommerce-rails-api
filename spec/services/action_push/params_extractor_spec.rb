@@ -15,7 +15,7 @@ describe ActionPush::Params do
       subject { ActionPush::Params.extract(@params) }
       shared_examples 'raising error' do
         it 'raises error' do
-          expect{ subject }.to raise_error(ArgumentError)
+          expect{ subject }.to raise_error(ActionPush::Error)
         end
       end
 

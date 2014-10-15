@@ -2,7 +2,7 @@ module Recommender
   module Impl
     class Rescore < Recommender::Weighted
       def check_params!
-        raise ArgumentError.new('Items required for this recommender') if params.items.blank? || params.items.none?
+        raise Recommendations::IncorrectParams.new('Items required for this recommender') if params.items.blank? || params.items.none?
       end
 
       def items_to_weight

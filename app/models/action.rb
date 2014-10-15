@@ -15,7 +15,7 @@ class Action < ActiveRecord::Base
 
   class << self
     def get_implementation_for(action_type)
-      raise ArgumentError.new('Unsupported action type') unless TYPES.include?(action_type)
+      raise ActionPush::Error.new('Unsupported action type') unless TYPES.include?(action_type)
 
       action_implementation_class_name(action_type).constantize
     end

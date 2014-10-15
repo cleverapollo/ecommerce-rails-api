@@ -1,80 +1,166 @@
 module Recommendations
+  ##
+  # Класс, проверяющий и извлекающий нужные объекты из параметров, которые приходят от магазинов при запросе рекомендаций
+  #
   class Params
+    # Входящие параметры
+    attr_accessor :raw
+    # Пользователь
     attr_accessor :user
+    # Магазин
     attr_accessor :shop
+    # Тип вызываемого рекомендера
     attr_accessor :type
+    # Массив категорий
     attr_accessor :categories
-    attr_accessor :category_uniqid
+    # Текущий просматриваемый товар
+    # TODO: переименовать в current_item
     attr_accessor :item
-    attr_accessor :item_id
+    # Массив ID товаров в корзине
     attr_accessor :cart_item_ids
+    # Максимальное количество рекомендаций
     attr_accessor :limit
+    # Массив местоположений, для которых получаем рекомендации
     attr_accessor :locations
+    # Массив товаров, для ранжирования
     attr_accessor :items
 
-    def initialize
-      @cart_item_ids = []
+    # Проверяет и обрабатывает параметры
+    #
+    # @param params [Hash] входящие параметры
+    # @return [Recommendations::Params] обработанные параметры
+    def self.extract(params)
+      new(params).extract
     end
 
-    class << self
-      def extract(params)
-        extracted_params = new
-        extracted_params.categories = []
-        extracted_params.locations = []
+    # Извлекает все возможные данные из входящих параметров
+    #
+    # @raise  [Recommendations::IncorrectParams] исключение с сообщением
+    # @return [Recommendations::Params] обработанные параметры
+    def extract
+      extract_static_attributes
+      extract_shop
+      extract_user
+      extract_item
+      extract_items
+      extract_categories
+      extract_locations
+      extract_cart
 
-        raise ArgumentError.new('Session ID not provided') if params[:ssid].blank?
-        raise ArgumentError.new('Shop ID not provided') if params[:shop_id].blank?
-        raise ArgumentError.new('Recommender type not provided') if params[:recommender_type].blank?
+      self
+    end
 
-        extracted_params.shop = Shop.find_by(uniqid: params[:shop_id])
-        raise ArgumentError.new("Shop not found: #{params[:shop_id]}") if extracted_params.shop.blank?
+    # Метод-сокращалка до ID текущего товара
+    #
+    # @return [Integer] ID текущего товара (если есть)
+    def item_id
+      item.try(:id)
+    end
 
-        extracted_params.user = UserFetcher.new(uniqid: params[:user_id], ssid: params[:ssid], shop_id: extracted_params.shop.id).fetch
-        extracted_params.type = params[:recommender_type]
+    private
 
-        if params[:category].present?
-          extracted_params.category_uniqid = params[:category].to_s
-          extracted_params.categories << params[:category].to_s
+    # Конструктор, инициализирует аттрибуты, выполняет первоначальную проверку параметров
+    #
+    # @private
+    # @param params [Hash] входящие параметры
+    def initialize(params)
+      @raw           = params
+      @categories    = []
+      @locations     = []
+      @cart_item_ids = []
+      @limit         = 5
+
+      check
+    end
+
+    # Выполняет первоначальную проверку входящих параметров
+    #
+    # @private
+    # @raise [Recommendations::IncorrectParams] исключение с сообщением
+    def check
+      raise Recommendations::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank?
+      raise Recommendations::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
+      raise Recommendations::IncorrectParams.new('Recommender type not provided') if raw[:recommender_type].blank?
+      raise Recommendations::IncorrectParams.new("Unknown recommender: #{raw[:recommender_type]}") unless Recommender::Base::TYPES.include?(raw[:recommender_type])
+    end
+
+    # Извлекает статичные поля из параметров
+    #
+    # @private
+    def extract_static_attributes
+      @type = raw[:recommender_type]
+      @limit = raw[:limit].to_i if raw[:limit].present?
+    end
+
+    # Извлекает магазин
+    #
+    # @private
+    # @raise [Recommendations::IncorrectParams] исключение с сообщением, если магазин не найден
+    def extract_shop
+      unless @shop = Shop.find_by(uniqid: raw[:shop_id])
+        raise Recommendations::IncorrectParams.new("Shop with ID #{raw[:shop_id]} not found")
+      end
+    end
+
+    # Извлекает юзера через сессию
+    #
+    # @private
+    def extract_user
+      @user = Session.find_by(uniqid: raw[:ssid]).user
+    end
+
+    # Извлекает текущий товар
+    #
+    # @private
+    def extract_item
+      if raw[:item_id].present?
+        @item = Item.find_by(uniqid: raw[:item_id].to_s, shop_id: @shop.id)
+      end
+    end
+
+    # Извлекает массив ID товаров для рескоринга
+    #
+    # @private
+    def extract_items
+      if raw[:items].present?
+        @items = raw[:items].split(',').map(&:to_s)
+      end
+    end
+
+    # Извлекает категории: могут быть переданы скалярным значением или массивом
+    #
+    # @private
+    def extract_categories
+      @categories << raw[:category].to_s if raw[:category].present?
+
+      if raw[:categories].present?
+        @categories += raw[:categories].split(',')
+      end
+    end
+
+    # Извлекает местоположения: приходят массивом
+    #
+    # @private
+    def extract_locations
+      if raw[:locations].present?
+        @locations += raw[:locations].split(',')
+      end
+    end
+
+    # Извлекает содержимое корзины
+    #
+    # @private
+    def extract_cart
+      [:cart_item_id].each do |key|
+        unless raw[key].is_a?(Array)
+          raw[key] = raw[key].to_a.map(&:last)
         end
+      end
 
-        extracted_params.limit = params[:limit].present? ? params[:limit].to_i : 6
-
-        raise ArgumentError.new('Item should not be array') if params[:item_id].is_a?(Hash)
-
-        if params[:item_id].present?
-          extracted_params.item = Item.find_by(uniqid: params[:item_id].to_s, shop_id: extracted_params.shop.id)
-          extracted_params.item_id = extracted_params.item.try(:id)
+      raw[:cart_item_id].each do |i|
+        if cart_item = Item.find_by(uniqid: i.to_s, shop_id: @shop.id)
+          @cart_item_ids << cart_item.id
         end
-
-        if params[:items].present?
-          extracted_params.items = params[:items].split(',')
-        end
-
-        if params[:categories].present?
-          extracted_params.categories += params[:categories].split(',')
-        end
-
-        if params[:locations].present?
-          extracted_params.locations += params[:locations].split(',')
-        end
-
-        [:cart_item_id].each do |key|
-          unless params[key].is_a?(Array)
-            params[key] = params[key].to_a.map(&:last)
-          end
-        end
-
-        params[:cart_item_id].each do |i|
-          if item = Item.find_by(uniqid: i.to_s, shop_id: extracted_params.shop.id)
-            extracted_params.cart_item_ids << item.id
-          end
-        end
-
-        if extracted_params.item.blank? and extracted_params.cart_item_ids.any?
-          extracted_params.item = Item.find_by(id: extracted_params.cart_item_ids.first)
-        end
-
-        extracted_params
       end
     end
   end

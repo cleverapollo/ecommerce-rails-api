@@ -55,24 +55,24 @@ module ActionPush
     # Выполняет первоначальную проверку входящих параметров
     #
     # @private
-    # @raise [ArgumentError] исключение с сообщением
+    # @raise [ActionPush::IncorrectParams] исключение с сообщением
     def check
-      raise ArgumentError.new('Session ID not provided') if raw[:ssid].blank?
-      raise ArgumentError.new('Shop ID not provided') if raw[:shop_id].blank?
-      raise ArgumentError.new('Action not provided') if raw[:event].blank?
-      raise ArgumentError.new('Unknown action') unless Action::TYPES.include?(raw[:event])
-      raise ArgumentError.new('Incorrect rating') if raw[:rating].present? and !(1..5).include?(raw[:rating].to_i)
-      raise ArgumentError.new('Unknown recommender') if raw[:recommended_by].present? and !Recommender::Base::TYPES.include?(raw[:recommended_by])
+      raise ActionPush::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank?
+      raise ActionPush::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
+      raise ActionPush::IncorrectParams.new('Action not provided') if raw[:event].blank?
+      raise ActionPush::IncorrectParams.new('Unknown action') unless Action::TYPES.include?(raw[:event])
+      raise ActionPush::IncorrectParams.new('Incorrect rating') if raw[:rating].present? and !(1..5).include?(raw[:rating].to_i)
+      raise ActionPush::IncorrectParams.new('Unknown recommender') if raw[:recommended_by].present? and !Recommender::Base::TYPES.include?(raw[:recommended_by])
     end
 
     # Извлекает и находит магазин из параметров
     #
     # @private
-    # @raise [ArgumentError] исключение, если магазин не найден
+    # @raise [ActionPush::IncorrectParams] исключение, если магазин не найден
     def extract_shop
       @shop = Shop.find_by!(uniqid: raw[:shop_id])
     rescue ActiveRecord::RecordNotFound => e
-      raise ArgumentError.new("Shop not found: #{raw[:shop_id]}")
+      raise ActionPush::IncorrectParams.new("Shop not found: #{raw[:shop_id]}")
     end
 
     # Извлекает статичные поля из параметров
