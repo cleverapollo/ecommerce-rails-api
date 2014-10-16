@@ -71,7 +71,6 @@ class Item < ActiveRecord::Base
     new_item.is_available = true if new_item.is_available.nil?
 
     attrs = {
-        category_uniqid: ValuesHelper.present_one(new_item, self, :category_uniqid),
                   price: ValuesHelper.present_one(new_item, self, :price),
               locations: ValuesHelper.with_contents(new_item, self, :locations),
              categories: ValuesHelper.with_contents(new_item, self, :categories),
@@ -85,11 +84,6 @@ class Item < ActiveRecord::Base
          available_till: ValuesHelper.present_one(new_item, self, :available_till),
              repeatable: ValuesHelper.false_one(new_item, self, :repeatable)
     }
-
-    # REES-341.2
-    if attrs[:category_uniqid].present? && attrs[:categories].none?
-      attrs[:categories] = [attrs[:category_uniqid]]
-    end
 
     assign_attributes(attrs)
     self.widgetable = self.name.present? && self.url.present? && self.image_url.present?

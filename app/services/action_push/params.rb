@@ -125,7 +125,7 @@ module ActionPush
       @items = []
 
       raw[:item_id].each_with_index do |item_id, i|
-        category = raw[:category][i].to_s
+        category = raw[:category][i] ? raw[:category][i].to_s : nil
         price = raw[:price][i].to_i > 0 ? raw[:price][i] : nil
         is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
         amount = raw[:amount][i].present? ? raw[:amount][i] : 1
@@ -142,13 +142,12 @@ module ActionPush
         available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
 
         item_object = OpenStruct.new(uniqid: item_id,
-                                     category_uniqid: category,
                                      price: price,
                                      is_available: is_available,
                                      amount: amount,
                                      locations: locations,
                                      tags: tags,
-                                     categories: categories,
+                                     categories: (categories + [category]).uniq.compact,
                                      name: name,
                                      description: description,
                                      url: url,
