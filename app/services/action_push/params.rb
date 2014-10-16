@@ -132,11 +132,11 @@ module ActionPush
         locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
         categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
-        name = raw[:name][i].present? ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
-        description = raw[:description][i].present? ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
-        url = raw[:url][i].present? ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
-        image_url = raw[:image_url][i].present? ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
-        brand = raw[:brand][i].present? ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
+        name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
+        description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
+        url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+        image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
+        brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
         repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
         available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil

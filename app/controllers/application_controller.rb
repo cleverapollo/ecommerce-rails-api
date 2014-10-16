@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  before_filter :set_headers
+  before_action :set_headers
 
   protected
     def set_headers

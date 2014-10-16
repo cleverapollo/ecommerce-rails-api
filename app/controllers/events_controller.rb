@@ -13,7 +13,10 @@ class EventsController < ApplicationController
 
     def extract_legacy_event_name
       if request.raw_post.present?
-        params[:event] = request.raw_post.split('&').select{|s| s.include?('action') }.first.split('=').last
+        legacy_event_name = request.raw_post.split('&').select{|s| s.include?('action') }.first
+        if legacy_event_name
+          params[:event] = legacy_event_name.split('=').last
+        end
       end
     end
 end
