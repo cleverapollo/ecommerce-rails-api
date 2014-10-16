@@ -1,3 +1,6 @@
+##
+# Класс, ответственный за импорт истории заказов магазина. Работает в фоне
+#
 class OrdersImportWorker
   class OrdersImportError < StandardError; end
 
@@ -23,7 +26,7 @@ class OrdersImportWorker
         end
 
         if @current_order['user_id'].blank?
-          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")        
+          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")
         end
 
         @current_user = fetch_user(@current_shop.id, @current_order['user_id'], @current_order['user_email'])
@@ -75,10 +78,15 @@ class OrdersImportWorker
     if item_raw['id'].blank?
       raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар без ID")
     end
-    
+
     item_raw['price'] = 0.0 if item_raw['price'].blank?
-    item_raw['category_uniqid'] = item_raw['category'] if item_raw['category'].present? 
-    item_raw['category_uniqid'] = item_raw['category_id'] if item_raw['category_id'].present? 
+
+    # Вытаскиваем массив категорий, как бы их не назвал тот, кто вызвал импорт
+    item_raw['categories'] = ([item_raw['category']] +
+                              [item_raw['category_id']] +
+                              [item_raw['category_uniqid']] +
+                              [item_raw['categories']] +
+                              [item_raw['categories']].try(:split, ',')).flatten.select(&:present?).uniq
 
     item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
 

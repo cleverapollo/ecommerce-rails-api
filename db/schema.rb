@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140919143244) do
+ActiveRecord::Schema.define(version: 20141016101401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,18 +37,15 @@ ActiveRecord::Schema.define(version: 20140919143244) do
     t.integer  "last_user_rating"
     t.boolean  "is_available",               default: true,                              null: false
     t.decimal  "price"
-    t.string   "category_uniqid"
     t.string   "locations",                  default: [],                                             array: true
     t.string   "brand"
     t.boolean  "repeatable",                 default: false,                             null: false
-    t.string   "categories",                 default: [],                                             array: true
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "((purchase_count > 0) AND (is_available = true))", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", where: "(is_available = true)", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
-  add_index "actions", ["shop_id", "timestamp", "price", "categories"], name: "tmp_similar_index", where: "(is_available = true)", using: :gin
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", where: "(is_available = true)", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
@@ -160,22 +157,21 @@ ActiveRecord::Schema.define(version: 20140919143244) do
   end
 
   create_table "items", force: true do |t|
-    t.integer "shop_id",         limit: 8,                 null: false
-    t.string  "uniqid",                                    null: false
+    t.integer "shop_id",        limit: 8,                 null: false
+    t.string  "uniqid",                                   null: false
     t.decimal "price"
-    t.string  "category_uniqid"
-    t.boolean "is_available",              default: true,  null: false
-    t.string  "locations",                 default: [],                 array: true
+    t.boolean "is_available",             default: true,  null: false
+    t.string  "locations",                default: [],                 array: true
     t.string  "name"
     t.text    "description"
     t.string  "url"
     t.string  "image_url"
-    t.string  "tags",                      default: [],                 array: true
-    t.boolean "widgetable",                default: false, null: false
+    t.string  "tags",                     default: [],                 array: true
+    t.boolean "widgetable",               default: false, null: false
     t.string  "brand"
-    t.boolean "repeatable",                default: false, null: false
+    t.boolean "repeatable",               default: false, null: false
     t.date    "available_till"
-    t.string  "categories",                default: [],                 array: true
+    t.string  "categories",               default: [],                 array: true
   end
 
   add_index "items", ["shop_id"], name: "shop_available_index", where: "(is_available = true)", using: :btree

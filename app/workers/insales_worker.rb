@@ -24,8 +24,8 @@ class InsalesWorker
 
     page = 1; per_page = 25
     loop do
-      resp = HTTParty.get("#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}", 
-                          basic_auth: @auth, 
+      resp = HTTParty.get("#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}",
+                          basic_auth: @auth,
                           headers: { 'Content-Type' => 'application/xml' })
 
       @orders = resp['orders']
@@ -46,8 +46,8 @@ class InsalesWorker
 
     page = 1; per_page = 250
     loop do
-      resp = HTTParty.get("#{@url}/admin/products.xml?per_page=#{per_page}&page=#{page}", 
-                          basic_auth: @auth, 
+      resp = HTTParty.get("#{@url}/admin/products.xml?per_page=#{per_page}&page=#{page}",
+                          basic_auth: @auth,
                           headers: { 'Content-Type' => 'application/xml' })
 
       items = resp['products']
@@ -74,7 +74,7 @@ class InsalesWorker
           {
             'id' => order_line['product_id'],
             'price' => order_line['sale_price'],
-            'category_uniqid' => @categories_cache[order_line['product_id'].to_i],
+            'categories' => [@categories_cache[order_line['product_id'].to_i]],
             'is_available' => true,
             'amount' => order_line['quantity']
           }

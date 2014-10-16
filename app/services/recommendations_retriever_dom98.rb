@@ -40,7 +40,7 @@ class RecommendationsRetrieverDom98
     @user = user
     result = []
 
-    result = result + viewed_but_not_bought(3) + interesting(3)
+    result = result + interesting(3)
 
     result = result + popular(self.limit - result.count)
 
@@ -49,7 +49,6 @@ class RecommendationsRetrieverDom98
 
   def flush_caches
     @bought_ids = nil
-    @bought_categories = nil
     @also_bought_with = nil
   end
 
@@ -63,24 +62,6 @@ class RecommendationsRetrieverDom98
 
   def bought_ids
     @bought_ids ||= bought_relation.to_a.map(&:item_id)
-  end
-
-  def bought_categories
-    @bought_categories ||= bought_relation.to_a.map(&:category_uniqid).uniq.compact
-  end
-
-  def viewed_but_not_bought(limit)
-    return [] unless user.persisted?
-
-    ids = user.actions.where('rating <= 3.2').where('item_id NOT IN (?)', bought_ids).where('category_uniqid NOT IN (?)', bought_categories).where('timestamp >= ?', 1.month.ago.to_i).order('view_count desc, timestamp desc').limit(limit).pluck(:item_id)
-
-    res = Item.where(id: ids).available.select(&:widgetable?).map do |item|
-      item.url = UrlHelper.add_param(item.url, utm_source: 'rees46')
-      item.url = UrlHelper.add_param(item.url, utm_meta: 'email_digest')
-      item.url = UrlHelper.add_param(item.url, utm_campaign: 'viewed_but_not_bought')
-      item
-    end
-    res
   end
 
   def also_bought_with(ids)
@@ -116,13 +97,5 @@ class RecommendationsRetrieverDom98
       item
     end
     res
-  end
-
-  def init_recommendations
-    @recommendations = [
-      [nil, nil, nil],
-      [nil, nil, nil],
-      [nil, nil, nil]
-    ]
   end
 end

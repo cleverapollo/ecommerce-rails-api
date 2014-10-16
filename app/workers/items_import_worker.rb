@@ -17,7 +17,7 @@ class ItemsImportWorker
     items.map do |item_params|
       item_struct = OpenStruct.new(item_params)
       item_struct.uniqid = item_params.fetch('id')
-      item_struct.category_uniqid = item_params['category_uniqid']
+      item_struct.categories = item_params['categories']
       item_struct.amount = 0
       item_struct
     end.each do |item_struct|

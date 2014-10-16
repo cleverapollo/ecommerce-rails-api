@@ -23,7 +23,7 @@ describe 'Order workflow' do
       item_id: [100],
       price: [99],
       is_available: [1],
-      category: [5],
+      categories: ['5'],
       recommended_by: 'interesting'
     }
 
@@ -33,7 +33,7 @@ describe 'Order workflow' do
     expect(@item.uniqid).to eq('100')
     expect(@item.price.to_i).to eq(99)
     expect(@item.is_available).to eq(true)
-    expect(@item.category_uniqid).to eq('5')
+    expect(@item.categories).to eq(['5'])
 
     # Action should be created
     expect(@user.actions.count).to eq(1)
@@ -42,7 +42,6 @@ describe 'Order workflow' do
     expect(@action.rating).to eq(3.2)
     expect(@action.price.to_i).to eq(99)
     expect(@action.is_available).to eq(true)
-    expect(@action.category_uniqid).to eq('5')
     expect(@action.recommended_by).to eql('interesting')
 
     # Cart
@@ -53,7 +52,7 @@ describe 'Order workflow' do
       item_id: [100],
       price: [99],
       is_available: [1],
-      category: [5],
+      categories: ['5'],
       recommended_by: 'interesting'
     }
 
@@ -64,7 +63,6 @@ describe 'Order workflow' do
     expect(@action.rating).to eq(4.2)
     expect(@action.price.to_i).to eq(99)
     expect(@action.is_available).to eq(true)
-    expect(@action.category_uniqid).to eq('5')
     expect(@action.recommended_by).to eql('interesting')
 
     # Purchase
@@ -89,7 +87,6 @@ describe 'Order workflow' do
     expect(@action.rating).to eq(5)
     expect(@action.price.to_i).to eq(99)
     expect(@action.is_available).to eq(true)
-    expect(@action.category_uniqid).to eq('5')
     expect(@action.recommended_by).to eql('interesting')
 
     # Order

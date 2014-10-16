@@ -9,8 +9,8 @@ auth = { username: app_login, password: Digest::MD5.hexdigest(insales_shop.token
 
 page = 1; per_page = 50;
 loop do
-  resp = HTTParty.get("#{url}/admin/products.xml?per_page=#{per_page}&page=#{page}", 
-                      basic_auth: auth, 
+  resp = HTTParty.get("#{url}/admin/products.xml?per_page=#{per_page}&page=#{page}",
+                      basic_auth: auth,
                       headers: { 'Content-Type' => 'application/xml' });
 
   items = resp['products'];
@@ -28,9 +28,8 @@ loop do
       if item.present?
         puts "Item found #{item}";
         puts 'updating';
-        puts "#{{ category_uniqid: category, categories: categories }}";
-        item.update(category_uniqid: category, categories: categories)
-        shop.actions.where(item_id: item.id).update_all(category_uniqid: category, categories: "{#{categories.join(',')}}")
+        puts "#{{ categories: categories }}";
+        item.update(categories: categories)
       end
     end
     page += 1

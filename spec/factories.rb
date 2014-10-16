@@ -35,7 +35,6 @@ FactoryGirl.define do
   factory :item do
     sequence(:uniqid) {|i| "#{i}" }
     price 100
-    category_uniqid '5'
     categories '{5}'
     is_available true
   end
