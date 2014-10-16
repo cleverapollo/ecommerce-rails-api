@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141016110014) do
+ActiveRecord::Schema.define(version: 20141016114907) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(version: 20141016110014) do
     t.boolean  "resolved",          default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "referer"
   end
 
   add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree

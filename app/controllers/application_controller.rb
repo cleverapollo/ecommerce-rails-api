@@ -15,7 +15,8 @@ class ApplicationController < ActionController::API
       client_error = ClientError.create(shop: Shop.find_by(uniqid: params[:shop_id]),
                                         exception_class: exception.class.to_s,
                                         exception_message: exception.to_s,
-                                        params: params)
+                                        params: params,
+                                        referer: request.referer.try(:truncate, 250))
 
       CLIENT_ERRORS_LOGGER.error(client_error)
     end

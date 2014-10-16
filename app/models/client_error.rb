@@ -10,7 +10,7 @@ class ClientError < ActiveRecord::Base
   default_scope -> { where(resolved: false) }
 
   def to_s
-    "[#{shop.try(:uniqid)}] #{exception_class}: #{exception_message}, params: #{params}"
+    "[#{shop.try(:uniqid)}] #{exception_class}: #{exception_message}, params: #{params}, referer: #{referer}"
   end
 
   def resolve!
