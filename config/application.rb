@@ -31,6 +31,6 @@ module Rees46Api
     config.secret_key_base = '07bc8d279a1bb8a2836576da1e1020bd88c7'
 
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.insert_before "Rack::Runtime", Rack::UTF8Sanitizer
+    config.middleware.insert 0, Rack::UTF8Sanitizer
   end
 end

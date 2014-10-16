@@ -28,7 +28,7 @@ gem 'brb', '0.3.1'
 gem 'foreman', '0.63.0'
 gem 'subcontractor', '0.8.0'
 gem 'httparty', '0.12.0'
-gem 'rack-utf8_sanitizer', '1.1.0'
+gem 'rack-utf8_sanitizer', '1.2.3'
 
 # Crontab
 gem "whenever", '0.9.2', require: false
