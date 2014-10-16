@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141016101401) do
+ActiveRecord::Schema.define(version: 20141016110014) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,6 +80,18 @@ ActiveRecord::Schema.define(version: 20141016101401) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "client_errors", force: true do |t|
+    t.integer  "shop_id"
+    t.string   "exception_class",                   null: false
+    t.string   "exception_message",                 null: false
+    t.text     "params",                            null: false
+    t.boolean  "resolved",          default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
 
   create_table "cmses", force: true do |t|
     t.string   "code",                               null: false

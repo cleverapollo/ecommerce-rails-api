@@ -12,7 +12,12 @@ class ApplicationController < ActionController::API
     end
 
     def log_client_error(exception)
-      CLIENT_ERRORS_LOGGER.error("[#{params[:shop_id]}] #{exception.to_s}, params: #{params.inspect}")
+      client_error = ClientError.create(shop: Shop.find_by(uniqid: params[:shop_id]),
+                                        exception_class: exception.class.to_s,
+                                        exception_message: exception.to_s,
+                                        params: params)
+
+      CLIENT_ERRORS_LOGGER.error(client_error)
     end
 
     def respond_with_client_error(exception)
