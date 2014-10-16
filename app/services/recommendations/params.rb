@@ -51,11 +51,11 @@ module Recommendations
       extract_static_attributes
       extract_shop
       extract_user
+      extract_cart
       extract_item
       extract_items
       extract_categories
       extract_locations
-      extract_cart
 
       self
     end
@@ -125,6 +125,9 @@ module Recommendations
     def extract_item
       if raw[:item_id].present?
         @item = Item.find_by(uniqid: raw[:item_id].to_s, shop_id: @shop.id)
+      # CRUTCH: Ссаный костыль для древней версии JS SDK, которая в некоторых случаях товар передает как корзину.
+      elsif @cart_item_ids.any?
+        @item = Item.find(@cart_item_ids.first)
       end
     end
 
