@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
   def index
-    render nothing: true
+    render text: 'Battlecruiser operational.'
   end
 end

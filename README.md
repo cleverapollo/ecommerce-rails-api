@@ -6,28 +6,26 @@ REES46 API
 Back-end для приема событий и выдачи рекомендаций
 =================================================
 
-### Локальная настройка
+### Описание
+Ядро REES46. Содержит в себе все алгоритмы расчета рекомендаций.
+Делится на две основные части:
+1. Прием событий
+2. Выдача рекомендаций
 
-#### 1. Переменные окружения
-Необходимо определить:
+### Внешние зависимости
+* ruby-2.1.1
+* PostgreSQL 9.3+
+* Redis
+* https://bitbucket.org/mkechinov/rees46_brb
 
-`MAHOUT_DIR` - путь до дистрибуции Mahout
-
-`REES46_LIBRARIES_DIR` - путь до папки с дополнительными библиотеками. Внутри должен содеражаться jar с org.postgresql.ds.PGSimpleDataSource
-
-#### 2. Запуск
+### Развертывание
 ```
-$ foreman start -e .env
-```
-Запустится демон рекомендаций и unicorn в development mode
-
-#### 3. Тесты
-Простой запуск:
-```
-$ bundle exec rspec
+$ bundle
+$ bin/rake db:create db:schema:load
+$ foreman start
 ```
 
-С генерацией отчета о покрытии кода:
+### Тесты
 ```
-$ COVERAGE=true bundle exec rspec
+$ bin/rspec
 ```
