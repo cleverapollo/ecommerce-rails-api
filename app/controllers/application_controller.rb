@@ -1,10 +1,15 @@
 class ApplicationController < ActionController::API
   before_action :set_headers
+  before_action :sanitize_params
 
   protected
     def set_headers
       headers['Access-Control-Allow-Origin'] = request.headers["HTTP_ORIGIN"]
       headers['Access-Control-Allow-Credentials'] = 'true'
+    end
+
+    def sanitize_params
+      ParamsSanitizer.sanitize!(params)
     end
 
     def respond_with_success
