@@ -13,7 +13,7 @@ class YmlParserWorker
       raise YmlParserWorker::Error.new('У магазина не указана ссылка на YML-файл')
     end
 
-    response = HTTParty.get(shop.yml_file_url)
+    response = HTTParty.get(shop.yml_file_url, format: :xml)
 
     response['yml_catalog']['shop']['offers']['offer'].each do |i|
       begin
