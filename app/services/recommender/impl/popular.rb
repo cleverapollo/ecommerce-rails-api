@@ -6,7 +6,9 @@ module Recommender
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
         # Используют разные индексы
+        in_category = false
         relation = if categories.try(:any?)
+          in_category = true
           popular_in_category
         else
           popular_in_all_shop
@@ -19,7 +21,8 @@ module Recommender
         end
 
         # Если уж и так недостаточно - рандом
-        result = inject_random_items(result)
+        result = inject_random_items(result) unless in_category
+        result
       end
 
       # Общие условия, работают для всех типов выборок
