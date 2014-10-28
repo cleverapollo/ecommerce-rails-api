@@ -24,7 +24,7 @@ class MahoutService
     options.merge!(preferences: preferences)
     res = nil
     if preferences.any? && tunnel_active?
-      res = tunnel.user_based_block(nil, options)
+      res = tunnel.user_based_block(shop_id, options)
     elsif preferences.none?
       res = []
     else
