@@ -17,7 +17,7 @@ module Recommender
         result = by_purchases(relation).sample(limit)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         if result.size < limit
-          result += by_rating(relation, limit - result.size)
+          result += by_rating(relation, limit - result.size, result)
         end
 
         # Если уж и так недостаточно - рандом
@@ -51,8 +51,8 @@ module Recommender
       end
 
       # Расчет по рейтингу (для маленьких магазинов)
-      def by_rating(relation, limit = LIMIT)
-        relation.order('SUM(rating) DESC')
+      def by_rating(relation, limit = LIMIT, given_ids)
+        relation.order('SUM(rating) DESC').where.not(item_id: given_ids)
                 .limit(limit).pluck(:item_id)
       end
     end
