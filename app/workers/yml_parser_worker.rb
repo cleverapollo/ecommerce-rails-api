@@ -30,7 +30,8 @@ class YmlParserWorker
         retry
       end
     end
-
     shop.update(yml_loaded: true)
+  rescue StandardError => e
+    ErrorsMailer.yml_import_error('anton.zhavoronkov@mkechinov.ru', e, shop_id)
   end
 end

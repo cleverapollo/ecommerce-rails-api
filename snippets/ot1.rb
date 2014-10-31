@@ -19,11 +19,21 @@ File.open('onlinetours.csv', 'w') do |file|
       exclude: [],
       preferences: preferences
     };
-    recommended_ids = tunnel.user_based_block(nil, options)
-
+    recommended_ids = []
+    begin
+      recommended_ids = []
+      Timeout::timeout(2) {
+        if preferences.any?
+          recommended_ids = tunnel.user_based_block(shop.id, options)
+        end
+      }
+      recommended_ids = [] if recommended_ids.nil?
+    rescue Timeout::Error => e
+      puts "#{e.class} #{e.message}"
+      recommended_ids = []
+    end
     recommended_ids_external = recommended_ids.map{|r_id| item_ids_map[r_id] }
     recommended_ids_count = recommended_ids_external.count
-
     if recommended_ids_count == 0
       puts 'Fake'
       a = shop.actions.where(user_id: user_id).order('timestamp DESC').first
@@ -42,7 +52,6 @@ File.open('onlinetours.csv', 'w') do |file|
     else
       puts 'Real'
     end
-
     str = [u_s_r.user_id, u_s_r.uniqid, recommended_ids_count, recommended_ids.join(';'), recommended_ids_external.join(';')].join(',')
     puts str
     file.puts(str)
