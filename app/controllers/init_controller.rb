@@ -12,13 +12,12 @@ class InitController < ApplicationController
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-    @session = Session.fetch \
-                             uniqid: session_id,
+    @session = Session.fetch(uniqid: session_id,
                              useragent: user_agent,
                              email: params[:user_email],
                              city: city,
                              country: country,
-                             language: language
+                             language: language)
 
     shop = Shop.find_by(uniqid: params[:shop_id])
 
@@ -54,38 +53,24 @@ class InitController < ApplicationController
   end
 
   def user_agent
-    c = request.env['HTTP_USER_AGENT']
-    if c.present?
-      StringHelper.encode_and_truncate(c)
-    else
-      nil
-    end
+    sanitize_header(request.env['HTTP_USER_AGENT'])
   end
 
   def city
-    c = request.headers['HTTP_CITY']
-    if c.present? && c != 'Undefined'
-      StringHelper.encode_and_truncate(c)
-    else
-      nil
-    end
+    sanitize_header(request.headers['HTTP_CITY'])
   end
 
   def country
-    c = request.headers['HTTP_COUNTRY']
-    if c.present? && c != 'Undefined'
-      StringHelper.encode_and_truncate(c)
-    else
-      nil
-    end
+    sanitize_header(request.headers['HTTP_COUNTRY'])
   end
 
   def language
-    c = request.env['HTTP_ACCEPT_LANGUAGE']
-    if c.present?
-      StringHelper.encode_and_truncate(c)
-    else
-      nil
+    sanitize_header(request.env['HTTP_ACCEPT_LANGUAGE'])
+  end
+
+  def sanitize_header(value)
+    if value.present? && value != 'Undefined'
+      StringHelper.encode_and_truncate(value)
     end
   end
 end

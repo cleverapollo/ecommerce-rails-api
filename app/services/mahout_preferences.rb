@@ -10,7 +10,7 @@ class MahoutPreferences
 
     result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(10).pluck(:item_id)
 
-    if result.none? and @item_id.present?
+    if result.none? && @item_id.present?
       result << @item_id
     end
 

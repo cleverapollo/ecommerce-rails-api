@@ -5,7 +5,7 @@ class Session < ActiveRecord::Base
     def fetch(opts = {})
       session = nil
 
-      if opts[:uniqid].present? and session = find_by(uniqid: opts[:uniqid])
+      if opts[:uniqid].present? && session = find_by(uniqid: opts[:uniqid])
         if session.user.blank?
           session.create_user
         end

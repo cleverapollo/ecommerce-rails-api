@@ -72,8 +72,8 @@ module ActionPush
       raise ActionPush::IncorrectParams.new('Action not provided') if raw[:event].blank?
       raise ActionPush::IncorrectParams.new('Unknown action') unless Action::TYPES.include?(raw[:event])
       raise ActionPush::IncorrectParams.new('Unsupported action') if raw[:event] == 'rate'
-      raise ActionPush::IncorrectParams.new('Incorrect rating') if raw[:rating].present? and !(1..5).include?(raw[:rating].to_i)
-      raise ActionPush::IncorrectParams.new('Unknown recommender') if raw[:recommended_by].present? and !Recommender::Base::TYPES.include?(raw[:recommended_by])
+      raise ActionPush::IncorrectParams.new('Incorrect rating') if raw[:rating].present? && !(1..5).include?(raw[:rating].to_i)
+      raise ActionPush::IncorrectParams.new('Unknown recommender') if raw[:recommended_by].present? && !Recommender::Base::TYPES.include?(raw[:recommended_by])
     end
 
     # Извлекает и находит магазин из параметров
