@@ -8,6 +8,8 @@ module Recommender
       end
 
       def items_to_weight
+        return [] if items_which_cart_to_analyze.none?
+
         result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
         result = result.joins(:item).merge(Item.in_locations(locations))
