@@ -5,7 +5,11 @@ class Rees46
     end
 
     def base_url
-      'http://api.rees46.com'
+      if Rails.env.development?
+        'http://127.0.0.1:8080'
+      else
+        'http://api.rees46.com'
+      end
     end
   end
 end
