@@ -45,8 +45,6 @@ class MahoutService
     return res
   end
 
-  private
-
   def tunnel_active?
     if tunnel && tunnel.active?
       return true

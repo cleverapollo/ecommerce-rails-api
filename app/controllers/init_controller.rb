@@ -38,18 +38,24 @@ class InitController < ApplicationController
   private
 
   def init_server_string(session, shop)
-    ab_testing_group = shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0
-    show_promotion = shop.show_promotion? ? 'true' : 'false'
+    result  = "REES46.initServer({"
+    result += "  ssid: '#{session.uniqid}',"
+    result += "  baseURL: '#{Rees46.base_url}',"
+    result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
+    result += "  currency: '#{shop.currency}',"
+    result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
-    <<-JS
-      REES46.initServer({
-        ssid: '#{session.uniqid}',
-        baseURL: '#{Rees46.base_url}',
-        testingGroup: #{ab_testing_group},
-        currency: '#{shop.currency}',
-        showPromotion: #{show_promotion}
-      });
-    JS
+    result += "  subscriptions: {"
+    if shop.trigger_mailing.present? && shop.trigger_mailing.enabled
+      result += "  settings: #{shop.trigger_mailing.subscription_settings},"
+      if subscription = session.user.subscriptions.find_by(shop: shop)
+        result += "  user: #{subscription.to_json},"
+      end
+    end
+    result += "  },"
+
+    result += "});"
+    result
   end
 
   def user_agent

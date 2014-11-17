@@ -53,6 +53,8 @@ class UserMerger
         end
       end
 
+      Subscription.where(user_id: slave.id).update_all(user_id: master.id)
+
       begin
         slave.reload.destroy
       rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordNotFound

@@ -15,6 +15,8 @@ class Shop < ActiveRecord::Base
   has_many :user_shop_relations
   has_many :items
   belongs_to :plan
+  has_one :trigger_mailing
+  has_many :subscriptions
 
   def item_ids_bought_or_carted_by(user)
     actions.where('RATING >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
@@ -51,7 +53,7 @@ class Shop < ActiveRecord::Base
       self.connected = true
       self.connected_at = Time.current
       self.trial_ends_at = 2.weeks.from_now
-      ShopEventsReporter.connected(self) 
+      ShopEventsReporter.connected(self)
     end
   end
 

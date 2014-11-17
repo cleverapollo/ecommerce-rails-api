@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141024113232) do
+ActiveRecord::Schema.define(version: 20141111131322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -197,7 +197,9 @@ ActiveRecord::Schema.define(version: 20141024113232) do
     t.integer "timestamp"
   end
 
+  add_index "mahout_actions", ["shop_id", "user_id", "item_id"], name: "tmp_m", unique: true, using: :btree
   add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
+  add_index "mahout_actions", ["shop_id"], name: "tmp_m1", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "mailing_batches", force: true do |t|
@@ -417,6 +419,8 @@ ActiveRecord::Schema.define(version: 20141024113232) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "tracked_monthly_orders_count", default: 0,     null: false
+    t.string   "rivals",                       default: [],                 array: true
+    t.boolean  "has_orders_last_week",         default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -445,6 +449,30 @@ ActiveRecord::Schema.define(version: 20141024113232) do
 
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
+
+  create_table "subscriptions", force: true do |t|
+    t.integer  "shop_id",                    null: false
+    t.integer  "user_id",                    null: false
+    t.boolean  "active",     default: true,  null: false
+    t.boolean  "declined",   default: false, null: false
+    t.string   "email"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
+
+  create_table "trigger_mailings", force: true do |t|
+    t.integer  "shop_id",                               null: false
+    t.boolean  "enabled",               default: false, null: false
+    t.string   "send_from"
+    t.boolean  "overlay",               default: true,  null: false
+    t.text     "intro"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.text     "subscription_settings"
+  end
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false

@@ -25,4 +25,6 @@ Rees46Api::Application.routes.draw do
       post :perform
     end
   end
+
+  resources :subscriptions, only: [:create]
 end
