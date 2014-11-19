@@ -59,6 +59,10 @@ class Item < ActiveRecord::Base
     end
   end
 
+  def to_s
+    "Item ##{id} (external #{uniqid}) #{name} at #{price}"
+  end
+
   def widgetable?
     price.present? && name.present? && url.present? && image_url.present?
   end
