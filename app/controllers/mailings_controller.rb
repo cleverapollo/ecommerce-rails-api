@@ -26,6 +26,7 @@ class MailingsController < ApplicationController
   end
 
   def audience
+    MailingAudienceWorker.perform_async(params)
     render nothing: true, status: :ok
   end
 end
