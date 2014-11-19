@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   has_many :sessions
   has_many :actions
   has_many :subscriptions
+  has_many :orders
 
   def to_s
     "User ##{id}"

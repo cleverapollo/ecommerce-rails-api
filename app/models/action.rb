@@ -13,6 +13,10 @@ class Action < ActiveRecord::Base
     end
   }
 
+  scope :views, -> { where('rating::numeric = ?', Actions::View::RATING) }
+  scope :carts, -> { where('rating::numeric = ?', Actions::Cart::RATING) }
+
+
   class << self
     def get_implementation_for(action_type)
       raise ActionPush::Error.new('Unsupported action type') unless TYPES.include?(action_type)
