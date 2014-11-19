@@ -5,6 +5,8 @@ class Subscription < ActiveRecord::Base
   validates :shop, presence: true
   validates :user, presence: true
 
+  scope :active, -> { where(active: true) }
+
   def to_json
     super(only: [:email, :name, :active, :declined])
   end
