@@ -24,6 +24,7 @@ Rees46Api::Application.routes.draw do
     member do
       post :perform
     end
+    post :audience, on: :collection
   end
 
   resources :subscriptions, only: [:create]

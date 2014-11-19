@@ -24,4 +24,8 @@ class MailingsController < ApplicationController
   #rescue ActiveRecord::RecordNotFound => e
     #respond_with_client_error('Mailing not found')
   end
+
+  def audience
+    render nothing: true, status: :ok
+  end
 end
