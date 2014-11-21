@@ -14,6 +14,8 @@ Rees46Api::Application.routes.draw do
     post :items
     post :insales
     post :yml
+    post :disable
+    get :disable
   end
 
   resource :mailer, only: :none do

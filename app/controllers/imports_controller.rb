@@ -1,6 +1,6 @@
 class ImportsController < ApplicationController
   include ShopAuthenticator
-  
+
   def orders
     OrdersImportWorker.perform_async(params)
     render text: 'OK'
@@ -18,6 +18,11 @@ class ImportsController < ApplicationController
 
   def yml
     YmlParserWorker.perform_async(@shop.id)
+    render text: 'OK'
+  end
+
+  def disable
+    ItemsDisablerWorker.perform_async(params)
     render text: 'OK'
   end
 end
