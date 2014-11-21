@@ -3,6 +3,7 @@ class UserMerger
     def merge(master, slave)
       Session.where(user_id: slave.id).update_all(user_id: master.id)
       UserShopRelation.where(user_id: slave.id).update_all(user_id: master.id)
+      Subscription.where(user_id: slave.id).update_all(user_id: master.id)
 
       ShopsUser.where(user_id: slave.id).each do |su|
         if ShopsUser.where(user_id: master.id, shop_id: su.shop_id).any?
@@ -52,8 +53,6 @@ class UserMerger
           ma.destroy
         end
       end
-
-      Subscription.where(user_id: slave.id).update_all(user_id: master.id)
 
       begin
         slave.reload.destroy

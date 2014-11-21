@@ -21,7 +21,10 @@ module TriggerMailings
       private
 
       def events_implementations
-        [TriggerMailings::Events::AbandonedCart, TriggerMailings::Events::RecentlyPurchased, TriggerMailings::Events::SlippingAway, TriggerMailings::Events::ViewedButNotBought]
+        [TriggerMailings::Events::AbandonedCart,
+         TriggerMailings::Events::RecentlyPurchased,
+         TriggerMailings::Events::SlippingAway,
+         TriggerMailings::Events::ViewedButNotBought]
       end
     end
   end
