@@ -2,7 +2,7 @@ module Recommendations
   class Processor
     class << self
       def process(params)
-        if AbTesting.give_recommendations?(params.shop, params.user)
+        if params.shop.active? && AbTesting.give_recommendations?(params.shop, params.user)
           recommender_implementation = Recommender::Base.get_implementation_for(params.type)
           recommender_implementation.new(params).recommendations
         else
