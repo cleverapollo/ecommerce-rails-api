@@ -52,7 +52,6 @@ class Shop < ActiveRecord::Base
     if self.connected == false && connected_now?
       self.connected = true
       self.connected_at = Time.current
-      self.trial_ends_at = 2.weeks.from_now
       ShopEventsReporter.connected(self)
     end
   end
