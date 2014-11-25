@@ -1,3 +1,6 @@
+##
+# Класс, представляющий собой предпочтения пользователя. Используется для холодного старта рекомендера.
+#
 class MahoutPreferences
   def initialize(user_id, shop_id, item_id = nil)
     @user_id = user_id
@@ -8,10 +11,10 @@ class MahoutPreferences
   def fetch(limit = 10)
     result = []
 
-    result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(10).pluck(:item_id)
-
-    if result.none? && @item_id.present?
+    if @item_id.present?
       result << @item_id
+    else
+      result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(10).pluck(:item_id)
     end
 
     result
