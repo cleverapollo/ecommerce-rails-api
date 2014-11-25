@@ -13,7 +13,10 @@ module Recommender
         result = result.where.not(item_id: excluded_items_ids)
         result = result.in_locations(locations)
         result = result.group(:item_id).order('AVG(rating) DESC, SUM(rating) DESC').limit(LIMIT).pluck(:item_id)
-        result = inject_random_items(result)
+        unless shop.strict_recommendations?
+          result = inject_random_items(result)
+        end
+        result
       end
     end
   end

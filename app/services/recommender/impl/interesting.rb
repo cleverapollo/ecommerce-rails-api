@@ -3,8 +3,11 @@ module Recommender
     class Interesting < Recommender::UserBased
       def recommended_ids
         result = super
-        result = inject_not_bought_but_carted_id_in(result)
-        result = inject_random_items(result)
+        unless shop.strict_recommendations?
+          result = inject_not_bought_but_carted_id_in(result)
+          result = inject_random_items(result)
+        end
+        result
       end
 
       def inject_not_bought_but_carted_id_in(ids)

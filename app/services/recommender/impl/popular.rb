@@ -20,8 +20,11 @@ module Recommender
           result += by_rating(relation, limit - result.size, result)
         end
 
-        # Если уж и так недостаточно - рандом
-        result = inject_random_items(result) unless in_category
+        unless shop.strict_recommendations?
+          # Если уж и так недостаточно - рандом
+          result = inject_random_items(result) unless in_category
+        end
+
         result
       end
 

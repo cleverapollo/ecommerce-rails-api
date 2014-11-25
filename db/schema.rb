@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141111131322) do
+ActiveRecord::Schema.define(version: 20141125114852) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -117,17 +117,29 @@ ActiveRecord::Schema.define(version: 20141111131322) do
     t.integer  "role",                   default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "name"
     t.string   "phone"
     t.string   "city"
     t.string   "company"
     t.boolean  "subscribed",             default: true, null: false
     t.string   "unsubscribe_token"
     t.integer  "partner_id"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.integer  "balance",                default: 0,    null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "distributions", force: true do |t|
+    t.integer  "shop_id",     null: false
+    t.string   "shop_uniqid", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "distributions", ["shop_id"], name: "index_distributions_on_shop_id", unique: true, using: :btree
+  add_index "distributions", ["shop_uniqid"], name: "index_distributions_on_shop_uniqid", unique: true, using: :btree
 
   create_table "events", force: true do |t|
     t.integer  "shop_id",         null: false
@@ -421,6 +433,7 @@ ActiveRecord::Schema.define(version: 20141111131322) do
     t.integer  "tracked_monthly_orders_count", default: 0,     null: false
     t.string   "rivals",                       default: [],                 array: true
     t.boolean  "has_orders_last_week",         default: false, null: false
+    t.boolean  "strict_recommendations",       default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -462,6 +475,17 @@ ActiveRecord::Schema.define(version: 20141111131322) do
   end
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
+
+  create_table "transactions", force: true do |t|
+    t.integer  "amount",           default: 500, null: false
+    t.integer  "transaction_type", default: 0,   null: false
+    t.string   "payment_method",                 null: false
+    t.integer  "status",           default: 0
+    t.integer  "customer_id"
+    t.datetime "processed_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "trigger_mailings", force: true do |t|
     t.integer  "shop_id",                               null: false
