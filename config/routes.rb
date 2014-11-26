@@ -20,10 +20,8 @@ Rees46Api::Application.routes.draw do
     post :digest
   end
 
-  resources :mailings, only: :create do
-    member do
-      post :perform
-    end
+  resources :digest_mailings, only: [] do
+    post :launch,   on: :member
     post :audience, on: :collection
   end
 
