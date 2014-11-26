@@ -1,21 +1,11 @@
 module TriggerMailings
   class EventDetector
     class << self
-      def process_all_subscriptions
-        Subscription.active.includes(:user, :shop).find_each do |subscription|
-          process(subscription.user, subscription.shop)
-        end
-      end
-
-      def process(user, shop)
-        events = []
-
-        events_implementations.each do |implementation|
+      def detect(user, shop)
+        events = events_implementations.map do |implementation|
           i = implementation.new(user, shop)
-          events << i if i.happened?
-        end
-
-        events
+          i if i.happened?
+        end.compact.sort{|x, y| x.rating <=> y.rating }.first
       end
 
       private
