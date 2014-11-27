@@ -61,7 +61,7 @@ module Recommender
     def inject_random_items(given_ids)
       return given_ids if given_ids.size >= limit
 
-      additional_ids = shop.items.available.in_locations(locations).where.not(id: given_ids).order('RANDOM()').limit(limit - given_ids.count).pluck(:id)
+      additional_ids = shop.items.available.in_locations(locations).where.not(id: given_ids && excluded_items_ids).order('RANDOM()').limit(limit - given_ids.count).pluck(:id)
       given_ids + additional_ids
     end
   end

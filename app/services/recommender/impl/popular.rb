@@ -3,6 +3,8 @@ module Recommender
     class Popular < Recommender::Weighted
       LIMIT = 20
 
+      attr_reader :excluded_item_ids
+
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
         # Используют разные индексы
@@ -54,6 +56,10 @@ module Recommender
       def by_rating(relation, limit = LIMIT, given_ids)
         relation.order('SUM(rating) DESC').where.not(item_id: given_ids)
                 .limit(limit).pluck(:item_id)
+      end
+
+      def excluded_items_ids
+        (super + [excluded_item_ids].flatten).uniq.compact
       end
     end
   end
