@@ -20,6 +20,8 @@ class Shop < ActiveRecord::Base
   has_many :digest_mailings
   has_many :audiences
 
+  has_one :digest_mailing_setting
+
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
     actions.where('RATING >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
