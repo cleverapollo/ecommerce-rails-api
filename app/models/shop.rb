@@ -17,6 +17,7 @@ class Shop < ActiveRecord::Base
   belongs_to :plan
   has_one :trigger_mailing
   has_many :subscriptions
+  has_many :digest_mailings
   has_many :audiences
 
   def item_ids_bought_or_carted_by(user)

@@ -3,4 +3,6 @@ class Audience < ActiveRecord::Base
   serialize :custom_attributes, JSON
 
   belongs_to :shop
+
+  scope :enabled, -> { where(enabled: true) }
 end

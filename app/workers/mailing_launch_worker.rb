@@ -13,6 +13,9 @@ class MailingLaunchWorker
     @shop = Shop.find_by!(uniqid: uniqid, secret: secret)
   end
 
-  def process_mailing(id)
+  def process_mailing(mailing_id)
+    shop.audiences.enabled.each_batch_with_start_end_id do |start_id, end_id|
+      MailingBatchWorker.perform_async(shop.id, mailing_id, start_id, end_id)
+    end
   end
 end
