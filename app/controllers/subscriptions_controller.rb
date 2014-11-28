@@ -2,13 +2,19 @@
 # Контроллер, обрабатывающий подписки пользователей на рассылки
 #
 class SubscriptionsController < ApplicationController
-  before_action :fetch_shop
-  before_action :fetch_user
+  before_action :fetch_shop, only: :create
+  before_action :fetch_user, only: :create
 
   def create
     @subscription = @shop.subscriptions.find_or_initialize_by(user_id: @user.id)
     @subscription.update!(subscription_params)
     render json: {}
+  end
+
+  def unsubscribe
+    @subscription = Subscription.find_by!(unsubscribe_token: params[:unsubscribe_token])
+    @subscription.deactivate!
+    render text: 'Вы успешно отписаны от рассылок.'
   end
 
   protected

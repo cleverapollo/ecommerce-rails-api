@@ -9,7 +9,7 @@ module TriggerMailings
         scoped_subscriptions.find_each do |subscription|
           if trigger = TriggerMailings::TriggerDetector.detect(subscription.user, subscription.shop)
             TriggerMailings::Letter.new(subscription, trigger).send
-            subscription.set_aside!
+            subscription.set_dont_disturb! unless Rails.env.development?
           end
         end
       end
@@ -21,7 +21,7 @@ module TriggerMailings
       # @return [ActiveRecord::Relation] подписки
       # @private
       def scoped_subscriptions
-        Subscription.active.includes(:shop, :user)
+        Subscription.active.where('dont_disturb_until < ? OR dont_disturb_until IS NULL', Time.current).includes(:shop, :user)
       end
     end
   end

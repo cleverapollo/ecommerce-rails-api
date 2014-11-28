@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141111131322) do
+ActiveRecord::Schema.define(version: 20141128121956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "btree_gist"
+  enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
     t.integer  "user_id",          limit: 8,                                             null: false
@@ -117,13 +118,15 @@ ActiveRecord::Schema.define(version: 20141111131322) do
     t.integer  "role",                   default: 1
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "name"
     t.string   "phone"
     t.string   "city"
     t.string   "company"
     t.boolean  "subscribed",             default: true, null: false
     t.string   "unsubscribe_token"
     t.integer  "partner_id"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.integer  "balance",                default: 0,    null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -161,6 +164,7 @@ ActiveRecord::Schema.define(version: 20141111131322) do
     t.datetime "created_at",       null: false
   end
 
+  add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
   add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
 
   create_table "ipn_messages", force: true do |t|
@@ -391,7 +395,7 @@ ActiveRecord::Schema.define(version: 20141111131322) do
   create_table "shops", force: true do |t|
     t.string   "uniqid",                                       null: false
     t.string   "name",                                         null: false
-    t.boolean  "active",                       default: true
+    t.boolean  "active",                       default: true,  null: false
     t.integer  "customer_id"
     t.boolean  "connected",                    default: false
     t.string   "url"
@@ -421,6 +425,8 @@ ActiveRecord::Schema.define(version: 20141111131322) do
     t.integer  "tracked_monthly_orders_count", default: 0,     null: false
     t.string   "rivals",                       default: [],                 array: true
     t.boolean  "has_orders_last_week",         default: false, null: false
+    t.boolean  "strict_recommendations",       default: false, null: false
+    t.decimal  "recommended_items_view_rate",  default: 0.0,   null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -451,28 +457,42 @@ ActiveRecord::Schema.define(version: 20141111131322) do
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 
   create_table "subscriptions", force: true do |t|
-    t.integer  "shop_id",                    null: false
-    t.integer  "user_id",                    null: false
-    t.boolean  "active",     default: true,  null: false
-    t.boolean  "declined",   default: false, null: false
+    t.integer  "shop_id",                                           null: false
+    t.integer  "user_id",                                           null: false
+    t.boolean  "active",             default: true,                 null: false
+    t.boolean  "declined",           default: false,                null: false
     t.string   "email"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "dont_disturb_until"
+    t.uuid     "unsubscribe_token",  default: "uuid_generate_v4()"
   end
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
 
+  create_table "transactions", force: true do |t|
+    t.integer  "amount",           default: 500, null: false
+    t.integer  "transaction_type", default: 0,   null: false
+    t.string   "payment_method",                 null: false
+    t.integer  "status",           default: 0
+    t.integer  "customer_id"
+    t.datetime "processed_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "trigger_mailings", force: true do |t|
     t.integer  "shop_id",                               null: false
     t.boolean  "enabled",               default: false, null: false
-    t.string   "send_from"
-    t.boolean  "overlay",               default: true,  null: false
-    t.text     "intro"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "subscription_settings"
+    t.text     "trigger_settings"
+    t.text     "mailing_settings"
   end
+
+  add_index "trigger_mailings", ["shop_id"], name: "index_trigger_mailings_on_shop_id", using: :btree
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false

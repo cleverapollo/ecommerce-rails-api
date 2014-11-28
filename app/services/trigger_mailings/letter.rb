@@ -66,6 +66,10 @@ module TriggerMailings
         result['{{ recommended_item }}'] = recommended_item_template
       end
 
+      # В конце прицепляем ссылку на отписку
+      unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: 'api.rees46.com')
+      result += "<hr/><a href='#{unsubscribe_url}'>Отписаться от рассылок</a>"
+
       result
     end
 
