@@ -1,7 +1,7 @@
 module TriggerMailings
-  module Events
+  module Triggers
     class RecentlyPurchased < Base
-      def happened?
+      def condition_happened?
         time_range = (4.day.ago.beginning_of_day)..(4.day.ago.end_of_day)
         # Находим покупки, которые были сделаны 4 дня назад
         if order = user.orders.where(shop: shop).where(date: time_range).order(date: :desc).first

@@ -15,4 +15,7 @@ class Subscription < ActiveRecord::Base
     super(value)
     self.active = false if declined == true
   end
+
+  def set_aside!
+  end
 end

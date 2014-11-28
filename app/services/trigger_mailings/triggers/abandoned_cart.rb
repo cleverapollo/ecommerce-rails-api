@@ -1,7 +1,7 @@
 module TriggerMailings
-  module Events
+  module Triggers
     class AbandonedCart < Base
-      def happened?
+      def condition_happened?
         time_range = (1.day.ago.beginning_of_day)..(1.day.ago.end_of_day)
         # Находим товар, который был вчера положен в корзину, но не был из нее удален или куплен
         if action = user.actions.where(shop: shop).carts.where(cart_date: time_range).order(cart_date: :desc).first
