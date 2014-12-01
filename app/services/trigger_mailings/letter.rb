@@ -20,7 +20,8 @@ module TriggerMailings
     # Отправить сформированное письмо
     def send
       Mailer.digest(
-        email: email,
+        #email: email,
+        email: 'anton.zhavoronkov@mkechinov.ru',
         subject: subject,
         send_from: send_from,
         body: body
@@ -43,11 +44,7 @@ module TriggerMailings
         decorated_source_item = item_for_letter(trigger.source_item)
 
         decorated_source_item.each do |key, value|
-          begin
-            result["{{ source_item.#{key} }}"] = value
-          rescue IndexError
-
-          end
+          result.gsub!("{{ source_item.#{key} }}", value)
         end
       end
 
@@ -57,20 +54,30 @@ module TriggerMailings
 
         recommended_item_template = settings['item_template'].dup
         decorated_recommended_item.each do |key, value|
-          begin
-            recommended_item_template["{{ item.#{key} }}"] = value
-          rescue IndexError
-          end
+          recommended_item_template.gsub!("{{ item.#{key} }}", value)
         end
 
         result['{{ recommended_item }}'] = recommended_item_template
       end
 
-      # В конце прицепляем ссылку на отписку
-      unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: 'api.rees46.com')
-      result += "<hr/><a href='#{unsubscribe_url}'>Отписаться от рассылок</a>"
+      # В конце прицепляем футер на отписку
+      result.gsub!('{{ footer }}', footer)
 
       result
+    end
+
+    # Футер для письма
+    #
+    # @return [String] футе
+    def footer
+       unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: 'api.rees46.com')
+      <<-HTML
+        <div style='max-width:600px; margin:0 auto 40px; padding:20px 0 0; font-family:sans-serif; color:#666; font-size:12px; line-height:20px; text-align:left;'>
+          Сообщение было отправлено на <a href='mailto:#{subscription.email}' style='color:#064E86;'><span style='color:#064E86;'>#{subscription.email}</span></a>, адрес был подписан на рассылки <a href='http://rees46.com/' target='_blank' style='color:#064E86;'><span style='color:#064E86;'>REES46</span></a>.
+          <br>
+          Если вы не хотите получать подобные письма, вы можете <a href='#{unsubscribe_url}' style='color:#064E86;'><span style='color:#064E86;'>отписаться от рассылки</span></a>.
+        </div>
+      HTML
     end
 
     # Обертка над товаром для отображения в письме

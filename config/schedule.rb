@@ -7,5 +7,5 @@ every '0 2 * * * ' do
 end
 
 every '0 10 * * * ' do
-  runner 'TriggerMailings::Processor.process_all'
+  #runner 'TriggerMailings::Processor.process_all'
 end

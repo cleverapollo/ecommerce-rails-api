@@ -50,11 +50,25 @@ module TriggerMailings
       # @param count [Integer] необходимое количество рекомендаций
       #
       # @return [Array[Item]] массив рекомендованных товаров
+      # @raise [TriggerMailings::NotEnoughRecommendationsError] триггер вернул слишком мало рекомендаций
       def recommendations(count)
-        return @shop.items.available.where("name is not null and name != '' and url is not null and url != '' and image_url is not null and image_url != '' and price is not null and price != 0.0").order('random()').limit(count).to_a
+        result = shop.items.available.widgetable.where(id: recommended_ids(count)).load
+        if result.count < count
+          binding.pry
+          raise TriggerMailings::NotEnoughRecommendationsError.new("Expected #{count} recommendations, but given #{result.count}")
+        end
+        result
+      end
 
-        #raise NotImplementedError
+      # Возвращает массив ID рекомендованных товаров для данного триггера.
+      # @param count [Integer] необходимое количество рекомендаций
+      #
+      # @return [Array[Integer]] массив ID рекомендованных товаров
+      def recommended_ids(count)
+        raise NotImplementedError
       end
     end
   end
+
+  class NotEnoughRecommendationsError < StandardError; end
 end

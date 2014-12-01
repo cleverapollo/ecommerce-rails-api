@@ -14,6 +14,10 @@ module Recommender
           popular_in_all_shop
         end
 
+        if recommend_only_widgetable?
+          result = result.merge(Item.widgetable)
+        end
+
         result = by_purchases(relation).sample(limit)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         if result.size < limit

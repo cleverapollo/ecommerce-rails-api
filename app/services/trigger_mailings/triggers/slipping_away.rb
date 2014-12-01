@@ -10,6 +10,41 @@ module TriggerMailings
         end
       end
 
+      # Рекомендации для неактивнго пользователя
+      def recommended_ids(count)
+        # В первую очередь то, что его может заинтересовать
+        result = Recommender::Impl::Interesting.new(OpenStruct.new(
+          shop: shop,
+          user: user,
+          limit: count,
+          recommend_only_widgetable: true
+        )).recommended_ids
+
+        # Затем то, что он недавно смотрел
+        if result.count < count
+          result += Recommender::Impl::RecentlyViewed.new(OpenStruct.new(
+            shop: shop,
+            user: user,
+            limit: count,
+            exclude: result,
+            recommend_only_widgetable: true
+          )).recommended_ids
+        end
+
+        # Наконец, популярные товары
+        if result.count < count
+          result += Recommender::Impl::Popular.new(OpenStruct.new(
+            shop: shop,
+            user: user,
+            limit: count,
+            exclude: result,
+            recommend_only_widgetable: true
+          )).recommended_ids
+        end
+
+        result
+      end
+
       def priority
         1
       end
