@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141125151856) do
+ActiveRecord::Schema.define(version: 20141128121956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "btree_gist"
+  enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
     t.integer  "user_id",          limit: 8,                                             null: false
@@ -456,14 +457,16 @@ ActiveRecord::Schema.define(version: 20141125151856) do
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 
   create_table "subscriptions", force: true do |t|
-    t.integer  "shop_id",                    null: false
-    t.integer  "user_id",                    null: false
-    t.boolean  "active",     default: true,  null: false
-    t.boolean  "declined",   default: false, null: false
+    t.integer  "shop_id",                                           null: false
+    t.integer  "user_id",                                           null: false
+    t.boolean  "active",             default: true,                 null: false
+    t.boolean  "declined",           default: false,                null: false
     t.string   "email"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "dont_disturb_until"
+    t.uuid     "unsubscribe_token",  default: "uuid_generate_v4()"
   end
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
@@ -485,6 +488,8 @@ ActiveRecord::Schema.define(version: 20141125151856) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "subscription_settings"
+    t.text     "trigger_settings"
+    t.text     "mailing_settings"
   end
 
   add_index "trigger_mailings", ["shop_id"], name: "index_trigger_mailings_on_shop_id", using: :btree

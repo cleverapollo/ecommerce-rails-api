@@ -16,6 +16,9 @@ module Recommender
         min_date = 1.month.ago.to_date.to_time.to_i
 
         items_relation = shop.items.available.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
+        if recommend_only_widgetable?
+          items_relation = items_relation.merge(Item.widgetable)
+        end
 
         result = shop.actions.where(item_id: items_relation).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(LIMIT).pluck(:item_id)
         if result.size < LIMIT

@@ -21,6 +21,9 @@ class Item < ActiveRecord::Base
       where("? <@ locations", "{#{locations.join(',')}}")
     end
   }
+  scope :widgetable, ->() {
+    where('name IS NOT NULL AND name != \'\'').where('url IS NOT NULL AND url != \'\'').where('image_url IS NOT NULL AND image_url != \'\'').where('price IS NOT NULL AND price != 0.0')
+  }
 
   class << self
     def disable_expired

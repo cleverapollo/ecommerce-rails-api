@@ -34,6 +34,10 @@ module Recommendations
     attr_accessor :locations
     # Массив товаров, для ранжирования
     attr_accessor :items
+    # Рекомендовать только товары с параметрами для отображения
+    attr_accessor :recommend_only_widgetable
+    # Товары, которые нужно исключить из рекомендаций
+    attr_accessor :exclude
 
     # Проверяет и обрабатывает параметры
     #
@@ -74,11 +78,13 @@ module Recommendations
     # @private
     # @param params [Hash] входящие параметры
     def initialize(params)
-      @raw           = params
-      @categories    = []
-      @locations     = []
-      @cart_item_ids = []
-      @limit         = 5
+      @raw                       = params
+      @categories                = []
+      @locations                 = []
+      @cart_item_ids             = []
+      @limit                     = 5
+      @recommend_only_widgetable = false
+      @exclude                   = []
 
       check
     end

@@ -13,6 +13,9 @@ module Recommender
         result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
         result = result.joins(:item).merge(Item.in_locations(locations))
+        if recommend_only_widgetable?
+          result = result.merge(Item.widgetable)
+        end
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT)
         result.pluck(:item_id)
       end

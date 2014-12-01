@@ -29,5 +29,9 @@ Rees46Api::Application.routes.draw do
     post :audience, on: :collection
   end
 
-  resources :subscriptions, only: [:create]
+  resources :subscriptions, only: [:create] do
+    collection do
+      get :unsubscribe
+    end
+  end
 end

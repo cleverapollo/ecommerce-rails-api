@@ -5,3 +5,7 @@ end
 every '0 2 * * * ' do
   runner 'YmlSyncWorker.new.perform'
 end
+
+every '0 10 * * * ' do
+  #runner 'TriggerMailings::Processor.process_all'
+end
