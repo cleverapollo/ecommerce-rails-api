@@ -23,6 +23,7 @@ class MailingBatchWorker
             send_from: mailing_setting.sender,
             body: body
           ).deliver
+          ActiveRecord::Base.connection.execute("UPDATE digest_mailings SET was_sent = was_sent + 1 WHERE id = #{mailing.id}")
         end
       end
     end
