@@ -12,7 +12,13 @@ class TriggerMail < ActiveRecord::Base
 
   store :trigger_data, coder: JSON
 
-  def open!
+  # Отметить факт открытия письма
+  def mark_as_opened!
     update_columns(opened: true) unless opened?
+  end
+
+  # Отметить факт перехода по письму
+  def mark_as_clicked!
+    update_columns(clicked: true) unless clicked?
   end
 end

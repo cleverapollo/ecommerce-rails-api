@@ -31,6 +31,8 @@ module ActionPush
     attr_accessor :order_id
     # Дата события
     attr_accessor :date
+    # Код триггерной рассылки
+    attr_accessor :trigger_mail_code
 
     # Проверяет и обрабатывает параметры
     #
@@ -90,10 +92,11 @@ module ActionPush
     #
     # @private
     def extract_static_attributes
-      @action         = raw[:event]
-      @rating         = raw[:rating].present? ? raw[:rating].to_i : nil
-      @recommended_by = raw[:recommended_by]
-      @order_id       = raw[:order_id]
+      @action            = raw[:event]
+      @rating            = raw[:rating].present? ? raw[:rating].to_i : nil
+      @recommended_by    = raw[:recommended_by]
+      @order_id          = raw[:order_id]
+      @trigger_mail_code = raw[:trigger_mail_code]
     end
 
     # Извлекает пользователя

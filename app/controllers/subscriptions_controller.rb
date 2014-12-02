@@ -20,7 +20,7 @@ class SubscriptionsController < ApplicationController
   def track
     begin
       if trigger_mail = TriggerMail.find_by(code: params[:trigger_mail_code])
-        trigger_mail.open!
+        trigger_mail.mark_as_opened!
       end
     rescue StandardError => e
       raise e

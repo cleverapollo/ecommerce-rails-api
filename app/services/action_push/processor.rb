@@ -9,6 +9,12 @@ module ActionPush
     end
 
     def process
+      # Обработка триггерных писем
+      if params.trigger_mail_code.present? &&
+         trigger_mail = TriggerMail.find_by(code: params.trigger_mail_code)
+        trigger_mail.mark_as_clicked!
+      end
+
       params.items.each do |item|
         action = fetch_action_for item
         action.process params
