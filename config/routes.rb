@@ -34,4 +34,5 @@ Rees46Api::Application.routes.draw do
       get :unsubscribe
     end
   end
+  get 'track/:trigger_mail_code.png', to: 'subscriptions#track', as: 'track_trigger_mail'
 end

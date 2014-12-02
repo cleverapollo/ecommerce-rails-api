@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141128121956) do
+ActiveRecord::Schema.define(version: 20141202093020) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -493,6 +493,20 @@ ActiveRecord::Schema.define(version: 20141128121956) do
   end
 
   add_index "trigger_mailings", ["shop_id"], name: "index_trigger_mailings_on_shop_id", using: :btree
+
+  create_table "trigger_mails", force: true do |t|
+    t.integer  "shop_id",                                        null: false
+    t.integer  "subscription_id",                                null: false
+    t.string   "trigger_code",                                   null: false
+    t.text     "trigger_data",                                   null: false
+    t.uuid     "code",            default: "uuid_generate_v4()"
+    t.boolean  "clicked",         default: false,                null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "opened",          default: false,                null: false
+  end
+
+  add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false

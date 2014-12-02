@@ -6,7 +6,7 @@ module TriggerMailings
     class NotWidgetableItemError < StandardError; end
     class IncorrectMailingSettingsError < StandardError; end
 
-    attr_accessor :subscription, :trigger
+    attr_accessor :subscription, :trigger, :trigger_mail
 
     # Конструктор
     # @param subscription [Subscription] подписка
@@ -14,6 +14,13 @@ module TriggerMailings
     def initialize(subscription, trigger)
       @subscription = subscription
       @trigger = trigger
+      @trigger_mail = subscription.trigger_mails.create!(
+        shop: subscription.shop,
+        trigger_code: trigger.code,
+        trigger_data: {
+          trigger: trigger.to_json
+        }
+      ).reload
       @body = generate_letter_body
     end
 
@@ -70,13 +77,16 @@ module TriggerMailings
     #
     # @return [String] футе
     def footer
-       unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: 'api.rees46.com')
+      host = Rails.env.production? ? 'api.rees46.com' : '127.0.0.1:8080'
+      unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: host)
+      tracking_pixel = Rails.application.routes.url_helpers.track_trigger_mail_url(trigger_mail_code: trigger_mail.code, host: host)
       <<-HTML
         <div style='max-width:600px; margin:0 auto 40px; padding:20px 0 0; font-family:sans-serif; color:#666; font-size:12px; line-height:20px; text-align:left;'>
           Сообщение было отправлено на <a href='mailto:#{subscription.email}' style='color:#064E86;'><span style='color:#064E86;'>#{subscription.email}</span></a>, адрес был подписан на рассылки <a href='http://rees46.com/' target='_blank' style='color:#064E86;'><span style='color:#064E86;'>REES46</span></a>.
           <br>
           Если вы не хотите получать подобные письма, вы можете <a href='#{unsubscribe_url}' style='color:#064E86;'><span style='color:#064E86;'>отписаться от рассылки</span></a>.
         </div>
+        <img src='#{tracking_pixel}'></img>
       HTML
     end
 
@@ -90,7 +100,7 @@ module TriggerMailings
       {
         name: item.name,
         price: item.price.to_s,
-        url: UrlHelper.add_params_to(item.url, utm_source: 'rees46', utm_meta: 'trigger_mail', utm_campaign: @trigger.code),
+        url: UrlHelper.add_params_to(item.url, utm_source: 'rees46', utm_meta: 'trigger_mail', utm_campaign: @trigger.code, rees46_trigger_mail_code: trigger_mail.code),
         image_url: item.image_url
       }
     end

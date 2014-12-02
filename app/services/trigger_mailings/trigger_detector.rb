@@ -23,10 +23,9 @@ module TriggerMailings
       # @return [Array] массив реализаций триггеров
       # @private
       def triggers_implementations
-        [TriggerMailings::Triggers::AbandonedCart,
-         TriggerMailings::Triggers::RecentlyPurchased,
-         TriggerMailings::Triggers::SlippingAway,
-         TriggerMailings::Triggers::ViewedButNotBought]
+        TriggerMailings::Triggers::NAMES.map do |trigger|
+          "TriggerMailings::Triggers::#{trigger}".constantize
+        end
       end
     end
   end

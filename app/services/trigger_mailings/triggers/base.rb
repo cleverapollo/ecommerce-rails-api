@@ -67,6 +67,17 @@ module TriggerMailings
       def recommended_ids(count)
         raise NotImplementedError
       end
+
+      # JSON триггера для сериализации
+      #
+      # @return [String] JSON
+      def to_json
+        {
+          happened_at: happened_at,
+          source_item: source_item.to_json,
+          additional_info: additional_info.to_json
+        }.to_json
+      end
     end
   end
 

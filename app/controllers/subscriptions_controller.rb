@@ -17,6 +17,19 @@ class SubscriptionsController < ApplicationController
     render text: 'Вы успешно отписаны от рассылок.'
   end
 
+  def track
+    begin
+      if trigger_mail = TriggerMail.find_by(code: params[:trigger_mail_code])
+        trigger_mail.open!
+      end
+    rescue StandardError => e
+      raise e
+    end
+
+    data = open('app/assets/images/pixel.png').read
+    send_data data, type: 'image/png', disposition: 'inline'
+  end
+
   protected
 
   def subscription_params

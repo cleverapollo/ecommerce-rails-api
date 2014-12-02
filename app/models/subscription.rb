@@ -1,6 +1,7 @@
 class Subscription < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user
+  has_many :trigger_mails
 
   validates :shop, presence: true
   validates :user, presence: true
@@ -24,6 +25,6 @@ class Subscription < ActiveRecord::Base
 
   # Отметить, что эту подписку не нужно беспокоить какое-то время
   def set_dont_disturb!
-    update(dont_disturb_until: DONT_DISTURB_DAYS_COUNT.days.from_now)
+    update_columns(dont_disturb_until: DONT_DISTURB_DAYS_COUNT.days.from_now)
   end
 end
