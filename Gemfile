@@ -5,6 +5,9 @@ ruby '2.1.1'
 gem 'rails', '4.0.3'
 gem 'rails-api', '0.2.0'
 
+# State machine
+gem 'state_machine', '1.2.0'
+
 # Server
 gem 'unicorn', '4.8.1'
 

@@ -10,11 +10,18 @@ class MailingBatchWorker
       recommendations_count = mailing.template.scan(/\{\{ item \}\}/).size
       DigestMailingRecommendationsCalculator.create(shop, recommendations_count) do |calculator|
         if test_mail.nil?
-          shop.audiences.enabled.where(id: params['start_id']..params['end_id']).each do |audience|
-            audience.try_to_attach_to_user!
-            recommendations = calculator.recommendations_for(audience.user)
-            sent_mail(audience.email, mailing.subject, mailing_setting.sender, body_for_sent(recommendations, mailing.item_template, mailing.template))
-            ActiveRecord::Base.connection.execute("UPDATE digest_mailings SET was_sent = was_sent + 1 WHERE id = #{mailing.id}")
+          mailing_batch = mailing.digest_mailing_batches.find_or_create_by(end_id: params['end_id']) do |batch|
+            batch.current_processed_id ||= params['start_id']
+          end
+          unless mailing_batch.completed?
+            shop.audiences.enabled.where(id: mailing_batch.current_processed_id..params['end_id']).each do |audience|
+              mailing_batch.update_attributes(current_processed_id: audience.id)
+              audience.try_to_attach_to_user!
+              recommendations = calculator.recommendations_for(audience.user)
+              sent_mail(audience.email, mailing.subject, mailing_setting.sender, body_for_sent(recommendations, mailing.item_template, mailing.template))
+              ActiveRecord::Base.connection.execute("UPDATE digest_mailings SET was_sent = was_sent + 1 WHERE id = #{mailing.id}")
+            end
+            mailing_batch.update_attributes(completed: true)
           end
         else
           recommendations = calculator.recommendations_for(nil)
@@ -22,6 +29,10 @@ class MailingBatchWorker
         end
       end
     end
+  rescue => e
+    mailing = DigestMailing.find(params['mailing_id'])
+    mailing.fail_mailing!
+    Rollbar.report_exception(e)
   end
 
   def sent_mail(to, subject, from, body)
