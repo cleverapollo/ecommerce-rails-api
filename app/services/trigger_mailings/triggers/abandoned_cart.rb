@@ -29,7 +29,7 @@ module TriggerMailings
           result += Recommender::Impl::Interesting.new(OpenStruct.new(
             shop: shop,
             user: user,
-            limit: count,
+            limit: (count - result.count),
             exclude: result,
             recommend_only_widgetable: true
           )).recommended_ids
@@ -41,7 +41,7 @@ module TriggerMailings
             shop: shop,
             user: user,
             limit: count,
-            exclude: result,
+            exclude: (count - result.count),
             recommend_only_widgetable: true
           )).recommended_ids
         end
