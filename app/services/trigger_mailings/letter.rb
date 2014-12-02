@@ -100,7 +100,11 @@ module TriggerMailings
       {
         name: item.name,
         price: item.price.to_s,
-        url: UrlHelper.add_params_to(item.url, utm_source: 'rees46', utm_meta: 'trigger_mail', utm_campaign: @trigger.code, rees46_trigger_mail_code: trigger_mail.code),
+        url: UrlHelper.add_params_to(item.url, utm_source: 'rees46',
+                                               utm_meta: 'trigger_mail',
+                                               utm_campaign: @trigger.code,
+                                               recommended_by: 'trigger_mail',
+                                               rees46_trigger_mail_code: trigger_mail.code),
         image_url: item.image_url
       }
     end
