@@ -6,7 +6,7 @@ module TriggerMailings
         # Находим покупки, которые были сделаны 4 дня назад
         if order = user.orders.where(shop: shop).where(date: time_range).order(date: :desc).first
           @happened_at = order.date
-          @source_item = order.order_items.map(&:item)
+          @source_item = order.order_items.map(&:item).sort{|i1, i2| i1.price <=> i2.price }.last
           return true
         else
           return false
