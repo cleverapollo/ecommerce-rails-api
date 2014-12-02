@@ -18,14 +18,16 @@ class MailingLaunchWorker
       MailingBatchWorker.perform_async({ shop_id: shop.id, mailing_id: mailing_id }, test_mail)
     else
       mailing = DigestMailing.find(mailing_id)
-      if mailing.digest_mailing_batches.any?
-        mailing.digest_mailing_batches.incompleted.each do |batch|
-          MailingBatchWorker.perform_async(shop_id: shop.id, mailing_id: mailing_id, start_id: batch.current_processed_id, end_id: batch.end_id)
-        end
-      else
+      mailing.update_attributes(total_mails_count: shop.audiences.count)
+      if !mailing.digest_mailing_batches.any?
         shop.audiences.enabled.each_batch_with_start_end_id do |start_id, end_id|
-          MailingBatchWorker.perform_async(shop_id: shop.id, mailing_id: mailing_id, start_id: start_id, end_id: end_id)
+          batch = mailing.digest_mailing_batches.create(end_id: end_id)
+          batch.current_processed_id = start_id
         end
+      end
+
+      mailing.digest_mailing_batches.incompleted.each do |batch|
+        MailingBatchWorker.perform_async(shop_id: shop.id, mailing_id: mailing_id, batch_id: batch.id)
       end
     end
   end

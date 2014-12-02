@@ -3,25 +3,15 @@ module StateMachine::Integrations::ActiveModel
 end
 
 class DigestMailing < ActiveRecord::Base
+  include Redis::Objects
+  counter :sent_mails_count
   belongs_to :shop
 
   has_many :digest_mailing_batches
 
-  state_machine :state, initial: :new do
-    event :prepare_to_send do
-      transition :new => :ready_to_send
-    end
-
-    event :back_to_new do
-      transition :ready_to_send => :new
-    end
-
-    event :process do
-      transition [:ready_to_send, :failed] => :processed
-    end
-
+  state_machine :state do
     event :fail_mailing do
-      transition :processed => :failed
+      transition :processing => :failed
     end
   end
 end

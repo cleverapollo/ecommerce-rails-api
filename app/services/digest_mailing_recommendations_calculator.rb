@@ -1,6 +1,6 @@
 class DigestMailingRecommendationsCalculator
   class MahoutOpenError < StandardError; end
-  class UnexpectedRecommendationsNumber < StandardError; end
+  class UnexpectedRecommendationsCountError < StandardError; end
 
   attr_reader :mahout_service
 
@@ -58,7 +58,7 @@ class DigestMailingRecommendationsCalculator
       end
     end
     result += Item.where(id: from_base).each { |item| @items_cache[item.id] = item } if from_base.any?
-    raise UnexpectedRecommendationsNumber.new('Получено рекомендаций меньше заданного значения') if result.size < @limit
+    raise UnexpectedRecommendationsCountError.new('Получено рекомендаций меньше заданного значения') if result.size < @limit
     result
   end
 

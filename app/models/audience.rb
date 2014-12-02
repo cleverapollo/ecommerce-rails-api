@@ -9,10 +9,8 @@ class Audience < ActiveRecord::Base
 
   def try_to_attach_to_user!
     if user_id.nil?
-      begin
-        self.user_id = UserShopRelation.find_by(uniqid: external_id.to_s).user.id
-        save
-      rescue NoMethodError => e
+      if u_s_r = UserShopRelation.find_by(uniqid: external_id.to_s)
+        update(user: u_s_r.user)
       end
     end
   end
