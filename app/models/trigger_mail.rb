@@ -17,8 +17,8 @@ class TriggerMail < ActiveRecord::Base
     update_columns(opened: true) unless opened?
   end
 
-  # Отметить факт перехода по письму
+  # Отметить факт перехода по письму (и соответственно просмотра)
   def mark_as_clicked!
-    update_columns(clicked: true) unless clicked?
+    update_columns(clicked: true, opened: true) unless clicked?
   end
 end
