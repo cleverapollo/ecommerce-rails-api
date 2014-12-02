@@ -15,7 +15,8 @@ class Interaction < ActiveRecord::Base
          'buying_now' => 5,
             'popular' => 6,
     'recently_viewed' => 7,
-            'rescore' => 8
+            'rescore' => 8,
+       'trigger_mail' => 9
   }
 
 
