@@ -54,7 +54,7 @@ module TriggerMailings
       def recommendations(count)
         result = shop.items.available.widgetable.where(id: recommended_ids(count)).load
         if result.count < count
-          raise TriggerMailings::NotEnoughRecommendationsError.new("Expected #{count} recommendations, but given #{result.count}")
+          raise TriggerMailings::NotEnoughRecommendationsError.new("Expected #{count} recommendations, but given #{result.count}. User ##{user.id}")
         end
         result
       end
