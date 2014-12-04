@@ -22,7 +22,10 @@ class ImportsController < ApplicationController
   end
 
   def disable
-    ItemsDisablerWorker.perform_async(params)
+    params[:item_ids].each |item_id|
+      @shop.items.find_by(uniqid: item_id).update(is_available: false)
+    end
+
     render text: 'OK'
   end
 end
