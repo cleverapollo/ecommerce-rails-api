@@ -1,6 +1,5 @@
 class Item < ActiveRecord::Base
   ARRAY_ATTRIBUTES = [:categories, :locations]
-  ACTION_ATTRIBUTES = [:is_available, :locations]
 
   attr_accessor :amount, :action_id, :mail_recommended_by
 
@@ -28,10 +27,6 @@ class Item < ActiveRecord::Base
   class << self
     def disable_expired
       Item.available.expired.find_each do |item|
-        item.actions.find_in_batches(batch_size: 100) do |batch|
-          Action.where(id: batch.map(&:id), item_id: item.id, shop_id: item.shop_id).update_all(is_available: false)
-        end
-
         item.update(is_available: false)
       end
     end
@@ -49,13 +44,9 @@ class Item < ActiveRecord::Base
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
     attrs = merge_attributes(item_proxy)
-    changed = is_available_changed? || locations_changed?
 
     begin
       save! if changed?
-      if persisted? && changed
-        ItemsSynchronizeWorker.perform_async(self.id, attrs)
-      end
       return self
     rescue ActiveRecord::RecordNotUnique => e
       item = find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
@@ -70,10 +61,6 @@ class Item < ActiveRecord::Base
 
   def widgetable?
     price.present? && name.present? && url.present? && image_url.present?
-  end
-
-  def attributes_for_actions
-    attributes.select{|key, _| ACTION_ATTRIBUTES.include?(key.to_sym) }
   end
 
   def merge_attributes(new_item)

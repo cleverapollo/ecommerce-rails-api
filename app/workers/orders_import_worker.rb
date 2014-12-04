@@ -110,7 +110,7 @@ class OrdersImportWorker
       if action.persisted?
         action.increment!(:purchase_count)
       else
-        action.update(item.attributes_for_actions.merge(rating: 5.0, purchase_count: 1))
+        action.update(rating: 5.0, purchase_count: 1)
 
         MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
       end

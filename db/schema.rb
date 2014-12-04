@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141202093020) do
+ActiveRecord::Schema.define(version: 20141204143703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,7 +36,6 @@ ActiveRecord::Schema.define(version: 20141202093020) do
     t.integer  "rate_count",                 default: 0,                                 null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
-    t.boolean  "is_available",               default: true,                              null: false
     t.decimal  "price"
     t.string   "locations",                  default: [],                                             array: true
     t.string   "brand"
@@ -44,10 +43,10 @@ ActiveRecord::Schema.define(version: 20141202093020) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "((purchase_count > 0) AND (is_available = true))", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", where: "(is_available = true)", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
-  add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", where: "(is_available = true)", using: :btree
+  add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -471,6 +470,11 @@ ActiveRecord::Schema.define(version: 20141202093020) do
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
 
+  create_table "svd_test_actions", id: false, force: true do |t|
+    t.integer "user_id", limit: 8
+    t.integer "item_id", limit: 8
+  end
+
   create_table "transactions", force: true do |t|
     t.integer  "amount",           default: 500, null: false
     t.integer  "transaction_type", default: 0,   null: false
@@ -480,6 +484,7 @@ ActiveRecord::Schema.define(version: 20141202093020) do
     t.datetime "processed_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "comment"
   end
 
   create_table "trigger_mailings", force: true do |t|

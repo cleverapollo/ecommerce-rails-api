@@ -40,7 +40,9 @@ module Recommender
 
       # Популярные по всему магазину
       def popular_in_all_shop
-        common_relation(shop.actions.where.not(item_id: excluded_items_ids).available)
+        all_items = shop.items.available.where.not(id: excluded_items_ids)
+
+        common_relation(shop.actions.where(item_id: all_items))
       end
 
       # Популярные в конкретной категории

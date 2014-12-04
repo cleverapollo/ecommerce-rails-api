@@ -10,7 +10,6 @@ describe Recommender::Impl::Popular do
   def create_action(item, is_buy = false)
     a = item.actions.new(user: other_user,
                          shop: shop,
-                         is_available: true,
                          timestamp: 1.day.ago.to_i,
                          rating: Actions::View::RATING)
 
