@@ -22,7 +22,7 @@ class ImportsController < ApplicationController
   end
 
   def disable
-    params[:item_ids].each do |item_id|
+    params[:item_ids].split(',').each do |item_id|
       @shop.items.find_by(uniqid: item_id).update(is_available: false)
     end
 
