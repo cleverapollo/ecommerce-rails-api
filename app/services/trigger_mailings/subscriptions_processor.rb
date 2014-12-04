@@ -7,7 +7,7 @@ module TriggerMailings
       # Обработать все подписки: искать для каждой триггеры, если есть - отправить письмо.
       def process_all
         scoped_subscriptions.find_each do |subscription|
-          next if subscription.shop.trigger_mailings.disabled?
+          next if subscription.shop.trigger_mailing.disabled?
           if trigger = TriggerMailings::TriggerDetector.detect(subscription.user, subscription.shop)
             TriggerMailings::Letter.new(subscription, trigger).send
             subscription.set_dont_disturb! unless Rails.env.development?
