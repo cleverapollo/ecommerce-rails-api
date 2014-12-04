@@ -6,15 +6,9 @@ class Action < ActiveRecord::Base
   TYPES = Dir.glob(Rails.root + 'app/models/actions/*').map{|a| a.split('/').last.split('.').first }
 
   scope :by_average_rating, -> { order('AVG(rating) DESC') }
-  scope :in_locations, ->(locations) {
-    if locations && locations.any?
-      where("? <@ locations", "{#{locations.join(',')}}")
-    end
-  }
 
   scope :views, -> { where('rating::numeric = ?', Actions::View::RATING) }
   scope :carts, -> { where('rating::numeric = ?', Actions::Cart::RATING) }
-
 
   class << self
     def get_implementation_for(action_type)
