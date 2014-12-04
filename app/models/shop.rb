@@ -18,6 +18,8 @@ class Shop < ActiveRecord::Base
   has_one :trigger_mailing
   has_many :subscriptions
 
+  scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
+
   def item_ids_bought_or_carted_by(user)
     actions.where('RATING >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
   end

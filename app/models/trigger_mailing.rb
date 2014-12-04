@@ -3,4 +3,8 @@ class TriggerMailing < ActiveRecord::Base
 
   store :trigger_settings, coder: JSON
   store :mailing_settings, coder: JSON
+
+  def disabled?
+    !enabled?
+  end
 end

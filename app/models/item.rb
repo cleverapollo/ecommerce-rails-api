@@ -38,27 +38,33 @@ class Item < ActiveRecord::Base
 
     def fetch(shop_id, item_proxy)
       item = find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
-
-      attrs = item.merge_attributes(item_proxy)
-
-      changed = item.is_available_changed? || item.locations_changed?
-
-      item.amount = item_proxy.amount
-
-      begin
-        item.save!
-      rescue ActiveRecord::RecordNotUnique => e
-        item = find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
-        item.amount = item_proxy.amount
-      end
-
-      ItemsSynchronizeWorker.perform_async(item.id, attrs) if item.persisted? && changed
-
-      item
+      item.apply_attributes(item_proxy)
     end
 
     def available_attributes
       attribute_names.select{|a| !['id', 'shop_id', 'uniqid'].include?(a) }
+    end
+  end
+
+  def apply_attributes(item_proxy)
+    self.amount = item_proxy.amount
+    attrs = merge_attributes(item_proxy)
+    changed = is_available_changed? || locations_changed?
+
+    begin
+      save! if changed?
+      if persisted? && changed
+        puts '#############'
+        puts 'Launched Syncer!'
+        puts '#############'
+        #ItemsSynchronizeWorker.perform_async(self.id, attrs)
+        #ItemsSynchronizeWorker.new.perform(self.id, attrs)
+      end
+      return self
+    rescue ActiveRecord::RecordNotUnique => e
+      item = find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
+      item.amount = item_proxy.amount
+      return item
     end
   end
 
@@ -93,6 +99,7 @@ class Item < ActiveRecord::Base
     }
 
     assign_attributes(attrs)
+
     self.widgetable = self.name.present? && self.url.present? && self.image_url.present?
 
     attrs

@@ -28,10 +28,10 @@ module TriggerMailings
         @shop = shop
       end
 
-      # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, и случился ли триггер.
+      # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
       # @return [Boolean] выполнен ли триггер
-      def happened?
-        enabled? && condition_happened?
+      def triggered?
+        enabled? && appropriate_time_to_send? && condition_happened?
       end
 
       # Включен ли триггер в настройках триггерных рассылок
@@ -44,6 +44,14 @@ module TriggerMailings
       # @return [Boolean] выполнено ли условие
       def condition_happened?
         raise NotImplementedError
+      end
+
+      # Подходящее ли сейчас время, чтобы отправлять письмо?
+      # По умолчанию, отправляем письма с 10 до 22
+      #
+      # @return [Boolean] можно ли отправлять письмо
+      def appropriate_time_to_send?
+        (Time.now.hour >= 10) && (Time.now.hour < 22)
       end
 
       # Возвращает массив рекомендованных товаров для данного триггера.

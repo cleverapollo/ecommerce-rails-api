@@ -1,11 +1,14 @@
+# Каждую полночь выключаем товары со "сроком годности"
 every '0 0 * * * ' do
   runner 'Item.disable_expired'
 end
 
+# Каждую ночь в 2 часа синхронизируем YML
 every '0 2 * * * ' do
-  runner 'YmlSyncWorker.new.perform'
+  runner 'YmlWorker.process_all!'
 end
 
-every '0 10 * * * ' do
+# Каждые 30 минут каждого часа обрабатываем подписки
+every '30 * * * * ' do
   #runner 'TriggerMailings::SubscriptionsProcessor.process_all'
 end

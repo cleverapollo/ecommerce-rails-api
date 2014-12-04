@@ -12,7 +12,7 @@ module TriggerMailings
       def detect(user, shop)
         triggers = triggers_implementations.map do |implementation|
           i = implementation.new(user, shop)
-          i if i.happened?
+          i if i.triggered?
         end.compact.sort{|x, y| x.priority <=> y.priority }.last
       end
 

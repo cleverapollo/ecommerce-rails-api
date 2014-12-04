@@ -8,10 +8,11 @@ class ErrorsMailer < ActionMailer::Base
     end.deliver
   end
 
-  def yml_import_error(email, exception, shop_id)
+  def yml_import_error(email, shop, exception)
+    shop_string = "##{shop.id} #{shop.name} (#{shop.url}) - #{shop.yml_file_url}"
     mail(to: email, subject: "Ошибка при импорте YML") do |format|
-      format.text { render text: "Shop #{shop_id}\n\n\n#{exception.class}: #{exception.message} #{exception.backtrace}" }
-      format.html { render text: "Shop #{shop_id}<hr/>#{exception.class}: #{exception.message} #{exception.backtrace}" }
+      format.text { render text: "#{shop_string}\n\n\n#{exception.message}" }
+      format.html { render text: "#{shop_string}<hr />#{exception.message}" }
     end.deliver
   end
 end
