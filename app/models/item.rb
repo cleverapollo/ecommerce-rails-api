@@ -54,11 +54,7 @@ class Item < ActiveRecord::Base
     begin
       save! if changed?
       if persisted? && changed
-        puts '#############'
-        puts 'Launched Syncer!'
-        puts '#############'
-        #ItemsSynchronizeWorker.perform_async(self.id, attrs)
-        #ItemsSynchronizeWorker.new.perform(self.id, attrs)
+        ItemsSynchronizeWorker.perform_async(self.id, attrs)
       end
       return self
     rescue ActiveRecord::RecordNotUnique => e
