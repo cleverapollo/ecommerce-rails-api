@@ -21,8 +21,7 @@ module Recommender
           r = ms.user_based(params.user.id,
                       params.shop.id,
                       nil,
-                      include: items_in_shop,
-                      include: [],
+                      include: items_to_include.pluck(:id),
                       exclude: excluded_items_ids,
                       limit: params.limit)
         end
