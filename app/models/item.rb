@@ -49,7 +49,7 @@ class Item < ActiveRecord::Base
       save! if changed?
       return self
     rescue ActiveRecord::RecordNotUnique => e
-      item = find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
+      item = Item.find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
       item.amount = item_proxy.amount
       return item
     end
