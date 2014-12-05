@@ -28,7 +28,7 @@ module TriggerMailings
         # Затем интересные
         if result.count < count
           result += Recommender::Impl::Interesting.new(params.tap { |p|
-            p.limit = (count - result.count),
+            p.limit = (count - result.count)
             p.exclude = result
           }).recommended_ids
         end
@@ -36,7 +36,7 @@ module TriggerMailings
         # Потом популярные
         if result.count < count
           result += Recommender::Impl::Popular.new(params.tap { |p|
-            p.limit = (count - result.count),
+            p.limit = (count - result.count)
             p.exclude = result
           }).recommended_ids
         end
