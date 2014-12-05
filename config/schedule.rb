@@ -10,5 +10,5 @@ end
 
 # Каждые 30 минут каждого часа обрабатываем подписки
 every '30 * * * * ' do
-  #runner 'TriggerMailings::SubscriptionsProcessor.process_all'
+  runner 'TriggerMailings::SubscriptionsProcessor.process_all'
 end
