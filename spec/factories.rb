@@ -37,6 +37,7 @@ FactoryGirl.define do
     price 100
     categories '{5}'
     is_available true
+    ignored false
   end
 
   factory :user_shop_relation do

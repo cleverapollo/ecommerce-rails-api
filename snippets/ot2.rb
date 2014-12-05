@@ -10,7 +10,7 @@ File.open('onlinetours2.csv', 'w') do |file|
       i = a.try(:item)
       if i.present? && i.locations[0].present?
         # Найти живые товары для города юзера
-        items = shop.items.available.in_locations(i.locations)
+        items = shop.items.recommendable.in_locations(i.locations)
 
         # Выбрать из них 3-10
         items = items.order('RANDOM()').last(rand(8) + 3)

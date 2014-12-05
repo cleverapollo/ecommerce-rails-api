@@ -40,14 +40,14 @@ module Recommender
 
       # Популярные по всему магазину
       def popular_in_all_shop
-        all_items = shop.items.available.where.not(id: excluded_items_ids)
+        all_items = shop.items.recommendable.where.not(id: excluded_items_ids)
 
         common_relation(shop.actions.where(item_id: all_items))
       end
 
       # Популярные в конкретной категории
       def popular_in_category
-        items_in_category = shop.items.available.where.not(id: excluded_items_ids)
+        items_in_category = shop.items.recommendable.where.not(id: excluded_items_ids)
         items_in_category = items_in_category.in_categories(params.categories)
 
         common_relation(shop.actions.where(item_id: items_in_category))

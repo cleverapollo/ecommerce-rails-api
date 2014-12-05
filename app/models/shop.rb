@@ -62,10 +62,6 @@ class Shop < ActiveRecord::Base
     connected_events[:view] == true && connected_events[:purchase] == true && (connected_recommenders.values.select{|v| v == true }.count >= 3)
   end
 
-  def available_item_ids
-    items.available.pluck(:id)
-  end
-
   def purge_all_related_data!
     users.delete_all
     ShopsUser.where(shop_id: self.id).delete_all

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141204145612) do
+ActiveRecord::Schema.define(version: 20141205102400) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -186,9 +186,10 @@ ActiveRecord::Schema.define(version: 20141204145612) do
     t.boolean "repeatable",               default: false, null: false
     t.date    "available_till"
     t.string  "categories",               default: [],                 array: true
+    t.boolean "ignored",                  default: false, null: false
   end
 
-  add_index "items", ["shop_id"], name: "shop_available_index", where: "(is_available = true)", using: :btree
+  add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "mahout_actions", force: true do |t|

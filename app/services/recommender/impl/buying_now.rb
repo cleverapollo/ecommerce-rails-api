@@ -6,7 +6,7 @@ module Recommender
       def items_to_weight
         min_date = 1.day.ago.to_i
 
-        all_items = shop.items.available.in_locations(locations).where.not(id: excluded_items_ids)
+        all_items = shop.items.recommendable.in_locations(locations).where.not(id: excluded_items_ids)
 
         # Выводит топ товаров за последние сутки.
         # Те, что чаще покупаются - будут выше.

@@ -115,7 +115,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable, :available_till, :categories].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :repeatable, :available_till, :categories, :priority].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -144,6 +144,7 @@ module ActionPush
         repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
         available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
+        ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
 
         item_object = OpenStruct.new(uniqid: item_id,
                                      price: price,
@@ -159,7 +160,8 @@ module ActionPush
                                      brand: brand,
                                      repeatable: repeatable,
                                      widgetable: widgetable,
-                                     available_till: available_till)
+                                     available_till: available_till,
+                                     ignored: ignored)
 
         @items << Item.fetch(shop.id, item_object)
       end

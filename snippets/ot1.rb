@@ -4,7 +4,7 @@ stats = {};
 tunnel = BrB::Tunnel.create(nil, 'brb://localhost:5555')
 
 available_ids = []; item_ids_map = {}
-shop.items.available.find_each do |item|
+shop.items.recommendable.find_each do |item|
   available_ids << item.id
   item_ids_map[item.id] = item.uniqid
 end
@@ -41,7 +41,7 @@ File.open('onlinetours.csv', 'w') do |file|
       i = a.try(:item)
       if i.present? && i.locations[0].present?
         # Найти живые товары для города юзера
-        items = shop.items.available.in_locations(i.locations)
+        items = shop.items.recommendable.in_locations(i.locations)
 
         # Выбрать из них 3-10
         recommended_ids = items.order('RANDOM()').last(rand(8) + 3).map(&:id)

@@ -8,6 +8,7 @@ class Item < ActiveRecord::Base
   has_many :order_items
   has_many :mahout_actions
 
+  scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
   scope :in_categories, ->(categories) {
@@ -78,7 +79,8 @@ class Item < ActiveRecord::Base
                   brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
            is_available: new_item.is_available,
          available_till: ValuesHelper.present_one(new_item, self, :available_till),
-             repeatable: ValuesHelper.false_one(new_item, self, :repeatable)
+             repeatable: ValuesHelper.false_one(new_item, self, :repeatable),
+                ignored: new_item.ignored.nil? ? false : new_item.ignored
     }
 
     assign_attributes(attrs)

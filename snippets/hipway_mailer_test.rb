@@ -6,7 +6,7 @@ reload!
 
 shop = Shop.find(134)
 
-items = shop.items.available.map{|i|
+items = shop.items.recommendable.map{|i|
     {
       'id' => i.uniqid.to_s,
       'template' => "#{i.uniqid} = #{i.name} = #{i.url}"
