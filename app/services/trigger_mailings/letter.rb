@@ -81,7 +81,7 @@ module TriggerMailings
       unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(unsubscribe_token: subscription.unsubscribe_token, host: host)
       tracking_pixel = Rails.application.routes.url_helpers.track_trigger_mail_url(trigger_mail_code: trigger_mail.code, host: host)
       <<-HTML
-        <div style='max-width:600px; margin:0 auto 40px; padding:20px 0 0; font-family:sans-serif; color:#666; font-size:12px; line-height:20px; text-align:left;'>
+        <div style='max-width:600px; margin:0 auto 40px; padding:20px 0 0; font-family:sans-serif; color:#666; font-size:9px; line-height:20px; text-align:left;'>
           Сообщение было отправлено на <a href='mailto:#{subscription.email}' style='color:#064E86;'><span style='color:#064E86;'>#{subscription.email}</span></a>, адрес был подписан на рассылки <a href='http://rees46.com/' target='_blank' style='color:#064E86;'><span style='color:#064E86;'>REES46</span></a>.
           <br>
           Если вы не хотите получать подобные письма, вы можете <a href='#{unsubscribe_url}' style='color:#064E86;'><span style='color:#064E86;'>отписаться от рассылки</span></a>.
@@ -98,8 +98,9 @@ module TriggerMailings
     def item_for_letter(item)
       raise NotWidgetableItemError.new(item.id) unless item.widgetable?
       {
-        name: item.name,
-        price: item.price.to_s,
+        name: item.name.truncate(40),
+        description: item.description.truncate(130),
+        price: item.price.round.to_s,
         url: UrlHelper.add_params_to(item.url, utm_source: 'rees46',
                                                utm_meta: 'trigger_mail',
                                                utm_campaign: @trigger.code,
