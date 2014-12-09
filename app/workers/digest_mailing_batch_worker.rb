@@ -3,12 +3,13 @@
 #
 class DigestMailingBatchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'long'
+  sidekiq_options retry: false, queue: 'mailing'
 
   # Запустить рассылку пачки.
   #
   # @param id [Integer] ID пачки рассылки.
   def perform(id)
+    ActiveRecord::Base.logger = nil
     @batch = DigestMailingBatch.find(id)
     @mailing = @batch.digest_mailing
     @shop = @mailing.shop
@@ -20,11 +21,11 @@ class DigestMailingBatchWorker
 
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
 
-    DigestMailingRecommendationsCalculator.create(@shop, recommendations_count) do |calculator|
+    DigestMailingRecommendationsCalculator.open(@shop, recommendations_count) do |calculator|
       if @batch.test_mode?
         # Тестовый режим: генерируем тестовое письмо для пустого пользователя и отправляем его на тестовый адрес.
         recommendations = calculator.recommendations_for(nil)
-        send_mail(test_mail, recommendations, {})
+        send_mail(@batch.test_email, recommendations, {})
       else
         # Полноценный режим.
         @batch.current_processed_audience_id = @batch.start_id
@@ -47,7 +48,7 @@ class DigestMailingBatchWorker
 
     @batch.complete!
   rescue => e
-    @mailing.fail!
+    @mailing.fail! if @mailing
     raise e
   end
 
@@ -57,15 +58,12 @@ class DigestMailingBatchWorker
   # @param recommendations [Array] массив рекомендаций.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
   def send_mail(email, recommendations, custom_attributes = {})
-    m = Mailer.digest(
+    Mailer.digest(
       email: email,
       subject: @mailing.subject,
       send_from: @settings.sender,
       body: letter_body(recommendations, custom_attributes)
-    )
-
-    #puts m
-    m.deliver
+    ).deliver
   end
 
   # Сформировать тело письма.
@@ -105,10 +103,10 @@ class DigestMailingBatchWorker
     {
       name: item.name,
       description: item.description,
-      price: item.price.round.to_s,
+      price: ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: "'"),
       url: UrlHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_meta: 'digest_mail',
-                                             utm_campaign: Time.current.strftime("%d.%m.%Y"),
+                                             utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
                                              recommended_by: 'digest_mail'),
       image_url: item.image_url
     }

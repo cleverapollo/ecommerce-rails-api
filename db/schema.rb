@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141208154358) do
+ActiveRecord::Schema.define(version: 20141209125512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -170,6 +170,8 @@ ActiveRecord::Schema.define(version: 20141208154358) do
     t.datetime "updated_at"
     t.text     "item_template",     null: false
     t.integer  "total_mails_count"
+    t.datetime "started_at"
+    t.datetime "finished_at"
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree

@@ -3,7 +3,7 @@
 #
 class DigestMailingLaunchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'long'
+  sidekiq_options retry: false, queue: 'mailing'
 
   attr_reader :shop
 
@@ -30,7 +30,7 @@ class DigestMailingLaunchWorker
     else
       # Режим полноценной рассылки.
       # Создаем пачки на всю аудиторию.
-      shop.audiences.enabled.each_batch_with_start_end_id do |start_id, end_id|
+      shop.audiences.enabled.each_batch_with_start_end_id(100) do |start_id, end_id|
         digest_mailing.digest_mailing_batches.create!(start_id: start_id, end_id: end_id)
       end
 

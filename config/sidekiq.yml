@@ -3,11 +3,15 @@
 :pidfile: tmp/pids/sidekiq.pid
 production:
   :concurrency: 20
+development:
+  :concurrency: 20
 :queues:
   - critical
   - default
   - long
+  - mailing
 :limits:
   critical: 5
   default: 10
   long:     5
+  mailing:  5
