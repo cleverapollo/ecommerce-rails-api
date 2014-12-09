@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141205102400) do
+ActiveRecord::Schema.define(version: 20141208154358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,6 +72,18 @@ ActiveRecord::Schema.define(version: 20141205102400) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
+  create_table "audiences", force: true do |t|
+    t.integer "shop_id",                          null: false
+    t.integer "external_id",                      null: false
+    t.integer "user_id"
+    t.string  "email",                            null: false
+    t.boolean "enabled",           default: true, null: false
+    t.text    "custom_attributes"
+  end
+
+  add_index "audiences", ["external_id", "shop_id"], name: "index_audiences_on_external_id_and_shop_id", unique: true, using: :btree
+  add_index "audiences", ["user_id"], name: "index_audiences_on_user_id", using: :btree
+
   create_table "branches", force: true do |t|
     t.string   "name"
     t.boolean  "deletable",  default: true, null: false
@@ -128,6 +140,39 @@ ActiveRecord::Schema.define(version: 20141205102400) do
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "digest_mailing_batches", force: true do |t|
+    t.integer "digest_mailing_id",                 null: false
+    t.integer "end_id",                            null: false
+    t.boolean "completed",         default: false, null: false
+    t.integer "start_id"
+    t.string  "test_email"
+  end
+
+  add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree
+
+  create_table "digest_mailing_settings", force: true do |t|
+    t.integer "shop_id",                 null: false
+    t.boolean "on",      default: false, null: false
+    t.string  "sender",                  null: false
+  end
+
+  add_index "digest_mailing_settings", ["shop_id"], name: "index_digest_mailing_settings_on_shop_id", using: :btree
+
+  create_table "digest_mailings", force: true do |t|
+    t.integer  "shop_id",           null: false
+    t.string   "name",              null: false
+    t.string   "subject",           null: false
+    t.text     "template",          null: false
+    t.string   "items",             null: false
+    t.string   "state",             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.text     "item_template",     null: false
+    t.integer  "total_mails_count"
+  end
+
+  add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
 
   create_table "events", force: true do |t|
     t.integer  "shop_id",         null: false

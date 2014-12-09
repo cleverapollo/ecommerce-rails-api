@@ -58,20 +58,20 @@ module Recommender
       [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user), params.exclude].flatten.uniq.compact
     end
 
+    def recommend_only_widgetable?
+      params.recommend_only_widgetable
+    end
+
     def inject_random_items(given_ids)
       return given_ids if given_ids.size >= limit
 
-      additional_ids = shop.items.recommendable.in_locations(locations).where.not(id: given_ids).order('RANDOM()').limit(limit - given_ids.count)
+      additional_ids = shop.items.recommendable.in_locations(locations).where.not(id: given_ids && excluded_items_ids).order('RANDOM()').limit(limit - given_ids.count)
 
       if recommend_only_widgetable?
         additional_ids = additional_ids.merge(Item.widgetable)
       end
 
       given_ids + additional_ids.pluck(:id)
-    end
-
-    def recommend_only_widgetable?
-      params.recommend_only_widgetable
     end
   end
 end

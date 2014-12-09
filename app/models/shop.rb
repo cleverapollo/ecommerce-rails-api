@@ -5,22 +5,26 @@ class Shop < ActiveRecord::Base
 
   store :connection_status, accessors: [:connected_events, :connected_recommenders], coder: JSON
 
-  belongs_to :customer
   has_and_belongs_to_many :users
+  belongs_to :plan
+  belongs_to :customer
   has_many :shops_users
   has_many :actions
   has_many :mahout_actions
-  has_many :orders
-  has_one :insales_shop
-  has_many :user_shop_relations
   has_many :items
-  belongs_to :plan
-  has_one :trigger_mailing
+  has_many :orders
+  has_many :user_shop_relations
   has_many :subscriptions
+  has_many :digest_mailings
+  has_many :audiences
+  has_one :insales_shop
+  has_one :trigger_mailing
+  has_one :digest_mailing_setting
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
 
   def item_ids_bought_or_carted_by(user)
+    return [] if user.nil?
     actions.where('RATING >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
   end
 

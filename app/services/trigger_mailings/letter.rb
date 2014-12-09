@@ -3,7 +3,6 @@ module TriggerMailings
   # Класс, реализующий триггерное письмо
   #
   class Letter
-    class NotWidgetableItemError < StandardError; end
     class IncorrectMailingSettingsError < StandardError; end
 
     attr_accessor :subscription, :trigger, :trigger_mail
@@ -93,10 +92,10 @@ module TriggerMailings
     # Обертка над товаром для отображения в письме
     # @param [Item] товар
     #
-    # @raise [TriggerMailings::Letter::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
+    # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
     def item_for_letter(item)
-      raise NotWidgetableItemError.new(item.id) unless item.widgetable?
+      raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
       {
         name: item.name.truncate(40),
         description: item.description.truncate(130),
