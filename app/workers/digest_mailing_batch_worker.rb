@@ -44,9 +44,11 @@ class DigestMailingBatchWorker
           # Каждый раз пытаемся прикрепить "аудиторию" к пользователю нашей системы
           audience.try_to_attach_to_user!
 
-          recommendations = calculator.recommendations_for(audience.user)
+          if IncomingDataTranslator.email_valid?(audience.email)
+            recommendations = calculator.recommendations_for(audience.user)
 
-          send_mail(audience.email, recommendations, audience.custom_attributes)
+            send_mail(audience.email, recommendations, audience.custom_attributes)
+          end
           @mailing.sent_mails_count.increment
         end
       end
@@ -99,6 +101,9 @@ class DigestMailingBatchWorker
     custom_attributes.each do |key, value|
       result.gsub!("{{ user.#{key} }}", value)
     end
+
+    # Убираем лишнее.
+    result.gsub!(/\{\{ user.\w+ }}/, '')
 
     result
   end
