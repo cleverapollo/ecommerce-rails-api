@@ -6,6 +6,8 @@ class DigestMailingsController < ApplicationController
 
   # Запустить рассылку.
   def launch
+    #require 'sidekiq/testing'
+    #Sidekiq::Testing.inline!
     DigestMailingLaunchWorker.perform_async(params)
     render nothing: true, status: :ok
   end

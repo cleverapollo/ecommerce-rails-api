@@ -9,7 +9,6 @@ class DigestMailingBatchWorker
   #
   # @param id [Integer] ID пачки рассылки.
   def perform(id)
-    ActiveRecord::Base.logger = nil
     @batch = DigestMailingBatch.find(id)
     @mailing = @batch.digest_mailing
     @shop = @mailing.shop

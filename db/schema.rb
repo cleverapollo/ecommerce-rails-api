@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141209125512) do
+ActiveRecord::Schema.define(version: 20141210095317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,7 +74,7 @@ ActiveRecord::Schema.define(version: 20141209125512) do
 
   create_table "audiences", force: true do |t|
     t.integer "shop_id",                          null: false
-    t.integer "external_id",                      null: false
+    t.string  "external_id",                      null: false
     t.integer "user_id"
     t.string  "email",                            null: false
     t.boolean "enabled",           default: true, null: false
@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(version: 20141209125512) do
 
   create_table "digest_mailing_batches", force: true do |t|
     t.integer "digest_mailing_id",                 null: false
-    t.integer "end_id",                            null: false
+    t.integer "end_id"
     t.boolean "completed",         default: false, null: false
     t.integer "start_id"
     t.string  "test_email"

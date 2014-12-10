@@ -70,7 +70,10 @@ class DigestMailingRecommendationsCalculator
   #
   # @return [Boolean] работает ли магазин с локациями.
   def shop_works_with_locations?
-    @shop_works_with_locations ||= @shop.items.where.not(locations: '{}').any?
+    if @shop_works_with_locations.nil?
+      @shop_works_with_locations = @shop.items.where.not(locations: '{}').any?
+    end
+    @shop_works_with_locations
   end
 
   # Получить доступные локации для текущего пользователя.
