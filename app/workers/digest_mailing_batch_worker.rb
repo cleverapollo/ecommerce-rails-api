@@ -30,6 +30,9 @@ class DigestMailingBatchWorker
         # Тестовый режим: генерируем тестовое письмо для пустого пользователя и отправляем его на тестовый адрес.
         recommendations = calculator.recommendations_for(nil)
         send_mail(@batch.test_email, recommendations, {})
+
+        # Отмечаем пачку как завершенную.
+        @batch.complete!
       else
         # Полноценный режим.
         if @batch.current_processed_audience_id.nil?
@@ -51,14 +54,14 @@ class DigestMailingBatchWorker
           end
           @mailing.sent_mails_count.increment
         end
+
+        # Отмечаем пачку как завершенную.
+        @batch.complete!
+
+        # Завершаем рассылку, если все пачки завершены.
+        @mailing.finish! if @mailing.batches.incomplete.none?
       end
     end
-
-    # Отмечаем пачку как завершенную.
-    @batch.complete!
-
-    # Завершаем рассылку, если все пачки завершены.
-    @mailing.finish! if @mailing.batches.incomplete.none?
   rescue => e
     @mailing.fail! if @mailing
     raise e
