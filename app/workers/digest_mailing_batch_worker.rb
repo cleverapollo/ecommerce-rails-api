@@ -10,12 +10,17 @@ class DigestMailingBatchWorker
   # @param id [Integer] ID пачки рассылки.
   def perform(id)
     @batch = DigestMailingBatch.find(id)
-    @mailing = @batch.digest_mailing
+    @mailing = @batch.mailing
     @shop = @mailing.shop
     @settings = @shop.digest_mailing_setting
 
     unless @settings.on?
       raise DigestMailing::DisabledError, "Рассылки отключены для магазина #{@shop.id}"
+    end
+
+    # Не обрабатываем новые пачки, если рассылка ранее дохла.
+    if @mailing.failed?
+      return
     end
 
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
@@ -27,7 +32,9 @@ class DigestMailingBatchWorker
         send_mail(@batch.test_email, recommendations, {})
       else
         # Полноценный режим.
-        @batch.current_processed_audience_id = @batch.start_id
+        if @batch.current_processed_audience_id.nil?
+          @batch.current_processed_audience_id = @batch.start_id
+        end
 
         # Проходим по всей доступной аудитории
         @shop.audiences.enabled.includes(:user)
@@ -45,7 +52,11 @@ class DigestMailingBatchWorker
       end
     end
 
+    # Отмечаем пачку как завершенную.
     @batch.complete!
+
+    # Завершаем рассылку, если все пачки завершены.
+    @mailing.finish! if @mailing.batches.incomplete.none?
   rescue => e
     @mailing.fail! if @mailing
     raise e
@@ -62,7 +73,7 @@ class DigestMailingBatchWorker
       subject: @mailing.subject,
       send_from: @settings.sender,
       body: letter_body(recommendations, custom_attributes)
-    ).deliver
+    )#.deliver
   end
 
   # Сформировать тело письма.

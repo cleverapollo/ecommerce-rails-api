@@ -26,21 +26,27 @@ class DigestMailingLaunchWorker
     if params['test_email'].present?
       # Режим тестового письма.
       # Создаем одну тестовую пачку.
-      digest_mailing.digest_mailing_batches.create(test_email: params['test_email'])
+      digest_mailing.batches.create(test_email: params['test_email'])
     else
       # Режим полноценной рассылки.
-      # Создаем пачки на всю аудиторию.
-      shop.audiences.enabled.each_batch_with_start_end_id(100) do |start_id, end_id|
-        digest_mailing.digest_mailing_batches.create!(start_id: start_id, end_id: end_id)
+
+      if digest_mailing.batches.incomplete.none?
+        # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
+        shop.audiences.enabled.each_batch_with_start_end_id(100) do |start_id, end_id|
+          digest_mailing.batches.create!(start_id: start_id, end_id: end_id)
+        end
       end
 
       # Запоминаем, сколько пользователей попало в рассылку
-      digest_mailing.update(total_mails_count: shop.audiences.count)
+      digest_mailing.update(total_mails_count: shop.audiences.enabled.count)
     end
 
     # Запускаем обработчики на все пачки
-    digest_mailing.digest_mailing_batches.incomplete.each do |batch|
+    digest_mailing.batches.incomplete.each do |batch|
       DigestMailingBatchWorker.perform_async(batch.id)
     end
+
+    # Запоминаем дату и время запуска
+    digest_mailing.update(started_at: Time.current)
   end
 end

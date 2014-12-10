@@ -5,11 +5,11 @@ class DigestMailingBatch < ActiveRecord::Base
   include Redis::Objects
   value :current_processed_audience_id
 
-  belongs_to :digest_mailing
+  belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'
 
   scope :incomplete, -> { where(completed: false) }
 
-  validates :digest_mailing, presence: true
+  validates :mailing, presence: true
   validates :start_id, presence: true, unless: :test_mode?
   validates :end_id, presence: true, unless: :test_mode?
 
