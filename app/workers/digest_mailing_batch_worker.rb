@@ -73,7 +73,7 @@ class DigestMailingBatchWorker
       subject: @mailing.subject,
       send_from: @settings.sender,
       body: letter_body(recommendations, custom_attributes)
-    )#.deliver
+    ).deliver
   end
 
   # Сформировать тело письма.
