@@ -140,5 +140,7 @@ class YmlWorker
     end
 
     @parsed_yml
+  rescue Net::ReadTimeout
+    raise YmlWorker::Error.new("Тайм-аут запроса.")
   end
 end
