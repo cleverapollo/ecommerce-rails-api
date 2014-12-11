@@ -3,7 +3,17 @@ class UserMerger
     def merge(master, slave)
       Session.where(user_id: slave.id).update_all(user_id: master.id)
       UserShopRelation.where(user_id: slave.id).update_all(user_id: master.id)
-      Subscription.where(user_id: slave.id).update_all(user_id: master.id)
+
+      Subscription.where(user_id: slave.id).each do |s|
+        begin
+          s.update(user_id: master.id)
+        rescue ActiveRecord::RecordNotUnique
+          s_m = Subscription.find_by(user_id: master.id, shop_id: s.shop_id)
+
+          s.trigger_mails.update_all(subscription_id: s_m.id)
+          s.destroy
+        end
+      end
 
       ShopsUser.where(user_id: slave.id).each do |su|
         if ShopsUser.where(user_id: master.id, shop_id: su.shop_id).any?
