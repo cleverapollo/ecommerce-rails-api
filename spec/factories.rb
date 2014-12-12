@@ -38,6 +38,11 @@ FactoryGirl.define do
     categories '{5}'
     is_available true
     ignored false
+    url 'http://example.com/item/123'
+    image_url 'http://example.com/item/123.jpg'
+    name 'test'
+    widgetable true
+    description ''
   end
 
   factory :user_shop_relation do
@@ -77,5 +82,52 @@ FactoryGirl.define do
 
   factory :mailing_batch do
     users { [ id: 1 ] }
+  end
+
+  factory :subscription do
+    shop
+    user
+    active true
+  end
+
+  factory :audience do
+    shop
+    user
+    external_id '123'
+    email 'test@example.com'
+    active true
+    custom_attributes { {} }
+  end
+
+  factory :digest_mailing do
+    name 'Test'
+    subject 'Test'
+    template 'Test {{ recommended_item }}'
+    item_template '{{ name }}{{ url }}'
+    state 'started'
+  end
+
+  factory :digest_mailing_setting do
+    on true
+    sender 'test@test.te'
+  end
+
+  factory :digest_mailing_batch do
+    start_id 1
+    end_id 2
+  end
+
+  factory :digest_mail do
+    shop
+    audience
+    clicked false
+    opened false
+  end
+
+  factory :trigger_mail do
+    shop
+    subscription
+    trigger_code 'AbandonedCartEarly'
+    trigger_data '{}'
   end
 end

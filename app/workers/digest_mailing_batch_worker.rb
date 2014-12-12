@@ -5,6 +5,8 @@ class DigestMailingBatchWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'mailing'
 
+  attr_accessor :mailing, :current_audience, :current_digest_mail
+
   # Запустить рассылку пачки.
   #
   # @param id [Integer] ID пачки рассылки.
@@ -40,17 +42,21 @@ class DigestMailingBatchWorker
         end
 
         # Проходим по всей доступной аудитории
-        @shop.audiences.enabled.includes(:user)
+        @shop.audiences.active.includes(:user)
              .where(id: @batch.current_processed_audience_id.value.to_i..@batch.end_id).each do |audience|
           # Каждый раз запоминаем текущий обрабатываемый ID
-          @batch.current_processed_audience_id = audience.id
+          @current_audience = audience
+          @batch.current_processed_audience_id = @current_audience.id
+
+          @current_digest_mail = @batch.digest_mails.create!(shop: @shop, audience: @current_audience, mailing: @mailing).reload
+
           # Каждый раз пытаемся прикрепить "аудиторию" к пользователю нашей системы
-          audience.try_to_attach_to_user!
+          @current_audience.try_to_attach_to_user!
 
-          if IncomingDataTranslator.email_valid?(audience.email)
-            recommendations = calculator.recommendations_for(audience.user)
+          if IncomingDataTranslator.email_valid?(@current_audience.email)
+            recommendations = calculator.recommendations_for(@current_audience.user)
 
-            send_mail(audience.email, recommendations, audience.custom_attributes)
+            send_mail(@current_audience.email, recommendations, @current_audience.custom_attributes)
           end
           @mailing.sent_mails_count.increment
         end
@@ -108,7 +114,27 @@ class DigestMailingBatchWorker
     # Убираем лишнее.
     result.gsub!(/\{\{ user.\w+ }}/, '')
 
+    # Добавляем футер
+    result += footer
+
     result
+  end
+
+
+  # Сформировать футер письма, содержащий ссылку на отписку и трекинг-пиксель.
+  #
+  # @return [String] футер письма.
+  def footer
+    unsubscribe_url = @current_audience.present? ? @current_audience.unsubscribe_url : Audience.new.unsubscribe_url
+    tracking_url = @current_digest_mail.present? ? @current_digest_mail.tracking_url : DigestMail.new.tracking_url
+    <<-HTML
+      <center>
+        <p style="font-size: 10px;">
+          <a href="#{unsubscribe_url}">Отписаться</a> от рассылок.
+        </p>
+        <img src="#{tracking_url}" />
+      </center>
+    HTML
   end
 
   # Обертка над товаром для отображения в письме.

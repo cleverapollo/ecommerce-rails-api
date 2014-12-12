@@ -27,4 +27,8 @@ class Subscription < ActiveRecord::Base
   def set_dont_disturb!
     update_columns(dont_disturb_until: DONT_DISTURB_DAYS_COUNT.days.from_now)
   end
+
+  def unsubscribe_url
+    Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'trigger', code: self.code, host: Rees46.host)
+  end
 end

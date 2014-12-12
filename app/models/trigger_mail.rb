@@ -21,4 +21,8 @@ class TriggerMail < ActiveRecord::Base
   def mark_as_clicked!
     update_columns(clicked: true, opened: true) unless clicked?
   end
+
+  def tracking_url
+    Rails.application.routes.url_helpers.track_mail_url(code: self.code, type: 'trigger', host: Rees46.host)
+  end
 end

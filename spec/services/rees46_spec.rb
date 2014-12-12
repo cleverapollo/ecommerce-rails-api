@@ -7,9 +7,9 @@ describe Rees46 do
     end
   end
 
-  describe '.base_url' do
+  describe '.host' do
     it 'returns a string' do
-      expect(Rees46.base_url).to be_a(String)
+      expect(Rees46.host).to be_a(String)
     end
   end
 end

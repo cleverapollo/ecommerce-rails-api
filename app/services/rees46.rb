@@ -4,11 +4,11 @@ class Rees46
       'rees46_session_id'
     end
 
-    def base_url
-      if Rails.env.development?
-        'http://127.0.0.1:8080'
+    def host
+      if Rails.env.production?
+        'api.rees46.com'
       else
-        'http://api.rees46.com'
+        '127.0.0.1:8080'
       end
     end
   end

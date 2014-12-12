@@ -12,18 +12,28 @@ class SubscriptionsController < ApplicationController
   end
 
   def unsubscribe
-    @subscription = Subscription.find_by!(unsubscribe_token: params[:unsubscribe_token])
-    @subscription.deactivate!
+    if params[:code] != 'test'
+      entity = if params[:type] == 'trigger'
+        Subscription.find_by!(code: params[:code])
+      elsif params[:type] == 'digest'
+        Audience.find_by!(code: params[:code])
+      end
+
+      entity.deactivate! if entity
+    end
+
     render text: 'Вы успешно отписаны от рассылок.'
   end
 
   def track
-    begin
-      if trigger_mail = TriggerMail.find_by(code: params[:trigger_mail_code])
-        trigger_mail.mark_as_opened!
+    if params[:code] != 'test'
+      entity = if params[:type] == 'trigger'
+        TriggerMail.find_by(code: params[:code])
+      elsif params[:type] == 'digest'
+        DigestMail.find_by(code: params[:code])
       end
-    rescue StandardError => e
-      raise e
+
+      entity.mark_as_opened! if entity
     end
 
     data = open('app/assets/images/pixel.png').read

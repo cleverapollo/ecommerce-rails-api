@@ -14,8 +14,8 @@ class AudienceImportWorker
       audience = shop.audiences.find_or_initialize_by(external_id: a.fetch('id').to_s)
       audience.update!(
         email: a.fetch('email'),
-        enabled: a['enabled'] || true,
-        custom_attributes: a.except('id', 'email', 'enabled'))
+        active: a['active'] || true,
+        custom_attributes: a.except('id', 'email', 'active'))
     end
   end
 end

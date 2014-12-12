@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141210095317) do
+ActiveRecord::Schema.define(version: 20141211132121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,14 +73,16 @@ ActiveRecord::Schema.define(version: 20141210095317) do
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
   create_table "audiences", force: true do |t|
-    t.integer "shop_id",                          null: false
-    t.string  "external_id",                      null: false
+    t.integer "shop_id",                                          null: false
+    t.string  "external_id",                                      null: false
     t.integer "user_id"
-    t.string  "email",                            null: false
-    t.boolean "enabled",           default: true, null: false
+    t.string  "email",                                            null: false
+    t.boolean "active",            default: true,                 null: false
     t.text    "custom_attributes"
+    t.uuid    "code",              default: "uuid_generate_v4()"
   end
 
+  add_index "audiences", ["code"], name: "index_audiences_on_code", unique: true, using: :btree
   add_index "audiences", ["external_id", "shop_id"], name: "index_audiences_on_external_id_and_shop_id", unique: true, using: :btree
   add_index "audiences", ["user_id"], name: "index_audiences_on_user_id", using: :btree
 
@@ -164,7 +166,7 @@ ActiveRecord::Schema.define(version: 20141210095317) do
     t.string   "name",              null: false
     t.string   "subject",           null: false
     t.text     "template",          null: false
-    t.string   "items",             null: false
+    t.string   "items"
     t.string   "state",             null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -175,6 +177,20 @@ ActiveRecord::Schema.define(version: 20141210095317) do
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
+
+  create_table "digest_mails", force: true do |t|
+    t.integer  "shop_id",                                                null: false
+    t.integer  "audience_id",                                            null: false
+    t.integer  "digest_mailing_id",                                      null: false
+    t.integer  "digest_mailing_batch_id",                                null: false
+    t.uuid     "code",                    default: "uuid_generate_v4()"
+    t.boolean  "clicked",                 default: false,                null: false
+    t.boolean  "opened",                  default: false,                null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
 
   create_table "events", force: true do |t|
     t.integer  "shop_id",         null: false
@@ -511,7 +527,7 @@ ActiveRecord::Schema.define(version: 20141210095317) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "dont_disturb_until"
-    t.uuid     "unsubscribe_token",  default: "uuid_generate_v4()"
+    t.uuid     "code",               default: "uuid_generate_v4()"
   end
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree

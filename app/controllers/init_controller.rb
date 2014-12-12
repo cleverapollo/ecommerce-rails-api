@@ -40,7 +40,7 @@ class InitController < ApplicationController
   def init_server_string(session, shop)
     result  = "REES46.initServer({"
     result += "  ssid: '#{session.uniqid}',"
-    result += "  baseURL: '#{Rees46.base_url}',"
+    result += "  baseURL: 'http://#{Rees46.host}',"
     result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
     result += "  currency: '#{shop.currency}',"
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
