@@ -77,8 +77,8 @@ module TriggerMailings
     # @return [String] футе
     def footer
       <<-HTML
-        <div style='max-width:600px; margin:0 auto 40px; padding:20px 0 0; font-family:sans-serif; color:#666; font-size:9px; line-height:20px; text-align:left;'>
-          Сообщение было отправлено на <a href='mailto:#{subscription.email}' style='color:#064E86;'><span style='color:#064E86;'>#{subscription.email}</span></a>, адрес был подписан на рассылки <a href='http://rees46.com/' target='_blank' style='color:#064E86;'><span style='color:#064E86;'>REES46</span></a>.
+        <div style='max-width:600px; font-family:sans-serif; color:#666; font-size:9px; line-height:20px; text-align:left;'>
+          Сообщение было отправлено на <a href='mailto:#{subscription.email}' style='color:#064E86;'><span style='color:#064E86;'>#{subscription.email}</span></a>, адрес был подписан на рассылки <a href='http://rees46.com/?utm_source=rees46&utm_meta=digest_mail' target='_blank' style='color:#064E86;'><span style='color:#064E86;'>REES46</span></a>.
           <br>
           Если вы не хотите получать подобные письма, вы можете <a href='#{subscription.unsubscribe_url}' style='color:#064E86;'><span style='color:#064E86;'>отписаться от рассылки</span></a>.
         </div>
