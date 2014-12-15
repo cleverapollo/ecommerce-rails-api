@@ -64,4 +64,9 @@ class Order < ActiveRecord::Base
       end
     end
   end
+
+  # Удаляет все товары из корзины для текущего пользователя и магазина
+  def expire_carts
+    user.actions.where(shop: shop).where('rating::numeric = ?', Actions::Cart::RATING).update_all(rating: Actions::RemoveFromCart::RATING)
+  end
 end
