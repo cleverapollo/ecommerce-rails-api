@@ -16,7 +16,8 @@ class Interaction < ActiveRecord::Base
             'popular' => 6,
     'recently_viewed' => 7,
             'rescore' => 8,
-       'trigger_mail' => 9
+       'trigger_mail' => 9,
+        'digest_mail' => 10
   }
 
 

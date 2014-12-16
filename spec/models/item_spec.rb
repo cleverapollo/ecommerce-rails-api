@@ -26,4 +26,15 @@ describe Item do
       end
     end
   end
+
+  describe '#disable!' do
+    let(:shop) { create(:shop) }
+    let!(:item) { create(:item, shop: shop) }
+
+    it 'disables the item' do
+      item.disable!
+
+      expect(item.is_available).to be_false
+    end
+  end
 end

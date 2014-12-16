@@ -89,4 +89,9 @@ class Item < ActiveRecord::Base
 
     attrs
   end
+
+  # Выключает товар
+  def disable!
+    update(is_available: false)
+  end
 end
