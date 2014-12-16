@@ -12,7 +12,7 @@ class AudienceImportWorker
 
     params.fetch('audiences').each do |a|
       audience = shop.audiences.find_or_initialize_by(external_id: a.fetch('id').to_s)
-      audience.update!(
+      audience.update(
         email: a.fetch('email'),
         active: a['active'] || true,
         custom_attributes: a.except('id', 'email', 'active'))
