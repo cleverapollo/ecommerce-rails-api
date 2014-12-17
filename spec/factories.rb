@@ -102,7 +102,7 @@ FactoryGirl.define do
   factory :digest_mailing do
     name 'Test'
     subject 'Test'
-    template 'Test {{ recommended_item }}'
+    template 'Test {{ recommended_item }} {{ unsubscribe_url }}'
     item_template '{{ name }}{{ url }}'
     state 'started'
   end

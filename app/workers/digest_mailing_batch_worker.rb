@@ -111,6 +111,10 @@ class DigestMailingBatchWorker
       result.gsub!("{{ user.#{key} }}", value)
     end
 
+    # Вставляем в письмо ссылку на отписку
+    unsubscribe_url = @current_audience.present? ? @current_audience.unsubscribe_url : Audience.new.unsubscribe_url
+    result.gsub!("{{ unsubscribe_url }}", unsubscribe_url)
+
     # Убираем лишнее.
     result.gsub!(/\{\{ user.\w+ }}/, '')
 
@@ -125,15 +129,9 @@ class DigestMailingBatchWorker
   #
   # @return [String] футер письма.
   def footer
-    unsubscribe_url = @current_audience.present? ? @current_audience.unsubscribe_url : Audience.new.unsubscribe_url
     tracking_url = @current_digest_mail.present? ? @current_digest_mail.tracking_url : DigestMail.new.tracking_url
     <<-HTML
-      <center>
-        <p style="font-size: 10px;">
-          <a href="#{unsubscribe_url}">Отписаться</a> от рассылок.
-        </p>
-        <img src="#{tracking_url}" />
-      </center>
+      <img src="#{tracking_url}" />
     HTML
   end
 

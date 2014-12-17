@@ -71,10 +71,6 @@ describe DigestMailingBatchWorker do
     let!(:digest_mail) { create(:digest_mail, audience: audience, shop: shop, mailing: mailing, batch: batch).reload }
 
     context 'in test mode' do
-      it 'returns footer with fake unsubscribe URL' do
-        expect(subject.footer).to include Audience.new.unsubscribe_url
-      end
-
       it 'returns footer with fake tracking pixel' do
         expect(subject.footer).to include DigestMail.new.tracking_url
       end
@@ -84,10 +80,6 @@ describe DigestMailingBatchWorker do
       before do
         subject.current_audience = audience
         subject.current_digest_mail = digest_mail
-      end
-
-      it 'returns footer with unsubscribe URL' do
-        expect(subject.footer).to include audience.unsubscribe_url
       end
 
       it 'returns footer with tracking pixel' do
