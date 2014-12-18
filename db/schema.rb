@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141211132121) do
+ActiveRecord::Schema.define(version: 20141218143944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -267,30 +267,6 @@ ActiveRecord::Schema.define(version: 20141211132121) do
   add_index "mahout_actions", ["shop_id"], name: "tmp_m1", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
-  create_table "mailing_batches", force: true do |t|
-    t.integer  "mailing_id",                      null: false
-    t.text     "users",                           null: false
-    t.string   "state",      default: "enqueued", null: false
-    t.text     "statistics",                      null: false
-    t.text     "failed",                          null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "mailing_batches", ["mailing_id"], name: "index_mailing_batches_on_mailing_id", using: :btree
-
-  create_table "mailings", force: true do |t|
-    t.integer  "shop_id",           null: false
-    t.string   "token",             null: false
-    t.text     "delivery_settings", null: false
-    t.text     "items",             null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "business_rules"
-  end
-
-  add_index "mailings", ["token"], name: "index_mailings_on_token", unique: true, using: :btree
-
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
     t.integer "item_id",        limit: 8,             null: false
@@ -376,6 +352,15 @@ ActiveRecord::Schema.define(version: 20141211132121) do
     t.string   "phone"
     t.text     "comment"
     t.boolean  "subscribe",  default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "profile_attributes", force: true do |t|
+    t.integer  "user_id",                          null: false
+    t.string   "type",                             null: false
+    t.string   "value",                            null: false, array: true
+    t.string   "mode",       default: "permanent", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
