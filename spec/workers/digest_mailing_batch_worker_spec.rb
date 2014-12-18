@@ -91,7 +91,12 @@ describe DigestMailingBatchWorker do
   describe '#item_for_letter' do
     context 'when item is widgetable' do
       let!(:item) { create(:item, shop: shop) }
-      subject { DigestMailingBatchWorker.new.item_for_letter(item) }
+      let!(:digest_mail) { create(:digest_mail, audience: audience, shop: shop, mailing: mailing, batch: batch).reload }
+      subject do
+        d_m_b_w = DigestMailingBatchWorker.new
+        d_m_b_w.current_digest_mail = digest_mail
+        d_m_b_w.item_for_letter(item)
+      end
 
       it 'returns hash' do
         expect(subject).to be_a(Hash)
@@ -105,9 +110,13 @@ describe DigestMailingBatchWorker do
 
       context 'URL params' do
         %w(utm_source utm_meta utm_campaign recommended_by).each do |url_param|
-          it "item URL contains #{url_param} URL param" do
+          it "contains #{url_param}" do
             expect(subject[:url]).to include("#{url_param}=")
           end
+        end
+
+        it 'contains rees46_digest_mail_code' do
+          expect(subject[:url]).to include("rees46_digest_mail_code=#{digest_mail.code}")
         end
       end
     end

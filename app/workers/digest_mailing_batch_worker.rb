@@ -149,7 +149,8 @@ class DigestMailingBatchWorker
       url: UrlHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_meta: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
-                                             recommended_by: 'digest_mail'),
+                                             recommended_by: 'digest_mail',
+                                             rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test'),
       image_url: item.image_url
     }
   end

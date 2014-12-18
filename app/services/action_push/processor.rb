@@ -15,6 +15,12 @@ module ActionPush
         trigger_mail.mark_as_clicked!
       end
 
+      # Обработка дайджестных писем
+      if params.digest_mail_code.present? &&
+         digest_mail = DigestMail.find_by(code: params.digest_mail_code)
+        digest_mail.mark_as_clicked!
+      end
+
       params.items.each do |item|
         action = fetch_action_for item
         action.process params

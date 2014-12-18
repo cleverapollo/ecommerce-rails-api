@@ -33,6 +33,8 @@ module ActionPush
     attr_accessor :date
     # Код триггерной рассылки
     attr_accessor :trigger_mail_code
+    # Код дайджестной рассылки
+    attr_accessor :digest_mail_code
 
     # Проверяет и обрабатывает параметры
     #
@@ -97,6 +99,7 @@ module ActionPush
       @recommended_by    = raw[:recommended_by]
       @order_id          = raw[:order_id]
       @trigger_mail_code = raw[:trigger_mail_code]
+      @digest_mail_code  = raw[:digest_mail_code]
     end
 
     # Извлекает пользователя
