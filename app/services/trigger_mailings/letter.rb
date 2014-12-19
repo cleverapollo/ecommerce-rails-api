@@ -26,8 +26,7 @@ module TriggerMailings
     # Отправить сформированное письмо
     def send
       Mailer.digest(
-        #email: email,
-        email: 'anton.zhavoronkov@mkechinov.ru',
+        email: email,
         subject: subject,
         send_from: send_from,
         body: body
