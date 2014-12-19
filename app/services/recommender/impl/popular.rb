@@ -14,10 +14,6 @@ module Recommender
           popular_in_all_shop
         end
 
-        if recommend_only_widgetable?
-          relation = relation.merge(Item.widgetable)
-        end
-
         result = by_purchases(relation).sample(limit)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         if result.size < limit
@@ -41,6 +37,9 @@ module Recommender
       # Популярные по всему магазину
       def popular_in_all_shop
         all_items = shop.items.recommendable.where.not(id: excluded_items_ids)
+        if recommend_only_widgetable?
+          all_items = all_items.widgetable
+        end
 
         common_relation(shop.actions.where(item_id: all_items))
       end
@@ -49,6 +48,9 @@ module Recommender
       def popular_in_category
         items_in_category = shop.items.recommendable.where.not(id: excluded_items_ids)
         items_in_category = items_in_category.in_categories(params.categories)
+        if recommend_only_widgetable?
+          items_in_category = items_in_category.widgetable
+        end
 
         common_relation(shop.actions.where(item_id: items_in_category))
       end
