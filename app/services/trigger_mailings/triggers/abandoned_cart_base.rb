@@ -18,7 +18,7 @@ module TriggerMailings
           @happened_at = action.cart_date
           @source_item = action.item
         end
-        @source_item.present?
+        @source_item.present? && @source_item.widgetable?
       end
 
       # Рекомендации для брошенной корзины

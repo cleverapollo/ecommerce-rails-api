@@ -14,7 +14,7 @@ module TriggerMailings
           @happened_at = action.view_date
           @source_item = action.item
           @additional_info = action.view_count
-          return true
+          return @source_item.widgetable?
         else
           return false
         end
