@@ -66,6 +66,10 @@ module TriggerMailings
         result['{{ recommended_item }}'] = recommended_item_template
       end
 
+      # Ставим utm-параметры
+      utm = "utm_source=rees46&utm_meta=trigger_mail&utm_campaign=#{@trigger.code}&recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_mail.code}"
+      result.gsub!('{{ utm_params }}', utm)
+
       # В конце прицепляем футер на отписку
       result.gsub!('{{ footer }}', footer)
 
