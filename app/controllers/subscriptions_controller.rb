@@ -36,7 +36,7 @@ class SubscriptionsController < ApplicationController
       entity.mark_as_opened! if entity
     end
 
-    data = open('app/assets/images/pixel.png').read
+    data = open("#{Rails.root}/app/assets/images/pixel.png").read
     send_data data, type: 'image/png', disposition: 'inline'
   end
 
