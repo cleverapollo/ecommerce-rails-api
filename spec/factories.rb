@@ -93,7 +93,7 @@ FactoryGirl.define do
   factory :audience do
     shop
     user
-    external_id '123'
+    sequence(:external_id) {|i| "#{i}" }
     email 'test@example.com'
     active true
     custom_attributes { {} }
