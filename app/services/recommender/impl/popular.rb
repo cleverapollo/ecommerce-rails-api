@@ -15,7 +15,7 @@ module Recommender
         end
 
         if recommend_only_widgetable?
-          result = result.merge(Item.widgetable)
+          relation = relation.merge(Item.widgetable)
         end
 
         result = by_purchases(relation).sample(limit)
