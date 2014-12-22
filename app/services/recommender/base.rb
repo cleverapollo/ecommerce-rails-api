@@ -33,7 +33,8 @@ module Recommender
             id: item.uniqid,
             name: item.name,
             url: item.url,
-            image_url: item.image_url
+            image_url: item.image_url,
+            price: item.price.to_s
           }
         end
       else
