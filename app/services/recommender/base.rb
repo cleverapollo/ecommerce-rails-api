@@ -26,7 +26,19 @@ module Recommender
       check_params!
 
       ids = recommended_ids
-      result = translate_to_external_ids(ids)
+
+      if params.try(:extended)
+        result = shop.items.where(id: ids).map do |item|
+          {
+            id: item.uniqid,
+            name: item.name,
+            url: item.url,
+            image_url: item.image_url
+          }
+        end
+      else
+        result = translate_to_external_ids(ids)
+      end
 
       params.shop.report_recommender(params.type.to_sym)
 

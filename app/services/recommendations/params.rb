@@ -38,6 +38,8 @@ module Recommendations
     attr_accessor :recommend_only_widgetable
     # Товары, которые нужно исключить из рекомендаций
     attr_accessor :exclude
+    # Расширенный режим ответа (передавать аттрибуты товаров)
+    attr_accessor :extended
 
     # Проверяет и обрабатывает параметры
     #
@@ -106,6 +108,7 @@ module Recommendations
     def extract_static_attributes
       @type = raw[:recommender_type]
       @limit = raw[:limit].to_i if raw[:limit].present?
+      @extended = raw[:extended].present?
     end
 
     # Извлекает магазин
