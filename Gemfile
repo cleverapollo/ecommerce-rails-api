@@ -44,6 +44,10 @@ group :development do
   gem 'capistrano', '~> 2.15.5'
   gem 'rvm-capistrano', '~> 1.5.0'
   gem 'capistrano-sidekiq', '~> 0.1.1'
+
+  # Preloader
+  gem 'spring', '~> 1.2.0'
+  gem 'spring-commands-rspec', '~> 1.0.4'
 end
 
 # Rspec
