@@ -18,8 +18,8 @@ FactoryGirl.define do
   end
 
   factory :shop do
-    uniqid '1234567890'
-    secret '0987654321'
+    uniqid { SecureRandom.hex }
+    secret { SecureRandom.hex }
     name 'Megashop'
     connection_status do
       { connected_events: {}, connected_recommenders: {} }
@@ -29,6 +29,10 @@ FactoryGirl.define do
     end
     connected_recommenders do
       { }
+    end
+    yml_file_url 'http://example.com'
+    trait :without_yml do
+      yml_file_url nil
     end
   end
 

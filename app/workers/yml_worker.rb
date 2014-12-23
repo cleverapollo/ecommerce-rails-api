@@ -38,11 +38,14 @@ class YmlWorker
       p_y_i = parsed_yml_item(yml_item)
 
       # Достаем товар из кэша или создаем новый
-      item = @shop_items[p_y_i.uniqid] || shop.items.new(uniqid: p_y_i.uniqid)
+      item = pop_item_from_cache(p_y_i.uniqid) || shop.items.new(uniqid: p_y_i.uniqid)
 
       # Передаем в него параметры из YML-файла
       item.apply_attributes(p_y_i)
     end
+
+    # Отключаем те товары, которые отсуствуют в YML файле
+    disable_remaining_in_cache
 
     shop.update_columns(yml_loaded: true) unless shop.yml_loaded?
   rescue YmlWorker::Error => e
@@ -117,6 +120,21 @@ class YmlWorker
     @shop_items = {}
     shop.items.find_each do |item|
       @shop_items[item.uniqid] = item
+    end
+  end
+
+  # Получить товар из кэша. При этом он от туда удалится.
+  #
+  # @param id [String] ID товара.
+  # @return [Item] товар.
+  def pop_item_from_cache(id)
+    @shop_items.delete(id)
+  end
+
+  # Выключить товары, которые остались в кэше.
+  def disable_remaining_in_cache
+    @shop_items.each do |_, item|
+      item.disable!
     end
   end
 
