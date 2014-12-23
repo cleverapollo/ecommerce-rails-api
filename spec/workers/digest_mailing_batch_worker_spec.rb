@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
@@ -104,7 +104,7 @@ describe DigestMailingBatchWorker do
 
       %i(name url image_url description).each do |key|
         it "contains #{key}" do
-          expect(subject[key].nil?).to be_false
+          expect(subject[key].nil?).to be_falsey
         end
       end
 

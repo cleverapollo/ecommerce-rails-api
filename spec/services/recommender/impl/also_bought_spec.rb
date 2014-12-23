@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Recommender::Impl::AlsoBought do
   let!(:shop) { create(:shop) }

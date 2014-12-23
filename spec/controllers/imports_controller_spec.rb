@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ImportsController do
   describe 'GET disable' do
@@ -8,7 +8,7 @@ describe ImportsController do
     context 'when one id passed' do
       it 'disables given item' do
         get :disable, shop_id: shop.uniqid, shop_secret: shop.secret, item_ids: item.uniqid
-        expect(item.reload.is_available).to be_false
+        expect(item.reload.is_available).to be_falsey
       end
     end
 
@@ -17,8 +17,8 @@ describe ImportsController do
 
       it 'disables given items' do
         get :disable, shop_id: shop.uniqid, shop_secret: shop.secret, item_ids: "#{item.uniqid},#{another_item.uniqid}"
-        expect(item.reload.is_available).to be_false
-        expect(another_item.reload.is_available).to be_false
+        expect(item.reload.is_available).to be_falsey
+        expect(another_item.reload.is_available).to be_falsey
       end
     end
 

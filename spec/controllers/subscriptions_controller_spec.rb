@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe SubscriptionsController do
   let!(:shop) { create(:shop) }
@@ -9,7 +9,7 @@ describe SubscriptionsController do
 
       it 'disables audience by code' do
         get :unsubscribe, type: 'digest', code: audience.code
-        expect(audience.reload.active).to be_false
+        expect(audience.reload.active).to be_falsey
       end
     end
 
@@ -19,7 +19,7 @@ describe SubscriptionsController do
       it 'disables subscription by code' do
         get :unsubscribe, type: 'trigger', code: subscription.code
 
-        expect(subscription.reload.active).to be_false
+        expect(subscription.reload.active).to be_falsey
       end
     end
   end
@@ -34,7 +34,7 @@ describe SubscriptionsController do
       it 'marks digest mail as opened' do
         get :track, type: 'digest', code: digest_mail.code
 
-        expect(digest_mail.reload.opened).to be_true
+        expect(digest_mail.reload.opened).to be_truthy
       end
     end
 
@@ -45,7 +45,7 @@ describe SubscriptionsController do
       it 'marks trigger mail as opened' do
         get :track, type: 'trigger', code: trigger_mail.code
 
-        expect(trigger_mail.reload.opened).to be_true
+        expect(trigger_mail.reload.opened).to be_truthy
       end
     end
 

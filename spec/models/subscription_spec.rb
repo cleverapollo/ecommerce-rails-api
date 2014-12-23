@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Subscription do
   subject { create(:subscription) }
@@ -12,14 +12,14 @@ describe Subscription do
   describe '#declined=' do
     it 'deactivates subscription when declined value is true' do
       subject.declined = true
-      expect(subject.active).to be_false
+      expect(subject.active).to be_falsey
     end
   end
 
   describe '#deactivate!' do
     it 'deactivates subscription' do
       subject.deactivate!
-      expect(subject.active).to be_false
+      expect(subject.active).to be_falsey
     end
   end
 

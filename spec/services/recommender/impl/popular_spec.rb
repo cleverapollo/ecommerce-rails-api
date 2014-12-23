@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Recommender::Impl::Popular do
   let!(:shop) { create(:shop) }

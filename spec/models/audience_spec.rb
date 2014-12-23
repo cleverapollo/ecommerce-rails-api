@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Audience do
   let!(:shop) { create(:shop) }
@@ -13,7 +13,7 @@ describe Audience do
   describe '#deactivate' do
     it 'deactivates audience' do
       subject.deactivate!
-      expect(subject.active).to be_false
+      expect(subject.active).to be_falsey
     end
   end
 

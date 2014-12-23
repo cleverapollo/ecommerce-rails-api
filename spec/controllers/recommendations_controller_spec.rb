@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe RecommendationsController do
   before { @extracted_params = { recommender_type: 'interesting' } }

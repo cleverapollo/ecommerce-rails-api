@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Item do
   describe '.fetch' do
@@ -34,7 +34,7 @@ describe Item do
     it 'disables the item' do
       item.disable!
 
-      expect(item.is_available).to be_false
+      expect(item.is_available).to be_falsey
     end
   end
 end

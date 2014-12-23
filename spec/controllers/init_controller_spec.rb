@@ -1,12 +1,12 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe InitController do
   describe 'GET init_script' do
-    before { @shop = create(:shop) }
-    before { @params = { shop_id: @shop.uniqid } }
+    let!(:shop) { create(:shop) }
+    let!(:init_params) { { shop_id: shop.uniqid } }
 
     shared_examples 'an api initializer' do
-      before { get :init_script, @params }
+      before { get :init_script, init_params }
 
       it 'returns init server string' do
         expect(response.body).to match(/REES46.initServer\(\{.+\}\);/m)
@@ -23,11 +23,11 @@ describe InitController do
 
     shared_examples 'an api initializer with data' do
       context 'with existing session' do
-        before { @session = create(:session, user: create(:user)) }
+        let!(:session) { create(:session, user: create(:user)) }
 
         it 'assigns that session' do
-          get :init_script, @params
-          expect(assigns(:session)).to eq @session
+          get :init_script, init_params
+          expect(assigns(:session)).to eq session
         end
 
         it_behaves_like 'an api initializer'
@@ -39,7 +39,7 @@ describe InitController do
         it 'assigns useragent to @session.useragent' do
           request.env['HTTP_USER_AGENT'] = sample_useragent
 
-          get :init_script, @params
+          get :init_script, init_params
 
           expect(assigns(:session).useragent).to eq sample_useragent
         end
@@ -53,14 +53,14 @@ describe InitController do
     end
 
     context 'with parameter' do
-      before { @params = @params.merge(rees46_session_id: sample_session_id) }
+      before { init_params.merge!(rees46_session_id: sample_session_id) }
 
       it_behaves_like 'an api initializer with data'
     end
 
     context 'with cookie and parameter' do
       before { request.cookies[Rees46.cookie_name] = sample_session_id }
-      before { @params = @params.merge(rees46_session_id: sample_session_id) }
+      before { init_params.merge!(rees46_session_id: sample_session_id) }
 
       it_behaves_like 'an api initializer with data'
     end
