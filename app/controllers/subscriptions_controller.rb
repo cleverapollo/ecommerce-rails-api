@@ -6,8 +6,12 @@ class SubscriptionsController < ApplicationController
   before_action :fetch_user, only: :create
 
   def create
-    @subscription = @shop.subscriptions.find_or_initialize_by(user_id: @user.id)
-    @subscription.update!(subscription_params)
+    begin
+      @subscription = @shop.subscriptions.find_or_initialize_by(user_id: @user.id)
+      @subscription.update!(subscription_params)
+    rescue ActiveRecord::RecordNotUnique
+      retry
+    end
     render json: {}
   end
 
