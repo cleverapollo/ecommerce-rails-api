@@ -31,17 +31,17 @@ describe YmlWorker do
 
     before do
       yml_items = [{
-        'id' => item1.id,
-        'price' => '150',
+        'id' => item1.uniqid,
+        'price' => '150.0',
         'available' => 'true'
       },
       {
-        'id' => item2.id,
+        'id' => item2.uniqid,
         'price' => item2.price,
         'available' => 'false'
       },
       {
-        'id' => item3.id,
+        'id' => item3.uniqid,
         'price' => item3.price,
         'available' => 'true'
       }]
