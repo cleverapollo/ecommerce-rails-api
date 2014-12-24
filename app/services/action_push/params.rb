@@ -142,7 +142,15 @@ module ActionPush
         name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
         description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
         url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+        if url.present? && !url.include?('://')
+          url = shop.url + url
+        end
+
         image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
+        if image_url.present? && !image_url.include?('://')
+          image_url = shop.url + image_url
+        end
+
         brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
         repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         widgetable = name.present? && url.present? && image_url.present?
