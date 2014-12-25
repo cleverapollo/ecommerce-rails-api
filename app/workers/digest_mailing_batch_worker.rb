@@ -106,9 +106,11 @@ class DigestMailingBatchWorker
       result['{{ recommended_item }}'] = item_template
     end
 
-    # Вставляем в письмо кастомные аттрибуты пользователя.
-    custom_attributes.each do |key, value|
-      result.gsub!("{{ user.#{key} }}", value)
+    if custom_attributes.present? && custom_attributes.any?
+      # Вставляем в письмо кастомные аттрибуты пользователя.
+      custom_attributes.each do |key, value|
+        result.gsub!("{{ user.#{key} }}", value)
+      end
     end
 
     # Вставляем в письмо ссылку на отписку
