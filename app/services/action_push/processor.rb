@@ -10,13 +10,13 @@ module ActionPush
 
     def process
       # Обработка триггерных писем
-      if params.trigger_mail_code.present? &&
+      if params.trigger_mail_code.present? && params.trigger_mail_code != 'test' &&
          trigger_mail = TriggerMail.find_by(code: params.trigger_mail_code)
         trigger_mail.mark_as_clicked!
       end
 
       # Обработка дайджестных писем
-      if params.digest_mail_code.present? &&
+      if params.digest_mail_code.present? && params.digest_mail_code != 'test' &&
          digest_mail = DigestMail.find_by(code: params.digest_mail_code)
         digest_mail.mark_as_clicked!
       end
