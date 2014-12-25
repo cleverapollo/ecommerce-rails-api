@@ -63,6 +63,7 @@ group :test do
   gem 'simplecov', '~> 0.7.1', require: false
   gem 'factory_girl_rails', '~> 4.5.0'
   gem 'database_cleaner', '~> 1.3.0'
+  gem 'ffaker', '~> 1.25.0'
 end
 
 # Documentation

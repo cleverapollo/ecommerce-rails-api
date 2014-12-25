@@ -98,7 +98,7 @@ FactoryGirl.define do
     shop
     user
     sequence(:external_id) {|i| "#{i}" }
-    email 'test@example.com'
+    email { Faker::Internet.email }
     active true
     custom_attributes { {} }
   end
