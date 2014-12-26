@@ -104,7 +104,9 @@ N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
 -----END RSA PRIVATE KEY-----'
       pk = OpenSSL::PKey::RSA.new(pk)
 
-      Dkim.sign(mail, domain: 'tanita-romario.com.ua', selector: 'rees46', private_key: pk)
+      sm = Dkim::SignedMail.new(mail, domain: 'tanita-romario.com.ua', selector: 'rees46', private_key: pk)
+
+      mail.header['DKIM-Signature'] = sm.dkim_header.value
     end
 
     mail.deliver
