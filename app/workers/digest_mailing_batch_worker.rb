@@ -79,12 +79,35 @@ class DigestMailingBatchWorker
   # @param recommendations [Array] массив рекомендаций.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
   def send_mail(email, recommendations, custom_attributes = {})
-    Mailer.digest(
+    mail = Mailer.digest(
       email: email,
       subject: @mailing.subject,
       send_from: @settings.sender,
       body: letter_body(recommendations, custom_attributes)
-    ).deliver
+    )
+
+    if @shop.id == 374
+      pk = '-----BEGIN RSA PRIVATE KEY-----
+MIICXgIBAAKBgQDLXfsqNbqJ5IuGh5sBKIHzG/1A33Z+7TfregL6DrrWJ3widGWd
+WjxBEblZObQMDMSPzoaqSHz4Xn16Wo6SpOgAJRGqlqNM/Y4Hszgt1temZNIE7JZm
+2XiAKaDrZyQJA/7h5P4pyNtsMJGjBNv5FPS6Zs+xjtIm1rswk5Mv081uuQIDAQAB
+AoGBAJMqxZF8JCuZiiamh1NFPxTw0kpZ6+RaQjdTqkfO1QIYvMoqNUazgBsOenTJ
+PzPhIXV33RfpMRaDOoaKddZFI+V8kgdLO8tNag5qd213TvIVq+Ij21VBBrem0Af+
+8oX+JfFq7Xw/C7VwXtW3TTuHiMVOC0ZKRlwrHoiUeWIYdKoBAkEA6my8zB1ShQbC
+acfM9InSZTNIaMGp6LJQ0VgRth/z63CoeEKf8U/hpNAJGbqw6aoA18g4Wc5zVAUH
+flr0MUNh4QJBAN4Vfz8XFNad8VNL3hbdyv3UAPNi8dZ8k2RKinpHUvwDDDJSliKv
+EUQPYl+fO0vh+A/RzlAC21QEHkrf8/DsV9kCQGkEQ2OxMxly2L8oibF22HELk0GS
+mHos/7V4nZ6YG956Po55Ukt5PJ1nsNv83WogBXalNFFPAi0+f4fkWQaEqCECQQDC
+aldGx9H6P7IvlU8K/YbixmE+r/O+LLhrJ8YqXZ4L+C8JLrs4CcI3rrATvbWPLHaY
+grb13EpdNm2+ZmeLFZuhAkEAqhEk+hd8hbaz+pNqPd6Ya39LOOv92h0qmecXAMGz
+N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
+-----END RSA PRIVATE KEY-----'
+      pk = OpenSSL::PKey::RSA.new(pk)
+
+      Dkim.sign(mail, domain: 'tanita-romario.com.ua', selector: 'rees46', private_key: pk)
+    end
+
+    mail.deliver
   end
 
   # Сформировать тело письма.

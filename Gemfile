@@ -31,7 +31,10 @@ gem 'httparty', '~> 0.12.0'
 gem 'rack-utf8_sanitizer', '~> 1.2.3'
 
 # Crontab
-gem "whenever", '0.9.2', require: false
+gem 'whenever', '~> 0.9.2', require: false
+
+# Mailing
+gem 'dkim', '~> 1.0.0'
 
 # Development tools
 group :development do
