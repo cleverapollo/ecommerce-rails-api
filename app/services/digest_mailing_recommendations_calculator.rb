@@ -46,7 +46,7 @@ class DigestMailingRecommendationsCalculator
         shop: @shop,
         user: @current_user,
         limit: @limit - item_ids.count,
-        only_widgetable: true,
+        recommend_only_widgetable: true,
         recommender_type: 'popular',
         exclude: item_ids
       )
