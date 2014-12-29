@@ -33,7 +33,12 @@ describe BeaconsController do
             expect(response.code).to eq('204')
           end
         end
+
         context 'when user didnt had notification for 2 weeks' do
+          before {
+            shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 15.days.ago )
+          }
+
           it 'responds with JSON' do
             get :notify, params
 
