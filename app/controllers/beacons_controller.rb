@@ -15,7 +15,7 @@ class BeaconsController < ApplicationController
       beacon_message.params = params
       beacon_message.save!
 
-      if params[:type] == 'lead' && shop.beacon_messages.with_notifications.where('created_at >= ?', 2.weeks.ago).none?
+      if params[:type] == 'lead' && shop.beacon_messages.where(user_id: user.id).with_notifications.where('created_at >= ?', 2.weeks.ago).none?
         beacon_message.update(notified: true)
         result = {
           image: 'http://cdn.rees46.com/bk.gif',
