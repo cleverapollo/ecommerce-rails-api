@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141223100541) do
+ActiveRecord::Schema.define(version: 20141229121601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -86,6 +86,16 @@ ActiveRecord::Schema.define(version: 20141223100541) do
   add_index "audiences", ["external_id", "shop_id"], name: "index_audiences_on_external_id_and_shop_id", unique: true, using: :btree
   add_index "audiences", ["user_id"], name: "index_audiences_on_user_id", using: :btree
 
+  create_table "beacon_messages", force: true do |t|
+    t.integer  "shop_id"
+    t.integer  "user_id"
+    t.integer  "session_id"
+    t.text     "params",                     null: false
+    t.boolean  "notified",   default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "branches", force: true do |t|
     t.string   "name"
     t.boolean  "deletable",  default: true, null: false
@@ -138,6 +148,7 @@ ActiveRecord::Schema.define(version: 20141223100541) do
     t.string   "first_name"
     t.string   "last_name"
     t.integer  "balance",                default: 0,    null: false
+    t.string   "gift_link"
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree

@@ -17,6 +17,7 @@ class Shop < ActiveRecord::Base
   has_many :subscriptions
   has_many :digest_mailings
   has_many :audiences
+  has_many :beacon_messages
   has_one :insales_shop
   has_one :trigger_mailing
   has_one :digest_mailing_setting

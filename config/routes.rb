@@ -35,4 +35,7 @@ Rees46Api::Application.routes.draw do
   end
 
   get 'track/:type/:code.png', to: 'subscriptions#track', as: 'track_mail'
+
+  # iBeacons
+  get 'geo/notify', to: 'beacons#notify'
 end
