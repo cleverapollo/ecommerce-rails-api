@@ -27,10 +27,28 @@ describe BeaconsController do
             shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago )
           }
 
-          it 'responds with 204' do
+          # it 'responds with 204' do
+          #   get :notify, params
+
+          #   expect(response.code).to eq('204')
+          # end
+
+          it 'responds with JSON' do
             get :notify, params
 
-            expect(response.code).to eq('204')
+            expect(response.code).to eq('200')
+            json = {
+              image: 'http://cdn.rees46.com/bk.gif',
+              title: 'Обед Кинг Хит – всего за 149 рублей',
+              description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей."
+            }
+            expect(response.body).to eq(json.to_json)
+          end
+
+          it 'creates beacon message with notified: true' do
+            get :notify, params
+
+            expect(BeaconMessage.first!.notified).to be_truthy
           end
         end
 
