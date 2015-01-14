@@ -38,7 +38,7 @@ describe BeaconsController do
 
             expect(response.code).to eq('200')
             json = {
-              image: 'http://cdn.rees46.com/bk.gif',
+              image: 'http://cdn.rees46.com/bk.png',
               title: 'Обед Кинг Хит – всего за 149 рублей',
               description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей."
             }
@@ -62,7 +62,7 @@ describe BeaconsController do
 
             expect(response.code).to eq('200')
             json = {
-              image: 'http://cdn.rees46.com/bk.gif',
+              image: 'http://cdn.rees46.com/bk.png',
               title: 'Обед Кинг Хит – всего за 149 рублей',
               description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей."
             }
