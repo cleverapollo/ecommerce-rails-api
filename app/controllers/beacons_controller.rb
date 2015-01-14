@@ -19,7 +19,7 @@ class BeaconsController < ApplicationController
         #shop.beacon_messages.where(user_id: user.id).with_notifications.where('created_at >= ?', 2.weeks.ago).none?
         beacon_message.update(notified: true)
         result = {
-          image: 'http://cdn.rees46.com/bk.gif',
+          image: 'http://cdn.rees46.com/bk.png',
           title: 'Обед Кинг Хит – всего за 149 рублей',
           description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей."
         }
