@@ -2,7 +2,6 @@ class UserMerger
   class << self
     def merge(master, slave)
       Session.where(user_id: slave.id).update_all(user_id: master.id)
-      UserShopRelation.where(user_id: slave.id).update_all(user_id: master.id)
 
       Subscription.where(user_id: slave.id).each do |s|
         begin

@@ -46,12 +46,13 @@ class InitController < ApplicationController
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
     result += "  subscriptions: {"
-    if shop.trigger_mailing.present? && shop.trigger_mailing.enabled
-      result += "  settings: #{shop.trigger_mailing.subscription_settings},"
-      if subscription = session.user.subscriptions.find_by(shop: shop)
-        result += "  user: #{subscription.to_json},"
-      end
-    end
+    # Broken
+    # if shop.trigger_mailing.present? && shop.trigger_mailing.enabled
+    #   result += "  settings: #{shop.trigger_mailing.subscription_settings},"
+    #   if subscription = session.user.subscriptions.find_by(shop: shop)
+    #     result += "  user: #{subscription.to_json},"
+    #   end
+    # end
     result += "  },"
 
     result += "});"

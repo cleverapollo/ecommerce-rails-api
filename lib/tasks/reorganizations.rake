@@ -39,6 +39,11 @@ namespace :reorganizations do
   desc "Merge user_shop_relations into shops_users"
   task merge_user_shop_relations_into_shops_users: :environment do
     Shop.find_each do |shop|
+      next if shop.id == 114
+      next if shop.id == 194
+      next if shop.id == 248
+      next if shop.id == 134
+
       shops_users = {}
       shop.shops_users.find_each(batch_size: 5_000) do |s_u|
         shops_users[s_u.user_id] = s_u
@@ -88,33 +93,3 @@ namespace :reorganizations do
     end
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
