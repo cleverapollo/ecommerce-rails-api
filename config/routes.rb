@@ -15,6 +15,7 @@ Rees46Api::Application.routes.draw do
     post :insales
     post :yml
     post :disable
+    post :audience
     get :disable
   end
 
@@ -24,7 +25,6 @@ Rees46Api::Application.routes.draw do
 
   resources :digest_mailings, only: [] do
     post :launch,   on: :member
-    post :import_audience, on: :collection
     get :recommendations, on: :collection
   end
 
