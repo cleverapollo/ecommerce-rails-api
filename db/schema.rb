@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141229121601) do
+ActiveRecord::Schema.define(version: 20150115083546) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -185,6 +185,8 @@ ActiveRecord::Schema.define(version: 20141229121601) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -285,6 +287,18 @@ ActiveRecord::Schema.define(version: 20141229121601) do
   add_index "mahout_actions", ["shop_id"], name: "tmp_m1", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
+  create_table "mailings_settings", force: true do |t|
+    t.integer  "shop_id",                          null: false
+    t.string   "send_from",                        null: false
+    t.text     "logo_url"
+    t.text     "dkim_public_key",                  null: false
+    t.text     "dkim_private_key",                 null: false
+    t.boolean  "spf_valid",        default: false, null: false
+    t.boolean  "dkim_valid",       default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
     t.integer "item_id",        limit: 8,             null: false
@@ -383,6 +397,15 @@ ActiveRecord::Schema.define(version: 20141229121601) do
     t.datetime "updated_at"
   end
 
+  create_table "recommender_statistics", force: true do |t|
+    t.string   "efficiency", limit: 3000
+    t.integer  "shop_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "recommender_statistics", ["shop_id"], name: "index_recommender_statistics_on_shop_id", using: :btree
+
   create_table "requisites", force: true do |t|
     t.integer  "requisitable_id",                  null: false
     t.string   "requisitable_type",                null: false
@@ -417,7 +440,7 @@ ActiveRecord::Schema.define(version: 20141229121601) do
 
   create_table "sessions", force: true do |t|
     t.integer "user_id",   limit: 8,                null: false
-    t.string  "uniqid",                             null: false
+    t.string  "code",                               null: false
     t.boolean "is_active",           default: true
     t.string  "useragent"
     t.string  "city"
@@ -425,7 +448,7 @@ ActiveRecord::Schema.define(version: 20141229121601) do
     t.string  "language"
   end
 
-  add_index "sessions", ["uniqid"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: true do |t|
@@ -497,15 +520,24 @@ ActiveRecord::Schema.define(version: 20141229121601) do
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
 
-  create_table "shops_users", id: false, force: true do |t|
-    t.integer  "shop_id",                          null: false
-    t.integer  "user_id",                          null: false
-    t.boolean  "bought_something", default: false, null: false
+  create_table "shops_users", force: true do |t|
+    t.integer  "shop_id",                                                  null: false
+    t.integer  "user_id",                                                  null: false
+    t.boolean  "bought_something",          default: false,                null: false
     t.integer  "ab_testing_group"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "external_id"
+    t.string   "email"
+    t.boolean  "digests_enabled",           default: true,                 null: false
+    t.uuid     "code",                      default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed", default: false,                null: false
+    t.boolean  "triggers_enabled",          default: true,                 null: false
+    t.datetime "last_trigger_mail_sent_at"
   end
 
+  add_index "shops_users", ["code"], name: "index_shops_users_on_code", unique: true, using: :btree
+  add_index "shops_users", ["shop_id", "external_id"], name: "index_shops_users_on_shop_id_and_external_id", unique: true, using: :btree
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
   add_index "shops_users", ["user_id"], name: "index_shops_users_on_user_id", using: :btree
 
@@ -535,9 +567,14 @@ ActiveRecord::Schema.define(version: 20141229121601) do
 
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
 
-  create_table "svd_test_actions", id: false, force: true do |t|
-    t.integer "user_id", limit: 8
-    t.integer "item_id", limit: 8
+  create_table "subscriptions_settings", force: true do |t|
+    t.integer  "shop_id",                    null: false
+    t.boolean  "enabled",    default: false, null: false
+    t.boolean  "overlay",    default: true,  null: false
+    t.text     "header",                     null: false
+    t.text     "text",                       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "transactions", force: true do |t|

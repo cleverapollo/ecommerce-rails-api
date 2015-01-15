@@ -9,7 +9,7 @@ describe 'Pushing an event' do
     @params = {
       event: 'view',
       shop_id: @shop.uniqid,
-      ssid: @session.uniqid,
+      ssid: @session.code,
       item_id: [39559, 15464],
       price: [14375, 25000],
       is_available: [1, 0],

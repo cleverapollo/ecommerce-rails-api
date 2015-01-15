@@ -15,12 +15,6 @@ class AudienceImportWorker
         next unless IncomingDataTranslator.email_valid?(a.fetch('email'))
 
         email = IncomingDataTranslator.email(a.fetch('email'))
-
-        audience = shop.audiences.find_or_initialize_by(external_id: a.fetch('id').to_s)
-        audience.update(
-          email: email,
-          active: a['active'] || true,
-          custom_attributes: a.except('id', 'email', 'active'))
       end
     end
   end

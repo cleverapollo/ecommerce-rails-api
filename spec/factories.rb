@@ -10,7 +10,7 @@ FactoryGirl.define do
   end
 
   factory :session do
-    uniqid sample_session_id
+    code sample_session_id
 
     factory :session_with_user do
       user
@@ -49,12 +49,6 @@ FactoryGirl.define do
     description ''
   end
 
-  factory :user_shop_relation do
-    shop
-    user
-    uniqid '12345'
-  end
-
   factory :action do
   end
 
@@ -88,21 +82,6 @@ FactoryGirl.define do
     users { [ id: 1 ] }
   end
 
-  factory :subscription do
-    shop
-    user
-    active true
-  end
-
-  factory :audience do
-    shop
-    user
-    sequence(:external_id) {|i| "#{i}" }
-    email { Faker::Internet.email }
-    active true
-    custom_attributes { {} }
-  end
-
   factory :digest_mailing do
     name 'Test'
     subject 'Test'
@@ -121,17 +100,7 @@ FactoryGirl.define do
     end_id 2
   end
 
-  factory :digest_mail do
-    shop
-    audience
-    clicked false
-    opened false
-  end
-
-  factory :trigger_mail do
-    shop
-    subscription
-    trigger_code 'AbandonedCartEarly'
-    trigger_data '{}'
+  factory :shops_user do
+    user
   end
 end

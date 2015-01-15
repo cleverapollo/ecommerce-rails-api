@@ -11,15 +11,8 @@ class DigestMailingRecommendationsCalculatorWorker
 
     self.users = []
 
-    if params.fetch('mode') == 'audiences'
-      shop.audiences.active.includes(:user).find_each do |a|
-        a.try_to_attach_to_user!
-        users << { external_id: a.external_id, user: a.user }
-      end
-    elsif params.fetch('mode') == 'user_shop_relations'
-      shop.user_shop_relations.includes(:user).find_each do |u_s_r|
-        users << { external_id: u_s_r.uniqid, user: u_s_r.user }
-      end
+    shop.shops_users.find_each do |s_u|
+      users << { external_id: s_u.external_id, user: s_u.user }
     end
 
     self.recommendations_count = params['recommendations_count'] || 10

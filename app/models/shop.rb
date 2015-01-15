@@ -13,7 +13,6 @@ class Shop < ActiveRecord::Base
   has_many :mahout_actions
   has_many :items
   has_many :orders
-  has_many :user_shop_relations
   has_many :subscriptions
   has_many :digest_mailings
   has_many :audiences

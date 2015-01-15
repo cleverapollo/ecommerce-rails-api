@@ -9,7 +9,7 @@ describe ActionPush::Params do
         @shop = create(:shop)
         @action = 'view'
         @rating = 3
-        @params = { ssid: @session.uniqid, event: @action, shop_id: @shop.uniqid, rating: @rating, item_id: [] }
+        @params = { ssid: @session.code, event: @action, shop_id: @shop.uniqid, rating: @rating, item_id: [] }
       }
 
       subject { ActionPush::Params.extract(@params) }

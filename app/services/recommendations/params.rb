@@ -126,7 +126,7 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] в случае, если не удалось найти сессию.
     def extract_user
-      session = Session.find_by(uniqid: raw[:ssid])
+      session = Session.find_by(code: raw[:ssid])
       raise Recommendations::IncorrectParams.new('Invalid session') if session.blank?
       @user = session.user
     end

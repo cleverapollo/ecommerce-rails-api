@@ -2,7 +2,9 @@ class ShopsUser < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user
 
-  after_initialize :assign_ab_testing_group
+  before_create :assign_ab_testing_group
+
+  validates :shop, presence: true
 
   protected
     def assign_ab_testing_group

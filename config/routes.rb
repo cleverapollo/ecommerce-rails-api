@@ -24,7 +24,7 @@ Rees46Api::Application.routes.draw do
 
   resources :digest_mailings, only: [] do
     post :launch,   on: :member
-    post :audience, on: :collection
+    post :import_audience, on: :collection
     get :recommendations, on: :collection
   end
 

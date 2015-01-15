@@ -12,8 +12,3 @@ end
 every '0 4 * * *' do
   runner 'CartsExpirer.perform!'
 end
-
-# Каждые 30 минут каждого часа обрабатываем подписки
-every '30 * * * * ' do
-  runner 'TriggerMailings::SubscriptionsProcessor.process_all'
-end
