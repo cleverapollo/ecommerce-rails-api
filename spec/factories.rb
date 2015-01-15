@@ -10,7 +10,7 @@ FactoryGirl.define do
   end
 
   factory :session do
-    uniqid sample_session_id
+    code sample_session_id
 
     factory :session_with_user do
       user
@@ -47,12 +47,6 @@ FactoryGirl.define do
     name 'test'
     widgetable true
     description ''
-  end
-
-  factory :user_shop_relation do
-    shop
-    user
-    uniqid '12345'
   end
 
   factory :action do
@@ -133,5 +127,9 @@ FactoryGirl.define do
     subscription
     trigger_code 'AbandonedCartEarly'
     trigger_data '{}'
+  end
+
+  factory :shops_user do
+    user
   end
 end

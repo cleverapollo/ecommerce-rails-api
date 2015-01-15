@@ -7,7 +7,7 @@ describe BeaconsController do
   let!(:params) {
     {
       shop_id: shop.uniqid,
-      ssid: session.uniqid,
+      ssid: session.code,
       type: 'lead',
       uuid: '1234567890',
       major: 'potato_major',

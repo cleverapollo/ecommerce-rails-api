@@ -19,7 +19,7 @@ describe 'Order workflow' do
     post 'push', {
       event: 'view',
       shop_id: @shop.uniqid,
-      ssid: @session.uniqid,
+      ssid: @session.code,
       item_id: [100],
       price: [99],
       is_available: [1],
@@ -47,7 +47,7 @@ describe 'Order workflow' do
     post 'push', {
       event: 'cart',
       shop_id: @shop.uniqid,
-      ssid: @session.uniqid,
+      ssid: @session.code,
       item_id: [100],
       price: [99],
       is_available: [1],
@@ -67,7 +67,7 @@ describe 'Order workflow' do
     post 'push', {
       event: 'purchase',
       shop_id: @shop.uniqid,
-      ssid: @session.uniqid,
+      ssid: @session.code,
       order_id: 157,
       item_id: [100],
       amount: [1],

@@ -28,19 +28,16 @@ describe OrdersImportWorker do
     OrdersImportWorker.new.perform(params)
 
     # Check users
-    u_s_r = shop.user_shop_relations.first!
-    user = u_s_r.user
-    expect(u_s_r.uniqid).to eq(params['orders'][0]['user_id'])
-    expect(u_s_r.email).to eq(params['orders'][0]['user_email'])
-    s_u = ShopsUser.first!
-    expect(s_u.user_id).to eq(user.id)
-    expect(s_u.shop_id).to eq(shop.id)
+    s_u = shop.shops_users.first!
+    user = s_u.user
+    expect(s_u.external_id).to eq(params['orders'][0]['user_id'])
+    expect(s_u.email).to eq(params['orders'][0]['user_email'])
 
     # Check orders
     order = shop.orders.first!
     expect(order.uniqid).to eq(params['orders'][0]['id'])
     expect(order.date).to eq(Time.at(params['orders'][0]['date'].to_i))
-    expect(order.user_id).to eq(u_s_r.user_id)
+    expect(order.user_id).to eq(s_u.user_id)
 
     # Check items
     item_raw = params['orders'][0]['items'][0]

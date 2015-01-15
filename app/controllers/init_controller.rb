@@ -12,7 +12,7 @@ class InitController < ApplicationController
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-    @session = Session.fetch(uniqid: session_id,
+    @session = Session.fetch(code: session_id,
                              useragent: user_agent,
                              email: params[:user_email],
                              city: city,
@@ -26,9 +26,9 @@ class InitController < ApplicationController
     end
 
     cookies.delete([Rees46.cookie_name])
-    cookies.permanent[Rees46.cookie_name] = @session.uniqid
+    cookies.permanent[Rees46.cookie_name] = @session.code
     cookies[Rees46.cookie_name] = {
-      value: @session.uniqid,
+      value: @session.code,
       expires: 1.year.from_now
     }
 
@@ -39,7 +39,7 @@ class InitController < ApplicationController
 
   def init_server_string(session, shop)
     result  = "REES46.initServer({"
-    result += "  ssid: '#{session.uniqid}',"
+    result += "  ssid: '#{session.code}',"
     result += "  baseURL: 'http://#{Rees46.host}',"
     result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
     result += "  currency: '#{shop.currency}',"

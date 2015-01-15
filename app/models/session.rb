@@ -1,50 +1,63 @@
+##
+# Сессия.
+#
 class Session < ActiveRecord::Base
   belongs_to :user
 
+  validates :user, presence: true
+  validates :code, presence: true
+
   class << self
-    def fetch(opts = {})
+    # Получить подходящую по параметрам сессию.
+    def fetch(params = {})
       session = nil
 
-      if opts[:uniqid].present? && session = find_by(uniqid: opts[:uniqid])
+      if params[:code].present? && session = find_by(code: params[:code])
+        # Найти сессию по коду.
+
+        # Убедиться, что у сессии есть юзер.
         if session.user.blank?
           session.create_user
         end
 
+        # Сохранить параметры бразуера в сессию.
         [:useragent, :city, :country, :language].each do |field|
-          if session.send(field).blank? && opts[field].present?
-            session.send("#{field}=", opts[:field])
+          if session.send(field).blank? && params[field].present?
+            session.send("#{field}=", params[:field])
           end
         end
 
         session.save if session.changed?
       else
-        session = create_with_uniqid_and_user(opts)
+        # Создать новую, сгенерировать код и юзера.
+        session = create_with_code_and_user(params)
       end
 
       session
     end
 
-    def build_with_uniqid
+    # Создать новую сессию с уникальным кодом.
+    def build_with_code
       loop do
-        uuid = SecureRandom.uuid
+        code = SecureRandom.uuid
 
-        if Session.where(uniqid: uuid).none?
-          return self.new(uniqid: uuid)
+        if Session.where(code: code).none?
+          return self.new(code: code)
         end
       end
     end
 
-    def create_with_uniqid_and_user(options = {})
-      user = User.create
+    # Создать новую сессию с уникальным кодом и пользователем.
+    def create_with_code_and_user(params = {})
+      user = User.create!
 
-      s = build_with_uniqid
-      s.assign_attributes \
-                          user: user,
-                          useragent: options[:useragent],
-                          country: options[:country].present? ? options[:country] : nil,
-                          city: options[:city].present? ? options[:city] : nil,
-                          language: options[:language]
-      s.save
+      s = build_with_code
+      s.assign_attributes(user: user,
+                          useragent: params[:useragent],
+                          country: params[:country].present? ? params[:country] : nil,
+                          city: params[:city].present? ? params[:city] : nil,
+                          language: params[:language])
+      s.save!
       s
     end
   end

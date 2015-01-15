@@ -8,7 +8,7 @@ describe Recommendations::Params do
       @user = @session.user
 
       @params = {
-        ssid: @session.uniqid,
+        ssid: @session.code,
         shop_id: @shop.uniqid,
         recommender_type: 'interesting'
       }

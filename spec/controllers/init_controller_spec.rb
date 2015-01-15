@@ -17,7 +17,7 @@ describe InitController do
       end
 
       it 'stores session_id to cookies' do
-        expect(response.cookies[Rees46.cookie_name]).to eq Session.first.uniqid
+        expect(response.cookies[Rees46.cookie_name]).to eq Session.first.code
       end
     end
 

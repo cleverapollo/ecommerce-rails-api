@@ -1,179 +1,120 @@
 require 'rails_helper'
 
 describe UserFetcher do
-  before { @shop = create(:shop) }
+  let!(:shop) { create(:shop) }
+
   describe '.new' do
-    before { @opts = { ssid: 1, uniqid: 2, shop_id: @shop.id } }
-    before { @fetcher = UserFetcher.new(@opts) }
+    let!(:params) { { session_code: 1, external_id: 2, shop: shop } }
+    subject { UserFetcher.new(params) }
 
     it 'accepts hash as options' do
-      expect(@fetcher).to be_an_instance_of(UserFetcher)
+      expect(subject).to be_an_instance_of(UserFetcher)
     end
 
-    [:ssid, :uniqid, :shop_id].each do |attr|
+    [:session_code, :external_id, :shop].each do |attr|
       it "stores #{attr} in @#{attr}" do
-        expect(@fetcher.public_send(attr)).to eq(@opts.fetch(attr))
+        expect(subject.public_send(attr)).to eq(params.fetch(attr))
       end
     end
   end
 
   describe '#fetch' do
-    before { @opts = { ssid: '1', uniqid: '2', shop_id: @shop.id } }
-    shared_examples 'creates session and user' do
-      it 'creates session' do
-        expect{ subject }.to change(Session, :count).from(0).to(1)
+    let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
+    subject { UserFetcher.new(params).fetch }
+
+
+    context 'first visit' do
+      let!(:params) { { session_code: session.code, shop: shop } }
+
+      it "returns session's user" do
+        expect(subject).to eq(session.user)
       end
 
-      it 'creates user' do
-        expect{ subject }.to change(User, :count).from(0).to(1)
+      it 'doesnt create new session' do
+        expect{ subject }.to_not change(Session, :count)
       end
 
-      it 'links user with session' do
+      it 'doesnt create new user' do
+        expect{ subject }.to_not change(User, :count)
+      end
+
+      it 'links user with shop' do
+        expect{ subject }.to change(ShopsUser, :count).from(0).to(1)
+
+        shops_user = ShopsUser.first!
+        expect(shops_user.shop).to eq(shop)
+        expect(shops_user.user).to eq(session.user)
+        expect(shops_user.external_id).to eq(nil)
+      end
+    end
+
+    context 'second visit' do
+      let!(:shops_user) { create(:shops_user, shop: shop, user: session.user, external_id: nil) }
+      let!(:params) { { session_code: session.code, shop: shop } }
+
+      it "returns session's user" do
+        expect(subject).to eq(session.user)
+      end
+
+      it 'doesnt create new session' do
+        expect{ subject }.to_not change(Session, :count)
+      end
+
+      it 'doesnt create new user' do
+        expect{ subject }.to_not change(User, :count)
+      end
+
+      it 'doesnt create new link' do
+        expect{ subject }.to_not change(ShopsUser, :count)
+      end
+    end
+
+    context 'when external_id is passed' do
+      let!(:external_id) { '256' }
+      let!(:shops_user) { create(:shops_user, shop: shop, user: session.user, external_id: nil) }
+      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
+
+      it "returns session's user" do
+        expect(subject).to eq(session.user)
+      end
+
+      it 'doesnt create new session' do
+        expect{ subject }.to_not change(Session, :count)
+      end
+
+      it 'doesnt create new user' do
+        expect{ subject }.to_not change(User, :count)
+      end
+
+      it 'doesnt create new link' do
+        expect{ subject }.to_not change(ShopsUser, :count)
+      end
+
+      it 'saves external_id to link' do
+        expect(shops_user.reload.external_id).to eq(nil)
         subject
-        expect(Session.first!.user).to eq(User.first!)
-      end
-
-      it 'returns created user' do
-        expect(subject).to eq(User.first!)
+        expect(shops_user.reload.external_id).to eq(external_id)
       end
     end
 
-    subject { UserFetcher.new(@opts).fetch }
-    context 'without any params' do
-      it_behaves_like 'creates session and user'
-    end
+    context 'when external_id is passed and another link exists' do
+      let!(:external_id) { '256' }
+      let!(:old_user) { create(:user) }
+      let!(:old_session) { create(:session, code: '1234567890', user: old_user) }
+      let!(:old_shops_user) { create(:shops_user, shop: shop, user: old_user, external_id: external_id) }
+      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
 
-    context 'only with ssid' do
-      context 'when session exists' do
-        before do
-          @session = create(:session_with_user)
-          @opts = { ssid: @session.uniqid, shop_id: @shop.id }
-        end
-        subject { UserFetcher.new(@opts).fetch }
-
-        it 'not creates new session' do
-          expect{ subject }.not_to change(Session, :count)
-        end
-
-        context 'when session\'s user exists' do
-          it 'not creates new user' do
-            expect{ subject }.not_to change(User, :count)
-          end
-
-          it 'returns that session\'s user' do
-            expect(subject).to eq(@session.user)
-          end
-        end
-
-        context 'when session\'s user not exists' do
-          before { User.delete_all }
-
-          it 'creates new user' do
-            expect{ subject }.to change(User, :count).from(0).to(1)
-          end
-
-          it 'attaches created user to session' do
-            subject
-            expect(@session.reload.user).to eq(User.first!)
-          end
-
-          it 'returns created user' do
-            expect(subject).to eq(User.first!)
-          end
-        end
+      it "returns old session's user" do
+        expect(subject).to eq(old_session.user)
       end
 
-      context 'when session doesnt exists' do
-        before do
-          Session.destroy_all
-          User.destroy_all
-        end
+      it 'calls merger' do
+        allow(UserMerger).to receive(:merge)
 
-        it_behaves_like 'creates session and user'
-      end
-    end
+        subject
 
-    context 'only with uniqid' do
-      before do
-        @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
-        @opts = { uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
-      end
-
-      context 'when user-shop relation exists' do
-        it 'returns user of relation' do
-          expect(subject).to eq(@u_s_r.user)
-        end
-
-        it 'ensures that user has session' do
-          expect(subject.sessions.count).to eq(1)
-        end
-      end
-
-      context 'when user-shop relation doesn\'t exists' do
-        before do
-          UserShopRelation.destroy_all
-          User.destroy_all
-        end
-
-        it_behaves_like 'creates session and user'
-
-        it 'creates user-shop relation' do
-          expect{ subject }.to change(UserShopRelation, :count).from(0).to(1)
-        end
-
-        it 'links user with user-shop relation' do
-          subject
-          expect(UserShopRelation.first!.user).to eq(User.first!)
-        end
-      end
-    end
-
-    context 'with ssid and uniqid' do
-      context 'when they are for equal user' do
-        before do
-          @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
-          @session = create(:session, user: @u_s_r.user)
-          @opts = { ssid: @session.uniqid, uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
-        end
-
-        it 'doesn\'t creates new user' do
-          expect{ subject }.not_to change(User, :count)
-        end
-
-        it 'doesn\'t creates new session' do
-          expect{ subject }.not_to change(Session, :count)
-        end
-
-        it 'doesn\'t creates new user-shop relation' do
-          expect{ subject }.not_to change(UserShopRelation, :count)
-        end
-
-        it 'returns that user' do
-          expect(subject).to eq(@u_s_r.user)
-        end
-      end
-
-      context 'when they are for different users' do
-        before do
-          @u_s_r = create(:user_shop_relation, shop_id: @shop.id)
-          @session = create(:session, user: create(:user))
-          @opts = { ssid: @session.uniqid, uniqid: @u_s_r.uniqid, shop_id: @u_s_r.shop_id }
-        end
-
-        it 'merges users' do
-          allow(UserMerger).to receive(:merge)
-          subject
-          expect(UserMerger).to have_received(:merge).with(@u_s_r.user, @session.user)
-        end
-
-        it 'returns user by uniqid' do
-          expect(subject).to eq(@u_s_r.user)
-        end
-
-        it 'attaches session to uniqid user' do
-          subject
-          expect(@session.reload.user).to eq(@u_s_r.user)
-        end
+        expect(UserMerger).to have_received(:merge).with(old_user, user)
       end
     end
   end

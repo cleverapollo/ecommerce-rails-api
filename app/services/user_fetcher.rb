@@ -1,56 +1,48 @@
+##
+# Класс, отвечающий за поиск пользователя по определенным входящим параметрам.
+#
 class UserFetcher
-  attr_accessor :uniqid
-  attr_accessor :ssid
-  attr_accessor :shop_id
-  attr_accessor :email
+  class SessionNotFoundError < StandardError; end
 
-  def initialize(opts)
-    self.uniqid = opts[:uniqid]
-    self.ssid = opts[:ssid]
-    self.shop_id = opts[:shop_id]
-    self.email = opts[:email]
+  attr_reader :external_id
+  attr_reader :session_code
+  attr_reader :shop
+  attr_reader :email
+
+  def initialize(params)
+    @external_id = params[:external_id]
+    @session_code = params.fetch(:session_code)
+    @shop = params.fetch(:shop)
+    @email = params[:email]
   end
 
   def fetch
-    session = fetch_session
-    master = user_by_session = session.user || session.build_user
-    user_by_uniqid = fetch_by_uniqid
+    # Сессия должна существовать
+    session = Session.find_by(code: session_code)
+    raise SessionNotFoundError if session.blank?
 
-    if (user_by_uniqid.present? && user_by_session.persisted? && (user_by_session != user_by_uniqid))
-      UserMerger.merge(user_by_uniqid, user_by_session) if user_by_session.persisted?  
-      master = user_by_uniqid
-    elsif user_by_uniqid.present? && user_by_uniqid.persisted?
-      master = user_by_uniqid
+    # Находим или создаем связку пользователя с магазином
+    shops_user = shop.shops_users.find_or_create_by!(user_id: session.user_id)
+    result = shops_user.user
+
+    if email.present?
+      shops_user.update(email: email)
     end
 
-    master.save
-    session.user = master
-    session.save
-
-    master.ensure_linked_to_shop(shop_id)
-
-    return master
-  end
-
-  def fetch_session
-    Session.find_by(uniqid: ssid) || Session.build_with_uniqid
-  end
-
-  def fetch_by_uniqid
-    return nil if uniqid.blank?
-
-    if u_s_r = UserShopRelation.find_by(uniqid: uniqid, shop_id: shop_id)
-      u_s_r.user
-    else
-      User.create.tap do |u|
-        begin
-          UserShopRelation.create(user_id: u.id, shop_id: shop_id, uniqid: uniqid, email: self.email)
-        rescue ActiveRecord::RecordNotUnique => e
-          # Значит, связь уже создана
-          u.destroy
-          return UserShopRelation.find_by!(uniqid: uniqid, shop_id: shop_id).user
-        end
+    # Если известен ID пользователя в магазине
+    if external_id.present?
+      if old_shops_user = shop.shops_users.where.not(id: shops_user.id).find_by(external_id: external_id)
+        # И при этом этот ID есть у другой связки
+        # Значит, нужно сливать этих двух пользователей
+        UserMerger.merge(old_shops_user.user, shops_user.user)
+        result = old_shops_user.user
+      else
+        # И при этом этого ID больше нигде нет
+        # Запоминаем его для текущего пользователя
+        shops_user.update(external_id: external_id)
       end
     end
+
+    result
   end
 end
