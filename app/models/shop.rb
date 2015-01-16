@@ -20,6 +20,7 @@ class Shop < ActiveRecord::Base
   has_one :insales_shop
   has_one :trigger_mailing
   has_one :digest_mailing_setting
+  has_one :subscriptions_settings
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
 
@@ -77,5 +78,9 @@ class Shop < ActiveRecord::Base
 
   def show_promotion?
     self.manual == false && (self.paid == false || self.plan.try(:free?))
+  end
+
+  def subscriptions_enabled?
+    subscriptions_settings.present? && subscriptions_settings.enabled?
   end
 end

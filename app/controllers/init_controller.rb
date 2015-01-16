@@ -45,15 +45,16 @@ class InitController < ApplicationController
     result += "  currency: '#{shop.currency}',"
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
+    s_u = shop.shops_users.find_or_create_by(user_id: session.user_id)
+
     result += "  subscriptions: {"
-    # Broken
-    # if shop.trigger_mailing.present? && shop.trigger_mailing.enabled
-    #   result += "  settings: #{shop.trigger_mailing.subscription_settings},"
-    #   if subscription = session.user.subscriptions.find_by(shop: shop)
-    #     result += "  user: #{subscription.to_json},"
-    #   end
-    # end
-    result += "  },"
+    if shop.subscriptions_enabled?
+      result += "  settings: #{shop.subscriptions_settings.to_json}, "
+      result += "  user: {"
+      result += "    declined: #{s_u.subscription_popup_showed == true && accepted_subscription == false}"
+      result += "  }"
+    end
+    result += "  }"
 
     result += "});"
     result

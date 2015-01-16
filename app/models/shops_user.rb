@@ -6,6 +6,9 @@ class ShopsUser < ActiveRecord::Base
 
   validates :shop, presence: true
 
+  scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
+  scope :with_email, -> { where('email IS NOT NULL') }
+
   protected
     def assign_ab_testing_group
       return if self.ab_testing_group.present?

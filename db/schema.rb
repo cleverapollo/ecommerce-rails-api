@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150115083546) do
+ActiveRecord::Schema.define(version: 20150116122519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -534,6 +534,7 @@ ActiveRecord::Schema.define(version: 20150115083546) do
     t.boolean  "subscription_popup_showed", default: false,                null: false
     t.boolean  "triggers_enabled",          default: true,                 null: false
     t.datetime "last_trigger_mail_sent_at"
+    t.boolean  "accepted_subscription",     default: false,                null: false
   end
 
   add_index "shops_users", ["code"], name: "index_shops_users_on_code", unique: true, using: :btree

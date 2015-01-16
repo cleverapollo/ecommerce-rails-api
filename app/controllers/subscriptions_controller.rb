@@ -6,13 +6,16 @@ class SubscriptionsController < ApplicationController
   before_action :fetch_user, only: :create
 
   def create
-    # Broken
-    # begin
-    #   @subscription = @shop.subscriptions.find_or_initialize_by(user_id: @user.id)
-    #   @subscription.update!(subscription_params)
-    # rescue ActiveRecord::RecordNotUnique
-    #   retry
-    # end
+    shops_user = @shop.shops_users.find_or_create_by!(user_id: @user.id)
+
+    if email = IncomingDataTranslator.email(params[:email])
+      shops_user.email = email
+    end
+
+    shops_user.accepted_subscription = params[:declined] == false
+    shops_user.subscription_popup_showed = true
+    shops_user.save
+
     render json: {}
   end
 
