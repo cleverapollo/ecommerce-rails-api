@@ -21,8 +21,14 @@ class UserFetcher
     session = Session.find_by(code: session_code)
     raise SessionNotFoundError if session.blank?
 
+    shops_user = nil
     # Находим или создаем связку пользователя с магазином
-    shops_user = shop.shops_users.find_or_create_by!(user_id: session.user_id)
+    begin
+      shops_user = shop.shops_users.find_or_create_by!(user_id: session.user_id)
+    rescue ActiveRecord::RecordNotUnique
+      shops_user = shop.shops_users.find_by!(user_id: session.user_id)
+    end
+
     result = shops_user.user
 
     if email.present?

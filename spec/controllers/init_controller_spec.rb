@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 describe InitController do
+  describe 'GET generate_ssid' do
+    pending 'Untested'
+  end
+
   describe 'GET init_script' do
     let!(:shop) { create(:shop) }
     let!(:init_params) { { shop_id: shop.uniqid } }
