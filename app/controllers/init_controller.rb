@@ -3,7 +3,7 @@ class InitController < ApplicationController
 
   def generate_ssid
     if Shop.find_by(uniqid: params[:shop_id]).present?
-      render text: Session.fetch.uniqid
+      render text: Session.fetch.code
     else
       render nothing: true
     end

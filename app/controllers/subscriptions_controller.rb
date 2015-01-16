@@ -36,6 +36,6 @@ class SubscriptionsController < ApplicationController
   end
 
   def fetch_user
-    @user = Session.find_by!(uniqid: params[:ssid]).user
+    @user = Session.find_by!(code: params[:ssid]).user
   end
 end
