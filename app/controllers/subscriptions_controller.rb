@@ -12,7 +12,7 @@ class SubscriptionsController < ApplicationController
       shops_user.email = email
     end
 
-    shops_user.accepted_subscription = params[:declined] == false
+    shops_user.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
     shops_user.subscription_popup_showed = true
     shops_user.save
 
