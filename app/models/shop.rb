@@ -81,6 +81,6 @@ class Shop < ActiveRecord::Base
   end
 
   def subscriptions_enabled?
-    false
+    subscriptions_settings.present? && subscriptions_settings.enabled?
   end
 end
