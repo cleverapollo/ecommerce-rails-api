@@ -48,7 +48,7 @@ class InitController < ApplicationController
     s_u = shop.shops_users.find_or_create_by(user_id: session.user_id)
 
     result += "  subscriptions: {"
-    if shop.subscriptions_enabled?
+    if shop.subscriptions_enabled? && s_u.email.blank?
       result += "  settings: #{shop.subscriptions_settings.to_json}, "
       result += "  user: {"
       result += "    declined: #{s_u.subscription_popup_showed == true && accepted_subscription == false}"
