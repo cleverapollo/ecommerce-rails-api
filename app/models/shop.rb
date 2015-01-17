@@ -77,7 +77,7 @@ class Shop < ActiveRecord::Base
   end
 
   def show_promotion?
-    self.manual == false && (self.paid == false || self.plan.try(:free?))
+    self.manual == false && self.plan_id.present? && (self.paid == false || self.plan.try(:free?))
   end
 
   def subscriptions_enabled?
