@@ -8,6 +8,23 @@ class ShopsUser < ActiveRecord::Base
 
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
+  scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
+
+  def digest_unsubscribe_url
+    Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)
+  end
+
+  def trigger_unsubscribe_url
+    Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46.host)
+  end
+
+  def unsubscribe_from_triggers!
+    update_columns(triggers_enabled: false)
+  end
+
+  def unsubscribe_from_digests!
+    update_columns(digests_enabled: false)
+  end
 
   protected
     def assign_ab_testing_group

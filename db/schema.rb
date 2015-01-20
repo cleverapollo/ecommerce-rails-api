@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150116122519) do
+ActiveRecord::Schema.define(version: 20150120083452) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,7 +193,6 @@ ActiveRecord::Schema.define(version: 20150116122519) do
 
   create_table "digest_mails", force: true do |t|
     t.integer  "shop_id",                                                null: false
-    t.integer  "audience_id",                                            null: false
     t.integer  "digest_mailing_id",                                      null: false
     t.integer  "digest_mailing_batch_id",                                null: false
     t.uuid     "code",                    default: "uuid_generate_v4()"
@@ -201,9 +200,11 @@ ActiveRecord::Schema.define(version: 20150116122519) do
     t.boolean  "opened",                  default: false,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "shops_user_id",                                          null: false
   end
 
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
+  add_index "digest_mails", ["shops_user_id"], name: "index_digest_mails_on_shops_user_id", using: :btree
 
   create_table "events", force: true do |t|
     t.integer  "shop_id",         null: false
@@ -514,6 +515,7 @@ ActiveRecord::Schema.define(version: 20150116122519) do
     t.boolean  "has_orders_last_week",         default: false, null: false
     t.boolean  "strict_recommendations",       default: false, null: false
     t.decimal  "recommended_items_view_rate",  default: 0.0,   null: false
+    t.boolean  "export_to_ct",                 default: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -540,6 +542,7 @@ ActiveRecord::Schema.define(version: 20150116122519) do
   add_index "shops_users", ["code"], name: "index_shops_users_on_code", unique: true, using: :btree
   add_index "shops_users", ["shop_id", "external_id"], name: "index_shops_users_on_shop_id_and_external_id", unique: true, using: :btree
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
+  add_index "shops_users", ["shop_id"], name: "index_shops_users_on_shop_id", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "shops_users", ["user_id"], name: "index_shops_users_on_user_id", using: :btree
 
   create_table "styles", force: true do |t|

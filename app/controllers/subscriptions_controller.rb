@@ -20,13 +20,27 @@ class SubscriptionsController < ApplicationController
   end
 
   def unsubscribe
-    # Broken
+    if entity = ShopsUser.find_by(code: params[:code])
+      if params[:type] == 'digest'
+        entity.unsubscribe_from_digests!
+      elsif params[:type] == 'trigger'
+        entity.unsubscribe_from_triggers!
+      end
+    end
 
     render text: 'Вы успешно отписаны от рассылок.'
   end
 
   def track
-    # Broken
+    if params[:code] != 'test'
+      entity = if params[:type] == 'digest'
+        DigestMail.find_by(code: params[:code])
+      elsif params[:type] = 'trigger'
+        TriggerMail.find_by(code: params[:code])
+      end
+
+      entity.mark_as_opened! if entity.present?
+    end
 
     data = open("#{Rails.root}/app/assets/images/pixel.png").read
     send_data data, type: 'image/png', disposition: 'inline'

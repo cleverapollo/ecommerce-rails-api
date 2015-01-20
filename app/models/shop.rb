@@ -15,12 +15,12 @@ class Shop < ActiveRecord::Base
   has_many :orders
   has_many :subscriptions
   has_many :digest_mailings
-  has_many :audiences
   has_many :beacon_messages
   has_one :insales_shop
   has_one :trigger_mailing
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
+  has_one :mailings_settings
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
 
@@ -82,5 +82,9 @@ class Shop < ActiveRecord::Base
 
   def subscriptions_enabled?
     subscriptions_settings.present? && subscriptions_settings.enabled?
+  end
+
+  def domain
+    url.split('://').last.split('www.').last.split('/').first
   end
 end

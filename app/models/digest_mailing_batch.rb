@@ -3,7 +3,7 @@
 #
 class DigestMailingBatch < ActiveRecord::Base
   include Redis::Objects
-  value :current_processed_audience_id
+  value :current_processed_shops_user_id
 
   belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'
   has_many :digest_mails

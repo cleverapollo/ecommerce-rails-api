@@ -5,7 +5,7 @@ class DigestMailingBatchWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'mailing'
 
-  attr_accessor :mailing, :current_audience, :current_digest_mail
+  attr_accessor :mailing, :current_shops_user, :current_digest_mail
 
   # Запустить рассылку пачки.
   #
@@ -14,9 +14,9 @@ class DigestMailingBatchWorker
     @batch = DigestMailingBatch.find(id)
     @mailing = @batch.mailing
     @shop = @mailing.shop
-    @settings = @shop.digest_mailing_setting
+    @settings = @shop.mailings_settings
 
-    unless @settings.on?
+    unless @settings.enabled?
       raise DigestMailing::DisabledError, "Рассылки отключены для магазина #{@shop.id}"
     end
 
@@ -31,32 +31,29 @@ class DigestMailingBatchWorker
       if @batch.test_mode?
         # Тестовый режим: генерируем тестовое письмо для пустого пользователя и отправляем его на тестовый адрес.
         recommendations = calculator.recommendations_for(nil)
-        send_mail(@batch.test_email, recommendations, {})
+        send_mail(@batch.test_email, recommendations)
 
         # Отмечаем пачку как завершенную.
         @batch.complete!
       else
         # Полноценный режим.
-        if @batch.current_processed_audience_id.nil?
-          @batch.current_processed_audience_id = @batch.start_id
+        if @batch.current_processed_shops_user_id.nil?
+          @batch.current_processed_shops_user_id = @batch.start_id
         end
 
         # Проходим по всей доступной аудитории
-        @shop.audiences.active.includes(:user)
-             .where(id: @batch.current_processed_audience_id.value.to_i..@batch.end_id).each do |audience|
+        @shop.shops_users.suitable_for_digest_mailings.includes(:user)
+             .where(id: @batch.current_processed_shops_user_id.value.to_i..@batch.end_id).each do |shops_user|
           # Каждый раз запоминаем текущий обрабатываемый ID
-          @current_audience = audience
-          @batch.current_processed_audience_id = @current_audience.id
+          @current_shops_user = shops_user
+          @batch.current_processed_shops_user_id = @current_shops_user.id
 
-          @current_digest_mail = @batch.digest_mails.create!(shop: @shop, audience: @current_audience, mailing: @mailing).reload
+          @current_digest_mail = @batch.digest_mails.create!(shop: @shop, shops_user: @current_shops_user, mailing: @mailing).reload
 
-          # Каждый раз пытаемся прикрепить "аудиторию" к пользователю нашей системы
-          @current_audience.try_to_attach_to_user!
+          if IncomingDataTranslator.email_valid?(@current_shops_user.email)
+            recommendations = calculator.recommendations_for(@current_shops_user.user)
 
-          if IncomingDataTranslator.email_valid?(@current_audience.email)
-            recommendations = calculator.recommendations_for(@current_audience.user)
-
-            send_mail(@current_audience.email, recommendations, @current_audience.custom_attributes)
+            send_mail(@current_shops_user.email, recommendations)
           end
           @mailing.sent_mails_count.increment
         end
@@ -78,36 +75,20 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
-  def send_mail(email, recommendations, custom_attributes = {})
+  def send_mail(email, recommendations)
     mail = Mailer.digest(
       email: email,
       subject: @mailing.subject,
-      send_from: @settings.sender,
-      body: letter_body(recommendations, custom_attributes)
+      send_from: @settings.send_from,
+      body: letter_body(recommendations, email)
     )
 
-    if @shop.id == 374
-      pk = '-----BEGIN RSA PRIVATE KEY-----
-MIICXgIBAAKBgQDLXfsqNbqJ5IuGh5sBKIHzG/1A33Z+7TfregL6DrrWJ3widGWd
-WjxBEblZObQMDMSPzoaqSHz4Xn16Wo6SpOgAJRGqlqNM/Y4Hszgt1temZNIE7JZm
-2XiAKaDrZyQJA/7h5P4pyNtsMJGjBNv5FPS6Zs+xjtIm1rswk5Mv081uuQIDAQAB
-AoGBAJMqxZF8JCuZiiamh1NFPxTw0kpZ6+RaQjdTqkfO1QIYvMoqNUazgBsOenTJ
-PzPhIXV33RfpMRaDOoaKddZFI+V8kgdLO8tNag5qd213TvIVq+Ij21VBBrem0Af+
-8oX+JfFq7Xw/C7VwXtW3TTuHiMVOC0ZKRlwrHoiUeWIYdKoBAkEA6my8zB1ShQbC
-acfM9InSZTNIaMGp6LJQ0VgRth/z63CoeEKf8U/hpNAJGbqw6aoA18g4Wc5zVAUH
-flr0MUNh4QJBAN4Vfz8XFNad8VNL3hbdyv3UAPNi8dZ8k2RKinpHUvwDDDJSliKv
-EUQPYl+fO0vh+A/RzlAC21QEHkrf8/DsV9kCQGkEQ2OxMxly2L8oibF22HELk0GS
-mHos/7V4nZ6YG956Po55Ukt5PJ1nsNv83WogBXalNFFPAi0+f4fkWQaEqCECQQDC
-aldGx9H6P7IvlU8K/YbixmE+r/O+LLhrJ8YqXZ4L+C8JLrs4CcI3rrATvbWPLHaY
-grb13EpdNm2+ZmeLFZuhAkEAqhEk+hd8hbaz+pNqPd6Ya39LOOv92h0qmecXAMGz
-N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
------END RSA PRIVATE KEY-----'
-      pk = OpenSSL::PKey::RSA.new(pk)
-
-      sm = Dkim::SignedMail.new(mail, domain: 'tanita-romario.com.ua', selector: 'rees46', private_key: pk)
-
-      mail.header['DKIM-Signature'] = sm.dkim_header.value
-    end
+    private_key = OpenSSL::PKey::RSA.new(@settings.dkim_private_key)
+    signed_mail = Dkim::SignedMail.new(mail,
+      domain: @shop.domain,
+      selector: 'rees46',
+      private_key: private_key)
+    mail.header['DKIM-Signature'] = signed_mail.dkim_header.value
 
     mail.deliver
   end
@@ -116,7 +97,7 @@ N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
   #
   # @param items [Array] массив товаров.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
-  def letter_body(items, custom_attributes = {})
+  def letter_body(items, email)
     result = @mailing.template.dup
 
     # Вставляем в письмо товары
@@ -131,16 +112,12 @@ N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
       result['{{ recommended_item }}'] = item_template
     end
 
-    if custom_attributes.present? && custom_attributes.any?
-      # Вставляем в письмо кастомные аттрибуты пользователя.
-      custom_attributes.each do |key, value|
-        result.gsub!("{{ user.#{key} }}", value)
-      end
-    end
-
-    # Вставляем в письмо ссылку на отписку
-    unsubscribe_url = @current_audience.present? ? @current_audience.unsubscribe_url : Audience.new.unsubscribe_url
-    result.gsub!("{{ unsubscribe_url }}", unsubscribe_url)
+    # if custom_attributes.present? && custom_attributes.any?
+    #   # Вставляем в письмо кастомные аттрибуты пользователя.
+    #   custom_attributes.each do |key, value|
+    #     result.gsub!("{{ user.#{key} }}", value)
+    #   end
+    # end
 
     # Убираем лишнее.
     result.gsub!(/\{\{ user.\w+ }}/, '')
@@ -151,20 +128,9 @@ N9f6hdTsGa1rr/LYredvxYYnwKwqnSD9Bs2lLNubMRIntA==
     result.gsub!('{{ utm_params }}', utm)
 
     # Добавляем футер
-    result += footer
+    result['{{ footer }}'] = Mailings::Composer.footer(@current_digest_mail, @current_shops_user, email)
 
     result
-  end
-
-
-  # Сформировать футер письма, содержащий ссылку на отписку и трекинг-пиксель.
-  #
-  # @return [String] футер письма.
-  def footer
-    tracking_url = @current_digest_mail.present? ? @current_digest_mail.tracking_url : DigestMail.new.tracking_url
-    <<-HTML
-      <img src="#{tracking_url}" />
-    HTML
   end
 
   # Обертка над товаром для отображения в письме.

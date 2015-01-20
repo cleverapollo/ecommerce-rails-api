@@ -4,33 +4,41 @@ class MahoutService
   attr_reader :tunnel
 
   def open
-    begin
-      Timeout::timeout(2) {
-        @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
-      }
-    rescue Timeout::Error => e
-      retry
-    rescue RuntimeError => e1
-      retry
+    unless Rails.env.test?
+      begin
+        Timeout::timeout(2) {
+          @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
+        }
+      rescue Timeout::Error => e
+        retry
+      rescue RuntimeError => e1
+        retry
+      end
     end
   end
 
   def close
-    EM.stop if EM.reactor_running?
+    unless Rails.env.test?
+      EM.stop if EM.reactor_running?
+    end
   end
 
   def user_based(user_id, shop_id, item_id, options)
-    preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch
-    options.merge!(preferences: preferences)
-    res = nil
-    if preferences.any? && tunnel_active?
-      res = tunnel.user_based_block(shop_id, options)
-    elsif preferences.none?
-      res = []
+    unless Rails.env.test?
+      preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch
+      options.merge!(preferences: preferences)
+      res = nil
+      if preferences.any? && tunnel_active?
+        res = tunnel.user_based_block(shop_id, options)
+      elsif preferences.none?
+        res = []
+      else
+        res = []
+      end
+      return res
     else
-      res = []
+      []
     end
-    return res
   end
 
   def item_based_weight(user_id, options)
@@ -46,11 +54,15 @@ class MahoutService
   end
 
   def tunnel_active?
-    if tunnel && tunnel.active?
-      return true
+    unless Rails.env.test?
+      if tunnel && tunnel.active?
+        return true
+      else
+        open
+        return tunnel && tunnel.active?
+      end
     else
-      open
-      return tunnel && tunnel.active?
+      true
     end
   end
 end

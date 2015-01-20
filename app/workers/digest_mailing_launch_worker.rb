@@ -32,13 +32,13 @@ class DigestMailingLaunchWorker
 
       if digest_mailing.batches.incomplete.none?
         # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
-        shop.audiences.active.each_batch_with_start_end_id(100) do |start_id, end_id|
+        shop.shops_users.suitable_for_digest_mailings.each_batch_with_start_end_id(100) do |start_id, end_id|
           digest_mailing.batches.create!(start_id: start_id, end_id: end_id)
         end
       end
 
       # Запоминаем, сколько пользователей попало в рассылку
-      digest_mailing.update(total_mails_count: shop.audiences.active.count)
+      digest_mailing.update(total_mails_count: shop.shops_users.suitable_for_digest_mailings.count)
     end
 
     # Запускаем обработчики на все пачки

@@ -4,17 +4,37 @@ describe SubscriptionsController do
   let!(:shop) { create(:shop) }
 
   describe 'GET unsubscribe' do
-    pending "Broken"
+    let!(:shops_user) { create(:shops_user, shop: shop).reload }
+
+    context 'for trigger mailings' do
+      it 'sets shops_user triggers_enabled to false' do
+        expect(shops_user.triggers_enabled).to eq(true)
+        get :unsubscribe, type: 'trigger', code: shops_user.code
+        expect(shops_user.reload.triggers_enabled).to eq(false)
+      end
+    end
+
+    context 'for digest mailings' do
+      it 'sets shops_user digests_enabled to false' do
+        expect(shops_user.digests_enabled).to eq(true)
+        get :unsubscribe, type: 'digest', code: shops_user.code
+        expect(shops_user.reload.digests_enabled).to eq(false)
+      end
+    end
   end
 
   describe 'GET track' do
     context 'for digest mailings' do
       let!(:mailing) { create(:digest_mailing, shop: shop) }
       let!(:batch) { create(:digest_mailing_batch, mailing: mailing) }
-      let!(:audience) { create(:audience, shop: shop).reload }
-      let!(:digest_mail) { create(:digest_mail, audience: audience, shop: shop, mailing: mailing, batch: batch).reload }
+      let!(:shops_user) { create(:shops_user, shop: shop).reload }
+      let!(:digest_mail) { create(:digest_mail, shops_user: shops_user, shop: shop, mailing: mailing, batch: batch).reload }
 
-      pending "Broken"
+      it 'sets digest_mail opened to true' do
+        expect(digest_mail.opened).to eq(false)
+        get :track, type: 'digest', code: digest_mail.reload.code
+        expect(digest_mail.reload.opened).to eq(true)
+      end
     end
 
     context 'for trigger mailings' do
