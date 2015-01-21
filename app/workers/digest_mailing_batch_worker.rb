@@ -96,7 +96,7 @@ class DigestMailingBatchWorker
 
   def generate_return_path
     code = @current_digest_mail.try(:code) || 'test'
-    "anton.zhavoronkov+#{code}@mkechinov.ru"
+    "bounced+digest=#{code}@rees46.com"
   end
 
   # Сформировать тело письма.
