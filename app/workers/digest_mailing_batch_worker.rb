@@ -80,7 +80,8 @@ class DigestMailingBatchWorker
       email: email,
       subject: @mailing.subject,
       send_from: @settings.send_from,
-      body: letter_body(recommendations, email)
+      body: letter_body(recommendations, email),
+      return_path: generate_return_path
     )
 
     private_key = OpenSSL::PKey::RSA.new(@settings.dkim_private_key)
@@ -91,6 +92,11 @@ class DigestMailingBatchWorker
     mail.header['DKIM-Signature'] = signed_mail.dkim_header.value
 
     mail.deliver
+  end
+
+  def generate_return_path
+    code = @current_digest_mail.try(:code) || 'test'
+    "anton.zhavoronkov+#{code}@mkechinov.ru"
   end
 
   # Сформировать тело письма.
