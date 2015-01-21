@@ -31,6 +31,7 @@ Rees46Api::Application.routes.draw do
   resources :subscriptions, only: [:create] do
     collection do
       get :unsubscribe
+      get :bounce
     end
   end
 

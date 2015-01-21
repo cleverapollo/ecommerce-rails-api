@@ -3,6 +3,32 @@ require 'rails_helper'
 describe SubscriptionsController do
   let!(:shop) { create(:shop) }
 
+  describe 'GET bounce' do
+    let!(:shops_user) { create(:shops_user, shop: shop, email: 'test@example.com') }
+
+    context 'for digest mailings' do
+      let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
+      let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing)  }
+      let!(:digest_mail) { create(:digest_mail, shop: shop, shops_user: shops_user, batch: digest_mailing_batch, mailing: digest_mailing).reload }
+
+      it 'marks digest_mail as bounced' do
+        expect(digest_mail.bounced).to eq(false)
+        get :bounce, type: 'digest', code: digest_mail.code
+        expect(digest_mail.reload.bounced).to eq(true)
+      end
+
+      it 'cleans shops_user email' do
+        expect(shops_user.email).to be_present
+        get :bounce, type: 'digest', code: digest_mail.code
+        expect(shops_user.reload.email).to be_blank
+      end
+    end
+
+    context 'for trigger mailings' do
+      pending 'Not implemented'
+    end
+  end
+
   describe 'GET unsubscribe' do
     let!(:shops_user) { create(:shops_user, shop: shop).reload }
 

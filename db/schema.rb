@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150120083452) do
+ActiveRecord::Schema.define(version: 20150121123227) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -201,6 +201,7 @@ ActiveRecord::Schema.define(version: 20150120083452) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "shops_user_id",                                          null: false
+    t.boolean  "bounced",                 default: false,                null: false
   end
 
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
@@ -516,10 +517,12 @@ ActiveRecord::Schema.define(version: 20150120083452) do
     t.boolean  "strict_recommendations",       default: false, null: false
     t.decimal  "recommended_items_view_rate",  default: 0.0,   null: false
     t.boolean  "export_to_ct",                 default: false
+    t.integer  "manager_id"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
+  add_index "shops", ["manager_id"], name: "index_shops_on_manager_id", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
 
   create_table "shops_users", force: true do |t|

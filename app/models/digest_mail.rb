@@ -25,4 +25,8 @@ class DigestMail < ActiveRecord::Base
   def tracking_url
     Rails.application.routes.url_helpers.track_mail_url(code: self.code || 'test', type: 'digest', host: Rees46.host)
   end
+
+  def mark_as_bounced!
+    update_columns(bounced: true)
+  end
 end
