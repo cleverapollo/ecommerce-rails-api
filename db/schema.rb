@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150122091002) do
+ActiveRecord::Schema.define(version: 20150122121710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -548,6 +548,7 @@ ActiveRecord::Schema.define(version: 20150122091002) do
   add_index "shops_users", ["digests_enabled", "shop_id"], name: "index_shops_users_on_digests_enabled_and_shop_id", using: :btree
   add_index "shops_users", ["email"], name: "index_shops_users_on_email", using: :btree
   add_index "shops_users", ["shop_id", "external_id"], name: "index_shops_users_on_shop_id_and_external_id", unique: true, using: :btree
+  add_index "shops_users", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
   add_index "shops_users", ["shop_id"], name: "index_shops_users_on_shop_id", using: :btree
   add_index "shops_users", ["subscription_popup_showed", "shop_id"], name: "index_shops_users_on_subscription_popup_showed_and_shop_id", using: :btree
