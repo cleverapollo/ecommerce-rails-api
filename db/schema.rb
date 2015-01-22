@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150121123227) do
+ActiveRecord::Schema.define(version: 20150122091002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -149,6 +149,7 @@ ActiveRecord::Schema.define(version: 20150121123227) do
     t.string   "last_name"
     t.integer  "balance",                default: 0,    null: false
     t.string   "gift_link"
+    t.boolean  "real",                   default: true
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -542,10 +543,15 @@ ActiveRecord::Schema.define(version: 20150121123227) do
     t.boolean  "accepted_subscription",     default: false,                null: false
   end
 
+  add_index "shops_users", ["accepted_subscription", "shop_id"], name: "index_shops_users_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
   add_index "shops_users", ["code"], name: "index_shops_users_on_code", unique: true, using: :btree
+  add_index "shops_users", ["digests_enabled", "shop_id"], name: "index_shops_users_on_digests_enabled_and_shop_id", using: :btree
+  add_index "shops_users", ["email"], name: "index_shops_users_on_email", using: :btree
   add_index "shops_users", ["shop_id", "external_id"], name: "index_shops_users_on_shop_id_and_external_id", unique: true, using: :btree
   add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
-  add_index "shops_users", ["shop_id"], name: "index_shops_users_on_shop_id", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "shops_users", ["shop_id"], name: "index_shops_users_on_shop_id", using: :btree
+  add_index "shops_users", ["subscription_popup_showed", "shop_id"], name: "index_shops_users_on_subscription_popup_showed_and_shop_id", using: :btree
+  add_index "shops_users", ["triggers_enabled", "shop_id"], name: "index_shops_users_on_triggers_enabled_and_shop_id", using: :btree
   add_index "shops_users", ["user_id"], name: "index_shops_users_on_user_id", using: :btree
 
   create_table "styles", force: true do |t|
