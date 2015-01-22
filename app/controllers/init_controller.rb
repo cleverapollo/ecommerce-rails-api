@@ -45,7 +45,12 @@ class InitController < ApplicationController
     result += "  currency: '#{shop.currency}',"
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
-    s_u = shop.shops_users.find_or_create_by(user_id: session.user_id)
+    s_u = nil
+    begin
+      s_u = shop.shops_users.find_or_create_by(user_id: session.user_id)
+    rescue ActiveRecord::RecordNotUnique
+      s_u = shop.shops_users.find_by!(user_id: session.user_id)
+    end
 
     result += "  subscriptions: {"
     if shop.subscriptions_enabled? && s_u.email.blank?

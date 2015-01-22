@@ -45,7 +45,11 @@ class UserFetcher
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
-        shops_user.update(external_id: external_id)
+        begin
+          shops_user.update(external_id: external_id)
+        rescue ActiveRecord::RecordNotUnique
+
+        end
       end
     end
 

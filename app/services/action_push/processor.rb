@@ -38,10 +38,11 @@ module ActionPush
     end
 
     def fetch_action_for(item)
-      a = concrete_action_class.find_or_initialize_by user_id: params.user.id, shop_id: params.shop.id, item_id: item.id
-      a.assign_attributes \
-                          price: item.price,
-                          timestamp: (params.date || Date.current.to_time.to_i)
+      a = concrete_action_class.find_or_initialize_by(user_id: params.user.id,
+                                                      shop_id: params.shop.id,
+                                                      item_id: item.id)
+      a.assign_attributes(price: item.price,
+                          timestamp: (params.date || Date.current.to_time.to_i))
 
       a
     end
