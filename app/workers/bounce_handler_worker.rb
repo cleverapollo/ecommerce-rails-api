@@ -16,8 +16,6 @@ class BounceHandlerWorker
           message = email.message
           bounced_message = BounceEmail::Mail.new(email.message)
 
-          binding.pry
-
           if bounced_message.is_bounce? && bounced_message.type == 'Permanent Failure'
             # Адрес получателя
             to = message.to.first
