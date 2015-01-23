@@ -12,3 +12,7 @@ end
 every '0 4 * * *' do
   runner 'CartsExpirer.perform!'
 end
+
+every 30.minutes do
+  runner 'BounceHandlerWorker.perform'
+end
