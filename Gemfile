@@ -35,6 +35,8 @@ gem 'whenever', '~> 0.9.2', require: false
 
 # Mailing
 gem 'dkim', '~> 1.0.0'
+gem 'gmail', github: 'gmailgem/gmail', require: false
+gem 'bounce_email', '~> 0.2.2', require: false
 
 # Development tools
 group :development do

@@ -28,5 +28,7 @@ class DigestMail < ActiveRecord::Base
 
   def mark_as_bounced!
     update_columns(bounced: true)
+
+    self.shops_user.try(:purge_email!)
   end
 end

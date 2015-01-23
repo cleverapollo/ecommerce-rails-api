@@ -46,18 +46,6 @@ class SubscriptionsController < ApplicationController
     send_data data, type: 'image/png', disposition: 'inline'
   end
 
-  def bounce
-    if params[:type] == 'digest'
-      if digest_mail = DigestMail.find_by(code: params[:code])
-        digest_mail.mark_as_bounced!
-
-        if digest_mail.shops_user.present? && digest_mail.shops_user.email.present?
-          ShopsUser.where(email: digest_mail.shops_user.email).update_all(email: nil)
-        end
-      end
-    end
-  end
-
   protected
 
   def fetch_shop

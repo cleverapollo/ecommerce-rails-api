@@ -25,4 +25,10 @@ class TriggerMail < ActiveRecord::Base
   def tracking_url
     Rails.application.routes.url_helpers.track_mail_url(code: self.code, type: 'trigger', host: Rees46.host)
   end
+
+  def mark_as_bounced!
+    update_columns(bounced: true)
+
+    self.shops_user.try(:purge_email!)
+  end
 end

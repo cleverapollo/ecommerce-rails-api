@@ -26,6 +26,12 @@ class ShopsUser < ActiveRecord::Base
     update_columns(digests_enabled: false)
   end
 
+  def purge_email!
+    if self.email.present?
+      ShopsUser.where(email: self.email).update_all(email: nil)
+    end
+  end
+
   protected
     def assign_ab_testing_group
       return if self.ab_testing_group.present?

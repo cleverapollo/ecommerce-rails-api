@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/gmailgem/gmail.git
+  revision: 0975052b3bf57833c68de7efea340a015adb38c5
+  specs:
+    gmail (0.4.2)
+      gmail_xoauth (>= 0.3.0)
+      mail (>= 2.2.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -33,6 +41,8 @@ GEM
       erubis (>= 2.6.6)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
+    bounce_email (0.2.2)
+      mail
     brb (0.3.1)
       eventmachine (> 0.12)
     builder (3.1.4)
@@ -80,6 +90,8 @@ GEM
       dotenv (>= 0.7)
       thor (>= 0.13.6)
     formatador (0.2.5)
+    gmail_xoauth (0.4.1)
+      oauth (>= 0.3.6)
     grit (2.5.0)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
@@ -143,6 +155,7 @@ GEM
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
     newrelic_rpm (3.7.3.204)
+    oauth (0.4.7)
     pg (0.17.1)
     polyamorous (0.6.4)
       activerecord (>= 3.0)
@@ -280,6 +293,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors (~> 1.0.1)
   binding_of_caller (~> 0.7.2)
+  bounce_email (~> 0.2.2)
   brb (~> 0.3.1)
   capistrano (~> 2.15.5)
   capistrano-sidekiq (~> 0.1.1)
@@ -289,6 +303,7 @@ DEPENDENCIES
   factory_girl_rails (~> 4.5.0)
   ffaker (~> 1.25.0)
   foreman (~> 0.63.0)
+  gmail!
   guard-rspec (~> 4.5.0)
   httparty (~> 0.12.0)
   jazz_hands (~> 0.5.2)
