@@ -159,8 +159,8 @@ class YmlWorker
       end
 
       @parsed_yml
-    rescue MultiXml::ParseError
-      raise YmlWorker::Error.new("Невалидный XML.")
+    rescue MultiXml::ParseError => e
+      raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
   rescue Net::ReadTimeout
     raise YmlWorker::Error.new("Тайм-аут запроса.")
