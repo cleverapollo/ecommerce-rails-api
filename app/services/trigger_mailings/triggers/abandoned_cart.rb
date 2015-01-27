@@ -3,13 +3,18 @@ module TriggerMailings
     ##
     # Базовый класс для триггеров "брошенная корзина"
     #
-    class AbandonedCartBase < Base
-      # Период времени, за который нужно обнаружить брошенную корзину. Должен быть реализован в дочернем классе.
-      #
-      # @return [Range] период времени
-      # @raise [NotImplementerError] ошибка, если метод не реализован в дочернем классе
+    class AbandonedCart < Base
+      # Отправляем, если товар был положен в корзину больше часа, но меньше двух назад.
       def trigger_time_range
-        raise NotImplementedError
+        (120.minutes.ago..60.minutes.ago)
+      end
+
+      def priority
+        11
+      end
+
+      def appropriate_time_to_send?
+        true
       end
 
       def condition_happened?

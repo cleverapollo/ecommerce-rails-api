@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150122121710) do
+ActiveRecord::Schema.define(version: 20150127120750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -291,15 +291,19 @@ ActiveRecord::Schema.define(version: 20150122121710) do
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "mailings_settings", force: true do |t|
-    t.integer  "shop_id",                          null: false
-    t.string   "send_from",                        null: false
+    t.integer  "shop_id",                           null: false
+    t.string   "send_from",                         null: false
     t.text     "logo_url"
-    t.text     "dkim_public_key",                  null: false
-    t.text     "dkim_private_key",                 null: false
-    t.boolean  "spf_valid",        default: false, null: false
-    t.boolean  "dkim_valid",       default: false, null: false
+    t.text     "dkim_public_key",                   null: false
+    t.text     "dkim_private_key",                  null: false
+    t.boolean  "spf_valid",         default: false, null: false
+    t.boolean  "dkim_valid",        default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "logo_file_name"
+    t.string   "logo_content_type"
+    t.integer  "logo_file_size"
+    t.datetime "logo_updated_at"
   end
 
   create_table "order_items", force: true do |t|
@@ -604,30 +608,33 @@ ActiveRecord::Schema.define(version: 20150122121710) do
   end
 
   create_table "trigger_mailings", force: true do |t|
-    t.integer  "shop_id",                               null: false
-    t.boolean  "enabled",               default: false, null: false
+    t.integer  "shop_id",                       null: false
+    t.string   "trigger_type",                  null: false
+    t.string   "subject",                       null: false
+    t.text     "template",                      null: false
+    t.text     "item_template",                 null: false
+    t.boolean  "enabled",       default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "subscription_settings"
-    t.text     "trigger_settings"
-    t.text     "mailing_settings"
   end
 
-  add_index "trigger_mailings", ["shop_id"], name: "index_trigger_mailings_on_shop_id", using: :btree
+  add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree
 
   create_table "trigger_mails", force: true do |t|
-    t.integer  "shop_id",                                        null: false
-    t.integer  "subscription_id",                                null: false
-    t.string   "trigger_code",                                   null: false
-    t.text     "trigger_data",                                   null: false
-    t.uuid     "code",            default: "uuid_generate_v4()"
-    t.boolean  "clicked",         default: false,                null: false
+    t.integer  "shop_id",                                           null: false
+    t.text     "trigger_data",                                      null: false
+    t.uuid     "code",               default: "uuid_generate_v4()"
+    t.boolean  "clicked",            default: false,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "opened",          default: false,                null: false
+    t.boolean  "opened",             default: false,                null: false
+    t.integer  "trigger_mailing_id",                                null: false
+    t.boolean  "bounced",            default: false,                null: false
+    t.integer  "shops_user_id",                                     null: false
   end
 
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
+  add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false

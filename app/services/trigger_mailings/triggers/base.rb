@@ -14,30 +14,41 @@ module TriggerMailings
         end
       end
 
+      def mailing
+        @mailing ||= shop.trigger_mailings.enabled.where(trigger_type: code.underscore).first!
+      end
+
+      def settings
+        if @settings.blank?
+          @settings = {
+            send_from: shop.mailings_settings.send_from,
+            subject: mailing.subject,
+            template: mailing.template,
+            item_template: mailing.item_template,
+          }
+        end
+
+        @settings
+      end
+
       # Код триггера
       # @return [String] код триггера
       def code
         self.class.code
       end
 
+
       # Конструктор
-      # @param user [User] пользователь
-      # @param shop [Shop] магазин
-      def initialize(user, shop)
-        @user = user
-        @shop = shop
+      # @param shops_user [ShopsUser] пользователь магазина
+      def initialize(shops_user)
+        @user = shops_user.user
+        @shop = shops_user.shop
       end
 
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
       # @return [Boolean] выполнен ли триггер
       def triggered?
-        enabled? && appropriate_time_to_send? && condition_happened?
-      end
-
-      # Включен ли триггер в настройках триггерных рассылок
-      # @return [Boolean] включен ли триггер
-      def enabled?
-        @shop.trigger_mailing.trigger_settings[code]['enabled']
+        appropriate_time_to_send? && condition_happened?
       end
 
       # Выполнено ли фактическое условие триггера - например, есть ли товар брошенной корзины.

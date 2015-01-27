@@ -38,10 +38,15 @@ describe SubscriptionsController do
     end
 
     context 'for trigger mailings' do
-      let!(:subscription) { create(:subscription, shop: shop).reload }
-      let!(:trigger_mail) { create(:trigger_mail, shop: shop, subscription: subscription).reload }
+      let!(:shops_user) { create(:shops_user, shop: shop).reload }
+      let!(:trigger_mailing) { create(:trigger_mailing, shop: shop) }
+      let!(:trigger_mail) { create(:trigger_mail, shop: shop, shops_user: shops_user, trigger_mailing: trigger_mailing).reload }
 
-      pending "Broken"
+      it 'sets trigger_mail opened to true' do
+        expect(trigger_mail.opened).to eq(false)
+        get :track, type: 'trigger', code: trigger_mail.reload.code
+        expect(trigger_mail.reload.opened).to eq(true)
+      end
     end
 
     it 'responds with pixel' do

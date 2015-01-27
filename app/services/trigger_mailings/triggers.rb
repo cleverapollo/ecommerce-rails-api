@@ -1,5 +1,5 @@
 module TriggerMailings
   module Triggers
-    NAMES = %w(AbandonedCartEarly AbandonedCartLate RecentlyPurchased SlippingAway ViewedButNotBought)
+    NAMES = %w(AbandonedCart RecentlyPurchased ViewedButNotBought)
   end
 end

@@ -76,27 +76,12 @@ class DigestMailingBatchWorker
   # @param recommendations [Array] массив рекомендаций.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
   def send_mail(email, recommendations)
-    mail = Mailer.digest(
-      email: email,
-      subject: @mailing.subject,
-      send_from: @settings.send_from,
-      body: letter_body(recommendations, email),
-      return_path: generate_return_path
-    )
-
-    private_key = OpenSSL::PKey::RSA.new(@settings.dkim_private_key)
-    signed_mail = Dkim::SignedMail.new(mail,
-      domain: @shop.domain,
-      selector: 'rees46',
-      private_key: private_key)
-    mail.header['DKIM-Signature'] = signed_mail.dkim_header.value
-
-    mail.deliver
-  end
-
-  def generate_return_path
-    code = @current_digest_mail.try(:code) || 'test'
-    "bounced+digest=#{code}@rees46.com"
+    Mailings::SignedEmail.deliver(@shop, to: email,
+                                     subject: @mailing.subject,
+                                     from: @settings.send_from,
+                                     body: letter_body(recommendations, email),
+                                     type: 'digest',
+                                     code: @current_digest_mail.try(:code))
   end
 
   # Сформировать тело письма.
@@ -134,7 +119,10 @@ class DigestMailingBatchWorker
     result.gsub!('{{ utm_params }}', utm)
 
     # Добавляем футер
-    result['{{ footer }}'] = Mailings::Composer.footer(@current_digest_mail, @current_shops_user, email)
+    footer = Mailings::Composer.footer(email: @current_shops_user.try(:email) || email,
+                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new.tracking_url,
+                                       unsubscribe_url: @current_shops_user.try(:digest_unsubscribe_url) || ShopsUser.new.digest_unsubscribe_url)
+    result['{{ footer }}'] = footer
 
     result
   end

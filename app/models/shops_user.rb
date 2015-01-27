@@ -1,6 +1,7 @@
 class ShopsUser < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user
+  has_many :trigger_mails
 
   before_create :assign_ab_testing_group
 
@@ -9,6 +10,7 @@ class ShopsUser < ActiveRecord::Base
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
+  scope :suitable_for_trigger_mailings, -> { with_email.where(triggers_enabled: true) }
 
   def digest_unsubscribe_url
     Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)

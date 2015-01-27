@@ -16,13 +16,14 @@ class Shop < ActiveRecord::Base
   has_many :subscriptions
   has_many :digest_mailings
   has_many :beacon_messages
+  has_many :trigger_mailings
   has_one :insales_shop
-  has_one :trigger_mailing
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
   has_one :mailings_settings
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
+  scope :with_enabled_triggers, -> { joins(:trigger_mailings).where('trigger_mailings.enabled = true').uniq }
 
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?

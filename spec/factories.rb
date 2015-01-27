@@ -104,6 +104,19 @@ FactoryGirl.define do
   factory :digest_mail do
   end
 
+  factory :trigger_mailing do
+    trigger_type 'abandoned_cart'
+    subject 'test'
+    template 'Test {{ recommended_item }} {{ footer }}'
+    item_template '{{ name }}{{ url }}'
+  end
+
+  factory :trigger_mail do
+    trigger_data do
+      { test: 123 }
+    end
+  end
+
   factory :shops_user do
     user
   end

@@ -3,11 +3,12 @@
 #
 class TriggerMail < ActiveRecord::Base
   belongs_to :shop
-  belongs_to :subscription
+  belongs_to :shops_user
+  belongs_to :trigger_mailing
 
   validates :shop, presence: true
-  validates :subscription, presence: true
-  validates :trigger_code, presence: true, inclusion: { in: TriggerMailings::Triggers::NAMES }
+  validates :shops_user, presence: true
+  validates :trigger_mailing, presence: true
   validates :trigger_data, presence: true
 
   store :trigger_data, coder: JSON
