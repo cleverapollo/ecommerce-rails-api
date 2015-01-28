@@ -48,7 +48,7 @@ module TriggerMailings
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
       # @return [Boolean] выполнен ли триггер
       def triggered?
-        appropriate_time_to_send? && condition_happened?
+        appropriate_time_to_send? && user.present? && condition_happened?
       end
 
       # Выполнено ли фактическое условие триггера - например, есть ли товар брошенной корзины.
