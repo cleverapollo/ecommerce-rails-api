@@ -1,7 +1,12 @@
-class ShopsUser < ActiveRecord::Base
+##
+# Связка пользователя (User) с магазином (Shop).
+# В некоторых случаях объект User может отсутствовать.
+#
+class Client < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user
   has_many :trigger_mails
+  has_many :digest_mails
 
   before_create :assign_ab_testing_group
 
@@ -11,6 +16,27 @@ class ShopsUser < ActiveRecord::Base
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :suitable_for_trigger_mailings, -> { with_email.where(triggers_enabled: true) }
+
+  class << self
+    def relink_user(options = {})
+      master = options.fetch(:to)
+      slave = options.fetch(:from)
+
+      where(user_id: slave.id).find_each do |slave_client|
+        if master_client = find_by(shop_id: slave_client.shop_id, user_id: master.id)
+          master_client.email = master_client.email || slave_client.email
+          master_client.save if master_client.email_changed?
+
+          slave_client.digest_mails.update_all(client_id: master_client.id)
+          slave_client.trigger_mails.update_all(client_id: master_client.id)
+
+          slave_client.delete
+        else
+          slave_client.update_columns(user_id: master.id)
+        end
+      end
+    end
+  end
 
   def digest_unsubscribe_url
     Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)
@@ -30,7 +56,7 @@ class ShopsUser < ActiveRecord::Base
 
   def purge_email!
     if self.email.present?
-      ShopsUser.where(email: self.email).update_all(email: nil)
+      Client.where(email: self.email).update_all(email: nil)
     end
   end
 

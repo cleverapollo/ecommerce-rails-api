@@ -1,4 +1,6 @@
 class Interaction < ActiveRecord::Base
+  include UserLinkable
+
   CODES = {
                 'view' => 1,
                 'cart' => 2,

@@ -5,7 +5,7 @@ class DigestMailingBatchWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'mailing'
 
-  attr_accessor :mailing, :current_shops_user, :current_digest_mail
+  attr_accessor :mailing, :current_client, :current_digest_mail
 
   # Запустить рассылку пачки.
   #
@@ -37,23 +37,23 @@ class DigestMailingBatchWorker
         @batch.complete!
       else
         # Полноценный режим.
-        if @batch.current_processed_shops_user_id.nil?
-          @batch.current_processed_shops_user_id = @batch.start_id
+        if @batch.current_processed_client_id.nil?
+          @batch.current_processed_client_id = @batch.start_id
         end
 
         # Проходим по всей доступной аудитории
-        @shop.shops_users.suitable_for_digest_mailings.includes(:user)
-             .where(id: @batch.current_processed_shops_user_id.value.to_i..@batch.end_id).each do |shops_user|
+        @shop.clients.suitable_for_digest_mailings.includes(:user)
+             .where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).each do |client|
           # Каждый раз запоминаем текущий обрабатываемый ID
-          @current_shops_user = shops_user
-          @batch.current_processed_shops_user_id = @current_shops_user.id
+          @current_client = client
+          @batch.current_processed_client_id = @current_client.id
 
-          @current_digest_mail = @batch.digest_mails.create!(shop: @shop, shops_user: @current_shops_user, mailing: @mailing).reload
+          @current_digest_mail = @batch.digest_mails.create!(shop: @shop, client: @current_client, mailing: @mailing).reload
 
-          if IncomingDataTranslator.email_valid?(@current_shops_user.email)
-            recommendations = calculator.recommendations_for(@current_shops_user.user)
+          if IncomingDataTranslator.email_valid?(@current_client.email)
+            recommendations = calculator.recommendations_for(@current_client.user)
 
-            send_mail(@current_shops_user.email, recommendations)
+            send_mail(@current_client.email, recommendations)
           end
           @mailing.sent_mails_count.increment
         end
@@ -119,9 +119,9 @@ class DigestMailingBatchWorker
     result.gsub!('{{ utm_params }}', utm)
 
     # Добавляем футер
-    footer = Mailings::Composer.footer(email: @current_shops_user.try(:email) || email,
+    footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
                                        tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new.tracking_url,
-                                       unsubscribe_url: @current_shops_user.try(:digest_unsubscribe_url) || ShopsUser.new.digest_unsubscribe_url)
+                                       unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new.digest_unsubscribe_url)
     result['{{ footer }}'] = footer
 
     result

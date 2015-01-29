@@ -1,7 +1,8 @@
 class Order < ActiveRecord::Base
+  include UserLinkable
+
   has_many :order_items, dependent: :destroy
   belongs_to :shop
-  belongs_to :user
 
   class << self
     def persist(shop, user, uniqid, items)
@@ -20,7 +21,7 @@ class Order < ActiveRecord::Base
                              recommended_value: values[:recommended_value],
                              value: values[:value],
                              recommended: (values[:recommended_value] > 0),
-                             ab_testing_group: ShopsUser.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
+                             ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
 
         items.each do |item|
           OrderItem.persist(order, item, item.amount)

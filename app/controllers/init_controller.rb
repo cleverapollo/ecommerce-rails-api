@@ -47,9 +47,9 @@ class InitController < ApplicationController
 
     s_u = nil
     begin
-      s_u = shop.shops_users.find_or_create_by(user_id: session.user_id)
+      s_u = shop.clients.find_or_create_by(user_id: session.user_id)
     rescue ActiveRecord::RecordNotUnique
-      s_u = shop.shops_users.find_by!(user_id: session.user_id)
+      s_u = shop.clients.find_by!(user_id: session.user_id)
     end
 
     result += "  subscriptions: {"

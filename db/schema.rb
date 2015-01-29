@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150127120750) do
+ActiveRecord::Schema.define(version: 20150129092020) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,14 +48,6 @@ ActiveRecord::Schema.define(version: 20150127120750) do
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
-
-  create_table "actions_bool", id: false, force: true do |t|
-    t.integer "id",                  null: false
-    t.integer "user_id",   limit: 8
-    t.integer "item_id",   limit: 8
-    t.integer "shop_id",   limit: 8
-    t.integer "timestamp"
-  end
 
   create_table "active_admin_comments", force: true do |t|
     t.string   "namespace"
@@ -115,6 +107,35 @@ ActiveRecord::Schema.define(version: 20150127120750) do
   end
 
   add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
+
+  create_table "clients", force: true do |t|
+    t.integer  "shop_id",                                                  null: false
+    t.integer  "user_id",                                                  null: false
+    t.boolean  "bought_something",          default: false,                null: false
+    t.integer  "ab_testing_group"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "external_id"
+    t.string   "email"
+    t.boolean  "digests_enabled",           default: true,                 null: false
+    t.uuid     "code",                      default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed", default: false,                null: false
+    t.boolean  "triggers_enabled",          default: true,                 null: false
+    t.datetime "last_trigger_mail_sent_at"
+    t.boolean  "accepted_subscription",     default: false,                null: false
+  end
+
+  add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
+  add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
+  add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
+  add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", unique: true, using: :btree
+  add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", unique: true, using: :btree
+  add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
+  add_index "clients", ["subscription_popup_showed", "shop_id"], name: "index_clients_on_subscription_popup_showed_and_shop_id", using: :btree
+  add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
+  add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
   create_table "cmses", force: true do |t|
     t.string   "code",                               null: false
@@ -201,12 +222,12 @@ ActiveRecord::Schema.define(version: 20150127120750) do
     t.boolean  "opened",                  default: false,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "shops_user_id",                                          null: false
+    t.integer  "client_id",                                              null: false
     t.boolean  "bounced",                 default: false,                null: false
   end
 
+  add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
-  add_index "digest_mails", ["shops_user_id"], name: "index_digest_mails_on_shops_user_id", using: :btree
 
   create_table "events", force: true do |t|
     t.integer  "shop_id",         null: false
@@ -523,41 +544,13 @@ ActiveRecord::Schema.define(version: 20150127120750) do
     t.decimal  "recommended_items_view_rate",  default: 0.0,   null: false
     t.boolean  "export_to_ct",                 default: false
     t.integer  "manager_id"
+    t.boolean  "enable_nda",                   default: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["manager_id"], name: "index_shops_on_manager_id", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
-
-  create_table "shops_users", force: true do |t|
-    t.integer  "shop_id",                                                  null: false
-    t.integer  "user_id",                                                  null: false
-    t.boolean  "bought_something",          default: false,                null: false
-    t.integer  "ab_testing_group"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "external_id"
-    t.string   "email"
-    t.boolean  "digests_enabled",           default: true,                 null: false
-    t.uuid     "code",                      default: "uuid_generate_v4()"
-    t.boolean  "subscription_popup_showed", default: false,                null: false
-    t.boolean  "triggers_enabled",          default: true,                 null: false
-    t.datetime "last_trigger_mail_sent_at"
-    t.boolean  "accepted_subscription",     default: false,                null: false
-  end
-
-  add_index "shops_users", ["accepted_subscription", "shop_id"], name: "index_shops_users_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
-  add_index "shops_users", ["code"], name: "index_shops_users_on_code", unique: true, using: :btree
-  add_index "shops_users", ["digests_enabled", "shop_id"], name: "index_shops_users_on_digests_enabled_and_shop_id", using: :btree
-  add_index "shops_users", ["email"], name: "index_shops_users_on_email", using: :btree
-  add_index "shops_users", ["shop_id", "external_id"], name: "index_shops_users_on_shop_id_and_external_id", unique: true, using: :btree
-  add_index "shops_users", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
-  add_index "shops_users", ["shop_id", "user_id"], name: "index_shops_users_on_shop_id_and_user_id", unique: true, using: :btree
-  add_index "shops_users", ["shop_id"], name: "index_shops_users_on_shop_id", using: :btree
-  add_index "shops_users", ["subscription_popup_showed", "shop_id"], name: "index_shops_users_on_subscription_popup_showed_and_shop_id", using: :btree
-  add_index "shops_users", ["triggers_enabled", "shop_id"], name: "index_shops_users_on_triggers_enabled_and_shop_id", using: :btree
-  add_index "shops_users", ["user_id"], name: "index_shops_users_on_user_id", using: :btree
 
   create_table "styles", force: true do |t|
     t.integer  "shop_id",     null: false
@@ -630,7 +623,7 @@ ActiveRecord::Schema.define(version: 20150127120750) do
     t.boolean  "opened",             default: false,                null: false
     t.integer  "trigger_mailing_id",                                null: false
     t.boolean  "bounced",            default: false,                null: false
-    t.integer  "shops_user_id",                                     null: false
+    t.integer  "client_id",                                         null: false
   end
 
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree

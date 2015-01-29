@@ -18,34 +18,34 @@ describe AudienceImportWorker do
     end
 
     context 'works with audience' do
-      context 'when shops_user does not exists' do
+      context 'when client does not exists' do
         let(:audience_raw) { { 'id' => '123', 'email' => 'test@example.com' } }
         before { params['audience'] << audience_raw }
 
-        it 'creates new shops_user' do
-          expect{ subject.perform(params) }.to change(shop.shops_users, :count).from(0).to(1)
+        it 'creates new client' do
+          expect{ subject.perform(params) }.to change(shop.clients, :count).from(0).to(1)
         end
 
-        it 'saves new shops_user email' do
+        it 'saves new client email' do
           subject.perform(params)
-          expect(ShopsUser.first.email).to eq(audience_raw['email'])
+          expect(Client.first.email).to eq(audience_raw['email'])
         end
 
-        it 'saves new shops_user external_id' do
+        it 'saves new client external_id' do
           subject.perform(params)
-          expect(ShopsUser.first.external_id).to eq(audience_raw['id'])
+          expect(Client.first.external_id).to eq(audience_raw['id'])
         end
       end
 
-      context 'when shops_user exists by external_id' do
+      context 'when client exists by external_id' do
         let(:audience_raw) { { 'id' => '123', 'email' => 'test@example.com', 'name' => 'Test' } }
         let!(:user) { create(:user) }
-        let!(:shops_user) { create(:shops_user, shop: shop, external_id: audience_raw['id'], user: user) }
+        let!(:client) { create(:client, shop: shop, external_id: audience_raw['id'], user: user) }
         before { params['audience'] << audience_raw }
 
         it 'updates email' do
           subject.perform(params)
-          expect(shops_user.reload.email).to eq(audience_raw['email'])
+          expect(client.reload.email).to eq(audience_raw['email'])
         end
       end
 
@@ -55,7 +55,7 @@ describe AudienceImportWorker do
           before { params['audience'] << audience_raw }
 
           it 'does nothing' do
-            expect{ subject.perform(params) }.to_not change(ShopsUser, :count)
+            expect{ subject.perform(params) }.to_not change(Client, :count)
           end
         end
 
@@ -64,7 +64,7 @@ describe AudienceImportWorker do
           before { params['audience'] << audience_raw }
 
           it 'does nothing' do
-            expect{ subject.perform(params) }.to_not change(ShopsUser, :count)
+            expect{ subject.perform(params) }.to_not change(Client, :count)
           end
         end
 
@@ -73,7 +73,7 @@ describe AudienceImportWorker do
           before { params['audience'] << audience_raw }
 
           it 'does nothing' do
-            expect{ subject.perform(params) }.to_not change(ShopsUser, :count)
+            expect{ subject.perform(params) }.to_not change(Client, :count)
           end
         end
       end

@@ -53,6 +53,9 @@ FactoryGirl.define do
   factory :action do
   end
 
+  factory :mahout_action do
+  end
+
   factory :order do
     uniqid SecureRandom.uuid
     sequence(:date) {|n| Time.current }
@@ -117,7 +120,7 @@ FactoryGirl.define do
     end
   end
 
-  factory :shops_user do
+  factory :client do
     user
   end
 
@@ -128,5 +131,11 @@ FactoryGirl.define do
     dkim_private_key "-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQCw+3khuaA2rDEbxCp1K8UWDdNjtMRiGTwf67p3+5wHYTcucCxM\nPeiyuF9Z1+MM5ApKtW0hGF8/03pEbt4LXl6pSEkEikpdhNdH1il9W50AY0JHMwMQ\nzB57rWoY5mIoYU/o7IlmsCorSrTejpu1X9SjPExn+4d6oJDVwOvThMRBxQIDAQAB\nAoGBALBVjgYVHdT7UV6Z37eoqZBkrBaul/AptmcThlFfRsFvkfxZ1TkNgdj3rEEm\nwVkpqDtxck7EKrq8KRkf4WowV1zoXqibr8DyIC8tyUqLxLFDeoUCCobFKZBHXJB7\n9A4ajHeteez8bzqKMgDc4CXXBv2oqamyquWauqsa5OOZL2xNAkEA3bga6oSZPKbn\nP/CRrTEVRnFdomDqr8ulXf+aUAoALLlWkHzB1ziNkw/asVZ4rp1YVIkoTYpjCto4\nhYFzELoO/wJBAMxYohqoIPraC678kgGkX8mSabq56XwI282eeUTci77qJCc3t5kW\nyXILfnrdWv5UdHHj4cj/tsKxVXfazu0aMzsCQC3g36jxYSf8vVMsu2gkBOv7n01v\nUoCn2gMWVd8EAr8+ZpwlRJL9P8ZTfIQ/iV9Qbauoae+JmC7xssplW+L1LQ8CQHXa\nJFulXafvO0/HgNmLmGbjlzDG6h7L6SDUZfJOFBaeaQ1pN+0F1FZ+xIpNwZ3uzV2l\n5OEMgbYVmkpOmorqUmMCQQDSdXULjSs169JwwDGzot6kxo1o7MXPLO4NIeirGNJO\now1b0mHMjtdZ7AzprHDIAt6rsm+F18V2NqFT7qKX50t2\n-----END RSA PRIVATE KEY-----\n"
     spf_valid true
     dkim_valid true
+  end
+
+  factory :interaction do
+    shop
+    item
+    code 1
   end
 end

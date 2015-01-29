@@ -11,7 +11,7 @@ class DigestMailingRecommendationsCalculatorWorker
 
     self.users = []
 
-    shop.shops_users.find_each do |s_u|
+    shop.clients.find_each do |s_u|
       users << { external_id: s_u.external_id, user: s_u.user }
     end
 

@@ -2,13 +2,13 @@
 # Отправленное дайджестное письмо.
 #
 class DigestMail < ActiveRecord::Base
-  belongs_to :shops_user
+  belongs_to :client
   belongs_to :shop
   belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'
   belongs_to :batch, class_name: 'DigestMailingBatch', foreign_key: 'digest_mailing_batch_id'
 
   validates :shop, presence: true
-  validates :shops_user, presence: true
+  validates :client, presence: true
   validates :mailing, presence: true
   validates :batch, presence: true
 
@@ -29,6 +29,6 @@ class DigestMail < ActiveRecord::Base
   def mark_as_bounced!
     update_columns(bounced: true)
 
-    self.shops_user.try(:purge_email!)
+    self.client.try(:purge_email!)
   end
 end

@@ -11,6 +11,34 @@ class Action < ActiveRecord::Base
   scope :carts, -> { where('rating::numeric = ?', Actions::Cart::RATING) }
 
   class << self
+    def relink_user(options = {})
+      master = options.fetch(:to)
+      slave = options.fetch(:from)
+
+      slave.actions.each do |slave_action|
+        if master_action = slave_action.shop.actions.find_by(user_id: master.id, item_id: slave_action.item_id)
+          master_action.update(
+            view_count: master_action.view_count + slave_action.view_count,
+            cart_count: master_action.cart_count + slave_action.cart_count,
+            purchase_count: master_action.purchase_count + slave_action.purchase_count,
+            view_date: [master_action.view_date, slave_action.view_date].compact.max,
+            cart_date: [master_action.cart_date, slave_action.cart_date].compact.max,
+            purchase_date: [master_action.purchase_date, slave_action.purchase_date].compact.max,
+            rating: [master_action.rating, slave_action.rating].compact.max,
+            timestamp: [master_action.timestamp, slave_action.timestamp].compact.max,
+            recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : slave_action.recommended_by
+            )
+
+          slave_action.delete
+        else
+          begin
+            slave_action.update_columns(user_id: master.id)
+          rescue ActiveRecord::RecordNotUnique
+          end
+        end
+      end
+    end
+
     def get_implementation_for(action_type)
       raise ActionPush::Error.new('Unsupported action type') unless TYPES.include?(action_type)
 

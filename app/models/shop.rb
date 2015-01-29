@@ -8,7 +8,7 @@ class Shop < ActiveRecord::Base
   has_and_belongs_to_many :users
   belongs_to :plan
   belongs_to :customer
-  has_many :shops_users
+  has_many :clients
   has_many :actions
   has_many :mahout_actions
   has_many :items
@@ -70,7 +70,7 @@ class Shop < ActiveRecord::Base
 
   def purge_all_related_data!
     users.delete_all
-    ShopsUser.where(shop_id: self.id).delete_all
+    Client.where(shop_id: self.id).delete_all
     actions.delete_all
     mahout_actions.delete_all
     orders.destroy_all

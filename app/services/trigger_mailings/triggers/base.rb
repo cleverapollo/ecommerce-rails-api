@@ -39,10 +39,10 @@ module TriggerMailings
 
 
       # Конструктор
-      # @param shops_user [ShopsUser] пользователь магазина
-      def initialize(shops_user)
-        @user = shops_user.user
-        @shop = shops_user.shop
+      # @param client [Client] пользователь магазина
+      def initialize(client)
+        @user = client.user
+        @shop = client.shop
       end
 
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.

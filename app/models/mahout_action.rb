@@ -1,7 +1,8 @@
 class MahoutAction < ActiveRecord::Base
+  include UserLinkable
+
   before_create :assign_timestamp
 
-  belongs_to :user
   belongs_to :item
   belongs_to :shop
 

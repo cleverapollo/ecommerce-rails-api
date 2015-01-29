@@ -2,7 +2,28 @@ require 'rails_helper'
 
 describe InitController do
   describe 'GET generate_ssid' do
-    pending 'Untested'
+    let!(:shop) { create(:shop) }
+
+    context 'when shop_id is correct' do
+      it 'creates new session' do
+        expect{
+          get :generate_ssid, shop_id: shop.uniqid
+        }.to change { Session.count }.by(1)
+      end
+
+      it 'returns new session code' do
+        get :generate_ssid, shop_id: shop.uniqid
+
+        expect(response.body).to eq(Session.first!.code)
+      end
+    end
+
+    context 'when shop_id is incorrect' do
+      it 'returns nothing' do
+        get :generate_ssid, shop_id: 'potato'
+        expect(response.body).to eq(' ')
+      end
+    end
   end
 
   describe 'GET init_script' do

@@ -40,17 +40,17 @@ describe UserFetcher do
       end
 
       it 'links user with shop' do
-        expect{ subject }.to change(ShopsUser, :count).from(0).to(1)
+        expect{ subject }.to change(Client, :count).from(0).to(1)
 
-        shops_user = ShopsUser.first!
-        expect(shops_user.shop).to eq(shop)
-        expect(shops_user.user).to eq(session.user)
-        expect(shops_user.external_id).to eq(nil)
+        client = Client.first!
+        expect(client.shop).to eq(shop)
+        expect(client.user).to eq(session.user)
+        expect(client.external_id).to eq(nil)
       end
     end
 
     context 'second visit' do
-      let!(:shops_user) { create(:shops_user, shop: shop, user: session.user, external_id: nil) }
+      let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
       let!(:params) { { session_code: session.code, shop: shop } }
 
       it "returns session's user" do
@@ -66,13 +66,13 @@ describe UserFetcher do
       end
 
       it 'doesnt create new link' do
-        expect{ subject }.to_not change(ShopsUser, :count)
+        expect{ subject }.to_not change(Client, :count)
       end
     end
 
     context 'when external_id is passed' do
       let!(:external_id) { '256' }
-      let!(:shops_user) { create(:shops_user, shop: shop, user: session.user, external_id: nil) }
+      let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
       let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
 
       it "returns session's user" do
@@ -88,13 +88,13 @@ describe UserFetcher do
       end
 
       it 'doesnt create new link' do
-        expect{ subject }.to_not change(ShopsUser, :count)
+        expect{ subject }.to_not change(Client, :count)
       end
 
       it 'saves external_id to link' do
-        expect(shops_user.reload.external_id).to eq(nil)
+        expect(client.reload.external_id).to eq(nil)
         subject
-        expect(shops_user.reload.external_id).to eq(external_id)
+        expect(client.reload.external_id).to eq(external_id)
       end
     end
 
@@ -102,7 +102,7 @@ describe UserFetcher do
       let!(:external_id) { '256' }
       let!(:old_user) { create(:user) }
       let!(:old_session) { create(:session, code: '1234567890', user: old_user) }
-      let!(:old_shops_user) { create(:shops_user, shop: shop, user: old_user, external_id: external_id) }
+      let!(:old_client) { create(:client, shop: shop, user: old_user, external_id: external_id) }
       let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
 
       it "returns old session's user" do

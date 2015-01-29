@@ -2,9 +2,8 @@
 # Сессия.
 #
 class Session < ActiveRecord::Base
-  belongs_to :user
+  include UserLinkable
 
-  validates :user, presence: true
   validates :code, presence: true
 
   class << self

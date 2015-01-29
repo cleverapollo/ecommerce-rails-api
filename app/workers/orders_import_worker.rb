@@ -59,13 +59,13 @@ class OrdersImportWorker
       user_email = IncomingDataTranslator.email(user_email)
     end
 
-    shops_user = shop.shops_users.find_by(external_id: user_id)
-    if shops_user.present?
-      shops_user.update(email: user_email)
-      shops_user.user
+    client = shop.clients.find_by(external_id: user_id)
+    if client.present?
+      client.update(email: user_email)
+      client.user
     else
       user = User.create
-      shop.shops_users.create(external_id: user_id, user_id: user.id, email: user_email)
+      shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
       user
     end
   end

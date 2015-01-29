@@ -28,7 +28,7 @@ describe OrdersImportWorker do
     OrdersImportWorker.new.perform(params)
 
     # Check users
-    s_u = shop.shops_users.first!
+    s_u = shop.clients.first!
     user = s_u.user
     expect(s_u.external_id).to eq(params['orders'][0]['user_id'])
     expect(s_u.email).to eq(params['orders'][0]['user_email'])

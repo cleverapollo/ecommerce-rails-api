@@ -3,12 +3,12 @@
 #
 class TriggerMail < ActiveRecord::Base
   belongs_to :shop
-  belongs_to :shops_user
-  belongs_to :trigger_mailing
+  belongs_to :client
+  belongs_to :mailing, class_name: 'TriggerMailing', foreign_key: 'trigger_mailing_id'
 
   validates :shop, presence: true
-  validates :shops_user, presence: true
-  validates :trigger_mailing, presence: true
+  validates :client, presence: true
+  validates :mailing, presence: true
   validates :trigger_data, presence: true
 
   store :trigger_data, coder: JSON
@@ -30,6 +30,6 @@ class TriggerMail < ActiveRecord::Base
   def mark_as_bounced!
     update_columns(bounced: true)
 
-    self.shops_user.try(:purge_email!)
+    self.client.try(:purge_email!)
   end
 end

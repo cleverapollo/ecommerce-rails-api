@@ -4,15 +4,15 @@ describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
   let!(:settigns) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
-  let!(:shops_user) { create(:shops_user, shop: shop, email: 'test@example.com') }
-  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: shops_user.id, end_id: shops_user.id) }
+  let!(:client) { create(:client, shop: shop, email: 'test@example.com') }
+  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id) }
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do
     let!(:item) { create(:item, shop: shop) }
-    let!(:action) { create(:action, shop: shop, item: item, user: shops_user.user) }
+    let!(:action) { create(:action, shop: shop, item: item, user: client.user) }
     let!(:letter) do
-      batch.current_processed_shops_user_id = nil
+      batch.current_processed_client_id = nil
       ActionMailer::Base.deliveries = []
       subject.perform(batch.id)
       ActionMailer::Base.deliveries.first
@@ -26,7 +26,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'sent to audience' do
-      expect(letter.to).to include(shops_user.email)
+      expect(letter.to).to include(client.email)
     end
 
     it 'sent from sender from settigns' do
@@ -42,7 +42,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'contains unsubscribe URL' do
-      expect(letter_body.to_s).to include(shops_user.reload.digest_unsubscribe_url)
+      expect(letter_body.to_s).to include(client.reload.digest_unsubscribe_url)
     end
 
     it 'contains tracking pixel' do
@@ -51,11 +51,11 @@ describe DigestMailingBatchWorker do
   end
 
   describe '#letter_body' do
-    let!(:digest_mail) { create(:digest_mail, shops_user: shops_user, shop: shop, mailing: mailing, batch: batch).reload }
+    let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
     let!(:item) { create(:item, shop: shop) }
     subject do
       s = DigestMailingBatchWorker.new
-      s.current_shops_user = shops_user
+      s.current_client = client
       s.current_digest_mail = digest_mail
       s.mailing = mailing
       s.letter_body([item], 'test@example.com')
@@ -69,7 +69,7 @@ describe DigestMailingBatchWorker do
   describe '#item_for_letter' do
     context 'when item is widgetable' do
       let!(:item) { create(:item, shop: shop) }
-      let!(:digest_mail) { create(:digest_mail, shops_user: shops_user, shop: shop, mailing: mailing, batch: batch).reload }
+      let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
       subject do
         d_m_b_w = DigestMailingBatchWorker.new
         d_m_b_w.current_digest_mail = digest_mail

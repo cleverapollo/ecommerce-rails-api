@@ -12,12 +12,12 @@ module TriggerMailings
     end
 
     # Найти триггер для пользователя в магазине
-    # @param shops_user [ShopsUser] пользователь магазина
+    # @param client [Client] пользователь магазина
     #
     # @return [TriggerMailings::Triggers::Base] найденный триггер
-    def detect(shops_user)
+    def detect(client)
       @triggers_classes.map do |trigger_class|
-        t = trigger_class.new(shops_user)
+        t = trigger_class.new(client)
         t if t.triggered?
       end.compact.sort{|x, y| x.priority <=> y.priority }.last
     end

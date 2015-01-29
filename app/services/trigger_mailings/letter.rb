@@ -5,18 +5,18 @@ module TriggerMailings
   class Letter
     class IncorrectMailingSettingsError < StandardError; end
 
-    attr_accessor :shops_user, :trigger, :trigger_mail
+    attr_accessor :client, :trigger, :trigger_mail
 
     # Конструктор
-    # @param shops_user [ShopsUser] пользователь магазина
+    # @param client [Client] пользователь магазина
     # @param trigger [TriggerMailings::Triggers::Base] триггер
-    def initialize(shops_user, trigger)
-      @shops_user = shops_user
-      @shop = @shops_user.shop
+    def initialize(client, trigger)
+      @client = client
+      @shop = @client.shop
       @trigger = trigger
-      @trigger_mail = shops_user.trigger_mails.create!(
+      @trigger_mail = client.trigger_mails.create!(
         trigger_mailing: trigger.mailing,
-        shop: shops_user.shop,
+        shop: client.shop,
         trigger_data: {
           trigger: trigger.to_json
         }
@@ -26,7 +26,7 @@ module TriggerMailings
 
     # Отправить сформированное письмо
     def send
-      #email = shops_user.email
+      #email = client.email
       email = 'anton.zhavoronkov@mkechinov.ru'
       Mailings::SignedEmail.deliver(@shop, to: email,
                                            subject: trigger.settings[:subject],
@@ -72,9 +72,9 @@ module TriggerMailings
       result.gsub!('{{ utm_params }}', Mailings::Composer.utm_params(trigger_mail, as: :string))
 
       # В конце прицепляем футер на отписку
-      footer = Mailings::Composer.footer(email: shops_user.email,
+      footer = Mailings::Composer.footer(email: client.email,
                                          tracking_url: trigger_mail.tracking_url,
-                                         unsubscribe_url: shops_user.trigger_unsubscribe_url)
+                                         unsubscribe_url: client.trigger_unsubscribe_url)
       result.gsub!('{{ footer }}', footer)
 
       result
