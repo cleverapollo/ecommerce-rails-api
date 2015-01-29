@@ -38,6 +38,16 @@ class Client < ActiveRecord::Base
     end
   end
 
+  def user
+    if super.present?
+      super
+    else
+      new_user = create_user
+      update_columns(user_id: new_user.id)
+      new_user
+    end
+  end
+
   def digest_unsubscribe_url
     Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)
   end
