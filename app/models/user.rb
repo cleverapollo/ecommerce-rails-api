@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   # TODO: refactor
   def ensure_linked_to_shop(shop_id)
     begin
-      if s_u = client.find_by(shop_id: shop_id)
+      if s_u = clients.find_by(shop_id: shop_id)
         s_u
       else
         client.create(shop_id: shop_id)
