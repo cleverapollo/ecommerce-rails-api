@@ -16,3 +16,7 @@ end
 every 30.minutes do
   runner 'BounceHandlerWorker.perform'
 end
+
+every 40.minutes do
+  runner 'TriggerMailings::ClientsProcessor.process_all'
+end
