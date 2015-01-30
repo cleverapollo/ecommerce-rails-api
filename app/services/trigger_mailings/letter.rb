@@ -15,7 +15,7 @@ module TriggerMailings
       @shop = @client.shop
       @trigger = trigger
       @trigger_mail = client.trigger_mails.create!(
-        trigger_mailing: trigger.mailing,
+        mailing: trigger.mailing,
         shop: client.shop,
         trigger_data: {
           trigger: trigger.to_json
