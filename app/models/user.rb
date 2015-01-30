@@ -24,10 +24,10 @@ class User < ActiveRecord::Base
       if s_u = clients.find_by(shop_id: shop_id)
         s_u
       else
-        client.create(shop_id: shop_id)
+        clients.create(shop_id: shop_id)
       end
     rescue ActiveRecord::RecordNotUnique => e
-      client.find_by(shop_id: shop_id)
+      clients.find_by(shop_id: shop_id)
     end
   end
 
