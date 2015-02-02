@@ -18,5 +18,5 @@ every 30.minutes do
 end
 
 every 40.minutes do
-  #runner 'TriggerMailings::ClientsProcessor.process_all'
+  runner 'TriggerMailings::ClientsProcessor.process_all'
 end

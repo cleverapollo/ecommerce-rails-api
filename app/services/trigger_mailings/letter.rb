@@ -26,8 +26,8 @@ module TriggerMailings
 
     # Отправить сформированное письмо
     def send
-      #email = client.email
-      email = 'anton.zhavoronkov@mkechinov.ru'
+      email = client.email
+      #email = 'anton.zhavoronkov@mkechinov.ru'
       Mailings::SignedEmail.deliver(@shop, to: email,
                                            subject: trigger.settings[:subject],
                                            from: trigger.settings[:send_from],
