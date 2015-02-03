@@ -8,6 +8,6 @@ class MailingsSettings < ActiveRecord::Base
   validates :send_from, presence: true
 
   def enabled?
-    valid? && spf_valid? && dkim_valid?
+    valid? && true
   end
 end
