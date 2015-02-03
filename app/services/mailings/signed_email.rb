@@ -32,7 +32,7 @@ ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
       code = @options[:code] || 'test'
       unsubscribe_email = "unsubscribe+#{type}=#{code}@rees46.com"
       unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46.host)
-      mail.header['List-Unsubscribe'] = "<mailto:#{unsubscribe_email}>, <#{unsubscribe_url}>"
+      mail.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
 
       if @options.fetch(:type) == 'digest'
         mail.header['Precedence'] = 'bulk'
