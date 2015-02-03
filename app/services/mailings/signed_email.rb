@@ -28,6 +28,13 @@ ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
         format.html { render text: options.fetch(:body).html_safe }
       end
 
+      unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: @options.fetch(:type), code: @options[:code] || 'test', host: Rees46.host)
+      mail.header['List-unsubscribe'] = "<#{unsubscribe_url}>"
+
+      if @options.fetch(:type) == 'digest'
+        mail.header['Precedence'] = 'bulk'
+      end
+
       mail = sign(mail)
 
       mail.deliver
