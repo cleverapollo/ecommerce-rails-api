@@ -39,4 +39,5 @@ Rees46Api::Application.routes.draw do
 
   # iBeacons
   get 'geo/notify', to: 'beacons#notify'
+  get 'geo/track',  to: 'beacons#track'
 end
