@@ -1,8 +1,11 @@
 class EventsController < ApplicationController
   def push
     extract_legacy_event_name if params[:event].blank?
-    parameters = ActionPush::Params.extract(params)
-    ActionPush::Processor.new(parameters).process
+
+    ActiveRecord::Base.transaction do
+      parameters = ActionPush::Params.extract(params)
+      ActionPush::Processor.new(parameters).process
+    end
 
     respond_with_success
   rescue ActionPush::Error => e

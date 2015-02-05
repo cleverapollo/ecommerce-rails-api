@@ -9,30 +9,32 @@ class Session < ActiveRecord::Base
   class << self
     # Получить подходящую по параметрам сессию.
     def fetch(params = {})
-      session = nil
+      ActiveRecord::Base.transaction do
+        session = nil
 
-      if params[:code].present? && session = find_by(code: params[:code])
-        # Найти сессию по коду.
+        if params[:code].present? && session = find_by(code: params[:code])
+          # Найти сессию по коду.
 
-        # Убедиться, что у сессии есть юзер.
-        if session.user.blank?
-          session.create_user
-        end
-
-        # Сохранить параметры бразуера в сессию.
-        [:useragent, :city, :country, :language].each do |field|
-          if session.send(field).blank? && params[field].present?
-            session.send("#{field}=", params[:field])
+          # Убедиться, что у сессии есть юзер.
+          if session.user.blank?
+            session.create_user
           end
+
+          # Сохранить параметры бразуера в сессию.
+          [:useragent, :city, :country, :language].each do |field|
+            if session.send(field).blank? && params[field].present?
+              session.send("#{field}=", params[:field])
+            end
+          end
+
+          session.save if session.changed?
+        else
+          # Создать новую, сгенерировать код и юзера.
+          session = create_with_code_and_user(params)
         end
 
-        session.save if session.changed?
-      else
-        # Создать новую, сгенерировать код и юзера.
-        session = create_with_code_and_user(params)
+        session
       end
-
-      session
     end
 
     # Создать новую сессию с уникальным кодом.
