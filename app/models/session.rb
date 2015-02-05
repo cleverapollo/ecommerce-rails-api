@@ -42,7 +42,7 @@ class Session < ActiveRecord::Base
       loop do
         code = SecureRandom.uuid
 
-        if Session.where(code: code).none?
+        if Session.find_by(code: code).blank?
           return self.new(code: code)
         end
       end
