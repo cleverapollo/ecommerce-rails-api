@@ -52,7 +52,8 @@ describe BeaconsController do
             json = {
               image: 'http://cdn.rees46.com/bk.png',
               title: 'Обед Кинг Хит – всего за 149 рублей',
-              description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей."
+              description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей.",
+              deal_id: '1'
             }
             expect(response.body).to eq(json.to_json)
           end
@@ -60,7 +61,8 @@ describe BeaconsController do
           it 'creates beacon message with notified: true' do
             get :notify, params
 
-            expect(BeaconMessage.first!.notified).to be_truthy
+            expect(BeaconMessage.last!.notified).to be_truthy
+            expect(BeaconMessage.last!.deal_id).to eq('1')
           end
         end
       end
@@ -97,6 +99,42 @@ describe BeaconsController do
         expect {
           get :notify, params
         }.to change(BeaconMessage, :count).from(1).to(2)
+      end
+    end
+
+    context 'when shop_id isnt correct' do
+      before { params[:shop_id] = 'incorrect' }
+
+      it 'responds with 400' do
+        get :notify, params
+        expect(response.code).to eq('400')
+      end
+    end
+  end
+
+  describe 'GET track' do
+    context 'when shop_id is correct' do
+      before {
+        shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago, deal_id: '1' )
+      }
+      let(:params) { {
+        shop_id: shop.uniqid,
+        ssid: session.code,
+        deal_id: '1'
+      } }
+
+      it 'responds with 204' do
+        get :track, params
+
+        expect(response.code).to eq('204')
+      end
+
+      it 'marks beacon_message as tracked' do
+        expect(BeaconMessage.first!.tracked).to eq(false)
+
+        get :track, params
+
+        expect(BeaconMessage.first!.tracked).to eq(true)
       end
     end
 
