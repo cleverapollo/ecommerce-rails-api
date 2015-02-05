@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150203085028) do
+ActiveRecord::Schema.define(version: 20150204113241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,24 +20,24 @@ ActiveRecord::Schema.define(version: 20150203085028) do
   enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
-    t.integer  "user_id",          limit: 8,                 null: false
-    t.integer  "item_id",          limit: 8,                 null: false
-    t.integer  "view_count",                 default: 0,     null: false
+    t.integer  "user_id",          limit: 8,                                             null: false
+    t.integer  "item_id",          limit: 8,                                             null: false
+    t.integer  "view_count",                 default: 0,                                 null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                 default: 0,     null: false
+    t.integer  "cart_count",                 default: 0,                                 null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",             default: 0,     null: false
+    t.integer  "purchase_count",             default: 0,                                 null: false
     t.datetime "purchase_date"
     t.float    "rating",                     default: 0.0
-    t.integer  "shop_id",          limit: 8,                 null: false
-    t.integer  "timestamp",                  default: 0,     null: false
+    t.integer  "shop_id",          limit: 8,                                             null: false
+    t.integer  "timestamp",                  default: "date_part('epoch'::text, now())", null: false
     t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2, default: 1,     null: false
-    t.integer  "rate_count",                 default: 0,     null: false
+    t.integer  "last_action",      limit: 2, default: 1,                                 null: false
+    t.integer  "rate_count",                 default: 0,                                 null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
     t.decimal  "price"
-    t.boolean  "repeatable",                 default: false, null: false
+    t.boolean  "repeatable",                 default: false,                             null: false
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -149,12 +149,12 @@ ActiveRecord::Schema.define(version: 20150203085028) do
   end
 
   create_table "customers", force: true do |t|
-    t.string   "email",                  default: "",   null: false
-    t.string   "encrypted_password",     default: "",   null: false
+    t.string   "email",                  default: "",    null: false
+    t.string   "encrypted_password",     default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,    null: false
+    t.integer  "sign_in_count",          default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -165,14 +165,15 @@ ActiveRecord::Schema.define(version: 20150203085028) do
     t.string   "phone"
     t.string   "city"
     t.string   "company"
-    t.boolean  "subscribed",             default: true, null: false
+    t.boolean  "subscribed",             default: true,  null: false
     t.string   "unsubscribe_token"
     t.integer  "partner_id"
     t.string   "first_name"
     t.string   "last_name"
-    t.integer  "balance",                default: 0,    null: false
+    t.integer  "balance",                default: 0,     null: false
     t.string   "gift_link"
     t.boolean  "real",                   default: true
+    t.boolean  "financial_manager",      default: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -197,20 +198,21 @@ ActiveRecord::Schema.define(version: 20150203085028) do
   add_index "digest_mailing_settings", ["shop_id"], name: "index_digest_mailing_settings_on_shop_id", using: :btree
 
   create_table "digest_mailings", force: true do |t|
-    t.integer  "shop_id",           null: false
-    t.string   "name",              null: false
-    t.string   "subject",           null: false
-    t.text     "template",          null: false
+    t.integer  "shop_id",                              null: false
+    t.string   "name",                                 null: false
+    t.string   "subject",                              null: false
+    t.text     "template",                             null: false
     t.string   "items"
-    t.string   "state",             null: false
+    t.string   "state",                                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "item_template",     null: false
+    t.text     "item_template",                        null: false
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
     t.text     "header"
     t.text     "text"
+    t.string   "edit_mode",         default: "simple", null: false
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -314,13 +316,9 @@ ActiveRecord::Schema.define(version: 20150203085028) do
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "mailings_settings", force: true do |t|
-    t.integer  "shop_id",                           null: false
-    t.string   "send_from",                         null: false
+    t.integer  "shop_id",           null: false
+    t.string   "send_from",         null: false
     t.text     "logo_url"
-    t.text     "dkim_public_key",                   null: false
-    t.text     "dkim_private_key",                  null: false
-    t.boolean  "spf_valid",         default: false, null: false
-    t.boolean  "dkim_valid",        default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "logo_file_name"
@@ -341,17 +339,17 @@ ActiveRecord::Schema.define(version: 20150203085028) do
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                                           null: false
-    t.integer  "user_id",                                           null: false
-    t.string   "uniqid",                                            null: false
-    t.datetime "date",              default: '2015-02-03 08:54:43', null: false
-    t.integer  "items",             default: [],                    null: false, array: true
-    t.integer  "amounts",           default: [],                    null: false, array: true
-    t.decimal  "value",             default: 0.0,                   null: false
-    t.boolean  "recommended",       default: false,                 null: false
+    t.integer  "shop_id",                             null: false
+    t.integer  "user_id",                             null: false
+    t.string   "uniqid",                              null: false
+    t.datetime "date",              default: "now()", null: false
+    t.integer  "items",             default: [],      null: false, array: true
+    t.integer  "amounts",           default: [],      null: false, array: true
+    t.decimal  "value",             default: 0.0,     null: false
+    t.boolean  "recommended",       default: false,   null: false
     t.integer  "ab_testing_group"
-    t.decimal  "recommended_value", default: 0.0,                   null: false
-    t.decimal  "common_value",      default: 0.0,                   null: false
+    t.decimal  "recommended_value", default: 0.0,     null: false
+    t.decimal  "common_value",      default: 0.0,     null: false
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -454,18 +452,30 @@ ActiveRecord::Schema.define(version: 20150203085028) do
 
   add_index "requisites", ["requisitable_id", "requisitable_type"], name: "index_requisites_on_requisitable_id_and_requisitable_type", using: :btree
 
+  create_table "rewards", force: true do |t|
+    t.integer  "manager_id",                           null: false
+    t.integer  "customer_id",                          null: false
+    t.integer  "transaction_id",                       null: false
+    t.integer  "financial_manager_id"
+    t.boolean  "paid",                 default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
+
   create_table "schema_version", id: false, force: true do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2015-02-03 08:54:43', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", force: true do |t|
@@ -547,6 +557,9 @@ ActiveRecord::Schema.define(version: 20150203085028) do
     t.boolean  "export_to_ct",                 default: false
     t.integer  "manager_id"
     t.boolean  "enable_nda",                   default: false
+    t.boolean  "available_ibeacon",            default: false
+    t.boolean  "gives_rewards",                default: true,  null: false
+    t.boolean  "mailings_available",           default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
