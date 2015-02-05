@@ -31,10 +31,7 @@ class Action < ActiveRecord::Base
 
           slave_action.delete
         else
-          begin
-            slave_action.update_columns(user_id: master.id)
-          rescue ActiveRecord::RecordNotUnique
-          end
+          slave_action.update_columns(user_id: master.id)
         end
       end
     end
@@ -59,13 +56,10 @@ class Action < ActiveRecord::Base
     update_concrete_action_attrs
     update_rating_and_last_action(params.rating) if needs_to_update_rating?
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
-    begin
-      save
-      post_process
-      save_to_mahout if self.rating >= 3.7
-    rescue ActiveRecord::RecordNotUnique => e
-      # Action already saved
-    end
+
+    save
+    post_process
+    save_to_mahout if self.rating >= 3.7
   end
 
   def name_code

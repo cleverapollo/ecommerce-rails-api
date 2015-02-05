@@ -23,11 +23,7 @@ class UserFetcher
 
     client = nil
     # Находим или создаем связку пользователя с магазином
-    begin
-      client = shop.clients.find_or_create_by!(user_id: session.user_id)
-    rescue ActiveRecord::RecordNotUnique
-      client = shop.clients.find_by!(user_id: session.user_id)
-    end
+    client = shop.clients.find_or_create_by!(user_id: session.user_id)
 
     result = client.user
 
@@ -45,11 +41,7 @@ class UserFetcher
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
-        begin
-          client.update(external_id: external_id)
-        rescue ActiveRecord::RecordNotUnique
-
-        end
+        client.update(external_id: external_id) if shop.clients.find_by(external_id: external_id).blank?
       end
     end
 

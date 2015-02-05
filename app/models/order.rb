@@ -10,24 +10,20 @@ class Order < ActiveRecord::Base
 
       uniqid = generate_uniqid if uniqid.blank?
 
-      begin
-        values = order_values(shop, user, items)
+      values = order_values(shop, user, items)
 
-        order = Order.create! \
-                             shop_id: shop.id,
-                             user_id: user.id,
-                             uniqid: uniqid,
-                             common_value: values[:common_value],
-                             recommended_value: values[:recommended_value],
-                             value: values[:value],
-                             recommended: (values[:recommended_value] > 0),
-                             ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
+      order = Order.create! \
+                           shop_id: shop.id,
+                           user_id: user.id,
+                           uniqid: uniqid,
+                           common_value: values[:common_value],
+                           recommended_value: values[:recommended_value],
+                           value: values[:value],
+                           recommended: (values[:recommended_value] > 0),
+                           ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
 
-        items.each do |item|
-          OrderItem.persist(order, item, item.amount)
-        end
-      rescue ActiveRecord::RecordNotUnique => e
-
+      items.each do |item|
+        OrderItem.persist(order, item, item.amount)
       end
     end
 
