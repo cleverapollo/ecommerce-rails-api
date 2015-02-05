@@ -10,29 +10,31 @@ class InitController < ApplicationController
   end
 
   def init_script
-    session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
+    ActiveRecord::Base.transaction do
+      session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-    @session = Session.fetch(code: session_id,
-                             useragent: user_agent,
-                             email: params[:user_email],
-                             city: city,
-                             country: country,
-                             language: language)
+      @session = Session.fetch(code: session_id,
+                               useragent: user_agent,
+                               email: params[:user_email],
+                               city: city,
+                               country: country,
+                               language: language)
 
-    shop = Shop.find_by(uniqid: params[:shop_id])
+      shop = Shop.find_by(uniqid: params[:shop_id])
 
-    if shop.blank?
-      render(js: 'REES46._log("Магазин не найден");') and return
+      if shop.blank?
+        render(js: 'REES46._log("Магазин не найден");') and return
+      end
+
+      cookies.delete([Rees46.cookie_name])
+      cookies.permanent[Rees46.cookie_name] = @session.code
+      cookies[Rees46.cookie_name] = {
+        value: @session.code,
+        expires: 1.year.from_now
+      }
+
+      render js: init_server_string(@session, shop)
     end
-
-    cookies.delete([Rees46.cookie_name])
-    cookies.permanent[Rees46.cookie_name] = @session.code
-    cookies[Rees46.cookie_name] = {
-      value: @session.code,
-      expires: 1.year.from_now
-    }
-
-    render js: init_server_string(@session, shop)
   end
 
   private
