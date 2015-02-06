@@ -41,7 +41,9 @@ class UserFetcher
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
-        client.update(external_id: external_id) if shop.clients.find_by(external_id: external_id).blank?
+        # Адовый способ не ломать транзакцию
+        exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and external_id = '#{external_id}')"
+        shop.clients.where(id: client.id).where(exclude_query).update_all(external_id: external_id)
       end
     end
 
