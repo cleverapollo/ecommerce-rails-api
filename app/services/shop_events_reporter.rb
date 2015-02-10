@@ -4,7 +4,7 @@ class ShopEventsReporter
     password: '2b92ad2081bab4b690db252153b53978'
   }
 
-  URL = Rails.env.production? ? 'http://rees46.com/events' : 'http://localhost:3000/events'
+  URL = Rails.env.production? ? 'https://rees46.com/events' : 'http://localhost:3000/events'
 
   class << self
     def event_tracked(shop)
@@ -21,7 +21,7 @@ class ShopEventsReporter
 
     def send(name, shop_id)
       return if Rails.env.test?
-      
+
       body = {
         event: {
           name: name,
