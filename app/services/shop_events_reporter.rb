@@ -29,7 +29,7 @@ class ShopEventsReporter
         }
       }
 
-      HTTParty.post(URL, body: body, basic_auth: AUTH)
+      HTTParty.post(URL, body: body, basic_auth: AUTH, verify: false)
     end
   end
 end
