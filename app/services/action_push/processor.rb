@@ -10,7 +10,7 @@ module ActionPush
 
     def process
       begin
-        params.user.pushing_lock.lock {
+        params.user.pushing_lock.lock do
           # Обработка триггерных писем
           if params.trigger_mail_code.present? && params.trigger_mail_code != 'test' &&
              trigger_mail = TriggerMail.find_by(code: params.trigger_mail_code)
@@ -37,7 +37,7 @@ module ActionPush
           concrete_action_class.mass_process(params)
 
           params.shop.report_event(params.action.to_sym)
-        }
+        end
       rescue Redis::Lock::LockTimeout
 
       end
