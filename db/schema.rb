@@ -11,12 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150204113241) do
+ActiveRecord::Schema.define(version: 20150206124601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
-  enable_extension "btree_gist"
   enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
@@ -45,6 +44,7 @@ ActiveRecord::Schema.define(version: 20150204113241) do
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
+  add_index "actions", ["shop_id", "user_id", "item_id"], name: "tmpidx1", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -310,9 +310,7 @@ ActiveRecord::Schema.define(version: 20150204113241) do
     t.integer "timestamp"
   end
 
-  add_index "mahout_actions", ["shop_id", "user_id", "item_id"], name: "tmp_m", unique: true, using: :btree
   add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
-  add_index "mahout_actions", ["shop_id"], name: "tmp_m1", using: :btree
   add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "mailings_settings", force: true do |t|
@@ -326,6 +324,28 @@ ActiveRecord::Schema.define(version: 20150204113241) do
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
   end
+
+  create_table "monthly_statistic_items", force: true do |t|
+    t.integer  "monthly_statistic_id",             null: false
+    t.string   "type_item",                        null: false
+    t.integer  "value",                default: 1, null: false
+    t.integer  "entity_id"
+    t.string   "entity_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "monthly_statistic_items", ["entity_id", "entity_type"], name: "index_monthly_statistic_items_on_entity_id_and_entity_type", using: :btree
+  add_index "monthly_statistic_items", ["monthly_statistic_id"], name: "index_monthly_statistic_items_on_monthly_statistic_id", using: :btree
+
+  create_table "monthly_statistics", force: true do |t|
+    t.integer  "month",      limit: 2, null: false
+    t.integer  "year",       limit: 2, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "monthly_statistics", ["month", "year"], name: "index_monthly_statistics_on_month_and_year", unique: true, using: :btree
 
   create_table "order_items", force: true do |t|
     t.integer "order_id",       limit: 8,             null: false
@@ -412,15 +432,6 @@ ActiveRecord::Schema.define(version: 20150204113241) do
     t.string   "phone"
     t.text     "comment"
     t.boolean  "subscribe",  default: true, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "profile_attributes", force: true do |t|
-    t.integer  "user_id",                          null: false
-    t.string   "type",                             null: false
-    t.string   "value",                            null: false, array: true
-    t.string   "mode",       default: "permanent", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -560,6 +571,7 @@ ActiveRecord::Schema.define(version: 20150204113241) do
     t.boolean  "available_ibeacon",            default: false
     t.boolean  "gives_rewards",                default: true,  null: false
     t.boolean  "mailings_available",           default: false, null: false
+    t.boolean  "hopeless",                     default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -643,6 +655,13 @@ ActiveRecord::Schema.define(version: 20150204113241) do
 
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
+
+  create_table "url_aliases", force: true do |t|
+    t.string   "pattern",    null: false
+    t.string   "alias",      null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "user_shop_relations", force: true do |t|
     t.integer "user_id", limit: 8, null: false

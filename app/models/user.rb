@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   has_many :orders
 
   lock :merging, expiration: 60, timeout: 1
+  lock :pushing, expiration: 60, timeout: 1
 
   # TODO: refactor
   def to_s
