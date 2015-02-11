@@ -48,6 +48,8 @@ class Item < ActiveRecord::Base
 
     if item = shop.items.find_by(uniqid: item_proxy.uniqid.to_s)
       item.amount = item_proxy.amount
+      item.merge_attributes(item_proxy)
+      item.save
       return item
     else
       save! if changed?
