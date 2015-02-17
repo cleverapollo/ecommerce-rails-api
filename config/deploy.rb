@@ -34,6 +34,7 @@ set :normalize_asset_timestamps, false
 # Sidekiq
 set :sidekiq_env, 'production'
 set :sidekiq_options, '-C config/sidekiq.yml'
+set :sidekiq_timeout, 300
 
 # Whenever
 set :whenever_identifier, defer { "#{application}_#{rails_env}" }

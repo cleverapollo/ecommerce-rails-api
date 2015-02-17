@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150206124601) do
+ActiveRecord::Schema.define(version: 20150217085007) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,7 +44,6 @@ ActiveRecord::Schema.define(version: 20150206124601) do
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
-  add_index "actions", ["shop_id", "user_id", "item_id"], name: "tmpidx1", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id", "rating"], name: "index_actions_on_user_id_and_item_id_and_rating", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -570,7 +569,6 @@ ActiveRecord::Schema.define(version: 20150206124601) do
     t.boolean  "enable_nda",                   default: false
     t.boolean  "available_ibeacon",            default: false
     t.boolean  "gives_rewards",                default: true,  null: false
-    t.boolean  "mailings_available",           default: false, null: false
     t.boolean  "hopeless",                     default: false, null: false
   end
 
