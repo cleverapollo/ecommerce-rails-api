@@ -55,6 +55,7 @@ class OrdersImportWorker
   end
 
   def fetch_user(shop, user_id, user_email = nil)
+    user_id = user_id.to_s
     if user_email.present?
       user_email = IncomingDataTranslator.email(user_email)
     end
