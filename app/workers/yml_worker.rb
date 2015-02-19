@@ -162,6 +162,8 @@ class YmlWorker
     rescue MultiXml::ParseError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
+  rescue SocketError
+    raise YmlWorker::Error.new("Несуществующий URL.")
   rescue Net::ReadTimeout
     raise YmlWorker::Error.new("Тайм-аут запроса.")
   end
