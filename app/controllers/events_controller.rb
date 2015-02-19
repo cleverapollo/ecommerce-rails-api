@@ -10,7 +10,7 @@ class EventsController < ApplicationController
     }
 
     respond_with_success
-  rescue Redis::Lock::LockTimeout
+  rescue Redis::Lock::LockTimeout => e
     log_client_error(e)
     respond_with_client_error(e)
   rescue ActionPush::Error => e
