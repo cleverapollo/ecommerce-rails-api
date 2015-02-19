@@ -2,7 +2,9 @@ class EventsController < ApplicationController
   def push
     extract_legacy_event_name if params[:event].blank?
 
-    Session.find_by!(code: params[:ssid]).pushing_lock.lock {
+    s = Session.find_by!(code: params[:ssid])
+    raise UserFetcher::SessionNotFoundError if s.blank?
+    s.pushing_lock.lock {
       ActiveRecord::Base.transaction {
         parameters = ActionPush::Params.extract(params)
         ActionPush::Processor.new(parameters).process
@@ -15,6 +17,8 @@ class EventsController < ApplicationController
     respond_with_client_error(e)
   rescue ActionPush::Error => e
     log_client_error(e)
+    respond_with_client_error(e)
+  rescue UserFetcher::SessionNotFoundError => e
     respond_with_client_error(e)
   end
 
