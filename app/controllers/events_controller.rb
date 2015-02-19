@@ -2,12 +2,17 @@ class EventsController < ApplicationController
   def push
     extract_legacy_event_name if params[:event].blank?
 
-    ActiveRecord::Base.transaction do
-      parameters = ActionPush::Params.extract(params)
-      ActionPush::Processor.new(parameters).process
-    end
+    Session.find_by!(code: params[:ssid]).pushing_lock.lock {
+      ActiveRecord::Base.transaction {
+        parameters = ActionPush::Params.extract(params)
+        ActionPush::Processor.new(parameters).process
+      }
+    }
 
     respond_with_success
+  rescue Redis::Lock::LockTimeout
+    log_client_error(e)
+    respond_with_client_error(e)
   rescue ActionPush::Error => e
     log_client_error(e)
     respond_with_client_error(e)

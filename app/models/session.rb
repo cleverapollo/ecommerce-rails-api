@@ -3,6 +3,9 @@
 #
 class Session < ActiveRecord::Base
   include UserLinkable
+  include Redis::Objects
+
+  lock :pushing, expiration: 60, timeout: 1
 
   validates :code, presence: true
 
