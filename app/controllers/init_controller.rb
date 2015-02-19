@@ -52,6 +52,9 @@ class InitController < ApplicationController
     result += "  subscriptions: {"
     if shop.subscriptions_enabled? && s_u.email.blank?
       result += "  settings: #{shop.subscriptions_settings.to_json}, "
+      if shop.subscriptions_settings.has_picture?
+         result += "  picture_url: '#{shop.subscriptions_settings.picture_url}',"
+      end
       result += "  user: {"
       result += "    declined: #{s_u.subscription_popup_showed == true && s_u.accepted_subscription == false}"
       result += "  }"

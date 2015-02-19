@@ -19,24 +19,24 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
-    t.integer  "user_id",          limit: 8,                                             null: false
-    t.integer  "item_id",          limit: 8,                                             null: false
-    t.integer  "view_count",                 default: 0,                                 null: false
+    t.integer  "user_id",          limit: 8,                 null: false
+    t.integer  "item_id",          limit: 8,                 null: false
+    t.integer  "view_count",                 default: 0,     null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                 default: 0,                                 null: false
+    t.integer  "cart_count",                 default: 0,     null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",             default: 0,                                 null: false
+    t.integer  "purchase_count",             default: 0,     null: false
     t.datetime "purchase_date"
     t.float    "rating",                     default: 0.0
-    t.integer  "shop_id",          limit: 8,                                             null: false
-    t.integer  "timestamp",                  default: "date_part('epoch'::text, now())", null: false
+    t.integer  "shop_id",          limit: 8,                 null: false
+    t.integer  "timestamp",                  default: 0,     null: false
     t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2, default: 1,                                 null: false
-    t.integer  "rate_count",                 default: 0,                                 null: false
+    t.integer  "last_action",      limit: 2, default: 1,     null: false
+    t.integer  "rate_count",                 default: 0,     null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
     t.decimal  "price"
-    t.boolean  "repeatable",                 default: false,                             null: false
+    t.boolean  "repeatable",                 default: false, null: false
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -359,17 +359,17 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                             null: false
-    t.integer  "user_id",                             null: false
-    t.string   "uniqid",                              null: false
-    t.datetime "date",              default: "now()", null: false
-    t.integer  "items",             default: [],      null: false, array: true
-    t.integer  "amounts",           default: [],      null: false, array: true
-    t.decimal  "value",             default: 0.0,     null: false
-    t.boolean  "recommended",       default: false,   null: false
+    t.integer  "shop_id",                                           null: false
+    t.integer  "user_id",                                           null: false
+    t.string   "uniqid",                                            null: false
+    t.datetime "date",              default: '2015-02-19 12:50:37', null: false
+    t.integer  "items",             default: [],                    null: false, array: true
+    t.integer  "amounts",           default: [],                    null: false, array: true
+    t.decimal  "value",             default: 0.0,                   null: false
+    t.boolean  "recommended",       default: false,                 null: false
     t.integer  "ab_testing_group"
-    t.decimal  "recommended_value", default: 0.0,     null: false
-    t.decimal  "common_value",      default: 0.0,     null: false
+    t.decimal  "recommended_value", default: 0.0,                   null: false
+    t.decimal  "common_value",      default: 0.0,                   null: false
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -476,17 +476,17 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
   create_table "schema_version", id: false, force: true do |t|
-    t.integer  "version_rank",                                  null: false
-    t.integer  "installed_rank",                                null: false
-    t.string   "version",        limit: 50,                     null: false
-    t.string   "description",    limit: 200,                    null: false
-    t.string   "type",           limit: 20,                     null: false
-    t.string   "script",         limit: 1000,                   null: false
+    t.integer  "version_rank",                                                null: false
+    t.integer  "installed_rank",                                              null: false
+    t.string   "version",        limit: 50,                                   null: false
+    t.string   "description",    limit: 200,                                  null: false
+    t.string   "type",           limit: 20,                                   null: false
+    t.string   "script",         limit: 1000,                                 null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                    null: false
-    t.datetime "installed_on",                default: "now()", null: false
-    t.integer  "execution_time",                                null: false
-    t.boolean  "success",                                       null: false
+    t.string   "installed_by",   limit: 100,                                  null: false
+    t.datetime "installed_on",                default: '2015-02-19 12:50:39', null: false
+    t.integer  "execution_time",                                              null: false
+    t.boolean  "success",                                                     null: false
   end
 
   create_table "sessions", force: true do |t|
@@ -605,13 +605,17 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
 
   create_table "subscriptions_settings", force: true do |t|
-    t.integer  "shop_id",                    null: false
-    t.boolean  "enabled",    default: false, null: false
-    t.boolean  "overlay",    default: true,  null: false
-    t.text     "header",                     null: false
-    t.text     "text",                       null: false
+    t.integer  "shop_id",                              null: false
+    t.boolean  "enabled",              default: false, null: false
+    t.boolean  "overlay",              default: true,  null: false
+    t.text     "header",                               null: false
+    t.text     "text",                                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "picture_file_name"
+    t.string   "picture_content_type"
+    t.integer  "picture_file_size"
+    t.datetime "picture_updated_at"
   end
 
   create_table "transactions", force: true do |t|
