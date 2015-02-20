@@ -2,7 +2,7 @@ class EventsController < ApplicationController
   def push
     extract_legacy_event_name if params[:event].blank?
 
-    s = Session.find_by!(code: params[:ssid])
+    s = Session.find_by(code: params[:ssid])
     raise UserFetcher::SessionNotFoundError if s.blank?
     s.pushing_lock.lock {
       ActiveRecord::Base.transaction {
