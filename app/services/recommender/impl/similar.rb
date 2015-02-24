@@ -15,7 +15,7 @@ module Recommender
         categories_for_query = params.categories.try(:any?) ? params.categories : item.categories
         min_date = 1.month.ago.to_date.to_time.to_i
 
-        items_relation = shop.items.recommendable.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id).in_locations(locations)
+        items_relation = items_in_shop.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
         if recommend_only_widgetable?
           items_relation = items_relation.merge(Item.widgetable)
         end

@@ -36,7 +36,7 @@ module Recommender
 
       # Популярные по всему магазину
       def popular_in_all_shop
-        all_items = shop.items.recommendable.where.not(id: excluded_items_ids)
+        all_items = items_in_shop.where.not(id: excluded_items_ids)
         if recommend_only_widgetable?
           all_items = all_items.widgetable
         end
@@ -46,7 +46,7 @@ module Recommender
 
       # Популярные в конкретной категории
       def popular_in_category
-        items_in_category = shop.items.recommendable.where.not(id: excluded_items_ids)
+        items_in_category = items_in_shop.where.not(id: excluded_items_ids)
         items_in_category = items_in_category.in_categories(params.categories)
         if recommend_only_widgetable?
           items_in_category = items_in_category.widgetable
