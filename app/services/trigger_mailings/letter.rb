@@ -56,17 +56,28 @@ module TriggerMailings
         end
       end
 
-      # Проходимся по рекомендациям и вставляем их в шаблон
-      trigger.recommendations(recommendations_count).each do |recommended_item|
-        decorated_recommended_item = item_for_letter(recommended_item)
+      RecommendationsRequest.report do |r|
+        recommendations = trigger.recommendations(recommendations_count)
 
-        recommended_item_template = trigger.settings[:item_template].dup
-        decorated_recommended_item.each do |key, value|
-          recommended_item_template.gsub!("{{ #{key} }}", value)
+        # Проходимся по рекомендациям и вставляем их в шаблон
+        recommendations.each do |recommended_item|
+          decorated_recommended_item = item_for_letter(recommended_item)
+
+          recommended_item_template = trigger.settings[:item_template].dup
+          decorated_recommended_item.each do |key, value|
+            recommended_item_template.gsub!("{{ #{key} }}", value)
+          end
+
+          result['{{ recommended_item }}'] = recommended_item_template
         end
 
-        result['{{ recommended_item }}'] = recommended_item_template
+        r.shop = @shop
+        r.recommender_type = 'trigger_mail'
+        r.recommendations = recommendations.map(&:uniqid)
+        r.user_id = client.user.present? ? client.user.id : 0
       end
+
+
 
       # Ставим utm-параметры
       result.gsub!('{{ utm_params }}', Mailings::Composer.utm_params(trigger_mail, as: :string))
