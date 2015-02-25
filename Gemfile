@@ -2,15 +2,14 @@ source 'https://rubygems.org'
 ruby '2.1.1'
 
 # Rails
-gem 'rails', '4.0.3'
-gem 'rails-api', '0.2.0'
+gem 'rails', '4.2.0'
+gem 'rails-api', '0.4.0'
 
 # Server
 gem 'unicorn', '~> 4.8.1'
 
 # Database
 gem 'pg', '~> 0.17.1'
-gem 'squeel', '~> 1.1.1'
 gem 'redis-objects', '~> 0.9.0'
 
 # Workers

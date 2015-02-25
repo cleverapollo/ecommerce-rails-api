@@ -19,7 +19,7 @@ describe 'Pushing an event' do
   end
 
   it 'persists a new view event' do
-    post 'push', @params
+    post '/push', @params
 
     expect(response.body).to eq({ status: 'success' }.to_json)
 
@@ -32,13 +32,13 @@ describe 'Pushing an event' do
   end
 
   it 'updates view event to cart' do
-    post 'push', @params
+    post '/push', @params
 
     @params[:event] = 'cart'
 
     expect(Action.all.map(&:rating)).to match_array([3.2, 3.2])
 
-    post 'push', @params
+    post '/push', @params
 
     expect(Action.count).to eq(2)
 
@@ -53,12 +53,12 @@ describe 'Pushing an event' do
     expect(@action.recommended_by).to eq('similar')
 
     @params[:event] = 'view'
-    post 'push', @params
+    post '/push', @params
 
     expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
 
     @params[:event] = 'remove_from_cart'
-    post 'push', @params
+    post '/push', @params
 
     expect(Action.all.map(&:rating)).to match_array([3.7, 3.7])
   end

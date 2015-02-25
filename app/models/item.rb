@@ -24,6 +24,12 @@ class Item < ActiveRecord::Base
   scope :widgetable, ->() {
     where('name IS NOT NULL AND name != \'\'').where('url IS NOT NULL AND url != \'\'').where('image_url IS NOT NULL AND image_url != \'\'').where('price IS NOT NULL AND price != 0.0')
   }
+  scope :by_ca, ->(key, values) {
+    values = [values] unless values.is_a? Array
+    values = values.map{|v| "'#{v}'" }.join(', ')
+
+    where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{values}]")
+  }
 
   class << self
     def disable_expired

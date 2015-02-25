@@ -16,11 +16,11 @@ XFbodTryD2L4H5Ar+wJATpy5hb9HVJutZOP5/ACFHNBH0gmqFtAP7ly16/BsqDuW
 ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
 -----END RSA PRIVATE KEY-----"
 
-    def deliver(shop, options)
+    def compose(shop, options)
       @shop = shop
       @options = options
 
-      mail = mail(to: options.fetch(:to),
+      m = mail(to: options.fetch(:to),
            subject: options.fetch(:subject),
            from: options.fetch(:from),
            return_path: generate_return_path) do |format|
@@ -32,15 +32,14 @@ ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
       code = @options[:code] || 'test'
       unsubscribe_email = "unsubscribe+#{type}=#{code}@rees46.com"
       unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46.host)
-      mail.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
+      m.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
 
       if @options.fetch(:type) == 'digest'
-        mail.header['Precedence'] = 'bulk'
+        m.header['Precedence'] = 'bulk'
       end
 
-      mail = sign(mail)
-
-      mail.deliver
+      m = sign(m)
+      m
     end
 
     private
@@ -51,14 +50,14 @@ ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
       "bounced+#{type}=#{code}@rees46.com"
     end
 
-    def sign(mail)
+    def sign(m)
       private_key = OpenSSL::PKey::RSA.new(DKIM_KEY)
-      signed_mail = Dkim::SignedMail.new(mail,
+      signed_mail = Dkim::SignedMail.new(m,
         domain: 'rees46.com',
         selector: 'default',
         private_key: private_key)
-      mail.header['DKIM-Signature'] = signed_mail.dkim_header.value
-      mail
+      m.header['DKIM-Signature'] = signed_mail.dkim_header.value
+      m
     end
   end
 end

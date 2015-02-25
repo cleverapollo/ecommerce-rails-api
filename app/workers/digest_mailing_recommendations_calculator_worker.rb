@@ -34,6 +34,6 @@ class DigestMailingRecommendationsCalculatorWorker
       end
     end
 
-    Mailer.recommendations({ email: params.fetch('email'), recommendations: csv}).deliver
+    Mailer.recommendations({ email: params.fetch('email'), recommendations: csv}).deliver_now
   end
 end

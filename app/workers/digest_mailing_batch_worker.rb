@@ -76,12 +76,12 @@ class DigestMailingBatchWorker
   # @param recommendations [Array] массив рекомендаций.
   # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
   def send_mail(email, recommendations)
-    Mailings::SignedEmail.deliver(@shop, to: email,
-                                     subject: @mailing.subject,
-                                     from: @settings.send_from,
-                                     body: letter_body(recommendations, email),
-                                     type: 'digest',
-                                     code: @current_digest_mail.try(:code))
+    Mailings::SignedEmail.compose(@shop, to: email,
+                                  subject: @mailing.subject,
+                                  from: @settings.send_from,
+                                  body: letter_body(recommendations, email),
+                                  type: 'digest',
+                                  code: @current_digest_mail.try(:code)).deliver_now
   end
 
   # Сформировать тело письма.
