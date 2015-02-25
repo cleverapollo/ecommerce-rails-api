@@ -50,10 +50,19 @@ class DigestMailingBatchWorker
 
           @current_digest_mail = @batch.digest_mails.create!(shop: @shop, client: @current_client, mailing: @mailing).reload
 
+          recommendations = []
           if IncomingDataTranslator.email_valid?(@current_client.email)
-            recommendations = calculator.recommendations_for(@current_client.user)
+            RecommendationsRequest.report do |r|
 
-            send_mail(@current_client.email, recommendations)
+              recommendations = calculator.recommendations_for(@current_client.user)
+
+              send_mail(@current_client.email, recommendations)
+
+              r.shop = @shop
+              r.recommender_type = 'digest_mail'
+              r.recommendations = recommendations.map(&:uniqid)
+              r.user_id = @current_client.user.present? ? @current_client.user.id : 0
+            end
           end
           @mailing.sent_mails_count.increment
         end
