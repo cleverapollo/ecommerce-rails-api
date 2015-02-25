@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150218081728) do
+ActiveRecord::Schema.define(version: 20150225093446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,24 +19,24 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   enable_extension "uuid-ossp"
 
   create_table "actions", force: true do |t|
-    t.integer  "user_id",          limit: 8,                 null: false
-    t.integer  "item_id",          limit: 8,                 null: false
-    t.integer  "view_count",                 default: 0,     null: false
+    t.integer  "user_id",          limit: 8,                                             null: false
+    t.integer  "item_id",          limit: 8,                                             null: false
+    t.integer  "view_count",                 default: 0,                                 null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                 default: 0,     null: false
+    t.integer  "cart_count",                 default: 0,                                 null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",             default: 0,     null: false
+    t.integer  "purchase_count",             default: 0,                                 null: false
     t.datetime "purchase_date"
     t.float    "rating",                     default: 0.0
-    t.integer  "shop_id",          limit: 8,                 null: false
-    t.integer  "timestamp",                  default: 0,     null: false
+    t.integer  "shop_id",          limit: 8,                                             null: false
+    t.integer  "timestamp",                  default: "date_part('epoch'::text, now())", null: false
     t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2, default: 1,     null: false
-    t.integer  "rate_count",                 default: 0,     null: false
+    t.integer  "last_action",      limit: 2, default: 1,                                 null: false
+    t.integer  "rate_count",                 default: 0,                                 null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
     t.decimal  "price"
-    t.boolean  "repeatable",                 default: false, null: false
+    t.boolean  "repeatable",                 default: false,                             null: false
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -90,12 +90,15 @@ ActiveRecord::Schema.define(version: 20150218081728) do
     t.boolean  "tracked",    default: false, null: false
   end
 
-  create_table "branches", force: true do |t|
+  create_table "categories", force: true do |t|
     t.string   "name"
     t.boolean  "deletable",  default: true, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "code",                      null: false
   end
+
+  add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
 
   create_table "client_errors", force: true do |t|
     t.integer  "shop_id"
@@ -359,17 +362,17 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", force: true do |t|
-    t.integer  "shop_id",                                           null: false
-    t.integer  "user_id",                                           null: false
-    t.string   "uniqid",                                            null: false
-    t.datetime "date",              default: '2015-02-19 12:50:37', null: false
-    t.integer  "items",             default: [],                    null: false, array: true
-    t.integer  "amounts",           default: [],                    null: false, array: true
-    t.decimal  "value",             default: 0.0,                   null: false
-    t.boolean  "recommended",       default: false,                 null: false
+    t.integer  "shop_id",                             null: false
+    t.integer  "user_id",                             null: false
+    t.string   "uniqid",                              null: false
+    t.datetime "date",              default: "now()", null: false
+    t.integer  "items",             default: [],      null: false, array: true
+    t.integer  "amounts",           default: [],      null: false, array: true
+    t.decimal  "value",             default: 0.0,     null: false
+    t.boolean  "recommended",       default: false,   null: false
     t.integer  "ab_testing_group"
-    t.decimal  "recommended_value", default: 0.0,                   null: false
-    t.decimal  "common_value",      default: 0.0,                   null: false
+    t.decimal  "recommended_value", default: 0.0,     null: false
+    t.decimal  "common_value",      default: 0.0,     null: false
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -436,6 +439,20 @@ ActiveRecord::Schema.define(version: 20150218081728) do
     t.datetime "updated_at"
   end
 
+  create_table "recommendations_requests", force: true do |t|
+    t.integer  "shop_id",                               null: false
+    t.integer  "branch_id",                             null: false
+    t.string   "recommender_type",                      null: false
+    t.boolean  "clicked",               default: false, null: false
+    t.integer  "recommendations_count",                 null: false
+    t.string   "recommended_ids",       default: [],    null: false, array: true
+    t.decimal  "duration",                              null: false
+    t.integer  "user_id",                               null: false
+    t.string   "session_code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "recommender_statistics", force: true do |t|
     t.string   "efficiency", limit: 3000
     t.integer  "shop_id"
@@ -476,17 +493,17 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
   create_table "schema_version", id: false, force: true do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2015-02-19 12:50:39', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", force: true do |t|
@@ -531,11 +548,11 @@ ActiveRecord::Schema.define(version: 20150218081728) do
   end
 
   create_table "shops", force: true do |t|
-    t.string   "uniqid",                                       null: false
-    t.string   "name",                                         null: false
-    t.boolean  "active",                       default: true,  null: false
+    t.string   "uniqid",                                        null: false
+    t.string   "name",                                          null: false
+    t.boolean  "active",                        default: true,  null: false
     t.integer  "customer_id"
-    t.boolean  "connected",                    default: false
+    t.boolean  "connected",                     default: false
     t.string   "url"
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
@@ -546,31 +563,32 @@ ActiveRecord::Schema.define(version: 20150218081728) do
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count"
     t.integer  "branch_id"
-    t.boolean  "paid",                         default: false, null: false
+    t.boolean  "paid",                          default: false, null: false
     t.datetime "trial_ends_at"
     t.integer  "cms_id"
-    t.string   "currency",                     default: "р."
+    t.string   "currency",                      default: "р."
     t.integer  "plan_id"
-    t.boolean  "needs_to_pay",                 default: false, null: false
+    t.boolean  "needs_to_pay",                  default: false, null: false
     t.datetime "paid_till"
-    t.boolean  "manual",                       default: false, null: false
-    t.boolean  "requested_ab_testing",         default: false, null: false
-    t.decimal  "efficiency",                   default: 0.0,   null: false
+    t.boolean  "manual",                        default: false, null: false
+    t.boolean  "requested_ab_testing",          default: false, null: false
+    t.decimal  "efficiency",                    default: 0.0,   null: false
     t.string   "yml_file_url"
-    t.boolean  "yml_loaded",                   default: false, null: false
+    t.boolean  "yml_loaded",                    default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tracked_monthly_orders_count", default: 0,     null: false
-    t.string   "rivals",                       default: [],                 array: true
-    t.boolean  "has_orders_last_week",         default: false, null: false
-    t.boolean  "strict_recommendations",       default: false, null: false
-    t.decimal  "recommended_items_view_rate",  default: 0.0,   null: false
-    t.boolean  "export_to_ct",                 default: false
+    t.integer  "tracked_monthly_orders_count",  default: 0,     null: false
+    t.string   "rivals",                        default: [],                 array: true
+    t.boolean  "has_orders_last_week",          default: false, null: false
+    t.boolean  "strict_recommendations",        default: false, null: false
+    t.decimal  "recommended_items_view_rate",   default: 0.0,   null: false
+    t.boolean  "export_to_ct",                  default: false
     t.integer  "manager_id"
-    t.boolean  "enable_nda",                   default: false
-    t.boolean  "available_ibeacon",            default: false
-    t.boolean  "gives_rewards",                default: true,  null: false
-    t.boolean  "hopeless",                     default: false, null: false
+    t.boolean  "enable_nda",                    default: false
+    t.boolean  "available_ibeacon",             default: false
+    t.boolean  "gives_rewards",                 default: true,  null: false
+    t.boolean  "hopeless",                      default: false, null: false
+    t.boolean  "sectoral_algorythms_available", default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

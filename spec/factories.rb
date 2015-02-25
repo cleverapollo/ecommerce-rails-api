@@ -35,6 +35,7 @@ FactoryGirl.define do
       yml_file_url nil
     end
     url 'http://example.com'
+    branch_id 5
   end
 
   factory :item do

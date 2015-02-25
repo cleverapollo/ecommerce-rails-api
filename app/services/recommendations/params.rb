@@ -17,6 +17,8 @@ module Recommendations
     attr_accessor :raw
     # Пользователь
     attr_accessor :user
+    # Сессия
+    attr_accessor :session
     # Магазин
     attr_accessor :shop
     # Тип вызываемого рекомендера
@@ -126,9 +128,9 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] в случае, если не удалось найти сессию.
     def extract_user
-      session = Session.find_by(code: raw[:ssid])
-      raise Recommendations::IncorrectParams.new('Invalid session') if session.blank?
-      @user = session.user
+      @session = Session.find_by(code: raw[:ssid])
+      raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
+      @user = @session.user
     end
 
     # Извлекает текущий товар

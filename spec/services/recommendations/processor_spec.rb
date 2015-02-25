@@ -6,7 +6,8 @@ describe Recommendations::Processor do
       @shop = create(:shop)
       @params = OpenStruct.new \
                                 type: 'interesting',
-                                shop: @shop
+                                shop: @shop,
+                                user: create(:user)
       @recommendations = [1, 2, 3]
 
       allow(Recommender::Base).to receive(:get_implementation_for) {
