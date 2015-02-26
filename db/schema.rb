@@ -562,7 +562,7 @@ ActiveRecord::Schema.define(version: 20150225093446) do
     t.integer  "partner_id"
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count"
-    t.integer  "branch_id"
+    t.integer  "category_id"
     t.boolean  "paid",                          default: false, null: false
     t.datetime "trial_ends_at"
     t.integer  "cms_id"

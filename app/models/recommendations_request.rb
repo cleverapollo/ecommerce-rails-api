@@ -25,7 +25,7 @@ class RecommendationsRequest < ActiveRecord::Base
 
   def shop=s
     self.shop_id = s.id
-    self.branch_id = s.branch_id
+    self.branch_id = s.category_id
   end
 
   def user=u
