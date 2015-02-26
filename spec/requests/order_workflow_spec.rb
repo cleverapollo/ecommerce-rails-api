@@ -7,7 +7,7 @@ describe 'Order workflow' do
 
   it 'performs workflow correctly' do
     # Init
-    get 'init_script'
+    get '/init_script'
 
     # Session and user should be created
     expect(Session.count).to eq(1)
@@ -16,7 +16,7 @@ describe 'Order workflow' do
     @user = @session.user
 
     # First view of first item
-    post 'push', {
+    post '/push', {
       event: 'view',
       shop_id: @shop.uniqid,
       ssid: @session.code,
@@ -44,7 +44,7 @@ describe 'Order workflow' do
     expect(@action.recommended_by).to eql('interesting')
 
     # Cart
-    post 'push', {
+    post '/push', {
       event: 'cart',
       shop_id: @shop.uniqid,
       ssid: @session.code,
@@ -64,7 +64,7 @@ describe 'Order workflow' do
     expect(@action.recommended_by).to eql('interesting')
 
     # Purchase
-    post 'push', {
+    post '/push', {
       event: 'purchase',
       shop_id: @shop.uniqid,
       ssid: @session.code,

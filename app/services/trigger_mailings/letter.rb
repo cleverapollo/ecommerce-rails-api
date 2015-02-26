@@ -28,12 +28,12 @@ module TriggerMailings
     def send
       email = client.email
       #email = 'anton.zhavoronkov@mkechinov.ru'
-      Mailings::SignedEmail.deliver(@shop, to: email,
-                                           subject: trigger.settings[:subject],
-                                           from: trigger.settings[:send_from],
-                                           body: @body,
-                                           type: 'trigger',
-                                           code: trigger_mail.code)
+      Mailings::SignedEmail.compose(@shop, to: email,
+                                    subject: trigger.settings[:subject],
+                                    from: trigger.settings[:send_from],
+                                    body: @body,
+                                    type: 'trigger',
+                                    code: trigger_mail.code).deliver_now
     end
 
     private

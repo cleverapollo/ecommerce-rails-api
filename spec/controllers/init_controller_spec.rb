@@ -21,7 +21,7 @@ describe InitController do
     context 'when shop_id is incorrect' do
       it 'returns nothing' do
         get :generate_ssid, shop_id: 'potato'
-        expect(response.body).to eq(' ')
+        expect(response.body).to eq('')
       end
     end
   end
