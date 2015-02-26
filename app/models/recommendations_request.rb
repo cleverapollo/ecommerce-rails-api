@@ -1,6 +1,6 @@
 class RecommendationsRequest < ActiveRecord::Base
   validates :shop_id, presence: true
-  validates :branch_id, presence: true
+  validates :category_id, presence: true
   validates :recommender_type, presence: true
   validates :recommendations_count, presence: true
   validates :recommendations_count, presence: true
@@ -25,7 +25,7 @@ class RecommendationsRequest < ActiveRecord::Base
 
   def shop=s
     self.shop_id = s.id
-    self.branch_id = s.category_id
+    self.category_id = s.category_id
   end
 
   def user=u
