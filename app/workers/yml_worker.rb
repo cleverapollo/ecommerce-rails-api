@@ -73,7 +73,7 @@ class YmlWorker
   #
   # @return [Hash] каталог товаров.
   def yml_item_catalog
-    parsed_yml.fetch('yml_catalog').fetch('shop').fetch('offers').fetch('offer')
+    [parsed_yml.fetch('yml_catalog').fetch('shop').fetch('offers').fetch('offer')].flatten
   end
 
   # Построить дерево категорий из YML файла.
