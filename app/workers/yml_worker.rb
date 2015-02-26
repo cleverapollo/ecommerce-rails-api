@@ -156,7 +156,10 @@ class YmlWorker
         @parsed_yml = MultiXml.parse(@parsed_yml)
       end
 
-      if @parsed_yml.blank?
+      if @parsed_yml['yml_catalog'].blank? ||
+         @parsed_yml['yml_catalog']['shop'].blank? ||
+         @parsed_yml['yml_catalog']['shop']['offers'].blank? ||
+         @parsed_yml['yml_catalog']['shop']['offers']['offer'].blank?
         raise YmlWorker::Error.new("Пустой каталог.")
       end
     end
