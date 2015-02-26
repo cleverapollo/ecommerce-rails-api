@@ -143,25 +143,27 @@ class YmlWorker
   # @return [Hash] содержимое YML файла.
   # @raise [YmlWorker::Error] ошибка получения YML файла
   def parsed_yml
-    begin
-      if @parsed_yml.blank?
-        response = HTTParty.get(shop.yml_file_url, format: :xml)
+    if @parsed_yml.blank?
+      response = HTTParty.get(shop.yml_file_url, format: :xml)
 
-        # Любой код ответа, кроме 200 считаем ошибкой
-        if response.code != 200
-          raise YmlWorker::Error.new("Плохой код ответа: #{response.code}.")
-        end
-
-        @parsed_yml = response.parsed_response
-        unless @parsed_yml.is_a? Hash
-          @parsed_yml = MultiXml.parse(@parsed_yml)
-        end
+      # Любой код ответа, кроме 200 считаем ошибкой
+      if response.code != 200
+        raise YmlWorker::Error.new("Плохой код ответа: #{response.code}.")
       end
 
-      @parsed_yml
-    rescue MultiXml::ParseError => e
-      raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
+      @parsed_yml = response.parsed_response
+      unless @parsed_yml.is_a? Hash
+        @parsed_yml = MultiXml.parse(@parsed_yml)
+      end
+
+      if @parsed_yml.blank?
+        raise YmlWorker::Error.new("Пустой каталог.")
+      end
     end
+
+    @parsed_yml
+  rescue MultiXml::ParseError => e
+    raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
   rescue SocketError
     raise YmlWorker::Error.new("Несуществующий URL.")
   rescue Net::ReadTimeout
