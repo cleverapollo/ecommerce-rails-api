@@ -1,5 +1,7 @@
 class EventsController < ApplicationController
   def push
+    return respond_with_success if params[:shop_id] == 'b41c3672ac83144540ac06fe466c3f'
+
     extract_legacy_event_name if params[:event].blank?
 
     s = Session.find_by(code: params[:ssid])
