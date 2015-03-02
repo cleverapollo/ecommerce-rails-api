@@ -178,6 +178,8 @@ module ActionPush
 
         @items << Item.fetch(shop.id, item_object)
       end
+    rescue JSON::ParserError => e
+      raise ActionPush::IncorrectParams.new(e.message)
     end
   end
 end
