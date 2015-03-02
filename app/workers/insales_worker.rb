@@ -69,6 +69,7 @@ class InsalesWorker
         'id' => order['id'],
         'date' => Time.parse(order['created_at']['__content__']).to_i,
         'user_id' => order['client']['id'],
+        'user_email' => order['client']['email'],
 
         'items' => order['order_lines'].map {|order_line|
           {
