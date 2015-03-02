@@ -57,9 +57,13 @@ class Action < ActiveRecord::Base
     update_rating_and_last_action(params.rating) if needs_to_update_rating?
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
 
-    save
-    post_process
-    save_to_mahout if self.rating >= 3.7
+    begin
+      save
+      post_process
+      save_to_mahout if self.rating >= 3.7
+    rescue ActiveRecord::RecordNotUnique => e
+      # Action already saved
+    end
   end
 
   def name_code
