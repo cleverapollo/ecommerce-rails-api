@@ -14,7 +14,7 @@ describe 'Pushing an event' do
       price: [14375, 25000],
       is_available: [1, 0],
       category: [191, 15],
-      attributes: '{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}',
+      attributes: ['{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}'],
       recommended_by: 'similar'
     }
   end
