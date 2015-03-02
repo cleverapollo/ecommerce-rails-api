@@ -5,7 +5,6 @@ class RecommendationsRequest < ActiveRecord::Base
   validates :recommendations_count, presence: true
   validates :recommendations_count, presence: true
   validates :duration, presence: true
-  validates :user_id, presence: true
 
   class << self
     def report
@@ -29,7 +28,7 @@ class RecommendationsRequest < ActiveRecord::Base
   end
 
   def user=u
-    self.user_id = u.id
+    self.user_id = u.id if u.present?
   end
 
   def session=s
