@@ -4,10 +4,8 @@ class EventsController < ApplicationController
 
     extract_legacy_event_name if params[:event].blank?
 
-    ActiveRecord::Base.transaction {
-      parameters = ActionPush::Params.extract(params)
-      ActionPush::Processor.new(parameters).process
-    }
+    parameters = ActionPush::Params.extract(params)
+    ActionPush::Processor.new(parameters).process
 
     respond_with_success
   rescue ActionPush::Error => e
