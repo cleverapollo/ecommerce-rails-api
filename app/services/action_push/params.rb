@@ -142,15 +142,16 @@ module ActionPush
         description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
         url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
 
-        custom_attributes = if raw[:attributes].present?
-          if raw[:attributes].is_a?(Array) && raw[:attributes][i].present?
-            JSON.parse(raw[:attributes][i])
-          else
-            JSON.parse(raw[:attributes])
-          end
-        else
-          {}
-        end
+        # custom_attributes = if raw[:attributes].present?
+        #   if raw[:attributes].is_a?(Array) && raw[:attributes][i].present?
+        #     JSON.parse(raw[:attributes][i])
+        #   else
+        #     JSON.parse(raw[:attributes])
+        #   end
+        # else
+        #   {}
+        # end
+        custom_attributes = {}
 
         if url.present? && !url.include?('://')
           url = shop.url + url
