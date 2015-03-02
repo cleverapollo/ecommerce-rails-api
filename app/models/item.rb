@@ -73,6 +73,7 @@ class Item < ActiveRecord::Base
 
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
+    self.custom_attributes = new_item.custom_attributes || {}
 
     attrs = {
                   price: ValuesHelper.present_one(new_item, self, :price),

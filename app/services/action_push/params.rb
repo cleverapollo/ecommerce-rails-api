@@ -141,6 +141,17 @@ module ActionPush
         name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
         description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
         url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+
+        custom_attributes = if raw[:attributes].present?
+          if raw[:attributes].is_a?(Array) && raw[:attributes][i].present?
+            JSON.parse(raw[:attributes][i])
+          else
+            JSON.parse(raw[:attributes])
+          end
+        else
+          {}
+        end
+
         if url.present? && !url.include?('://')
           url = shop.url + url
         end
@@ -171,7 +182,8 @@ module ActionPush
                                      repeatable: repeatable,
                                      widgetable: widgetable,
                                      available_till: available_till,
-                                     ignored: ignored)
+                                     ignored: ignored,
+                                     custom_attributes: custom_attributes)
 
         @items << Item.fetch(shop.id, item_object)
       end
