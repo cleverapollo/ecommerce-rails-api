@@ -10,12 +10,29 @@ module Recommender
         raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear?
+            if item.custom_attributes['gender'].present?
+              result = result.by_ca(gender: item.custom_attributes['gender'])
+            end
+            if item.custom_attributes['sizes'].try(:first).try(:present?)
+              result = result.by_ca(sizes: item.custom_attributes['sizes'])
+            end
+          end
+          result
+        else
+          super
+        end
+      end
+
       def items_to_weight
         price_range = ((item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i)
         categories_for_query = params.categories.try(:any?) ? params.categories : item.categories
         min_date = 1.month.ago.to_date.to_time.to_i
 
-        items_relation = items_in_shop.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
+        items_relation = items_to_recommend.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
         if recommend_only_widgetable?
           items_relation = items_relation.merge(Item.widgetable)
         end

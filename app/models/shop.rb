@@ -8,6 +8,7 @@ class Shop < ActiveRecord::Base
   has_and_belongs_to_many :users
   belongs_to :plan
   belongs_to :customer
+  belongs_to :category
   has_many :clients
   has_many :actions
   has_many :mahout_actions

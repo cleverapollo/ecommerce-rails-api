@@ -86,5 +86,9 @@ module Recommender
 
       given_ids + additional_ids.pluck(:id)
     end
+
+    def items_to_recommend
+      items_in_shop
+    end
   end
 end

@@ -24,11 +24,14 @@ class Item < ActiveRecord::Base
   scope :widgetable, ->() {
     where('name IS NOT NULL AND name != \'\'').where('url IS NOT NULL AND url != \'\'').where('image_url IS NOT NULL AND image_url != \'\'').where('price IS NOT NULL AND price != 0.0')
   }
-  scope :by_ca, ->(key, values) {
-    values = [values] unless values.is_a? Array
-    values = values.map{|v| "'#{v}'" }.join(', ')
-
-    where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{values}]")
+  scope :by_ca, ->(params) {
+    result = self
+    params.each do |key, value|
+      value = [value] unless value.is_a? Array
+      value = value.map{|v| "'#{v}'" }.join(', ')
+      result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value}]")
+    end
+    result
   }
 
   class << self
