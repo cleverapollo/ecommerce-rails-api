@@ -10,31 +10,29 @@ class InitController < ApplicationController
   end
 
   def init_script
-    ActiveRecord::Base.transaction do
-      session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
+    session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
-      @session = Session.fetch(code: session_id,
-                               useragent: user_agent,
-                               email: params[:user_email],
-                               city: city,
-                               country: country,
-                               language: language)
+    @session = Session.fetch(code: session_id,
+                             useragent: user_agent,
+                             email: params[:user_email],
+                             city: city,
+                             country: country,
+                             language: language)
 
-      shop = Shop.find_by(uniqid: params[:shop_id])
+    shop = Shop.find_by(uniqid: params[:shop_id])
 
-      if shop.blank?
-        render(js: 'REES46._log("Магазин не найден");') and return
-      end
-
-      cookies.delete([Rees46.cookie_name])
-      cookies.permanent[Rees46.cookie_name] = @session.code
-      cookies[Rees46.cookie_name] = {
-        value: @session.code,
-        expires: 1.year.from_now
-      }
-
-      render js: init_server_string(@session, shop)
+    if shop.blank?
+      render(js: 'REES46._log("Магазин не найден");') and return
     end
+
+    cookies.delete([Rees46.cookie_name])
+    cookies.permanent[Rees46.cookie_name] = @session.code
+    cookies[Rees46.cookie_name] = {
+      value: @session.code,
+      expires: 1.year.from_now
+    }
+
+    render js: init_server_string(@session, shop)
   end
 
   private
@@ -47,7 +45,11 @@ class InitController < ApplicationController
     result += "  currency: '#{shop.currency}',"
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
-    s_u = shop.clients.find_or_create_by!(user_id: session.user_id)
+    s_u = begin
+      shop.clients.find_or_create_by!(user_id: session.user_id)
+    rescue ActiveRecord::RecordNotUnique => e
+      shop.clients.find_by!(user_id: session.user_id)
+    end
 
     result += "  subscriptions: {"
     if shop.subscriptions_enabled? && s_u.email.blank?
