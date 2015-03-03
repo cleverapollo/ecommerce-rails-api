@@ -15,6 +15,18 @@ class EventsController < ApplicationController
     respond_with_client_error(e)
   end
 
+  def push_attributes
+    shop = Shop.find_by(uniqid: params[:shop_id])
+    return respond_with_client_error('Shop not found') if shop.blank?
+
+    session = Session.find_by(code: params[:session_id])
+    return respond_with_client_error('Session not found') if session.blank?
+
+    UserProfile::AttributesProcessor.process(shop, session.user, params[:attributes])
+
+    respond_with_success
+  end
+
   private
 
     def extract_legacy_event_name
