@@ -3,10 +3,24 @@ module Recommender
     class BuyingNow < Recommender::Weighted
       LIMIT = 20
 
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear? && item.present?
+            if item.custom_attributes['gender'].present?
+              result = result.by_ca(gender: item.custom_attributes['gender'])
+            end
+          end
+          result
+        else
+          super
+        end
+      end
+
       def items_to_weight
         min_date = 1.day.ago.to_i
 
-        all_items = items_in_shop.where.not(id: excluded_items_ids)
+        all_items = items_to_recommend.where.not(id: excluded_items_ids)
 
         # Выводит топ товаров за последние сутки.
         # Те, что чаще покупаются - будут выше.
