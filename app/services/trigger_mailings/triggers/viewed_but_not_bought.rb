@@ -26,7 +26,8 @@ module TriggerMailings
           user: user,
           item: source_item,
           limit: count,
-          recommend_only_widgetable: true
+          recommend_only_widgetable: true,
+          locations: source_item.locations
         )
 
         # Сначала похожие товары

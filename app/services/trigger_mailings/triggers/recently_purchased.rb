@@ -19,7 +19,8 @@ module TriggerMailings
           user: user,
           item: @bought_item,
           limit: count,
-          recommend_only_widgetable: true
+          recommend_only_widgetable: true,
+          locations: @bought_item.locations
         )
 
         # Сначала сопутку
