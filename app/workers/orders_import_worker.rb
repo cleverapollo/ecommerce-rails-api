@@ -66,7 +66,11 @@ class OrdersImportWorker
       client.user
     else
       user = User.create
-      shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
+      begin
+        shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
+      rescue ActiveRecord::RecordNotUnique => e
+        user = shop.clients.find_by(external_id: user_id).user
+      end
       user
     end
   end
