@@ -31,7 +31,7 @@ ZuwC9tVPGOkmzt/1UD7ucBg1wyQ7csCe2+hNL6lgUQ==
       type = @options.fetch(:type)
       code = @options[:code] || 'test'
       unsubscribe_email = "unsubscribe+#{type}=#{code}@rees46.com"
-      unsubscribe_url = Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46.host)
+      unsubscribe_url = Routes.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46.host)
       m.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
 
       if @options.fetch(:type) == 'digest'

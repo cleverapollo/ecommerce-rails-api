@@ -49,11 +49,11 @@ class Client < ActiveRecord::Base
   end
 
   def digest_unsubscribe_url
-    Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)
+    Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46.host)
   end
 
   def trigger_unsubscribe_url
-    Rails.application.routes.url_helpers.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46.host)
+    Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46.host)
   end
 
   def unsubscribe_from_triggers!
