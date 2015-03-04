@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150302144746) do
+ActiveRecord::Schema.define(version: 20150304083345) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -446,7 +446,7 @@ ActiveRecord::Schema.define(version: 20150302144746) do
     t.string   "recommender_type",      limit: 255,                 null: false
     t.boolean  "clicked",                           default: false, null: false
     t.integer  "recommendations_count",                             null: false
-    t.string   "recommended_ids",                   default: [],    null: false, array: true
+    t.text     "recommended_ids",                   default: [],    null: false, array: true
     t.decimal  "duration",                                          null: false
     t.integer  "user_id"
     t.string   "session_code",          limit: 255
