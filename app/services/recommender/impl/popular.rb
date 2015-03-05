@@ -3,6 +3,19 @@ module Recommender
     class Popular < Recommender::Weighted
       LIMIT = 20
 
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear?
+            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop)
+            result = result.by_ca(gender: gender)
+          end
+          result
+        else
+          super
+        end
+      end
+
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
         # Используют разные индексы
@@ -36,7 +49,7 @@ module Recommender
 
       # Популярные по всему магазину
       def popular_in_all_shop
-        all_items = items_in_shop.where.not(id: excluded_items_ids)
+        all_items = items_to_recommend.where.not(id: excluded_items_ids)
         if recommend_only_widgetable?
           all_items = all_items.widgetable
         end
@@ -46,7 +59,7 @@ module Recommender
 
       # Популярные в конкретной категории
       def popular_in_category
-        items_in_category = items_in_shop.where.not(id: excluded_items_ids)
+        items_in_category = items_to_recommend.where.not(id: excluded_items_ids)
         items_in_category = items_in_category.in_categories(params.categories)
         if recommend_only_widgetable?
           items_in_category = items_in_category.widgetable

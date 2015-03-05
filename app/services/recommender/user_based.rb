@@ -4,11 +4,8 @@ module Recommender
       if shop.sectoral_algorythms_available?
         result = super
         if shop.category.wear?
-          if item.present?
-            if item.custom_attributes['gender'].present?
-              result = result.by_ca(gender: item.custom_attributes['gender'])
-            end
-          end
+          gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
+          result = result.by_ca(gender: gender)
         end
         result
       else
