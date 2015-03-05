@@ -15,7 +15,7 @@ module Recommender
           result = super
           if shop.category.wear?
             gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
-            result = result.by_ca(gender)
+            result = result.by_ca(gender: gender)
 
             if item.custom_attributes['sizes'].try(:first).try(:present?)
               result = result.by_ca(sizes: item.custom_attributes['sizes'])
