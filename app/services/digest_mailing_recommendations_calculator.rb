@@ -100,7 +100,12 @@ class DigestMailingRecommendationsCalculator
       end
     end
     result += Item.where(id: from_base).each { |item| @items_cache[item.id] = item } if from_base.any?
-    raise UnexpectedRecommendationsCountError.new('Получено рекомендаций меньше заданного значения') if result.size < @limit
+
+    if result.size < @limit
+      Rollbar.info('Недостаточно рекомендаций', shop_id: @shop.id, user_id: @current_user.try(:id))
+      result += @shop.items.widgetable.limit(@limit - result.size)
+    end
+
     result
   end
 

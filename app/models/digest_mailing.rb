@@ -26,4 +26,9 @@ class DigestMailing < ActiveRecord::Base
   def finish!
     update(state: 'finished', finished_at: Time.current)
   end
+
+  def resume!
+    update(state: 'started')
+    batches.incomplete.each{|batch| DigestMailingBatchWorker.perform_async(batch.id) }
+  end
 end
