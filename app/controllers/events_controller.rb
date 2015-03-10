@@ -1,8 +1,12 @@
 class EventsController < ApplicationController
   def push
-    return respond_with_success if params[:shop_id] == 'b41c3672ac83144540ac06fe466c3f'
+    return render(nothing: true) if params[:shop_id] == 'b41c3672ac83144540ac06fe466c3f'
 
     extract_legacy_event_name if params[:event].blank?
+
+    if Shop.find_by(uniqid: params[:shop_id]).try(:deactivated?)
+      render(nothing: true) and return false
+    end
 
     parameters = ActionPush::Params.extract(params)
     ActionPush::Processor.new(parameters).process
@@ -18,6 +22,10 @@ class EventsController < ApplicationController
   def push_attributes
     shop = Shop.find_by(uniqid: params[:shop_id])
     return respond_with_client_error('Shop not found') if shop.blank?
+
+    if shop.deactivated?
+      render(nothing: true) and return false
+    end
 
     session = Session.find_by(code: params[:session_id])
     return respond_with_client_error('Session not found') if session.blank?

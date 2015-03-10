@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150304083345) do
+ActiveRecord::Schema.define(version: 20150310113906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -176,6 +176,7 @@ ActiveRecord::Schema.define(version: 20150304083345) do
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
+    t.date     "recent_activity"
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -205,7 +206,7 @@ ActiveRecord::Schema.define(version: 20150304083345) do
     t.string   "subject",           limit: 255,                    null: false
     t.text     "template",                                         null: false
     t.string   "items",             limit: 255
-    t.string   "state",             limit: 255,                    null: false
+    t.string   "state",             limit: 255, default: "draft",  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "item_template",                                    null: false
@@ -320,7 +321,6 @@ ActiveRecord::Schema.define(version: 20150304083345) do
   create_table "mailings_settings", force: :cascade do |t|
     t.integer  "shop_id",                       null: false
     t.string   "send_from",         limit: 255, null: false
-    t.text     "logo_url"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "logo_file_name",    limit: 255
@@ -590,6 +590,7 @@ ActiveRecord::Schema.define(version: 20150304083345) do
     t.boolean  "gives_rewards",                             default: true,  null: false
     t.boolean  "hopeless",                                  default: false, null: false
     t.boolean  "sectoral_algorythms_available",             default: false, null: false
+    t.boolean  "restricted",                                default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

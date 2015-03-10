@@ -36,6 +36,8 @@ FactoryGirl.define do
     end
     url 'http://example.com'
     category_id 5
+    active true
+    restricted false
   end
 
   factory :item do

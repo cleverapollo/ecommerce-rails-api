@@ -7,7 +7,7 @@ describe 'Order workflow' do
 
   it 'performs workflow correctly' do
     # Init
-    get '/init_script'
+    get '/init_script', shop_id: @shop.uniqid
 
     # Session and user should be created
     expect(Session.count).to eq(1)

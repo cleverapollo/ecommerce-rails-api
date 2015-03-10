@@ -13,7 +13,7 @@ class YmlWorker
   class << self
     # Обработать все магазины с YML файлами.
     def process_all!
-      Shop.with_yml.find_each do |shop|
+      Shop.active.with_yml.find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end

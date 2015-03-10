@@ -2,7 +2,8 @@ class InitController < ApplicationController
   include ActionController::Cookies
 
   def generate_ssid
-    if Shop.find_by(uniqid: params[:shop_id]).present?
+    shop = Shop.find_by(uniqid: params[:shop_id])
+    if shop.present? && shop.active?
       render text: Session.fetch.code
     else
       render nothing: true
@@ -12,18 +13,22 @@ class InitController < ApplicationController
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
+    shop = Shop.find_by(uniqid: params[:shop_id])
+
+    if shop.blank?
+      render(js: 'REES46._log("Магазин не найден");') and return
+    end
+
+    if shop.deactivated?
+      render(nothing: true) and return false
+    end
+
     @session = Session.fetch(code: session_id,
                              useragent: user_agent,
                              email: params[:user_email],
                              city: city,
                              country: country,
                              language: language)
-
-    shop = Shop.find_by(uniqid: params[:shop_id])
-
-    if shop.blank?
-      render(js: 'REES46._log("Магазин не найден");') and return
-    end
 
     cookies.delete([Rees46.cookie_name])
     cookies.permanent[Rees46.cookie_name] = @session.code

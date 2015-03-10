@@ -25,6 +25,8 @@ class Shop < ActiveRecord::Base
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
   scope :with_enabled_triggers, -> { joins(:trigger_mailings).where('trigger_mailings.enabled = true').uniq }
+  scope :active, -> { where(active: true) }
+  scope :unrestricted, -> { active.where(restricted: false) }
 
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
@@ -88,5 +90,13 @@ class Shop < ActiveRecord::Base
 
   def domain
     url.split('://').last.split('www.').last.split('/').first
+  end
+
+  def deactivated?
+    !active?
+  end
+
+  def restricted?
+    super || deactivated?
   end
 end
