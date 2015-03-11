@@ -11,7 +11,7 @@ module SectoralAlgorythms
 
         results = { 'f' => 0, 'm' => 0 }
         user.actions.includes(:item).map{|a| a.item.custom_attributes['gender'] }.select{|g| g.present? }
-                                                      .each{|g| results[g] += 1 }
+                                                      .each{|g| results[g] += 1 if results[g].present? }
         result = results.max_by{|_,v| v }.first
         result
       end
