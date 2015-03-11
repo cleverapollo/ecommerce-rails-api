@@ -1,7 +1,9 @@
 module Recommender
   module Impl
     class Similar < Recommender::Weighted
+      LARGE_PRICE_UP = 1.5
       PRICE_UP = 1.25
+      LARGE_PRICE_DOWN = 0.5
       PRICE_DOWN = 0.85
       LIMIT = 20
 
@@ -41,7 +43,11 @@ module Recommender
       end
 
       def price_range
-        price_range = ((item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i)
+        (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
+      end
+
+      def large_price_range
+        (item.price * LARGE_PRICE_DOWN).to_i..(item.price * LARGE_PRICE_UP).to_i
       end
 
       def categories_for_query
@@ -60,10 +66,14 @@ module Recommender
         items_relation.where(price: price_range)
       end
 
+      def items_relation_with_larger_price_condition
+        items_relation.where(price: large_price_range)
+      end
+
       def items_to_weight
         result = shop.actions.where(item_id: items_relation_with_price_condition).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(limit).pluck(:item_id)
         if result.size < limit
-          result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
+          result += items_relation_with_larger_price_condition.where.not(id: result).limit(limit - result.size).pluck(:id)
         end
 
         result = inject_promotions(result)
