@@ -16,6 +16,19 @@ module Recommender
         end
       end
 
+      def inject_promotions(result_ids)
+        Promotion.find_each do |promotion|
+          if promotion.show?(shop: shop, item: item, categories: categories)
+            promoted_item_id = promotion.scope(items_to_recommend.where.in_categories(categories)).first.try(:id)
+            if promoted_item_id.present?
+              result_ids[0] = promoted_item_id
+            end
+          end
+        end
+
+        result_ids
+      end
+
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
         # Используют разные индексы
@@ -38,6 +51,8 @@ module Recommender
           result = inject_random_items(result) unless in_category
         end
 
+        result = inject_promotions(result)
+
         result
       end
 
@@ -50,9 +65,6 @@ module Recommender
       # Популярные по всему магазину
       def popular_in_all_shop
         all_items = items_to_recommend.where.not(id: excluded_items_ids)
-        if recommend_only_widgetable?
-          all_items = all_items.widgetable
-        end
 
         common_relation(shop.actions.where(item_id: all_items))
       end
@@ -61,9 +73,6 @@ module Recommender
       def popular_in_category
         items_in_category = items_to_recommend.where.not(id: excluded_items_ids)
         items_in_category = items_in_category.in_categories(params.categories)
-        if recommend_only_widgetable?
-          items_in_category = items_in_category.widgetable
-        end
 
         common_relation(shop.actions.where(item_id: items_in_category))
       end

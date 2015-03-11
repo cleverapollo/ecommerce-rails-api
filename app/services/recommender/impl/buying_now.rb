@@ -16,6 +16,19 @@ module Recommender
         end
       end
 
+      def inject_promotions(result_ids)
+        Promotion.find_each do |promotion|
+          if promotion.show?(shop: shop, item: item)
+            promoted_item_id = promotion.scope(items_to_recommend.in_categories(item.categories)).first.try(:id)
+            if promoted_item_id.present?
+              result_ids[0] = promoted_item_id
+            end
+          end
+        end
+
+        result_ids
+      end
+
       def items_to_weight
         min_date = 1.day.ago.to_i
 
@@ -32,6 +45,7 @@ module Recommender
         unless shop.strict_recommendations?
           result = inject_random_items(result)
         end
+        result = inject_promotions(result)
         result
       end
     end

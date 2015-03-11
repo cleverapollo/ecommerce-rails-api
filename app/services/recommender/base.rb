@@ -64,7 +64,9 @@ module Recommender
     end
 
     def items_in_shop
-      shop.items.recommendable.in_locations(locations)
+      relation = shop.items.recommendable.in_locations(locations)
+      relation = relation.widgetable if recommend_only_widgetable?
+      relation
     end
 
     def excluded_items_ids
@@ -79,10 +81,6 @@ module Recommender
       return given_ids if given_ids.size >= limit
 
       additional_ids = items_in_shop.where.not(id: (given_ids + excluded_items_ids)).order('RANDOM()').limit(limit - given_ids.count)
-
-      if recommend_only_widgetable?
-        additional_ids = additional_ids.merge(Item.widgetable)
-      end
 
       given_ids + additional_ids.pluck(:id)
     end

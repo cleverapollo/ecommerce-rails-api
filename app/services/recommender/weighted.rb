@@ -13,7 +13,11 @@ module Recommender
       #                                 limit: params.limit)
       #   ms.close
       # end
-      result = i_w.sample(limit)
+      result = if result.size > limit
+        i_w.sample(limit)
+      else
+        i_w
+      end
 
       result
     end

@@ -19,9 +19,6 @@ module Recommender
 
       result = if ms.tunnel && ms.tunnel.active?
         items_to_include = items_to_recommend
-        if recommend_only_widgetable?
-          items_to_include = items_to_include.merge(Item.widgetable)
-        end
 
         r = ms.user_based(params.user.id,
                       params.shop.id,

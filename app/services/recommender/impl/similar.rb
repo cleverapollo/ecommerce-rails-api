@@ -27,20 +27,47 @@ module Recommender
         end
       end
 
-      def items_to_weight
+      def inject_promotions(result_ids)
+        Promotion.find_each do |promotion|
+          if promotion.show?(shop: shop, item: item)
+            promoted_item_id = promotion.scope(items_relation).first.try(:id)
+            if promoted_item_id.present?
+              result_ids[0] = promoted_item_id
+            end
+          end
+        end
+
+        result_ids
+      end
+
+      def price_range
         price_range = ((item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i)
-        categories_for_query = params.categories.try(:any?) ? params.categories : item.categories
-        min_date = 1.month.ago.to_date.to_time.to_i
+      end
 
-        items_relation = items_to_recommend.where(price: price_range).in_categories(categories_for_query).where.not(id: item.id)
-        if recommend_only_widgetable?
-          items_relation = items_relation.merge(Item.widgetable)
+      def categories_for_query
+        categories.try(:any?) ? categories : item.categories
+      end
+
+      def min_date
+        1.month.ago.to_date.to_time.to_i
+      end
+
+      def items_relation
+        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id)
+      end
+
+      def items_relation_with_price_condition
+        items_relation.where(price: price_range)
+      end
+
+      def items_to_weight
+        result = shop.actions.where(item_id: items_relation_with_price_condition).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(limit).pluck(:item_id)
+        if result.size < limit
+          result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
         end
 
-        result = shop.actions.where(item_id: items_relation).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(LIMIT).pluck(:item_id)
-        if result.size < LIMIT
-          result += items_relation.where.not(id: result).limit(LIMIT - result.size).pluck(:id)
-        end
+        result = inject_promotions(result)
+
         result
       end
     end
