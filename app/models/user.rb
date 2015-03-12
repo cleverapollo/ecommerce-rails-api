@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
   has_many :sessions
   has_many :actions
   has_many :orders
+  has_many :profile_attributes
 
   lock :merging, expiration: 60, timeout: 1
 

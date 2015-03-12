@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150311102950) do
+ActiveRecord::Schema.define(version: 20150312112933) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -451,6 +451,16 @@ ActiveRecord::Schema.define(version: 20150311102950) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "profile_attributes", force: :cascade do |t|
+    t.integer  "user_id",    null: false
+    t.integer  "shop_id",    null: false
+    t.jsonb    "value",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "profile_attributes", ["user_id"], name: "index_profile_attributes_on_user_id", using: :btree
 
   create_table "promotions", force: :cascade do |t|
     t.string   "brand",      null: false
