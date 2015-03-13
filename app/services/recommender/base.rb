@@ -66,6 +66,7 @@ module Recommender
     def items_in_shop
       relation = shop.items.recommendable.in_locations(locations)
       relation = relation.widgetable if recommend_only_widgetable?
+      relation = relation.by_ca(params.custom_attributes_filter) if params.custom_attributes_filter.present?
       relation
     end
 

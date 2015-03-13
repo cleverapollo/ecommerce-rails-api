@@ -42,6 +42,8 @@ module Recommendations
     attr_accessor :exclude
     # Расширенный режим ответа (передавать аттрибуты товаров)
     attr_accessor :extended
+    # Фильтрация по кастомным аттрибутам
+    attr_accessor :custom_attributes_filter
 
     # Проверяет и обрабатывает параметры
     #
@@ -111,6 +113,7 @@ module Recommendations
       @type = raw[:recommender_type]
       @limit = raw[:limit].to_i if raw[:limit].present?
       @extended = raw[:extended].present?
+      @custom_attributes_filter = raw[:custom_attributes_filter]
     end
 
     # Извлекает магазин
