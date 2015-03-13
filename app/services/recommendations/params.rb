@@ -113,7 +113,13 @@ module Recommendations
       @type = raw[:recommender_type]
       @limit = raw[:limit].to_i if raw[:limit].present?
       @extended = raw[:extended].present?
-      @custom_attributes_filter = raw[:custom_attributes_filter]
+      @custom_attributes_filter = if raw[:custom_attributes_filter].present?
+        raw[:custom_attributes_filter].each do |key, value|
+          raw[:custom_attributes_filter][key] = value.strip.mb_chars.downcase.to_s
+        end
+      else
+        {}
+      end
     end
 
     # Извлекает магазин
