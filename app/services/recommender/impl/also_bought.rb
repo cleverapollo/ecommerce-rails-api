@@ -26,7 +26,7 @@ module Recommender
         result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
         result = result.joins(:item).merge(items_to_recommend)
-        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT)
+        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(limit)
         result.pluck(:item_id)
       end
 

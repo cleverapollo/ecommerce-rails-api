@@ -40,7 +40,7 @@ module Recommender
           popular_in_all_shop
         end
 
-        result = by_purchases(relation).sample(limit)
+        result = by_purchases(relation, limit)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         if result.size < limit
           result += by_rating(relation, limit - result.size, result)
@@ -80,7 +80,7 @@ module Recommender
       # Расчет по количеству покупок (для нормальных магазинов)
       def by_purchases(relation, limit = LIMIT)
         relation.where('purchase_count > 0').order('SUM(purchase_count) DESC')
-                .limit(LIMIT).pluck(:item_id)
+                .limit(limit).pluck(:item_id)
       end
 
       # Расчет по рейтингу (для маленьких магазинов)
