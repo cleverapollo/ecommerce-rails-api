@@ -59,7 +59,7 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id)
+        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id).order('price DESC').limit(limit * 3)
       end
 
       def items_relation_with_price_condition
