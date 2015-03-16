@@ -31,6 +31,7 @@ module Recommender
         relation = relation.where("rating = '#{Actions::Cart::RATING}'::real")
         relation = relation.where('cart_date <= ?', 30.minutes.ago)
         relation = relation.where('cart_date >= ?', 24.hours.ago)
+        relation = relation.joins(:item).merge(items_to_recommend)
         id = relation.limit(1).pluck(:item_id).first
 
         if id.present? && id != item.try(:id) && !ids.include?(id)
