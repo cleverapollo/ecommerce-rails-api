@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150312112933) do
+ActiveRecord::Schema.define(version: 20150316133737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,7 +35,6 @@ ActiveRecord::Schema.define(version: 20150312112933) do
     t.integer  "rate_count",                   default: 0,                                 null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
-    t.decimal  "price"
     t.boolean  "repeatable",                   default: false,                             null: false
   end
 

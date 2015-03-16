@@ -40,7 +40,6 @@ describe 'Order workflow' do
     @action = @user.actions.first
     expect(@action.item_id).to eq(@item.id)
     expect(@action.rating).to eq(3.2)
-    expect(@action.price.to_i).to eq(99)
     expect(@action.recommended_by).to eql('interesting')
 
     # Cart
@@ -60,7 +59,6 @@ describe 'Order workflow' do
     @action = @user.actions.first
     expect(@action.item_id).to eq(@item.id)
     expect(@action.rating).to eq(4.2)
-    expect(@action.price.to_i).to eq(99)
     expect(@action.recommended_by).to eql('interesting')
 
     # Purchase
@@ -83,7 +81,6 @@ describe 'Order workflow' do
     @action = Action.first
     expect(@action.item_id).to eq(@item.id)
     expect(@action.rating).to eq(5)
-    expect(@action.price.to_i).to eq(99)
     expect(@action.recommended_by).to eql('interesting')
 
     # Order
