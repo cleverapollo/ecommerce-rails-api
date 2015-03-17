@@ -89,7 +89,10 @@ class YmlWorker
       category = @shop.item_categories.find_or_initialize_by(external_id: category_yml['id'].to_s)
       category.parent_external_id = category_yml['parentId'].to_s
       category.name = category_yml['__content__'].to_s.truncate(255)
-      category.save!
+      begin
+        category.save!
+      rescue ActiveRecord::RecordNotUnique
+      end
     end
 
     loop do
