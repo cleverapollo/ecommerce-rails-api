@@ -71,6 +71,9 @@ module TriggerMailings
           result['{{ recommended_item }}'] = recommended_item_template
         end
 
+        # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
+        result.gsub!('{{ recommended_item }}', '')
+
         r.shop = @shop
         r.recommender_type = 'trigger_mail'
         r.recommendations = recommendations.map(&:uniqid)
