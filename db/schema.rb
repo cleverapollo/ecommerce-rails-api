@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150316133737) do
+ActiveRecord::Schema.define(version: 20150317122631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -149,6 +149,13 @@ ActiveRecord::Schema.define(version: 20150316133737) do
     t.string   "documentation_link", limit: 255
   end
 
+  create_table "currencies", force: :cascade do |t|
+    t.string   "code",       null: false
+    t.string   "symbol",     null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "customers", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",    null: false
     t.string   "encrypted_password",     limit: 255, default: "",    null: false
@@ -236,11 +243,12 @@ ActiveRecord::Schema.define(version: 20150316133737) do
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
 
   create_table "events", force: :cascade do |t|
-    t.integer  "shop_id",                     null: false
-    t.string   "name",            limit: 255, null: false
+    t.integer  "shop_id",                                     null: false
+    t.string   "name",            limit: 255,                 null: false
     t.text     "additional_info"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "processed",                   default: false, null: false
   end
 
   add_index "events", ["created_at"], name: "index_events_on_created_at", using: :btree

@@ -19,6 +19,7 @@ class Shop < ActiveRecord::Base
   has_many :beacon_messages
   has_many :trigger_mailings
   has_many :item_categories
+  has_many :events
   has_one :insales_shop
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
@@ -36,7 +37,7 @@ class Shop < ActiveRecord::Base
 
   def report_event(event)
     if connected_events[event] != true
-      ShopEventsReporter.event_tracked(self) if first_event?
+      Event.event_tracked(self) if first_event?
       connected_events[event] = true
       check_connection!
       save
@@ -45,7 +46,7 @@ class Shop < ActiveRecord::Base
 
   def report_recommender(recommender)
     if connected_recommenders[recommender] != true
-      ShopEventsReporter.recommendation_given(self) if first_recommender?
+      Event.recommendation_given(self) if first_recommender?
       connected_recommenders[recommender] = true
       check_connection!
       save
@@ -64,7 +65,7 @@ class Shop < ActiveRecord::Base
     if self.connected == false && connected_now?
       self.connected = true
       self.connected_at = Time.current
-      ShopEventsReporter.connected(self)
+      Event.connected(self)
     end
   end
 
