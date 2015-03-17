@@ -88,7 +88,7 @@ module Recommendations
       @categories                = []
       @locations                 = []
       @cart_item_ids             = []
-      @limit                     = 5
+      @limit                     = 8
       @recommend_only_widgetable = false
       @exclude                   = []
 
