@@ -1,6 +1,6 @@
 require 'rollbar/rails'
 Rollbar.configure do |config|
-  config.access_token = '8b197bc247a844278f109dbd06ad2e66'
+  config.access_token = Rails.application.secrets.rollbar_access_token
 
   if Rails.env.development? || Rails.env.test?
     config.enabled = false

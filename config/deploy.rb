@@ -10,7 +10,7 @@ set :rvm_ruby_string, "2.1.1"
 set :user, 'rails'
 set :use_sudo, false
 set :shared_children, shared_children + %w[tmp/sockets]
-set :shared_configs, %w[database.yml]
+set :shared_configs, %w[database.yml secrets.yml]
 
 # VCS Configuration
 set :scm, :git
@@ -63,6 +63,7 @@ namespace :config do
   desc "Create symlinks to shared configs"
   task :symlink, roles: :app do
     run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    run "ln -nfs #{shared_path}/config/secrets.yml #{release_path}/config/secrets.yml"
     run "ln -nfs #{shared_path}/config/unicorn.rb #{release_path}/config/unicorn.rb"
   end
 

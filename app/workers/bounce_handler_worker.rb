@@ -2,15 +2,12 @@
 # Обработчик отклоненных писем
 #
 class BounceHandlerWorker
-  GMAIL_LOGIN = 'bounced@rees46.com'
-  GMAIL_PASSWORD = '97qa64ws31ed'
-
   class << self
     def perform
       require 'gmail'
       require 'bounce_email'
 
-      Gmail.connect!(GMAIL_LOGIN, GMAIL_PASSWORD) do |gmail|
+      Gmail.connect!('bounced@rees46.com', Rails.application.secrets.gmail_bounced_password) do |gmail|
         gmail.inbox.emails.each do |email|
           # Достаем "само" письмо
           message = email.message
