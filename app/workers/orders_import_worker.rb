@@ -127,20 +127,20 @@ class OrdersImportWorker
   end
 
   def persist_order(order, items, shop_id, user_id)
-    order = Order.create \
-                         shop_id: shop_id,
+    order = Order.create(shop_id: shop_id,
                          user_id: user_id,
                          uniqid: order['id'],
                          date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current,
                          recommended: false,
-                         value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum
+                         value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum)
 
     items.each do |item|
-      OrderItem.create \
-                       order_id: order.id,
+      OrderItem.create(order_id: order.id,
                        item_id: item.id,
                        action_id: item.action_id,
-                       amount: item.amount
+                       amount: item.amount)
     end
+  rescue
+    ActiveRecord::RecordNotUnique
   end
 end
