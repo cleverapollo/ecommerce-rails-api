@@ -2,15 +2,28 @@ class Order < ActiveRecord::Base
   include UserLinkable
 
   has_many :order_items, dependent: :destroy
+  belongs_to :source, polymorphic: true
   belongs_to :shop
 
   class << self
-    def persist(shop, user, uniqid, items)
+    def persist(shop, user, uniqid, items, source = {})
       return if duplicate?(shop, user, uniqid, items)
 
       uniqid = generate_uniqid if uniqid.blank?
 
       values = order_values(shop, user, items)
+
+      if source.present? && source['from'].present?
+        klass = if source['from'] == 'trigger_mail'
+          TriggerMail
+        elsif source['from'] == 'digest_mail'
+          DigestMail
+        end
+
+        source = klass.find_by(code: source['code'])
+      else
+        source = nil
+      end
 
       order = Order.create! \
                            shop_id: shop.id,
@@ -20,7 +33,8 @@ class Order < ActiveRecord::Base
                            recommended_value: values[:recommended_value],
                            value: values[:value],
                            recommended: (values[:recommended_value] > 0),
-                           ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group)
+                           ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group),
+                           source: source
 
       items.each do |item|
         OrderItem.persist(order, item, item.amount)

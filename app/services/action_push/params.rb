@@ -35,6 +35,8 @@ module ActionPush
     attr_accessor :trigger_mail_code
     # Код дайджестной рассылки
     attr_accessor :digest_mail_code
+    # Источник
+    attr_accessor :source
 
     # Проверяет и обрабатывает параметры
     #
@@ -100,6 +102,7 @@ module ActionPush
       @order_id          = raw[:order_id]
       @trigger_mail_code = raw[:trigger_mail_code]
       @digest_mail_code  = raw[:digest_mail_code]
+      @source            = raw[:source].present? ? JSON.parse(raw[:source]) : nil
     end
 
     # Извлекает пользователя

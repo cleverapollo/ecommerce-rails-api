@@ -5,7 +5,7 @@ module Actions
 
     class << self
       def mass_process(params)
-        Order.persist(params.shop, params.user, params.order_id, params.items)
+        Order.persist(params.shop, params.user, params.order_id, params.items, params.source)
       end
     end
 

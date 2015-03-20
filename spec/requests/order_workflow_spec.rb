@@ -3,6 +3,7 @@ require 'rails_helper'
 describe 'Order workflow' do
   before do
     @shop = create(:shop)
+    @trigger_mail = create(:trigger_mail, shop: @shop, client_id: 1, trigger_mailing_id: 1).reload
   end
 
   it 'performs workflow correctly' do
@@ -24,7 +25,8 @@ describe 'Order workflow' do
       price: [99],
       is_available: [1],
       categories: ['5'],
-      recommended_by: 'interesting'
+      recommended_by: 'interesting',
+      source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
     }
 
     # Item should be created
@@ -51,7 +53,8 @@ describe 'Order workflow' do
       price: [99],
       is_available: [1],
       categories: ['5'],
-      recommended_by: 'interesting'
+      recommended_by: 'interesting',
+      source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
     }
 
     # Action should modyfied
@@ -69,7 +72,8 @@ describe 'Order workflow' do
       order_id: 157,
       item_id: [100],
       amount: [1],
-      user_id: '555'
+      user_id: '555',
+      source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
     }
 
     # Session and user should be same count
@@ -86,5 +90,6 @@ describe 'Order workflow' do
     # Order
     expect(Order.count).to eq(1)
     expect(OrderItem.first.recommended_by).to eq('interesting')
+    expect(Order.first.source).to eq(@trigger_mail)
   end
 end

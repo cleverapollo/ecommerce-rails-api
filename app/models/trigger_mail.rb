@@ -6,9 +6,9 @@ class TriggerMail < ActiveRecord::Base
   belongs_to :client
   belongs_to :mailing, class_name: 'TriggerMailing', foreign_key: 'trigger_mailing_id'
 
-  validates :shop, presence: true
-  validates :client, presence: true
-  validates :mailing, presence: true
+  validates :shop_id, presence: true
+  validates :client_id, presence: true
+  validates :trigger_mailing_id, presence: true
   validates :trigger_data, presence: true
 
   store :trigger_data, coder: JSON

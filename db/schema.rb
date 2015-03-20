@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150317122631) do
+ActiveRecord::Schema.define(version: 20150320092801) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -393,10 +393,13 @@ ActiveRecord::Schema.define(version: 20150317122631) do
     t.integer  "ab_testing_group"
     t.decimal  "recommended_value",             default: 0.0,     null: false
     t.decimal  "common_value",                  default: 0.0,     null: false
+    t.integer  "source_id"
+    t.string   "source_type"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
+  add_index "orders", ["source_type", "source_id"], name: "index_orders_on_source_type_and_source_id", using: :btree
   add_index "orders", ["uniqid"], name: "index_orders_on_uniqid", using: :btree
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
 
@@ -627,6 +630,7 @@ ActiveRecord::Schema.define(version: 20150317122631) do
     t.boolean  "hopeless",                                  default: false, null: false
     t.boolean  "sectoral_algorythms_available",             default: false, null: false
     t.boolean  "restricted",                                default: false, null: false
+    t.decimal  "revenue_per_visit",                         default: 0.0,   null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
