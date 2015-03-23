@@ -23,7 +23,11 @@ class UserFetcher
 
     client = nil
     # Находим или создаем связку пользователя с магазином
-    client = shop.clients.find_or_create_by!(user_id: session.user_id)
+    begin
+      client = shop.clients.find_or_create_by!(user_id: session.user_id)
+    rescue ActiveRecord::RecordNotUnique
+      client = shop.clients.find_by!(user_id: session.user_id)
+    end
 
     result = client.user
 
