@@ -179,7 +179,7 @@ class YmlWorker
     raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
   rescue SocketError
     raise YmlWorker::Error.new("Несуществующий URL.")
-  rescue Net::ReadTimeout
+  rescue Net::ReadTimeout, Errno::ETIMEDOUT
     raise YmlWorker::Error.new("Тайм-аут запроса.")
   end
 end
