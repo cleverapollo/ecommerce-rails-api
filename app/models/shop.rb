@@ -101,4 +101,8 @@ class Shop < ActiveRecord::Base
   def restricted?
     super || deactivated?
   end
+
+  def has_imported_yml?
+    self.yml_loaded && self.last_valid_yml_file_loaded_at >= 48.hours.ago
+  end
 end

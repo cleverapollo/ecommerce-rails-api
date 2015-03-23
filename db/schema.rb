@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150320092801) do
+ActiveRecord::Schema.define(version: 20150323113612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -631,6 +631,7 @@ ActiveRecord::Schema.define(version: 20150320092801) do
     t.boolean  "sectoral_algorythms_available",             default: false, null: false
     t.boolean  "restricted",                                default: false, null: false
     t.decimal  "revenue_per_visit",                         default: 0.0,   null: false
+    t.datetime "last_valid_yml_file_loaded_at"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

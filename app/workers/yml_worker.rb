@@ -47,7 +47,7 @@ class YmlWorker
     # Отключаем те товары, которые отсуствуют в YML файле
     disable_remaining_in_cache
 
-    shop.update_columns(yml_loaded: true) unless shop.yml_loaded?
+    shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
   rescue YmlWorker::Error => e
     ErrorsMailer.yml_import_error('anton.zhavoronkov@mkechinov.ru', shop, e)
   end
