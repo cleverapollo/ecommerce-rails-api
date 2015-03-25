@@ -134,62 +134,51 @@ module ActionPush
       @items = []
 
       raw[:item_id].each_with_index do |item_id, i|
-        category = raw[:category][i] ? raw[:category][i].to_s : nil
-        price = raw[:price][i].to_i > 0 ? raw[:price][i] : nil
-        is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
-        amount = raw[:amount][i].present? ? raw[:amount][i] : 1
-        locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
-        tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
-        categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
-        name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
-        description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
-        url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
-        custom_attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
-        if custom_attributes.present?
-          custom_attributes.each do |k, value|
+        item_attributes = OpenStruct.new(uniqid: item_id)
+
+        item_attributes.price = raw[:price][i] if raw[:price][i].to_i > 0
+        item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
+        item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
+        item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
+        item_attributes.repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
+        item_attributes.available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
+        item_attributes.ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
+        # May be unused
+        item_attributes.tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
+        item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
+
+        unless shop.has_imported_yml?
+          item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
+          item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
+          item_attributes.categories = (item_attributes.categories + [item_attributes.category]).uniq.compact
+
+          item_attributes.name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
+          item_attributes.description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
+
+          item_attributes.url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+          if item_attributes.url.present? && !item_attributes.url.include?('://')
+            item_attributes.url = shop.url + item_attributes.url
+          end
+
+          item_attributes.image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
+          if item_attributes.image_url.present? && !item_attributes.image_url.include?('://')
+            item_attributes.image_url = shop.url + item_attributes.image_url
+          end
+        end
+
+        item_attributes.custom_attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
+        if item_attributes.custom_attributes.present?
+          item_attributes.custom_attributes.each do |k, value|
             if value.is_a?(Array)
               value = value.map{|v| v.strip.mb_chars.downcase.to_s }
             else
               value = value.strip.mb_chars.downcase.to_s
             end
-            custom_attributes[k] = value
+            item_attributes.custom_attributes[k] = value
           end
         end
 
-        if url.present? && !url.include?('://')
-          url = shop.url + url
-        end
-
-        image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
-        if image_url.present? && !image_url.include?('://')
-          image_url = shop.url + image_url
-        end
-
-        brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
-        repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
-        widgetable = name.present? && url.present? && image_url.present?
-        available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
-        ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
-
-        item_object = OpenStruct.new(uniqid: item_id,
-                                     price: price,
-                                     is_available: is_available,
-                                     amount: amount,
-                                     locations: locations,
-                                     tags: tags,
-                                     categories: (categories + [category]).uniq.compact,
-                                     name: name,
-                                     description: description,
-                                     url: url,
-                                     image_url: image_url,
-                                     brand: brand,
-                                     repeatable: repeatable,
-                                     widgetable: widgetable,
-                                     available_till: available_till,
-                                     ignored: ignored,
-                                     custom_attributes: custom_attributes)
-
-        @items << Item.fetch(shop.id, item_object)
+        @items << Item.fetch(shop.id, item_attributes)
       end
     rescue JSON::ParserError => e
       raise ActionPush::IncorrectParams.new(e.message)
