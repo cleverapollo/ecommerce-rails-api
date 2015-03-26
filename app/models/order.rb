@@ -11,8 +11,6 @@ class Order < ActiveRecord::Base
 
       uniqid = generate_uniqid if uniqid.blank?
 
-      values = order_values(shop, user, items)
-
       if source.present? && source['from'].present?
         klass = if source['from'] == 'trigger_mail'
           TriggerMail
@@ -24,6 +22,8 @@ class Order < ActiveRecord::Base
       else
         source = nil
       end
+
+      values = order_values(shop, user, items, source.present?)
 
       order = Order.create! \
                            shop_id: shop.id,
@@ -37,17 +37,16 @@ class Order < ActiveRecord::Base
                            source: source
 
       items.each do |item|
-        OrderItem.persist(order, item, item.amount)
+        recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
+        OrderItem.persist(order, item, item.amount, recommended_by_expicit)
       end
     end
 
-    def order_values(shop, user, items)
+    def order_values(shop, user, items, force_recommended = false)
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
-        is_recommended = Action.select(:id).where(item_id: item.id, shop_id: shop.id, user_id: user.id).where('recommended_by is not null').limit(1).present?
-
-        if is_recommended
+        if force_recommended || Action.select(:id).where(item_id: item.id, shop_id: shop.id, user_id: user.id).where('recommended_by is not null').limit(1).present?
           result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
         else
           result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)

@@ -89,7 +89,7 @@ describe 'Order workflow' do
 
     # Order
     expect(Order.count).to eq(1)
-    expect(OrderItem.first.recommended_by).to eq('interesting')
+    expect(OrderItem.first.recommended_by).to eq('trigger_mail')
     expect(Order.first.source).to eq(@trigger_mail)
   end
 end
