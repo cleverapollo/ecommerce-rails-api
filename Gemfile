@@ -9,12 +9,12 @@ gem 'rails-api', '0.4.0'
 gem 'unicorn', '~> 4.8.1'
 
 # Database
-gem 'pg', '~> 0.17.1'
+gem 'pg', '~> 0.18.1'
 gem 'redis-objects', '~> 0.9.0'
 
 # Workers
-gem 'sidekiq', '~> 2.17.7'
-gem 'sidekiq-limit_fetch', '~> 2.2.5'
+gem 'sidekiq', '~> 3.3.3'
+gem 'sidekiq-limit_fetch', '~> 2.4.1'
 
 # Services
 gem 'rollbar', '~> 1.4.4'
