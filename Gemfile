@@ -47,7 +47,7 @@ group :development do
   # Deploy
   gem 'capistrano', '~> 2.15.5'
   gem 'rvm-capistrano', '~> 1.5.0'
-  gem 'capistrano-sidekiq', '~> 0.1.1'
+  gem 'capistrano-sidekiq', '~> 0.5.2'
 
   # Preloader
   gem 'spring', '~> 1.2.0'

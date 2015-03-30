@@ -8,3 +8,7 @@ Rollbar.configure do |config|
 
   config.exception_level_filters.merge!('ActionController::RoutingError' => 'ignore')
 end
+
+Sidekiq.configure_server do |config|
+  config.error_handlers << Proc.new {|ex,ctx_hash| Rollbar.error(ex, ctx_hash) }
+end
