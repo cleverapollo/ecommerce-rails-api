@@ -1,7 +1,7 @@
 ##
 # Модуль с методами-хэлперами для работы с URL
 #
-class UrlHelper
+class UrlParamsHelper
   class << self
     # Добавить параметры к URL
     # @param url [String] строка с URL

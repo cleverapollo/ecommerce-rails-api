@@ -147,7 +147,7 @@ class DigestMailingBatchWorker
       name: item.name,
       description: item.description,
       price: ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: "'"),
-      url: UrlHelper.add_params_to(item.url, utm_source: 'rees46',
+      url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_meta: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
                                              recommended_by: 'digest_mail',
