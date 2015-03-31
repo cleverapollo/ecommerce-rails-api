@@ -21,13 +21,13 @@ FactoryGirl.define do
     uniqid { SecureRandom.hex }
     secret { SecureRandom.hex }
     name 'Megashop'
-    connection_status do
-      { connected_events: {}, connected_recommenders: {} }
+    connection_status_last_track  do
+      { connected_events_last_track: {}, connected_recommenders_last_track: {} }
     end
-    connected_events do
+    connected_events_last_track do
       { }
     end
-    connected_recommenders do
+    connected_recommenders_last_track do
       { }
     end
     yml_file_url 'http://example.com'
