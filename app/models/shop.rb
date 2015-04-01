@@ -39,7 +39,7 @@ class Shop < ActiveRecord::Base
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
     end
-      connected_events_last_track[event] = Date.current if !connected_events_last_track[event]|| (Date.parse(connected_events_last_track[event]) < Date.current)
+      connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
       check_connection!
       save
   end
@@ -48,7 +48,7 @@ class Shop < ActiveRecord::Base
     if connected_recommenders_last_track[recommender].blank?
       Event.recommendation_given(self) if first_recommender?
     end
-    connected_recommenders_last_track[recommender] = Date.current if !connected_recommenders_last_track[recommender] || (Date.parse(connected_recommenders_last_track[recommender]) < Date.current)
+    connected_recommenders_last_track[recommender] = Date.current.to_time.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Date.current.to_time.to_i)
     check_connection!
     save
   end
@@ -71,7 +71,7 @@ class Shop < ActiveRecord::Base
 
   def connected_now?
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
-    Date.parse(connected_events_last_track[:view]) > (Date.current - 7) && Date.parse(connected_events_last_track[:purchase]) > (Date.current - 14) &&
+    connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i &&
     (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
   end
 
