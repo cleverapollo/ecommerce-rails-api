@@ -71,7 +71,7 @@ class Shop < ActiveRecord::Base
 
   def connected_now?
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
-    Date.parse(connected_events_last_track[:view]) > (Date.current - 7) && connected_events_last_track[:purchase] > (Date.current - 14) &&
+    Date.parse(connected_events_last_track[:view]) > (Date.current - 7) && Date.parse(connected_events_last_track[:purchase]) > (Date.current - 14) &&
     (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
   end
 
