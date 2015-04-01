@@ -3,7 +3,7 @@ class Shop < ActiveRecord::Base
   counter :group_1_count
   counter :group_2_count
 
-  store :connection_status, accessors: [:connected_events, :connected_recommenders], coder: JSON
+  store :connection_status_last_track, accessors: [:connected_events_last_track, :connected_recommenders_last_track], coder: JSON
 
   has_and_belongs_to_many :users
   belongs_to :plan
@@ -36,29 +36,29 @@ class Shop < ActiveRecord::Base
   end
 
   def report_event(event)
-    if connected_events[event] != true
+    if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
-      connected_events[event] = true
+    end
+      connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
       check_connection!
       save
-    end
   end
 
   def report_recommender(recommender)
-    if connected_recommenders[recommender] != true
+    if connected_recommenders_last_track[recommender].blank?
       Event.recommendation_given(self) if first_recommender?
-      connected_recommenders[recommender] = true
-      check_connection!
-      save
     end
+    connected_recommenders_last_track[recommender] = Date.current.to_time.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Date.current.to_time.to_i)
+    check_connection!
+    save
   end
 
   def first_event?
-    connected_events.values.select{|v| v == true }.none?
+    connected_events_last_track.values.select{|v| v != nil }.none?
   end
 
   def first_recommender?
-    connected_recommenders.values.select{|v| v == true }.none?
+    connected_recommenders_last_track.values.select{|v| v != true }.none?
   end
 
   def check_connection!
@@ -70,7 +70,9 @@ class Shop < ActiveRecord::Base
   end
 
   def connected_now?
-    connected_events[:view] == true && connected_events[:purchase] == true && (connected_recommenders.values.select{|v| v == true }.count >= 3)
+    (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
+    connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i &&
+    (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
   end
 
   def purge_all_related_data!
