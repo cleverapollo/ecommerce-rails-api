@@ -88,6 +88,7 @@ class Action < ActiveRecord::Base
 
   def set_recommended_by(recommended_by)
     self.recommended_by = recommended_by
+    self.recommended_at = Time.current
   end
 
   def save_to_mahout

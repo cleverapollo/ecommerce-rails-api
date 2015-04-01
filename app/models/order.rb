@@ -1,4 +1,6 @@
 class Order < ActiveRecord::Base
+  RECOMMENDED_BY_DELAY = 2.weeks
+
   include UserLinkable
 
   has_many :order_items, dependent: :destroy
@@ -46,7 +48,7 @@ class Order < ActiveRecord::Base
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
-        if force_recommended || Action.select(:id).where(item_id: item.id, shop_id: shop.id, user_id: user.id).where('recommended_by is not null').limit(1).present?
+        if force_recommended || shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DELAY.from_now).exists?
           result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
         else
           result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)

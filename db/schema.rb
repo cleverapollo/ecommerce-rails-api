@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150323113612) do
+ActiveRecord::Schema.define(version: 20150401122841) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,6 +36,7 @@ ActiveRecord::Schema.define(version: 20150323113612) do
     t.datetime "rate_date"
     t.integer  "last_user_rating"
     t.boolean  "repeatable",                   default: false,                             null: false
+    t.datetime "recommended_at"
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
@@ -89,11 +90,13 @@ ActiveRecord::Schema.define(version: 20150323113612) do
   end
 
   create_table "categories", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.boolean  "deletable",              default: true, null: false
+    t.string   "name",            limit: 255
+    t.boolean  "deletable",                   default: true, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "code",       limit: 255,                null: false
+    t.string   "code",            limit: 255,                null: false
+    t.decimal  "increase_units"
+    t.decimal  "increase_rubles"
   end
 
   add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
@@ -183,6 +186,7 @@ ActiveRecord::Schema.define(version: 20150323113612) do
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
+    t.string   "promocode"
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -632,6 +636,7 @@ ActiveRecord::Schema.define(version: 20150323113612) do
     t.boolean  "restricted",                                default: false, null: false
     t.decimal  "revenue_per_visit",                         default: 0.0,   null: false
     t.datetime "last_valid_yml_file_loaded_at"
+    t.text     "connection_status_last_track"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
