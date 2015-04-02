@@ -49,7 +49,7 @@ class YmlWorker
 
     shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
   rescue YmlWorker::Error => e
-    ErrorsMailer.yml_import_error('anton.zhavoronkov@mkechinov.ru', shop, e).deliver_now
+    Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url, shop_yml_url: shop.yml_file_url)
   end
 
   # Распарсить информацию о товаре из YML и вернуть в удобоваримом для нас виде.
