@@ -9,11 +9,15 @@ class OrderItem < ActiveRecord::Base
       if recommended_by.blank?
         recommended_by = action.recommended_by
       end
-      OrderItem.create!(order_id: order.id,
-                        item_id: item.id,
-                        action_id: action.id,
-                        amount: amount,
-                        recommended_by: recommended_by)
+      result = OrderItem.create!(order_id: order.id,
+                                 item_id: item.id,
+                                 action_id: action.id,
+                                 amount: amount,
+                                 recommended_by: recommended_by)
+
+      action.recalculate_purchase_count_and_date! if action.persisted?
+
+      result
     end
   end
 end

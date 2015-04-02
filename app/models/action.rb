@@ -97,4 +97,11 @@ class Action < ActiveRecord::Base
                                    shop_id: shop.id)
   rescue ActiveRecord::RecordNotUnique => e
   end
+
+  def recalculate_purchase_count_and_date!
+    update_columns(
+      purchase_count: OrderItem.joins(:order).where(item_id: item_id, orders: { shop_id: shop_id, user_id: user_id }).count,
+      purchase_date: Order.joins(:order_items).where(shop_id: shop_id, user_id: user_id, order_items: { item_id: item_id }).order(date: :desc).limit(1).pluck(:date)[0]
+    )
+  end
 end

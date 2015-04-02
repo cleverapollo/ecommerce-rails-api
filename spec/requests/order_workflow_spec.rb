@@ -86,6 +86,7 @@ describe 'Order workflow' do
     expect(@action.item_id).to eq(@item.id)
     expect(@action.rating).to eq(5)
     expect(@action.recommended_by).to eql('interesting')
+    expect(@action.purchase_count).to eq(1)
 
     # Order
     expect(Order.count).to eq(1)
