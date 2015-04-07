@@ -58,7 +58,7 @@ class YmlWorker
   # @return [OpenSturct] обертка над товаром
   def parsed_yml_item(y_i)
     category_id = y_i['categoryId']
-    category_id = category_id['__content__'] if category_id.present? && category_id['__content__'].present?
+    category_id = category_id['__content__'] if category_id.present? && category_id.is_a?(Hash) && category_id['__content__'].present?
 
     OpenStruct.new(
       uniqid: y_i.fetch('id').to_s,
