@@ -12,7 +12,7 @@ class YmlWorker
 
   class << self
     # Обработать все магазины с YML файлами.
-    def process_all!
+    def process_all
       Shop.active.with_yml.find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
@@ -28,28 +28,36 @@ class YmlWorker
 
   # Обработка YML-файла магазина.
   def process
-    # Обходим категории и инциализируем дерево
-    build_categories_tree
-    # Подготавливаем все товары магазина
-    build_shop_items_cache
-    # Проходим по YML-каталогу
-    yml_item_catalog.each do |yml_item|
-      # Парсим информаци о товаре
-      p_y_i = parsed_yml_item(yml_item)
+    retried = false
+    begin
+      # Обходим категории и инциализируем дерево
+      build_categories_tree
+      # Подготавливаем все товары магазина
+      build_shop_items_cache
+      # Проходим по YML-каталогу
+      yml_item_catalog.each do |yml_item|
+        # Парсим информаци о товаре
+        p_y_i = parsed_yml_item(yml_item)
 
-      # Достаем товар из кэша или создаем новый
-      item = pop_item_from_cache(p_y_i.uniqid) || shop.items.new(uniqid: p_y_i.uniqid)
+        # Достаем товар из кэша или создаем новый
+        item = pop_item_from_cache(p_y_i.uniqid) || shop.items.new(uniqid: p_y_i.uniqid)
 
-      # Передаем в него параметры из YML-файла
-      item.apply_attributes(p_y_i)
+        # Передаем в него параметры из YML-файла
+        item.apply_attributes(p_y_i)
+      end
+
+      # Отключаем те товары, которые отсуствуют в YML файле
+      disable_remaining_in_cache
+
+      shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
+    rescue YmlWorker::Error => e
+      if retried
+        Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url, shop_yml_url: shop.yml_file_url)
+      else
+        retried = true
+        retry
+      end
     end
-
-    # Отключаем те товары, которые отсуствуют в YML файле
-    disable_remaining_in_cache
-
-    shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
-  rescue YmlWorker::Error => e
-    Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url, shop_yml_url: shop.yml_file_url)
   end
 
   # Распарсить информацию о товаре из YML и вернуть в удобоваримом для нас виде.
@@ -180,7 +188,7 @@ class YmlWorker
     @parsed_yml
   rescue MultiXml::ParseError => e
     raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
-  rescue SocketError
+  rescue SocketError, OpenSSL::SSL::SSLError
     raise YmlWorker::Error.new("Несуществующий URL.")
   rescue Net::ReadTimeout, Errno::ETIMEDOUT
     raise YmlWorker::Error.new("Тайм-аут запроса.")

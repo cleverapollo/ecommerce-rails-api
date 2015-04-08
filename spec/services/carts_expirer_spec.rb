@@ -10,7 +10,7 @@ describe CartsExpirer do
     let!(:cart2) { create(:action, rating: Actions::Cart::RATING, shop: shop, user: user, item: item2, cart_date: 3.days.ago) }
 
     it 'expires carts that older than 2 days' do
-      CartsExpirer.perform!
+      CartsExpirer.perform
 
       expect(cart1.reload.rating).to eq(Actions::Cart::RATING)
       expect(cart2.reload.rating).to eq(Actions::RemoveFromCart::RATING)

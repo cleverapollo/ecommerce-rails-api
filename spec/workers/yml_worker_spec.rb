@@ -81,7 +81,7 @@ describe YmlWorker do
     it 'starts worker for shops with yml' do
       allow(YmlWorker).to receive(:perform_async)
 
-      YmlWorker.process_all!
+      YmlWorker.process_all
 
       expect(YmlWorker).to have_received(:perform_async).once.with(shop_with_yml.id)
     end
