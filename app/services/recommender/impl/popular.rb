@@ -19,7 +19,7 @@ module Recommender
       def inject_promotions(result_ids)
         Promotion.find_each do |promotion|
           if promotion.show?(shop: shop, item: item, categories: categories)
-            promoted_item_id = promotion.scope(items_to_recommend.in_categories(categories)).where.not(id: result_ids).limit(1).try(:id)
+            promoted_item_id = promotion.scope(items_to_recommend.in_categories(categories)).where.not(id: result_ids).limit(1).first.try(:id)
             if promoted_item_id.present?
               result_ids[0] = promoted_item_id
             end
