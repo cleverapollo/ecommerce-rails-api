@@ -4,7 +4,10 @@ class Promotion < ActiveRecord::Base
     if params[:categories].present?
       params[:categories].each do |category_id|
         if c = shop.item_categories.find_by(external_id: category_id)
-          return true if show_for_category?(c)
+          if show_for_category?(c)
+            @category = category_id
+            return true
+          end
         end
       end
     end
@@ -12,7 +15,10 @@ class Promotion < ActiveRecord::Base
     if params[:item].present?
       params[:item].categories.each do |item_category|
         if c = shop.item_categories.find_by(external_id: item_category)
-          return true if show_for_category?(c)
+          if show_for_category?(c)
+            @category = item_category
+            return true
+          end
         end
       end
     end
@@ -30,6 +36,8 @@ class Promotion < ActiveRecord::Base
   end
 
   def scope(relation)
-    relation.merge(Item.where("name ILIKE '%#{brand}%'"))
+    r = Item.where("name ILIKE '%#{brand}%'")
+    r = r.in_categories([@category]) if @category.present?
+    relation.merge(r)
   end
 end
