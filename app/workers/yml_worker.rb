@@ -138,24 +138,25 @@ class YmlWorker
 
   # Построить кэш всех товаров магазина.
   def build_shop_items_cache
-    @shop_items = {}
-    shop.items.find_each do |item|
-      @shop_items[item.uniqid] = item
+    @shop_items = Set.new
+    shop.items.select(:id, :uniqid).find_each do |item|
+      @shop_items.add(item[:uniqid])
     end
   end
 
   # Получить товар из кэша. При этом он от туда удалится.
   #
-  # @param id [String] ID товара.
+  # @param id [String] uniqid товара.
   # @return [Item] товар.
-  def pop_item_from_cache(id)
-    @shop_items.delete(id)
+  def pop_item_from_cache(uniqid)
+    @shop_items.delete(uniqid)
+    shop.items.find_by(uniqid: uniqid)
   end
 
   # Выключить товары, которые остались в кэше.
   def disable_remaining_in_cache
-    @shop_items.each do |_, item|
-      item.disable!
+    @shop_items.each do |uniqid|
+      shop.items.find_by(uniqid: uniqid).disable!
     end
   end
 
