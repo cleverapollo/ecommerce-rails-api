@@ -28,6 +28,7 @@ class Shop < ActiveRecord::Base
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
   scope :with_enabled_triggers, -> { joins(:trigger_mailings).where('trigger_mailings.enabled = true').uniq }
   scope :active, -> { where(active: true) }
+  scope :connected, -> { where(connected: true) }
   scope :unrestricted, -> { active.where(restricted: false) }
 
   def item_ids_bought_or_carted_by(user)
