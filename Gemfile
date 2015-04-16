@@ -11,7 +11,6 @@ gem 'unicorn', '~> 4.8.1'
 # Database
 gem 'pg', '~> 0.18.1'
 gem 'redis-objects', '~> 0.9.0'
-gem 'activerecord-import', '~> 0.7.0'
 
 # Workers
 gem 'sidekiq', '~> 3.3.3'
