@@ -12,6 +12,9 @@ module Xml
     end
 
     def inner_xml
+      if @node.inner_xml.nil?
+        raise Nokogiri::XML::SyntaxError.new('Opening and ending tag mismatch')
+      end
       @node.inner_xml.strip
     end
 
