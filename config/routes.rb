@@ -9,6 +9,7 @@ Rees46Api::Application.routes.draw do
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
 
+  # В будущих отраслевых алгоритмах сохраняет текущие выбранные фильтры (контекст)
   post 'push_attributes', to: 'events#push_attributes'
   get 'push_attributes', to: 'events#push_attributes'
 
@@ -23,21 +24,23 @@ Rees46Api::Application.routes.draw do
   end
 
   resource :mailer, only: :none do
-    post :digest
+    post :digest # Сделали API расчета рассылок лля OnlineTours
   end
 
   resources :digest_mailings, only: [] do
-    post :launch,   on: :member
-    get :recommendations, on: :collection
+    post :launch,   on: :member # Запуск дайджеста
+    get :recommendations, on: :collection # ?
   end
 
+  # Окно сбора e-mail
   resources :subscriptions, only: [:create] do
     collection do
-      get :unsubscribe
-      get :bounce
+      get :unsubscribe # Отписаться
+      get :bounce # ?
     end
   end
 
+  # Картинка трекинга писем
   get 'track/:type/:code.png', to: 'subscriptions#track', as: 'track_mail'
 
   # iBeacons
