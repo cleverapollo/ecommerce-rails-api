@@ -51,12 +51,12 @@ class Item < ActiveRecord::Base
     end
   end
 
-  def apply_attributes(item_proxy)
+  def apply_attributes(item_proxy, without_saving = false)
     self.amount = item_proxy.amount
     attrs = merge_attributes(item_proxy)
 
     begin
-      save! if changed?
+      save! if changed? && (without_saving == false)
       return self
     rescue ActiveRecord::RecordNotUnique => e
       item = Item.find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
