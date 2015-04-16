@@ -4,6 +4,7 @@ module Actions
     RATING = 5
 
     class << self
+      # Сохранение объекта заказа
       def mass_process(params)
         Order.persist(params.shop, params.user, params.order_id, params.items, params.source)
       end
