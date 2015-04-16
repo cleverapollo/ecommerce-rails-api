@@ -13,7 +13,7 @@ class YmlWorker
   class << self
     # Обработать все магазины с YML файлами.
     def process_all
-      Shop.active.with_yml.find_each do |shop|
+      Shop.active.connected.with_yml.find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
@@ -63,6 +63,7 @@ class YmlWorker
           end
         end
       end
+      create_items
       disable_remaining_in_cache
     rescue Nokogiri::XML::SyntaxError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
@@ -133,6 +134,7 @@ class YmlWorker
   end
 
   def build_shop_items_cache
+    @items_to_create = []
     if items_cache_mode == :set
       @shop_items = Set.new
       shop.items.select(:id, :uniqid).find_each do |item|
@@ -146,7 +148,18 @@ class YmlWorker
     end
   end
 
+  def add_item_to_create(item)
+    @items_to_create << item
+    create_items if @items_to_create.size > 1000
+  end
+
+  def create_items
+    Item.import(@items_to_create) if @items_to_create.any?
+    @items_to_create = []
+  end
+
   def items_cache_mode
+    return :hash
     if @items_cache_mode.blank?
       @items_cache_mode = shop.items.recommendable.count > 200_000 ? :set : :hash
     end
@@ -166,7 +179,16 @@ class YmlWorker
     item = shop.items.new(uniqid: p_y_i.uniqid) if item.blank?
 
     # Передаем в него параметры из YML-файла
-    item.apply_attributes(p_y_i)
+    item = item.apply_attributes(p_y_i, true)
+    if item.new_record?
+      add_item_to_create(item)
+    else
+      begin
+        item.save if item.changed?
+      rescue ActiveRecord::RecordNotUnique => e
+
+      end
+    end
   end
 
   # Получить товар из кэша. При этом он от туда удалится.
