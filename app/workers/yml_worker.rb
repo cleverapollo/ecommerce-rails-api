@@ -159,6 +159,7 @@ class YmlWorker
   end
 
   def items_cache_mode
+    return :hash
     if @items_cache_mode.blank?
       @items_cache_mode = shop.items.recommendable.count > 200_000 ? :set : :hash
     end
