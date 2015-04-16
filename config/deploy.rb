@@ -9,7 +9,7 @@ set :rvm_ruby_string, "2.1.1"
 # Deploy configuration
 set :user, 'rails'
 set :use_sudo, false
-set :shared_children, shared_children + %w[tmp/sockets]
+set :shared_children, shared_children + %w[tmp/sockets tmp/ymls]
 set :shared_configs, %w[database.yml secrets.yml]
 
 # VCS Configuration

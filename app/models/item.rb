@@ -102,6 +102,6 @@ class Item < ActiveRecord::Base
 
   # Выключает товар
   def disable!
-    update(is_available: false)
+    update(is_available: false) if is_available == true
   end
 end
