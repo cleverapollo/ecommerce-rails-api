@@ -1,23 +1,10 @@
-##
-# Обработчик YML-файлов магазинов.
-# Обновляет информацию о товарах.
-#
-class YmlWorker
+class LargeYmlWorker
   class Error < StandardError; end
 
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
   attr_reader :shop
-
-  class << self
-    # Обработать все магазины с YML файлами.
-    def process_all
-      Shop.active.with_yml.find_each do |shop|
-        YmlWorker.perform_async(shop.id)
-      end
-    end
-  end
 
   def perform(shop_id)
     retried = false
@@ -49,21 +36,27 @@ class YmlWorker
 
   def process
     begin
+      print_memory
       build_shop_items_cache
-      worker = self
-      Xml::Parser.new(Nokogiri::XML::Reader(File.open(file_name, 'rb'), nil, nil, (1 << 1))) do
-        inside_element 'categories' do
-          for_element 'category' do
-            worker.process_category(attribute('id'), attribute('parentId'), inner_xml)
+      print_memory
+      puts Benchmark.measure {
+        worker = self
+        Xml::Parser.new(Nokogiri::XML::Reader(File.open(file_name, 'rb'), nil, nil, (1 << 1))) do
+          inside_element 'categories' do
+            for_element 'category' do
+              worker.process_category(attribute('id'), attribute('parentId'), inner_xml)
+            end
+          end
+          inside_element 'offers' do
+            for_element 'offer' do
+              worker.process_item(attribute('id'), attribute('available'), inner_xml)
+            end
           end
         end
-        inside_element 'offers' do
-          for_element 'offer' do
-            worker.process_item(attribute('id'), attribute('available'), inner_xml)
-          end
-        end
-      end
+      }
+      print_memory
       disable_remaining_in_cache
+      print_memory
     rescue Nokogiri::XML::SyntaxError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
@@ -148,7 +141,7 @@ class YmlWorker
 
   def items_cache_mode
     if @items_cache_mode.blank?
-      @items_cache_mode = shop.items.recommendable.count > 200_000 ? :set : :hash
+      @items_cache_mode = shop.items.recommendable.count > 10_000 ? :set : :hash
     end
     @items_cache_mode
   end
@@ -163,10 +156,9 @@ class YmlWorker
 
     # Достаем товар из кэша или создаем новый
     item = pop_item_from_cache(p_y_i.uniqid)
-    item = shop.items.new(uniqid: p_y_i.uniqid) if item.blank?
 
     # Передаем в него параметры из YML-файла
-    item.apply_attributes(p_y_i)
+    item.apply_attributes(p_y_i) if item.present?
   end
 
   # Получить товар из кэша. При этом он от туда удалится.
@@ -175,8 +167,10 @@ class YmlWorker
   # @return [Item] товар.
   def pop_item_from_cache(uniqid)
     if items_cache_mode == :set
-      @shop_items.delete(uniqid)
-      shop.items.find_by(uniqid: uniqid)
+      if @shop_items.include?(uniqid)
+        @shop_items.delete(uniqid)
+        shop.items.find_by(uniqid: uniqid)
+      end
     elsif items_cache_mode == :hash
       @shop_items.delete(uniqid)
     end
@@ -222,5 +216,10 @@ class YmlWorker
 
   def mark_as_loaded
     shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
+  end
+
+  def print_memory
+    memory = (`ps -o rss -p #{$$}`.strip.split.last.to_i / 1024.4).round
+    puts "Used #{memory} MB"
   end
 end
