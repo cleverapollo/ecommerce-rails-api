@@ -1,6 +1,8 @@
 class InitController < ApplicationController
   include ActionController::Cookies
 
+  # Генерирует сессию нового покупателя для магазина.
+  # Используется в Server SDK или Mobile SDK, где невозможно использовать наш JS SDK.
   def generate_ssid
     shop = Shop.find_by(uniqid: params[:shop_id])
     if shop.present? && shop.active?
@@ -10,6 +12,9 @@ class InitController < ApplicationController
     end
   end
 
+  # Скрипт инициализации покупателя.
+  # Определяет покупателя, сращивает разных покупателей в один, если необходимо.
+  # Передает магазину данные о текущих свойствах клиента: группа, настройки сбора емейла и рассылок.
   def init_script
     session_id = cookies[Rees46.cookie_name] || params[Rees46.cookie_name]
 
@@ -42,6 +47,10 @@ class InitController < ApplicationController
 
   private
 
+  # Шаблон JS-кода, который отдается магазину при инициализации покупателя
+  # @param session
+  # @param shop
+  # @return string
   def init_server_string(session, shop)
     result  = "REES46.initServer({"
     result += "  ssid: '#{session.code}',"
@@ -76,10 +85,12 @@ class InitController < ApplicationController
     sanitize_header(request.env['HTTP_USER_AGENT'])
   end
 
+  # Определяются в NGINX через базу GeoIP
   def city
     sanitize_header(request.headers['HTTP_CITY'])
   end
 
+  # Определяются в NGINX через базу GeoIP
   def country
     sanitize_header(request.headers['HTTP_COUNTRY'])
   end
