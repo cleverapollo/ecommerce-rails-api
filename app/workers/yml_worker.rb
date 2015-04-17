@@ -42,7 +42,7 @@ class YmlWorker
   def process
     begin
       @yml.get do |yml|
-        build_shop_items_cache
+        @items_cache = ShopItemsCache.new(@shop)
         worker = self # Сохраняем контекст
         Xml::Parser.new(Nokogiri::XML::Reader(yml, nil, nil, (1 << 1))) do
           inside_element 'categories' do
@@ -122,32 +122,6 @@ class YmlWorker
     @categories_tree_is_built = true
   end
 
-  # Если товаров немного, то создаем в памяти хеш товаров, чтобы иметь быстрый доступ к ним.
-  # Если товаров много, то храним только ID товаров.
-  # Для новых магазинов - создание товаров.
-  # Для существующих – добавление новых, выключение старых, обновление текущих.
-  def build_shop_items_cache
-    if items_cache_mode == :set
-      @shop_items = Set.new
-      shop.items.select(:id, :uniqid).find_each do |item|
-        @shop_items.add(item[:uniqid])
-      end
-    elsif items_cache_mode == :hash
-      @shop_items = {}
-      shop.items.find_each do |item|
-        @shop_items[item.uniqid] = item
-      end
-    end
-  end
-
-  def items_cache_mode
-    return :hash
-    if @items_cache_mode.blank?
-      @items_cache_mode = shop.items.recommendable.count > 200_000 ? :set : :hash
-    end
-    @items_cache_mode
-  end
-
   def process_item(id, available, item_data)
     ensure_categories_tree_is_built # Собираем дерево категорий
 
@@ -157,37 +131,16 @@ class YmlWorker
     p_y_i = parsed_yml_item(item_attributes)
 
     # Достаем товар из кэша или создаем новый
-    item = pop_item_from_cache(p_y_i.uniqid)
+    item = @items_cache.pop(p_y_i.uniqid)
     item = shop.items.new(uniqid: p_y_i.uniqid) if item.blank?
 
     # Передаем в него параметры из YML-файла
     item.apply_attributes(p_y_i)
   end
 
-  # Получить товар из кэша. При этом он оттуда удалится.
-  #
-  # @param id [String] uniqid товара.
-  # @return [Item] товар.
-  def pop_item_from_cache(uniqid)
-    if items_cache_mode == :set
-      @shop_items.delete(uniqid)
-      shop.items.find_by(uniqid: uniqid)
-    elsif items_cache_mode == :hash
-      @shop_items.delete(uniqid)
-    end
-  end
-
   # Выключить товары, которые остались в кэше.
   def disable_remaining_in_cache
-    if items_cache_mode == :set
-      @shop_items.each do |uniqid|
-        shop.items.find_by(uniqid: uniqid).disable!
-      end
-    elsif items_cache_mode == :hash
-      @shop_items.each do |_, item|
-        item.disable!
-      end
-    end
+    @items_cache.each{|item| item.disable! }
   end
 
   # Распарсить информацию о товаре из YML и вернуть в удобоваримом для нас виде.
