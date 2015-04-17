@@ -13,8 +13,7 @@ class ShopItemsCache
   end
 
   def choose_strategy
-    SetStrategy
-    #@shop.items.recommendable.count > 200_000 ? SetStrategy : HashStrategy
+    @shop.items.recommendable.count > 200_000 ? SetStrategy : HashStrategy
   end
 
   class HashStrategy

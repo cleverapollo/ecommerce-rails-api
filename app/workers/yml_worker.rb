@@ -10,8 +10,6 @@ class YmlWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
-  attr_reader :shop
-
   class << self
     # Обработать все магазины с YML файлами.
     def process_all
@@ -25,7 +23,7 @@ class YmlWorker
     retried = false
     begin
       @shop = Shop.find(shop_id)
-      @yml = Yml.new(shop)
+      @yml = Yml.new(@shop)
       process
       mark_as_loaded
     rescue YmlWorker::Error => e
@@ -43,6 +41,7 @@ class YmlWorker
     begin
       @yml.get do |yml|
         @items_cache = ShopItemsCache.new(@shop)
+        @categories_tree = CategoriesTree.new(@shop)
         worker = self # Сохраняем контекст
         Xml::Parser.new(Nokogiri::XML::Reader(yml, nil, nil, (1 << 1))) do
           inside_element 'categories' do
@@ -64,66 +63,11 @@ class YmlWorker
   end
 
   def process_category(id, parent_id, name)
-    @categories_from_yml ||= []
-    @categories_from_yml << { id: id, parent_id: parent_id, name: name.to_s.truncate(250), processed: false }
-  end
-
-  def ensure_categories_tree_is_built
-    build_categories_tree unless @categories_tree_is_built
-  end
-
-  def build_categories_tree
-    @shop_items_categories_cache = {}
-    @shop.item_categories.find_each do |item_category|
-      @shop_items_categories_cache[item_category.external_id] = item_category
-    end
-
-    @categories_from_yml.each do |category_yml|
-      category = @shop_items_categories_cache[category_yml[:id].to_s] || @shop.item_categories.new(external_id: category_yml[:id].to_s)
-      category.parent_external_id = category_yml[:parent_id].to_s
-      category.name = category_yml[:name]
-      begin
-        category.save! if category.changed?
-      rescue ActiveRecord::RecordNotUnique
-      end
-    end
-
-    # Каждому ключу (ID категории) соответствует полный массив категорий: она сама + все родительские
-    @categories_tree = {}
-    loop do
-      break unless @categories_from_yml.select{|c| c[:processed] != true }.any?
-
-      @categories_from_yml.each do |c_y|
-        next if c_y[:processed] == true
-        if c_y[:parent_id].blank?
-          # Корневая категория
-          @categories_tree[c_y[:id]] = [c_y[:id]]
-          c_y[:processed] = true
-        else
-          if @categories_tree[c_y[:parent_id]].present?
-            # Родительская категория уже в дереве?
-            @categories_tree[c_y[:id]] = [c_y[:id]] + @categories_tree[c_y[:parent_id]]
-            c_y[:processed] = true
-          else
-            # А может родительской категории не существует?
-            if @categories_from_yml.none?{|c| c[:id] == c_y[:parent_id]}
-              @categories_tree[c_y[:id]] = [c_y[:id]]
-              c_y[:processed] = true
-            end
-          end
-        end
-      end
-    end
-
-    @categories_tree.each do |k, v|
-      v.sort!
-    end
-
-    @categories_tree_is_built = true
+    @categories_tree << { id: id, parent_id: parent_id, name: name }
   end
 
   def process_item(id, available, item_data)
-    ensure_categories_tree_is_built # Собираем дерево категорий
+    @categories_tree.build! unless @categories_tree.built?
 
     base_attributes = { 'id' => id, 'available' => available }
     item_attributes = Hash.from_xml("<item>#{item_data}</item>")['item'].merge(base_attributes)
@@ -132,7 +76,7 @@ class YmlWorker
 
     # Достаем товар из кэша или создаем новый
     item = @items_cache.pop(p_y_i.uniqid)
-    item = shop.items.new(uniqid: p_y_i.uniqid) if item.blank?
+    item = @shop.items.new(uniqid: p_y_i.uniqid) if item.blank?
 
     # Передаем в него параметры из YML-файла
     item.apply_attributes(p_y_i)
@@ -161,6 +105,6 @@ class YmlWorker
   end
 
   def mark_as_loaded
-    shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
+    @shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
   end
 end
