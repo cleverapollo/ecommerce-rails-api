@@ -10,6 +10,8 @@ class YmlWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
+  XML_READER_PARAMS = [nil, nil, (1 << 1)]
+
   class << self
     # Обработать все магазины с YML файлами.
     def process_all
@@ -43,7 +45,7 @@ class YmlWorker
         @items_cache = ShopItemsCache.new(@shop)
         @categories_tree = CategoriesTree.new(@shop)
         worker = self # Сохраняем контекст
-        Xml::Parser.new(Nokogiri::XML::Reader(yml, nil, nil, (1 << 1))) do
+        Xml::Parser.new(Nokogiri::XML::Reader(yml, *XML_READER_PARAMS)) do
           inside_element 'categories' do
             for_element 'category' do
               worker.process_category(attribute('id'), attribute('parentId'), inner_xml)
@@ -57,6 +59,8 @@ class YmlWorker
         end
         disable_remaining_in_cache
       end
+    rescue Yml::NotRespondingError => e
+      raise YmlWorker::Error.new("Плохой код ответа.")
     rescue Nokogiri::XML::SyntaxError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
