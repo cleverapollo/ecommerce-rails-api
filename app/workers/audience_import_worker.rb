@@ -1,5 +1,6 @@
 ##
 # Воркер, импортирующий аудиторию дайджестных рассылок.
+# Вызывается со стороны /rees46-rails
 #
 class AudienceImportWorker
   include Sidekiq::Worker

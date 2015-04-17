@@ -1,3 +1,5 @@
+# Импорт товаров
+
 class ItemsImportWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'

@@ -1,5 +1,8 @@
 class ImportsController < ApplicationController
+
+  # Поиск и проверка магазина
   include ShopAuthenticator
+
 
   def orders
     OrdersImportWorker.perform_async(params)

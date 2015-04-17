@@ -35,6 +35,8 @@ class Item < ActiveRecord::Base
   }
 
   class << self
+
+    # Отключаем протухшие туры и купоны – товары со сроком годности
     def disable_expired
       Item.available.expired.find_each do |item|
         item.update(is_available: false)

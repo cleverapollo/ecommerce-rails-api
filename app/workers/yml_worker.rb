@@ -1,6 +1,8 @@
 ##
 # Обработчик YML-файлов магазинов.
 # Обновляет информацию о товарах.
+# На больших YML в память не помещался, поэтому DOM убрали.
+# Обрабатывает SAX-парсером.
 #
 class YmlWorker
   class Error < StandardError; end
@@ -50,7 +52,7 @@ class YmlWorker
   def process
     begin
       build_shop_items_cache
-      worker = self
+      worker = self # Сохраняем контекст
       Xml::Parser.new(Nokogiri::XML::Reader(File.open(file_name, 'rb'), nil, nil, (1 << 1))) do
         inside_element 'categories' do
           for_element 'category' do
@@ -132,6 +134,10 @@ class YmlWorker
     @categories_tree_is_built = true
   end
 
+  # Если товаров немного, то создаем в памяти хеш товаров, чтобы иметь быстрый доступ к ним.
+  # Если товаров много, то храним только ID товаров.
+  # Для новых магазинов - создание товаров.
+  # Для существующих – добавление новых, выключение старых, обновление текущих.
   def build_shop_items_cache
     if items_cache_mode == :set
       @shop_items = Set.new
@@ -155,7 +161,7 @@ class YmlWorker
   end
 
   def process_item(id, available, item_data)
-    ensure_categories_tree_is_built
+    ensure_categories_tree_is_built # Собираем дерево категорий
 
     base_attributes = { 'id' => id, 'available' => available }
     item_attributes = Hash.from_xml("<item>#{item_data}</item>")['item'].merge(base_attributes)
@@ -170,7 +176,7 @@ class YmlWorker
     item.apply_attributes(p_y_i)
   end
 
-  # Получить товар из кэша. При этом он от туда удалится.
+  # Получить товар из кэша. При этом он оттуда удалится.
   #
   # @param id [String] uniqid товара.
   # @return [Item] товар.

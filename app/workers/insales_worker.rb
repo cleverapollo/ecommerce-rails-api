@@ -41,6 +41,9 @@ class InsalesWorker
     send_orders
   end
 
+  # В InSales нельзя получить в API список категорий
+  # Создает хеш, где ключи-товары содержать ID категорий
+  # @todo: переделать, т.к. категории берутся сейчас из View
   def initialize_categories_cache
     @categories_cache = {}
 

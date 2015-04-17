@@ -54,6 +54,7 @@ class OrdersImportWorker
     end
   end
 
+  # Упрощенный поиск пользователя для импорта
   def fetch_user(shop, user_id, user_email = nil)
     user_id = user_id.to_s
     if user_email.present?
@@ -75,6 +76,7 @@ class OrdersImportWorker
     end
   end
 
+  # Упрощенный поиск товара для импорта
   def fetch_item(item_raw, shop_id)
     if item_raw['id'].blank?
       raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар без ID")
@@ -123,7 +125,7 @@ class OrdersImportWorker
   end
 
   def order_already_saved?(order, shop_id)
-    Order.where(uniqid: order['id'].to_s, shop_id: shop_id).any?
+    Order.where(uniqid: order['id'].to_s, shop_id: shop_id).exists?
   end
 
   def persist_order(order, items, shop_id, user_id)
