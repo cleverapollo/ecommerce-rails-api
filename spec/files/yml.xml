@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<yml_catalog>
+  <shop>
+    <categories>
+      <category id="1">Some category</category>
+
+      <category id="2">Some root category</category>
+      <category id="3" parentId="2">Some leaf category</category>
+    </categories>
+
+    <offers>
+      <offer available="true" id="1000" >
+        <url>http://example.com/item/1000</url>
+        <price>500</price>
+        <categoryId>1</categoryId>
+        <picture>http://example.com/item/1000.jpg</picture>
+        <name>Existing item</name>
+        <description>Existing item description</description>
+      </offer>
+
+      <offer available="true" id="2000" >
+        <url>http://example.com/item/2000</url>
+        <price>900</price>
+        <categoryId>3</categoryId>
+        <picture>http://example.com/item/2000.jpg</picture>
+        <name>New item</name>
+        <description>New item description</description>
+      </offer>
+    </offers>
+  </shop>
+</yml_catalog>
