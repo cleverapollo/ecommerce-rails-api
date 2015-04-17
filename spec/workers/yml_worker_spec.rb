@@ -36,5 +36,11 @@ describe YmlWorker do
         description: 'Existing item description'
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
+
+    it 'disables items that are absent in YMl' do
+      absent_item = create(:item, shop: shop, uniqid: 'absent')
+
+      expect{ subject } .to change{ absent_item.reload.is_available }.from(true).to(false)
+    end
   end
 end
