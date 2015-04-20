@@ -1,5 +1,5 @@
 class Curl
-  DEFAULT_OPTIONS = '--connect-timeout 60 --max-time 1800'
+  DEFAULT_OPTIONS = '--connect-timeout 60 --max-time 1800 -L'
   class << self
     def download(url, params = {})
       destination = params.fetch(:to)

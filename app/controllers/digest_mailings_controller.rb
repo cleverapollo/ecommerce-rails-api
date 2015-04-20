@@ -6,8 +6,8 @@ class DigestMailingsController < ApplicationController
 
   # Запустить рассылку.
   def launch
-    p Sidekiq.redis_pool
-    p DigestMailingLaunchWorker.perform_async(params)
+    Sidekiq.redis_pool
+    DigestMailingLaunchWorker.perform_async(params)
     render nothing: true, status: :ok
   end
 
