@@ -29,7 +29,6 @@ Rees46Api::Application.routes.draw do
 
   resources :digest_mailings, only: [] do
     post :launch,   on: :member # Запуск дайджеста
-    get :recommendations, on: :collection # ?
   end
 
   # Окно сбора e-mail
