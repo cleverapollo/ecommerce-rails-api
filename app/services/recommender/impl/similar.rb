@@ -1,6 +1,13 @@
 module Recommender
   module Impl
-    class Similar < Recommender::Weighted
+    class Similar < Recommender::Weighted # Поменять на Raw
+
+      # Логика:
+      # Пытаемся найти товары в интервале от 0.85 до 1.25 цены текущего товара.
+      # Если не находим, то расширяем интервал от 0.5 до 1.5 цены текущего товара.
+      # Не рекомендуем товары без цены. Не можем рекомендовать для товара без цены.
+
+
       LARGE_PRICE_UP = 1.5
       PRICE_UP = 1.25
       LARGE_PRICE_DOWN = 0.5

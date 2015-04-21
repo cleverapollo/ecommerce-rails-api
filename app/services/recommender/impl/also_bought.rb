@@ -7,6 +7,7 @@ module Recommender
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
       end
 
+      # TODO: фильтровать по размерам одежды
       def items_to_recommend
         if shop.sectoral_algorythms_available?
           result = super
