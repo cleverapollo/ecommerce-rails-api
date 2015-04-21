@@ -43,12 +43,9 @@ class YmlItem
   end
 
   def image_url
-    value = if @content['picture'].is_a? Array
-      @content['picture'].first
-    else
-      @content['picture']
-    end
-    StringHelper.encode_and_truncate(value)
+    picture_attribute = @content['picture']
+    picture_attribute = picture_attribute.first if picture_attribute.is_a? Array
+    StringHelper.encode_and_truncate(picture_attribute)
   end
 
   def is_available
@@ -56,9 +53,9 @@ class YmlItem
   end
 
   # Delegate all unknown calls to new item object
-  def method_missing(m, *args, &block)
-    if @blank_item.respond_to? m
-      @blank_item.public_send(m, *args, &block)
+  def method_missing(method_name, *args, &block)
+    if @blank_item.respond_to? method_name
+      @blank_item.public_send(method_name)
     else
       super
     end
