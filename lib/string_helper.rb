@@ -1,7 +1,7 @@
-class StringHelper
+module StringHelper
   class << self
     def encode_and_truncate(string, length = 250)
-      res = string.to_s
+      res = string.to_s.strip
       res = res.encode('UTF-8', {:invalid => :replace, :undef => :replace, :replace => '?'})
       res = res.truncate(length)
       res
