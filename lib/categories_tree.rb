@@ -10,8 +10,11 @@ class CategoriesTree
   end
 
   def [](key)
-    @categories_tree[key]
+    build! unless built?
+    @categories_tree[key].flatten
   end
+
+  private
 
   def build!
     shop_items_categories_cache = {}
