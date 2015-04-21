@@ -23,6 +23,10 @@ class MahoutService
     end
   end
 
+  # @param user_id
+  # @param shop_id
+  # @param item_id Если указан, то вся история пользователя будет состоять только из этого текущего товара, а если нет – то используем в качестве истории всю историю покупок клиента
+  # @param options
   def user_based(user_id, shop_id, item_id, options)
     unless Rails.env.test?
       preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch

@@ -9,6 +9,7 @@ module Recommender
           if shop.category.wear? && item.present?
             gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
             result = result.by_ca(gender: gender)
+            # TODO: Фильтрация по размерам одежды
           end
           result
         else
