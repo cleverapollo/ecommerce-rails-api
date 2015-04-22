@@ -141,4 +141,12 @@ FactoryGirl.define do
     item
     code 1
   end
+
+  factory :promotion do
+    brand { 'Apple' }
+    categories { ['телефоны', 'планшеты'] }
+  end
+
+  factory :item_category do
+  end
 end
