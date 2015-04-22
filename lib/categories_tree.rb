@@ -11,7 +11,7 @@ class CategoriesTree
 
   def [](key)
     build! unless built?
-    @categories_tree[key].flatten
+    (@categories_tree[key] || []).flatten
   end
 
   private
