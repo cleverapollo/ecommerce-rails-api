@@ -9,5 +9,4 @@ class DigestMailingsController < ApplicationController
     DigestMailingLaunchWorker.perform_async(params)
     render nothing: true, status: :ok
   end
-
 end
