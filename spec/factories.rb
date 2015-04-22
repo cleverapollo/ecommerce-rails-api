@@ -125,6 +125,10 @@ FactoryGirl.define do
 
   factory :client do
     user
+
+    trait :with_email do
+      email { 'test@example.com' }
+    end
   end
 
   factory :mailings_settings do
