@@ -52,6 +52,21 @@ class YmlItem
     @is_available != 'false'
   end
 
+  def locations
+    if @content['locations'].present? && @content['locations']['location'].present?
+      result = { }
+      @content['locations']['location'].each do |location|
+        result[location['id']] = { }
+        if location['price'].present?
+          result[location['id']]['price'] = location['price'].to_f
+        end
+      end
+      result
+    else
+      []
+    end
+  end
+
   # Delegate all unknown calls to new item object
   def method_missing(method_name, *args, &block)
     if @blank_item.respond_to? method_name
