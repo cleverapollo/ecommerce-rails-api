@@ -6,6 +6,10 @@ module ItemLocationsMerger
     def merge(old_locations, new_locations)
       return old_locations if new_locations.blank?
 
+      old_locations = old_locations.sort.to_h
+      new_locations = new_locations.sort.to_h if new_locations.is_a? Hash
+      return old_locations if old_locations == new_locations
+
       result = old_locations.dup
       old_locations_to_remove = old_locations.dup
 
@@ -32,7 +36,7 @@ module ItemLocationsMerger
         result.delete(key)
       end
 
-      result
+      result.sort.to_h
     end
   end
 end
