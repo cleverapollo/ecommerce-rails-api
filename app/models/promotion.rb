@@ -1,30 +1,29 @@
 class Promotion < ActiveRecord::Base
   def show?(params = {})
     shop = params.fetch(:shop)
-    if params[:categories].present?
-      params[:categories].each do |category_id|
-        if c = shop.item_categories.find_by(external_id: category_id)
-          if show_for_category?(c)
-            @category = category_id
-            return true
-          end
-        end
-      end
-    end
 
-    if params[:item].present?
-      params[:item].categories.each do |item_category|
-        if c = shop.item_categories.find_by(external_id: item_category)
-          if show_for_category?(c)
-            @category = item_category
-            return true
-          end
+    categories_to_search = []
+    categories_to_search += params.fetch(:categories, [])
+    categories_to_search += params[:item].categories if params[:item].present?
+    categories_to_search.flatten.uniq.each do |category_id|
+      if c = shop.item_categories.find_by(external_id: category_id)
+        if show_for_category?(c)
+          @category = category_id
+          return true
         end
       end
     end
 
     false
   end
+
+  def scope(relation)
+    r = Item.where("name ILIKE '%#{brand}%'")
+    r = r.in_categories([@category]) if @category.present?
+    relation.merge(r)
+  end
+
+  private
 
   def show_for_category?(category)
     self.categories.each do |c|
@@ -33,11 +32,5 @@ class Promotion < ActiveRecord::Base
       end
     end
     false
-  end
-
-  def scope(relation)
-    r = Item.where("name ILIKE '%#{brand}%'")
-    r = r.in_categories([@category]) if @category.present?
-    relation.merge(r)
   end
 end

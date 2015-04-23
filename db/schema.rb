@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150414085442) do
+ActiveRecord::Schema.define(version: 20150423085603) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -129,6 +129,7 @@ ActiveRecord::Schema.define(version: 20150414085442) do
     t.boolean  "triggers_enabled",                      default: true,                 null: false
     t.datetime "last_trigger_mail_sent_at"
     t.boolean  "accepted_subscription",                 default: false,                null: false
+    t.string   "location"
   end
 
   add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
@@ -322,7 +323,6 @@ ActiveRecord::Schema.define(version: 20150414085442) do
     t.string  "uniqid",            limit: 255,                 null: false
     t.decimal "price"
     t.boolean "is_available",                  default: true,  null: false
-    t.string  "locations",                     default: [],                 array: true
     t.string  "name",              limit: 255
     t.text    "description"
     t.string  "url",               limit: 255
@@ -335,9 +335,11 @@ ActiveRecord::Schema.define(version: 20150414085442) do
     t.string  "categories",                    default: [],                 array: true
     t.boolean "ignored",                       default: false, null: false
     t.jsonb   "custom_attributes",             default: {},    null: false
+    t.jsonb   "locations",                     default: {},    null: false
   end
 
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
+  add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree

@@ -18,7 +18,8 @@ describe YmlWorker do
         categories: ['2', '3'],
         image_url: 'http://example.com/item/2000.jpg',
         name: 'New item',
-        description: 'New item description'
+        description: 'New item description',
+        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } }
       }.each{|attr, value| expect(new_item.public_send(attr)).to eq(value) }
     end
 
@@ -33,7 +34,8 @@ describe YmlWorker do
         categories: ['1'],
         image_url: 'http://example.com/item/1000.jpg',
         name: 'Existing item',
-        description: 'Existing item description'
+        description: 'Existing item description',
+        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } }
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
