@@ -54,8 +54,10 @@ class YmlItem
 
   def locations
     if @content['locations'].present? && @content['locations']['location'].present?
+      locations_raw = @content['locations']['location']
+      locations_raw = [locations_raw] unless locations_raw.is_a? Array
       result = { }
-      @content['locations']['location'].each do |location|
+      locations_raw.each do |location|
         result[location['id']] = { }
         if location['price'].present?
           result[location['id']]['price'] = location['price'].to_f
