@@ -7,7 +7,5 @@ class MigrateLocationsToLocationsData < ActiveRecord::Migration
       item.locations = []
       item.save
     end
-
-    remove_column :items, :locations
   end
 end
