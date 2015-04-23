@@ -3,21 +3,6 @@ require 'rails_helper'
 describe UserFetcher do
   let!(:shop) { create(:shop) }
 
-  describe '.new' do
-    let!(:params) { { session_code: 1, external_id: 2, shop: shop } }
-    subject { UserFetcher.new(params) }
-
-    it 'accepts hash as options' do
-      expect(subject).to be_an_instance_of(UserFetcher)
-    end
-
-    [:session_code, :external_id, :shop].each do |attr|
-      it "stores #{attr} in @#{attr}" do
-        expect(subject.public_send(attr)).to eq(params.fetch(attr))
-      end
-    end
-  end
-
   describe '#fetch' do
     let!(:user) { create(:user) }
     let!(:session) { create(:session, user: user) }
@@ -73,7 +58,7 @@ describe UserFetcher do
     context 'when external_id is passed' do
       let!(:external_id) { '256' }
       let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
-      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
+      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id, email: 'test@example.com', location: '256' } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -94,7 +79,10 @@ describe UserFetcher do
       it 'saves external_id to link' do
         expect(client.reload.external_id).to eq(nil)
         subject
-        expect(client.reload.external_id).to eq(external_id)
+        client.reload
+        expect(client.external_id).to eq(external_id)
+        expect(client.email).to eq('test@example.com')
+        expect(client.location).to eq('256')
       end
     end
 

@@ -111,6 +111,7 @@ module ActionPush
     def extract_user
       user_fetcher = UserFetcher.new(external_id: raw[:user_id],
                                      email: raw[:user_email],
+                                     location: raw[:location],
                                      shop: shop,
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
