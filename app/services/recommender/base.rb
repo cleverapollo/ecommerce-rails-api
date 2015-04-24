@@ -80,8 +80,9 @@ module Recommender
       relation
     end
 
+    # @todo транслировать params.exclude во внутренние идентификаторы товаров в нашей БД
     def excluded_items_ids
-      [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user), params.exclude].flatten.uniq.compact
+      [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user), shop.items.where(uniqid: params.exclude).pluck(:id)].flatten.uniq.compact
     end
 
     def recommend_only_widgetable?
