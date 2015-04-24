@@ -16,6 +16,15 @@
         <picture>http://example.com/item/1000.jpg</picture>
         <name>Existing item</name>
         <description>Existing item description</description>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
       </offer>
 
       <offer available="true" id="2000" >
@@ -25,6 +34,15 @@
         <picture>http://example.com/item/2000.jpg</picture>
         <name>New item</name>
         <description>New item description</description>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
       </offer>
     </offers>
   </shop>

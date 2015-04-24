@@ -11,14 +11,19 @@ class Item < ActiveRecord::Base
   scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
-  scope :in_categories, ->(categories) {
+  scope :in_categories, ->(categories, args = {}) {
     if categories && categories.any?
-      where("? <@ categories", "{#{categories.join(',')}}")
+      if args[:any]
+        where("? && categories", "{#{categories.join(',')}}")
+      else
+        where("? <@ categories", "{#{categories.join(',')}}")
+      end
     end
   }
   scope :in_locations, ->(locations) {
     if locations && locations.any?
-      where("? <@ locations", "{#{locations.join(',')}}")
+      locations = locations.keys if locations.is_a? Hash
+      where("locations ?| array[#{locations.map{|l| "'#{l}'"}.join(',')}]")
     end
   }
   scope :widgetable, ->() {
@@ -78,10 +83,10 @@ class Item < ActiveRecord::Base
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
     self.custom_attributes = new_item.custom_attributes || {}
+    self.locations = ItemLocationsMerger.merge(self.locations, new_item.locations)
 
     attrs = {
                   price: ValuesHelper.present_one(new_item, self, :price),
-              locations: ValuesHelper.with_contents(new_item, self, :locations),
              categories: ValuesHelper.with_contents(new_item, self, :categories),
                    tags: ValuesHelper.with_contents(new_item, self, :tags),
                    name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
@@ -105,5 +110,10 @@ class Item < ActiveRecord::Base
   # Выключает товар
   def disable!
     update(is_available: false) if is_available == true
+  end
+
+  # Цена в определенном городе
+  def price_in(location)
+    locations[location].try(:price) || self.price
   end
 end

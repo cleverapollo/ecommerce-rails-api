@@ -39,17 +39,34 @@ class YmlItem
   end
 
   def url
-    StringHelper.encode_and_truncate(@content['url'])
+    StringHelper.encode_and_truncate(@content['url'], 1000)
   end
 
   def image_url
     picture_attribute = @content['picture']
     picture_attribute = picture_attribute.first if picture_attribute.is_a? Array
-    StringHelper.encode_and_truncate(picture_attribute)
+    StringHelper.encode_and_truncate(picture_attribute, 1000)
   end
 
   def is_available
     @is_available != 'false'
+  end
+
+  def locations
+    if @content['locations'].present? && @content['locations']['location'].present?
+      locations_raw = @content['locations']['location']
+      locations_raw = [locations_raw] unless locations_raw.is_a? Array
+      result = { }
+      locations_raw.each do |location|
+        result[location['id']] = { }
+        if location['price'].present?
+          result[location['id']]['price'] = location['price'].to_f
+        end
+      end
+      result
+    else
+      []
+    end
   end
 
   # Delegate all unknown calls to new item object

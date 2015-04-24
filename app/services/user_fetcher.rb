@@ -4,16 +4,14 @@
 class UserFetcher
   class SessionNotFoundError < StandardError; end
 
-  attr_reader :external_id
-  attr_reader :session_code
-  attr_reader :shop
-  attr_reader :email
+  attr_reader :external_id, :session_code, :shop, :email, :location
 
   def initialize(params)
     @external_id = params[:external_id]
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
     @email = params[:email]
+    @location = params[:location]
   end
 
   def fetch
@@ -33,6 +31,9 @@ class UserFetcher
 
     if email.present?
       client.update(email: email)
+    end
+    if location.present?
+      client.update(location: location)
     end
 
     # Если известен ID пользователя в магазине

@@ -125,6 +125,10 @@ FactoryGirl.define do
 
   factory :client do
     user
+
+    trait :with_email do
+      email { 'test@example.com' }
+    end
   end
 
   factory :mailings_settings do
@@ -136,5 +140,13 @@ FactoryGirl.define do
     shop
     item
     code 1
+  end
+
+  factory :promotion do
+    brand { 'Apple' }
+    categories { ['телефоны', 'планшеты'] }
+  end
+
+  factory :item_category do
   end
 end

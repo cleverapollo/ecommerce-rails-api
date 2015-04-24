@@ -27,8 +27,16 @@ module Recommender
         result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
         result = result.joins(:item).merge(items_to_recommend)
+        result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(limit)
-        result.pluck(:item_id)
+        ids = result.pluck(:item_id)
+
+        # Рекомендации аксессуаров
+        if categories.present? && ids.size < limit
+          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(limit - ids.size).pluck(:id)
+        end
+
+        ids
       end
 
       def items_which_cart_to_analyze
