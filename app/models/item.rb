@@ -11,9 +11,13 @@ class Item < ActiveRecord::Base
   scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
-  scope :in_categories, ->(categories) {
+  scope :in_categories, ->(categories, args = {}) {
     if categories && categories.any?
-      where("? <@ categories", "{#{categories.join(',')}}")
+      if args[:any]
+        where("? && categories", "{#{categories.join(',')}}")
+      else
+        where("? <@ categories", "{#{categories.join(',')}}")
+      end
     end
   }
   scope :in_locations, ->(locations) {
