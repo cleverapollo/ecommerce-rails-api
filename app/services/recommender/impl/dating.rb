@@ -7,7 +7,7 @@ module Recommender
       # @return Item[]
       def items_to_recommend
         if params.items.present?
-          shop.items.where(id: params.items)
+          shop.items.where(uniqid: params.items)
         else
           super
         end
