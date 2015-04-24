@@ -63,10 +63,20 @@ module Recommender
       array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
     end
 
+    # Возвращает массив идентификаторов товаров, среди которых стоит рассчитывать рекомендации
+    # @return Item[]
     def items_in_shop
+
+      # Получаем все товары, которые можно рекомендовать, с учетом локаций, если локации указаны.
       relation = shop.items.recommendable.in_locations(locations)
+
+      # Оставляем только те, которые содержат полные данные о товаре
+      # для отображения карточки на клиенте без дополнительных запросов к БД
       relation = relation.widgetable if recommend_only_widgetable?
+
+      # Фильтрация по кастомным атрибутам, если был запрос на это
       relation = relation.by_ca(params.custom_attributes_filter) if params.custom_attributes_filter.present?
+
       relation
     end
 
