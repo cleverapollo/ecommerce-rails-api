@@ -7,7 +7,7 @@ module Recommender
       # @return Item[]
       def items_to_recommend
         if params.items.exists?
-          shop.items.find(id: params.items)
+          shop.items.where(id: params.items)
         else
           super
         end
