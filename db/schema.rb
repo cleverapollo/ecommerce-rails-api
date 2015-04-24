@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150423085603) do
+ActiveRecord::Schema.define(version: 20150424085259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -340,6 +340,7 @@ ActiveRecord::Schema.define(version: 20150423085603) do
 
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
+  add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
