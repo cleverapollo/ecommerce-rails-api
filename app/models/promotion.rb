@@ -3,7 +3,7 @@ class Promotion < ActiveRecord::Base
     shop = params.fetch(:shop)
 
     categories_to_search = []
-    categories_to_search += params.fetch(:categories, [])
+    categories_to_search += params[:categories] || []
     categories_to_search += params[:item].categories if params[:item].present?
     categories_to_search.flatten.uniq.each do |category_id|
       if c = shop.item_categories.find_by(external_id: category_id)
