@@ -112,6 +112,7 @@ module Recommendations
     def extract_static_attributes
       @type = raw[:recommender_type]
       @limit = raw[:limit].to_i if raw[:limit].present?
+      @limit = 500 if @limit > 500 # Ограничиваем 500 рекомендаций максимум. В будущем разрешить больше для особых клиентов
       @extended = raw[:extended].present?
       @custom_attributes_filter = if raw[:custom_attributes_filter].present?
         raw[:custom_attributes_filter].each do |key, value|
