@@ -6,7 +6,7 @@ module Recommender
       # Иначе рассчитываем по всей базе.
       # @return Item[]
       def items_to_recommend
-        if params.items.exists?
+        if params.items.present?
           shop.items.where(id: params.items)
         else
           super
