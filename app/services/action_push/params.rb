@@ -156,12 +156,12 @@ module ActionPush
           item_attributes.name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
           item_attributes.description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
 
-          item_attributes.url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i]) : nil
+          item_attributes.url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i], 1000) : nil
           if item_attributes.url.present? && !item_attributes.url.include?('://')
             item_attributes.url = shop.url + item_attributes.url
           end
 
-          item_attributes.image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i]) : ''
+          item_attributes.image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i], 1000) : ''
           if item_attributes.image_url.present? && !item_attributes.image_url.include?('://')
             item_attributes.image_url = shop.url + item_attributes.image_url
           end

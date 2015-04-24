@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150424085259) do
+ActiveRecord::Schema.define(version: 20150424100633) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -325,8 +325,8 @@ ActiveRecord::Schema.define(version: 20150424085259) do
     t.boolean "is_available",                  default: true,  null: false
     t.string  "name",              limit: 255
     t.text    "description"
-    t.string  "url",               limit: 255
-    t.string  "image_url",         limit: 255
+    t.text    "url"
+    t.text    "image_url"
     t.string  "tags",                          default: [],                 array: true
     t.boolean "widgetable",                    default: false, null: false
     t.string  "brand",             limit: 255

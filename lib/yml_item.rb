@@ -39,13 +39,13 @@ class YmlItem
   end
 
   def url
-    StringHelper.encode_and_truncate(@content['url'])
+    StringHelper.encode_and_truncate(@content['url'], 1000)
   end
 
   def image_url
     picture_attribute = @content['picture']
     picture_attribute = picture_attribute.first if picture_attribute.is_a? Array
-    StringHelper.encode_and_truncate(picture_attribute)
+    StringHelper.encode_and_truncate(picture_attribute, 1000)
   end
 
   def is_available
