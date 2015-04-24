@@ -164,6 +164,15 @@ module Recommendations
       end
     end
 
+    # Извлекает массив ID товаров, которые нужно исключить из рекомендаций
+    #
+    # @private
+    def extract_exclude
+      if raw[:exclude].present?
+        @exclude = raw[:exclude].split(',').map(&:to_s)
+      end
+    end
+
     # Извлекает категории: могут быть переданы скалярным значением или массивом
     #
     # @private
