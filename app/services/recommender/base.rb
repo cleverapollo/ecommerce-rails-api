@@ -80,7 +80,11 @@ module Recommender
       relation
     end
 
-    # @todo транслировать params.exclude во внутренние идентификаторы товаров в нашей БД
+    # Исключает ID-товаров из рекомендаций:
+    # - текущий товар, если есть
+    # - то, что в корзине
+    # - купленные пользователем
+    # - переданные в параметре :exclude
     def excluded_items_ids
       [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user), shop.items.where(uniqid: params.exclude).pluck(:id)].flatten.uniq.compact
     end

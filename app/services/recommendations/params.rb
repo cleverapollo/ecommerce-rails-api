@@ -66,6 +66,7 @@ module Recommendations
       extract_items
       extract_categories
       extract_locations
+      extract_exclude
 
       self
     end
