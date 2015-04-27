@@ -1,11 +1,16 @@
 Rees46Api::Application.routes.draw do
   root to: 'home#index'
 
-  get 'recommend', to: 'recommendations#get'
-
+  # Инициализация
   get 'init_script', to: 'init#init_script'
+
+  # Генерация кода сессии - используется мобильными приложениями
   get 'generate_ssid', to: 'init#generate_ssid'
 
+  # Запрос рекомендаций
+  get 'recommend', to: 'recommendations#get'
+
+  # Отправка событий
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
 
@@ -13,29 +18,37 @@ Rees46Api::Application.routes.draw do
   post 'push_attributes', to: 'events#push_attributes'
   get 'push_attributes', to: 'events#push_attributes'
 
+  # Импорты
   resource :import, only: :none do
+    # Заказы
     post :orders
+    # Товары (вероятно, нигде не используется)
     post :items
+    # Инсейлс
     post :insales
+    # YML файл
     post :yml
+    # Отключение товаров
     post :disable
-    post :audience
     get :disable
+    # Аудитория рассылок
+    post :audience
   end
 
-  resource :mailer, only: :none do
-    post :digest # Сделали API расчета рассылок лля OnlineTours
-  end
-
+  # Дайджестные рассылки
   resources :digest_mailings, only: [] do
-    post :launch,   on: :member # Запуск дайджеста
+    member do
+      # Запуск рассылки
+      post :launch
+    end
   end
 
   # Окно сбора e-mail
+  # create - прием данных о подписке (или отказе)
   resources :subscriptions, only: [:create] do
     collection do
-      get :unsubscribe # Отписаться
-      get :bounce # ?
+      # Отписаться
+      get :unsubscribe
     end
   end
 
