@@ -8,6 +8,7 @@ class InitController < ApplicationController
     if shop.present? && shop.active?
       render text: Session.fetch.code
     else
+      # Не генерируем сессию для деактивированных магазинов
       render nothing: true
     end
   end
@@ -59,12 +60,14 @@ class InitController < ApplicationController
     result += "  currency: '#{shop.currency}',"
     result += "  showPromotion: #{shop.show_promotion? ? 'true' : 'false'},"
 
+    # Поиск связки пользователя и магазина
     s_u = begin
       shop.clients.find_or_create_by!(user_id: session.user_id)
     rescue ActiveRecord::RecordNotUnique => e
       shop.clients.find_by!(user_id: session.user_id)
     end
 
+    # Настройки сбора e-mail
     result += "  subscriptions: {"
     if shop.subscriptions_enabled? && s_u.email.blank?
       result += "  settings: #{shop.subscriptions_settings.to_json}, "
