@@ -7,12 +7,4 @@ class ErrorsMailer < ActionMailer::Base
       format.html { render text: "#{message}<hr/>#{params.inspect}" }
     end
   end
-
-  def yml_import_error(email, shop, exception)
-    shop_string = "##{shop.id} #{shop.name} (#{shop.url}) - #{shop.yml_file_url}"
-    mail(to: email, subject: "Ошибка при импорте YML") do |format|
-      format.text { render text: "#{shop_string}\n\n\n#{exception.message}" }
-      format.html { render text: "#{shop_string}<hr />#{exception.message}" }
-    end
-  end
 end

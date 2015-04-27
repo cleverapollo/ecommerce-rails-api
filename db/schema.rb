@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150424100633) do
+ActiveRecord::Schema.define(version: 20150427123045) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -404,8 +404,6 @@ ActiveRecord::Schema.define(version: 20150424100633) do
     t.integer  "user_id",                                         null: false
     t.string   "uniqid",            limit: 255,                   null: false
     t.datetime "date",                          default: "now()", null: false
-    t.integer  "items",                         default: [],      null: false, array: true
-    t.integer  "amounts",                       default: [],      null: false, array: true
     t.decimal  "value",                         default: 0.0,     null: false
     t.boolean  "recommended",                   default: false,   null: false
     t.integer  "ab_testing_group"
