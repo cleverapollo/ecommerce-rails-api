@@ -99,7 +99,7 @@ class InsalesWorker
           'errors_to' => 'anton.zhavoronkov@mkechinov.ru'
         };
 
-        resp = HTTParty.post("http://#{Rees46.host}/import/orders",
+        resp = HTTParty.post("http://#{Rees46::HOST}/import/orders",
             body: body.to_json,
             headers: { 'Content-Type' => 'application/json' }
         );

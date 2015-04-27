@@ -23,7 +23,7 @@ class EventsController < ApplicationController
     session = Session.find_by(code: params[:session_id])
     return respond_with_client_error('Session not found') if session.blank?
 
-    UserProfile::AttributesProcessor.process(@shop, session.user, params[:attributes])
+    UserProfile::AttributesProcessor.process(shop, session.user, params[:attributes])
 
     respond_with_success
   end

@@ -26,7 +26,7 @@ describe DigestMail do
 
   describe '#tracking_url' do
     it 'returns tracking url' do
-      expect(digest_mail.tracking_url).to eq("http://#{Rees46.host}/track/digest/test.png")
+      expect(digest_mail.tracking_url).to eq("http://#{Rees46::HOST}/track/digest/test.png")
     end
   end
 

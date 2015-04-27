@@ -1,4 +1,6 @@
 module ShopFetcher
+  attr_reader :shop
+
   def fetch_active_shop
     @shop = Shop.find_by(uniqid: params[:shop_id])
 
