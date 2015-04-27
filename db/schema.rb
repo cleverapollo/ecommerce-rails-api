@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150427123045) do
+ActiveRecord::Schema.define(version: 20150427124826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -613,7 +613,6 @@ ActiveRecord::Schema.define(version: 20150427123045) do
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
     t.datetime "ab_testing_finished_at"
-    t.text     "connection_status"
     t.string   "secret",                        limit: 255
     t.integer  "partner_id"
     t.datetime "connected_at"

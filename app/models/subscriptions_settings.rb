@@ -1,3 +1,6 @@
+##
+# Настройки сбора e-mail. Создаются в rees46-rails
+#
 class SubscriptionsSettings < ActiveRecord::Base
   belongs_to :shop
 
@@ -17,5 +20,4 @@ class SubscriptionsSettings < ActiveRecord::Base
     host = Rails.env.development? ? 'localhost:3000' : 'rees46.com'
     "http://#{host}/subscription_picture/#{shop.uniqid}"
   end
-
 end

@@ -1,3 +1,6 @@
+##
+# Привязка к пользователю.
+#
 module UserLinkable
   extend ActiveSupport::Concern
 
@@ -7,6 +10,7 @@ module UserLinkable
   end
 
   module ClassMethods
+    # Привязать сущность к новому пользователю
     def relink_user(options = {})
       where(user_id: options.fetch(:from).id).find_each do |entity|
         begin

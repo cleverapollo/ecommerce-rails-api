@@ -1,3 +1,6 @@
+##
+# Запрос рекомендаций. Они просто логгируются, с ними ничего не делается.
+#
 class RecommendationsRequest < ActiveRecord::Base
   validates :shop_id, presence: true
   validates :category_id, presence: true

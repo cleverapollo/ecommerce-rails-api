@@ -1,8 +1,14 @@
+##
+# Магазин
+#
 class Shop < ActiveRecord::Base
   include Redis::Objects
+
+  # Кол-во пользователей в тестовых группах
   counter :group_1_count
   counter :group_2_count
 
+  # Состояние подключения
   store :connection_status_last_track, accessors: [:connected_events_last_track, :connected_recommenders_last_track], coder: JSON
 
   has_and_belongs_to_many :users
@@ -31,11 +37,13 @@ class Shop < ActiveRecord::Base
   scope :connected, -> { where(connected: true) }
   scope :unrestricted, -> { active.where(restricted: false) }
 
+  # ID товаров, купленных или добавленных в корзину пользователем
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
     actions.where('rating::numeric >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
   end
 
+  # Отследить отправленное событие
   def report_event(event)
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
@@ -45,6 +53,7 @@ class Shop < ActiveRecord::Base
       save
   end
 
+  # Отследить запрошенную рекомендацию
   def report_recommender(recommender)
     if connected_recommenders_last_track[recommender].blank?
       Event.recommendation_given(self) if first_recommender?
@@ -74,15 +83,6 @@ class Shop < ActiveRecord::Base
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
     connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i &&
     (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
-  end
-
-  def purge_all_related_data!
-    users.delete_all
-    Client.where(shop_id: self.id).delete_all
-    actions.delete_all
-    mahout_actions.delete_all
-    orders.destroy_all
-    items.destroy_all
   end
 
   def show_promotion?

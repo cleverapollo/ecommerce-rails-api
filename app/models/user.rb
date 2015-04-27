@@ -1,3 +1,6 @@
+##
+# Пользователь.
+#
 class User < ActiveRecord::Base
   include Redis::Objects
 
@@ -7,29 +10,15 @@ class User < ActiveRecord::Base
   has_many :orders
   has_many :profile_attributes
 
+  # Редисовая блокировка. Используется при слиянии пользователей
   lock :merging, expiration: 60, timeout: 1
 
-  # TODO: refactor
   def to_s
     "User ##{id}"
   end
 
-  # TODO: refactor
-  def items_ids_bought_in_shop(shop)
-    actions.where(shop_id: shop.id).where('purchase_count > 0').pluck(:item_id)
-  end
-
-  # TODO: refactor
-  def ensure_linked_to_shop(shop_id)
-    if s_u = clients.find_by(shop_id: shop_id)
-      s_u
-    else
-      clients.create(shop_id: shop_id)
-    end
-  end
-
-  # TODO: refactor
+  # Тестовая группа в магазине
   def ab_testing_group_in(shop)
-    ensure_linked_to_shop(shop.id).ab_testing_group
+    shop.clients.find_or_create_by(user_id: self.id).ab_testing_group
   end
 end
