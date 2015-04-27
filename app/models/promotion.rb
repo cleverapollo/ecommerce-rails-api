@@ -1,4 +1,8 @@
+##
+# Продвижение бренда
+#
 class Promotion < ActiveRecord::Base
+  # Показывать продвижение для заданных параметров?
   def show?(params = {})
     shop = params.fetch(:shop)
 
@@ -17,6 +21,7 @@ class Promotion < ActiveRecord::Base
     false
   end
 
+  # Наложить условие продвижения
   def scope(relation)
     r = Item.where("name ILIKE '%#{brand}%'")
     r = r.in_categories([@category]) if @category.present?

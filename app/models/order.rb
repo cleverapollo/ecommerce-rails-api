@@ -1,5 +1,8 @@
+##
+# Заказ
+#
 class Order < ActiveRecord::Base
-  RECOMMENDED_BY_DELAY = 2.weeks
+  RECOMMENDED_BY_DECAY = 2.weeks
 
   include UserLinkable
 
@@ -8,11 +11,15 @@ class Order < ActiveRecord::Base
   belongs_to :shop
 
   class << self
+    # Сохранить заказ
     def persist(shop, user, uniqid, items, source = {})
+      # Иногда событие заказа приходит несколько раз
       return if duplicate?(shop, user, uniqid, items)
 
+      # Иногда заказы бывают без ID
       uniqid = generate_uniqid if uniqid.blank?
 
+      # Привязка заказа к письму
       if source.present? && source['from'].present?
         klass = if source['from'] == 'trigger_mail'
           TriggerMail
@@ -25,30 +32,32 @@ class Order < ActiveRecord::Base
         source = nil
       end
 
+      # Расчитываем суммы по заказу
       values = order_values(shop, user, items, source.present?)
 
-      order = Order.create! \
-                           shop_id: shop.id,
-                           user_id: user.id,
-                           uniqid: uniqid,
-                           common_value: values[:common_value],
-                           recommended_value: values[:recommended_value],
-                           value: values[:value],
-                           recommended: (values[:recommended_value] > 0),
-                           ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group),
-                           source: source
+      order = Order.create!(shop_id: shop.id,
+                            user_id: user.id,
+                            uniqid: uniqid,
+                            common_value: values[:common_value],
+                            recommended_value: values[:recommended_value],
+                            value: values[:value],
+                            recommended: (values[:recommended_value] > 0),
+                            ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group),
+                            source: source)
 
+      # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
         OrderItem.persist(order, item, item.amount, recommended_by_expicit)
       end
     end
 
+    # Расчет сумм по заказу
     def order_values(shop, user, items, force_recommended = false)
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
-        if force_recommended || shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DELAY.ago).exists?
+        if force_recommended || shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DECAY.ago).exists?
           result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
         else
           result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)

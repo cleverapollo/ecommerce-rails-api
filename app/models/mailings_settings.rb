@@ -7,8 +7,7 @@ class MailingsSettings < ActiveRecord::Base
   validates :shop, presence: true
   validates :send_from, presence: true
 
-  # @todo: разобраться
   def enabled?
-    valid? && true
+    !shop.restricted?
   end
 end

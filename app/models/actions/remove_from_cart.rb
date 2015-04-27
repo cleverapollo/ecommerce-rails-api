@@ -1,3 +1,6 @@
+##
+# Удаление из корзины
+#
 module Actions
   class RemoveFromCart < Action
     CODE = 4

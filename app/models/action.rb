@@ -1,3 +1,7 @@
+##
+# "Действие". Связка пользователь-товар.
+# Конкретные действия наследуются от этого класса
+#
 class Action < ActiveRecord::Base
   belongs_to :user
   belongs_to :item
@@ -36,12 +40,14 @@ class Action < ActiveRecord::Base
       end
     end
 
+    # Вернуть класс конкретного действия по названию
     def get_implementation_for(action_type)
       raise ActionPush::Error.new('Unsupported action type') unless TYPES.include?(action_type)
 
       action_implementation_class_name(action_type).constantize
     end
 
+    # Callback
     def mass_process(params)
     end
 
@@ -52,15 +58,23 @@ class Action < ActiveRecord::Base
     end
   end
 
+  # Точка входа при обработке события. Вся работа происходит здесь.
   def process(params)
+    # Обновить параметры, специфичные для конкретного класса действий
     update_concrete_action_attrs
+    # Обновляем рейтинг и последнее действие - если нужно делать
+    # Пример: после просмотра товар добавляют в коризну - рейтинг обновляется
+    # После покупки товар смотрят - рейтинг не меняется
     update_rating_and_last_action(params.rating) if needs_to_update_rating?
+    # Запоминаем код рекомендера
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
 
     begin
       save
+      # Коллбек после обработки действия
       post_process
-      save_to_mahout if self.rating >= 3.7
+      # В Махаут сохраняются действия с рейтингом больше корзины
+      save_to_mahout if self.rating >= Actions::RemoveFromCart::RATING
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
@@ -70,8 +84,8 @@ class Action < ActiveRecord::Base
     self.class.to_s.split(':').last.underscore
   end
 
+  # Callback
   def post_process
-
   end
 
   def update_concrete_action_attrs

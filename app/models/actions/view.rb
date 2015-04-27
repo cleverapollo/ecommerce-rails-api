@@ -1,3 +1,6 @@
+##
+# Просмотр товара
+#
 module Actions
   class View < Action
     CODE = 1

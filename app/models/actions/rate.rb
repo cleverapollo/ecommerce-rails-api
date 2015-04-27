@@ -1,3 +1,6 @@
+##
+# Оценка (не используется)
+#
 module Actions
   class Rate < Action
     CODE = 5

@@ -1,3 +1,6 @@
+##
+# Клиенсткая ошибка (ту, что возвращаем в JS)
+#
 class ClientError < ActiveRecord::Base
   belongs_to :shop
 
@@ -11,9 +14,5 @@ class ClientError < ActiveRecord::Base
 
   def to_s
     "[#{shop.try(:uniqid)}] #{exception_class}: #{exception_message}, params: #{params}, referer: #{referer}"
-  end
-
-  def resolve!
-    update_attribute(:resolved, true)
   end
 end

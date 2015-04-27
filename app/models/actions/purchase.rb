@@ -1,3 +1,6 @@
+##
+# Покупка
+#
 module Actions
   class Purchase < Action
     CODE = 3

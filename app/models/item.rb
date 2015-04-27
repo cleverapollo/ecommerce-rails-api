@@ -1,6 +1,7 @@
+##
+# Товар
+#
 class Item < ActiveRecord::Base
-  ARRAY_ATTRIBUTES = [:categories, :locations]
-
   attr_accessor :amount, :action_id, :mail_recommended_by
 
   belongs_to :shop
@@ -11,24 +12,25 @@ class Item < ActiveRecord::Base
   scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
   scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
+  # Фильтрация по категориям
   scope :in_categories, ->(categories, args = {}) {
     if categories && categories.any?
-      if args[:any]
-        where("? && categories", "{#{categories.join(',')}}")
-      else
-        where("? <@ categories", "{#{categories.join(',')}}")
-      end
+      operator = args[:any] ? '&&' : '<@'
+      where("? #{operator} categories", "{#{categories.join(',')}}")
     end
   }
+  # Фильтрация по городам
   scope :in_locations, ->(locations) {
     if locations && locations.any?
       locations = locations.keys if locations.is_a? Hash
       where("locations ?| array[#{locations.map{|l| "'#{l}'"}.join(',')}]")
     end
   }
+  # Доступные для отображения
   scope :widgetable, ->() {
     where('name IS NOT NULL AND name != \'\'').where('url IS NOT NULL AND url != \'\'').where('image_url IS NOT NULL AND image_url != \'\'').where('price IS NOT NULL AND price != 0.0')
   }
+  # Фильтрация по кастомным аттрибутам
   scope :by_ca, ->(params) {
     result = self
     params.each do |key, value|
@@ -40,7 +42,6 @@ class Item < ActiveRecord::Base
   }
 
   class << self
-
     # Отключаем протухшие туры и купоны – товары со сроком годности
     def disable_expired
       Item.available.expired.find_each do |item|
@@ -48,16 +49,14 @@ class Item < ActiveRecord::Base
       end
     end
 
+    # Найти или создать товар с аттрибутами
     def fetch(shop_id, item_proxy)
       item = find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
       item.apply_attributes(item_proxy)
     end
-
-    def available_attributes
-      attribute_names.select{|a| !['id', 'shop_id', 'uniqid'].include?(a) }
-    end
   end
 
+  # Применить аттрибуты товара
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
     attrs = merge_attributes(item_proxy)
@@ -76,10 +75,12 @@ class Item < ActiveRecord::Base
     "Item ##{id} (external #{uniqid}) #{name} at #{price}"
   end
 
+  # Доступен для отображения?
   def widgetable?
     price.present? && name.present? && url.present? && image_url.present?
   end
 
+  # Назначить аттрибуты
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
     self.custom_attributes = new_item.custom_attributes || {}

@@ -27,6 +27,7 @@ class DigestMailing < ActiveRecord::Base
     update(state: 'finished', finished_at: Time.current)
   end
 
+  # Возобновить сломавшуюся рассылку
   def resume!
     update(state: 'started')
     batches.incomplete.each{|batch| DigestMailingBatchWorker.perform_async(batch.id) }

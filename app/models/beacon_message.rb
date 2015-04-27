@@ -1,3 +1,6 @@
+##
+# Сообщение от iBeacon
+#
 class BeaconMessage < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user

@@ -1,3 +1,6 @@
+##
+# Действие пользователя
+#
 class Interaction < ActiveRecord::Base
   include UserLinkable
 
@@ -20,9 +23,8 @@ class Interaction < ActiveRecord::Base
             'rescore' => 8,
        'trigger_mail' => 9,
         'digest_mail' => 10,
-        'dating'      => 11
+            'dating'  => 11
   }
-
 
   belongs_to :user
   belongs_to :shop

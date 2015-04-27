@@ -1,3 +1,6 @@
+##
+# Добавление в корзину
+#
 module Actions
   class Cart < Action
     CODE = 2

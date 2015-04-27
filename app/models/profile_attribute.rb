@@ -1,3 +1,6 @@
+##
+# Аттрибут профиля пользователя
+#
 class ProfileAttribute < ActiveRecord::Base
   belongs_to :shop
   belongs_to :user
