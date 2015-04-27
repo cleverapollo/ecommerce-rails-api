@@ -66,6 +66,7 @@ module Recommendations
       extract_items
       extract_categories
       extract_locations
+      extract_exclude
 
       self
     end
@@ -112,6 +113,7 @@ module Recommendations
     def extract_static_attributes
       @type = raw[:recommender_type]
       @limit = raw[:limit].to_i if raw[:limit].present?
+      @limit = 500 if @limit > 500 # Ограничиваем 500 рекомендаций максимум. В будущем разрешить больше для особых клиентов
       @extended = raw[:extended].present?
       @custom_attributes_filter = if raw[:custom_attributes_filter].present?
         raw[:custom_attributes_filter].each do |key, value|
@@ -160,6 +162,15 @@ module Recommendations
     def extract_items
       if raw[:items].present?
         @items = raw[:items].split(',').map(&:to_s)
+      end
+    end
+
+    # Извлекает массив ID товаров, которые нужно исключить из рекомендаций
+    #
+    # @private
+    def extract_exclude
+      if raw[:exclude].present?
+        @exclude = raw[:exclude].split(',').map(&:to_s)
       end
     end
 
