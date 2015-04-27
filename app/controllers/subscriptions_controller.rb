@@ -2,16 +2,19 @@
 # Контроллер, обрабатывающий подписки пользователей на рассылки
 #
 class SubscriptionsController < ApplicationController
+  include ShopFetcher
   before_action :fetch_shop, only: :create
   before_action :fetch_user, only: :create
 
+  # Взаимодействие с окном сбора email
   def create
-    client = @shop.clients.find_or_create_by!(user_id: @user.id)
+    client = shop.clients.find_or_create_by!(user_id: @user.id)
 
     if email = IncomingDataTranslator.email(params[:email])
       client.email = email
     end
 
+    # Если params[:declined] == true, значит пользователь отказался
     client.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
     client.subscription_popup_showed = true
     client.save
@@ -19,26 +22,19 @@ class SubscriptionsController < ApplicationController
     render json: {}
   end
 
+  # Отписка от рассылок в один клик
   def unsubscribe
-    if entity = Client.find_by(code: params[:code])
-      if params[:type] == 'digest'
-        entity.unsubscribe_from_digests!
-      elsif params[:type] == 'trigger'
-        entity.unsubscribe_from_triggers!
-      end
+    if client = Client.find_by(code: params[:code])
+      client.unsubscribe_from(params[:type])
     end
 
     render text: 'Вы успешно отписаны от рассылок.'
   end
 
+  # Трекинг открытого письма
   def track
     if params[:code] != 'test'
-      entity = if params[:type] == 'digest'
-        DigestMail.find_by(code: params[:code])
-      elsif params[:type] = 'trigger'
-        TriggerMail.find_by(code: params[:code])
-      end
-
+      entity = Mail(params[:type]).find_by(code: params[:code])
       entity.mark_as_opened! if entity.present?
     end
 
@@ -47,13 +43,6 @@ class SubscriptionsController < ApplicationController
   end
 
   protected
-
-  def fetch_shop
-    @shop = Shop.find_by(uniqid: params[:shop_id])
-    if @shop.blank?
-      render(nothing: true) and return false
-    end
-  end
 
   def fetch_user
     @user = Session.find_by!(code: params[:ssid]).user

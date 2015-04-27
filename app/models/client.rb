@@ -56,12 +56,13 @@ class Client < ActiveRecord::Base
     Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST)
   end
 
-  def unsubscribe_from_triggers!
-    update_columns(triggers_enabled: false)
-  end
-
-  def unsubscribe_from_digests!
-    update_columns(digests_enabled: false)
+  def unsubscribe_from(mailings_type)
+    case mailings_type.to_sym
+    when :digest
+      update_columns(digests_enabled: false)
+    when :trigger
+      update_columns(triggers_enabled: false)
+    end
   end
 
   def purge_email!
