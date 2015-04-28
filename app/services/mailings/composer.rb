@@ -22,7 +22,7 @@ module Mailings
         if mail.class == TriggerMail
           result = {
             utm_source: 'rees46',
-            utm_meta: 'trigger_mail',
+            utm_medium: 'trigger_mail',
             utm_campaign: mail.mailing.trigger_type,
             recommended_by: 'trigger_mail',
             rees46_trigger_mail_code: mail.code

@@ -124,7 +124,7 @@ class DigestMailingBatchWorker
 
     # UTM
     d_m_code =
-    utm = "utm_source=rees46&utm_meta=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}"
+    utm = "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}"
     result.gsub!('{{ utm_params }}', utm)
 
     # Добавляем футер
@@ -148,7 +148,7 @@ class DigestMailingBatchWorker
       description: item.description,
       price: ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: "'"),
       url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
-                                             utm_meta: 'digest_mail',
+                                             utm_medium: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
                                              recommended_by: 'digest_mail',
                                              rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test'),
