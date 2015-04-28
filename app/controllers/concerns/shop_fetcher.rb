@@ -1,3 +1,6 @@
+##
+# Позволяет получать магазин различными методами
+#
 module ShopFetcher
   attr_reader :shop
 

@@ -1,5 +1,9 @@
+##
+# Подписанное DKIM письмо. Это лучше вынести в постфикс.
+#
 module Mailings
   class SignedEmail < ActionMailer::Base
+    # Создать письмо со всеми нужными параметрами и заголовками и подписать его
     def compose(shop, options)
       @shop = shop
       @options = options
@@ -28,6 +32,7 @@ module Mailings
 
     private
 
+    # Это нужно для отслеживания bounce
     def generate_return_path
       type = @options.fetch(:type)
       code = @options[:code] || 'test'

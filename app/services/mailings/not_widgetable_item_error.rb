@@ -1,3 +1,6 @@
+##
+# Ошибка - товар невозможно отобразить в письме.
+#
 module Mailings
   class NotWidgetableItemError < StandardError
     attr_reader :item

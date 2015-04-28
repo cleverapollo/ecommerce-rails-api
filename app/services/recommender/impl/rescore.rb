@@ -1,5 +1,8 @@
 module Recommender
   module Impl
+    ##
+    # Ранжирующий рекомендер. Никогда никем не использовался.
+    #
     class Rescore < Recommender::Weighted
       def check_params!
         raise Recommendations::IncorrectParams.new('Items required for this recommender') if params.items.blank? || params.items.none?

@@ -1,10 +1,15 @@
+##
+# Базовые рекомендер. Все наследуется от него.
+#
 module Recommender
   class Base
+    # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
     attr_accessor :params
 
     class << self
+      # Получить класс рекомендера по названи.
       def get_implementation_for(recommender_type)
         raise Recommendations::Error.new('Unsupported recommender type') unless TYPES.include?(recommender_type)
 
@@ -16,17 +21,22 @@ module Recommender
       end
     end
 
+    # Методы-сокращалки
     [:shop, :item, :user, :categories, :locations, :cart_item_ids, :limit].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
     end
 
+    # Точка входа
     def recommendations
+      # Проверка, валидны ли параметры для конкретного рекомендера
       check_params!
 
+      # Получить рекомендованные внутренние ID товаров
       ids = recommended_ids
 
+      # Для расширенного режима возвращаем аттрибуты товаров
       if params.try(:extended)
         result = shop.items.where(id: ids).map do |item|
           {
@@ -38,18 +48,22 @@ module Recommender
           }
         end
       else
+        # Для обычного - переводим во внешние ID
         result = translate_to_external_ids(ids)
       end
 
+      # Запоминаем, что магазин вызвал рекомендер
       params.shop.report_recommender(params.type.to_sym)
 
       return result
     end
 
+    # Проверка, валидны ли параметры для конкретного рекомендера
     def check_params!
       raise Recommendations::Error.new('Blank user') if params.user.blank?
     end
 
+    # Получить рекомендованные внутренние ID товаров
     def recommended_ids
       raise NotImplementedError.new('This should be implemented in concrete recommender class')
     end
@@ -58,6 +72,7 @@ module Recommender
       @params = params
     end
 
+    # Перевести во внешние ID, сохраняя сортировку
     def translate_to_external_ids(array_of_internal_ids)
       array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
       array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
@@ -66,7 +81,6 @@ module Recommender
     # Возвращает массив идентификаторов товаров, среди которых стоит рассчитывать рекомендации
     # @return Item[]
     def items_in_shop
-
       # Получаем все товары, которые можно рекомендовать, с учетом локаций, если локации указаны.
       relation = shop.items.recommendable.in_locations(locations)
 
@@ -93,6 +107,7 @@ module Recommender
       params.recommend_only_widgetable
     end
 
+    # Добить выдачу рекомендаций рандомом
     def inject_random_items(given_ids)
       return given_ids if given_ids.size >= limit
 
@@ -101,6 +116,7 @@ module Recommender
       given_ids + additional_ids.pluck(:id)
     end
 
+    # Товары, доступные к рекомендациям - переопределяется в реализациях
     def items_to_recommend
       items_in_shop
     end

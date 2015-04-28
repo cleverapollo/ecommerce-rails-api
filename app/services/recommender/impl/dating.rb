@@ -1,7 +1,6 @@
 module Recommender
   module Impl
     class Dating < Recommender::UserBased
-
       # Если указан массив объектов, среди которых проводить рекомендации, то считаем по ним.
       # Иначе рассчитываем по всей базе.
       # @return Item[]
@@ -12,7 +11,6 @@ module Recommender
           super
         end
       end
-
 
       ##
       # Рассчитывает рекомендации.

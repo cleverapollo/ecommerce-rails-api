@@ -39,14 +39,14 @@ class DigestMailingLaunchWorker
 
       # Запоминаем, сколько пользователей попало в рассылку
       digest_mailing.update(total_mails_count: shop.clients.suitable_for_digest_mailings.count)
+
+      # Запоминаем дату и время запуска
+      digest_mailing.update(started_at: Time.current)
     end
 
     # Запускаем обработчики на все пачки
     digest_mailing.batches.incomplete.each do |batch|
       DigestMailingBatchWorker.perform_async(batch.id)
     end
-
-    # Запоминаем дату и время запуска
-    digest_mailing.update(started_at: Time.current)
   end
 end

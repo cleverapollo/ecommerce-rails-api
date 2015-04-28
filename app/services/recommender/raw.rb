@@ -1,3 +1,6 @@
+##
+# Рекомендер, который просто что-то возвращает - без махаута
+#
 module Recommender
   class Raw < Base
     def recommended_ids

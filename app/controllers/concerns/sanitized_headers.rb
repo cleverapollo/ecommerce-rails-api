@@ -1,3 +1,6 @@
+##
+# Позволяет получать заголовки в контроллере.
+#
 module SanitizedHeaders
   protected
 

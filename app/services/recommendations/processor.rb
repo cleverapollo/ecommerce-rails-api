@@ -1,3 +1,6 @@
+##
+# Обработчик рекомендаций
+#
 module Recommendations
   class Processor
     class << self

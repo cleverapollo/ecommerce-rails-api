@@ -1,3 +1,6 @@
+##
+# Авторизует магазин по коду и секретному коду.
+#
 module ShopAuthenticator
   extend ActiveSupport::Concern
 

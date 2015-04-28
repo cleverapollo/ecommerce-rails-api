@@ -1,3 +1,6 @@
+##
+# Сохранить аттрибут пользовательского профиля
+#
 module UserProfile
   class AttributesProcessor
     def self.process(shop, user, attributes)

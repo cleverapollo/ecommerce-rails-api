@@ -1,3 +1,6 @@
+##
+# Расчет пола пользователя
+#
 module SectoralAlgorythms
   module Wear
     class Gender

@@ -1,3 +1,6 @@
+##
+# Ранжирующий рекомендер. Ранжирование отключено из-за низкого КПД.
+#
 module Recommender
   class Weighted < Base
     def recommended_ids

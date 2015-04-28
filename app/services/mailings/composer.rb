@@ -1,3 +1,6 @@
+##
+# Содержит общие методы для рассылок.
+#
 module Mailings
   class Composer
     class << self

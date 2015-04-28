@@ -1,3 +1,6 @@
+##
+# Обработчик поступающих событий
+#
 module ActionPush
   class Processor
     attr_reader :params
@@ -21,10 +24,12 @@ module ActionPush
         digest_mail.mark_as_clicked!
       end
 
+      # Для каждого переданного товара запускаем процессинг действия
       params.items.each do |item|
         action = fetch_action_for item
         action.process params
 
+        # Логгируем событие
         Interaction.push(user_id: params.user.id,
                          shop_id: params.shop.id,
                          item_id: item.id,
@@ -32,8 +37,10 @@ module ActionPush
                          recommended_by: params.recommended_by)
       end
 
+      # Это используется в покупках
       concrete_action_class.mass_process(params)
 
+      # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
     end
 
