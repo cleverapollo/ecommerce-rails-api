@@ -3,8 +3,6 @@
 #
 class Promotion < ActiveRecord::Base
 
-  scope :active, -> { where('finishing_at IS NULL OR finishing_at >= ?', Date.current) }
-
   # Показывать продвижение для заданных параметров?
   def show?(params = {})
     shop = params.fetch(:shop)

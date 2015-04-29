@@ -18,7 +18,7 @@ module Recommender
       end
 
       def inject_promotions(result_ids)
-        Promotion.active.find_each do |promotion|
+        Promotion.find_each do |promotion|
           if promotion.show?(shop: shop, item: item)
             promoted_item_id = promotion.scope(items_to_recommend).where.not(id: result_ids).limit(1).first.try(:id)
             if promoted_item_id.present?
