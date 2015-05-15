@@ -46,7 +46,7 @@ class MahoutService
   end
 
   def item_based_weight(user_id, options)
-    unless Rails.env.test?
+    #unless Rails.env.test?
       preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
       options.merge!(preferences: preferences)
       res = nil
@@ -56,9 +56,9 @@ class MahoutService
         res = options[:weight].slice(0, options[:limit])
       end
       return res
-    else
-      options[:weight].slice(0, options[:limit])
-    end
+    #else
+    #  options[:weight].slice(0, options[:limit])
+    #end
 
   end
 
