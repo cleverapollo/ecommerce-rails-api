@@ -3,7 +3,6 @@
 #
 module Recommender
   class UserBased < Base
-
     # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
     def items_to_recommend
       if shop.sectoral_algorythms_available?
@@ -19,7 +18,6 @@ module Recommender
         super
       end
     end
-
 
     def recommended_ids
       ms = MahoutService.new

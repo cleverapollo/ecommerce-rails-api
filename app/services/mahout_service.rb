@@ -46,20 +46,15 @@ class MahoutService
   end
 
   def item_based_weight(user_id, options)
-    unless Rails.env.test?
-      preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
-      options.merge!(preferences: preferences)
-      res = nil
-      if tunnel_active? && preferences.any?
-        res = tunnel.item_based_weight_block(user_id, options)
-      else
-        res = options[:weight].slice(0, options[:limit])
-      end
-      return res
+    preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
+    options.merge!(preferences: preferences)
+    res = nil
+    if tunnel_active? && preferences.any?
+      res = tunnel.item_based_weight_block(user_id, options)
     else
-      options[:weight].slice(0, options[:limit])
+      res = options[:weight].slice(0, options[:limit])
     end
-
+    return res
   end
 
   def tunnel_active?

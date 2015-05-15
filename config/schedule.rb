@@ -13,11 +13,6 @@ every '0 4 * * *' do
   runner "RunnerWrapper.run('CartsExpirer.perform')"
 end
 
-# Каждую ночь в 5 обновляем оценку SR
-every '0 5 * * *' do
-  runner "RunnerWrapper.run('SalesRateCalc.perform')"
-end
-
 every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
