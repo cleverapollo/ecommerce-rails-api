@@ -23,10 +23,12 @@ describe Recommender::Impl::Popular do
 
   describe '#items_to_weight' do
     context 'when no category provided' do
+
+      subject { Recommender::Impl::Popular.new(params) }
+
       context 'when there is enough purchases' do
         before { create_action(item1, true) }
 
-        subject { Recommender::Impl::Popular.new(params) }
 
         it 'returns most frequently buyed items' do
           expect(subject.recommendations).to include(item1.uniqid)

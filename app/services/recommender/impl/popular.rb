@@ -43,7 +43,7 @@ module Recommender
           delta_rate = 0.05
           cur_rate = 1
           cf_result.each do |res|
-            sr_weighted[res]+=K_CF*cur_rate
+            sr_weighted[res]= sr_weighted[res].to_f+K_CF*cur_rate
             cur_rate-=delta_rate
           end
         end
