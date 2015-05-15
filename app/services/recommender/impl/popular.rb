@@ -6,7 +6,6 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
-      include Recommender::SectoralAlgorythms
 
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
@@ -18,26 +17,45 @@ module Recommender
                 else
                   popular_in_all_shop
                 end
+        result = shop.items.where(id:items.select('item_id')).order(sr: :desc).limit(params.limit).pluck(:id, :sr)
 
-        result = items.limit(1000).pluck(:item_id)
+        result = result.to_h
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         #if result.size < limit
         #  result += by_rating(items, limit - result.size, result)
         #end
 
-        unless shop.strict_recommendations?
+        inject_items = []
+
+        if result.size < params.limit && !shop.strict_recommendations?
           # Если уж и так недостаточно - рандом
-          result = inject_random_items(result) unless in_category
+          inject_items += inject_random_items(result.keys) unless in_category
         end
 
-        result = inject_promotions(result)
+        inject_items+=inject_promotions(result.keys)
 
-        result
+        result.merge(sr_weight(inject_items))
+      end
 
+      # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear?
+            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
+            result = result.by_ca(gender: gender)
+
+            # TODO: отбрасывать товары, которые явно не подходят по размеру
+          end
+          result
+        else
+          super
+        end
       end
 
       def reorder_result(cf_result, items)
-        sr_weighted = sr_weight(items)
+
+        sr_weighted = items
 
         if cf_result.any?
           delta_rate = 0.05
@@ -99,7 +117,7 @@ module Recommender
       end
 
       def sr_weight(items)
-        shop.items.where(id: items).order(sr: :desc).pluck(:id, :sr).to_h
+        shop.items.where(id: items).pluck(:id, :sr).to_h
       end
     end
   end
