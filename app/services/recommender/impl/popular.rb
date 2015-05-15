@@ -12,6 +12,7 @@ module Recommender
             # TODO: фильтрация по размерам одежды
           end
           result
+          
         else
           super
         end
