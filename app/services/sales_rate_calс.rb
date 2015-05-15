@@ -4,7 +4,7 @@
 #
 class SalesRateCalc
 
-  K_PRICE = 0.4
+  K_PRICE = 0.6
   K_PURCHASES = 1.0
 
   class << self
@@ -23,7 +23,7 @@ class SalesRateCalc
           calc_item = {
               id: item.id,
               purchase_count: item.actions.sum(:purchase_count),
-              price: item.price
+              price: item.price.to_f
           }
           max_price = calc_item[:price] if calc_item[:price]>max_price
           max_purchase_count = calc_item[:purchase_count] if calc_item[:purchase_count]>max_purchase_count
@@ -37,6 +37,7 @@ class SalesRateCalc
           price_norm = item[:price].to_f/max_price
           purchase_norm = item[:purchase_count].to_f/max_purchase_count
           item[:sr]=(K_PRICE*price_norm + K_PURCHASES*purchase_norm)/(K_PRICE+K_PURCHASES)
+          ap item:item
           Item.update(item[:id], sr: item[:sr])
         end
       end

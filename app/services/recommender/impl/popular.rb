@@ -2,12 +2,26 @@ module Recommender
   module Impl
     class Popular < Recommender::Weighted
       LIMIT = 20
-      LIMIT_CF = 40
 
       K_SR = 1.0
       K_CF = 1.0
 
-      include Recommender::SectoralAlgorythms
+      # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear?
+            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
+            result = result.by_ca(gender: gender)
+
+            # TODO: отбрасывать товары, которые явно не подходят по размеру
+          end
+          result
+        else
+          super
+        end
+      end
+
 
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
@@ -20,7 +34,7 @@ module Recommender
                   popular_in_all_shop
                 end
 
-        result = items.limit(LIMIT_CF).pluck(:item_id)
+        result = items.limit(params[:limit]).pluck(:item_id)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         #if result.size < limit
         #  result += by_rating(items, limit - result.size, result)
