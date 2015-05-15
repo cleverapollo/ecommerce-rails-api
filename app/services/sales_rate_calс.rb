@@ -37,8 +37,8 @@ class SalesRateCalc
           price_norm = item[:price].to_f/max_price
           purchase_norm = item[:purchase_count].to_f/max_purchase_count
           item[:sr]=(K_PRICE*price_norm + K_PURCHASES*purchase_norm)/(K_PRICE+K_PURCHASES)
-          ap item:item
           Item.update(item[:id], sr: item[:sr])
+          print '+'
         end
       end
     end

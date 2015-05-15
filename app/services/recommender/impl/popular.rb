@@ -34,7 +34,7 @@ module Recommender
                   popular_in_all_shop
                 end
 
-        result = items.limit(params[:limit]).pluck(:item_id)
+        result = items.limit(params.limit).pluck(:item_id)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         #if result.size < limit
         #  result += by_rating(items, limit - result.size, result)
