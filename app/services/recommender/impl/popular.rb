@@ -2,6 +2,7 @@ module Recommender
   module Impl
     class Popular < Recommender::Weighted
       LIMIT = 20
+      LIMIT_CF = 40
 
       K_SR = 1.0
       K_CF = 1.0
@@ -19,7 +20,7 @@ module Recommender
                   popular_in_all_shop
                 end
 
-        result = items.limit(1000).pluck(:item_id)
+        result = items.limit(LIMIT_CF).pluck(:item_id)
         # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
         #if result.size < limit
         #  result += by_rating(items, limit - result.size, result)
