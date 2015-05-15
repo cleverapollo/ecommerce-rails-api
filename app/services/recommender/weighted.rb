@@ -9,14 +9,14 @@ module Recommender
 
       i_w = items_to_weight
 
-      if i_w.any?
-        ms = MahoutService.new
-        ms.open
-        result = ms.item_based_weight(params.user.id,
-                                      weight: i_w,
-                                      limit: params.limit)
-        ms.close
-      end
+      # if i_w.any?
+      #   ms = MahoutService.new
+      #   ms.open
+      #   result = ms.item_based_weight(params.user.id,
+      #                                 weight: i_w,
+      #                                 limit: params.limit)
+      #   ms.close
+      # end
       reorder_result(result, i_w)
 
     end
