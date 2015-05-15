@@ -3,18 +3,70 @@ module Recommender
     class Popular < Recommender::Weighted
       LIMIT = 20
 
+      K_SR = 1.0
+      K_CF = 1.0
+
+
+      def items_to_weight
+        # Разные запросы в зависимости от присутствия или отсутствия категории
+        # Используют разные индексы
+        in_category = false
+        items = if categories.try(:any?)
+                  in_category = true
+                  popular_in_category
+                else
+                  popular_in_all_shop
+                end
+        result = shop.items.where(id:items.select('item_id')).order(sr: :desc).limit(params.limit).pluck(:id, :sr)
+
+        result = result.to_h
+        # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
+        #if result.size < limit
+        #  result += by_rating(items, limit - result.size, result)
+        #end
+
+        inject_items = []
+
+        if result.size < params.limit && !shop.strict_recommendations?
+          # Если уж и так недостаточно - рандом
+          inject_items += inject_random_items(result.keys) unless in_category
+        end
+
+        inject_items+=inject_promotions(result.keys)
+
+        result.merge(sr_weight(inject_items))
+      end
+
+      # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
       def items_to_recommend
         if shop.sectoral_algorythms_available?
           result = super
           if shop.category.wear?
-            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop)
+            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
             result = result.by_ca(gender: gender)
-            # TODO: фильтрация по размерам одежды
+
+            # TODO: отбрасывать товары, которые явно не подходят по размеру
           end
           result
         else
           super
         end
+      end
+
+      def reorder_result(cf_result, items)
+
+        sr_weighted = items
+
+        if cf_result.any?
+          delta_rate = 0.05
+          cur_rate = 1
+          cf_result.each do |res|
+            sr_weighted[res]= sr_weighted[res].to_f+K_CF*cur_rate
+            cur_rate-=delta_rate
+          end
+        end
+
+        sr_weighted.keys.map(&:to_i)
       end
 
       def inject_promotions(result_ids)
@@ -30,37 +82,11 @@ module Recommender
         result_ids
       end
 
-      def items_to_weight
-        # Разные запросы в зависимости от присутствия или отсутствия категории
-        # Используют разные индексы
-        in_category = false
-        relation = if categories.try(:any?)
-          in_category = true
-          popular_in_category
-        else
-          popular_in_all_shop
-        end
-
-        result = by_purchases(relation, limit)
-        # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
-        if result.size < limit
-          result += by_rating(relation, limit - result.size, result)
-        end
-
-        unless shop.strict_recommendations?
-          # Если уж и так недостаточно - рандом
-          result = inject_random_items(result) unless in_category
-        end
-
-        result = inject_promotions(result)
-
-        result
-      end
 
       # Общие условия, работают для всех типов выборок
       def common_relation(relation)
         relation.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i)
-                .group(:item_id)
+            .group(:item_id)
       end
 
       # Популярные по всему магазину
@@ -81,13 +107,17 @@ module Recommender
       # Расчет по количеству покупок (для нормальных магазинов)
       def by_purchases(relation, limit = LIMIT)
         relation.where('purchase_count > 0').order('SUM(purchase_count) DESC')
-                .limit(limit).pluck(:item_id)
+            .limit(limit).pluck(:item_id)
       end
 
       # Расчет по рейтингу (для маленьких магазинов)
       def by_rating(relation, limit = LIMIT, given_ids)
         relation.order('SUM(rating) DESC').where.not(item_id: given_ids)
-                .limit(limit).pluck(:item_id)
+            .limit(limit).pluck(:item_id)
+      end
+
+      def sr_weight(items)
+        shop.items.where(id: items).pluck(:id, :sr).to_h
       end
     end
   end

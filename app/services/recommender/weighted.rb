@@ -3,6 +3,7 @@
 #
 module Recommender
   class Weighted < Base
+
     def recommended_ids
       result = []
 
@@ -16,17 +17,18 @@ module Recommender
       #                                 limit: params.limit)
       #   ms.close
       # end
-      result = if result.size > limit
-        i_w.sample(limit)
-      else
-        i_w
-      end
+      reorder_result(result, i_w)
 
-      result
     end
+
 
     def items_to_weight
       raise NotImplementedError.new('This should be implemented in concrete recommender class')
+    end
+
+    def reorder_result(cf_result, items_weight)
+      # need to implemented for reorder
+      items_weight
     end
   end
 end
