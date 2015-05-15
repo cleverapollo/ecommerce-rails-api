@@ -6,22 +6,6 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
-      # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
-      def items_to_recommend
-        if shop.sectoral_algorythms_available?
-          result = super
-          if shop.category.wear?
-            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
-            result = result.by_ca(gender: gender)
-
-            # TODO: отбрасывать товары, которые явно не подходят по размеру
-          end
-          result
-        else
-          super
-        end
-      end
-
 
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
@@ -51,6 +35,22 @@ module Recommender
         inject_items+=inject_promotions(result.keys)
 
         result.merge(sr_weight(inject_items))
+      end
+
+      # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
+      def items_to_recommend
+        if shop.sectoral_algorythms_available?
+          result = super
+          if shop.category.wear?
+            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
+            result = result.by_ca(gender: gender)
+
+            # TODO: отбрасывать товары, которые явно не подходят по размеру
+          end
+          result
+        else
+          super
+        end
       end
 
       def reorder_result(cf_result, items)

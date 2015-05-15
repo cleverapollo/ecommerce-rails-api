@@ -19,11 +19,13 @@ class SalesRateCalc
         max_price = 0
         max_purchase_count = 0
 
-        shop.items.available.find_each(batch_size: 10) do |item|
+        items_last_action = timestamp_filter(shop.actions).group(:item_id).select('item_id')
+
+        shop.items.available.where(id:items_last_action).find_each(batch_size: 200) do |item|
           calc_item = {
               id: item.id,
-              purchase_count: item.actions.sum(:purchase_count),
-              price: item.price.to_f
+              purchase_count: timestamp_filter(item.actions).sum(:purchase_count),
+              price: item.price
           }
           max_price = calc_item[:price] if calc_item[:price]>max_price
           max_purchase_count = calc_item[:purchase_count] if calc_item[:purchase_count]>max_purchase_count
@@ -33,14 +35,22 @@ class SalesRateCalc
         price_norm = 0
         purchase_norm = 0
 
+        Item.where.not(id:items_last_action).update_all(sr:0)
+
         calculated_items.each do |item|
           price_norm = item[:price].to_f/max_price
           purchase_norm = item[:purchase_count].to_f/max_purchase_count
           item[:sr]=(K_PRICE*price_norm + K_PURCHASES*purchase_norm)/(K_PRICE+K_PURCHASES)
           Item.update(item[:id], sr: item[:sr])
-          print '+'
         end
+
+        ap event:'Shop complete', shop:shop unless Rails.env.test?
+
       end
+    end
+
+    def timestamp_filter(rel)
+      rel.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i)
     end
   end
 end
