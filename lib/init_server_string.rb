@@ -13,7 +13,7 @@ module InitServerString
       result += "  baseURL: 'http://#{Rees46::HOST}',"
       result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
       result += "  currency: '#{shop.currency}',"
-      result += "  showPromotion: false,"
+      result += "  showPromotion: false},"
 
       # Поиск связки пользователя и магазина
       s_u = begin
