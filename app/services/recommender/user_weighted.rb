@@ -2,7 +2,7 @@
 # Рекомендации, которые будут получены из махаута по user-user алгоритму
 #
 module Recommender
-  class UserBased < Base
+  class UserWeighted < Base
 
     include Recommender::SectoralAlgorythms
 
@@ -36,6 +36,29 @@ module Recommender
         []
       end
       ms.close
+
+      if result.size < params.limit
+        # Рассчет весов
+        i_w = items_to_weight
+        delta = params.limit-result.size
+
+        # if i_w.any?
+        #   ms = MahoutService.new
+        #   ms.open
+        #   result = ms.item_based_weight(params.user.id,
+        #                                 weight: i_w,
+        #                                 limit: params.limit)
+        #   ms.close
+        # end
+
+        result += if i_w.size > delta
+                   i_w.sample(delta)
+                 else
+                   i_w
+                 end
+
+        result
+      end
 
       result
     end
