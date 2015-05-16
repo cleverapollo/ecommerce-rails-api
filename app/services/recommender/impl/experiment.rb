@@ -1,6 +1,6 @@
 module Recommender
   module Impl
-    class FastPopular < Recommender::Weighted
+    class Experiment < Recommender::Weighted
       LIMIT = 20
 
       def items_to_recommend
@@ -42,17 +42,15 @@ module Recommender
           popular_in_all_shop
         end
 
-        result = by_purchases(relation, limit)
-        # Если недобрали достаточно товаров по покупкам - дополняем товарами по рейтингу
-        if result.size < limit
-          result += by_rating(relation, limit - result.size, result)
-        end
+        # Находим отсортированные товары
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT).pluck(:item_id)
 
         unless shop.strict_recommendations?
-          # Если уж и так недостаточно - рандом
+          # Если товаров недостаточно - рандом
           result = inject_random_items(result) unless in_category
         end
 
+        # Добавляем продвижение брендов
         result = inject_promotions(result)
 
         result
@@ -80,17 +78,6 @@ module Recommender
         common_relation(shop.actions.where(item_id: items_in_category))
       end
 
-      # Расчет по количеству покупок (для нормальных магазинов)
-      def by_purchases(relation, limit = LIMIT)
-        relation.where('purchase_count > 0').order('SUM(purchase_count) DESC')
-                .limit(limit).pluck(:item_id)
-      end
-
-      # Расчет по рейтингу (для маленьких магазинов)
-      def by_rating(relation, limit = LIMIT, given_ids)
-        relation.order('SUM(rating) DESC').where.not(item_id: given_ids)
-                .limit(limit).pluck(:item_id)
-      end
     end
   end
 end
