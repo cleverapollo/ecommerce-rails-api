@@ -43,7 +43,7 @@ module Recommender
         end
 
         # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT).pluck(:item_id)
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT).pluck(:id)
 
         unless shop.strict_recommendations?
           # Если товаров недостаточно - рандом
