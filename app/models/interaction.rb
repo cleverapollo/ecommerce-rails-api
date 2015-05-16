@@ -23,7 +23,8 @@ class Interaction < ActiveRecord::Base
             'rescore' => 8,
        'trigger_mail' => 9,
         'digest_mail' => 10,
-            'dating'  => 11
+            'dating'  => 11,
+      'fast_popular'  => 12
   }
 
   belongs_to :user

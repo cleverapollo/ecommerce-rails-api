@@ -1,6 +1,6 @@
 module Recommender
   module Impl
-    class Popular < Recommender::Weighted
+    class FastPopular < Recommender::Weighted
       LIMIT = 20
 
       def items_to_recommend

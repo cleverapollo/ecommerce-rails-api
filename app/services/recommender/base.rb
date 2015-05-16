@@ -73,9 +73,15 @@ module Recommender
     end
 
     # Перевести во внешние ID, сохраняя сортировку
+    # @return Int[]
     def translate_to_external_ids(array_of_internal_ids)
-      array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
-      array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
+      result = []
+      # Эта проверка экономит 2ms на запросы к БД, когда результирующий массив пустой и ActiveRecord делает запросы в SQL типа "where 0=1"
+      if array_of_internal_ids.length > 0
+        array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
+        return array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
+      end
+      result
     end
 
     # Возвращает массив идентификаторов товаров, среди которых стоит рассчитывать рекомендации

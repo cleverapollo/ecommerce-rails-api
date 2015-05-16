@@ -20,3 +20,10 @@ end
 every 40.minutes do
   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
 end
+
+# Каждую ночь в 3 часа пересчитываем SalesRate
+every '0 3 * * *' do
+  runner "RunnerWrapper.run('SalesRateCalculator.perform')"
+end
+
+

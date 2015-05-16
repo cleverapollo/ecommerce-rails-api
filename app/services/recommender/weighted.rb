@@ -3,6 +3,8 @@
 #
 module Recommender
   class Weighted < Base
+
+    # @return Int[]
     def recommended_ids
       result = []
 

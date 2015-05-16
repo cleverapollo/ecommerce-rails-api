@@ -1,10 +1,11 @@
 class SalesRateCalculator
   class << self
 
+    # TODO: Для только что зарегистрированных магазинов рассчитывать SR каждые 30 минут.
+
 
     # Рассчитывает sales rate для товаров всех магазинов
     def perform
-      require 'matrix'
       Shop.unrestricted.each do |shop|
         self.recalculate_for_shop shop
       end
@@ -15,12 +16,18 @@ class SalesRateCalculator
     # Рассчитываем sales rate для товаров указанного магазина
     def recalculate_for_shop(shop)
 
+      require 'matrix'
+
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
       sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum(:purchase_count)
 
+      # Если купленных товаров недостаточно, то рассчитываем популярность товаров просмотрам
+      # TODO: Для слабых магазинов рассчитывать SR по рейтингу товаров
+      if sales_data.length < 100
+      end
+
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
-      # items.sort_by! { |v| v[:item_id] }
 
       # Ищем цены товаров
       items_prices = shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price)
