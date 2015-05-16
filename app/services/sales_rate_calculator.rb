@@ -40,12 +40,12 @@ class SalesRateCalculator
         end
 
         # Обнуляем sales_rate у всех товаров магазина
-        shop.items.where('sales_rate is not null').update_all sales_rate: nil
+        shop.items.recommendable.where('sales_rate is not null').update_all sales_rate: nil
 
         # Обновляем sales_rate у товаров
         items.each do |item|
           if item[:sales_rate] > 0
-            shop.items.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
+            shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
           end
         end
 
