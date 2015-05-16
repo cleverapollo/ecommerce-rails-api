@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150428140031) do
+ActiveRecord::Schema.define(version: 20150516140351) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -337,11 +337,13 @@ ActiveRecord::Schema.define(version: 20150428140031) do
     t.boolean "ignored",                       default: false, null: false
     t.jsonb   "custom_attributes",             default: {},    null: false
     t.jsonb   "locations",                     default: {},    null: false
+    t.integer "sales_rate",        limit: 2
   end
 
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
@@ -549,6 +551,19 @@ ActiveRecord::Schema.define(version: 20150428140031) do
   end
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
+
+  create_table "sales_requests", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "company"
+    t.string   "website"
+    t.string   "email"
+    t.string   "mobile_phone"
+    t.string   "work_phone"
+    t.string   "city"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
 
   create_table "schema_version", id: false, force: :cascade do |t|
     t.integer  "version_rank",                                                null: false
