@@ -24,19 +24,24 @@ class SalesRateCalculator
           end
         end
 
-        # Нормализуем цены
-        v_price = Vector.elements(items.map { |t| t[:price].to_i })
-        v_price_norm = v_price.normalize
+        # Магазины без данных пропускаем – векторы без значений не могут быть нормализованы, поэтому далее просто обнулятся текущие оценки и все
+        if items.length > 0
 
-        # Нормализуем покупки
-        v_purchases = Vector.elements(items.map { |t| t[:purchases] })
-        v_purchases_norm = v_purchases.normalize
+          # Нормализуем цены
+          v_price = Vector.elements(items.map { |t| t[:price].to_i })
+          v_price_norm = v_price.normalize
 
-        # Подсчитываем sales_rate в виде целого числа
-        k_price = 0.4     # Вес цены
-        k_purchase = 1    # Вес количества покупок
-        items.each_with_index do |item, index|
-          items[index][:sales_rate] =  ((k_price * v_price_norm[index] + k_purchase * v_purchases_norm[index]) / (k_price + k_purchase) * 10000).to_i
+          # Нормализуем покупки
+          v_purchases = Vector.elements(items.map { |t| t[:purchases] })
+          v_purchases_norm = v_purchases.normalize
+
+          # Подсчитываем sales_rate в виде целого числа
+          k_price = 0.4     # Вес цены
+          k_purchase = 1    # Вес количества покупок
+          items.each_with_index do |item, index|
+            items[index][:sales_rate] =  ((k_price * v_price_norm[index] + k_purchase * v_purchases_norm[index]) / (k_price + k_purchase) * 10000).to_i
+          end
+
         end
 
         # Обнуляем sales_rate у всех товаров магазина
