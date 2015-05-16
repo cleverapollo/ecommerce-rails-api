@@ -56,26 +56,15 @@ module Recommender
         result
       end
 
-      # Общие условия, работают для всех типов выборок
-      def common_relation(relation)
-        relation.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i)
-                .group(:item_id)
-      end
-
       # Популярные по всему магазину
       # @returns - ActiveRecord List of Action[]
       def popular_in_all_shop
-        all_items = items_to_recommend.where.not(id: excluded_items_ids)
-
-        common_relation(shop.actions.where(item_id: all_items))
+        items_to_recommend.where.not(id: excluded_items_ids)
       end
 
       # Популярные в конкретной категории
       def popular_in_category
-        items_in_category = items_to_recommend.where.not(id: excluded_items_ids)
-        items_in_category = items_in_category.in_categories(params.categories)
-
-        common_relation(shop.actions.where(item_id: items_in_category))
+        popular_in_all_shop.in_categories(params.categories)
       end
 
     end
