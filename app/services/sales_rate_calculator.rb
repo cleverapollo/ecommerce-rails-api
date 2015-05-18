@@ -1,12 +1,27 @@
 class SalesRateCalculator
+
+  # Минимальное количество продаж для применения нормальной формулы расчета SR
+  MINIMUM_SALES_FOR_NORMAL_SALES_RATE = 100
+
+  # Вес цены в формуле расчета
+  K_PRICE = 0.4
+
+  # Вес покупок в формуле расчета
+  K_PURCHASES = 1.0
+
   class << self
 
-    # TODO: Для только что зарегистрированных магазинов рассчитывать SR каждые 30 минут.
-
-
-    # Рассчитывает sales rate для товаров всех магазинов
+    # Рассчитывает sales rate для товаров всех магазинов, подключенных больше 3 дней назад (нормальный режим)
     def perform
       Shop.unrestricted.each do |shop|
+        self.recalculate_for_shop shop
+      end
+      nil
+    end
+
+    # Рассчитывает sales rate для новых магазинов – чаще, чем основной sales rate
+    def perform_newbies
+      Shop.newbies.each do |shop|
         self.recalculate_for_shop shop
       end
       nil
@@ -21,9 +36,9 @@ class SalesRateCalculator
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
       sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum(:purchase_count)
 
-      # Если купленных товаров недостаточно, то рассчитываем популярность товаров просмотрам
-      # TODO: Для слабых магазинов рассчитывать SR по рейтингу товаров
-      if sales_data.length < 100
+      # Если купленных товаров недостаточно, то рассчитываем популярность товаров другим событиям
+      if sales_data.length < MINIMUM_SALES_FOR_NORMAL_SALES_RATE
+        sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum(:rating)
       end
 
       # Делаем массив хешей информации о товарах
@@ -57,10 +72,8 @@ class SalesRateCalculator
         v_purchases_norm = v_purchases.normalize
 
         # Подсчитываем sales_rate в виде целого числа
-        k_price = 0.4     # Вес цены
-        k_purchase = 1    # Вес количества покупок
-        items.each_with_index do |item, index|
-          items[index][:sales_rate] =  ((k_price * v_price_norm[index] + k_purchase * v_purchases_norm[index]) / (k_price + k_purchase) * 10000).to_i
+        items.each_with_index do |_, index|
+          items[index][:sales_rate] =  ((K_PRICE * v_price_norm[index] + K_PURCHASES * v_purchases_norm[index]) / (K_PRICE + K_PURCHASES) * 10000).to_i
         end
 
       end

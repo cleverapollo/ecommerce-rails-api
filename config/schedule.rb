@@ -26,4 +26,9 @@ every '0 3 * * *' do
   runner "RunnerWrapper.run('SalesRateCalculator.perform')"
 end
 
+# Каждые 30 минут пересчитываем SalesRate для новых магазинов
+every 30.minutes do
+  runner "RunnerWrapper.run('SalesRateCalculator.perform_newbies')"
+end
+
 

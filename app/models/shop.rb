@@ -36,6 +36,7 @@ class Shop < ActiveRecord::Base
   scope :active, -> { where(active: true) }
   scope :connected, -> { where(connected: true) }
   scope :unrestricted, -> { active.where(restricted: false) }
+  scope :newbies, -> { unrestricted.where('connected_at >= ? OR created_at >= ?', 3.days.ago, 3.days.ago ) }
 
   # ID товаров, купленных или добавленных в корзину пользователем
   def item_ids_bought_or_carted_by(user)
