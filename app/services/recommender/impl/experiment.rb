@@ -4,12 +4,13 @@ module Recommender
       LIMIT = 20
       LIMIT_CF_ITEMS = 1000
 
-      K_SR = 1
-      K_CF = 1
+      K_SR = 1.0
+      K_CF = 1.0
 
 
       # @return Int[]
       def recommended_ids
+
 
         i_w = items_to_weight
 
@@ -34,7 +35,11 @@ module Recommender
 
         result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
-        end.sort { |x,y| x[1]<=>y[1] }.to_h
+        end.sort do |x, y|
+          x= x.instance_of?(Array) ? x.first : x
+          y= y.instance_of?(Array) ? y.first : y
+          x[1]<=>y[1]
+        end.to_h
 
         result = if result.size > params.limit
                    i_w.sample(params.limit)
