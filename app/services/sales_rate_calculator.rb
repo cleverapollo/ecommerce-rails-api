@@ -34,12 +34,13 @@ class SalesRateCalculator
       require 'matrix'
 
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
-      sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum(:purchase_count)
+      sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum('COALESCE(purchase_count * 5.0, 0) + COALESCE(rating, 0)')
 
       # Если купленных товаров недостаточно, то рассчитываем популярность товаров другим событиям
-      if sales_data.length < MINIMUM_SALES_FOR_NORMAL_SALES_RATE
-        sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum(:rating)
-      end
+      # @delete after 20.05.2015
+      # if sales_data.length < MINIMUM_SALES_FOR_NORMAL_SALES_RATE
+      #   sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum(:rating)
+      # end
 
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
@@ -71,9 +72,9 @@ class SalesRateCalculator
         v_purchases = Vector.elements(items.map { |t| t[:purchases] })
         v_purchases_norm = v_purchases.normalize
 
-        # Подсчитываем sales_rate в виде целого числа
+        # Подсчитываем sales_rate в виде целого числа, но не больше 30000
         items.each_with_index do |_, index|
-          items[index][:sales_rate] =  ((K_PRICE * v_price_norm[index] + K_PURCHASES * v_purchases_norm[index]) / (K_PRICE + K_PURCHASES) * 10000).to_i
+          items[index][:sales_rate] =  [((K_PRICE * v_price_norm[index] + K_PURCHASES * v_purchases_norm[index]) / (K_PRICE + K_PURCHASES) * 10000).to_i, 30000].min
         end
 
       end
