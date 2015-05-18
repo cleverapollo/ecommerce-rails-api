@@ -50,7 +50,7 @@ class MahoutService
     options.merge!(preferences: preferences)
     res = nil
     if tunnel_active? && preferences.any?
-      res = tunnel.item_based_weight_block(user_id, options)
+      res = tunnel.item_based_block(user_id, options)
     else
       res = options[:weight].slice(0, options[:limit])
     end

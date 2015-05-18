@@ -1,7 +1,33 @@
 module Recommender
   module Impl
-    class Experiment < Recommender::Weighted
+    class Experiment < Recommender::Base
       LIMIT = 20
+      LIMIT_CF_ITEMS = 1000
+
+
+      # @return Int[]
+      def recommended_ids
+        result = []
+
+        i_w = items_to_weight
+
+        if i_w.any?
+          ms = MahoutService.new
+          ms.open
+          result = ms.item_based_weight(params.user.id,
+                                 weight: i_w,
+                                 limit: LIMIT_CF_ITEMS)
+          ms.close
+        end
+
+        result = if result.size > limit
+                   i_w.sample(limit)
+                 else
+                   i_w
+                 end
+
+        result
+      end
 
       def items_to_recommend
         if shop.sectoral_algorythms_available?
@@ -12,7 +38,7 @@ module Recommender
             # TODO: фильтрация по размерам одежды
           end
           result
-          
+
         else
           super
         end
@@ -36,14 +62,15 @@ module Recommender
         # Используют разные индексы
         in_category = false
         relation = if categories.try(:any?)
-          in_category = true
-          popular_in_category
-        else
-          popular_in_all_shop
-        end
+                     in_category = true
+                     popular_in_category
+                   else
+                     popular_in_all_shop
+                   end
 
         # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(limit).pluck(:id)
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
+                     .limit(LIMIT_CF_ITEMS).pluck(:id)
 
         unless shop.strict_recommendations?
           # Если товаров недостаточно - рандом
