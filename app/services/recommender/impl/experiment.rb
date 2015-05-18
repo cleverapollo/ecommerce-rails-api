@@ -4,27 +4,44 @@ module Recommender
       LIMIT = 20
       LIMIT_CF_ITEMS = 1000
 
+      K_SR = 1
+      K_CF = 1
+
 
       # @return Int[]
       def recommended_ids
-        result = []
 
         i_w = items_to_weight
 
+        cf_weighted = {}
         if i_w.any?
           ms = MahoutService.new
           ms.open
-          result = ms.item_based_weight(params.user.id,
-                                 weight: i_w,
-                                 limit: LIMIT_CF_ITEMS)
+          cf_result = ms.item_based_weight(params.user.id,
+                                           weight: i_w,
+                                           limit: LIMIT_CF_ITEMS)
           ms.close
+
+          delta = 1.0/cf_result.size
+          cur_cf_pref = 1.0
+          cf_result.each do |cf_item|
+            cf_weighted[cf_item] = (cur_cf_pref.to_f * 10000).to_i
+            cur_cf_pref-=delta
+          end
         end
 
-        result = if result.size > limit
-                   i_w.sample(limit)
+        sr_weighted = sr_weight(i_w)
+
+        result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
+          (K_SR*sr + K_CF*cf)/(K_CF+K_SR)
+        end.sort { |x,y| x[1]<=>y[1] }.to_h
+
+        result = if result.size > params.limit
+                   i_w.sample(params.limit)
                  else
                    i_w
                  end
+
 
         result
       end
@@ -94,6 +111,9 @@ module Recommender
         popular_in_all_shop.in_categories(params.categories)
       end
 
+      def sr_weight(items)
+        shop.items.where(id: items).pluck(:id, :sales_rate).to_h
+      end
     end
   end
 end
