@@ -86,6 +86,9 @@ class SalesRateCalculator
       items.each do |item|
         if item[:sales_rate] > 0
           shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
+        else
+          # В качестве отработки ситуации, когда рейтинг совсем небольшой
+          shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: 1
         end
       end
 
