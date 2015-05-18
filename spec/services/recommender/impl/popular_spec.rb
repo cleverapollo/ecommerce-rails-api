@@ -4,7 +4,7 @@ describe Recommender::Impl::Popular do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:item1) { create(:item, shop: shop) }
+  let!(:item1) { create(:item, shop: shop, sales_rate:9000) }
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7) }
 
   def create_action(item, is_buy = false)

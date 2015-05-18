@@ -33,7 +33,7 @@ module Recommender
         sr_weighted = sr_weight(i_w)
 
         result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
-          (K_SR*sr + K_CF*cf)/(K_CF+K_SR)
+          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end.sort { |x,y| x[1]<=>y[1] }.to_h
 
         result = if result.size > params.limit
