@@ -53,7 +53,7 @@ class MahoutService
       res = tunnel.item_based_block(user_id, options)
     else
       res = options[:weight].slice(0, options[:limit])
-    end
+    end 
     return res
   end
 
