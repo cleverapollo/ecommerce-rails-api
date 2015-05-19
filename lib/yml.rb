@@ -33,7 +33,7 @@ class Yml
   end
 
   def delete
-    File.delete(file_name)
+    File.delete(file_name) if exists?
   end
 
   def exists?
