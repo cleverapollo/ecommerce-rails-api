@@ -12,6 +12,7 @@ module Recommender
       def recommended_ids
 
 
+        # получим товары для взвешивания
         i_w = items_to_weight
 
         # Взвешиваем махаутом
@@ -34,6 +35,8 @@ module Recommender
 
         # Взвешиваем по SR
         sr_weighted = sr_weight(i_w)
+
+        #ap weighted:sr_weighted
 
         # Рассчитываем финальную оценку
         result = sr_weighted.merge(cf_weighted) do |key, sr, cf|

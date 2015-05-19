@@ -6,7 +6,7 @@ describe Recommender::Impl::Experiment do
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, sales_rate:10000) }
 
-  10.times do |i|
+  6.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
     let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200)) }
   end
