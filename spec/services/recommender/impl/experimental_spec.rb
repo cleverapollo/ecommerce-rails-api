@@ -6,9 +6,9 @@ describe Recommender::Impl::Experiment do
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, sales_rate:10000) }
 
-  5.times do |i|
+  10.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..1000)) }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200)) }
   end
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }

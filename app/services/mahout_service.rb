@@ -55,6 +55,7 @@ class MahoutService
       else
         res = options[:weight].slice(0, options[:limit])
       end
+
       return res
     else
       options[:weight].slice(0, options[:limit])

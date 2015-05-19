@@ -14,6 +14,7 @@ module Recommender
 
         i_w = items_to_weight
 
+        # Взвешиваем махаутом
         cf_weighted = {}
         if i_w.any?
           ms = MahoutService.new
@@ -31,24 +32,29 @@ module Recommender
           end
         end
 
+        # Взвешиваем по SR
         sr_weighted = sr_weight(i_w)
 
+        # Рассчитываем финальную оценку
         result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end.sort do |x, y|
-          x= x.instance_of?(Array) ? x.first : x
-          y= y.instance_of?(Array) ? y.first : y
-          x[1]<=>y[1]
-        end.to_h
+          # сортируем по вычисленной оценке
+          x= x[1].instance_of?(Array) ? x[1].first : x[1]
+          y= y[1].instance_of?(Array) ? y[1].first : y[1]
+          y<=>x
+        end
 
+
+        # Ограничиваем размер вывода
         result = if result.size > params.limit
-                   i_w.sample(params.limit)
+                   result.take(params.limit)
                  else
-                   i_w
+                   result
                  end
 
-
-        result
+        # Вернем только id товаров
+        result.to_h.keys
       end
 
       def items_to_recommend
