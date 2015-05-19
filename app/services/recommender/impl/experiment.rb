@@ -42,6 +42,7 @@ module Recommender
         result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end.sort do |x, y|
+          ap x:x, y:y
           # сортируем по вычисленной оценке
           x= x[1].instance_of?(Array) ? x[1].first : x[1]
           y= y[1].instance_of?(Array) ? y[1].first : y[1]
