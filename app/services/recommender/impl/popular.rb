@@ -43,8 +43,8 @@ module Recommender
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end.sort do |x, y|
           # сортируем по вычисленной оценке
-          x= x[1].instance_of?(Array) ? x[1].first : x[1]
-          y= y[1].instance_of?(Array) ? y[1].first : y[1]
+          x= x[1].to_i
+          y= y[1].to_i
           y<=>x
         end
 
