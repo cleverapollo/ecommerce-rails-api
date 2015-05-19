@@ -56,8 +56,19 @@ module Recommender
                    result
                  end
 
-        # Вернем только id товаров
-        result.to_h.keys
+        # оставим только id товаров
+        result = result.to_h.keys
+
+
+        if result.size < params.limit && !shop.strict_recommendations?
+          # Если товаров недостаточно - рандом
+          result = inject_random_items(result)
+        end
+
+        # Добавляем продвижение брендов
+        result = inject_promotions(result)
+
+        result
       end
 
       def items_to_recommend
@@ -103,13 +114,7 @@ module Recommender
         result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
                      .limit(LIMIT_CF_ITEMS).pluck(:id)
 
-        unless shop.strict_recommendations?
-          # Если товаров недостаточно - рандом
-          result = inject_random_items(result) unless in_category
-        end
 
-        # Добавляем продвижение брендов
-        result = inject_promotions(result)
 
         result
       end
