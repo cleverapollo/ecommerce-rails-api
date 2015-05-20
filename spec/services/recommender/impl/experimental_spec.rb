@@ -4,14 +4,15 @@ describe Recommender::Impl::Experiment do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:test_item) { create(:item, shop: shop, sales_rate:10000) }
+  let!(:test_item) { create(:item, shop: shop, price:550) }
+  let!(:cheap_item) { create(:item, shop: shop, price:490) }
 
-  10.times do |i|
+  5.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200), categories:"{1}") }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, price:i*200) }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment', item:item2) }
 
   def create_action(user_data, item, is_buy = false)
     a = item.actions.new(user: user_data,
@@ -31,17 +32,19 @@ describe Recommender::Impl::Experiment do
     before { create_action(user, item3, true) }
 
     before { create_action(user2, test_item, true) }
+    before { create_action(user2, cheap_item, true) }
     before { create_action(user2, item2, true) }
     before { create_action(user2, item3, true) }
 
     before { create_action(user3, test_item, true) }
+    before { create_action(user3, cheap_item, true) }
     before { create_action(user3, item2, true) }
     before { create_action(user3, item3, true) }
     before { create_action(user3, item4, true) }
 
     context 'when category not provided' do
       context 'when there is enough purchases' do
-        it 'returns most frequently buyed items' do
+        it 'returns most similar items' do
           recommender = Recommender::Impl::Experiment.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
@@ -53,7 +56,7 @@ describe Recommender::Impl::Experiment do
       before { params[:categories] = test_item.categories }
 
       context 'when there is enough purchases' do
-        it 'returns most frequently buyed items' do
+        it 'returns most similar items' do
           recommender = Recommender::Impl::Experiment.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end

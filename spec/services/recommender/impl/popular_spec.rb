@@ -4,11 +4,17 @@ describe Recommender::Impl::Popular do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:item1) { create(:item, shop: shop, sales_rate:9000) }
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7) }
+  let!(:test_item) { create(:item, shop: shop, sales_rate:10000) }
 
-  def create_action(item, is_buy = false)
-    a = item.actions.new(user: other_user,
+  10.times do |i|
+    let!("user#{i}".to_sym) { create(:user) }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200), categories:"{1}") }
+  end
+
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }
+
+  def create_action(user_data, item, is_buy = false)
+    a = item.actions.new(user: user_data,
                          shop: shop,
                          timestamp: 1.day.ago.to_i,
                          rating: Actions::View::RATING)
@@ -20,45 +26,36 @@ describe Recommender::Impl::Popular do
     a.save
   end
 
-  describe '#items_to_weight' do
-    context 'when category provided' do
-      before { params[:categories] = item1.categories }
+  describe '#recommend' do
+    before { create_action(user, item2, true) }
+    before { create_action(user, item3, true) }
 
+    before { create_action(user2, test_item, true) }
+    before { create_action(user2, item2, true) }
+    before { create_action(user2, item3, true) }
+
+    before { create_action(user3, test_item, true) }
+    before { create_action(user3, item2, true) }
+    before { create_action(user3, item3, true) }
+    before { create_action(user3, item4, true) }
+
+    context 'when category not provided' do
       context 'when there is enough purchases' do
-        before { create_action(item1, true) }
-
         it 'returns most frequently buyed items' do
           recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.items_to_weight).to include(item1.id)
-        end
-      end
-
-      context 'when there is not enough purchases' do
-        before { create_action(item1) }
-
-        it 'returns items by rating' do
-          recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.items_to_weight).to include(item1.id)
+          expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end
     end
 
-    context 'when no category provided' do
-      context 'when there is enough purchases' do
-        before { create_action(item1, true) }
 
+    context 'when category provided' do
+      before { params[:categories] = test_item.categories }
+
+      context 'when there is enough purchases' do
         it 'returns most frequently buyed items' do
           recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.items_to_weight).to include(item1.id)
-        end
-      end
-
-      context 'when there is not enough purchases' do
-        before { create_action(item1) }
-
-        it 'returns items by rating' do
-          recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.items_to_weight).to include(item1.id)
+          expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end
     end

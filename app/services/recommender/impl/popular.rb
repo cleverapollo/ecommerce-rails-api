@@ -18,7 +18,7 @@ module Recommender
 
         # Находим отсортированные товары
         result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
-                     .limit(LIMIT_CF_ITEMS).pluck(:id)
+                     .limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate).to_h
 
         result
       end
@@ -26,8 +26,7 @@ module Recommender
 
       # @return Int[]
       def rescore(i_w, cf_weighted)
-        # Взвешиваем по SR
-        sr_weight(i_w).merge(cf_weighted) do |key, sr, cf|
+        i_w.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end
@@ -46,9 +45,7 @@ module Recommender
         popular_in_all_shop.in_categories(params.categories)
       end
 
-      def sr_weight(items)
-        shop.items.where(id: items).pluck(:id, :sales_rate).to_h
-      end
+
     end
   end
 end

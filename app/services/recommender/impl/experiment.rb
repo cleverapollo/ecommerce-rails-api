@@ -2,53 +2,76 @@ module Recommender
   module Impl
     class Experiment < Recommender::Personalized
 
+      # Логика:
+      # Пытаемся найти товары в интервале от 0.85 до 1.25 цены текущего товара.
+      # Если не находим, то расширяем интервал от 0.5 до 1.5 цены текущего товара.
+      # Не рекомендуем товары без цены. Не можем рекомендовать для товара без цены.
+
+      LARGE_PRICE_UP = 1.5
+      PRICE_UP = 1.25
+      LARGE_PRICE_DOWN = 0.5
+      PRICE_DOWN = 0.85
+
       K_SR = 1.0
       K_CF = 1.0
 
+      def check_params!
+        raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
+        raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
+      end
+
       def items_to_weight
-        # Разные запросы в зависимости от присутствия или отсутствия категории
-        # Используют разные индексы
-        in_category = false
-        relation = if categories.try(:any?)
-                     in_category = true
-                     popular_in_category
-                   else
-                     popular_in_all_shop
-                   end
+        result = shop.actions.where(item_id: items_relation_with_price_condition).
+            where('timestamp > ?', min_date).
+            group(:item_id).by_average_rating.
+            limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
-        # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
-                     .limit(LIMIT_CF_ITEMS).pluck(:id)
+        if result.size < limit
+          result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+        end
 
+        # взвешиваем по SR
+        sr_weight(result)
+      end
+
+      def rescore(i_w, cf_weight)
+        result = i_w.merge(cf_weight) do |key, sr, cf|
+          # подмешиваем оценку SR
+          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
+        end
         result
       end
 
 
-      # @return Int[]
-      def rescore(i_w, cf_weighted)
-        # Взвешиваем по SR
-        sr_weight(i_w).merge(cf_weighted) do |key, sr, cf|
-          # подмешиваем оценку SR
-          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
-        end
+
+      def price_range
+        (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
       end
 
-
-
-      # Популярные по всему магазину
-      # @returns - ActiveRecord List of Action[]
-      def popular_in_all_shop
-        items_to_recommend.where.not(id: excluded_items_ids)
+      def large_price_range
+        (item.price * LARGE_PRICE_DOWN).to_i..(item.price * LARGE_PRICE_UP).to_i
       end
 
-      # Популярные в конкретной категории
-      def popular_in_category
-        popular_in_all_shop.in_categories(params.categories)
+      def categories_for_query
+        categories.try(:any?) ? categories : item.categories
       end
 
-      def sr_weight(items)
-        shop.items.where(id: items).pluck(:id, :sales_rate).to_h
+      def min_date
+        1.month.ago.to_date.to_time.to_i
       end
+
+      def items_relation
+        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id).order('price DESC').limit(limit * 3)
+      end
+
+      def items_relation_with_price_condition
+        items_relation.where(price: price_range)
+      end
+
+      def items_relation_with_larger_price_condition
+        items_relation.where(price: large_price_range)
+      end
+
     end
   end
 end

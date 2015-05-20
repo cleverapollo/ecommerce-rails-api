@@ -6,15 +6,19 @@ module Recommender
   class Personalized < Recommender::Weighted
 
     include ItemInjector
-    include CfHelper
+    include WeightHelper
 
     def items_to_recommend
       if shop.sectoral_algorythms_available?
         result = super
         if shop.category.wear?
+          # Фильтрация по полу
           gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop)
           result = result.by_ca(gender: gender)
-          # TODO: фильтрация по размерам одежды
+          # фильтрация по размерам одежды
+          if item.custom_attributes['sizes'].try(:first).try(:present?)
+            result = result.by_ca(sizes: item.custom_attributes['sizes'])
+          end
         end
         result
 
@@ -30,9 +34,7 @@ module Recommender
       i_w = items_to_weight
 
       # Взвешиваем махаутом
-      cf_weighted = cf_weight(i_w)
-
-
+      cf_weighted = cf_weight(i_w.keys)
 
       # Рассчитываем финальную оценку
       result = rescore(i_w, cf_weighted).sort do |x, y|
