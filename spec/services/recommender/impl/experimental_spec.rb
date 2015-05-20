@@ -13,8 +13,8 @@ describe Recommender::Impl::Experiment do
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }
 
-  def create_action(item, is_buy = false)
-    a = item.actions.new(user: other_user,
+  def create_action(user_data, item, is_buy = false)
+    a = item.actions.new(user: user_data,
                          shop: shop,
                          timestamp: 1.day.ago.to_i,
                          rating: Actions::View::RATING)
@@ -28,10 +28,22 @@ describe Recommender::Impl::Experiment do
 
   describe '#recommend' do
     context 'when category provided' do
-      before { params[:categories] = item1.categories }
+     # before { params[:categories] = item1.categories }
 
       context 'when there is enough purchases' do
-        before { create_action(item1, true) }
+        before { create_action(user, item2, true) }
+        before { create_action(user, item3, true) }
+
+        before { create_action(user2, item2, true) }
+        before { create_action(user2, item3, true) }
+        before { create_action(user2, item1, true) }
+
+        before { create_action(user3, item2, true) }
+        before { create_action(user3, item3, true) }
+        before { create_action(user3, item1, true) }
+        before { create_action(user3, item4, true) }
+
+
 
         it 'returns most frequently buyed items' do
           recommender = Recommender::Impl::Experiment.new(params)

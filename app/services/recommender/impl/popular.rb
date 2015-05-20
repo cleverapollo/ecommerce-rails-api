@@ -1,75 +1,14 @@
 module Recommender
   module Impl
     class Popular < Recommender::Base
+
+      include ItemInjector
+      include CfHelper
+
       LIMIT = 20
-      LIMIT_CF_ITEMS = 1000
 
       K_SR = 1.0
       K_CF = 1.0
-
-
-      # @return Int[]
-      def recommended_ids
-
-
-        # получим товары для взвешивания
-        i_w = items_to_weight
-
-        # Взвешиваем махаутом
-        cf_weighted = {}
-        if i_w.any?
-          ms = MahoutService.new
-          ms.open
-          cf_result = ms.item_based_weight(params.user.id,
-                                           weight: i_w,
-                                           limit: LIMIT_CF_ITEMS)
-          ms.close
-
-          # равномерно распределяем оценку по порядку, в котором махаут вернул результат
-          # TODO: ориентироваться на оценку, выданную махаутом. а не на результат вычислений
-          delta = 1.0/cf_result.size
-          cur_cf_pref = 1.0
-          cf_result.each do |cf_item|
-            cf_weighted[cf_item] = (cur_cf_pref.to_f * 10000).to_i
-            cur_cf_pref-=delta
-          end
-        end
-
-        # Взвешиваем по SR
-        sr_weighted = sr_weight(i_w)
-
-        # Рассчитываем финальную оценку
-        result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
-          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
-        end.sort do |x, y|
-          # сортируем по вычисленной оценке
-          x= x[1].to_i
-          y= y[1].to_i
-          y<=>x
-        end
-
-
-        # Ограничиваем размер вывода
-        result = if result.size > params.limit
-                   result.take(params.limit)
-                 else
-                   result
-                 end
-
-        # оставим только id товаров
-        result = result.to_h.keys
-
-
-        if result.size < params.limit && !shop.strict_recommendations?
-          # Если товаров недостаточно - рандом
-          result = inject_random_items(result)
-        end
-
-        # Добавляем продвижение брендов
-        result = inject_promotions(result)
-
-        result
-      end
 
       def items_to_recommend
         if shop.sectoral_algorythms_available?
@@ -86,18 +25,6 @@ module Recommender
         end
       end
 
-      def inject_promotions(result_ids)
-        Promotion.find_each do |promotion|
-          if promotion.show?(shop: shop, item: item, categories: categories)
-            promoted_item_id = promotion.scope(items_to_recommend.in_categories(categories)).where.not(id: result_ids).limit(1).first.try(:id)
-            if promoted_item_id.present?
-              result_ids[0] = promoted_item_id
-            end
-          end
-        end
-
-        result_ids
-      end
 
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
@@ -114,16 +41,48 @@ module Recommender
         result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
                      .limit(LIMIT_CF_ITEMS).pluck(:id)
 
-        unless shop.strict_recommendations?
-          # Если товаров недостаточно - рандом
-          result = inject_random_items(result) unless in_category
-        end
-
-        # Добавляем продвижение брендов
-        result = inject_promotions(result)
-
         result
       end
+
+
+      # @return Int[]
+      def recommended_ids
+
+
+        # получим товары для взвешивания
+        i_w = items_to_weight
+
+        # Взвешиваем махаутом
+        cf_weighted = cf_weight(i_w)
+
+        # Взвешиваем по SR
+        sr_weighted = sr_weight(i_w)
+
+        # Рассчитываем финальную оценку
+        result = sr_weighted.merge(cf_weighted) do |key, sr, cf|
+          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
+        end.sort do |x, y|
+          # сортируем по вычисленной оценке
+          x= x[1].to_i
+          y= y[1].to_i
+          y<=>x
+        end
+
+        # Ограничиваем размер вывода
+        result = if result.size > params.limit
+                   result.take(params.limit)
+                 else
+                   result
+                 end
+
+        # оставим только id товаров
+        result = result.to_h.keys
+
+        inject_items(result)
+
+      end
+
+
 
       # Популярные по всему магазину
       # @returns - ActiveRecord List of Action[]

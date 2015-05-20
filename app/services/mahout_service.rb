@@ -55,7 +55,6 @@ class MahoutService
       else
         res = options[:weight].slice(0, options[:limit])
       end
-
       return res
     else
       options[:weight].slice(0, options[:limit])
@@ -70,8 +69,8 @@ class MahoutService
         open
         return tunnel && tunnel.active?
       end
-    else
-      false
-    end
+     else
+       false
+     end
   end
 end
