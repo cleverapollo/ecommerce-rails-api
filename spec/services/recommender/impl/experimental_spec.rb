@@ -4,11 +4,11 @@ describe Recommender::Impl::Experiment do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:item1) { create(:item, shop: shop, sales_rate:10000) }
+  let!(:test_item) { create(:item, shop: shop, sales_rate:10000) }
 
-  6.times do |i|
+  5.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200)) }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200), categories:"{1}") }
   end
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }
@@ -28,7 +28,7 @@ describe Recommender::Impl::Experiment do
 
   describe '#recommend' do
     context 'when category provided' do
-     # before { params[:categories] = item1.categories }
+      before { params[:categories] = test_item.categories }
 
       context 'when there is enough purchases' do
         before { create_action(user, item2, true) }
@@ -47,7 +47,7 @@ describe Recommender::Impl::Experiment do
 
         it 'returns most frequently buyed items' do
           recommender = Recommender::Impl::Experiment.new(params)
-          expect(recommender.recommendations).to include(item1.uniqid)
+          expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end
     end

@@ -47,8 +47,6 @@ module Recommender
 
       # @return Int[]
       def recommended_ids
-
-
         # получим товары для взвешивания
         i_w = items_to_weight
 
@@ -79,7 +77,6 @@ module Recommender
         result = result.to_h.keys
 
         inject_items(result)
-
       end
 
 
