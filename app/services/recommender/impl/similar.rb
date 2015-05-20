@@ -1,6 +1,6 @@
 module Recommender
   module Impl
-    class Similar < Recommender::Weighted # Поменять на Raw
+    class Similar < Recommender::Personalized
 
       # Логика:
       # Пытаемся найти товары в интервале от 0.85 до 1.25 цены текущего товара.
@@ -11,42 +11,37 @@ module Recommender
       PRICE_UP = 1.25
       LARGE_PRICE_DOWN = 0.5
       PRICE_DOWN = 0.85
-      LIMIT = 20
+
+      K_SR = 1.0
+      K_CF = 1.0
 
       def check_params!
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
         raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
-      def items_to_recommend
-        if shop.sectoral_algorythms_available?
-          result = super
-          if shop.category.wear?
-            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
-            result = result.by_ca(gender: gender)
+      def items_to_weight
+        result = shop.actions.where(item_id: items_relation_with_price_condition).
+            where('timestamp > ?', min_date).
+            group(:item_id).by_average_rating.
+            limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
-            if item.custom_attributes['sizes'].try(:first).try(:present?)
-              result = result.by_ca(sizes: item.custom_attributes['sizes'])
-            end
-          end
-          result
-        else
-          super
-        end
-      end
-
-      def inject_promotions(result_ids)
-        Promotion.find_each do |promotion|
-          if promotion.show?(shop: shop, item: item)
-            promoted_item_id = promotion.scope(items_relation).where.not(id: result_ids).limit(1).first.try(:id)
-            if promoted_item_id.present?
-              result_ids[0] = promoted_item_id
-            end
-          end
+        if result.size < limit
+          result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
         end
 
-        result_ids
+        # взвешиваем по SR
+        sr_weight(result)
       end
+
+      def rescore(i_w, cf_weight)
+        result = i_w.merge(cf_weight) do |key, sr, cf|
+          # подмешиваем оценку SR
+          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
+        end
+        result
+      end
+
 
       def price_range
         (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
@@ -76,16 +71,6 @@ module Recommender
         items_relation.where(price: large_price_range)
       end
 
-      def items_to_weight
-        result = shop.actions.where(item_id: items_relation_with_price_condition).where('timestamp > ?', min_date).group(:item_id).by_average_rating.limit(limit).pluck(:item_id)
-        if result.size < limit
-          result += items_relation_with_larger_price_condition.where.not(id: result).limit(limit - result.size).pluck(:id)
-        end
-
-        result = inject_promotions(result)
-
-        result
-      end
     end
   end
 end
