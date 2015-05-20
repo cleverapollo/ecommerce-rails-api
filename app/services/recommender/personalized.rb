@@ -8,11 +8,6 @@ module Recommender
     include ItemInjector
     include CfHelper
 
-    LIMIT = 20
-
-    K_SR = 1.0
-    K_CF = 1.0
-
     def items_to_recommend
       if shop.sectoral_algorythms_available?
         result = super
@@ -38,11 +33,6 @@ module Recommender
       cf_weighted = cf_weight(i_w)
 
 
-      # Взвешиваем по SR
-      sr_weighted = sr_weight(i_w)
-      # sr_weighted.merge(cf_weighted) do |key, sr, cf|
-      #  (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
-      #  end
 
       # Рассчитываем финальную оценку
       result = rescore(i_w, cf_weighted).sort do |x, y|
@@ -66,7 +56,7 @@ module Recommender
     end
 
     def rescore(i_w, cf_weighted)
-      cf_weighted
+      raise NotImplementedError.new('This should be implemented in concrete recommender class')
     end
   end
 end
