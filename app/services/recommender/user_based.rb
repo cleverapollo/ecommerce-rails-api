@@ -11,7 +11,10 @@ module Recommender
           gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
           result = result.by_ca(gender: gender)
 
-          # TODO: отбрасывать товары, которые явно не подходят по размеру
+          # фильтрация по размерам одежды
+          if item && item.custom_attributes['sizes'].try(:first).try(:present?)
+            result = result.by_ca(sizes: item.custom_attributes['sizes'])
+          end
         end
         result
       else
