@@ -33,17 +33,20 @@ module Recommender
       # получим товары для взвешивания
       i_w = items_to_weight
 
-      # Взвешиваем махаутом
-      cf_weighted = cf_weight(i_w.keys)
+      result = []
 
-      # Рассчитываем финальную оценку
-      result = rescore(i_w, cf_weighted).sort do |x, y|
-        # сортируем по вычисленной оценке
-        x= x[1].to_i
-        y= y[1].to_i
-        y<=>x
+      if i_w.any?
+        # Взвешиваем махаутом
+        cf_weighted = cf_weight(i_w.keys)
+
+        # Рассчитываем финальную оценку
+        result = rescore(i_w, cf_weighted).sort do |x, y|
+          # сортируем по вычисленной оценке
+          x= x[1].to_i
+          y= y[1].to_i
+          y<=>x
+        end
       end
-
       # Ограничиваем размер вывода
       result = if result.size > params.limit
                  result.take(params.limit)
