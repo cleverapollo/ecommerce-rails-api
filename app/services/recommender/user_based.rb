@@ -12,9 +12,9 @@ module Recommender
           result = result.by_ca(gender: gender)
 
           # фильтрация по размерам одежды
-          if item && item.custom_attributes['sizes'].try(:first).try(:present?)
-            result = result.by_ca(sizes: item.custom_attributes['sizes'])
-          end
+          #if item && item.custom_attributes['sizes'].try(:first).try(:present?)
+          #  result = result.by_ca(sizes: item.custom_attributes['sizes'])
+          #end
         end
         result
       else
