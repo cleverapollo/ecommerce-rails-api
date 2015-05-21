@@ -21,7 +21,7 @@ module Recommender
 
         # Рекомендации аксессуаров
         if categories.present? && ids.size < limit
-          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids+excluded_items_ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
+          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
         sr_weight(ids)
@@ -37,6 +37,11 @@ module Recommender
 
       def items_which_cart_to_analyze
         [item.id]
+      end
+
+      def inject_promotions(result)
+        # Не надо включать промо
+        result
       end
     end
   end
