@@ -43,6 +43,11 @@ module Recommender
         # Не надо включать промо
         result
       end
+
+      def inject_random_items(result)
+        # Не включать рандомные итемы
+        result
+      end
     end
   end
 end
