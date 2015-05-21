@@ -1,24 +1,12 @@
 module Recommender
   module Impl
-    class AlsoBought < Recommender::Weighted
-      LIMIT = 20
+    class AlsoBought < Recommender::Personalized
+
+      K_SR = 1.0
+      K_CF = 1.0
 
       def check_params!
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
-      end
-
-      # TODO: фильтровать по размерам одежды
-      def items_to_recommend
-        if params.modification.present?
-          result = super
-          if params.modification == 'fashion'
-            gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
-            result = result.by_ca(gender: gender)
-          end
-          result
-        else
-          super
-        end
       end
 
       def items_to_weight
@@ -28,19 +16,38 @@ module Recommender
         result = result.where.not(item_id: excluded_items_ids)
         result = result.joins(:item).merge(items_to_recommend)
         result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
-        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(limit)
+        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
         ids = result.pluck(:item_id)
 
         # Рекомендации аксессуаров
         if categories.present? && ids.size < limit
-          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(limit - ids.size).pluck(:id)
+          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
-        ids
+        sr_weight(ids)
+      end
+
+      # @return Int[]
+      def rescore(i_w, cf_weighted)
+        i_w.merge(cf_weighted) do |key, sr, cf|
+          # подмешиваем оценку SR
+          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
+        end
+
       end
 
       def items_which_cart_to_analyze
         [item.id]
+      end
+
+      def inject_promotions(result)
+        # Не надо включать промо
+        result
+      end
+
+      def inject_random_items(result)
+        # Не включать рандомные итемы
+        result
       end
     end
   end

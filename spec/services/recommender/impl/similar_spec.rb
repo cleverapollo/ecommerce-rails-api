@@ -12,7 +12,7 @@ describe Recommender::Impl::Similar do
     let!("item#{i}".to_sym) { create(:item, shop: shop, price:i*200) }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment', item:item2) }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'similar', item:item2) }
 
   def create_action(user_data, item, is_buy = false)
     a = item.actions.new(user: user_data,
@@ -45,7 +45,7 @@ describe Recommender::Impl::Similar do
     context 'when category not provided' do
       context 'when there is enough purchases' do
         it 'returns most similar items' do
-          recommender = Recommender::Impl::Experiment.new(params)
+          recommender = Recommender::Impl::Similar.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end
@@ -57,7 +57,7 @@ describe Recommender::Impl::Similar do
 
       context 'when there is enough purchases' do
         it 'returns most similar items' do
-          recommender = Recommender::Impl::Experiment.new(params)
+          recommender = Recommender::Impl::Similar.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end

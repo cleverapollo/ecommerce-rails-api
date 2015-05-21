@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Recommender::Impl::AlsoBought do
+describe Recommender::Impl::Experiment do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
@@ -9,7 +9,7 @@ describe Recommender::Impl::AlsoBought do
   let!(:item3) { create(:item, shop: shop) }
   let!(:item4) { create(:item, shop: shop) }
 
-  describe '#items_to_weight' do
+  describe '#recommendations' do
     it 'returns ids of also bought items' do
       order = build(:order, shop: shop, user: other_user)
 
@@ -20,18 +20,20 @@ describe Recommender::Impl::AlsoBought do
       order.save!
 
       params = OpenStruct.new(
-        shop: shop,
-        user: user,
-        item: item1,
-        cart_item_ids: [item2.id],
-        locations: []
+          shop: shop,
+          user: user,
+          item: item1,
+          cart_item_ids: [item2.id],
+          locations: [],
+          limit:7,
+          type: 'also_bought'
       )
 
-      recommender = Recommender::Impl::AlsoBought.new(params)
+      recommender = Recommender::Impl::Experiment.new(params)
 
-      result = recommender.items_to_weight
+      result = recommender.recommendations
 
-      expect(result).to match_array([item3.id])
+      expect(result).to include(item3.uniqid)
     end
   end
 end
