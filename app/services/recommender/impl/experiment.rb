@@ -33,6 +33,7 @@ module Recommender
           # подмешиваем оценку SR
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end
+
       end
 
       def items_which_cart_to_analyze

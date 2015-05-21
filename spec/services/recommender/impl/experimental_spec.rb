@@ -4,63 +4,36 @@ describe Recommender::Impl::Experiment do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:test_item) { create(:item, shop: shop, price:550) }
-  let!(:cheap_item) { create(:item, shop: shop, price:490) }
+  let!(:item1) { create(:item, shop: shop) }
+  let!(:item2) { create(:item, shop: shop) }
+  let!(:item3) { create(:item, shop: shop) }
+  let!(:item4) { create(:item, shop: shop) }
 
-  5.times do |i|
-    let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, price:i*200) }
-  end
+  describe '#recommendations' do
+    it 'returns ids of also bought items' do
+      order = build(:order, shop: shop, user: other_user)
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment', item:item2) }
-
-  def create_action(user_data, item, is_buy = false)
-    a = item.actions.new(user: user_data,
-                         shop: shop,
-                         timestamp: 1.day.ago.to_i,
-                         rating: Actions::View::RATING)
-
-    if is_buy
-      a.purchase_count = 1
-      a.rating = Actions::Purchase::RATING
-    end
-    a.save
-  end
-
-  describe '#recommend' do
-    before { create_action(user, item2, true) }
-    before { create_action(user, item3, true) }
-
-    before { create_action(user2, test_item, true) }
-    before { create_action(user2, cheap_item, true) }
-    before { create_action(user2, item2, true) }
-    before { create_action(user2, item3, true) }
-
-    before { create_action(user3, test_item, true) }
-    before { create_action(user3, cheap_item, true) }
-    before { create_action(user3, item2, true) }
-    before { create_action(user3, item3, true) }
-    before { create_action(user3, item4, true) }
-
-    context 'when category not provided' do
-      context 'when there is enough purchases' do
-        it 'returns also bought items' do
-          recommender = Recommender::Impl::Experiment.new(params)
-          expect(recommender.recommendations).to include(test_item.uniqid)
-        end
+      [item1, item2, item3].each do |i|
+        order.order_items.build(item: i, action_id: 123)
       end
-    end
 
+      order.save!
 
-    context 'when category provided' do
-      before { params[:categories] = test_item.categories }
+      params = OpenStruct.new(
+          shop: shop,
+          user: user,
+          item: item1,
+          cart_item_ids: [item2.id],
+          locations: [],
+          limit:7,
+          type: 'also_bought'
+      )
 
-      context 'when there is enough purchases' do
-        it 'returns also bought items' do
-          recommender = Recommender::Impl::Experiment.new(params)
-          expect(recommender.recommendations).to include(test_item.uniqid)
-        end
-      end
+      recommender = Recommender::Impl::Experiment.new(params)
+
+      result = recommender.recommendations
+
+      expect(result).to include(item3.uniqid)
     end
   end
 end

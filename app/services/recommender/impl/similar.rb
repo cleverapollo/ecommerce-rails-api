@@ -42,6 +42,11 @@ module Recommender
         result
       end
 
+      def inject_random_items(result)
+        # Не подмешивать случайные товары
+        result
+      end
+
 
       def price_range
         (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
