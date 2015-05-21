@@ -44,7 +44,7 @@ describe Recommender::Impl::Experiment do
 
     context 'when category not provided' do
       context 'when there is enough purchases' do
-        it 'returns most similar items' do
+        it 'returns also bought items' do
           recommender = Recommender::Impl::Experiment.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
@@ -56,7 +56,7 @@ describe Recommender::Impl::Experiment do
       before { params[:categories] = test_item.categories }
 
       context 'when there is enough purchases' do
-        it 'returns most similar items' do
+        it 'returns also bought items' do
           recommender = Recommender::Impl::Experiment.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end

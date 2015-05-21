@@ -2,76 +2,42 @@ module Recommender
   module Impl
     class Experiment < Recommender::Personalized
 
-      # Логика:
-      # Пытаемся найти товары в интервале от 0.85 до 1.25 цены текущего товара.
-      # Если не находим, то расширяем интервал от 0.5 до 1.5 цены текущего товара.
-      # Не рекомендуем товары без цены. Не можем рекомендовать для товара без цены.
-
-      LARGE_PRICE_UP = 1.5
-      PRICE_UP = 1.25
-      LARGE_PRICE_DOWN = 0.5
-      PRICE_DOWN = 0.85
-
       K_SR = 1.0
       K_CF = 1.0
 
       def check_params!
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
-        raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
       def items_to_weight
-        result = shop.actions.where(item_id: items_relation_with_price_condition).
-            where('timestamp > ?', min_date).
-            group(:item_id).by_average_rating.
-            limit(LIMIT_CF_ITEMS).pluck(:item_id)
+        return [] if items_which_cart_to_analyze.none?
 
-        if result.size < limit
-          result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+        result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
+        result = result.where.not(item_id: excluded_items_ids)
+        result = result.joins(:item).merge(items_to_recommend)
+        result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
+        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
+        ids = result.pluck(:item_id)
+
+        # Рекомендации аксессуаров
+        if categories.present? && ids.size < limit
+          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
-        # взвешиваем по SR
-        sr_weight(result)
+        sr_weight(ids)
       end
 
-      def rescore(i_w, cf_weight)
-        result = i_w.merge(cf_weight) do |key, sr, cf|
+      # @return Int[]
+      def rescore(i_w, cf_weighted)
+        i_w.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
         end
-        result
       end
 
-
-
-      def price_range
-        (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
+      def items_which_cart_to_analyze
+        [item.id]
       end
-
-      def large_price_range
-        (item.price * LARGE_PRICE_DOWN).to_i..(item.price * LARGE_PRICE_UP).to_i
-      end
-
-      def categories_for_query
-        categories.try(:any?) ? categories : item.categories
-      end
-
-      def min_date
-        1.month.ago.to_date.to_time.to_i
-      end
-
-      def items_relation
-        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id).order('price DESC').limit(limit * 3)
-      end
-
-      def items_relation_with_price_condition
-        items_relation.where(price: price_range)
-      end
-
-      def items_relation_with_larger_price_condition
-        items_relation.where(price: large_price_range)
-      end
-
     end
   end
 end
