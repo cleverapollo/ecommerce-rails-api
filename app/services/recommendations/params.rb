@@ -44,6 +44,8 @@ module Recommendations
     attr_accessor :extended
     # Фильтрация по кастомным аттрибутам
     attr_accessor :custom_attributes_filter
+    # Маркет отраслевого алгоритма
+    attr_accessor :modification
 
     # Проверяет и обрабатывает параметры
     #
@@ -67,7 +69,7 @@ module Recommendations
       extract_categories
       extract_locations
       extract_exclude
-
+      extract_modification
       self
     end
 
@@ -92,7 +94,7 @@ module Recommendations
       @limit                     = 8
       @recommend_only_widgetable = false
       @exclude                   = []
-
+      @modification              = nil
       check
     end
 
@@ -210,5 +212,15 @@ module Recommendations
         end
       end
     end
+
+
+    # Извлекает модификацию отраслевого алгоритма
+    def extract_modification
+      if raw[:modification].present? && Recommender::Base.valid_modification?(raw[:modification])
+        @modification = raw[:modification]
+      end
+    end
+
+
   end
 end

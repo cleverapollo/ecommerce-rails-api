@@ -3,6 +3,10 @@
 #
 module Recommender
   class Base
+
+    # Доступные модификации отраслевых алгоритмов
+    MODIFICATIONS = %w(fashion child fmcg)
+
     # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
@@ -19,6 +23,14 @@ module Recommender
       def recommender_implementation_class_name(recommender_type)
         "Recommender::Impl::#{recommender_type.camelize}"
       end
+
+
+      # Проверяет, допустимая ли модификация
+      # @return Boolean
+      def valid_modification?(modification_name)
+        return MODIFICATIONS.include?(modification_name)
+      end
+
     end
 
     # Методы-сокращалки

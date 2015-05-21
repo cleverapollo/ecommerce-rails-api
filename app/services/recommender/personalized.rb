@@ -9,9 +9,9 @@ module Recommender
     include WeightHelper
 
     def items_to_recommend
-      if shop.sectoral_algorythms_available?
+      if params.modification.present?
         result = super
-        if shop.category.wear?
+        if params.modification == 'fashion'
           # Фильтрация по полу
           gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop)
           result = result.by_ca(gender: gender)
