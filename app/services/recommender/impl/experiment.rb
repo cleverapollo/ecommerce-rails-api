@@ -6,7 +6,22 @@ module Recommender
       K_CF = 1.0
 
       def items_to_weight
-        result = items_to_recommend.where.not(id: excluded_items_ids).limit(LIMIT_CF_ITEMS)
+        # Разные запросы в зависимости от присутствия или отсутствия категории
+        # Используют разные индексы
+        in_category = false
+        relation = if categories.try(:any?)
+                     in_category = true
+                     popular_in_category
+                   else
+                     # Выбираем товары только из уникальных категорий (для главной страницы)
+                     popular_in_all_shop.select("DISTINCT ON (items.categories) items.*, items.id, items.sales_rate ").order(categories: :asc)
+                   end
+
+
+        # Находим отсортированные товары
+        # Не делать pluck! ( иначе вернется больше итемов чем надо, баг ActiveRecord(?))
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
+                     .limit(LIMIT_CF_ITEMS)
 
         # Преобразуем result к виду {id=>weight}
         result.to_a.map{|value| [value.id,value.sales_rate]}.to_h
@@ -15,7 +30,6 @@ module Recommender
 
       # @return Int[]
       def rescore(items_weighted, cf_weighted)
-        puts items_weighted.inspect
         puts cf_weighted.inspect
         items_weighted.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
@@ -24,15 +38,19 @@ module Recommender
       end
 
 
-      def inject_promotions(result)
-        # Не надо включать промо
-        result
+
+      # Популярные по всему магазину
+      # @returns - ActiveRecord List of Action[]
+      def popular_in_all_shop
+        items_to_recommend.where.not(id: excluded_items_ids)
       end
 
-      def inject_random_items(result)
-        # Не включать рандомные итемы
-        result
+      # Популярные в конкретной категории
+      def popular_in_category
+        popular_in_all_shop.in_categories(params.categories)
       end
+
+
     end
   end
 end
