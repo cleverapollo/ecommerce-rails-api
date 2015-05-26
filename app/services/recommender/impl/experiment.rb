@@ -3,7 +3,7 @@ module Recommender
     class Experiment < Recommender::Personalized
 
       K_SR = 1.0
-      K_CF = 10000.0
+      K_CF = 1.0
 
       def items_to_weight
         result = items_to_recommend.where.not(id: excluded_items_ids).limit(LIMIT_CF_ITEMS)
@@ -15,6 +15,7 @@ module Recommender
 
       # @return Int[]
       def rescore(items_weighted, cf_weighted)
+        ap items_weighted:items_weighted, cf_weighted:cf_weighted
         items_weighted.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)

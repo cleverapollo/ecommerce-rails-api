@@ -1,5 +1,3 @@
-require 'factory_girl_rails'
-
 module Experimentor
   module PopulateHelper
 
