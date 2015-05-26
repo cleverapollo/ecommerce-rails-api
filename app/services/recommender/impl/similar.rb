@@ -27,7 +27,13 @@ module Recommender
             limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
         if result.size < limit
+          # Расширяем границы поиска
           result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+        end
+
+        # снова не добрали, берем уже все подряд из категории
+        if result.size < limit
+          result += items_relation.where.not(id:result).limit(limit - result.size).pluck(:id)
         end
 
         # взвешиваем по SR
@@ -65,7 +71,7 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id).order('price DESC').limit(limit * 3)
+        items_to_recommend.in_categories(categories_for_query).where.not(id: item.id).order('price DESC').limit(LIMIT_CF_ITEMS)
       end
 
       def items_relation_with_price_condition

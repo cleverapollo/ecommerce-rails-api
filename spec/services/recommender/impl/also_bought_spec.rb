@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Recommender::Impl::Experiment do
+describe Recommender::Impl::AlsoBought do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
@@ -29,7 +29,7 @@ describe Recommender::Impl::Experiment do
           type: 'also_bought'
       )
 
-      recommender = Recommender::Impl::Experiment.new(params)
+      recommender = Recommender::Impl::AlsoBought.new(params)
 
       result = recommender.recommendations
 
