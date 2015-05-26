@@ -15,7 +15,8 @@ module Recommender
 
       # @return Int[]
       def rescore(items_weighted, cf_weighted)
-        ap items_weighted:items_weighted, cf_weighted:cf_weighted
+        puts items_weighted.inspect
+        puts cf_weighted.inspect
         items_weighted.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
           (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
