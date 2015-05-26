@@ -3,19 +3,19 @@ module Recommender
   module WeightHelper
 
     LIMIT_CF_ITEMS = 1000
-    RATING_MULTIPLY = 2500
+    RATING_MULTIPLY = 5000
 
-    def cf_weight(i_w)
+    def cf_weight(items_to_weight)
       cf_weighted = {}
-      if i_w.any? && params.user
+      if items_to_weight.any? && params.user
         ms = MahoutService.new
         ms.open
         cf_result = ms.item_based_weight(params.user.id,
-                                         weight: i_w,
+                                         weight: items_to_weight,
                                          limit: LIMIT_CF_ITEMS)
         ms.close
 
-        # TODO: ориентироваться на оценку, выданную махаутом. а не на результат вычислений
+        #  ориентироваться на оценку, выданную махаутом.
         cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f*RATING_MULTIPLY]}.to_h
       end
       cf_weighted
