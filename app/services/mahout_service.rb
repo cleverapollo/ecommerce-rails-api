@@ -53,11 +53,11 @@ class MahoutService
       if tunnel_active? && preferences.any?
         res = tunnel.item_based_block(user_id, options)
       else
-        res = options[:weight].slice(0, options[:limit])
+        res = options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
       end
       return res
     else
-      options[:weight].slice(0, options[:limit])
+      options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
     end
   end
 

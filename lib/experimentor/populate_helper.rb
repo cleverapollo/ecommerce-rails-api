@@ -1,5 +1,22 @@
-class PopulateHelper
-  class << self
+require 'factory_girl_rails'
+
+module Experimentor
+  module PopulateHelper
+
+    # Методы-сокращалки
+    [:shop, :item, :user].each do |accessor|
+      define_method accessor do
+        @populate_data[accessor]
+      end
+    end
+
+    def create(what, params={})
+      @populate_data||={}
+      @populate_data[what]||=[]
+      @populate_data[what].push(FactoryGirl.create(what,params))
+      @populate_data[what].last
+    end
+
     def create_action(shop, user, item, is_buy = false)
       a = item.actions.new(user: user,
                            shop: shop,
@@ -12,7 +29,7 @@ class PopulateHelper
       end
       a.save
 
-      MahoutAction.create(user:user, shop:shop, item:item)
+      MahoutAction.create(user: user, shop: shop, item: item)
     end
 
     def clear_model(model)

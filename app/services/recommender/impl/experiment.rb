@@ -3,11 +3,10 @@ module Recommender
     class Experiment < Recommender::Personalized
 
       K_SR = 1.0
-      K_CF = 1.0
+      K_CF = 10000.0
 
       def items_to_weight
-        result = Item.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
-                     .limit(LIMIT_CF_ITEMS)
+        result = items_to_recommend.where.not(id: excluded_items_ids).limit(LIMIT_CF_ITEMS)
 
         # Преобразуем result к виду {id=>weight}
         result.to_a.map{|value| [value.id,value.sales_rate]}.to_h

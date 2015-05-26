@@ -3,46 +3,22 @@ namespace :populate do
   desc 'Clear data after populate'
   task :clear do
     ap "Clearing"
-    PopulateHelper.clear_all
+    Experimentor::Experiments::Base.new.clear_all
   end
 
-  desc 'Create mahout actions'
-  task :action => :clear do
-    ap "Populate actions"
-    require 'factory_girl_rails'
-    shop = Shop.find_by(name: "Megashop")
-    shop ||= FactoryGirl.create(:shop)
+  desc 'Experiment task'
+  task :experiment do
+    ap 'Start experiment'
+    params = OpenStruct.new(shop: Shop.find_by(name:'Megashop'), user: User.find(1), limit: 7, type:'experiment')
+    experiment = Experimentor::Experiments::ItemBasedExperiment.new
+    experiment.iterate(params)
+  end
 
-    users = []
-    10.times do |i|
-      users.push(FactoryGirl.create(:user))
-    end
-
-    items = []
-    10.times do |i|
-      items.push(FactoryGirl.create(:item, shop: shop, sales_rate: rand(100..200), categories: "{1}"))
-    end
-
-    PopulateHelper.create_action(shop, users[0], items[0], true)
-    PopulateHelper.create_action(shop, users[0], items[1], true)
-    PopulateHelper.create_action(shop, users[0], items[2], true)
-
-    PopulateHelper.create_action(shop, users[1], items[3], true)
-    PopulateHelper.create_action(shop, users[1], items[4], true)
-    PopulateHelper.create_action(shop, users[1], items[2], true)
-
-    PopulateHelper.create_action(shop, users[2], items[1], true)
-    PopulateHelper.create_action(shop, users[2], items[0], true)
-    PopulateHelper.create_action(shop, users[2], items[4], true)
-
-    PopulateHelper.create_action(shop, users[3], items[3], true)
-    PopulateHelper.create_action(shop, users[3], items[4], true)
-    PopulateHelper.create_action(shop, users[3], items[0], true)
-
-    PopulateHelper.create_action(shop, users[4], items[2], true)
-    PopulateHelper.create_action(shop, users[4], items[3], true)
-    PopulateHelper.create_action(shop, users[4], items[4], true)
-
+  desc 'Populate data for experiment task'
+  task :data do
+    ap 'Populate experiment'
+    experiment = Experimentor::Experiments::ItemBasedExperiment.new
+    experiment.populate
   end
 
 end

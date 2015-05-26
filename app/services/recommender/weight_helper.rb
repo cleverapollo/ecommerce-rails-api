@@ -3,6 +3,7 @@ module Recommender
   module WeightHelper
 
     LIMIT_CF_ITEMS = 1000
+    RATING_MULTIPLY = 10000
 
     def cf_weight(i_w)
       cf_weighted = {}
@@ -15,7 +16,7 @@ module Recommender
         ms.close
 
         # TODO: ориентироваться на оценку, выданную махаутом. а не на результат вычислений
-        cf_weighted = index_weight(cf_result)
+        cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f*RATING_MULTIPLY]}.to_h
       end
       cf_weighted
     end
@@ -26,7 +27,7 @@ module Recommender
       delta = 1.0/i_w.size
       cur_pref = 1.0
       i_w.each do |item|
-        result[item] = (cur_pref.to_f * 10000).to_i
+        result[item] = (cur_pref.to_f * RATING_MULTIPLY).to_i
         cur_pref-=delta
       end
       result
