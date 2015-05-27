@@ -1,3 +1,5 @@
+require 'factory_girl_rails' if Rails.env.development?
+
 module Experimentor
   module PopulateHelper
 
@@ -15,19 +17,26 @@ module Experimentor
       @populate_data[what].last
     end
 
-    def create_action(shop, user, item, is_buy = false)
-      a = item.actions.new(user: user,
-                           shop: shop,
-                           timestamp: 1.day.ago.to_i,
-                           rating: Actions::View::RATING)
+    def create_action(shop_data, user_data, item_data, action = 'view')
+      session = create(:session, user: user_data, code:SecureRandom.uuid)
 
-      if is_buy
-        a.purchase_count = 1
-        a.rating = Actions::Purchase::RATING
-      end
-      a.save
+      params = {
+          event: action,
+          shop_id: shop_data.uniqid,
+          ssid: session.code,
+          item_id: [item_data.id],
+          #price: [14375, 25000],
+          #is_available: [1, 0],
+          #category: [191, 15],
+          attributes: ['{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}'],
+          recommended_by: 'similar'
+      }
 
-      MahoutAction.create(user: user, shop: shop, item: item)
+      # Извлекаем данные из входящих параметров
+      extracted_params = ActionPush::Params.extract(params)
+      ap ex_params:extracted_params
+      # Запускаем процессор с извлеченными данными
+      ActionPush::Processor.new(extracted_params).process
     end
 
     def clear_model(model)

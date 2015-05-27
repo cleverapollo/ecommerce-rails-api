@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150516140351) do
+ActiveRecord::Schema.define(version: 20150526164209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -337,6 +337,7 @@ ActiveRecord::Schema.define(version: 20150516140351) do
     t.boolean "ignored",                       default: false, null: false
     t.jsonb   "custom_attributes",             default: {},    null: false
     t.jsonb   "locations",                     default: {},    null: false
+    t.float   "sr"
     t.integer "sales_rate",        limit: 2
   end
 
@@ -349,10 +350,11 @@ ActiveRecord::Schema.define(version: 20150516140351) do
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "mahout_actions", force: :cascade do |t|
-    t.integer "user_id",   limit: 8
-    t.integer "item_id",   limit: 8
-    t.integer "shop_id",   limit: 8
+    t.integer "user_id",    limit: 8
+    t.integer "item_id",    limit: 8
+    t.integer "shop_id",    limit: 8
     t.integer "timestamp"
+    t.float   "preference"
   end
 
   add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
