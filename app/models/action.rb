@@ -74,7 +74,7 @@ class Action < ActiveRecord::Base
       # Коллбек после обработки действия
       post_process
       # В Махаут сохраняются действия с рейтингом больше корзины
-      save_to_mahout
+      save_to_mahout if self.rating >= Actions::RemoveFromCart::RATING
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
