@@ -17,7 +17,6 @@ module Recommender
                      popular_in_all_shop.select("DISTINCT ON (items.categories) items.*, items.id, items.sales_rate ").order(categories: :asc)
                    end
 
-
         # Находим отсортированные товары
         # Не делать pluck! ( иначе вернется больше итемов чем надо, баг ActiveRecord(?))
         result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
