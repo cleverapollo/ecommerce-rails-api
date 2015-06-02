@@ -15,7 +15,7 @@ describe YmlWorker do
       {
         url: 'http://example.com/item/2000',
         price: 900,
-        categories: ['2', '3'],
+        categories: ['1', '2', '3'],
         image_url: 'http://example.com/item/2000.jpg',
         name: 'New item',
         description: 'New item description',

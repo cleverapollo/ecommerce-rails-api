@@ -27,7 +27,12 @@ class YmlItem
   end
 
   def categories
-    @categories_resolver[@content['categoryId']]
+    if @content['categoryId'].instance_of?(Array)
+      # преобразуем к простому списку категорий
+      @content['categoryId'].map {|category| @categories_resolver[category]}.flatten
+    else
+      @categories_resolver[@content['categoryId']]
+    end
   end
 
   def name
@@ -63,9 +68,9 @@ class YmlItem
     if @content['locations'].present? && @content['locations']['location'].present?
       locations_raw = @content['locations']['location']
       locations_raw = [locations_raw] unless locations_raw.is_a? Array
-      result = { }
+      result = {}
       locations_raw.each do |location|
-        result[location['id']] = { }
+        result[location['id']] = {}
         if location['price'].present?
           result[location['id']]['price'] = location['price'].to_f
         end
