@@ -19,7 +19,8 @@ describe YmlWorker do
         image_url: 'http://example.com/item/2000.jpg',
         name: 'New item',
         description: 'New item description',
-        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } }
+        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
+        brand: 'Gucci'
       }.each{|attr, value| expect(new_item.public_send(attr)).to eq(value) }
     end
 
@@ -35,7 +36,8 @@ describe YmlWorker do
         image_url: 'http://example.com/item/1000.jpg',
         name: 'Existing item',
         description: 'Existing item description',
-        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } }
+        locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
+        brand: 'Apple'
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 

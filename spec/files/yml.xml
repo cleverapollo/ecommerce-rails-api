@@ -17,6 +17,9 @@
         <name>Existing item</name>
         <description>Existing item description</description>
 
+        <vendor>Apple</vendor>
+        <vendorCode>APPL</vendorCode>
+
         <locations>
           <location id="1">
             <price>550</price>
@@ -43,6 +46,17 @@
           <location id="2">
           </location>
         </locations>
+
+        <vendor>Apple</vendor>
+        <vendorCode>APPL</vendorCode>
+
+        <fashion>
+          <sex>f</sex>
+          <type>upper</type>
+          <feature>pregnant</feature>
+          <brand>Gucci</brand>
+        </fashion>
+
       </offer>
     </offers>
   </shop>

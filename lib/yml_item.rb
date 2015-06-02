@@ -42,6 +42,13 @@ class YmlItem
     StringHelper.encode_and_truncate(@content['url'], 1000)
   end
 
+  def brand
+    brand = ''
+    brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion']
+    brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty?
+    brand
+  end
+
   def image_url
     picture_attribute = @content['picture']
     picture_attribute = picture_attribute.first if picture_attribute.is_a? Array
