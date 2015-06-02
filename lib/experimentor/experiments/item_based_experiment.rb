@@ -13,6 +13,10 @@ module Experimentor
           create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{1}")
         end
 
+        10.times do |i|
+          create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{2}")
+        end
+
         create_action(local_shop, user[0], item[0])
         create_action(local_shop, user[0], item[1])
         create_action(local_shop, user[0], item[2], 'purchase')
@@ -41,7 +45,7 @@ module Experimentor
       end
 
       def iterate(iteration_params)
-        recommender = Recommender::Impl::Popular.new(iteration_params)
+        recommender = Recommender::Impl::Experiment.new(iteration_params)
         ap recommender.recommendations
       end
     end
