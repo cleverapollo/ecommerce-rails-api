@@ -9,7 +9,7 @@
     </categories>
 
     <offers>
-      <offer available="true" id="1000" >
+      <offer available="true" id="1000">
         <url>http://example.com/item/1000</url>
         <price>500</price>
         <categoryId>1</categoryId>
@@ -17,8 +17,10 @@
         <name>Existing item</name>
         <description>Existing item description</description>
 
+        <typePrefix>Смартфон</typePrefix>
         <vendor>Apple</vendor>
         <vendorCode>APPL</vendorCode>
+        <model>iPhone 6 128Gb</model>
 
         <locations>
           <location id="1">
@@ -28,9 +30,15 @@
           <location id="2">
           </location>
         </locations>
+
+        <fashion>
+          <sex>f</sex>
+          <type>upper</type>
+          <feature>pregnant</feature>
+        </fashion>
       </offer>
 
-      <offer available="true" id="2000" >
+      <offer available="true" id="2000">
         <url>http://example.com/item/2000</url>
         <price>900</price>
         <categoryId>1</categoryId>
@@ -48,14 +56,21 @@
           </location>
         </locations>
 
+        <typePrefix>Смартфон</typePrefix>
         <vendor>Apple</vendor>
         <vendorCode>APPL</vendorCode>
+        <model>iPhone 6 128Gb</model>
 
         <fashion>
           <sex>f</sex>
           <type>upper</type>
           <feature>pregnant</feature>
           <brand>Gucci</brand>
+
+          <sizes>
+            <size>e40</size>
+            <size>e42</size>
+          </sizes>
         </fashion>
 
       </offer>

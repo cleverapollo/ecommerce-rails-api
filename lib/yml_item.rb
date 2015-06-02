@@ -49,8 +49,8 @@ class YmlItem
 
   def brand
     brand = ''
-    brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion']
-    brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty?
+    brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
+    brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty? && @content['vendor'].present?
     brand
   end
 
@@ -79,6 +79,35 @@ class YmlItem
     else
       []
     end
+  end
+
+  def type_prefix
+    StringHelper.encode_and_truncate(@content['typePrefix'])
+  end
+
+  def vendor_code
+    StringHelper.encode_and_truncate(@content['vendorCode'])
+  end
+
+  def model
+    StringHelper.encode_and_truncate(@content['model'])
+  end
+
+  def gender
+    # Для совместимости sex->gender
+    StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
+  end
+
+  def wear_type
+    StringHelper.encode_and_truncate(@content['fashion']['type']) if @content['fashion'].present? && @content['fashion']['type'].present?
+  end
+
+  def feature
+    StringHelper.encode_and_truncate(@content['fashion']['feature']) if @content['fashion'].present? && @content['fashion']['feature'].present?
+  end
+
+  def sizes
+    @content['fashion']['sizes']['size'] if @content['fashion'].present? && @content['fashion']['sizes'].present?
   end
 
   # Delegate all unknown calls to new item object

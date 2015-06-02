@@ -20,7 +20,15 @@ describe YmlWorker do
         name: 'New item',
         description: 'New item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Gucci'
+        brand: 'Gucci',
+        type_prefix: 'Смартфон',
+        vendor_code: 'APPL',
+        model: 'iPhone 6 128Gb',
+        gender: 'f',
+        wear_type: 'upper',
+        feature: 'pregnant',
+        sizes: ['e40', 'e42'],
+
       }.each{|attr, value| expect(new_item.public_send(attr)).to eq(value) }
     end
 

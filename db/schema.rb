@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150602084248) do
+ActiveRecord::Schema.define(version: 20150602140738) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -339,6 +339,13 @@ ActiveRecord::Schema.define(version: 20150602084248) do
     t.jsonb   "locations",                     default: {},    null: false
     t.float   "sr"
     t.integer "sales_rate",        limit: 2
+    t.string  "type_prefix"
+    t.string  "vendor_code"
+    t.string  "model"
+    t.string  "gender",            limit: 1
+    t.string  "feature",           limit: 20
+    t.string  "sizes",                         default: [],                 array: true
+    t.string  "wear_type"
   end
 
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin

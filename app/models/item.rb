@@ -23,7 +23,7 @@ class Item < ActiveRecord::Base
   scope :in_locations, ->(locations) {
     if locations && locations.any?
       locations = locations.keys if locations.is_a? Hash
-      where("locations ?| array[#{locations.map{|l| "'#{l}'"}.join(',')}]")
+      where("locations ?| array[#{locations.map { |l| "'#{l}'" }.join(',')}]")
     end
   }
   # Доступные для отображения
@@ -35,7 +35,7 @@ class Item < ActiveRecord::Base
     result = self
     params.each do |key, value|
       value = [value] unless value.is_a? Array
-      value = value.map{|v| "'#{v}'" }.join(', ')
+      value = value.map { |v| "'#{v}'" }.join(', ')
       result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value}]")
     end
     result
@@ -87,18 +87,25 @@ class Item < ActiveRecord::Base
     self.locations = ItemLocationsMerger.merge(self.locations, new_item.locations)
 
     attrs = {
-                  price: ValuesHelper.present_one(new_item, self, :price),
-             categories: ValuesHelper.with_contents(new_item, self, :categories),
-                   tags: ValuesHelper.with_contents(new_item, self, :tags),
-                   name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
-            description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
-                    url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
-              image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
-                  brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
-           is_available: new_item.is_available,
-         available_till: ValuesHelper.present_one(new_item, self, :available_till),
-             repeatable: ValuesHelper.false_one(new_item, self, :repeatable),
-                ignored: new_item.ignored.nil? ? false : new_item.ignored
+        price: ValuesHelper.present_one(new_item, self, :price),
+        categories: ValuesHelper.with_contents(new_item, self, :categories),
+        tags: ValuesHelper.with_contents(new_item, self, :tags),
+        name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
+        description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
+        url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
+        image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
+        brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
+        is_available: new_item.is_available,
+        available_till: ValuesHelper.present_one(new_item, self, :available_till),
+        repeatable: ValuesHelper.false_one(new_item, self, :repeatable),
+        ignored: new_item.ignored.nil? ? false : new_item.ignored,
+        type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
+        vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
+        model: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :model)),
+        gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :gender)),
+        wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :wear_type)),
+        feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
+        sizes: ValuesHelper.with_contents(new_item, self, :sizes)
     }
 
     assign_attributes(attrs)
