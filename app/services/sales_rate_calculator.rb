@@ -4,7 +4,7 @@ class SalesRateCalculator
   MINIMUM_SALES_FOR_NORMAL_SALES_RATE = 100
 
   # Вес цены в формуле расчета
-  K_PRICE = 0.4
+  K_PRICE = 0.1
 
   # Вес покупок в формуле расчета
   K_PURCHASES = 1.0
