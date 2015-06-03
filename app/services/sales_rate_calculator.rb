@@ -49,14 +49,20 @@ class SalesRateCalculator
       items_prices = shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price)
 
       # Добавляем цены в информацию о товарах
-      items_prices.each do |e|
-        items.each_with_index do |v, k|
-          if v[:item_id] == e[0]
-            items[k][:price] = e[1].to_f
-            break
-          end
+      items.each_with_index  do |v, k|
+        idx = items_prices.index { |x| x[0] == v[:item_id] }
+        if idx
+          items[k][:price] = items_prices[idx][1].to_f
         end
       end
+      # items_prices.each do |e|
+      #   items.each_with_index do |v, k|
+      #     if v[:item_id] == e[0]
+      #       items[k][:price] = e[1].to_f
+      #       break
+      #     end
+      #   end
+      # end
 
       # Удаляем товары с пустыми ценами
       items.delete_if { |i| i[:price].nil? || i[:price] == 0 }
