@@ -21,19 +21,6 @@ module Recommender
         end
       end
 
-      def inject_promotions(result_ids)
-        Promotion.find_each do |promotion|
-          if promotion.show?(shop: shop, item: item)
-            promoted_item_id = promotion.scope(items_to_recommend).where.not(id: result_ids).limit(1).first.try(:id)
-            if promoted_item_id.present?
-              result_ids[0] = promoted_item_id
-            end
-          end
-        end
-
-        result_ids
-      end
-
       def items_to_weight
         min_date = 1.day.ago.to_i
 
@@ -46,12 +33,8 @@ module Recommender
         result = result.where(item_id: all_items)
         result = result.group(:item_id)
         result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
-        result = result.limit(LIMIT).pluck(:item_id)
-        unless shop.strict_recommendations?
-          result = inject_random_items(result)
-        end
-        result = inject_promotions(result)
-        result
+
+        result.limit(LIMIT).pluck(:item_id)
       end
     end
   end

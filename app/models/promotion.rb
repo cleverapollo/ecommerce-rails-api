@@ -29,6 +29,10 @@ class Promotion < ActiveRecord::Base
     relation.merge(r)
   end
 
+  def get_from_selection(item_ids)
+    scope(Item.where(id:item_ids)).limit(1).first.try(:id)
+  end
+
   private
 
   def show_for_category?(category)

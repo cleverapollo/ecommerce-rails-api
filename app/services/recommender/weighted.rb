@@ -4,6 +4,8 @@
 module Recommender
   class Weighted < Base
 
+    include ItemInjector
+
     # @return Int[]
     def recommended_ids
       result = []
@@ -24,7 +26,7 @@ module Recommender
         i_w
       end
 
-      result
+      inject_items(result)
     end
 
     def items_to_weight

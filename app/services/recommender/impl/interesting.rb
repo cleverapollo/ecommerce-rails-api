@@ -1,29 +1,16 @@
 module Recommender
   module Impl
     class Interesting < Recommender::UserBased
-      def inject_promotions(result_ids)
-        Promotion.find_each do |promotion|
-          if promotion.show?(shop: shop, item: item)
-            promoted_item_id = promotion.scope(items_to_recommend).where.not(id: result_ids).limit(1).first.try(:id)
-            if promoted_item_id.present?
-              result_ids[0] = promoted_item_id
-            end
-          end
-        end
 
-        result_ids
-      end
+      include ItemInjector
 
       def recommended_ids
         result = super
         unless shop.strict_recommendations?
           result = inject_not_bought_but_carted_id_in(result)
-          result = inject_random_items(result)
         end
 
-        result = inject_promotions(result)
-
-        result
+        inject_items(result)
       end
 
       def inject_not_bought_but_carted_id_in(ids)
