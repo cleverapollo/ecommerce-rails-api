@@ -34,7 +34,7 @@ class SalesRateCalculator
       require 'matrix'
 
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
-      sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count * 5.0, 0) + COALESCE(rating, 0)')
+      sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count * 15.0, 0) + COALESCE(rating, 0)')
 
       # Если купленных товаров недостаточно, то рассчитываем популярность товаров другим событиям
       # @delete after 20.05.2015
