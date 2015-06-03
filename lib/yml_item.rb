@@ -94,8 +94,11 @@ class YmlItem
   end
 
   def gender
+    gender = ''
     # Для совместимости sex->gender
-    StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
+    gender = StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
+    gender = StringHelper.encode_and_truncate(@content['fashion']['gender']) if @content['fashion'].present? && @content['fashion']['gender'].present?
+    gender
   end
 
   def wear_type

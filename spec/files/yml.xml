@@ -32,7 +32,7 @@
         </locations>
 
         <fashion>
-          <sex>f</sex>
+          <gender>f</gender>
           <type>upper</type>
           <feature>pregnant</feature>
         </fashion>

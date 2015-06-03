@@ -45,7 +45,8 @@ describe YmlWorker do
         name: 'Existing item',
         description: 'Existing item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Apple'
+        brand: 'Apple',
+        gender: 'f'
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
