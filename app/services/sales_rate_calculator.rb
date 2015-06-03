@@ -34,6 +34,7 @@ class SalesRateCalculator
       require 'matrix'
 
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
+      # Слабое место в суммировании рейтинга, т.к. бывают товары очень дорогие (1.5М рублей), на которые много кто смотрит, но никто не покупает. И у них рейтинг выше среднего.
       sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count * 15.0, 0) + COALESCE(rating, 0)')
 
       # Если купленных товаров недостаточно, то рассчитываем популярность товаров другим событиям
@@ -45,24 +46,13 @@ class SalesRateCalculator
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
 
-      # Ищем цены товаров
-      items_prices = shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price)
+      # Ищем цены товаров и создаем хеш ID => PRICE
+      items_prices = Hash[shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price)]
 
       # Добавляем цены в информацию о товарах
       items.each_with_index  do |v, k|
-        idx = items_prices.index { |x| x[0] == v[:item_id] }
-        if idx
-          items[k][:price] = items_prices[idx][1].to_f
-        end
+        items[k][:price] = items_prices[v[:item_id]].to_f if items_prices[v[:item_id]].present?
       end
-      # items_prices.each do |e|
-      #   items.each_with_index do |v, k|
-      #     if v[:item_id] == e[0]
-      #       items[k][:price] = e[1].to_f
-      #       break
-      #     end
-      #   end
-      # end
 
       # Удаляем товары с пустыми ценами
       items.delete_if { |i| i[:price].nil? || i[:price] == 0 }
@@ -80,7 +70,12 @@ class SalesRateCalculator
 
         # Подсчитываем sales_rate в виде целого числа, но не больше 30000
         items.each_with_index do |_, index|
+
           items[index][:sales_rate] =  [((K_PRICE * v_price_norm[index] + K_PURCHASES * v_purchases_norm[index]) / (K_PRICE + K_PURCHASES) * 10000).to_i, 30000].min
+
+          # Если SR получился 0, все равно ставим 1, чтобы в рекомендациях при селектах задействовать индексы
+          items[index][:sales_rate] = 1 if items[index][:sales_rate] < 1
+
         end
 
       end
@@ -88,15 +83,32 @@ class SalesRateCalculator
       # Обнуляем sales_rate у всех товаров магазина
       shop.items.recommendable.where('sales_rate is not null').update_all sales_rate: nil
 
-      # Обновляем sales_rate у товаров
+
+      # Обновляем sales_rate у товаров. Делаем это группами по схожим sales_rate, чтобы не делать 40000 индивидуальных запросов UPDATE
+      # Большие группы разбиваем по 500 товаров, чтобы не получать огромные запросы WHERE id IN (10000 идентификаторов)
+      chunks = {}
       items.each do |item|
-        if item[:sales_rate] > 0
-          shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
+        if chunks.key?(item[:sales_rate])
+          chunks[item[:sales_rate]] << item[:item_id]
         else
-          # В качестве отработки ситуации, когда рейтинг совсем небольшой
-          shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: 1
+          chunks[item[:sales_rate]] = [item[:item_id]]
         end
       end
+      begin
+        chunks.each do |sales_rate, item_ids|
+          item_ids.each_slice(1000) do |ids|
+            shop.items.recommendable.where(id: ids).update_all sales_rate: sales_rate
+          end
+        end
+      rescue
+        Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
+      end
+
+      # items.each do |item|
+      #   if item[:sales_rate] > 0
+      #     shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
+      #   end
+      # end
 
       nil
     end
