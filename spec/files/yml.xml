@@ -74,6 +74,25 @@
         </fashion>
 
       </offer>
+
+
+      <offer available="true" id="3000">
+        <!-- kotofoto style -->
+        <url>http://example.com/item/2000</url>
+        <price>900</price>
+        <name>Apple iphone 7S</name>
+        <description>New item description</description>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
+
+      </offer>
     </offers>
   </shop>
 </yml_catalog>

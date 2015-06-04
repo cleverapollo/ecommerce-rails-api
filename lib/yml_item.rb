@@ -51,6 +51,16 @@ class YmlItem
     brand = ''
     brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
     brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty? && @content['vendor'].present?
+
+    if brand.empty?
+      # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
+      Promotion.find_each do |promotion|
+        if promotion.in_name?(name)
+          brand = promotion.brand
+        end
+      end
+    end
+
     brand
   end
 
