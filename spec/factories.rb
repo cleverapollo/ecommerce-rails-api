@@ -143,7 +143,7 @@ FactoryGirl.define do
   end
 
   factory :promotion do
-    brand { 'Apple' }
+    brand { 'apple' }
     categories { ['телефоны', 'планшеты'] }
   end
 

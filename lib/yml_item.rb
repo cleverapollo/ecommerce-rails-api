@@ -61,7 +61,7 @@ class YmlItem
       end
     end
 
-    brand
+    brand.downcase
   end
 
   def image_url

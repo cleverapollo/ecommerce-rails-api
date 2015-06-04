@@ -22,7 +22,7 @@ describe YmlWorker do
         name: 'New item',
         description: 'New item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Gucci',
+        brand: 'gucci',
         type_prefix: 'Смартфон',
         vendor_code: 'APPL',
         model: 'iPhone 6 128Gb',
@@ -47,7 +47,7 @@ describe YmlWorker do
         name: 'Existing item',
         description: 'Existing item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Apple',
+        brand: 'apple',
         gender: 'f'
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
@@ -59,7 +59,7 @@ describe YmlWorker do
 
       existing_item.reload
       {
-          brand: 'Apple',
+          brand: 'apple',
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 

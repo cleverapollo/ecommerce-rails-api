@@ -28,7 +28,7 @@ class Promotion < ActiveRecord::Base
 
   # Наложить условие продвижения
   def scope(relation)
-    r = Item.where("name ILIKE '%#{brand}%'")
+    r = Item.where(brand: brand)
     r = r.in_categories([@category]) if @category.present?
     relation.merge(r)
   end
