@@ -37,12 +37,6 @@ class SalesRateCalculator
       # Слабое место в суммировании рейтинга, т.к. бывают товары очень дорогие (1.5М рублей), на которые много кто смотрит, но никто не покупает. И у них рейтинг выше среднего.
       sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count * 15.0, 0) + COALESCE(rating, 0)')
 
-      # Если купленных товаров недостаточно, то рассчитываем популярность товаров другим событиям
-      # @delete after 20.05.2015
-      # if sales_data.length < MINIMUM_SALES_FOR_NORMAL_SALES_RATE
-      #   sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum(:rating)
-      # end
-
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
 
@@ -103,12 +97,6 @@ class SalesRateCalculator
       rescue
         Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
       end
-
-      # items.each do |item|
-      #   if item[:sales_rate] > 0
-      #     shop.items.recommendable.where(id: item[:item_id]).update_all sales_rate: item[:sales_rate]
-      #   end
-      # end
 
       nil
     end
