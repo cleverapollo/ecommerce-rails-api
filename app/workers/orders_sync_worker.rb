@@ -22,7 +22,7 @@ class OrdersSyncWorker
       opts['orders'].each do |element|
 
         if element[:id].blank?
-          raise OrdersSyncError.new('Передан заказ без ID')
+          raise OrdersSyncError.new("Передан заказ без ID: #{element}")
         end
         if element[:status].blank?
           raise OrdersSyncError.new("Передан заказ ##{element[:id]} без статуса")
