@@ -15,7 +15,7 @@ module Recommender
                    end
 
         # Находим отсортированные товары
-        result = relation.select(:id, ).where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
                      .limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :categories)
 
 
