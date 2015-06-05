@@ -22,6 +22,8 @@ Rees46Api::Application.routes.draw do
   resource :import, only: :none do
     # Заказы
     post :orders
+    # Статусы заказов
+    post :sync_orders
     # Товары (вероятно, нигде не используется)
     post :items
     # Инсейлс

@@ -10,6 +10,10 @@ class Order < ActiveRecord::Base
   belongs_to :source, polymorphic: true
   belongs_to :shop
 
+  STATUS_NEW = 0
+  STATUS_SUCCESS = 1
+  STATUS_CANCELLED = 2
+
   class << self
     # Сохранить заказ
     def persist(shop, user, uniqid, items, source = {})
@@ -90,4 +94,13 @@ class Order < ActiveRecord::Base
   def expire_carts
     user.actions.where(shop: shop).where('rating::numeric = ?', Actions::Cart::RATING).update_all(rating: Actions::RemoveFromCart::RATING)
   end
+
+
+  # Изменить статус заказа, если статус валиден и изменился
+  def change_status(new_status)
+    if [STATUS_NEW, STATUS_CANCELLED, STATUS_SUCCESS].include?(new_status) && status != new_status
+      update status: new_status, status_date: Date.current
+    end
+  end
+
 end

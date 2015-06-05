@@ -7,6 +7,11 @@ class ImportsController < ApplicationController
     render text: 'OK'
   end
 
+  def sync_orders
+    OrdersSyncWorker.perform(params)
+    render text: 'OK'
+  end
+
   def items
     ItemsImportWorker.perform_async(params)
     render text: 'OK'
