@@ -8,7 +8,7 @@ class ImportsController < ApplicationController
   end
 
   def sync_orders
-    OrdersSyncWorker.perform(params)
+    OrdersSyncWorker.perform_async(params)
     render text: 'OK'
   end
 
