@@ -3,8 +3,8 @@ every '0 0 * * * ' do
   runner "RunnerWrapper.run('Item.disable_expired')"
 end
 
-# Каждую ночь в 2 часа синхронизируем YML
-every '0 2 * * *' do
+# Каждые 4 часа синхронизируем YML
+every 4.hours do
   runner "RunnerWrapper.run('YmlWorker.process_all')"
 end
 
