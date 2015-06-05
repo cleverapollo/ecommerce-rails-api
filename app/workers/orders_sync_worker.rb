@@ -11,7 +11,6 @@ class OrdersSyncWorker
 
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
-
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
         raise OrdersSyncError.new('Не передан массив заказов')
       end
@@ -21,17 +20,17 @@ class OrdersSyncWorker
 
       opts['orders'].each do |element|
 
-        if element[:id].blank?
+        if element["id"].blank?
           raise OrdersSyncError.new("Передан заказ без ID: #{element}")
         end
-        if element[:status].blank?
-          raise OrdersSyncError.new("Передан заказ ##{element[:id]} без статуса")
+        if element["status"].blank?
+          raise OrdersSyncError.new("Передан заказ ##{element["id"]} без статуса")
         end
 
-        @current_order = Order.find_by uniqid: element[:id], shop_id: @current_shop.id
+        @current_order = Order.find_by uniqid: element["id"], shop_id: @current_shop.id
 
         if @current_order
-          order.update_status @current_order['status'].to_i
+          @current_order.change_status element["status"].to_i
         end
 
       end
