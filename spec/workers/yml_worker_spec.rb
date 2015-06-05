@@ -3,6 +3,8 @@ require 'rails_helper'
 describe YmlWorker do
   describe '#perform' do
     let!(:shop) { create(:shop) }
+    let!(:promotion) { create(:promotion)}
+
     before {
       allow_any_instance_of(Yml).to receive(:get).and_yield(File.open("#{Rails.root}/spec/files/yml.xml", 'rb'))
     }
@@ -20,7 +22,7 @@ describe YmlWorker do
         name: 'New item',
         description: 'New item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Gucci',
+        brand: 'gucci',
         type_prefix: 'Смартфон',
         vendor_code: 'APPL',
         model: 'iPhone 6 128Gb',
@@ -45,8 +47,19 @@ describe YmlWorker do
         name: 'Existing item',
         description: 'Existing item description',
         locations: { '1' =>{ 'price' => 550.0 }, '2' => { } },
-        brand: 'Apple',
+        brand: 'apple',
         gender: 'f'
+      }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+    end
+
+
+    it 'gets correct brand from name' do
+      existing_item = create(:item, uniqid: '3000', shop: shop)
+      subject
+
+      existing_item.reload
+      {
+          brand: 'apple',
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 

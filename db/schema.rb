@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150602140738) do
+ActiveRecord::Schema.define(version: 20150604135956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 20150602140738) do
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
+  add_index "actions", ["shop_id", "user_id", "item_id"], name: "tmpidx1", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -62,6 +63,32 @@ ActiveRecord::Schema.define(version: 20150602140738) do
   add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id", using: :btree
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
+
+  create_table "advertisers", force: :cascade do |t|
+    t.string   "email"
+    t.string   "encrypted_password",     default: "", null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.inet     "current_sign_in_ip"
+    t.inet     "last_sign_in_ip"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "company"
+    t.string   "website"
+    t.string   "mobile_phone"
+    t.string   "work_phone"
+    t.string   "country"
+    t.string   "city"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
+  add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
 
   create_table "audiences", force: :cascade do |t|
     t.integer "shop_id",                                                      null: false
@@ -299,6 +326,7 @@ ActiveRecord::Schema.define(version: 20150602140738) do
   end
 
   add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
+  add_index "interactions", ["shop_id", "item_id"], name: "tmpidx_interactions_1", using: :btree
   add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
 
   create_table "ipn_messages", force: :cascade do |t|
@@ -343,11 +371,12 @@ ActiveRecord::Schema.define(version: 20150602140738) do
     t.string  "vendor_code"
     t.string  "model"
     t.string  "gender",            limit: 1
+    t.string  "wear_type",         limit: 20
     t.string  "feature",           limit: 20
     t.string  "sizes",                         default: [],                 array: true
-    t.string  "wear_type"
   end
 
+  add_index "items", ["brand"], name: "index_items_on_brand", using: :btree
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
@@ -415,7 +444,7 @@ ActiveRecord::Schema.define(version: 20150602140738) do
     t.integer  "shop_id",                                                       null: false
     t.integer  "user_id",                                                       null: false
     t.string   "uniqid",            limit: 255,                                 null: false
-    t.datetime "date",                          default: '2015-03-24 08:10:31', null: false
+    t.datetime "date",                          default: '2015-06-04 14:22:23', null: false
     t.decimal  "value",                         default: 0.0,                   null: false
     t.boolean  "recommended",                   default: false,                 null: false
     t.integer  "ab_testing_group"
@@ -583,7 +612,7 @@ ActiveRecord::Schema.define(version: 20150602140738) do
     t.string   "script",         limit: 1000,                                 null: false
     t.integer  "checksum"
     t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2015-03-24 08:10:34', null: false
+    t.datetime "installed_on",                default: '2015-06-04 14:22:23', null: false
     t.integer  "execution_time",                                              null: false
     t.boolean  "success",                                                     null: false
   end
@@ -630,11 +659,11 @@ ActiveRecord::Schema.define(version: 20150602140738) do
   end
 
   create_table "shops", id: :bigserial, force: :cascade do |t|
-    t.string   "uniqid",                        limit: 255,                 null: false
-    t.string   "name",                          limit: 255,                 null: false
-    t.boolean  "active",                                    default: true,  null: false
+    t.string   "uniqid",                        limit: 255,                                         null: false
+    t.string   "name",                          limit: 255,                                         null: false
+    t.boolean  "active",                                                            default: true,  null: false
     t.integer  "customer_id"
-    t.boolean  "connected",                                 default: false
+    t.boolean  "connected",                                                         default: false
     t.string   "url",                           limit: 255
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
@@ -644,38 +673,38 @@ ActiveRecord::Schema.define(version: 20150602140738) do
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count",     limit: 255
     t.integer  "category_id"
-    t.boolean  "paid",                                      default: false, null: false
+    t.boolean  "paid",                                                              default: false, null: false
     t.datetime "trial_ends_at"
     t.integer  "cms_id"
-    t.string   "currency",                      limit: 255, default: "СЂ."
+    t.string   "currency",                      limit: 255,                         default: "р."
     t.integer  "plan_id"
-    t.boolean  "needs_to_pay",                              default: false, null: false
+    t.boolean  "needs_to_pay",                                                      default: false, null: false
     t.datetime "paid_till"
-    t.boolean  "manual",                                    default: false, null: false
-    t.boolean  "requested_ab_testing",                      default: false, null: false
-    t.decimal  "efficiency",                                default: 0.0,   null: false
+    t.boolean  "manual",                                                            default: false, null: false
+    t.boolean  "requested_ab_testing",                                              default: false, null: false
+    t.decimal  "efficiency",                                precision: 5, scale: 2, default: 0.0,   null: false
     t.string   "yml_file_url",                  limit: 255
-    t.boolean  "yml_loaded",                                default: false, null: false
+    t.boolean  "yml_loaded",                                                        default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tracked_monthly_orders_count",              default: 0,     null: false
-    t.string   "rivals",                                    default: [],                 array: true
-    t.boolean  "has_orders_last_week",                      default: false, null: false
-    t.boolean  "strict_recommendations",                    default: false, null: false
-    t.decimal  "recommended_items_view_rate",               default: 0.0,   null: false
-    t.boolean  "export_to_ct",                              default: false
+    t.integer  "tracked_monthly_orders_count",                                      default: 0,     null: false
+    t.string   "rivals",                                                            default: [],                 array: true
+    t.boolean  "has_orders_last_week",                                              default: false, null: false
+    t.boolean  "strict_recommendations",                                            default: false, null: false
+    t.decimal  "recommended_items_view_rate",                                       default: 0.0,   null: false
+    t.boolean  "export_to_ct",                                                      default: false
     t.integer  "manager_id"
-    t.boolean  "enable_nda",                                default: false
-    t.boolean  "available_ibeacon",                         default: false
-    t.boolean  "gives_rewards",                             default: true,  null: false
-    t.boolean  "hopeless",                                  default: false, null: false
-    t.boolean  "sectoral_algorythms_available",             default: false, null: false
-    t.boolean  "restricted",                                default: false, null: false
-    t.decimal  "revenue_per_visit",                         default: 0.0,   null: false
-    t.text     "connection_status_last_track"
+    t.boolean  "enable_nda",                                                        default: false
+    t.boolean  "available_ibeacon",                                                 default: false
+    t.boolean  "gives_rewards",                                                     default: true,  null: false
+    t.boolean  "hopeless",                                                          default: false, null: false
+    t.boolean  "sectoral_algorythms_available",                                     default: false, null: false
+    t.boolean  "restricted",                                                        default: false, null: false
+    t.decimal  "revenue_per_visit",                                                 default: 0.0,   null: false
     t.datetime "last_valid_yml_file_loaded_at"
+    t.text     "connection_status_last_track"
     t.integer  "plan_value"
-    t.boolean  "dont_disconnect",                           default: false, null: false
+    t.boolean  "dont_disconnect",                                                   default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -802,5 +831,4 @@ ActiveRecord::Schema.define(version: 20150602140738) do
 
   add_foreign_key "actions", "shops", name: "actions_shop_id_fkey"
   add_foreign_key "items", "shops", name: "items_shop_id_fkey"
-  add_foreign_key "user_shop_relations", "shops", name: "user_shop_relations_shop_id_fkey"
 end

@@ -38,8 +38,8 @@ describe Promotion do
   end
 
   describe '#scope' do
-    let!(:item_1) { create(:item, shop: shop, name: 'apple iphone 6') }
-    let!(:item_2) { create(:item, shop: shop, name: 'huawei') }
+    let!(:item_1) { create(:item, shop: shop, name: 'apple iphone 6', brand:'apple') }
+    let!(:item_2) { create(:item, shop: shop, name: 'huawei', brand:'huawei') }
 
     it 'scopes items by name' do
       expect(promotion.scope(shop.items).to_a).to match_array([item_1])

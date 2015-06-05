@@ -22,9 +22,13 @@ class Promotion < ActiveRecord::Base
     false
   end
 
+  def in_name?(item_name)
+    !item_name.match(/\b#{brand}\b/i).nil?
+  end
+
   # Наложить условие продвижения
   def scope(relation)
-    r = Item.where("name ILIKE '%#{brand}%'")
+    r = Item.where(brand: brand)
     r = r.in_categories([@category]) if @category.present?
     relation.merge(r)
   end
