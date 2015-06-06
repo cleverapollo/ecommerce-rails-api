@@ -40,11 +40,18 @@ class Fixer
       end
     end
 
+    total = old_ids_pairs.count
+    current_number = 0
+
     # Перебираем все старые товары
     old_ids_pairs.each do |old_item|
       old_id = old_item[0]
       old_uniqid = old_item[1]
       old_uniqid_stripped = old_uniqid.gsub(/\D+/, '')
+
+      # Счетчик
+      current_number = current_number + 1
+      puts "Processing #{current_number}/#{total}"
 
       # Находим идентификатор нового товара
       new_id_pair = new_ids_pairs.select { |x| x[1] == old_uniqid_stripped  }.first
@@ -74,8 +81,11 @@ class Fixer
 
         # order_items + # action_id
         OrderItem.where(item_id: old_id).find_each do |order_item|
-          action_id = Action.where(item_id: new_id).where(user_id: order_item.order.user_id).limit(1).first.id
-          order_item.update item_id: new_id, action_id: action_id
+
+          action = Action.where(item_id: new_id).where(user_id: order_item.order.user_id).limit(1).first
+          if action
+            order_item.update item_id: new_id, action_id: action.id
+          end
         end
 
       end
