@@ -73,8 +73,8 @@ class Fixer
         end
 
         # order_items + # action_id
-        OrderItem.where(shop_id: shop.id).where(item_id: old_id).find_each do |order_item|
-          action_id = Action.where(shop_id: shop.id).where(item_id: new_id).where(user_id: order_item.order.user_id).limit(1).id
+        OrderItem.where(item_id: old_id).find_each do |order_item|
+          action_id = Action.where(item_id: new_id).where(user_id: order_item.order.user_id).limit(1).first.id
           order_item.update item_id: new_id, action_id: action_id
         end
 
