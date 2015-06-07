@@ -31,4 +31,8 @@ every 30.minutes do
   runner "RunnerWrapper.run('SalesRateCalculator.perform_newbies')"
 end
 
+# Каждый день рассчитываем биллинг для рекламодателя
+every '0 5 * * *' do
+  runner "RunnerWrapper.run('Promoting::Calculator.previous_days')"
+end
 

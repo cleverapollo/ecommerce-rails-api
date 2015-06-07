@@ -52,6 +52,9 @@ FactoryGirl.define do
     email             { Faker::Internet.email }
   end
 
+  factory :advertiser_statistic do
+  end
+
   factory :item do
     sequence(:uniqid) {|i| "#{i}" }
     price 100
