@@ -13,7 +13,7 @@ module Recommender
     attr_accessor :params
 
     class << self
-      # Получить класс рекомендера по названи.
+      # Получить класс рекомендера по названию
       def get_implementation_for(recommender_type)
         raise Recommendations::Error.new('Unsupported recommender type') unless TYPES.include?(recommender_type)
 

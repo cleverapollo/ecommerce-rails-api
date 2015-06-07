@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150605082617) do
+ActiveRecord::Schema.define(version: 20150606102446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,13 +60,27 @@ ActiveRecord::Schema.define(version: 20150605082617) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
+  create_table "advertiser_statistics", force: :cascade do |t|
+    t.integer  "advertiser_id"
+    t.integer  "views",                 default: 0,   null: false
+    t.integer  "clicks",                default: 0,   null: false
+    t.integer  "original_purchases",    default: 0,   null: false
+    t.integer  "recommended_purchases", default: 0,   null: false
+    t.float    "cost",                  default: 0.0, null: false
+    t.date     "date",                                null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", using: :btree
+
   create_table "advertisers", force: :cascade do |t|
     t.string   "email"
-    t.string   "encrypted_password",     default: "", null: false
+    t.string   "encrypted_password",     default: "",   null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",          default: 0,    null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -81,7 +95,8 @@ ActiveRecord::Schema.define(version: 20150605082617) do
     t.string   "city"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "balance",                default: 0,  null: false
+    t.float    "balance",                default: 0.0,  null: false
+    t.integer  "cpm",                    default: 1500, null: false
   end
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
