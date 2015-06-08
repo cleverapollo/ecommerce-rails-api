@@ -22,13 +22,23 @@ class CategoriesTree
       shop_items_categories_cache[item_category.external_id] = item_category
     end
 
+    category_db_ids = {}
     @categories_array.each do |category_yml|
       category = shop_items_categories_cache[category_yml[:id].to_s] || @shop.item_categories.new(external_id: category_yml[:id].to_s)
       category.parent_external_id = category_yml[:parent_id].to_s
       category.name = category_yml[:name]
       begin
         category.save! if category.changed?
+        category_db_ids[category_yml[:id]]=category.id
       rescue ActiveRecord::RecordNotUnique
+      end
+    end
+
+    # Прогоняем повторно, чтобы убедиться что все категории сохранены в базе
+    # и сохранить parent_id
+    @categories_array.each do |category_yml|
+      if category_yml[:parent_id]
+        ItemCategory.find(category_db_ids[category_yml[:id]]).update(parent_id: category_db_ids[category_yml[:parent_id]])
       end
     end
 
