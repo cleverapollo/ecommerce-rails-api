@@ -41,13 +41,13 @@ module ActionPush
         case action.name_code
           when 'view'
             # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
-            Promoting::Brand.find_by_item(item).each do |advertiser|
-              BrandLogger.track_click advertiser.id
+            Promoting::Brand.find_by_item(item).each do |advertiser_id|
+              BrandLogger.track_click advertiser_id
             end
           when 'purchase'
             # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
-            Promoting::Brand.find_by_item(item).each do |advertiser|
-              BrandLogger.track_purchase advertiser.id, params.recommended_by.present?
+            Promoting::Brand.find_by_item(item).each do |advertiser_id|
+              BrandLogger.track_purchase advertiser_id, params.recommended_by.present?
             end
         end
 
