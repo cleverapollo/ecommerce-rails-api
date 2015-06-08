@@ -16,22 +16,8 @@ module Promoting
         advertisers = advertisers_list(item.categories)
         return [] if advertisers.empty?
 
-        interested_advertisers = Advertiser.where(downcase_brand: brand.downcase)
-
-
-
-        # Находим рекламодателей, которые:
-        # 1. Работают с магазином, где продается это товар
-        # 2. Продвигатся в категории, где лежит этот товар
-        # 3. Их бренд равен бренду товара
-
-        # Мне не хватает:
-        # 1. Привязки магазинов к рекламодателям
-        # 2. Привязки категорий к рекламодателям
-        # 3. Понимания, как сопоставить бренд-рекламодатель и товар бренда.
-
-        []
-
+        # Вернем ид рекламодателей, промоутирующих данный бренд
+        Advertiser.where(id: advertisers, downcase_brand: brand.downcase).pluck(:id)
       end
 
       def advertisers_list(categories)

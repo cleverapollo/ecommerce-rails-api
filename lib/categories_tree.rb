@@ -28,9 +28,9 @@ class CategoriesTree
       category.parent_external_id = category_yml[:parent_id].to_s
       category.name = category_yml[:name]
       begin
+        category_db_ids[category_yml[:id]]=category.id
         if category.changed?
           category.save!
-          category_db_ids[category_yml[:id]]=category.id
         end
       rescue ActiveRecord::RecordNotUnique
       end
@@ -39,8 +39,8 @@ class CategoriesTree
     # Прогоняем повторно, чтобы убедиться что все категории сохранены в базе
     # и сохранить parent_id
     @categories_array.each do |category_yml|
-      if category_yml[:parent_id]
-        ItemCategory.find(category_db_ids[category_yml[:id]]).update(parent_id: category_db_ids[category_yml[:parent_id]])
+      if category_yml[:parent_id] && category_db_ids[category_yml[:id]].present?
+        ItemCategory.update(category_db_ids[category_yml[:id]], parent_id: category_db_ids[category_yml[:parent_id]])
       end
     end
 
