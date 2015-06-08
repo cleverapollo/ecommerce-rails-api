@@ -4,6 +4,10 @@ class Advertiser < ActiveRecord::Base
   validates :cpm, numericality: {only_integer: true, greater_than: 0}
 
   has_many :advertiser_statistics, dependent: :nullify
+  has_many :advertiser_shops
+  has_many :shops, through: :advertiser_shops
+  has_many :advertiser_item_categories
+  has_many :item_categories, through: :advertiser_item_categories
 
 
 
