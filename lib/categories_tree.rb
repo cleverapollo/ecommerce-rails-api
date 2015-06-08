@@ -28,8 +28,10 @@ class CategoriesTree
       category.parent_external_id = category_yml[:parent_id].to_s
       category.name = category_yml[:name]
       begin
-        category.save! if category.changed?
-        category_db_ids[category_yml[:id]]=category.id
+        if category.changed?
+          category.save!
+          category_db_ids[category_yml[:id]]=category.id
+        end
       rescue ActiveRecord::RecordNotUnique
       end
     end

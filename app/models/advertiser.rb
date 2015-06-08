@@ -6,6 +6,7 @@ class Advertiser < ActiveRecord::Base
   has_many :advertiser_statistics, dependent: :nullify
 
 
+
   # Изменяет баланс рекламодателя
   def change_balance(amount)
     update balance: (balance + amount)
