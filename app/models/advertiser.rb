@@ -21,14 +21,14 @@ class Advertiser < ActiveRecord::Base
   end
 
   def first_in_selection(item_ids)
-    Item.where(id:item_ids, brand:brand_downcase).first.try(:id)
+    Item.where(id:item_ids, brand:brand_downcase).where.not(brand:nil).first.try(:id)
   end
 
   def first_in_categories(categories)
-    Item.where(categories:categories, brand:brand_downcase).first.try(:id)
+    Item.where(categories:categories, brand:brand_downcase).where.not(brand:nil).first.try(:id)
   end
 
   def first_in_shop(shop_id)
-    Item.where(shop_id:shop_id, brand:brand_downcase).first.try.id
+    Item.where(shop_id:shop_id, brand:brand_downcase).where.not(brand:nil).first.try.id
   end
 end
