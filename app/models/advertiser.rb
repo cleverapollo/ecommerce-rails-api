@@ -25,7 +25,7 @@ class Advertiser < ActiveRecord::Base
   end
 
   def first_in_categories(categories)
-    Item.in_categories(categories, true).where(brand:downcase_brand).where.not(brand:nil).first.try(:id)
+    Item.in_categories(categories, any:true).where(brand:downcase_brand).where.not(brand:nil).first.try(:id)
   end
 
   def first_in_shop(shop_id)
