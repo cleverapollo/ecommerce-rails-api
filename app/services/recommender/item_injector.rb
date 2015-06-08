@@ -7,7 +7,8 @@ module Recommender
 
     def inject_promotions(result_ids)
       promotions_placed = 0
-      if categories.nil?
+      in_categories = categories.try(:any?)
+      if in_categories
         advertisers_list = Promoting::Brand.advertises_for_shop(shop)
       else
         advertisers_list = Promoting::Brand.advertisers_for_categories(shop, categories)
@@ -30,11 +31,12 @@ module Recommender
           promotions_placed+=1
         else
           # не нашли, получаем из полной выборки
-          if categories.any?
+          if in_categories
             promoted_item_id = advertiser.first_in_categories(shop, categories)
           else
             promoted_item_id = advertiser.first_in_shop(shop)
           end
+
           if promoted_item_id.present?
             result_ids.insert(promoted_item_id % PLACES_FOR_PROMO, promoted_item_id)
             promotions_placed+=1
