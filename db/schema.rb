@@ -60,6 +60,26 @@ ActiveRecord::Schema.define(version: 20150608133549) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
+  create_table "advertiser_item_categories", force: :cascade do |t|
+    t.integer  "advertiser_id"
+    t.integer  "item_category_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
+  add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
+
+  create_table "advertiser_shops", force: :cascade do |t|
+    t.integer  "advertiser_id"
+    t.integer  "shop_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "advertiser_shops", ["advertiser_id"], name: "index_advertiser_shops_on_advertiser_id", using: :btree
+  add_index "advertiser_shops", ["shop_id"], name: "index_advertiser_shops_on_shop_id", using: :btree
+
   create_table "advertiser_statistics", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.integer  "views",                 default: 0,   null: false
@@ -97,8 +117,6 @@ ActiveRecord::Schema.define(version: 20150608133549) do
     t.datetime "updated_at"
     t.float    "balance",                default: 0.0,  null: false
     t.integer  "cpm",                    default: 1500, null: false
-    t.string   "brand"
-    t.string   "downcase_brand"
   end
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
@@ -451,7 +469,7 @@ ActiveRecord::Schema.define(version: 20150608133549) do
     t.integer  "shop_id",                                                       null: false
     t.integer  "user_id",                                                       null: false
     t.string   "uniqid",            limit: 255,                                 null: false
-    t.datetime "date",                          default: '2015-06-08 11:43:23', null: false
+    t.datetime "date",                          default: '2015-06-08 15:10:36', null: false
     t.decimal  "value",                         default: 0.0,                   null: false
     t.boolean  "recommended",                   default: false,                 null: false
     t.integer  "ab_testing_group"
@@ -619,7 +637,7 @@ ActiveRecord::Schema.define(version: 20150608133549) do
     t.string   "script",         limit: 1000,                                 null: false
     t.integer  "checksum"
     t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2015-06-08 11:43:23', null: false
+    t.datetime "installed_on",                default: '2015-06-08 15:10:36', null: false
     t.integer  "execution_time",                                              null: false
     t.boolean  "success",                                                     null: false
   end

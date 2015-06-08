@@ -7,29 +7,43 @@ module Recommender
 
     def inject_promotions(result_ids)
       promotions_placed = 0
-      Promotion.find_each do |promotion|
+      if categories.nil?
+        advertisers_list = Promoting::Brand.advertises_for_shop(shop)
+      else
+        advertisers_list = Promoting::Brand.advertisers_for_categories(categories)
+      end
+      advertisers_list.each do |advertiser|
         # проверяем места на занятость
         break if promotions_placed>=MAX_PROMOTIONS
 
-        if promotion.show?(shop: shop, item: item, categories: categories)
-          # пытаемся найти промо в товарах, отданных рекоммендеру
-          promoted_item_id = promotion.get_from_selection(result_ids)
+        # Выбрали рекламодателя
+        # @todo: Приоритет выбора рекламодателя
 
-          if promoted_item_id.present?
-            # нашли, вставляем на одно из первых мест
-            cur_promo_index = result_ids.index(promoted_item_id)
-            index_to_replace = cur_promo_index % PLACES_FOR_PROMO
-            result_ids.delete_at(cur_promo_index)
-            result_ids.insert(index_to_replace, promoted_item_id)
-            promotions_placed+=1
+        promoted_item_id = advertiser.first_in_selection(result_ids)
+
+        if promoted_item_id.present?
+          # нашли, вставляем на одно из первых мест
+          cur_promo_index = result_ids.index(promoted_item_id)
+          index_to_replace = cur_promo_index % PLACES_FOR_PROMO
+          result_ids.delete_at(cur_promo_index)
+          result_ids.insert(index_to_replace, promoted_item_id)
+          promotions_placed+=1
+        else
+          # не нашли, получаем из полной выборки
+          if categories.any?
+            promoted_item_id = advertiser.first_in_categories(categories)
           else
-            # не нашли, получаем из полной выборки
-            promoted_item_id = promotion.scope(items_to_recommend).limit(1).first.try(:id)
-            if promoted_item_id.present?
-              result_ids.insert(promoted_item_id % PLACES_FOR_PROMO, promoted_item_id)
-              promotions_placed+=1
-            end
+            promoted_item_id = advertiser.first_in_shop(shop)
           end
+          if promoted_item_id.present?
+            result_ids.insert(promoted_item_id % PLACES_FOR_PROMO, promoted_item_id)
+            promotions_placed+=1
+          end
+        end
+
+        # Считаем просмотр для бернда
+        if promoted_item_id.present?
+          BrandLogger.track_view(advertiser.id)
         end
       end
 
