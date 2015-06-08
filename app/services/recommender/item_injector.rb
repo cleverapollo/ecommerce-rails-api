@@ -7,7 +7,7 @@ module Recommender
 
     def inject_promotions(result_ids)
       promotions_placed = 0
-      category_inner_ids = ItemCategory.where(external_id: categories).pluck(:id)
+      category_inner_ids = ItemCategory.where(shop_id:shop, external_id: categories).pluck(:id)
       if categories.nil?
         advertisers_list = Promoting::Brand.advertises_for_shop(shop)
       else
