@@ -21,7 +21,7 @@ module Promoting
       end
 
       def advertisers_for_categories(categories)
-        AdvertiserItemCategory.where(item_category_id: categories)
+        Advertiser.where(id:AdvertiserItemCategory.where(item_category_id: categories).select('advertiser_id'))
       end
 
       def advertises_for_shop(shop)
