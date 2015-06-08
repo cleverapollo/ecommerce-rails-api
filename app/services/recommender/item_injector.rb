@@ -10,7 +10,7 @@ module Recommender
       if categories.nil?
         advertisers_list = Promoting::Brand.advertises_for_shop(shop)
       else
-        advertisers_list = Promoting::Brand.advertisers_for_categories(ItemCategory.where(external_id: categories))
+        advertisers_list = Promoting::Brand.advertisers_for_categories(ItemCategory.where(external_id: categories).pluck(:id))
       end
       advertisers_list.each do |advertiser|
         # проверяем места на занятость
