@@ -13,19 +13,17 @@ module Promoting
         return [] if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-        advertisers = advertisers_for_categories(item.categories).pluck(:id).compact.uniq
-        return [] if advertisers.empty?
-
-        # Вернем ид рекламодателей, промоутирующих данный бренд
-        Advertiser.where(id: advertisers, downcase_brand: brand.downcase)
+       advertisers_for_categories(item.shop_id, item.categories).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
       end
 
-      def advertisers_for_categories(categories)
-        Advertiser.where(id:AdvertiserItemCategory.where(item_category_id: categories).select('advertiser_id'))
+      def advertisers_for_categories(shop_id, categories)
+        Advertiser.where(id: AdvertiserItemCategory.where(item_category_id:
+                                                              ItemCategory.where(shop_id: shop_id,external_id: categories))
+                                 .select('advertiser_id'))
       end
 
       def advertises_for_shop(shop)
-        AdvertiserShop.where(shop_id:shop)
+        Advertiser.where(id: AdvertiserShop.where(shop_id: shop).select('advertiser_id'))
       end
 
     end

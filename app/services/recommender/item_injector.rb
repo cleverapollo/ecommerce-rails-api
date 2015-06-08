@@ -7,11 +7,10 @@ module Recommender
 
     def inject_promotions(result_ids)
       promotions_placed = 0
-      category_inner_ids = ItemCategory.where(shop_id:shop, external_id: categories).pluck(:id)
       if categories.nil?
         advertisers_list = Promoting::Brand.advertises_for_shop(shop)
       else
-        advertisers_list = Promoting::Brand.advertisers_for_categories(category_inner_ids)
+        advertisers_list = Promoting::Brand.advertisers_for_categories(shop, categories)
       end
       advertisers_list.each do |advertiser|
         # проверяем места на занятость
@@ -32,7 +31,7 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if categories.any?
-            promoted_item_id = advertiser.first_in_categories(category_inner_ids)
+            promoted_item_id = advertiser.first_in_categories(shop, categories)
           else
             promoted_item_id = advertiser.first_in_shop(shop)
           end
