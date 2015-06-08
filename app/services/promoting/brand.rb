@@ -9,11 +9,16 @@ module Promoting
       def find_by_item(item)
 
         # Если бренд не определен, то ничего нет
-        return [] if item.brand.blank?
+        brand = item.brand
+        return [] if brand.blank?
 
-        # Если магазин не в списке площадок для продвижения, то ничего нет
-        # @todo Доделать
-        # return [] if !shop_in_promoting_list()
+        # Если категории не в списке площадок для продвижения, то ничего нет
+        advertisers = advertisers_list(item.categories)
+        return [] if advertisers.empty?
+
+        interested_advertisers = Advertiser.where(downcase_brand: brand.downcase)
+
+
 
         # Находим рекламодателей, которые:
         # 1. Работают с магазином, где продается это товар
@@ -27,6 +32,10 @@ module Promoting
 
         []
 
+      end
+
+      def advertisers_list(categories)
+        AdvertiserItemCategory.where(item_category_id: categories).pluck(:advertiser_id).compact.uniq
       end
 
     end
