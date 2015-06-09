@@ -201,7 +201,13 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", unique: true, using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", unique: true, using: :btree
+  add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
+  add_index "clients", ["subscription_popup_showed", "shop_id"], name: "index_clients_on_subscription_popup_showed_and_shop_id", using: :btree
+  add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
+  add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
   create_table "cmses", force: :cascade do |t|
     t.string   "code",               limit: 255,                 null: false
@@ -470,6 +476,7 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   end
 
   add_index "order_items", ["item_id"], name: "index_order_items_on_item_id", using: :btree
+  add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                         null: false
@@ -489,6 +496,10 @@ ActiveRecord::Schema.define(version: 20150608160257) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
+  add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
+  add_index "orders", ["source_type", "source_id"], name: "index_orders_on_source_type_and_source_id", using: :btree
+  add_index "orders", ["uniqid"], name: "index_orders_on_uniqid", using: :btree
+  add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
 
   create_table "partners", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",    null: false
@@ -567,15 +578,14 @@ ActiveRecord::Schema.define(version: 20150608160257) do
     t.date     "finishing_at"
   end
 
-  create_table "recommendations_requests", id: false, force: :cascade do |t|
-    t.integer  "id",                                default: "nextval('recommendations_requests_id_seq'::regclass)", null: false
-    t.integer  "shop_id",                                                                                            null: false
-    t.integer  "category_id",                                                                                        null: false
-    t.string   "recommender_type",      limit: 255,                                                                  null: false
-    t.boolean  "clicked",                           default: false,                                                  null: false
-    t.integer  "recommendations_count",                                                                              null: false
-    t.text     "recommended_ids",                   default: [],                                                     null: false, array: true
-    t.decimal  "duration",                                                                                           null: false
+  create_table "recommendations_requests", force: :cascade do |t|
+    t.integer  "shop_id",                                           null: false
+    t.integer  "category_id",                                       null: false
+    t.string   "recommender_type",      limit: 255,                 null: false
+    t.boolean  "clicked",                           default: false, null: false
+    t.integer  "recommendations_count",                             null: false
+    t.text     "recommended_ids",                   default: [],    null: false, array: true
+    t.decimal  "duration",                                          null: false
     t.integer  "user_id"
     t.string   "session_code",          limit: 255
     t.datetime "created_at"
@@ -659,6 +669,7 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
