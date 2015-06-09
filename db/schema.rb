@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150609114813) do
+ActiveRecord::Schema.define(version: 20150609125754) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -117,6 +117,8 @@ ActiveRecord::Schema.define(version: 20150609114813) do
     t.datetime "updated_at"
     t.float    "balance",                default: 0.0,  null: false
     t.integer  "cpm",                    default: 1500, null: false
+    t.string   "brand"
+    t.string   "downcase_brand"
   end
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
@@ -570,14 +572,14 @@ ActiveRecord::Schema.define(version: 20150609114813) do
   end
 
   create_table "recommendations_requests", id: false, force: :cascade do |t|
-    t.integer  "id",                                default: "nextval('recommendations_requests_id_seq'::regclass)", null: false
-    t.integer  "shop_id",                                                                                            null: false
-    t.integer  "category_id",                                                                                        null: false
-    t.string   "recommender_type",      limit: 255,                                                                  null: false
-    t.boolean  "clicked",                           default: false,                                                  null: false
-    t.integer  "recommendations_count",                                                                              null: false
-    t.text     "recommended_ids",                   default: [],                                                     null: false, array: true
-    t.decimal  "duration",                                                                                           null: false
+    t.integer  "id",                                default: 0,     null: false
+    t.integer  "shop_id",                                           null: false
+    t.integer  "category_id",                                       null: false
+    t.string   "recommender_type",      limit: 255,                 null: false
+    t.boolean  "clicked",                           default: false, null: false
+    t.integer  "recommendations_count",                             null: false
+    t.text     "recommended_ids",                   default: [],    null: false, array: true
+    t.decimal  "duration",                                          null: false
     t.integer  "user_id"
     t.string   "session_code",          limit: 255
     t.datetime "created_at"
