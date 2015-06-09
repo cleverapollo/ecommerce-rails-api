@@ -3,7 +3,7 @@ require 'rails_helper'
 describe YmlWorker do
   describe '#perform' do
     let!(:shop) { create(:shop) }
-    let!(:promotion) { create(:promotion)}
+    let!(:promotion) { create(:advertiser, downcase_brand:'apple')}
 
     before {
       allow_any_instance_of(Yml).to receive(:get).and_yield(File.open("#{Rails.root}/spec/files/yml.xml", 'rb'))

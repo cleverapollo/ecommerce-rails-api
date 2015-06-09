@@ -54,9 +54,9 @@ class YmlItem
 
     if brand.empty?
       # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
-      Promotion.find_each do |promotion|
-        if promotion.in_name?(name)
-          brand = promotion.brand
+      Advertiser.find_each do |advertiser|
+        if advertiser.in_name?(name)
+          brand = advertiser.downcase_brand
         end
       end
     end
