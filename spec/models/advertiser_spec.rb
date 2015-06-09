@@ -19,4 +19,13 @@ RSpec.describe Advertiser, :type => :model do
 
   end
 
+  let!(:shop) { create(:shop) }
+  let!(:promotion) { create(:advertiser) }
+
+  it 'has a valid factory' do
+    expect(promotion).to be_valid
+  end
+
+
+
 end
