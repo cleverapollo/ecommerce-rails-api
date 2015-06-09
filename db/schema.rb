@@ -570,14 +570,14 @@ ActiveRecord::Schema.define(version: 20150609114813) do
   end
 
   create_table "recommendations_requests", id: false, force: :cascade do |t|
-    t.integer  "id",                                default: 0,     null: false
-    t.integer  "shop_id",                                           null: false
-    t.integer  "category_id",                                       null: false
-    t.string   "recommender_type",      limit: 255,                 null: false
-    t.boolean  "clicked",                           default: false, null: false
-    t.integer  "recommendations_count",                             null: false
-    t.text     "recommended_ids",                   default: [],    null: false, array: true
-    t.decimal  "duration",                                          null: false
+    t.integer  "id",                                default: "nextval('recommendations_requests_id_seq'::regclass)", null: false
+    t.integer  "shop_id",                                                                                            null: false
+    t.integer  "category_id",                                                                                        null: false
+    t.string   "recommender_type",      limit: 255,                                                                  null: false
+    t.boolean  "clicked",                           default: false,                                                  null: false
+    t.integer  "recommendations_count",                                                                              null: false
+    t.text     "recommended_ids",                   default: [],                                                     null: false, array: true
+    t.decimal  "duration",                                                                                           null: false
     t.integer  "user_id"
     t.string   "session_code",          limit: 255
     t.datetime "created_at"
