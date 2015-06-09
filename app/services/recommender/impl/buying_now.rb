@@ -3,6 +3,17 @@ module Recommender
     class BuyingNow < Recommender::Weighted
       LIMIT = 20
 
+      def categories_for_promo
+        return categories if categories.present?
+        @categories_for_promo
+      end
+
+      def inject_promotions(result)
+        # Промо только в категориях товара выдачи
+        @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+        super(result)
+      end
+
       def items_to_recommend
         if params.modification.present?
           result = super
@@ -36,6 +47,8 @@ module Recommender
 
         result.limit(LIMIT).pluck(:item_id)
       end
+
+
     end
   end
 end

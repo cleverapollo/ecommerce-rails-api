@@ -40,10 +40,15 @@ module Recommender
         [item.id]
       end
 
-      def inject_promotions(result)
-        # Не надо включать промо
+      def categories_for_promo
+        return categories if categories.present?
+        @categories_for_promo
+      end
 
-        result
+      def inject_promotions(result)
+        # Промо только в категориях товара выдачи
+        @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+        super(result)
       end
 
       def inject_random_items(result)

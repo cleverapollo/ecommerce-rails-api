@@ -5,6 +5,17 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
+      def categories_for_promo
+        return categories if categories.present?
+        @categories_for_promo
+      end
+
+      def inject_promotions(result)
+        # Промо только в категориях товара выдачи
+        @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+        super(result)
+      end
+
       def items_to_weight
         # Разные запросы в зависимости от присутствия или отсутствия категории
         # Используют разные индексы
