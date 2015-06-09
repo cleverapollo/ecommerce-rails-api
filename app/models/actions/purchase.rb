@@ -22,7 +22,16 @@ module Actions
     end
 
     def post_process
+
       Client.where(user_id: self.user_id, shop_id: self.shop_id).update_all(bought_something: true)
+
+      # Если товар входит в список продвижения, то трекаем покупку
+      params.items.each do |item|
+        Promoting::Brand.find_by_item(item).each do |advertiser_id|
+          BrandLogger.track_purchase advertiser_id#, params.recommended_by.present?
+        end
+      end
+
     end
 
     def needs_to_update_rating?

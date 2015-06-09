@@ -24,8 +24,10 @@ module Actions
       super
 
       # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
-      Promoting::Brand.find_by_item(item).each do |advertiser_id|
-        BrandLogger.track_click advertiser_id
+      params.items.each do |item|
+        Promoting::Brand.find_by_item(item).each do |advertiser_id|
+          BrandLogger.track_click advertiser_id
+        end
       end
 
     end
