@@ -23,12 +23,14 @@ class CategoriesTree
     end
 
     category_db_ids = {}
+    changed_categories = {}
     @categories_array.each do |category_yml|
       category = shop_items_categories_cache[category_yml[:id].to_s] || @shop.item_categories.new(external_id: category_yml[:id].to_s)
       category.parent_external_id = category_yml[:parent_id].to_s
       category.name = category_yml[:name]
       begin
         category_db_ids[category_yml[:id]]=category.id
+        changed_categories[category_yml[:id]] = true
         if category.changed?
           category.save!
         end
@@ -39,7 +41,7 @@ class CategoriesTree
     # Прогоняем повторно, чтобы убедиться что все категории сохранены в базе
     # и сохранить parent_id
     @categories_array.each do |category_yml|
-      if category_yml[:parent_id] && category_db_ids[category_yml[:id]].present?
+      if category_yml[:parent_id] && category_db_ids[category_yml[:id]].present? && changed_categories[category_yml[:id]]
         ItemCategory.update(category_db_ids[category_yml[:id]], parent_id: category_db_ids[category_yml[:parent_id]])
       end
     end

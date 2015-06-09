@@ -72,7 +72,7 @@ module Recommender
       end
 
       def categories_for_query
-        params[:categories].try(:any?) ? params[:categories] : item.categories
+        params.categories.try(:any?) ? params.categories : item.categories
       end
 
       def min_date
