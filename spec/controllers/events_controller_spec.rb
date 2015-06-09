@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe EventsController do
+
   describe 'POST push_attributes' do
     before { allow(UserProfile::AttributesProcessor).to receive(:process) }
     let(:shop) { create(:shop) }
