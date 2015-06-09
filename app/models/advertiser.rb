@@ -8,6 +8,7 @@ class Advertiser < ActiveRecord::Base
   has_many :shops, through: :advertiser_shops
   has_many :advertiser_item_categories
   has_many :item_categories, through: :advertiser_item_categories
+  has_many :advertiser_purchases
 
 
 

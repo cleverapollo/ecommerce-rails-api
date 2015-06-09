@@ -8,6 +8,7 @@ class Item < ActiveRecord::Base
   has_many :actions
   has_many :order_items
   has_many :mahout_actions
+  has_many :advertiser_purchases
 
   scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
