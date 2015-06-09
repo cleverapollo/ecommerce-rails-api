@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150608160257) do
+ActiveRecord::Schema.define(version: 20150609113503) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,23 +19,23 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   enable_extension "uuid-ossp"
 
   create_table "actions", force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                                               null: false
-    t.integer  "item_id",          limit: 8,                                               null: false
-    t.integer  "view_count",                   default: 0,                                 null: false
+    t.integer  "user_id",          limit: 8,                   null: false
+    t.integer  "item_id",          limit: 8,                   null: false
+    t.integer  "view_count",                   default: 0,     null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                   default: 0,                                 null: false
+    t.integer  "cart_count",                   default: 0,     null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",               default: 0,                                 null: false
+    t.integer  "purchase_count",               default: 0,     null: false
     t.datetime "purchase_date"
     t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",          limit: 8,                                               null: false
-    t.integer  "timestamp",                    default: "date_part('epoch'::text, now())", null: false
+    t.integer  "shop_id",          limit: 8,                   null: false
+    t.integer  "timestamp",                    default: 0,     null: false
     t.string   "recommended_by",   limit: 255
-    t.integer  "last_action",      limit: 2,   default: 1,                                 null: false
-    t.integer  "rate_count",                   default: 0,                                 null: false
+    t.integer  "last_action",      limit: 2,   default: 1,     null: false
+    t.integer  "rate_count",                   default: 0,     null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
-    t.boolean  "repeatable",                   default: false,                             null: false
+    t.boolean  "repeatable",                   default: false, null: false
     t.datetime "recommended_at"
   end
 
@@ -73,6 +73,14 @@ ActiveRecord::Schema.define(version: 20150608160257) do
 
   add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
   add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
+
+  create_table "advertiser_orders", force: :cascade do |t|
+    t.integer  "order_items_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "advertiser_orders", ["order_items_id"], name: "index_advertiser_orders_on_order_items_id", using: :btree
 
   create_table "advertiser_shops", force: :cascade do |t|
     t.integer  "advertiser_id"
@@ -479,18 +487,18 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                         null: false
-    t.integer  "user_id",                                         null: false
-    t.string   "uniqid",            limit: 255,                   null: false
-    t.datetime "date",                          default: "now()", null: false
-    t.decimal  "value",                         default: 0.0,     null: false
-    t.boolean  "recommended",                   default: false,   null: false
+    t.integer  "shop_id",                                                       null: false
+    t.integer  "user_id",                                                       null: false
+    t.string   "uniqid",            limit: 255,                                 null: false
+    t.datetime "date",                          default: '2015-06-09 14:47:21', null: false
+    t.decimal  "value",                         default: 0.0,                   null: false
+    t.boolean  "recommended",                   default: false,                 null: false
     t.integer  "ab_testing_group"
-    t.decimal  "recommended_value",             default: 0.0,     null: false
-    t.decimal  "common_value",                  default: 0.0,     null: false
+    t.decimal  "recommended_value",             default: 0.0,                   null: false
+    t.decimal  "common_value",                  default: 0.0,                   null: false
     t.integer  "source_id"
     t.string   "source_type"
-    t.integer  "status",                        default: 0,       null: false
+    t.integer  "status",                        default: 0,                     null: false
     t.date     "status_date"
   end
 
@@ -645,17 +653,17 @@ ActiveRecord::Schema.define(version: 20150608160257) do
   end
 
   create_table "schema_version", id: false, force: :cascade do |t|
-    t.integer  "version_rank",                                  null: false
-    t.integer  "installed_rank",                                null: false
-    t.string   "version",        limit: 50,                     null: false
-    t.string   "description",    limit: 200,                    null: false
-    t.string   "type",           limit: 20,                     null: false
-    t.string   "script",         limit: 1000,                   null: false
+    t.integer  "version_rank",                                                null: false
+    t.integer  "installed_rank",                                              null: false
+    t.string   "version",        limit: 50,                                   null: false
+    t.string   "description",    limit: 200,                                  null: false
+    t.string   "type",           limit: 20,                                   null: false
+    t.string   "script",         limit: 1000,                                 null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                    null: false
-    t.datetime "installed_on",                default: "now()", null: false
-    t.integer  "execution_time",                                null: false
-    t.boolean  "success",                                       null: false
+    t.string   "installed_by",   limit: 100,                                  null: false
+    t.datetime "installed_on",                default: '2015-06-09 14:47:21', null: false
+    t.integer  "execution_time",                                              null: false
+    t.boolean  "success",                                                     null: false
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
