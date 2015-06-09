@@ -5,12 +5,16 @@ module Recommender
     MAX_PROMOTIONS = 1
     PLACES_FOR_PROMO = 3
 
+    def categories_for_promo
+      categories
+    end
+
     def inject_promotions(result_ids)
       promotions_placed = 0
-      in_categories = !categories.nil? && categories.try(:any?)
+      in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
       if in_categories
-        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories)
+        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories_for_promo)
       else
         advertisers_list = Promoting::Brand.advertises_for_shop(shop.id)
       end
@@ -34,7 +38,7 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if in_categories
-            promoted_item_id = advertiser.first_in_categories(shop, categories)
+            promoted_item_id = advertiser.first_in_categories(shop, categories_for_promo)
           else
             promoted_item_id = advertiser.first_in_shop(shop)
           end

@@ -42,6 +42,7 @@ module Recommender
 
       def inject_promotions(result)
         # Не надо включать промо
+
         result
       end
 

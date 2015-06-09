@@ -4,6 +4,10 @@ module Recommender
 
       include ItemInjector
 
+      def categories_for_promo
+        item.categories
+      end
+
       def recommended_ids
         result = super
         unless shop.strict_recommendations?

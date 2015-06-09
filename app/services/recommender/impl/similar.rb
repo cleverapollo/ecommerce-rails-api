@@ -16,7 +16,7 @@ module Recommender
       K_CF = 1.0
 
       # Выбираем правильные категории для рекоммендера
-      def categories
+      def categories_for_promo
         categories_for_query
       end
 
