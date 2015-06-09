@@ -4,6 +4,8 @@ describe BrandLogger do
 
   describe '.track_event' do
     let!(:advertiser) { create(:advertiser) }
+    let!(:order_recommended) {create(:order, items:[create(:item)], recommended:true)}
+    let!(:order_not_recommended) {create(:order, items:[create(:item)], recommended:false)}
 
     it 'creates statistics row on first view and updates it on next view' do
       expect(AdvertiserStatistic.count).to eq(0)
@@ -34,12 +36,12 @@ describe BrandLogger do
       expect(AdvertiserStatistic.count).to eq(0)
 
       # Рекомендованная продажа
-      BrandLogger.track_purchase advertiser.id, true
+      BrandLogger.track_purchase advertiser.id, order_recommended
       expect(AdvertiserStatistic.count).to eq(1)
       expect(AdvertiserStatistic.first.recommended_purchases).to eq(1)
 
       # Обычная продажа
-      BrandLogger.track_purchase advertiser.id, false
+      BrandLogger.track_purchase advertiser.id, order_not_recommended
       expect(AdvertiserStatistic.count).to eq(1)
       expect(AdvertiserStatistic.first.original_purchases).to eq(1)
     end

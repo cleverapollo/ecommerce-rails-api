@@ -18,7 +18,7 @@ class Order < ActiveRecord::Base
     # Сохранить заказ
     def persist(shop, user, uniqid, items, source = {})
       # Иногда событие заказа приходит несколько раз
-      return if duplicate?(shop, user, uniqid, items)
+      return nil if duplicate?(shop, user, uniqid, items)
 
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid if uniqid.blank?
@@ -54,6 +54,8 @@ class Order < ActiveRecord::Base
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
         OrderItem.persist(order, item, item.amount, recommended_by_expicit)
       end
+
+      order
     end
 
     # Расчет сумм по заказу

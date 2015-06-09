@@ -29,20 +29,29 @@ class BrandLogger
     # Трекает количество продаж продвигаемого товара
     # @param advertiser_id Integer
     # @param recommended Boolean
-    def track_purchase(advertiser_id, recommended = false)
-      if (row = AdvertiserStatistic.where(advertiser_id: advertiser_id).where(date: Date.current).first)
-        if recommended
-          row.update recommended_purchases: (row.recommended_purchases + 1)
+    def track_purchase(advertiser_id, order)
+      # если заказ nil, то это дубляж, и делать ничего не надо
+      if order
+        if (row = AdvertiserStatistic.where(advertiser_id: advertiser_id).where(date: Date.current).first)
+          if order.recommended
+            row.update recommended_purchases: (row.recommended_purchases + 1)
+          else
+            row.update original_purchases: (row.original_purchases + 1)
+          end
         else
-          row.update original_purchases: (row.original_purchases + 1)
+          if order.recommended
+            row = AdvertiserStatistic.create advertiser_id: advertiser_id, recommended_purchases: 1, date: Date.current
+          else
+            row = AdvertiserStatistic.create advertiser_id: advertiser_id, original_purchases: 1, date: Date.current
+          end
         end
-      else
-        if recommended
-          AdvertiserStatistic.create advertiser_id: advertiser_id, recommended_purchases: 1, date: Date.current
-        else
-          AdvertiserStatistic.create advertiser_id: advertiser_id, original_purchases: 1, date: Date.current
+
+        # Сохраняем позиции заказа, если заказ еще не записан
+        if row && !AdvertiserOrder.where(advertiser_statistics_id: row.id, order_id: order.id).exists?
+          AdvertiserOrder.create advertiser_statistics_id: row.id, order_id: order.id
         end
       end
+
     end
 
   end
