@@ -15,13 +15,18 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
+      # Выбираем правильные категории для рекоммендера
+      def categories
+        categories_for_query
+      end
+
       def check_params!
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
         raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
       def items_to_recommend
-        super.in_categories(categories_for_query).where.not(id: item.id).order('price DESC')
+        super.in_categories(categories_for_query).where.not(id: item.id)
       end
 
       def items_to_weight
@@ -67,7 +72,7 @@ module Recommender
       end
 
       def categories_for_query
-        categories.try(:any?) ? categories : item.categories
+        params[:categories].try(:any?) ? params[:categories] : item.categories
       end
 
       def min_date
