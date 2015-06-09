@@ -5,7 +5,14 @@ module Recommender
       include ItemInjector
 
       def categories_for_promo
-        item.categories
+        return categories if categories.present?
+        @categories_for_promo
+      end
+
+      def inject_promotions(result)
+        # Промо только в категориях товара выдачи
+        @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+        super(result)
       end
 
       def recommended_ids
