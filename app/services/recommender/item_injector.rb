@@ -7,12 +7,14 @@ module Recommender
 
     def inject_promotions(result_ids)
       promotions_placed = 0
-      in_categories = categories.try(:any?)
+      in_categories = !categories.nil? && categories.try(:any?)
+
       if in_categories
-        advertisers_list = Promoting::Brand.advertises_for_shop(shop)
+        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories)
       else
-        advertisers_list = Promoting::Brand.advertisers_for_categories(shop, categories)
+        advertisers_list = Promoting::Brand.advertises_for_shop(shop.id)
       end
+
       advertisers_list.each do |advertiser|
         # проверяем места на занятость
         break if promotions_placed>=MAX_PROMOTIONS
