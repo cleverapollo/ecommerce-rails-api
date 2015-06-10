@@ -3,7 +3,7 @@ module Recommender
   module ItemInjector
 
     MAX_PROMOTIONS = 1
-    PLACES_FOR_PROMO = 3
+    PLACES_FOR_PROMO = 1
 
     def categories_for_promo
       params.categories.try(:any?) ? params.categories : nil
