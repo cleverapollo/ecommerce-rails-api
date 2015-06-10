@@ -10,6 +10,7 @@ module Recommender
     end
 
     def inject_promotions(result_ids)
+      return result_ids if result_ids.empty?
       promotions_placed = 0
       in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
@@ -38,9 +39,9 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if in_categories
-            promoted_item_id = advertiser.first_in_categories(shop, categories_for_promo)
+            promoted_item_id = advertiser.first_in_categories(shop, categories_for_promo, excluded_items_ids)
           else
-            promoted_item_id = advertiser.first_in_shop(shop)
+            promoted_item_id = advertiser.first_in_shop(shop, excluded_items_ids)
           end
 
           if promoted_item_id.present?

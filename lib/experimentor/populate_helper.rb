@@ -17,7 +17,7 @@ module Experimentor
       @populate_data[what].last
     end
 
-    def create_action(shop_data, user_data, item_data, action = 'view')
+    def create_action(shop_data, user_data, item_data, action = 'view', recommended_by='similar')
       session = create(:session, user: user_data, code:SecureRandom.uuid)
 
       params = {
@@ -29,12 +29,12 @@ module Experimentor
           #is_available: [1, 0],
           #category: [191, 15],
           attributes: ['{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}'],
-          recommended_by: 'similar'
+          recommended_by: recommended_by
       }
+
 
       # Извлекаем данные из входящих параметров
       extracted_params = ActionPush::Params.extract(params)
-      ap ex_params:extracted_params
       # Запускаем процессор с извлеченными данными
       ActionPush::Processor.new(extracted_params).process
     end
@@ -52,6 +52,7 @@ module Experimentor
       clear_model(MahoutAction)
       clear_model(Action)
       clear_model(Shop)
+      clear_model(ItemCategory)
     end
   end
 end
