@@ -6,7 +6,7 @@ module Recommender
     PLACES_FOR_PROMO = 3
 
     def categories_for_promo
-      categories
+      params.categories.try(:any?) ? params.categories : nil
     end
 
     def inject_promotions(result_ids)

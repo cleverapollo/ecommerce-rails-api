@@ -5,8 +5,7 @@ module Recommender
       include ItemInjector
 
       def categories_for_promo
-        return categories if categories.present?
-        @categories_for_promo
+        params.categories.try(:any?) ? params.categories : @categories_for_promo
       end
 
       def inject_promotions(result)
