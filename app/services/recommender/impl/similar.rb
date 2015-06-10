@@ -30,23 +30,35 @@ module Recommender
       end
 
       def items_to_weight
-        result = shop.actions.where(item_id: items_relation_with_price_condition).
-            where('timestamp > ?', min_date).
-            group(:item_id).by_average_rating.
-            limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
-        if result.size < limit
-          # Расширяем границы поиска
-          result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+        result = []
+        advertiser = Promoting::Brand.find_by_item(item)
+        if advertiser.any?
+          advertiser.each do |advertiser_id|
+            break if result.size >= limit
+            result += Advertiser.find(advertiser_id).get_from_categories(shop.id, item.categories, excluded_items_ids, limit)
+          end
         end
 
-        # снова не добрали, берем уже все подряд из категории
-        if result.size < limit
-          result += items_relation.where.not(id:result).limit(limit - result.size).pluck(:id)
-        end
+        if result.size <limit
+          result += shop.actions.where(item_id: items_relation_with_price_condition).
+              where('timestamp > ?', min_date).
+              group(:item_id).by_average_rating.
+              limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
+          if result.size < limit
+            # Расширяем границы поиска
+            result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+          end
+
+          # снова не добрали, берем уже все подряд из категории
+          if result.size < limit
+            result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
+          end
+        end
         # взвешиваем по SR
         sr_weight(result)
+
       end
 
       def rescore(i_w, cf_weight)
