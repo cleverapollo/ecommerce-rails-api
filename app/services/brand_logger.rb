@@ -14,9 +14,13 @@ class BrandLogger
 
     # Трекает количество кликов продвигаемого товара
     # @param advertiser_id Integer
-    def track_click(advertiser_id)
+    def track_click(advertiser_id, recommended = false)
       row = AdvertiserStatistic.find_or_create_by advertiser_id: advertiser_id, date: Date.current
-      row.update clicks: (row.clicks + 1)
+      if recommended
+        row.update recommended_clicks: (row.recommended_clicks + 1)
+      else
+        row.update original_clicks: (row.original_clicks + 1)
+      end
     end
 
 

@@ -23,13 +23,21 @@ describe BrandLogger do
     it 'creates statistics row on first click and updates it on next click' do
       expect(AdvertiserStatistic.count).to eq(0)
 
-      BrandLogger.track_click advertiser.id
+      BrandLogger.track_click advertiser.id, true
       expect(AdvertiserStatistic.count).to eq(1)
-      expect(AdvertiserStatistic.first.clicks).to eq(1)
+      expect(AdvertiserStatistic.first.recommended_clicks).to eq(1)
+
+      BrandLogger.track_click advertiser.id, true
+      expect(AdvertiserStatistic.count).to eq(1)
+      expect(AdvertiserStatistic.first.recommended_clicks).to eq(2)
 
       BrandLogger.track_click advertiser.id
       expect(AdvertiserStatistic.count).to eq(1)
-      expect(AdvertiserStatistic.first.clicks).to eq(2)
+      expect(AdvertiserStatistic.first.original_clicks).to eq(1)
+
+      BrandLogger.track_click advertiser.id
+      expect(AdvertiserStatistic.count).to eq(1)
+      expect(AdvertiserStatistic.first.original_clicks).to eq(2)
     end
 
     it 'creates statistics row on first purchase and updates it on next purchase' do

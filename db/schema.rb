@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150609163629) do
+ActiveRecord::Schema.define(version: 20150610075011) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -95,13 +95,14 @@ ActiveRecord::Schema.define(version: 20150609163629) do
   create_table "advertiser_statistics", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.integer  "views",                 default: 0,   null: false
-    t.integer  "clicks",                default: 0,   null: false
     t.integer  "original_purchases",    default: 0,   null: false
     t.integer  "recommended_purchases", default: 0,   null: false
     t.float    "cost",                  default: 0.0, null: false
     t.date     "date",                                null: false
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.integer  "recommended_clicks",    default: 0,   null: false
+    t.integer  "original_clicks",       default: 0,   null: false
   end
 
   add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", using: :btree
