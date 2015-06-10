@@ -6,9 +6,11 @@ class BrandLogger
     # Записать в статистику информацию о показе за сегодняшнюю дату
     # Либо создает новую запись, если не было за сегодня, либо обновляет существующую
     # @param advertiser_id Integer
-    def track_view(advertiser_id)
+    # @param shop_id Integer
+    def track_view(advertiser_id, shop_id)
       row = AdvertiserStatistic.find_or_create_by advertiser_id: advertiser_id, date: Date.current
       row.update views: (row.views + 1)
+      AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).update_all last_event_at: Time.current
     end
 
 

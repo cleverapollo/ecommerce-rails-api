@@ -50,9 +50,9 @@ module Recommender
           end
         end
 
-        # Считаем просмотр для бернда
+        # Считаем просмотр для бренда
         if promoted_item_id.present?
-          BrandLogger.track_view(advertiser.id)
+          BrandLogger.track_view(advertiser.id, shop.id)
         end
       end
 

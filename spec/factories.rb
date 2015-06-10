@@ -55,6 +55,9 @@ FactoryGirl.define do
   factory :advertiser_statistic do
   end
 
+  factory :advertiser_shop do
+  end
+
   factory :item do
     sequence(:uniqid) {|i| "#{i}" }
     price 100
