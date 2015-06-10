@@ -50,7 +50,9 @@ module Recommender
 
       # Для расширенного режима возвращаем аттрибуты товаров
       if params.try(:extended)
-        result = shop.items.where(id: ids).map do |item|
+        items_data = {}
+        shop.items.where(id: ids).map do |item|
+          items_data[item.uniqid] =
           {
             id: item.uniqid,
             name: item.name,
@@ -59,6 +61,11 @@ module Recommender
             price: item.price.to_s
           }
         end
+        # Сохраним оригинальный порядок
+        result = ids.map do |id|
+          items_data[id]
+        end
+
       else
         # Для обычного - переводим во внешние ID
         result = translate_to_external_ids(ids)
