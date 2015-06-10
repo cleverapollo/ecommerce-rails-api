@@ -5,6 +5,14 @@ module Recommender
     #
     class RecentlyViewed < Recommender::Raw
       # Суть крайне проста - найти N последних просмотренных пользователем товаров
+
+      # Исключает ID-товаров из рекомендаций:
+      # - текущий товар, если есть
+      # - переданные в параметре :exclude
+      def excluded_items_ids
+        [item.try(:id), shop.items.where(uniqid: params.exclude).pluck(:id)].flatten.uniq.compact
+      end
+
       def recommended_ids
         relation = shop.actions.where(user: user).where('view_count > 0')
         relation = relation.where.not(item_id: excluded_items_ids)
