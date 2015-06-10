@@ -8,7 +8,7 @@ module Recommender
     MODIFICATIONS = %w(fashion child fmcg)
 
     # Массив реализаций рекомендеров
-    TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map { |a| a.split('/').last.split('.').first }
+    TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
     attr_accessor :params
 
@@ -48,11 +48,10 @@ module Recommender
       # Получить рекомендованные внутренние ID товаров
       ids = recommended_ids
 
-      # Для расширенного режима возвращаем аттрибуты товаров
       if params.try(:extended)
         items_data = {}
-        shop.items.where(id: ids).map do |item|
-          items_data[item.uniqid] =
+        shop.items.where(id: ids).each do |item|
+          items_data[item.id] =
               {
                   id: item.uniqid,
                   name: item.name,
@@ -65,7 +64,7 @@ module Recommender
         result = []
         # Сохраним оригинальный порядок
         ids.each do |id|
-          result << items_data[id]
+          result.push(items_data[id])
         end
 
       else
@@ -100,7 +99,7 @@ module Recommender
       # Эта проверка экономит 2ms на запросы к БД, когда результирующий массив пустой и ActiveRecord делает запросы в SQL типа "where 0=1"
       if array_of_internal_ids.length > 0
         array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
-        return array_of_internal_ids.map { |i_id| array_of_items.select { |i| i.id == i_id }.try(:first).try(:uniqid) }.compact
+        return array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
       end
       result
     end
@@ -140,7 +139,7 @@ module Recommender
 
       relation = items_in_shop
       if categories.present?
-        relation = items_in_shop.in_categories(categories, any: true)
+        relation = items_in_shop.in_categories(categories, any:true)
       end
 
       additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).order('RANDOM()').limit(limit - given_ids.count)
