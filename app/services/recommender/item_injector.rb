@@ -2,7 +2,7 @@
 module Recommender
   module ItemInjector
 
-    MAX_PROMOTIONS = 1
+    MAX_PROMOTIONS = 3
     PLACES_FOR_PROMO = 1
 
     def categories_for_promo
@@ -32,7 +32,7 @@ module Recommender
         if promoted_item_id.present?
           # нашли, вставляем на одно из первых мест
           cur_promo_index = result_ids.index(promoted_item_id)
-          index_to_replace = cur_promo_index % PLACES_FOR_PROMO
+          index_to_replace = promotions_placed
           result_ids.delete_at(cur_promo_index)
           result_ids.insert(index_to_replace, promoted_item_id)
           promotions_placed+=1
@@ -45,7 +45,7 @@ module Recommender
           end
 
           if promoted_item_id.present?
-            result_ids.insert(promoted_item_id % PLACES_FOR_PROMO, promoted_item_id)
+            result_ids.insert(promotions_placed, promoted_item_id)
             promotions_placed+=1
           end
         end
