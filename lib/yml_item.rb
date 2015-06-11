@@ -55,7 +55,7 @@ class YmlItem
     if brand.empty?
       # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
       Advertiser.find_each do |advertiser|
-        if advertiser.in_name?(name)
+        if in_name?(name, advertiser)
           brand = advertiser.downcase_brand
         end
       end
@@ -130,5 +130,10 @@ class YmlItem
     else
       super
     end
+  end
+
+  # Проверяет наличие бренда рекламодателя в имени айтема
+  def in_name?(item_name, advertiser)
+    !item_name.match(/\b#{advertiser.downcase_brand}\b/i).nil?
   end
 end

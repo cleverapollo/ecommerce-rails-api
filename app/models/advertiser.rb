@@ -12,16 +12,14 @@ class Advertiser < ActiveRecord::Base
   has_many :advertiser_purchases
 
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
-  scope :prioritized, -> { order(priority: :asc) }
+  scope :prioritized, -> { order(priority: :desc) }
 
   # Изменяет баланс рекламодателя
   def change_balance(amount)
     update balance: (balance + amount)
   end
 
-  def in_name?(item_name)
-    !item_name.match(/\b#{downcase_brand}\b/i).nil?
-  end
+
 
   def first_in_selection(item_ids)
     Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).order(:sales_rate).first.try(:id)

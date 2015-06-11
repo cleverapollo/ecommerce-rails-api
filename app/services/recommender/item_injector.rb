@@ -3,6 +3,7 @@ module Recommender
   module ItemInjector
 
     MAX_PROMOTIONS = 3
+    PROMO_FOR_CATEGORY = 1
     PLACES_FOR_PROMO = 1
 
     def categories_for_promo
@@ -22,7 +23,7 @@ module Recommender
 
       advertisers_list.each do |advertiser|
         # проверяем места на занятость
-        break if promotions_placed>=MAX_PROMOTIONS
+        break if promotions_placed>=MAX_PROMOTIONS || (in_categories && promotions_placed>=PLACES_FOR_PROMO)
 
         # Выбрали рекламодателя
         # @todo: Приоритет выбора рекламодателя
