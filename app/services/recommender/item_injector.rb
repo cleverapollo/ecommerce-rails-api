@@ -23,7 +23,7 @@ module Recommender
 
       advertisers_list.each do |advertiser|
         # проверяем места на занятость
-        break if promotions_placed>=MAX_PROMOTIONS || (in_categories && promotions_placed>=PLACES_FOR_PROMO)
+        break if promotions_placed >= MAX_PROMOTIONS || (in_categories && promotions_placed >= PLACES_FOR_PROMO)
 
         # Выбрали рекламодателя
         # @todo: Приоритет выбора рекламодателя
@@ -36,7 +36,7 @@ module Recommender
           index_to_replace = promotions_placed
           result_ids.delete_at(cur_promo_index)
           result_ids.insert(index_to_replace, promoted_item_id)
-          promotions_placed+=1
+          promotions_placed += 1
         else
           # не нашли, получаем из полной выборки
           if in_categories
@@ -47,7 +47,7 @@ module Recommender
 
           if promoted_item_id.present?
             result_ids.insert(promotions_placed, promoted_item_id)
-            promotions_placed+=1
+            promotions_placed += 1
           end
         end
 

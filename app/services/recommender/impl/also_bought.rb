@@ -31,7 +31,7 @@ module Recommender
       def rescore(i_w, cf_weighted)
         i_w.merge(cf_weighted) do |key, sr, cf|
           # подмешиваем оценку SR
-          (K_SR*sr.to_f + K_CF*cf.to_f)/(K_CF+K_SR)
+          (K_SR * sr.to_f + K_CF * cf.to_f)/(K_CF + K_SR)
         end
 
       end

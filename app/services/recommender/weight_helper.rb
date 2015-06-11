@@ -16,7 +16,7 @@ module Recommender
         ms.close
 
         #  ориентироваться на оценку, выданную махаутом.
-        cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f*RATING_MULTIPLY]}.to_h
+        cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f * RATING_MULTIPLY]}.to_h
       end
       cf_weighted
     end
@@ -28,7 +28,7 @@ module Recommender
       cur_pref = 1.0
       i_w.each do |item|
         result[item] = (cur_pref.to_f * RATING_MULTIPLY).to_i
-        cur_pref-=delta
+        cur_pref -= delta
       end
       result
     end
