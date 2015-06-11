@@ -12,7 +12,7 @@ class Advertiser < ActiveRecord::Base
   has_many :advertiser_purchases
 
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
-  scope :prioritized, -> { order(priority: :asc) }
+  scope :prioritized, -> { order(priority: :desc) }
 
   # Изменяет баланс рекламодателя
   def change_balance(amount)
