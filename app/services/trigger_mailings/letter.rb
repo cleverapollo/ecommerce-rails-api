@@ -106,7 +106,8 @@ module TriggerMailings
         description: item.description.to_s.truncate(130),
         price: item.price.round.to_s,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
-        image_url: item.image_url
+        image_url: item.image_url,
+        currency: item.shop.currency
       }
     end
   end

@@ -38,7 +38,7 @@ module Recommender
       def rescore(items_weighted, cf_weighted)
         items_weighted.merge!(cf_weighted) do |_, weighted_sr_item, cf|
           # подмешиваем оценку CF
-          {sales_rate: (K_SR*weighted_sr_item[:sales_rate].to_f + K_CF*cf.to_f)/(K_CF+K_SR), categories:weighted_sr_item[:categories]}
+          {sales_rate: (K_SR * weighted_sr_item[:sales_rate].to_f + K_CF * cf.to_f)/(K_CF+K_SR), categories:weighted_sr_item[:categories]}
         end
 
         items_weighted = items_weighted.sort do |x, y|
