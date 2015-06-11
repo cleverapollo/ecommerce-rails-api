@@ -20,7 +20,7 @@ module TriggerMailings
                   client.update_columns(last_trigger_mail_sent_at: Time.now)
                 end
               rescue StandardError => e
-                Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect)
+                Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
               end
             end
           end
