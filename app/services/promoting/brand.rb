@@ -17,13 +17,13 @@ module Promoting
       end
 
       def advertisers_for_categories(shop_id, categories)
-        Advertiser.where(id: AdvertiserItemCategory.where(item_category_id:
+        Advertiser.active.where(id: AdvertiserItemCategory.where(item_category_id:
                                                               ItemCategory.where(shop_id: shop_id,external_id: categories))
                                  .select('advertiser_id'))
       end
 
       def advertises_for_shop(shop)
-        Advertiser.where(id: AdvertiserShop.where(shop_id: shop).select('advertiser_id'))
+        Advertiser.active.where(id: AdvertiserShop.where(shop_id: shop).select('advertiser_id'))
       end
 
     end

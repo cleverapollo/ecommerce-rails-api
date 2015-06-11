@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150610183735) do
+ActiveRecord::Schema.define(version: 20150611091306) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,6 +82,9 @@ ActiveRecord::Schema.define(version: 20150610183735) do
     t.datetime "updated_at",     null: false
   end
 
+  add_index "advertiser_purchases", ["advertiser_id", "shop_id"], name: "index_advertiser_purchases_on_advertiser_id_and_shop_id", using: :btree
+  add_index "advertiser_purchases", ["advertiser_id"], name: "index_advertiser_purchases_on_advertiser_id", using: :btree
+
   create_table "advertiser_shops", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.integer  "shop_id"
@@ -110,11 +113,11 @@ ActiveRecord::Schema.define(version: 20150610183735) do
 
   create_table "advertisers", force: :cascade do |t|
     t.string   "email"
-    t.string   "encrypted_password",     default: "",   null: false
+    t.string   "encrypted_password",     default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,    null: false
+    t.integer  "sign_in_count",          default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -129,12 +132,15 @@ ActiveRecord::Schema.define(version: 20150610183735) do
     t.string   "city"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.float    "balance",                default: 0.0,  null: false
-    t.integer  "cpm",                    default: 1500, null: false
+    t.float    "balance",                default: 0.0,   null: false
+    t.integer  "cpm",                    default: 1500,  null: false
     t.string   "brand"
     t.string   "downcase_brand"
+    t.boolean  "campaign_launched",      default: false, null: false
+    t.integer  "priority",               default: 100,   null: false
   end
 
+  add_index "advertisers", ["campaign_launched", "priority"], name: "index_advertisers_on_campaign_launched_and_priority", using: :btree
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
 
