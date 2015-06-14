@@ -13,8 +13,10 @@ class BrandLogger
       row.update views: (row.views + 1)
       advertiser_shops = AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).limit(1) # limit для ускорения, чтобы всю базу не копать
       advertiser_shops.update_all last_event_at: Time.current
+
+      # Записываем детальную статистику
       advertiser_shops.each do |advertiser_shop|
-        AdvertiserStatisticsEvent.create advertiser_shop_id: advertiser_shop.id,
+        AdvertiserStatisticsEvent.create! advertiser_shop_id: advertiser_shop.id,
             advertiser_statistic_id: row.id,
             event: 'view',
             recommended: true,
@@ -24,26 +26,49 @@ class BrandLogger
 
 
     # Трекает количество кликов продвигаемого товара
-    # @param advertiser_id Integer
-    def track_click(advertiser_id, recommended = false)
+    # @param advertiser_id [Integer]
+    # @param shop_id [Integer]
+    # @param recommender [String]
+    def track_click(advertiser_id, shop_id, recommender = nil)
       row = get_statistics_row advertiser_id, Date.current
-      if recommended
+      if recommender.present?
         row.update recommended_clicks: (row.recommended_clicks + 1)
       else
         row.update original_clicks: (row.original_clicks + 1)
+      end
+
+      # Записываем детальную статистику
+      advertiser_shops = AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).limit(1) # limit для ускорения, чтобы всю базу не копать
+      advertiser_shops.each do |advertiser_shop|
+        AdvertiserStatisticsEvent.create! advertiser_shop_id: advertiser_shop.id,
+                                         advertiser_statistic_id: row.id,
+                                         event: 'click',
+                                         recommended: recommender.present?,
+                                         recommender: recommender
       end
     end
 
 
     # Трекает количество продаж продвигаемого товара
     # @param advertiser_id Integer
-    # @param recommended Boolean
-    def track_purchase(advertiser_id, recommended = false)
+    # @param shop_id [Integer]
+    # @param recommender [String]
+    def track_purchase(advertiser_id, shop_id, recommender = nil)
       row = get_statistics_row advertiser_id, Date.current
-      if recommended
+      if recommender.present?
         row.update recommended_purchases: (row.recommended_purchases + 1)
       else
         row.update original_purchases: (row.original_purchases + 1)
+      end
+
+      # Записываем детальную статистику
+      advertiser_shops = AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).limit(1) # limit для ускорения, чтобы всю базу не копать
+      advertiser_shops.each do |advertiser_shop|
+        AdvertiserStatisticsEvent.create! advertiser_shop_id: advertiser_shop.id,
+                                         advertiser_statistic_id: row.id,
+                                         event: 'purchase',
+                                         recommended: recommender.present?,
+                                         recommender: recommender
       end
     end
 

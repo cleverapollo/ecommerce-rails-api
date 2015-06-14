@@ -24,7 +24,7 @@ class OrderItem < ActiveRecord::Base
       Promoting::Brand.find_by_item(item).each do |advertiser_id|
 
         # В ежедневную статистику
-        BrandLogger.track_purchase advertiser_id, recommended_by.present?
+        BrandLogger.track_purchase advertiser_id, order.shop_id, recommended_by
 
         # В продажи бренда
         AdvertiserPurchase.create order_id: order.id, item_id: item.id, shop_id: order.shop_id, advertiser_id: advertiser_id, date: Date.current, price: (item.price || 0), recommended_by: recommended_by
