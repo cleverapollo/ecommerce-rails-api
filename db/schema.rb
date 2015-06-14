@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150611091306) do
+ActiveRecord::Schema.define(version: 20150614072323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -109,7 +109,19 @@ ActiveRecord::Schema.define(version: 20150611091306) do
     t.integer  "original_clicks",       default: 0,   null: false
   end
 
-  add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", using: :btree
+  add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", unique: true, using: :btree
+
+  create_table "advertiser_statistics_events", force: :cascade do |t|
+    t.integer  "advertiser_statistic_id",                 null: false
+    t.integer  "advertiser_shop_id",                      null: false
+    t.string   "recommender"
+    t.string   "event",                                   null: false
+    t.boolean  "recommended",             default: false, null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  add_index "advertiser_statistics_events", ["advertiser_statistic_id"], name: "index_advertiser_statistics_events_on_advertiser_statistic_id", using: :btree
 
   create_table "advertisers", force: :cascade do |t|
     t.string   "email"

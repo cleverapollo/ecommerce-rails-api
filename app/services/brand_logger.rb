@@ -5,12 +5,21 @@ class BrandLogger
 
     # Записать в статистику информацию о показе за сегодняшнюю дату
     # Либо создает новую запись, если не было за сегодня, либо обновляет существующую
-    # @param advertiser_id Integer
-    # @param shop_id Integer
-    def track_view(advertiser_id, shop_id)
+    # @param advertiser_id [Integer]
+    # @param shop_id [Integer]
+    # @param recommender [String] Код рекомендера
+    def track_view(advertiser_id, shop_id, recommender)
       row = get_statistics_row advertiser_id, Date.current
       row.update views: (row.views + 1)
-      AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).update_all last_event_at: Time.current
+      advertiser_shops = AdvertiserShop.where(advertiser_id: advertiser_id).where(shop_id: shop_id).limit(1) # limit для ускорения, чтобы всю базу не копать
+      advertiser_shops.update_all last_event_at: Time.current
+      advertiser_shops.each do |advertiser_shop|
+        AdvertiserStatisticsEvent.create advertiser_shop_id: advertiser_shop.id,
+            advertiser_statistic_id: row.id,
+            event: 'view',
+            recommended: true,
+            recommender: recommender
+      end
     end
 
 

@@ -10,17 +10,19 @@ describe BrandLogger do
     it 'creates statistics row on first view and updates it on next view' do
       expect(AdvertiserStatistic.count).to eq(0)
 
-      BrandLogger.track_view advertiser.id, shop.id
+      BrandLogger.track_view advertiser.id, shop.id, 'popular'
       expect(AdvertiserStatistic.count).to eq(1)
       expect(AdvertiserStatistic.first.views).to eq(1)
       advertiser_shop.reload
       expect(advertiser_shop.last_event_at).to_not be_nil
+      expect(advertiser_shop.advertiser_statistics_events.count).to eq(1)
 
-      BrandLogger.track_view advertiser.id, shop.id
+      BrandLogger.track_view advertiser.id, shop.id, 'interesting'
       expect(AdvertiserStatistic.count).to eq(1)
       expect(AdvertiserStatistic.first.views).to eq(2)
       advertiser_shop.reload
       expect(advertiser_shop.last_event_at).to_not be_nil
+      expect(advertiser_shop.advertiser_statistics_events.count).to eq(2)
     end
 
 
