@@ -1,6 +1,6 @@
 module Recommender
   module Impl
-    class Experiment < Recommender::Impl::Similar
+    class Experiment < Recommender::Impl::Interesting
 
     end
   end

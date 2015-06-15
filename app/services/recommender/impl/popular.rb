@@ -11,9 +11,13 @@ module Recommender
       end
 
       def inject_promotions(result)
-        # Промо только в категориях товара выдачи
-        @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
-        super(result)
+        if categories.try(:any?)
+          # Промо только в категориях товара выдачи
+          @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+          super(result)
+        else
+          result
+        end
       end
 
       def items_to_weight
