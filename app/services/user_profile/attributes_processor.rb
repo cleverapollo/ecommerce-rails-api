@@ -14,13 +14,12 @@ module UserProfile
 
       # Проверяем на наличие email
       if attributes['email'].present?
-        # И сохраняем
-        client = shop.clients.find_or_create_by!(user_id: user.id)
-
         if email = IncomingDataTranslator.email(attributes['email'])
+          # И сохраняем
+          client = shop.clients.find_or_create_by!(user_id: user.id)
           client.email = email
+          client.save
         end
-        client.save
       end
 
     end
