@@ -47,6 +47,8 @@ module Recommender
 
           if promoted_item_id.present?
             result_ids.insert(promotions_placed, promoted_item_id)
+            # удаляем последний элемент, для созранения лимита
+            result_ids.pop
             promotions_placed += 1
           end
         end
