@@ -12,12 +12,21 @@ class YmlWorker
   attr_reader :shop, :yml
 
   class << self
+
     # Обработать все магазины с YML файлами.
     def process_all
       Shop.active.connected.with_yml.find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
+
+    # Обработать приоритетные магазины
+    def process_priority
+      Shop.active.connected.with_yml.where(id: [356]).find_each do |shop|
+        YmlWorker.perform_async(shop.id)
+      end
+    end
+
   end
 
   def perform(shop_id)
