@@ -33,16 +33,6 @@ class Session < ActiveRecord::Base
           session = create_with_code_and_user(params)
         end
 
-        # Проверяем на наличие email
-        if params[:email].present?
-          if email = IncomingDataTranslator.email(params[:email])
-            # И сохраняем
-            client = session.shop.clients.find_or_create_by!(user_id: session.user.id)
-            client.email = email
-            client.save
-          end
-        end
-
         session
       end
     end
