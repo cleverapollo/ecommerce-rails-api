@@ -74,11 +74,6 @@ module Recommender
         result
       end
 
-      # Выключаем промо
-      def inject_promotions(result)
-        result
-      end
-
 
       def price_range
         (item.price * PRICE_DOWN).to_i..(item.price * PRICE_UP).to_i
