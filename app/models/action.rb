@@ -70,11 +70,12 @@ class Action < ActiveRecord::Base
     set_recommended_by(params.recommended_by) if params.recommended_by.present?
 
     begin
+      # В Махаут сохраняются действия с рейтингом больше корзины
+      save_to_mahout if self.rating >= Actions::RemoveFromCart::RATING
+
       save
       # Коллбек после обработки действия
       post_process
-      # В Махаут сохраняются действия с рейтингом больше корзины
-      save_to_mahout if self.rating >= Actions::RemoveFromCart::RATING
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
