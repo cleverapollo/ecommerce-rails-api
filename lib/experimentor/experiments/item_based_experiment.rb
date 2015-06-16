@@ -33,17 +33,17 @@ module Experimentor
 
           create_action(local_shop, user[i*3], item[i*2])
           create_action(local_shop, user[i*3], item[i*4])
-          create_action(local_shop, user[i*3], item[i*7])
+          create_action(local_shop, user[i*3], item[i*7], 'purchase', nil)
           create_action(local_shop, user[i*3], item[i*8])
 
           create_action(local_shop, user[i*3], item[i])
           create_action(local_shop, user[i*3], item[i*3])
-          create_action(local_shop, user[i*3], item[i*9])
-          create_action(local_shop, user[i*3], item[i*6])
+          create_action(local_shop, user[i*3], item[i*9], 'purchase', nil)
+          create_action(local_shop, user[i*3], item[i*6], 'cart', nil)
 
           create_action(local_shop, user[i*4], item[i*6])
-          create_action(local_shop, user[i*4], item[i*5])
-          create_action(local_shop, user[i*4], item[i])
+          create_action(local_shop, user[i*4], item[i*5], 'purchase', nil)
+          create_action(local_shop, user[i*4], item[i], 'cart', nil)
           create_action(local_shop, user[i*4], item[i*2])
         end
 
