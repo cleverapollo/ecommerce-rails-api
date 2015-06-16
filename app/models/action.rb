@@ -106,13 +106,13 @@ class Action < ActiveRecord::Base
   end
 
   def save_to_mahout
-     mahout_service = MahoutService.new
-     mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
-    # action = MahoutAction.find_or_create_by(user_id: user.id,
-    #                                         item_id: item.id,
-    #                                         shop_id: shop.id)
-    # action.update(preference: self.rating) if action.preference.to_f < self.rating
-    # rescue ActiveRecord::RecordNotUnique => e
+     # mahout_service = MahoutService.new
+     # mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
+    action = MahoutAction.find_or_create_by(user_id: user.id,
+                                            item_id: item.id,
+                                            shop_id: shop.id)
+    action.update(preference: self.rating) if action.preference.to_f < self.rating
+    rescue ActiveRecord::RecordNotUnique => e
   end
 
   def recalculate_purchase_count_and_date!
