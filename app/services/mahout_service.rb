@@ -64,7 +64,7 @@ class MahoutService
   def set_preference(shop_id, user_id, item_id, rating)
     unless Rails.env.test?
       if tunnel_active? && rating.to_f>0.0
-        tunnel.set_preference_block(shop_id, {user_id:user_id, item_id:item_id, rating:rating})
+        tunnel.set_preference(shop_id, {user_id:user_id, item_id:item_id, rating:rating})
       end
     end
   end
