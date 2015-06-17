@@ -14,7 +14,6 @@ module Recommender
                                          weight: items_to_weight,
                                          limit: LIMIT_CF_ITEMS)
         ms.close
-
         #  ориентироваться на оценку, выданную махаутом.
         cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f * RATING_MULTIPLY]}.to_h
       end
