@@ -1,13 +1,19 @@
 class MahoutService
-  BRB_ADDRESS = 'brb://localhost:5555'
+  BRB_ADDRESS = 'localhost:5555'
 
   attr_reader :tunnel
+
+  def initialize(brb_adress = nil)
+    @brb_address = brb_adress
+    @brb_address ||= BRB_ADDRESS
+    @brb_address = 'brb://'+@brb_address
+  end
 
   def open
     unless Rails.env.test?
       begin
         Timeout::timeout(2) {
-          @tunnel = BrB::Tunnel.create(nil, BRB_ADDRESS)
+          @tunnel = BrB::Tunnel.create(nil, @brb_address)
         }
       rescue Timeout::Error => e
         retry

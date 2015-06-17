@@ -108,7 +108,7 @@ class Action < ActiveRecord::Base
 
   def save_to_mahout
 
-     mahout_service = MahoutService.new
+     mahout_service = MahoutService.new(shop.brb_address)
      mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
     # action = MahoutAction.find_or_create_by(user_id: user.id,
     #                                         item_id: item.id,

@@ -8,7 +8,7 @@ module Recommender
     def cf_weight(items_to_weight)
       cf_weighted = {}
       if items_to_weight.any? && params.user
-        ms = MahoutService.new
+        ms = MahoutService.new(shop.brb_address)
         ms.open
         cf_result = ms.item_based_weight(params.user.id,
                                          weight: items_to_weight,

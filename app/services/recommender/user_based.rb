@@ -23,7 +23,7 @@ module Recommender
     end
 
     def recommended_ids
-      ms = MahoutService.new
+      ms = MahoutService.new(shop.brb_address)
       ms.open
 
       result = if ms.tunnel && ms.tunnel.active?
