@@ -47,7 +47,7 @@ class Order < ActiveRecord::Base
                             recommended_value: values[:recommended_value],
                             value: values[:value],
                             recommended: (values[:recommended_value] > 0),
-                            ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).first.try(:ab_testing_group),
+                            ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
                             source: source)
 
       # Сохраняем позиции заказа

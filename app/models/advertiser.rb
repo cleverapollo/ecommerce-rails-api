@@ -22,19 +22,22 @@ class Advertiser < ActiveRecord::Base
 
 
   def first_in_selection(item_ids)
-    Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).order(:sales_rate).first.try(:id)
+    Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).order(:sales_rate).limit(1)[0].try(:id)
   end
 
   def first_in_categories(shop_id, categories, excluded_ids=[])
-    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).order(:sales_rate).first.try(:id)
+    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil)
+        .order(:sales_rate).limit(1)[0].try(:id)
   end
 
   def get_from_categories(shop_id, categories, excluded_ids=[], limit=8)
-    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).order(:sales_rate).limit(limit).pluck(:id)
+    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil)
+        .order(:sales_rate).limit(limit).pluck(:id)
   end
 
   def first_in_shop(shop_id, excluded_ids=[])
-    Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil).order(:sales_rate).first.try(:id)
+    Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil)
+        .order(:sales_rate).limit(1)[0].try(:id)
   end
 
   # Активна ли рекламная кампания?
