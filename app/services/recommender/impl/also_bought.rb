@@ -24,6 +24,18 @@ module Recommender
           ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
+        # if ids.size<limit
+        #   # Добираем по просмотрам
+        #   # Получим пользователей, которые просматривали данный товар за последнюю неделю
+        #   users = Action.select(:user_id).where(shop_id:shop.id)
+        #               .where(item_id:items_which_cart_to_analyze).where('timestamp > ?', 7.days.ago.to_i)
+        #               .where('view_count > 1').group(:user_id).limit(limit-ids.size)
+        #
+        #
+        #
+        #
+        # end
+
         sr_weight(ids)
       end
 

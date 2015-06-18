@@ -6,6 +6,7 @@ module Recommender
 
     # Доступные модификации отраслевых алгоритмов
     MODIFICATIONS = %w(fashion child fmcg)
+    RANDOM_LIMIT_MULTIPLY = 3
 
     # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
@@ -142,9 +143,10 @@ module Recommender
         relation = items_in_shop.in_categories(categories, any:true)
       end
 
-      additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).order('RANDOM()').limit(limit - given_ids.count)
+      # Не использовать order RANDOM()
+      additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).limit(RANDOM_LIMIT_MULTIPLY * limit).pluck(:id)
 
-      given_ids + additional_ids.pluck(:id)
+      given_ids + additional_ids.sample(limit - given_ids.count)
     end
 
     # Товары, доступные к рекомендациям - переопределяется в реализациях

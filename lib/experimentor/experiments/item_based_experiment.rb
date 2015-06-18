@@ -3,7 +3,7 @@ module Experimentor
     class ItemBasedExperiment < Experiments::Base
       def populate
         clear_all
-        local_shop = create(:shop)
+        local_shop = Shop.find_by(name:'Megashop')
 
         100.times do |i|
           create(:user)
