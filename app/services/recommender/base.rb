@@ -5,7 +5,7 @@ module Recommender
   class Base
 
     # Доступные модификации отраслевых алгоритмов
-    MODIFICATIONS = %w(fashion child fmcg)
+    MODIFICATIONS = %w(fashion child fmcg coupon)
     RANDOM_LIMIT_MULTIPLY = 3
 
     # Массив реализаций рекомендеров

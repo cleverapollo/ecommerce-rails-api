@@ -22,7 +22,7 @@ module Recommender
 
         # Исключаем товары, которые в этой же категории
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
-        if ids.any?
+        if ids.any? && item.categories
           _ids = []
           Item.where(id: ids).pluck(:id, :categories).each do |_element|
             if (item.categories & _element[1]).empty?
@@ -37,17 +37,19 @@ module Recommender
           ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
-         if ids.size<limit
-           # Добираем по просмотрам
-           # Получим пользователей, которые просматривали данный товар за последнюю неделю
-           users = Action.select(:user_id).where(shop_id:shop.id)
-                       .where(item_id:items_which_cart_to_analyze).where('timestamp > ?', 7.days.ago.to_i)
-                       .where('view_count > 1').group(:user_id).limit(limit).pluck(:user_id)
+        # Для купонных сервисов, где товары покупают по одному, добавляем по просмотрам
+        if params.modification == 'coupon'
+          if ids.size < limit
+            # Добираем по просмотрам
+            # Получим пользователей, которые просматривали данный товар за последнюю неделю
+            users = Action.select(:user_id).where(shop_id: shop.id)
+                        .where(item_id: items_which_cart_to_analyze).where('timestamp > ?', 7.days.ago.to_i)
+                        .where('view_count > 1').group(:user_id).limit(limit).pluck(:user_id)
 
-           # Получим товары, которые данные пользователи смотрели
-           ids += Action.where(user_id:users).limit(limit-ids.size).pluck(:item_id)
-
-         end
+            # Получим товары, которые данные пользователи смотрели
+            ids += Action.where(user_id: users).limit(limit-ids.size).pluck(:item_id)
+          end
+        end
 
         sr_weight(ids)
       end
