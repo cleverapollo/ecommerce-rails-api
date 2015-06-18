@@ -19,7 +19,7 @@ module TriggerMailings
 
       def condition_happened?
         # Находим товар, который был положен в корзину в нужном периоде, но не был из нее удален или куплен
-        if action = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).first
+        if action = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(1)[0]
           @happened_at = action.cart_date
           @source_item = action.item
         end

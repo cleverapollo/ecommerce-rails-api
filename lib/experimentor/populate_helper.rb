@@ -49,9 +49,7 @@ module Experimentor
     def clear_all
       clear_model(Item)
       clear_model(User)
-      clear_model(MahoutAction)
       clear_model(Action)
-      clear_model(Shop)
       clear_model(ItemCategory)
     end
   end
