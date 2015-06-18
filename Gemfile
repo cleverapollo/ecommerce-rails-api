@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.1.1'
+ruby '2.2.1'
 
 # Rails
 gem 'rails', '4.2.0'
@@ -57,7 +57,7 @@ end
 # Rspec
 group :development, :test do
   gem 'timecop', '~> 0.7.1' # Изменяет в тестах текущее время
-  gem 'jazz_hands', '~> 0.5.2' # Консоль
+  gem 'jazz_hands', github: 'nixme/jazz_hands', branch: 'bring-your-own-debugger' # Консоль
   gem 'rspec-rails', '~> 3.1.0'
   gem 'guard-rspec', '~> 4.5.0', require: false # Следит за состояние файлов и запускает тесты при изменении файла
 end

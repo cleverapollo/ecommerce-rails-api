@@ -4,7 +4,7 @@ ssh_options[:port] = 21212
 
 set :application, 'rees46_api'
 
-set :rvm_ruby_string, "2.1.1"
+set :rvm_ruby_string, "2.2.1"
 
 # Deploy configuration
 set :user, 'rails'
@@ -22,11 +22,11 @@ set :ssh_options, forward_agent: true
 set :keep_releases, 5
 
 # Deploy configuration
-set :domain_name, '85.25.204.181'
+set :domain_name, '5.45.118.36'
 server domain_name, :web, :app, :db, primary: true, port: 21212
 
 set :deploy_to, "/home/rails/#{application}"
-set :branch, 'master'
+set :branch, 'new_server'
 set :rails_env, 'production'
 
 set :normalize_asset_timestamps, false
