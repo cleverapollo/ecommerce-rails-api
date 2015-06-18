@@ -14,23 +14,23 @@ module Recommender
 
         result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 100)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
-        # result = result.joins(:item).merge(items_to_recommend)
         result = result.joins(:item).merge(items_to_recommend)
+        # result = result.joins(:item)
         result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
         ids = result.pluck(:item_id)
 
         # Исключаем товары, которые находятся ровно в том же наборе категорий
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
-        # if ids.any? && item.categories
-        #   _ids = []
-        #   Item.recommendable.where(id: ids).pluck(:id, :categories).each do |_element|
-        #     unless (item.categories - _element[1]).empty?
-        #       _ids << _element[0]
-        #     end
-        #   end
-        #   ids = _ids
-        # end
+        if ids.any? && item.categories
+          _ids = []
+          Item.recommendable.where(id: ids).pluck(:id, :categories).each do |_element|
+            unless (item.categories - _element[1]).empty?
+              _ids << _element[0]
+            end
+          end
+          ids = _ids
+        end
 
         # Рекомендации аксессуаров
         if categories.present? && ids.size < limit
