@@ -12,9 +12,10 @@ module Recommender
       def items_to_weight
         return [] if items_which_cart_to_analyze.none?
 
-        result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 10)', items_which_cart_to_analyze)
+        result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 100)', items_which_cart_to_analyze)
         result = result.where.not(item_id: excluded_items_ids)
-        result = result.joins(:item).merge(items_to_recommend)
+        # result = result.joins(:item).merge(items_to_recommend)
+        result = result.joins(:item)
         result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
         ids = result.pluck(:item_id)
