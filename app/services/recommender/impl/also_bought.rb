@@ -20,12 +20,12 @@ module Recommender
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
         ids = result.pluck(:item_id)
 
-        # Исключаем товары, которые в этой же категории
+        # Исключаем товары, которые находятся ровно в том же наборе категорий
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
         if ids.any? && item.categories
           _ids = []
-          Item.where(id: ids).pluck(:id, :categories).each do |_element|
-            if (item.categories & _element[1]).empty?
+          Item.recommendable.where(id: ids).pluck(:id, :categories).each do |_element|
+            unless (item.categories - _element[1]).empty?
               _ids << _element[0]
             end
           end
