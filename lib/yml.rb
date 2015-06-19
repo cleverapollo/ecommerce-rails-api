@@ -10,15 +10,12 @@ class Yml
     delete(file_name) if exists?(file_name)
     if responds?
       download
-
-      if gzip_archive?
-        ungzip
+      gzip_archive? ? ungzip : File.rename(file_name, file_name_xml)
+      if is_xml?
+        yield file
       else
-        File.rename(file_name, file_name_xml)
+        ErrorsMailer.yml_import_error('goko.gorgiovski@mkechinov.ru', @shop).deliver_now
       end
-
-      yield file if is_xml?
-
       delete(file_name_xml)
       delete(file_name)
     else
