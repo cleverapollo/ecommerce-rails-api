@@ -44,7 +44,7 @@ class YmlItem
   end
 
   def url
-    StringHelper.encode_and_truncate(@content['url'], 1000)
+    StringHelper.encode_and_truncate(@content['url'], 2000)
   end
 
   def brand
@@ -67,7 +67,7 @@ class YmlItem
   def image_url
     picture_attribute = @content['picture']
     picture_attribute = picture_attribute.first if picture_attribute.is_a? Array
-    StringHelper.encode_and_truncate(picture_attribute, 1000)
+    StringHelper.encode_and_truncate(picture_attribute, 2000)
   end
 
   def is_available
