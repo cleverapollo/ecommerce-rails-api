@@ -5,7 +5,7 @@ class MahoutService
 
   def initialize(brb_adress = nil)
     @brb_address = brb_adress
-    @brb_address ||= BRB_ADDRESS
+    @brb_address = BRB_ADDRESS if brb_adress.nil? || brb_adress.empty?
     @brb_address = 'brb://'+@brb_address
   end
 
@@ -51,13 +51,13 @@ class MahoutService
     end
   end
 
-  def item_based_weight(user_id, options)
+  def item_based_weight(user_id, shop_id, options)
     unless Rails.env.test?
       preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
       options.merge!(preferences: preferences)
       res = nil
       if tunnel_active? && preferences.any?
-        res = tunnel.item_based_block(user_id, options)
+        res = tunnel.item_based_block(shop_id, options)
       else
         res = options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
       end

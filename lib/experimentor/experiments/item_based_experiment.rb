@@ -21,6 +21,7 @@ module Experimentor
         ItemCategory.create!(shop_id:local_shop.id,name:'Все остальное', external_id:'2')
 
         10.times do |i|
+          ap "create action #{i}"
           create_action(local_shop, user[i], item[i])
           create_action(local_shop, user[i], item[i*2])
           create_action(local_shop, user[i], item[i*3], 'purchase', nil)
