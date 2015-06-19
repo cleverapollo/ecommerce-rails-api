@@ -6,43 +6,49 @@ class Yml
   end
 
   def get
+    delete(file_name_xml) if exists?(file_name_xml)
     delete(file_name) if exists?(file_name)
-    delete(file_name_gz) if exists?(file_name_gz)
     if responds?
-      if MIME::Types.type_for(@shop.yml_file_url).first.content_type == 'application/x-gzip'
-        download(file_name_gz)
-        ungzip
+      download
+      gzip_archive? ? ungzip : File.rename(file_name, file_name_xml)
+      if is_xml?
         yield file
-        delete(file_name)
-        delete(file_name_gz)
       else
-        download(file_name)
-        yield file
-        delete(file_name)
+        ErrorsMailer.yml_import_error('goko.gorgiovski@mkechinov.ru', @shop).deliver_now
       end
+      delete(file_name_xml)
+      delete(file_name)
     else
       raise NotRespondingError
     end
+  end
+
+  def gzip_archive?
+    File.open(file_name, 'rb').read(2).unpack("S").first == 35615
+  end
+
+  def is_xml?
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188
   end
 
   def responds?
     Curl.responds?(@shop.yml_file_url)
   end
 
-  def file_name
+  def file_name_xml
     "#{Rails.root}/tmp/ymls/#{@shop.id}_yml.xml"
   end
 
-  def file_name_gz
-    "#{Rails.root}/tmp/ymls/#{@shop.id}_yml.xml.gz"
+  def file_name
+    "#{Rails.root}/tmp/ymls/#{@shop.id}_yml"
   end
 
   def file
-    File.open(file_name, 'rb')
+    File.open(file_name_xml, 'rb')
   end
 
-  def download(input_file_name)
-    Curl.download(@shop.yml_file_url, to: input_file_name)
+  def download
+    Curl.download(@shop.yml_file_url, to: file_name)
   end
 
   def delete(input_file_name)
@@ -54,9 +60,8 @@ class Yml
   end
 
   def ungzip
-    Zlib::GzipReader.open(file_name_gz) do |gz|
-      binding.pry if Rails.env.development?
-      File.open(file_name, "wb") do |g|
+    Zlib::GzipReader.open(file_name) do |gz|
+      File.open(file_name_xml, "wb") do |g|
         IO.copy_stream(gz, g)
       end
     end

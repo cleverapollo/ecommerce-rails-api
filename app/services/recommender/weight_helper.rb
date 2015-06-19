@@ -10,7 +10,7 @@ module Recommender
       if items_to_weight.any? && params.user
         ms = MahoutService.new(shop.brb_address)
         ms.open
-        cf_result = ms.item_based_weight(params.user.id,
+        cf_result = ms.item_based_weight(params.user.id, shop.id,
                                          weight: items_to_weight,
                                          limit: LIMIT_CF_ITEMS)
         ms.close
