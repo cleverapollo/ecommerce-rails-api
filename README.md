@@ -20,8 +20,8 @@ Back-end для приема событий и выдачи рекомендац
 3. Импорты. Заказы, товары, yandex market file.
 
 ### Внешние зависимости
-* ruby-2.1.1
-* PostgreSQL 9.3+
+* ruby-2.2.1
+* PostgreSQL 9.4+
 * Redis
 * https://bitbucket.org/mkechinov/rees46_brb
 
