@@ -1,4 +1,4 @@
-# require 'whenever/capistrano'
+require 'whenever/capistrano'
 
 ssh_options[:port] = 21212
 
