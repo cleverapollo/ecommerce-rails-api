@@ -5,6 +5,7 @@ class Yml
     @shop = shop
   end
 
+
   def get
     delete(file_name_xml) if exists?(file_name_xml)
     delete(file_name) if exists?(file_name)
@@ -28,7 +29,9 @@ class Yml
   end
 
   def is_xml?
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188 ||
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 26684 ||
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111
   end
 
   def responds?

@@ -158,12 +158,12 @@ module ActionPush
 
           item_attributes.url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i], 1000) : nil
           if item_attributes.url.present? && !item_attributes.url.include?('://')
-            item_attributes.url = shop.url + item_attributes.url
+            item_attributes.url = correct_url_joiner(shop.url, item_attributes.url)
           end
 
           item_attributes.image_url = raw[:image_url][i] ? StringHelper.encode_and_truncate(raw[:image_url][i], 1000) : ''
           if item_attributes.image_url.present? && !item_attributes.image_url.include?('://')
-            item_attributes.image_url = shop.url + item_attributes.image_url
+            item_attributes.image_url = correct_url_joiner(shop.url, item_attributes.image_url)
           end
         end
 
@@ -183,6 +183,18 @@ module ActionPush
       end
     rescue JSON::ParserError => e
       raise ActionPush::IncorrectParams.new(e.message)
+    end
+
+    def correct_url_joiner(shop_url, uri)
+      url = ''
+      if shop_url.end_with?('/') && uri.start_with?('/')
+        url = shop_url[0...-1] + uri
+      elsif shop_url.end_with?('/') && !uri.start_with?('/') || !shop_url.end_with?('/') && uri.start_with?('/')
+        url = shop_url + uri
+      elsif !shop_url.end_with?('/') && !uri.start_with?('/')
+        url = shop_url + '/' + uri
+      end
+      url
     end
   end
 end
