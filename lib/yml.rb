@@ -5,6 +5,7 @@ class Yml
     @shop = shop
   end
 
+
   def get
     delete(file_name_xml) if exists?(file_name_xml)
     delete(file_name) if exists?(file_name)
