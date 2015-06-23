@@ -63,6 +63,26 @@ describe YmlWorker do
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
+    it 'gets correct name from typePrefix, vendor, model' do
+      existing_item = create(:item, uniqid: '4000', shop: shop)
+      subject
+
+      existing_item.reload
+      {
+          name: 'Smart Apple iPhone 6 128Gb'
+      }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+    end
+
+    it 'gets correct name from model' do
+      existing_item = create(:item, uniqid: '5000', shop: shop)
+      subject
+
+      existing_item.reload
+      {
+          name: 'iPhone 6 128Gb'
+      }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+    end
+
     it 'disables items that are absent in YMl' do
       absent_item = create(:item, shop: shop, uniqid: 'absent')
 

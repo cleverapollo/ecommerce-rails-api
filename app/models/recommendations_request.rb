@@ -16,7 +16,9 @@ class RecommendationsRequest < ActiveRecord::Base
       yield recommendations_request
       time_finish = Time.now
       recommendations_request.duration = time_finish - time_start
-      recommendations_request.save!
+      # MK: пока отключил запись запросов рекомендаций в БД, чтобы база не распухала.
+      # Удалить после 01.09.2015, если не включим обратно.
+      # recommendations_request.save!
     end
   end
 
