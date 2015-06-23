@@ -36,7 +36,13 @@ class YmlItem
   end
 
   def name
-    StringHelper.encode_and_truncate(@content['name'])
+    name = StringHelper.encode_and_truncate(@content['name'])
+    if name.nil? || name.empty?
+      # Формируем название
+      local_brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if @content['vendor'].present?
+      name = [type_prefix, local_brand, model].delete_if {|val| val.nil? || val.empty?}.join(' ')
+    end
+    name
   end
 
   def description

@@ -22,7 +22,7 @@ every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
 
-every 40.minutes do
+every 20.minutes do
   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
 end
 
