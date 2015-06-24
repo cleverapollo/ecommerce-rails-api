@@ -1,4 +1,4 @@
-# require 'whenever/capistrano'
+require 'whenever/capistrano'
 
 ssh_options[:port] = 21212
 
@@ -26,7 +26,7 @@ set :domain_name, '5.45.118.36'
 server domain_name, :web, :app, :db, primary: true, port: 21212
 
 set :deploy_to, "/home/rails/#{application}"
-set :branch, 'new_server'
+set :branch, 'master'
 set :rails_env, 'production'
 
 set :normalize_asset_timestamps, false
