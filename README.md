@@ -25,6 +25,7 @@ Back-end для приема событий и выдачи рекомендац
 * Redis
 * https://bitbucket.org/mkechinov/rees46_brb
 
+
 ### Развертывание
 ```
 $ bundle
