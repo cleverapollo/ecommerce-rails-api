@@ -37,6 +37,9 @@ gem 'dkim', '~> 1.0.0' # Ставит цифровые подписи
 gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает боунсы писем из bounced@rees46.com
 gem 'bounce_email', '~> 0.2.2', require: false # Определяет тип баунса
 
+# gzip
+gem 'libarchive-ruby', '0.0.3'
+
 # Development tools
 group :development do
   gem 'dotenv-rails', '~> 0.8.0' # ?
@@ -46,7 +49,7 @@ group :development do
 
   # Deploy
   gem 'capistrano', '~> 2.15.5'
-  gem 'rvm-capistrano', '~> 1.5.0'
+  gem 'rvm-capistrano', '~> 1.5.0',  require: false
   gem 'capistrano-sidekiq', '~> 0.5.2'
 
   # Preloader

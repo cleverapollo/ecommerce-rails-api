@@ -1,3 +1,4 @@
+require 'archive'
 class Yml
   class NotRespondingError < StandardError; end
 
@@ -62,10 +63,9 @@ class Yml
   end
 
   def ungzip
-    Zlib::GzipReader.open(file_name) do |gz|
-      File.open(file_name_xml, "wb") do |g|
-        IO.copy_stream(gz, g)
-      end
+    a = Archive.new(file_name)
+    File.open(file_name_xml, 'wb') do |xml|
+      xml.write(a.first[1])
     end
   end
 end
