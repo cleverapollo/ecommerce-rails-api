@@ -147,7 +147,6 @@ GEM
       addressable (~> 2.3)
     letter_opener (1.2.0)
       launchy (~> 2.2)
-    libarchive-ruby (0.0.3)
     listen (2.8.5)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
@@ -330,7 +329,6 @@ DEPENDENCIES
   httparty (~> 0.12.0)
   jazz_hands!
   letter_opener (~> 1.2.0)
-  libarchive-ruby (= 0.0.3)
   newrelic_rpm (~> 3.12.0)
   pg (~> 0.18.1)
   rack-utf8_sanitizer (~> 1.2.3)
