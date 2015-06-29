@@ -173,7 +173,7 @@ module ActionPush
             if value.is_a?(Array)
               value = value.map{|v| v.strip.mb_chars.downcase.to_s }
             else
-              value = value.strip.mb_chars.downcase.to_s
+              value = value.to_s.strip.mb_chars.downcase.to_s
             end
             item_attributes.custom_attributes[k] = value
           end
