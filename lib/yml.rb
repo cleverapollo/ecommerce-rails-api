@@ -8,6 +8,7 @@ class Yml
 
 
   def get
+    make_path!
     delete(file_name_xml) if exists?(file_name_xml)
     delete(file_name) if exists?(file_name)
     if responds?
@@ -38,12 +39,20 @@ class Yml
     Curl.responds?(@shop.yml_file_url)
   end
 
+  def directory_name
+    "#{Rails.root}/tmp/ymls/"
+  end
+
+  def make_path!
+    Dir.mkdir(directory_name) unless File.exists?(directory_name)
+  end
+
   def file_name_xml
-    "#{Rails.root}/tmp/ymls/#{@shop.id}_yml.xml"
+    directory_name + "#{@shop.id}_yml.xml"
   end
 
   def file_name
-    "#{Rails.root}/tmp/ymls/#{@shop.id}_yml"
+    directory_name + "#{@shop.id}_yml"
   end
 
   def file
