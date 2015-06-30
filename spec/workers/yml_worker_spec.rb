@@ -27,9 +27,8 @@ describe YmlWorker do
         vendor_code: 'APPL',
         model: 'iPhone 6 128Gb',
         gender: 'f',
-        wear_type: 'upper',
-        feature: 'pregnant',
-        sizes: ['e40', 'e42'],
+        wear_type: 'blazer',
+        sizes: ['40','38','44'],
 
       }.each{|attr, value| expect(new_item.public_send(attr)).to eq(value) }
     end

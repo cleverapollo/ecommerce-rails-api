@@ -8,8 +8,8 @@ module Recommender
       if params.modification.present?
         result = super
         if params.modification == 'fashion'
-          gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop, current_item: item)
-          result = result.by_ca(gender: gender)
+          #gender = SectoralAlgorythms::Wear::Gender.value_for(user, shop: shop, current_item: item)
+          #result = result.by_ca(gender: gender)
 
           # фильтрация по размерам одежды
           #if item && item.custom_attributes['sizes'].try(:first).try(:present?)

@@ -29,7 +29,7 @@ class YmlItem
   def categories
     if @content['categoryId'].instance_of?(Array)
       # преобразуем к простому списку категорий
-      @content['categoryId'].map {|category| @categories_resolver[category]}.flatten
+      @content['categoryId'].map { |category| @categories_resolver[category] }.flatten
     else
       @categories_resolver[@content['categoryId']]
     end
@@ -40,7 +40,7 @@ class YmlItem
     if name.nil? || name.empty?
       # Формируем название
       local_brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if @content['vendor'].present?
-      name = [type_prefix, local_brand, model].delete_if {|val| val.nil? || val.empty?}.join(' ')
+      name = [type_prefix, local_brand, model].delete_if { |val| val.nil? || val.empty? }.join(' ')
     end
     name
   end
@@ -126,7 +126,15 @@ class YmlItem
   end
 
   def sizes
-    @content['fashion']['sizes']['size'] if @content['fashion'].present? && @content['fashion']['sizes'].present?
+    # @content['fashion']['sizes']['size'] if @content['fashion'].present? && @content['fashion']['sizes'].present?
+    value = nil
+    if @content['fashion'].present? && @content['fashion']['sizes'].present?
+      value = []
+      @content['fashion']['sizes']['size'].each do |val|
+        value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+      end
+    end
+    value
   end
 
   # Delegate all unknown calls to new item object

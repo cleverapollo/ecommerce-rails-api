@@ -106,7 +106,7 @@ class Item < ActiveRecord::Base
         gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :gender)),
         wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :wear_type)),
         feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
-        sizes: ValuesHelper.with_contents(new_item, self, :sizes)
+        sizes: ValuesHelper.present_one(new_item, self, :sizes)
     }
 
     assign_attributes(attrs)

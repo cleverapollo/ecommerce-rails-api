@@ -1,23 +1,69 @@
+require 'matrix'
 ##
 # Расчет пола пользователя
 #
 module SectoralAlgorythms
   module Wear
-    class Gender
-      def self.calculate_for(user, params = {})
-        shop = params.fetch(:shop)
-        current_item = params[:current_item]
+    class Gender < SectoralAlgorythms::Base
+      K_VIEW = 1
+      K_PURCHASE = 10
+      MIN_VIEWS_SCORE = 10
 
-        if current_item.present? && current_item.custom_attributes['gender'].present?
-          return current_item.custom_attributes['gender']
-        end
-
-        results = { 'f' => 0, 'm' => 0 }
-        user.actions.includes(:item).map{|a| a.item.custom_attributes['gender'] }.select{|g| g.present? }
-                                                      .each{|g| results[g] += 1 if results[g].present? }
-        result = results.max_by{|_,v| v }.first
-        result
+      def initialize(user)
+        super
+        @gender = user.gender
       end
+
+      def value
+        return { m: @gender['m'], f: @gender['f'] }
+      end
+
+      def trigger_view(item)
+        increment_history(item, 'views')
+      end
+
+      def trigger_purchase(item)
+        increment_history(item, 'purchase')
+      end
+
+      def increment_history(item, history_key)
+        if item.try(:gender)
+          @gender['history'] ||= default_history
+          @gender['history'][item.gender][history_key] += 1 if @gender['history'][item.gender].present?
+        end
+      end
+
+      def recalculate
+        history = @gender['history']
+
+        if history
+          # Нормализуем
+          normalized_purchase = NormalizeHelper.normalize_or_flat([history['m']['purchase'], history['f']['purchase']])
+
+          # Минимальное значение просмотров - 10, чтобы избежать категоричных оценок новых пользователей
+          normalized_views = NormalizeHelper.normalize_or_flat([history['m']['views'], history['f']['views']], min_value:MIN_VIEWS_SCORE)
+
+          @gender['m']=normalized_views[0] * K_VIEW + normalized_purchase[0] * K_PURCHASE
+          @gender['f']=normalized_views[1] * K_VIEW + normalized_purchase[1] * K_PURCHASE
+
+          normalized_gender = NormalizeHelper.normalize_or_flat([@gender['m'], @gender['f']])
+
+          @gender['m']=(normalized_gender[0] * 100).to_i
+          @gender['f']=(normalized_gender[1] * 100).to_i
+        end
+      end
+
+      def attributes_for_update
+        { :gender => @gender }
+      end
+
+      private
+
+      def default_history
+        { 'm' => { 'views' => 0, 'purchase' => 0 }, 'f' => { 'views' => 0, 'purchase' => 0 } }
+      end
+
+
     end
   end
 end
