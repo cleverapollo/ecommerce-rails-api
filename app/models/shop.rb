@@ -106,6 +106,14 @@ class Shop < ActiveRecord::Base
     super || deactivated?
   end
 
+  def payment_ended?
+    connected && active && !manual && !plan_id.nil? && !paid_till.nil? && paid_till <= DateTime.current
+  end
+
+  def allow_industrial?
+    !payment_ended? && plan.plan_type == 'custom'
+  end
+
   def has_imported_yml?
     self.yml_loaded && self.last_valid_yml_file_loaded_at.present? && self.last_valid_yml_file_loaded_at >= 48.hours.ago
   end

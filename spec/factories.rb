@@ -40,6 +40,13 @@ FactoryGirl.define do
     restricted false
   end
 
+  factory :plan do
+    name 'Тариф'
+    plan_type 'free'
+    orders_min 0
+    orders_max 100
+  end
+
   factory :advertiser do
     first_name        { Faker::Lorem.word }
     last_name         { Faker::Lorem.word }

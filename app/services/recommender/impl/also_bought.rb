@@ -37,7 +37,7 @@ module Recommender
         end
 
         # Для купонных сервисов, где товары покупают по одному, добавляем по просмотрам
-        if params.modification == 'coupon'
+        if params.modification == 'coupon' && shop.allow_industrial?
           if ids.size < limit
             # Добираем по просмотрам
             # Получим пользователей, которые просматривали данный товар за последнюю неделю
