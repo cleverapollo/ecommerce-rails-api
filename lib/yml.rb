@@ -32,7 +32,8 @@ class Yml
 
   def is_xml?
     File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188 ||
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111 ||
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 26684
   end
 
   def responds?
