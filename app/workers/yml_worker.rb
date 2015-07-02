@@ -35,7 +35,6 @@ class YmlWorker
       @shop = Shop.find(shop_id)
       @yml = Yml.new(shop)
       process
-      mark_as_loaded
     rescue YmlWorker::Error => e
       raise e if Rails.env.test?
       if retried
@@ -71,6 +70,7 @@ class YmlWorker
             end
           end
         end
+        mark_as_loaded
         disable_remaining_in_cache
       end
     rescue Yml::NotRespondingError => e
