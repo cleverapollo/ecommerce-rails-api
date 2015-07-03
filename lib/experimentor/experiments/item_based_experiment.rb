@@ -24,7 +24,7 @@ module Experimentor
           ap "create action #{i}"
           create_action(local_shop, user[i], item[i])
           create_action(local_shop, user[i], item[i*2])
-          create_action(local_shop, user[i], item[i*3], 'purchase', nil)
+          create_action(local_shop, user[i], item[i*3])
           create_action(local_shop, user[i], item[i*4])
 
           create_action(local_shop, user[i*2], item[i*3])
