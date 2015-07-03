@@ -1,0 +1,18 @@
+defaults: &defaults
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: recuser
+  password: 111
+  host: localhost
+  timeout: 5000
+
+production:
+  api_db_00:
+    database: recommender_api_00
+    host: localhost
+    <<: *defaults
+  api_db_01:
+    database: recommender_api_01
+    host: localhost
+    <<: *defaults
