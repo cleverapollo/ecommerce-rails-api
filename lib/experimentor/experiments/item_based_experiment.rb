@@ -53,7 +53,6 @@ module Experimentor
 
       def iterate(iteration_params)
         recommender = Recommender::Impl::Experiment.new(iteration_params)
-        ap recommender.recommended_ids
         ap recommender.recommendations
       end
     end
