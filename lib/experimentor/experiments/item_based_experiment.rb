@@ -24,7 +24,7 @@ module Experimentor
           ap "create action #{i}"
           create_action(local_shop, user[i], item[i])
           create_action(local_shop, user[i], item[i*2])
-          create_action(local_shop, user[i], item[i*3], 'purchase', nil)
+          create_action(local_shop, user[i], item[i*3])
           create_action(local_shop, user[i], item[i*4])
 
           create_action(local_shop, user[i*2], item[i*3])
@@ -53,7 +53,6 @@ module Experimentor
 
       def iterate(iteration_params)
         recommender = Recommender::Impl::Experiment.new(iteration_params)
-        ap recommender.recommended_ids
         ap recommender.recommendations
       end
     end

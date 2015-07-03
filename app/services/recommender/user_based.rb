@@ -23,18 +23,22 @@ module Recommender
     end
 
     def recommended_ids
+
+      excluded_items = excluded_items_ids
+
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
       result = if ms.tunnel && ms.tunnel.active?
-        items_to_include = items_to_recommend
+        #items_to_include = items_to_recommend
 
         # Коллаборативка в контексте текущего товара - как будто пользователь этот товар уже купил
         r = ms.user_based(params.user.id,
                       params.shop.id,
                       params.item_id,
-                      include: items_to_include.pluck(:id),
-                      exclude: excluded_items_ids,
+                      #include: items_to_include.pluck(:id),
+                      include: [], # Махаут в курсе итемов
+                      exclude: excluded_items,
                       limit: params.limit)
 
         if r.none?
@@ -42,8 +46,9 @@ module Recommender
           r = ms.user_based(params.user.id,
                       params.shop.id,
                       nil,
-                      include: items_to_include.pluck(:id),
-                      exclude: excluded_items_ids,
+                      #include: items_to_include.pluck(:id),
+                      include: [], # Махаут в курсе итемов
+                      exclude: excluded_items,
                       limit: params.limit)
         end
 

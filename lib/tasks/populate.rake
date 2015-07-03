@@ -9,7 +9,7 @@ namespace :populate do
   desc 'Experiment task'
   task :experiment => :environment do
     ap 'Start experiment'
-    params = OpenStruct.new(shop: Shop.find_by(name:'Megashop'), user: User.find(1), limit: 7, type:'experiment')
+    params = OpenStruct.new(shop: Shop.find_by(name:'Megashop'), user: User.find(1), type:'experiment', limit:5, )
     experiment = Experimentor::Experiments::ItemBasedExperiment.new
     experiment.iterate(params)
   end
