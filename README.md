@@ -20,7 +20,7 @@ Back-end для приема событий и выдачи рекомендац
 3. Импорты. Заказы, товары, yandex market file.
 
 ### Внешние зависимости
-* ruby-2.2.1
+* ruby-2.2.2
 * PostgreSQL 9.4+
 * Redis
 * https://bitbucket.org/mkechinov/rees46_brb
@@ -37,3 +37,15 @@ $ foreman start
 ```
 $ bin/rspec
 ```
+
+### Структура БД
+
+Распределение таблиц по серверам БД:
+* Сайт
+** потом решим
+* API магазина
+** actions
+** clients
+** items
+** advertiser_item_categories - нет прямой связи с shop_id и редактируется на стороне магазина
+** advertiser_purchases - используется и на сайте и в API. Больше на сайте, поэтому подумать.

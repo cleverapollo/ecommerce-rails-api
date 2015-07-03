@@ -70,14 +70,6 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
   add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
 
-  create_table "advertiser_orders", force: :cascade do |t|
-    t.integer  "order_items_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
-  end
-
-  add_index "advertiser_orders", ["order_items_id"], name: "index_advertiser_orders_on_order_items_id", using: :btree
-
   create_table "advertiser_purchases", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.integer  "item_id"
