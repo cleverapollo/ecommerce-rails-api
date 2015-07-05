@@ -66,6 +66,7 @@ group :development, :test do
   gem 'jazz_hands', github: 'nixme/jazz_hands', branch: 'bring-your-own-debugger' # Консоль
   gem 'rspec-rails', '~> 3.1.0'
   gem 'guard-rspec', '~> 4.5.0', require: false # Следит за состояние файлов и запускает тесты при изменении файла
+  gem 'thin'
 end
 
 # Test tools

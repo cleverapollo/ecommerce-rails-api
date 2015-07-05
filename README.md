@@ -104,3 +104,6 @@ $ rake shards:rollback
 ```
 
 Чтобы это работало, кладете миграции как в каталог db/migrate, так и в каталог db/migrate/shards.
+
+Не забыть прописать последнюю актуальную версию миграции, чтобы не выполнялись все миграции из очереди
+ActiveRecord::Base.connection.assume_migrated_upto_version '20150703141624'
