@@ -1,4 +1,4 @@
-# require 'whenever/capistrano'
+require 'whenever/capistrano'
 
 set :stages, %w(production api_00)
 set :default_stage, "production"
@@ -23,9 +23,9 @@ set :keep_releases, 5
 set :normalize_asset_timestamps, false
 
 # Sidekiq
-# set :sidekiq_env, 'production'
-# set :sidekiq_options, '-C config/sidekiq.yml'
-# set :sidekiq_timeout, 300
+set :sidekiq_env, 'production'
+set :sidekiq_options, '-C config/sidekiq.yml'
+set :sidekiq_timeout, 300
 
 # Whenever
 set :whenever_identifier, defer { "#{application}_#{rails_env}" }
