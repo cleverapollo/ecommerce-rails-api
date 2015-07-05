@@ -2,6 +2,10 @@
 # Отправленное дайджестное письмо.
 #
 class DigestMail < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   belongs_to :client
   belongs_to :shop
   belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'

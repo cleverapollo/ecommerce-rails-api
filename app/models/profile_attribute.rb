@@ -2,6 +2,10 @@
 # Аттрибут профиля пользователя
 #
 class ProfileAttribute < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   belongs_to :shop
   belongs_to :user
 

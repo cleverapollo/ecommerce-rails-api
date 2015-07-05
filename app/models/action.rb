@@ -3,6 +3,7 @@
 # Конкретные действия наследуются от этого класса
 #
 class Action < ActiveRecord::Base
+
   belongs_to :user
   belongs_to :item
   belongs_to :shop

@@ -3,7 +3,6 @@
 #
 class Item < ActiveRecord::Base
 
-  establish_connection API_DB_00 if !Rails.env.test?
 
   attr_accessor :amount, :action_id, :mail_recommended_by
 

@@ -2,6 +2,9 @@
 # Пользователь.
 #
 class User < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
   include Redis::Objects
 
   has_many :clients

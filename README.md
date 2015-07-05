@@ -40,10 +40,43 @@ $ bin/rspec
 
 ### Структура шардов
 
-Эти таблицы лежат также в шардах:
+Эти таблицы лежат в шардах:
 ** actions
-** clients
 ** items
+
+Обязательные операции, которые должны быть выполнены на базе API:
+
+```
+CREATE OR REPLACE FUNCTION uuid_generate_v4()
+  RETURNS uuid AS
+'$libdir/uuid-ossp', 'uuid_generate_v4'
+  LANGUAGE c VOLATILE STRICT
+  COST 1;
+  
+CREATE OR REPLACE FUNCTION generate_next_item_id(OUT result bigint) AS $$
+      DECLARE
+      our_epoch bigint := 1314220021721;
+      seq_id bigint;
+      now_millis bigint;
+      shard_id int := 5;
+      BEGIN
+        SELECT nextval('items_id_seq')::BIGINT % 1024 INTO seq_id;
+        SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO now_millis;
+        result := (now_millis - our_epoch) << 23;
+        result := result | (shard_id << 10);
+        result := result | (seq_id);
+        END;
+        $$ LANGUAGE PLPGSQL;
+        
+ALTER TABLE items ALTER COLUMN id TYPE BIGINT;
+ALTER TABLE items ALTER COLUMN id SET DEFAULT generate_next_item_id();
+ALTER TABLE items ALTER COLUMN id SET NOT NULL;
+
+```
+
+
+
+>> Дальнейшее пока не актуально
 
 Но, чтобы работала schema.rb и тесты, нужно делать обычные миграции, которые будут создавать структуру таблиц в основной базе, и мигратор для шардов, который будет менять таблицы товаров с данными в шардовых базах.
 

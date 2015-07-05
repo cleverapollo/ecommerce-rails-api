@@ -3,6 +3,10 @@
 # В некоторых случаях объект User может отсутствовать.
 #
 class Client < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   belongs_to :shop
   belongs_to :user
   has_many :trigger_mails

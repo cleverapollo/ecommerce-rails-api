@@ -2,6 +2,10 @@
 # Сессия.
 #
 class Session < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   include UserLinkable
 
   validates :code, presence: true

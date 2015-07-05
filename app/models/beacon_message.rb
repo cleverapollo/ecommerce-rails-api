@@ -2,6 +2,10 @@
 # Сообщение от iBeacon
 #
 class BeaconMessage < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   belongs_to :shop
   belongs_to :user
   belongs_to :session

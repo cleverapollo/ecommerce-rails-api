@@ -2,6 +2,10 @@
 # Магазин
 #
 class Shop < ActiveRecord::Base
+
+  establish_connection MASTER_DB if !Rails.env.test?
+
+
   include Redis::Objects
 
   # Кол-во пользователей в тестовых группах
