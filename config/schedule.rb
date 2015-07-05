@@ -1,5 +1,6 @@
+# encoding: UTF-8
 # Каждую полночь выключаем товары со "сроком годности"
-every '0 0 * * * ' do
+every '0 0 * * *' do
   runner "RunnerWrapper.run('Item.disable_expired')"
 end
 

@@ -1,3 +1,6 @@
+LANG="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
+
 source 'https://rubygems.org'
 ruby '2.2.1'
 
