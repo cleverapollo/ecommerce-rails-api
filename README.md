@@ -68,9 +68,27 @@ CREATE OR REPLACE FUNCTION generate_next_item_id(OUT result bigint) AS $$
         END;
         $$ LANGUAGE PLPGSQL;
         
+CREATE OR REPLACE FUNCTION generate_next_action_id(OUT result bigint) AS $$
+      DECLARE
+      our_epoch bigint := 1314220021721;
+      seq_id bigint;
+      now_millis bigint;
+      shard_id int := 5;
+      BEGIN
+        SELECT nextval('actions_id_seq')::BIGINT % 1024 INTO seq_id;
+        SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO now_millis;
+        result := (now_millis - our_epoch) << 23;
+        result := result | (shard_id << 10);
+        result := result | (seq_id);
+        END;
+        $$ LANGUAGE PLPGSQL;
+        
 ALTER TABLE items ALTER COLUMN id TYPE BIGINT;
 ALTER TABLE items ALTER COLUMN id SET DEFAULT generate_next_item_id();
 ALTER TABLE items ALTER COLUMN id SET NOT NULL;
+ALTER TABLE actions ALTER COLUMN id TYPE BIGINT;
+ALTER TABLE actions ALTER COLUMN id SET DEFAULT generate_next_action_id();
+ALTER TABLE actions ALTER COLUMN id SET NOT NULL;
 
 ```
 
