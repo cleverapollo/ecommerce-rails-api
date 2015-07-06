@@ -51,9 +51,13 @@ group :development do
   gem 'letter_opener', '~> 1.2.0'
 
   # Deploy
-  gem 'capistrano', '~> 2.15.5'
-  gem 'rvm-capistrano', '~> 1.5.0',  require: false
-  gem 'capistrano-sidekiq', '~> 0.5.2'
+  gem 'capistrano', '~> 3.4.0'
+  gem 'rvm-capistrano'
+  gem 'capistrano-rvm'
+  gem 'capistrano-rails'
+  gem 'capistrano-bundler'
+  gem 'capistrano-sidekiq'
+
 
   # Preloader
   gem 'spring', '~> 1.2.0' # ?
