@@ -74,12 +74,6 @@ class ResetApiDatabase < ActiveRecord::Migration
 
     execute <<-SQL
 
-      CREATE OR REPLACE FUNCTION uuid_generate_v4()
-        RETURNS uuid AS
-      '$libdir/uuid-ossp', 'uuid_generate_v4'
-        LANGUAGE c VOLATILE STRICT
-        COST 1;
-
       CREATE OR REPLACE FUNCTION generate_next_item_id(OUT result bigint) AS $$
             DECLARE
             our_epoch bigint := 1314220021721;

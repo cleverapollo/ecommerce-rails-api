@@ -1,4 +1,6 @@
-lock '3.4.1'
+lock '3.4.0'
+
+set :application, 'api.rees46.com'
 
 set :repo_url, 'git@rees46_api.bitbucket.org:mkechinov/rees46_api.git'
 set :scm, :git
@@ -8,8 +10,8 @@ set :deploy_via,      :remote_cache
 set :ssh_options,     {forward_agent: true}
 set :use_sudo,        false
 set :keep_releases, 5
-set :linked_files, %w(config/database.yml config/secrets.yml config/shards.yml)
-set :linked_dirs, %w(tmp/sockets tmp/ymls)
+set :linked_files, %w(config/database.yml config/secrets.yml config/shards.yml config/unicorn.rb)
+set :linked_dirs, %w(tmp/sockets tmp/ymls log tmp/pids tmp/cache tmp/sockets vendor/bundle)
 
 set :normalize_asset_timestamps, false
 
