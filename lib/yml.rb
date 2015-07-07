@@ -13,6 +13,7 @@ class Yml
     delete(file_name) if exists?(file_name)
     if responds?
       download
+      raise NotRespondingError if !File.exists?(file_name)
       gzip_archive? ? ungzip : File.rename(file_name, file_name_xml)
       if is_xml?
         yield file
