@@ -12,13 +12,13 @@ class MahoutService
   def open
     unless Rails.env.test?
       begin
-        Timeout::timeout(2) {
+        Timeout::timeout(0.2) {
           @tunnel = BrB::Tunnel.create(nil, @brb_address)
         }
       rescue Timeout::Error => e
-        retry
+        return false
       rescue RuntimeError => e1
-        retry
+        return false
       end
     end
   end
@@ -82,8 +82,11 @@ class MahoutService
       if tunnel && tunnel.active?
         return true
       else
-        open
-        return tunnel && tunnel.active?
+        if open
+          return tunnel && tunnel.active?
+        else
+          false
+        end
       end
      else
        false
