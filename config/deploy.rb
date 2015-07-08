@@ -35,7 +35,6 @@ set :sidekiq_env, 'production'
 set :sidekiq_options, '-C config/sidekiq.yml'
 set :sidekiq_timeout, 300
 
-
 namespace :deploy do
 
   desc 'Start unicorn'
