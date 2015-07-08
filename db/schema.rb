@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150624134829) do
+ActiveRecord::Schema.define(version: 20150708130447) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,7 +40,11 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   end
 
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "similar_index", using: :btree
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
+  add_index "actions", ["shop_id", "user_id", "item_id"], name: "tmpidx1", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
@@ -69,6 +73,14 @@ ActiveRecord::Schema.define(version: 20150624134829) do
 
   add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
   add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
+
+  create_table "advertiser_orders", force: :cascade do |t|
+    t.integer  "order_items_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "advertiser_orders", ["order_items_id"], name: "index_advertiser_orders_on_order_items_id", using: :btree
 
   create_table "advertiser_purchases", force: :cascade do |t|
     t.integer  "advertiser_id"
@@ -254,7 +266,13 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", unique: true, using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", unique: true, using: :btree
+  add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
+  add_index "clients", ["subscription_popup_showed", "shop_id"], name: "index_clients_on_subscription_popup_showed_and_shop_id", using: :btree
+  add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
+  add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
   create_table "cmses", force: :cascade do |t|
     t.string   "code",               limit: 255,                 null: false
@@ -523,6 +541,7 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   end
 
   add_index "order_items", ["item_id"], name: "index_order_items_on_item_id", using: :btree
+  add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                       null: false
@@ -542,6 +561,10 @@ ActiveRecord::Schema.define(version: 20150624134829) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
+  add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
+  add_index "orders", ["source_type", "source_id"], name: "index_orders_on_source_type_and_source_id", using: :btree
+  add_index "orders", ["uniqid"], name: "index_orders_on_uniqid", using: :btree
+  add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
 
   create_table "partner_requests", force: :cascade do |t|
     t.string   "name"
@@ -638,8 +661,7 @@ ActiveRecord::Schema.define(version: 20150624134829) do
     t.date     "finishing_at"
   end
 
-  create_table "recommendations_requests", id: false, force: :cascade do |t|
-    t.integer  "id",                                default: 0,     null: false
+  create_table "recommendations_requests", force: :cascade do |t|
     t.integer  "shop_id",                                           null: false
     t.integer  "category_id",                                       null: false
     t.string   "recommender_type",      limit: 255,                 null: false
@@ -730,6 +752,7 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
@@ -904,8 +927,9 @@ ActiveRecord::Schema.define(version: 20150624134829) do
   end
 
   create_table "users", id: :bigserial, force: :cascade do |t|
-    t.jsonb "gender", default: {"f"=>50, "m"=>50}, null: false
-    t.jsonb "size",   default: {},                 null: false
+    t.jsonb "gender",   default: {"f"=>50, "m"=>50}, null: false
+    t.jsonb "size",     default: {},                 null: false
+    t.jsonb "children", default: [],                 null: false
   end
 
   add_foreign_key "actions", "shops", name: "actions_shop_id_fkey"
