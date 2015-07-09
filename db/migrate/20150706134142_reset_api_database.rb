@@ -79,7 +79,7 @@ class ResetApiDatabase < ActiveRecord::Migration
             our_epoch bigint := 1314220021721;
             seq_id bigint;
             now_millis bigint;
-            shard_id int := 5;
+            shard_id int := #{SHARD_ID};
             BEGIN
               SELECT nextval('items_id_seq')::BIGINT % 1024 INTO seq_id;
               SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO now_millis;
@@ -94,7 +94,7 @@ class ResetApiDatabase < ActiveRecord::Migration
             our_epoch bigint := 1314220021721;
             seq_id bigint;
             now_millis bigint;
-            shard_id int := 5;
+            shard_id int := #{SHARD_ID};
             BEGIN
               SELECT nextval('actions_id_seq')::BIGINT % 1024 INTO seq_id;
               SELECT FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) INTO now_millis;
