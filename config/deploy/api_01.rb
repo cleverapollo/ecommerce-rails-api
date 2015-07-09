@@ -1,9 +1,9 @@
-role :app, %w{5.45.118.36}
-role :web, %w{5.45.118.36}
-role :db,  %w{5.45.118.36}
+role :app, %w{5.101.116.131}
+role :web, %w{5.101.116.131}
+role :db,  %w{5.101.116.131}
 
-set :stage, :api_00
-set :shard, :api_00
+set :stage, :api_01
+set :shard, :api_01
 
 set :log_level,   :info
 

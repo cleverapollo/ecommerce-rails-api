@@ -6,8 +6,8 @@ defaults: &defaults
 
 production:
   master:
-    database: recommender
+    database: master_database
     host: localhost
-    username: recommender
-    password: 123
+    username: master_shard_user_name
+    password: ******
     <<: *defaults

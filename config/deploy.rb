@@ -27,7 +27,7 @@ set :rvm_type, :user
 # Whenever
 set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
 # set :whenever_command, '~/.rvm/bin/rvm default do bundle exec whenever'
-require 'whenever/capistrano'
+# require 'whenever/capistrano'
 
 
 # Sidekiq
