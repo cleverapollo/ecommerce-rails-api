@@ -17,7 +17,6 @@ ActiveRecord::Schema.define(version: 20150709151743) do
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "uuid-ossp"
-  enable_extension "dblink"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                   null: false
@@ -29,7 +28,7 @@ ActiveRecord::Schema.define(version: 20150709151743) do
     t.integer  "purchase_count",               default: 0,     null: false
     t.datetime "purchase_date"
     t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",                                      null: false
+    t.integer  "shop_id",          limit: 8,                   null: false
     t.integer  "timestamp",                    default: 0,     null: false
     t.string   "recommended_by",   limit: 255
     t.integer  "last_action",      limit: 2,   default: 1,     null: false
@@ -68,6 +67,30 @@ ActiveRecord::Schema.define(version: 20150709151743) do
     t.datetime "updated_at"
     t.string   "referer",           limit: 255
   end
+
+  create_table "clients", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                                              null: false
+    t.integer  "user_id",                                                              null: false
+    t.boolean  "bought_something",                      default: false,                null: false
+    t.integer  "ab_testing_group"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "external_id",               limit: 255
+    t.string   "email",                     limit: 255
+    t.boolean  "digests_enabled",                       default: true,                 null: false
+    t.uuid     "code",                                  default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed",             default: false,                null: false
+    t.boolean  "triggers_enabled",                      default: true,                 null: false
+    t.datetime "last_trigger_mail_sent_at"
+    t.boolean  "accepted_subscription",                 default: false,                null: false
+    t.string   "location"
+  end
+
+  add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
+  add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
+  add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
+  add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
     t.integer "digest_mailing_id", limit: 8,                   null: false
@@ -137,7 +160,7 @@ ActiveRecord::Schema.define(version: 20150709151743) do
   add_index "events", ["shop_id"], name: "index_events_on_shop_id", using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                                       null: false
+    t.integer "shop_id",           limit: 8,                   null: false
     t.string  "uniqid",            limit: 255,                 null: false
     t.decimal "price"
     t.boolean "is_available",                  default: true,  null: false

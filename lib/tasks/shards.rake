@@ -185,8 +185,20 @@ namespace :shards do
     ActiveRecord::Base.connection.execute query
   end
 
-
-
+  desc 'Transfer clients'
+  task :transfer_clients => :environment do
+    table_name = 'clients'
+    fields = 'id, shop_id, user_id, bought_something, ab_testing_group, created_at, updated_at, external_id, email, digests_enabled, code, subscription_popup_showed, triggers_enabled, last_trigger_mail_sent_at, accepted_subscription, location'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, shop_id integer, user_id bigint, bought_something boolean, ab_testing_group integer, created_at timestamp, updated_at timestamp, external_id character varying(255), email character varying(255), digests_enabled boolean, code character varying(255), subscription_popup_showed boolean, triggers_enabled boolean, last_trigger_mail_sent_at timestamp, accepted_subscription boolean, location character varying(255));
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
 
 end
 
