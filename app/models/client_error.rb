@@ -3,9 +3,6 @@
 #
 class ClientError < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   belongs_to :shop
 
   store :params, coder: JSON

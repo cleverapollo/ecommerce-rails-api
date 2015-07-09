@@ -3,9 +3,6 @@
 #
 class DigestMailingBatch < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   include Redis::Objects
   value :current_processed_client_id
 

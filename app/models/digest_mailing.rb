@@ -3,8 +3,6 @@
 #
 class DigestMailing < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
   class DisabledError < StandardError; end
 
   include Redis::Objects

@@ -3,9 +3,6 @@
 #
 class TriggerMail < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   belongs_to :shop
   belongs_to :client
   belongs_to :mailing, class_name: 'TriggerMailing', foreign_key: 'trigger_mailing_id'
