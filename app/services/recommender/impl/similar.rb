@@ -32,6 +32,11 @@ module Recommender
       def items_to_weight
 
         result = []
+
+        if categories_for_query.empty?
+          return result
+        end
+
         advertiser = Promoting::Brand.find_by_item(item)
         if advertiser.any?
           advertiser.each do |advertiser_id|
@@ -84,7 +89,8 @@ module Recommender
       end
 
       def categories_for_query
-        params.categories.try(:any?) ? params.categories : item.categories
+        #params.categories.try(:any?) ? params.categories :
+        item.categories
       end
 
       def min_date
