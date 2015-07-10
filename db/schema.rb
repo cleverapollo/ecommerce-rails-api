@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20150710160342) do
     t.integer  "purchase_count",               default: 0,     null: false
     t.datetime "purchase_date"
     t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",          limit: 8,                   null: false
+    t.integer  "shop_id",                                      null: false
     t.integer  "timestamp",                    default: 0,     null: false
     t.string   "recommended_by",   limit: 255
     t.integer  "last_action",      limit: 2,   default: 1,     null: false
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 20150710160342) do
 
   create_table "clients", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                              null: false
-    t.integer  "user_id",                                                              null: false
+    t.integer  "user_id",                   limit: 8,                                  null: false
     t.boolean  "bought_something",                      default: false,                null: false
     t.integer  "ab_testing_group"
     t.datetime "created_at"
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 20150710160342) do
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
     t.integer "digest_mailing_id", limit: 8,                   null: false
@@ -186,7 +187,7 @@ ActiveRecord::Schema.define(version: 20150710160342) do
   add_index "item_categories", ["shop_id", "external_id"], name: "index_item_categories_on_shop_id_and_external_id", unique: true, using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",           limit: 8,                   null: false
+    t.integer "shop_id",                                       null: false
     t.string  "uniqid",            limit: 255,                 null: false
     t.decimal "price"
     t.boolean "is_available",                  default: true,  null: false
@@ -246,9 +247,9 @@ ActiveRecord::Schema.define(version: 20150710160342) do
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                       null: false
-    t.integer  "user_id",                                                       null: false
+    t.integer  "user_id",           limit: 8,                                   null: false
     t.string   "uniqid",            limit: 255,                                 null: false
-    t.datetime "date",                          default: '2015-07-10 07:44:20', null: false
+    t.datetime "date",                          default: '2015-07-10 20:05:47', null: false
     t.decimal  "value",                         default: 0.0,                   null: false
     t.boolean  "recommended",                   default: false,                 null: false
     t.integer  "ab_testing_group"

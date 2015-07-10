@@ -25,6 +25,11 @@ class CreateClients < ActiveRecord::Migration
     add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
 
     execute <<-SQL
+      CREATE INDEX idx_clients_shop_id_last_trigger_email_nulls_first ON clients (shop_id, last_trigger_mail_sent_at ASC NULLS FIRST) where triggers_enabled = 't' and email is not null;
+    SQL
+
+
+    execute <<-SQL
       CREATE OR REPLACE FUNCTION generate_next_clients_id(OUT result bigint) AS $$
             DECLARE
             our_epoch bigint := 1314220021721;
