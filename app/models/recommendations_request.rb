@@ -2,10 +2,6 @@
 # Запрос рекомендаций. Они просто логгируются, с ними ничего не делается.
 #
 class RecommendationsRequest < ActiveRecord::Base
-
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   validates :shop_id, presence: true
   validates :category_id, presence: true
   validates :recommender_type, presence: true

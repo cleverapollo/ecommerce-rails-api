@@ -3,9 +3,6 @@
 #
 class Interaction < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   include UserLinkable
 
   CODES = {

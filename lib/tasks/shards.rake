@@ -232,4 +232,51 @@ namespace :shards do
     ActiveRecord::Base.connection.execute query
   end
 
+
+  desc 'Transfer item_categories'
+  task :transfer_item_categories => :environment do
+    table_name = 'item_categories'
+    fields = 'id, shop_id, parent_id, external_id, parent_external_id, name, created_at, updated_at'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, shop_id integer, parent_id integer, external_id character varying, parent_external_id character varying, name character varying, created_at timestamp, updated_at timestamp);
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
+
+  desc 'Transfer recommendations_requests'
+  task :transfer_recommendations_requests => :environment do
+    table_name = 'recommendations_requests'
+    fields = 'id, shop_id, category_id, recommender_type, clicked, recommendations_count, recommended_ids, duration, user_id, session_code, created_at, updated_at'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, shop_id integer, category_id integer, recommender_type character varying(255), clicked boolean, recommendations_count integer, recommended_ids text[], duration numeric, user_id bigint, session_code character varying(255), created_at timestamp, updated_at timestamp);
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
+
+
+  desc 'Transfer interactions'
+  task :transfer_interactions => :environment do
+    table_name = 'interactions'
+    fields = 'id, shop_id, user_id, item_id, code, recommender_code, created_at'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, shop_id integer, user_id bigint, item_id bigint, code integer, recommender_code integer, created_at timestamp);
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
+
 end

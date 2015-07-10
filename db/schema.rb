@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150709163209) do
+ActiveRecord::Schema.define(version: 20150710160342) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "uuid-ossp"
+  enable_extension "dblink"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                   null: false
@@ -159,6 +160,31 @@ ActiveRecord::Schema.define(version: 20150709163209) do
   add_index "events", ["name"], name: "index_events_on_name", using: :btree
   add_index "events", ["shop_id"], name: "index_events_on_shop_id", using: :btree
 
+  create_table "interactions", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                    null: false
+    t.integer  "user_id",          limit: 8, null: false
+    t.integer  "item_id",          limit: 8, null: false
+    t.integer  "code",                       null: false
+    t.integer  "recommender_code"
+    t.datetime "created_at",                 null: false
+  end
+
+  add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
+  add_index "interactions", ["shop_id", "item_id"], name: "tmpidx_interactions_1", using: :btree
+  add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
+
+  create_table "item_categories", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",            null: false
+    t.integer  "parent_id"
+    t.string   "external_id",        null: false
+    t.string   "parent_external_id"
+    t.string   "name"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "item_categories", ["shop_id", "external_id"], name: "index_item_categories_on_shop_id_and_external_id", unique: true, using: :btree
+
   create_table "items", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",           limit: 8,                   null: false
     t.string  "uniqid",            limit: 255,                 null: false
@@ -236,6 +262,20 @@ ActiveRecord::Schema.define(version: 20150709163209) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
+
+  create_table "recommendations_requests", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                           null: false
+    t.integer  "category_id",                                       null: false
+    t.string   "recommender_type",      limit: 255,                 null: false
+    t.boolean  "clicked",                           default: false, null: false
+    t.integer  "recommendations_count",                             null: false
+    t.text     "recommended_ids",                   default: [],    null: false, array: true
+    t.decimal  "duration",                                          null: false
+    t.integer  "user_id",               limit: 8
+    t.string   "session_code",          limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "trigger_mailings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                   null: false
