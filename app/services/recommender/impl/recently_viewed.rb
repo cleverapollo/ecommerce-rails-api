@@ -19,7 +19,7 @@ module Recommender
         #ap params.recommend_only_widgetable
         #ap items_in_shop.to_sql
         #ap items_in_shop.where(id:relation.order('view_date DESC')).limit(limit).to_sql#.pluck(:id)
-        items_in_shop.where(id:relation.order('view_date DESC')).limit(limit).pluck(:id)
+        items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
       end
     end
   end
