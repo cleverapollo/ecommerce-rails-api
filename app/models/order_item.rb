@@ -3,9 +3,6 @@
 #
 class OrderItem < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   belongs_to :order
   belongs_to :item
   belongs_to :action

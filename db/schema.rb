@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150709151743) do
+ActiveRecord::Schema.define(version: 20150709163209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -207,6 +207,35 @@ ActiveRecord::Schema.define(version: 20150709151743) do
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
   end
+
+  create_table "order_items", id: :bigserial, force: :cascade do |t|
+    t.integer "order_id",       limit: 8,               null: false
+    t.integer "item_id",        limit: 8,               null: false
+    t.integer "action_id",      limit: 8,               null: false
+    t.integer "amount",                     default: 1, null: false
+    t.string  "recommended_by", limit: 255
+  end
+
+  add_index "order_items", ["item_id"], name: "index_order_items_on_item_id", using: :btree
+
+  create_table "orders", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                                       null: false
+    t.integer  "user_id",                                                       null: false
+    t.string   "uniqid",            limit: 255,                                 null: false
+    t.datetime "date",                          default: '2015-07-10 07:44:20', null: false
+    t.decimal  "value",                         default: 0.0,                   null: false
+    t.boolean  "recommended",                   default: false,                 null: false
+    t.integer  "ab_testing_group"
+    t.decimal  "recommended_value",             default: 0.0,                   null: false
+    t.decimal  "common_value",                  default: 0.0,                   null: false
+    t.integer  "source_id"
+    t.string   "source_type"
+    t.integer  "status",                        default: 0,                     null: false
+    t.date     "status_date"
+  end
+
+  add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
+  add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
 
   create_table "trigger_mailings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                   null: false

@@ -195,10 +195,41 @@ namespace :shards do
           dblink(
             'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
             'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
-          AS t1(id bigint, shop_id integer, user_id bigint, bought_something boolean, ab_testing_group integer, created_at timestamp, updated_at timestamp, external_id character varying(255), email character varying(255), digests_enabled boolean, code character varying(255), subscription_popup_showed boolean, triggers_enabled boolean, last_trigger_mail_sent_at timestamp, accepted_subscription boolean, location character varying(255));
+          AS t1(id bigint, shop_id integer, user_id bigint, bought_something boolean, ab_testing_group integer, created_at timestamp, updated_at timestamp, external_id character varying(255), email character varying(255), digests_enabled boolean, code uuid, subscription_popup_showed boolean, triggers_enabled boolean, last_trigger_mail_sent_at timestamp, accepted_subscription boolean, location character varying);
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
+
+
+  desc 'Transfer orders'
+  task :transfer_orders => :environment do
+    table_name = 'orders'
+    fields = 'id, shop_id, user_id, uniqid, date, value, recommended, ab_testing_group, recommended_value, common_value, source_id, source_type, status, status_date'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, shop_id integer, user_id bigint, uniqid character varying(255), "date" timestamp, value numeric, recommended boolean, ab_testing_group integer, recommended_value numeric, common_value numeric, source_id integer, source_type character varying, status integer, status_date timestamp);
+    SQL
+    ActiveRecord::Base.connection.execute query
+  end
+
+
+  desc 'Transfer order_items'
+  task :transfer_order_items => :environment do
+    table_name = 'order_items'
+    fields = 'id, order_id, item_id, action_id, amount, recommended_by'
+    query = <<-SQL
+      INSERT INTO #{table_name} (#{fields})
+        SELECT * FROM
+          dblink(
+            'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]}',
+            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(id bigint, order_id bigint, item_id bigint, action_id bigint, amount integer, recommended_by character varying);
     SQL
     ActiveRecord::Base.connection.execute query
   end
 
 end
-

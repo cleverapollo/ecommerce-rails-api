@@ -3,9 +3,6 @@
 #
 class Order < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
-
-
   RECOMMENDED_BY_DECAY = 2.weeks
 
   include UserLinkable
