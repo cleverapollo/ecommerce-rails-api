@@ -93,6 +93,9 @@ module Recommendations
       @cart_item_ids             = []
       @limit                     = 8
       @recommend_only_widgetable = false
+      if params[:extended].present?
+        @recommend_only_widgetable = true
+      end
       @exclude                   = []
       @modification              = nil
       check
