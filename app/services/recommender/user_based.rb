@@ -35,13 +35,17 @@ module Recommender
         result = fetch_user_based(excluded_items, ms)
         break if result.empty?
         # уберем товары, которые не актуальные
-        result = Item.where(id:result).pluck(:id, :widgetable).to_h.delete_if {|val| !val }.keys
+        result = Item.where(id: result).pluck(:id, :widgetable).to_h.delete_if { |val| !val }.keys
         excluded_items = (excluded_items+result).compact.uniq
       end
 
       ms.close
 
-      result
+      if result.size > params.limit
+        result.take(params.limit)
+      else
+        result
+      end
     end
 
     def fetch_user_based(excluded_items, ms)
