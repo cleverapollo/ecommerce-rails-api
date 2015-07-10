@@ -32,6 +32,11 @@ class ImportsController < ApplicationController
     render text: 'OK'
   end
 
+  def user_info
+    UserInfoImportWorker.perform_async(params)
+    render text: 'OK'
+  end
+
   def disable
     if params[:item_ids].present?
       params[:item_ids].split(',').each do |item_id|

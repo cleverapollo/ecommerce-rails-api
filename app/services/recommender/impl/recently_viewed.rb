@@ -3,7 +3,7 @@ module Recommender
     ##
     # Класс, реализующий рекомендации по алгоритму "Вы недавно смотрели"
     #
-    class RecentlyViewed < Recommender::Raw
+    class RecentlyViewed < Recommender::Base
       # Суть крайне проста - найти N последних просмотренных пользователем товаров
 
       # Исключает ID-товаров из рекомендаций:
@@ -16,7 +16,10 @@ module Recommender
       def recommended_ids
         relation = shop.actions.where(user: user).where('view_count > 0')
         relation = relation.where.not(item_id: excluded_items_ids)
-        relation.order('view_date DESC').limit(limit).pluck(:item_id)
+        #ap params.recommend_only_widgetable
+        #ap items_in_shop.to_sql
+        #ap items_in_shop.where(id:relation.order('view_date DESC')).limit(limit).to_sql#.pluck(:id)
+        items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
       end
     end
   end

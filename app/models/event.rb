@@ -18,7 +18,10 @@ class Event < ActiveRecord::Base
     end
 
     def connected(shop)
-      shop.events.create!(name: 'connected')
+      last_connection = Event.where(name: 'connected', shop_id: shop.id).last
+      if last_connection.blank? || (last_connection.present? && last_connection.created_at.to_date != Date.current)
+        shop.events.create!(name: 'connected')
+      end
     end
   end
 end

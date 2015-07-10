@@ -138,7 +138,6 @@ module ActionPush
         item_attributes = OpenStruct.new(uniqid: item_id)
 
         item_attributes.price = raw[:price][i] if raw[:price][i].to_i > 0
-        item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
         item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         item_attributes.repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
@@ -149,6 +148,7 @@ module ActionPush
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
 
         unless shop.has_imported_yml?
+          item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
           item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
           item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
           item_attributes.categories = (item_attributes.categories + [item_attributes.category]).uniq.compact

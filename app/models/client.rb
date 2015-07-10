@@ -16,7 +16,7 @@ class Client < ActiveRecord::Base
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
-  scope :suitable_for_trigger_mailings, -> { with_email.where(triggers_enabled: true) }
+  scope :ready_for_trigger_mailings, -> { with_email.where("triggers_enabled = 't' AND ((last_trigger_mail_sent_at is null) OR  last_trigger_mail_sent_at < NOW() - INTERVAL '14 days')") }
 
   class << self
     def relink_user(options = {})

@@ -29,36 +29,49 @@ module Recommender
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
-      result = if ms.tunnel && ms.tunnel.active?
-        #items_to_include = items_to_recommend
+      result = []
 
+      while result.size<params.limit
+        result = fetch_user_based(excluded_items, ms)
+        break if result.empty?
+        # уберем товары, которые не актуальные
+        result = Item.where(id: result).pluck(:id, :widgetable).to_h.delete_if { |val| !val }.keys
+        excluded_items = (excluded_items+result).compact.uniq
+      end
+
+      ms.close
+
+      if result.size > params.limit
+        result.take(params.limit)
+      else
+        result
+      end
+    end
+
+    def fetch_user_based(excluded_items, ms)
+      if ms.tunnel && ms.tunnel.active?
         # Коллаборативка в контексте текущего товара - как будто пользователь этот товар уже купил
         r = ms.user_based(params.user.id,
-                      params.shop.id,
-                      params.item_id,
-                      #include: items_to_include.pluck(:id),
-                      include: [], # Махаут в курсе итемов
-                      exclude: excluded_items,
-                      limit: params.limit)
+                          params.shop.id,
+                          params.item_id,
+                          include: [], # Махаут в курсе итемов
+                          exclude: excluded_items,
+                          limit: params.limit*2)
 
         if r.none?
           # Коллаборативка по истории действий пользователя
           r = ms.user_based(params.user.id,
-                      params.shop.id,
-                      nil,
-                      #include: items_to_include.pluck(:id),
-                      include: [], # Махаут в курсе итемов
-                      exclude: excluded_items,
-                      limit: params.limit)
+                            params.shop.id,
+                            nil,
+                            include: [], # Махаут в курсе итемов
+                            exclude: excluded_items,
+                            limit: params.limit*2)
         end
 
         r
       else
         []
       end
-      ms.close
-
-      result
     end
   end
 end
