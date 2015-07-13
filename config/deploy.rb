@@ -4,7 +4,7 @@ ssh_options[:port] = 21212
 
 set :application, 'rees46_api'
 
-set :rvm_ruby_string, "2.2.1"
+set :rvm_ruby_string, "2.2.2"
 
 # Deploy configuration
 set :user, 'rails'
