@@ -16,10 +16,12 @@ module Recommender
       def recommended_ids
         relation = shop.actions.where(user: user).where('view_count > 0')
         relation = relation.where.not(item_id: excluded_items_ids)
-        #ap params.recommend_only_widgetable
-        #ap items_in_shop.to_sql
-        #ap items_in_shop.where(id:relation.order('view_date DESC')).limit(limit).to_sql#.pluck(:id)
-        items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
+
+        result = items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
+
+        # отсортируем в порядке просмотра
+        relation.where(item_id:result).order('view_date DESC').pluck(:item_id)
+
       end
     end
   end

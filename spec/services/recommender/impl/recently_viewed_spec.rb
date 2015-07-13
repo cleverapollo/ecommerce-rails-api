@@ -40,7 +40,7 @@ describe Recommender::Impl::RecentlyViewed do
           locations: [],
           limit:7,
           type: 'recently_viewed',
-          extended:true
+          #extended:true
       )
 
       recommender = Recommender::Impl::RecentlyViewed.new(params)
@@ -49,7 +49,7 @@ describe Recommender::Impl::RecentlyViewed do
 
       #expect(result).to include({:id => item4.id.to_s, :name => "test", :url => "http://example.com/item/123", :image_url => "http://example.com/item/123.jpg", :price => "100.0"})
       #expect(result).not_to include(item1.uniqid)
-      #expect(result).to include(item1.uniqid)
+      expect(result).to include(item1.uniqid)
 
     end
   end
