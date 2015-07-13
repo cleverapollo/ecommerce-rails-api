@@ -74,14 +74,14 @@ class Yml
   end
 
   def ungzip
-    # a = Archive.new(file_name)
-    # File.open(file_name_xml, 'wb') do |xml|
-    #   xml.write(a.first[1])
-    # end
-    Zlib::GzipReader.open(file_name) do |gz|
-      File.open(file_name_xml, "wb") do |g|
-        IO.copy_stream(gz, g)
-      end
+    a = Archive.new(file_name)
+    File.open(file_name_xml, 'wb') do |xml|
+      xml.write(a.first[1])
     end
+    # Zlib::GzipReader.open(file_name) do |gz|
+    #   File.open(file_name_xml, "wb") do |g|
+    #     IO.copy_stream(gz, g)
+    #   end
+    # end
   end
 end

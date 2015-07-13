@@ -21,8 +21,6 @@ module Recommender
 
         # отсортируем в порядке просмотра
         shop.actions.where(user: user, item_id:result).order('view_date DESC').pluck(:item_id)
-
-
       end
     end
   end

@@ -41,7 +41,7 @@ gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает �
 gem 'bounce_email', '~> 0.2.2', require: false # Определяет тип баунса
 
 # zip
-# gem 'libarchive-ruby', '0.0.3' # codeship должен установить
+ gem 'libarchive-ruby', '0.0.3' # codeship должен установить
 
 # Development tools
 group :development do
