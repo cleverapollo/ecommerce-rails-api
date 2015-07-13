@@ -20,7 +20,7 @@ module Recommender
         result = items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
 
         # отсортируем в порядке просмотра
-        relation.where(item_id:result).order('view_date DESC').pluck(:item_id)
+        shop.actions.where(user: user, item_id:result).order('view_date DESC').pluck(:item_id)
 
       end
     end
