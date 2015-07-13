@@ -1,4 +1,4 @@
-# require 'archive'
+require 'archive'
 class Yml
   class NotRespondingError < StandardError; end
 
