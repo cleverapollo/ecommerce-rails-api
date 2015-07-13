@@ -17,10 +17,12 @@ module Recommender
         relation = shop.actions.where(user: user).where('view_count > 0')
         relation = relation.where.not(item_id: excluded_items_ids)
 
-        result = items_in_shop.where(id: relation.order('view_date DESC').select(:item_id) ).limit(limit).pluck(:id)
+        item_ids = relation.order('view_date DESC').limit(limit*5).pluck(:item_id)
 
-        # отсортируем в порядке просмотра
-        shop.actions.where(user: user, item_id:result).order('view_date DESC').pluck(:item_id)
+        result = items_in_shop.where(id: item_ids).pluck(:id)
+
+        item_ids.delete_if { |item_id| !result.include?(item_id)}
+        item_ids.take(limit)
       end
     end
   end
