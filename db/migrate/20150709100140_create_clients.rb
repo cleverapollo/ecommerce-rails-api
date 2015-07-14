@@ -1,6 +1,6 @@
 class CreateClients < ActiveRecord::Migration
   def change
-    create_table "clients", id: :bigint, force: :cascade do |t|
+    create_table "clients", id: :bigserial, force: :cascade do |t|
       t.integer  "shop_id",                                                              null: false
       t.integer  "user_id",                   limit: 8,                   null: false
       t.boolean  "bought_something",                      default: false,                null: false

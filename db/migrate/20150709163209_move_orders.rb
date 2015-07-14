@@ -20,7 +20,7 @@ class MoveOrders < ActiveRecord::Migration
     add_index 'orders', ['date'], name: 'index_orders_on_date', using: :btree
     add_index 'orders', ['shop_id', 'status', 'status_date'], name: 'index_orders_on_shop_id_and_status_and_status_date', using: :btree
 
-    create_table 'order_items', id: :bigint, force: :cascade do |t|
+    create_table 'order_items', id: :bigserial, force: :cascade do |t|
       t.integer 'order_id',       limit: 8,               null: false
       t.integer 'item_id',        limit: 8,               null: false
       t.integer 'action_id',      limit: 8,               null: false
