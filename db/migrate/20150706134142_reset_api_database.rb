@@ -7,13 +7,9 @@ class ResetApiDatabase < ActiveRecord::Migration
     # CREATE EXTENSION dblink;
 
     # These are extensions that must be enabled in order to support this database
-    begin
-      enable_extension 'plpgsql'
-      enable_extension 'btree_gin'
-      enable_extension 'uuid-ossp'
-    rescue Exception => e
-      puts e
-    end
+    #   enable_extension 'plpgsql'
+    #   enable_extension 'btree_gin'
+    #   enable_extension 'uuid-ossp'
 
     create_table 'actions', id: :bigserial, force: :cascade do |t|
       t.integer  'user_id',          limit: 8,                   null: false
