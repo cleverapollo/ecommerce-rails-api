@@ -11,4 +11,4 @@
 #   stripe_publishable_key: pk_live_9lcthxpSIHbGwmdO941O1XVU
 
 
-REES46_SHARD: 00
+REES46_SHARD: "00"
