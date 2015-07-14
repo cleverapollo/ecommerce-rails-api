@@ -25,8 +25,8 @@ describe SectoralAlgorythms::Wear::Size do
         subject {
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::Wear::Size])
           # (SectoralAlgorythms::Wear::Size::MIN_VIEWS_SCORE*2)
-              2.times { service.trigger_action(Actions::View.new, male_small_items) }
-              2.times { service.trigger_action(Actions::View.new, female_small_items) }
+              2.times { service.trigger_action('view', male_small_items) }
+              2.times { service.trigger_action('view', female_small_items) }
 
 
           SectoralAlgorythms::Wear::Size.new(user).value

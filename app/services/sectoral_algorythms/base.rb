@@ -5,9 +5,9 @@ module SectoralAlgorythms
     end
 
     def trigger_action(action, items)
-      items.each { |item| trigger_view(item) } if action.instance_of? Actions::View
+      items.each { |item| trigger_view(item) } if action == 'view'
 
-      items.each { |item| trigger_purchase(item) } if action.instance_of? Actions::Purchase
+      items.each { |item| trigger_purchase(item) } if action== 'purchase'
     end
 
     def value
