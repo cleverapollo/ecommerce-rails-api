@@ -3,4 +3,5 @@ db_conf = YAML::load(File.open(File.join(Rails.root,'config','shards.yml')))
 MASTER_DB = db_conf[Rails.env]['master']
 
 # Define shard ID
-SHARD_ID = ENV['REES46_SHARD'] || '00'
+raise 'ERROR: environment variable REES46_SHARD not set' unless ENV['REES46_SHARD'].present?
+SHARD_ID = ENV['REES46_SHARD']
