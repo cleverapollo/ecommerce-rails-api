@@ -11,7 +11,7 @@ class ResetApiDatabase < ActiveRecord::Migration
     enable_extension 'btree_gin'
     enable_extension 'uuid-ossp'
 
-    create_table 'actions', force: :cascade do |t|
+    create_table 'actions', id: :bigserial, force: :cascade do |t|
       t.integer  'user_id',          limit: 8,                   null: false
       t.integer  'item_id',          limit: 8,                   null: false
       t.integer  'view_count',                   default: 0,     null: false

@@ -1,7 +1,7 @@
 class MoveOrders < ActiveRecord::Migration
   def change
 
-    create_table 'orders', id: :bigint, force: :cascade do |t|
+    create_table 'orders', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id',                                         null: false
       t.integer  'user_id',           limit: 8,                     null: false
       t.string   'uniqid',            limit: 255,                   null: false

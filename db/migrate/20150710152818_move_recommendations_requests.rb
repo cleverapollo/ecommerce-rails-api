@@ -1,6 +1,6 @@
 class MoveRecommendationsRequests < ActiveRecord::Migration
   def change
-    create_table 'recommendations_requests', id: :bigint, force: :cascade do |t|
+    create_table 'recommendations_requests', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id',                 null: false
       t.integer  'category_id',             null: false
       t.string   'recommender_type',        limit: 255,           null: false

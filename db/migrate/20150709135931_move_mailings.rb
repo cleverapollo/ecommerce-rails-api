@@ -1,7 +1,7 @@
 class MoveMailings < ActiveRecord::Migration
   def change
 
-    create_table 'digest_mailing_batches', id: :bigint, force: :cascade do |t|
+    create_table 'digest_mailing_batches', id: :bigserial, force: :cascade do |t|
       t.integer 'digest_mailing_id', limit: 8,                             null: false
       t.integer 'end_id', limit: 8
       t.boolean 'completed',                     default: false, null: false
@@ -10,14 +10,14 @@ class MoveMailings < ActiveRecord::Migration
     end
     add_index 'digest_mailing_batches', ['digest_mailing_id'], name: 'index_digest_mailing_batches_on_digest_mailing_id', using: :btree
 
-    create_table 'digest_mailing_settings', id: :bigint, force: :cascade do |t|
+    create_table 'digest_mailing_settings', id: :bigserial, force: :cascade do |t|
       t.integer 'shop_id',                   null: false
       t.boolean 'on',      default: false,   null: false
       t.string  'sender',  limit: 255,       null: false
     end
     add_index 'digest_mailing_settings', ['shop_id'], name: 'index_digest_mailing_settings_on_shop_id', using: :btree
 
-    create_table 'digest_mailings', id: :bigint, force: :cascade do |t|
+    create_table 'digest_mailings', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id',                                          null: false
       t.string   'name',              limit: 255,                    null: false
       t.string   'subject',           limit: 255,                    null: false
@@ -36,7 +36,7 @@ class MoveMailings < ActiveRecord::Migration
     end
     add_index 'digest_mailings', ['shop_id'], name: 'index_digest_mailings_on_shop_id', using: :btree
 
-    create_table 'digest_mails', id: :bigint, force: :cascade do |t|
+    create_table 'digest_mails', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id',                                                null: false
       t.integer  'digest_mailing_id',       limit: 8,                      null: false
       t.integer  'digest_mailing_batch_id', limit: 8,                      null: false

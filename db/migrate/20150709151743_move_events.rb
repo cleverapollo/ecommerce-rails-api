@@ -1,7 +1,7 @@
 class MoveEvents < ActiveRecord::Migration
   def change
 
-    create_table 'events', id: :bigint, force: :cascade do |t|
+    create_table 'events', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id',                                     null: false
       t.string   'name',            limit: 255,                 null: false
       t.text     'additional_info'

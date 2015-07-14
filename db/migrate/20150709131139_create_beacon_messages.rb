@@ -1,7 +1,7 @@
 class CreateBeaconMessages < ActiveRecord::Migration
   def change
 
-    create_table 'beacon_messages', id: :bigint, force: :cascade do |t|
+    create_table 'beacon_messages', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id'
       t.integer  'user_id',     limit: 8
       t.integer  'session_id',  limit: 8

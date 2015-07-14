@@ -1,6 +1,6 @@
 class MoveItemCategories < ActiveRecord::Migration
   def change
-  create_table 'item_categories', id: :bigint, force: :cascade do |t|
+  create_table 'item_categories', id: :bigserial, force: :cascade do |t|
     t.integer  'shop_id',            null: false
     t.integer  'parent_id'
     t.string   'external_id',        null: false

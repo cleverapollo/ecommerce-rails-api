@@ -1,7 +1,7 @@
 class CreateClientErrors < ActiveRecord::Migration
   def change
 
-    create_table 'client_errors', id: :bigint, force: :cascade do |t|
+    create_table 'client_errors', id: :bigserial, force: :cascade do |t|
       t.integer  'shop_id'
       t.string   'exception_class',   limit: 255,                 null: false
       t.string   'exception_message', limit: 255,                 null: false

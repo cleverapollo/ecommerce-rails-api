@@ -1,7 +1,7 @@
 class MoveInteractions < ActiveRecord::Migration
   def change
 
-  create_table 'interactions', id: :bigint, force: :cascade do |t|
+  create_table 'interactions', id: :bigserial, force: :cascade do |t|
     t.integer  'shop_id',                    null: false
     t.integer  'user_id',          limit: 8, null: false
     t.integer  'item_id',          limit: 8, null: false
