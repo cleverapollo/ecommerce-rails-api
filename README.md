@@ -27,11 +27,18 @@ Back-end для приема событий и выдачи рекомендац
 
 
 ### Развертывание
+Для mac OS X:
+```
+$ brew install libarchive
+$ bundle config build.libarchive-ruby --with-opt-dir=$(brew --prefix libarchive)
+```
+
 ```
 $ bundle
 $ bin/rake db:create db:schema:load
 $ foreman start
 ```
+
 
 ### Тесты
 ```
