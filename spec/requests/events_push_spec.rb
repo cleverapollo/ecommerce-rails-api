@@ -14,7 +14,7 @@ describe 'Pushing an event' do
       price: [14375, 25000],
       is_available: [1, 0],
       category: [191, 15],
-      attributes: ['{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}'],
+      attributes: ['{"fashion":{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}}'],
       recommended_by: 'similar'
     }
   end
@@ -32,7 +32,7 @@ describe 'Pushing an event' do
     expect(@action.recommended_by).to eq('similar')
 
     item = Item.first!
-    expect(item.custom_attributes).to eq({"gender" => "m","type" => "shoe","sizes" => ["e39.5","e41","e41.5"],"brand" => "artioli"})
+    expect({"gender"=>item.gender, "type"=>item.wear_type, "sizes"=>item.sizes}).to eq({"gender" => "m","type" => "shoe","sizes" => ["e39.5","e41","e41.5"]})
   end
 
   it 'updates view event to cart' do
