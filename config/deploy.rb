@@ -10,7 +10,7 @@ set :deploy_via,      :remote_cache
 set :ssh_options,     {forward_agent: true}
 set :use_sudo,        false
 set :keep_releases, 5
-set :linked_files, %w(config/database.yml config/secrets.yml config/shards.yml config/unicorn.rb)
+set :linked_files, %w(config/database.yml config/secrets.yml config/shards.yml config/unicorn.rb config/application.yml)
 set :linked_dirs, %w(tmp/sockets tmp/ymls log tmp/pids tmp/cache tmp/sockets vendor/bundle)
 
 set :normalize_asset_timestamps, false

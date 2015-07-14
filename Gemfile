@@ -31,6 +31,7 @@ gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
 gem 'rack-utf8_sanitizer', '~> 1.2.3'
+gem 'figaro'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -41,7 +42,7 @@ gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает �
 gem 'bounce_email', '~> 0.2.2', require: false # Определяет тип баунса
 
 # zip
- gem 'libarchive-ruby', '0.0.3' # codeship должен установить
+gem 'libarchive-ruby', '0.0.3'
 
 # Development tools
 group :development do
