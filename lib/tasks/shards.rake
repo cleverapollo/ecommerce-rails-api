@@ -1,5 +1,26 @@
 namespace :shards do
 
+  # All tasks
+  # RAILS_ENV=production bundle exec rake shards:transfer_actions
+  # RAILS_ENV=production bundle exec rake shards:transfer_items
+  # RAILS_ENV=production bundle exec rake shards:transfer_beacon_messages
+  # RAILS_ENV=production bundle exec rake shards:transfer_client_errors
+  # RAILS_ENV=production bundle exec rake shards:transfer_digest_mailings
+  # RAILS_ENV=production bundle exec rake shards:transfer_digest_mailing_batches
+  # RAILS_ENV=production bundle exec rake shards:transfer_digest_mailing_settings
+  # RAILS_ENV=production bundle exec rake shards:transfer_digest_mails
+  # RAILS_ENV=production bundle exec rake shards:transfer_mailings_settings
+  # RAILS_ENV=production bundle exec rake shards:transfer_trigger_mailings
+  # RAILS_ENV=production bundle exec rake shards:transfer_trigger_mails
+  # RAILS_ENV=production bundle exec rake shards:transfer_events
+  # RAILS_ENV=production bundle exec rake shards:transfer_clients
+  # RAILS_ENV=production bundle exec rake shards:transfer_orders
+  # RAILS_ENV=production bundle exec rake shards:transfer_order_items
+  # RAILS_ENV=production bundle exec rake shards:transfer_item_categories
+  # RAILS_ENV=production bundle exec rake shards:transfer_recommendations_requests
+  # RAILS_ENV=production bundle exec rake shards:transfer_interactions
+
+
   desc 'Transfer actions'
   task :transfer_actions => :environment do
     table_name = 'actions'
@@ -226,7 +247,7 @@ namespace :shards do
         SELECT * FROM
           dblink(
             'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]} port=#{MASTER_DB["port"]}',
-            'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+            'SELECT #{fields} FROM #{table_name} WHERE order_id IN (SELECT id FROM orders WHERE (shop_id % 2) = #{SHARD_ID} )')
           AS t1(id bigint, order_id bigint, item_id bigint, action_id bigint, amount integer, recommended_by character varying);
     SQL
     ActiveRecord::Base.connection.execute query
