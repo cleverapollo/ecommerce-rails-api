@@ -29,5 +29,9 @@ module SectoralAlgorythms
     def attributes_for_update
       raise NotImplementedError.new('This should be implemented in concrete Algorythm class')
     end
+
+    def modify_relation(relation)
+      relation
+    end
   end
 end

@@ -8,24 +8,6 @@ module Recommender
     include ItemInjector
     include WeightHelper
 
-    def items_to_recommend
-      if params.modification.present?
-        result = super
-        if params.modification == 'fashion'
-          # Фильтрация по полу
-          #gender = SectoralAlgorythms::Wear::Gender.calculate_for(user, shop: shop)
-          #result = result.by_ca(gender: gender)
-          # фильтрация по размерам одежды
-           #if item && item.custom_attributes['sizes'].try(:first).try(:present?)
-           #  result = result.by_ca(sizes: item.custom_attributes['sizes'])
-           #end
-        end
-        result
-      else
-        super
-      end
-    end
-
 
     # @return Int[]
     def recommended_ids

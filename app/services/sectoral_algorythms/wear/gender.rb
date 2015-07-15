@@ -41,7 +41,7 @@ module SectoralAlgorythms
           normalized_purchase = NormalizeHelper.normalize_or_flat([history['m']['purchase'], history['f']['purchase']])
 
           # Минимальное значение просмотров - 10, чтобы избежать категоричных оценок новых пользователей
-          normalized_views = NormalizeHelper.normalize_or_flat([history['m']['views'], history['f']['views']], min_value:MIN_VIEWS_SCORE)
+          normalized_views = NormalizeHelper.normalize_or_flat([history['m']['views'], history['f']['views']], min_value: MIN_VIEWS_SCORE)
 
           @gender['m']=normalized_views[0] * K_VIEW + normalized_purchase[0] * K_PURCHASE
           @gender['f']=normalized_views[1] * K_VIEW + normalized_purchase[1] * K_PURCHASE
@@ -55,6 +55,13 @@ module SectoralAlgorythms
 
       def attributes_for_update
         { :gender => @gender }
+      end
+
+      def modify_relation(relation)
+        cur_gender = value
+        return relation if cur_gender[:m]==cur_gender[:f]
+
+        relation.where.not(gender.min_by { |_, v| v }.first)
       end
 
       private
