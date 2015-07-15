@@ -66,7 +66,7 @@ module SectoralAlgorythms
       def opposite_gender
         cur_gender = value
         return false if cur_gender[:m]==cur_gender[:f]
-        cur_gender.min_by { |_, v| v }.first
+        cur_gender.min_by { |_, v| v }.first.to_s
       end
 
       private
