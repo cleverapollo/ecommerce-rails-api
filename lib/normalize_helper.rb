@@ -12,9 +12,8 @@ class NormalizeHelper
       sum = values.reduce(:+)
 
       if sum == 0
-        # Нормализуем по единичному вектору
-        values = values.fill(1)
-        sum = values.size
+        # Нормализация не требуется
+        return values
       end
 
       values.map {|val| val.to_f/sum.to_f}

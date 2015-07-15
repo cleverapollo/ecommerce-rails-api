@@ -7,7 +7,7 @@ module SectoralAlgorythms
     class Gender < SectoralAlgorythms::Base
       K_VIEW = 1
       K_PURCHASE = 10
-      MIN_VIEWS_SCORE = 10
+      MIN_VIEWS_SCORE = 1
 
       def initialize(user)
         super
