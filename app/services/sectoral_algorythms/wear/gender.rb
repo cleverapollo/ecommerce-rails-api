@@ -61,7 +61,7 @@ module SectoralAlgorythms
         cur_gender = value
         return relation if cur_gender[:m]==cur_gender[:f]
 
-        relation.where.not(gender.min_by { |_, v| v }.first)
+        relation.where.not(cur_gender.min_by { |_, v| v }.first)
       end
 
       private
