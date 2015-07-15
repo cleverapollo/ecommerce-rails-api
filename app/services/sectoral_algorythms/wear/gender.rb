@@ -58,8 +58,8 @@ module SectoralAlgorythms
       end
 
       def modify_relation(relation)
-        opposite_gender = opposite_gender
-        return relation.where.not(opposite_gender) if opposite_gender
+        opposite_gender_loc = opposite_gender
+        return relation.where.not(opposite_gender_loc) if opposite_gender_loc
         relation
       end
 
