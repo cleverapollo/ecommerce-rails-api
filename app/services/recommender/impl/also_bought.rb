@@ -7,18 +7,19 @@ module Recommender
 
 
       def items_to_recommend
-        if params.modification.present?
-          result = super
-          if params.modification == 'fashion'
-            #if ['m', 'f'].include?(item.gender)
-            #  gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
-            #  result = gender_algo.modify_relation(result)
-            #end
-          end
-          result
-        else
-          super
-        end
+        super
+        # if params.modification.present?
+        #   result = super
+        #   if params.modification == 'fashion'
+        #     #if ['m', 'f'].include?(item.gender)
+        #     #  gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+        #     #  result = gender_algo.modify_relation(result)
+        #     #end
+        #   end
+        #   result
+        # else
+        #   super
+        # end
       end
 
       def check_params!
