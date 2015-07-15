@@ -10,10 +10,10 @@ module Recommender
         if params.modification.present?
           result = super
           if params.modification == 'fashion'
-            if ['m', 'f'].include?(item.gender)
-              gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
-              result = gender_algo.modify_relation(result)
-            end
+            #if ['m', 'f'].include?(item.gender)
+            #  gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+            #  result = gender_algo.modify_relation(result)
+            #end
           end
           result
         else
