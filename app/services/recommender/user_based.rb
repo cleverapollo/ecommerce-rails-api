@@ -22,6 +22,7 @@ module Recommender
         excluded_items = (excluded_items+result).compact.uniq
       end
 
+      
       ms.close
 
       if result.size > params.limit
