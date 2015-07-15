@@ -15,7 +15,7 @@ module Recommender
       opposite_gender = SectoralAlgorythms::Wear::Gender.new(params.user).opposite_gender
       # ограничим количество итераций во избежании зацикливания
       iterations = 0
-      while result.size<params.limit && iterations<5
+      while result.size<params.limit && iterations<3
         new_result = fetch_user_based(excluded_items, ms)
         break if new_result.empty?
         # По отраслевым отсеивать тут
