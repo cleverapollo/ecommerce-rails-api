@@ -58,10 +58,15 @@ module SectoralAlgorythms
       end
 
       def modify_relation(relation)
+        opposite_gender = opposite_gender
+        return relation.where.not(opposite_gender) if opposite_gender
+        relation
+      end
+
+      def opposite_gender
         cur_gender = value
-        return relation if cur_gender[:m]==cur_gender[:f]
-        opposite_gender = cur_gender.min_by { |_, v| v }
-        relation.where.not(opposite_gender.first)
+        return false if cur_gender[:m]==cur_gender[:f]
+        cur_gender.min_by { |_, v| v }.first
       end
 
       private
