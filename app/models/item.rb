@@ -29,7 +29,7 @@ class Item < ActiveRecord::Base
   }
   # Доступные для отображения
   scope :widgetable, ->() {
-    where('name IS NOT NULL AND name != \'\'').where('url IS NOT NULL AND url != \'\'').where('image_url IS NOT NULL AND image_url != \'\'').where('price IS NOT NULL AND price != 0.0')
+    where(widgetable:true)
   }
   # Фильтрация по кастомным аттрибутам
   scope :by_ca, ->(params) {
