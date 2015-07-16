@@ -50,7 +50,7 @@ module Recommender
           # ТОРМОЗИИИИИИИТ
           result += shop.actions.where(item_id: items_relation_with_price_condition).
               where('timestamp > ?', min_date).
-              #group(:item_id).by_average_rating.
+              group(:item_id).by_average_rating.
               limit(LIMIT_CF_ITEMS).pluck(:item_id)
 
           if result.size < limit
