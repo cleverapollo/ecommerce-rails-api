@@ -17,6 +17,7 @@
 config/database.yml
 config/secrets.yml
 config/shards.yml
+config/application.yml
 
 # Ignore coverage reports
 /coverage
