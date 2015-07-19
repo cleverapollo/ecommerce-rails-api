@@ -11,7 +11,6 @@ class MoveInteractions < ActiveRecord::Migration
   end
 
   add_index 'interactions', ['shop_id', 'created_at', 'recommender_code'], name: 'interactions_shop_id_created_at_recommender_code_idx', where: '(code = 1)', using: :btree
-  add_index 'interactions', ['shop_id', 'item_id'], name: 'tmpidx_interactions_1', using: :btree
   add_index 'interactions', ['user_id'], name: 'index_interactions_on_user_id', using: :btree
 
   execute <<-SQL
