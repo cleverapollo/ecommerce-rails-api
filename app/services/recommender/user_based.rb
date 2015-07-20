@@ -3,24 +3,6 @@
 #
 module Recommender
   class UserBased < Base
-    # Переопределенный метод из базового класса. Накидываем сверху отраслевые алгоритмы
-    def items_to_recommend
-      if params.modification.present?
-        result = super
-        if params.modification == 'fashion'
-          #gender = SectoralAlgorythms::Wear::Gender.value_for(user, shop: shop, current_item: item)
-          #result = result.by_ca(gender: gender)
-
-          # фильтрация по размерам одежды
-          #if item && item.custom_attributes['sizes'].try(:first).try(:present?)
-          #  result = result.by_ca(sizes: item.custom_attributes['sizes'])
-          #end
-        end
-        result
-      else
-        super
-      end
-    end
 
     def recommended_ids
 
@@ -30,14 +12,20 @@ module Recommender
       ms.open
 
       result = []
-
-      while result.size<params.limit
-        result = fetch_user_based(excluded_items, ms)
-        break if result.empty?
-        # уберем товары, которые не актуальные
-        result = Item.where(id: result).pluck(:id, :widgetable).to_h.delete_if { |val| !val }.keys
-        excluded_items = (excluded_items+result).compact.uniq
+      opposite_gender = SectoralAlgorythms::Wear::Gender.new(params.user).opposite_gender
+      # ограничим количество итераций во избежании зацикливания
+      iterations = 0
+      while result.size<params.limit && iterations<3
+        new_result = fetch_user_based(excluded_items, ms)
+        break if new_result.empty?
+        # По отраслевым отсеивать тут
+        # уберем товары, которые не актуальные или не соответствуют полу
+        new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map{|v| v[0]}
+        result = result+new_result
+        excluded_items = (excluded_items+new_result).compact.uniq
+        iterations+=1
       end
+
 
       ms.close
 
@@ -56,7 +44,7 @@ module Recommender
                           params.item_id,
                           include: [], # Махаут в курсе итемов
                           exclude: excluded_items,
-                          limit: params.limit*2)
+                          limit: params.limit*8)
 
         if r.none?
           # Коллаборативка по истории действий пользователя
@@ -65,7 +53,7 @@ module Recommender
                             nil,
                             include: [], # Махаут в курсе итемов
                             exclude: excluded_items,
-                            limit: params.limit*2)
+                            limit: params.limit*8)
         end
 
         r

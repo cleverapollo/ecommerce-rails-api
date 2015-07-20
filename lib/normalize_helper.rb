@@ -8,13 +8,15 @@ class NormalizeHelper
           value
         end
       end
-      vector = Vector.elements(values)
-      if vector.magnitude == 0
-        # Нормализуем по единичному вектору
-        vector = Vector.elements(values.fill(1))
+
+      sum = values.reduce(:+)
+
+      if sum == 0
+        # Нормализация не требуется
+        return values
       end
 
-      vector.normalize
+      values.map {|val| val.to_f/sum.to_f}
     end
   end
 end

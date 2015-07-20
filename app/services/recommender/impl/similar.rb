@@ -46,6 +46,8 @@ module Recommender
         end
 
         if result.size <limit
+
+          # ТОРМОЗИИИИИИИТ
           result += shop.actions.where(item_id: items_relation_with_price_condition).
               where('timestamp > ?', min_date).
               group(:item_id).by_average_rating.
@@ -98,7 +100,7 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.order('price DESC').limit(LIMIT_CF_ITEMS)
+        items_to_recommend.order('price DESC')
       end
 
       def items_relation_with_price_condition

@@ -5,6 +5,22 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
+
+      def items_to_recommend
+        if params.modification.present?
+          result = super
+          if params.modification == 'fashion'
+            if ['m', 'f'].include?(item.gender)
+             gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+             result = gender_algo.modify_relation(result)
+            end
+          end
+          result
+        else
+          super
+        end
+      end
+
       def check_params!
         raise Recommendations::IncorrectParams.new('Item ID required for this recommender') if params.item.blank?
       end

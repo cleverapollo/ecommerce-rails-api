@@ -2,12 +2,14 @@ module ActionPush
   ##
   # Базовый класс ошибки при работе с событиями
   #
-  class Error < StandardError; end
+  class Error < StandardError;
+  end
 
   ##
   # Ошибка входящих параметров при работе с событиями
   #
-  class IncorrectParams < Error; end
+  class IncorrectParams < Error;
+  end
 
   ##
   # Класс, проверяющий и извлекающий нужные объекты из параметров, которые приходят от магазинов
@@ -96,13 +98,13 @@ module ActionPush
     #
     # @private
     def extract_static_attributes
-      @action            = raw[:event]
-      @rating            = raw[:rating].present? ? raw[:rating].to_i : nil
-      @recommended_by    = raw[:recommended_by]
-      @order_id          = raw[:order_id]
+      @action = raw[:event]
+      @rating = raw[:rating].present? ? raw[:rating].to_i : nil
+      @recommended_by = raw[:recommended_by]
+      @order_id = raw[:order_id]
       @trigger_mail_code = raw[:trigger_mail_code]
-      @digest_mail_code  = raw[:digest_mail_code]
-      @source            = raw[:source].present? ? JSON.parse(raw[:source]) : nil
+      @digest_mail_code = raw[:digest_mail_code]
+      @source = raw[:source].present? ? JSON.parse(raw[:source]) : nil
     end
 
     # Извлекает пользователя
@@ -167,14 +169,37 @@ module ActionPush
           end
         end
 
-        item_attributes.custom_attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
+
+        attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
+
+
+        # Прогрузим данные для отраслевых
+        # для fashion
+        if raw[:attributes][i].present?
+          fashion_attributes = attributes['fashion'].present? ? attributes['fashion'] : {}
+          attributes.delete('fashion')
+          if fashion_attributes['gender'].present? && ['m', 'f'].include?(fashion_attributes['gender'])
+            item_attributes.gender = fashion_attributes['gender']
+          end
+
+          if fashion_attributes['sizes'].present? && fashion_attributes['sizes'].is_a?(Array) && fashion_attributes['sizes'].any?
+            item_attributes.sizes = fashion_attributes['sizes']
+          end
+
+          if fashion_attributes['type'].present? && SizeHelper::SIZE_TYPES.include?(fashion_attributes['type'])
+            item_attributes.wear_type = fashion_attributes['type']
+          end
+        end
+
+        item_attributes.custom_attributes = attributes
         if item_attributes.custom_attributes.present?
           item_attributes.custom_attributes.each do |k, value|
             if value.is_a?(Array)
-              value = value.map{|v| v.strip.mb_chars.downcase.to_s }
+              value = value.map { |v| v.strip.mb_chars.downcase.to_s }
             else
               value = value.to_s.strip.mb_chars.downcase.to_s
             end
+
             item_attributes.custom_attributes[k] = value
           end
         end

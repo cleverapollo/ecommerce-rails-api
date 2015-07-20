@@ -28,7 +28,7 @@ describe SectoralAlgorythms::Wear::Gender do
 
         subject {
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::Wear::Gender])
-          (SectoralAlgorythms::Wear::Gender::MIN_VIEWS_SCORE*2).times { service.trigger_action(Actions::View.new, [male_item]) }
+          (SectoralAlgorythms::Wear::Gender::MIN_VIEWS_SCORE*2).times { service.trigger_action('view', [male_item]) }
 
           SectoralAlgorythms::Wear::Gender.new(user).value
         }
@@ -43,10 +43,11 @@ describe SectoralAlgorythms::Wear::Gender do
         let(:female_item) { create(:item, shop: shop, gender: 'f') }
 
 
-        subject {
+        before {
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::Wear::Gender])
-          service.trigger_action(Actions::Purchase.new, [female_item])
-
+          service.trigger_action('purchase', [female_item])
+        }
+        subject {
           SectoralAlgorythms::Wear::Gender.new(user).value
         }
 

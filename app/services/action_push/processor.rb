@@ -44,7 +44,7 @@ module ActionPush
 
       # Активируем триггеры отраслевых алгоритмов
       SectoralAlgorythms::Service.new(params.user, SectoralAlgorythms::Service.all_algorythms)
-          .trigger_action(concrete_action_class, params.items)
+          .trigger_action(params.action, params.items)
 
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
