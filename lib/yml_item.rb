@@ -56,6 +56,7 @@ class YmlItem
   def brand
     brand = ''
     brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
+    brand = StringHelper.encode_and_truncate(@content['child']['brand'], 255) if @content['child'].present? && @content['child']['brand'].present?
     brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty? && @content['vendor'].present?
 
     if brand.empty?
@@ -114,11 +115,13 @@ class YmlItem
     # Для совместимости sex->gender
     gender = StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
     gender = StringHelper.encode_and_truncate(@content['fashion']['gender']) if @content['fashion'].present? && @content['fashion']['gender'].present?
+    gender = StringHelper.encode_and_truncate(@content['child']['gender']) if @content['child'].present? && @content['child']['gender'].present?
     gender
   end
 
   def wear_type
-    StringHelper.encode_and_truncate(@content['fashion']['type']) if @content['fashion'].present? && @content['fashion']['type'].present?
+    return StringHelper.encode_and_truncate(@content['fashion']['type']) if @content['fashion'].present? && @content['fashion']['type'].present?
+    return StringHelper.encode_and_truncate(@content['child']['type']) if @content['child'].present? && @content['child']['type'].present?
   end
 
   def feature
@@ -134,7 +137,23 @@ class YmlItem
         value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
       end
     end
+
+    if @content['child'].present? && @content['child']['sizes'].present?
+      value = []
+      @content['child']['sizes']['size'].each do |val|
+        value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: 'child' }))
+      end
+    end
+
     value
+  end
+
+  def age_max
+    @content['child']['age']['max'].to_f if @content['child'].present? && @content['child']['age'].present? && @content['child']['age']['max'].present?
+  end
+
+  def age_min
+    @content['child']['age']['min'].to_f if @content['child'].present? && @content['child']['age'].present? && @content['child']['age']['min'].present?
   end
 
   # Delegate all unknown calls to new item object

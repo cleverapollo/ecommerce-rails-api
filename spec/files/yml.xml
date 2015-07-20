@@ -120,6 +120,13 @@
           </location>
         </locations>
 
+        <child>
+          <age>
+            <min>0.25</min>
+            <max>1.25</max>
+          </age>
+        </child>
+
       </offer>
 
       <offer available="true" id="5000">
