@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150708130447) do
+ActiveRecord::Schema.define(version: 20150720144110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,14 +84,14 @@ ActiveRecord::Schema.define(version: 20150708130447) do
 
   create_table "advertiser_purchases", force: :cascade do |t|
     t.integer  "advertiser_id"
-    t.integer  "item_id"
+    t.integer  "item_id",        limit: 8
     t.integer  "shop_id"
     t.integer  "order_id"
     t.float    "price"
     t.string   "recommended_by"
     t.date     "date"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   add_index "advertiser_purchases", ["advertiser_id", "shop_id"], name: "index_advertiser_purchases_on_advertiser_id_and_shop_id", using: :btree
@@ -420,12 +420,12 @@ ActiveRecord::Schema.define(version: 20150708130447) do
   add_index "insales_shops", ["shop_id"], name: "index_insales_shops_on_shop_id", using: :btree
 
   create_table "interactions", force: :cascade do |t|
-    t.integer  "shop_id",          null: false
-    t.integer  "user_id",          null: false
-    t.integer  "item_id",          null: false
-    t.integer  "code",             null: false
+    t.integer  "shop_id",                    null: false
+    t.integer  "user_id",                    null: false
+    t.integer  "item_id",          limit: 8, null: false
+    t.integer  "code",                       null: false
     t.integer  "recommender_code"
-    t.datetime "created_at",       null: false
+    t.datetime "created_at",                 null: false
   end
 
   add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
@@ -477,16 +477,20 @@ ActiveRecord::Schema.define(version: 20150708130447) do
     t.string  "wear_type",         limit: 20
     t.string  "feature",           limit: 20
     t.string  "sizes",                         default: [],                 array: true
+    t.float   "age_min"
+    t.float   "age_max"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
+  add_index "items", ["gender"], name: "index_items_on_gender", where: "(gender IS NOT NULL)", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
+  add_index "items", ["widgetable"], name: "index_items_on_widgetable", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
 
   create_table "mahout_actions", force: :cascade do |t|
     t.integer "user_id",    limit: 8
@@ -830,6 +834,7 @@ ActiveRecord::Schema.define(version: 20150708130447) do
     t.integer  "plan_value"
     t.boolean  "dont_disconnect",                                                   default: false, null: false
     t.string   "brb_address"
+    t.integer  "shard",                                                             default: 0,     null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
