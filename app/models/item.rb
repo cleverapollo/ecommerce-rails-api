@@ -109,7 +109,9 @@ class Item < ActiveRecord::Base
         gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :gender)),
         wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :wear_type)),
         feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
-        sizes: ValuesHelper.present_one(new_item, self, :sizes)
+        sizes: ValuesHelper.present_one(new_item, self, :sizes),
+        age_min: ValuesHelper.present_one(new_item, self, :age_min),
+        age_max: ValuesHelper.present_one(new_item, self, :age_max)
     }
 
     assign_attributes(attrs)

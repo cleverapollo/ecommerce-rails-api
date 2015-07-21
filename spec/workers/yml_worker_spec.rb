@@ -62,13 +62,15 @@ describe YmlWorker do
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
-    it 'gets correct name from typePrefix, vendor, model' do
+    it 'gets correct name from typePrefix, vendor, model & correct age' do
       existing_item = create(:item, uniqid: '4000', shop: shop)
       subject
 
       existing_item.reload
       {
-          name: 'Smart Apple iPhone 6 128Gb'
+          name: 'Smart Apple iPhone 6 128Gb',
+          age_min: 0.25,
+          age_max: 1.25,
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
