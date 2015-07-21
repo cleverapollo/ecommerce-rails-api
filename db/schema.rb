@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150710160342) do
+ActiveRecord::Schema.define(version: 20150721135514) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -213,6 +213,8 @@ ActiveRecord::Schema.define(version: 20150710160342) do
     t.string  "wear_type",         limit: 20
     t.string  "feature",           limit: 20
     t.string  "sizes",                         default: [],                 array: true
+    t.float   "age_min"
+    t.float   "age_max"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
