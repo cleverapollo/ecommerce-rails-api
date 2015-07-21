@@ -47,7 +47,7 @@ namespace :shards do
           dblink(
             'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]} port=#{MASTER_DB["port"]}',
             'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
-          AS t1(id bigint, shop_id integer, uniqid character varying(255), price numeric, is_available boolean, name character varying(255), description text, url text, image_url text, tags character varying[], widgetable boolean, brand character varying(255), repeatable boolean, available_till date, categories character varying[], ignored boolean, custom_attributes jsonb, locations jsonb, sr double precision, sales_rate smallint, type_prefix character varying, vendor_code character varying, model character varying, gender character varying(1), wear_type character varying(20), feature character varying(20), sizes character varying[], age_min double, age_max double);
+          AS t1(id bigint, shop_id integer, uniqid character varying(255), price numeric, is_available boolean, name character varying(255), description text, url text, image_url text, tags character varying[], widgetable boolean, brand character varying(255), repeatable boolean, available_till date, categories character varying[], ignored boolean, custom_attributes jsonb, locations jsonb, sr double precision, sales_rate smallint, type_prefix character varying, vendor_code character varying, model character varying, gender character varying(1), wear_type character varying(20), feature character varying(20), sizes character varying[], age_min float, age_max float);
     SQL
     ActiveRecord::Base.connection.execute query
   end
