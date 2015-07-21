@@ -40,14 +40,14 @@ namespace :shards do
   desc 'Transfer items'
   task :transfer_items => :environment do
     table_name = 'items'
-    fields = 'id, shop_id, uniqid, price, is_available, name, description, url, image_url, tags, widgetable, brand, repeatable, available_till, categories, ignored, custom_attributes, locations, sr, sales_rate, type_prefix, vendor_code, model, gender, wear_type, feature, sizes'
+    fields = 'id, shop_id, uniqid, price, is_available, name, description, url, image_url, tags, widgetable, brand, repeatable, available_till, categories, ignored, custom_attributes, locations, sr, sales_rate, type_prefix, vendor_code, model, gender, wear_type, feature, sizes, age_min, age_max'
     query = <<-SQL
       INSERT INTO #{table_name} (#{fields})
         SELECT * FROM
           dblink(
             'dbname=postgres hostaddr=#{MASTER_DB["host"]} dbname=#{MASTER_DB["database"]} user=#{MASTER_DB["username"]} password=#{MASTER_DB["password"]} port=#{MASTER_DB["port"]}',
             'SELECT #{fields} FROM #{table_name} WHERE shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
-          AS t1(id bigint, shop_id integer, uniqid character varying(255), price numeric, is_available boolean, name character varying(255), description text, url text, image_url text, tags character varying[], widgetable boolean, brand character varying(255), repeatable boolean, available_till date, categories character varying[], ignored boolean, custom_attributes jsonb, locations jsonb, sr double precision, sales_rate smallint, type_prefix character varying, vendor_code character varying, model character varying, gender character varying(1), wear_type character varying(20), feature character varying(20), sizes character varying[]);
+          AS t1(id bigint, shop_id integer, uniqid character varying(255), price numeric, is_available boolean, name character varying(255), description text, url text, image_url text, tags character varying[], widgetable boolean, brand character varying(255), repeatable boolean, available_till date, categories character varying[], ignored boolean, custom_attributes jsonb, locations jsonb, sr double precision, sales_rate smallint, type_prefix character varying, vendor_code character varying, model character varying, gender character varying(1), wear_type character varying(20), feature character varying(20), sizes character varying[], age_min double, age_max double);
     SQL
     ActiveRecord::Base.connection.execute query
   end
