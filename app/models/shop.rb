@@ -35,12 +35,17 @@ class Shop < ActiveRecord::Base
   has_one :subscriptions_settings
   has_one :mailings_settings
 
+  # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
+  default_scope { where(shard: SHARD_ID) }
+
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
   scope :with_enabled_triggers, -> { joins(:trigger_mailings).where('trigger_mailings.enabled = true').uniq }
   scope :active, -> { where(active: true) }
   scope :connected, -> { where(connected: true) }
   scope :unrestricted, -> { active.where(restricted: false) }
   scope :newbies, -> { unrestricted.where('connected_at >= ? OR created_at >= ?', 3.days.ago, 3.days.ago ) }
+  scope :on_current_shard, -> { where(shard: SHARD_ID) }
+
 
   # ID товаров, купленных или добавленных в корзину пользователем
   def item_ids_bought_or_carted_by(user)

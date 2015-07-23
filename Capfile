@@ -15,7 +15,7 @@ require 'capistrano/deploy'
 require 'whenever/capistrano'
 
 require 'capistrano/rvm'
-# require 'capistrano/sidekiq'
+require 'capistrano/sidekiq'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
 
