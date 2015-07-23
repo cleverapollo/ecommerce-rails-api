@@ -23,14 +23,16 @@ every '0 4 * * *' do
   rake 'products:expire_carts'
 end
 
+# ВЕРНУТЬ ПОСЛЕ ПЕРЕЕЗДА НА ШАРДЫ
 every 30.minutes do
   # runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
-  rake 'mailings:handle_bounces'
+  # rake 'mailings:handle_bounces'
 end
 
+# ВЕРНУТЬ ПОСЛЕ ПЕРЕЕЗДА НА ШАРДЫ
 every 20.minutes do
   # runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
-  rake 'mailings:trigger_process_all'
+  # rake 'mailings:trigger_process_all'
 end
 
 # Каждую ночь в 3 часа пересчитываем SalesRate
@@ -45,9 +47,4 @@ every 30.minutes do
   rake 'statistics:sales_rate_newbies'
 end
 
-# Каждый день рассчитываем биллинг для рекламодателя
-every '0 5 * * *' do
-  # runner "RunnerWrapper.run('Promoting::Calculator.previous_days')"
-  rake 'statistics:calculate_yesterday_promotion'
-end
 

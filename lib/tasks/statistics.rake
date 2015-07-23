@@ -11,9 +11,5 @@ namespace :statistics do
     SalesRateCalculator.perform_newbies
   end
 
-  desc 'Calculate promotion results for previous day'
-  task :calculate_yesterday_promotion => :environment do
-    Promoting::Calculator.previous_days
-  end
 
 end
