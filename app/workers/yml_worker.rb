@@ -22,7 +22,7 @@ class YmlWorker
 
     # Обработать приоритетные магазины
     def process_priority
-      Shop.active.connected.with_yml.where(id: [356]).find_each do |shop|
+      Shop.active.connected.with_yml.find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
