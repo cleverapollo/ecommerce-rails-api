@@ -33,7 +33,7 @@ module SectoralAlgorythms
           current_child_index, @children = ChildHelper.fetch_child(@children)
 
           @children[current_child_index]['gender']['history'] ||= default_history
-          @children[current_child_index]['gender'][item.gender][history_key] += 1 if @children[current_child_index]['gender'][item.gender].present?
+          @children[current_child_index]['gender']['history'][item.gender][history_key] += 1 if @children[current_child_index]['gender'][item.gender].present?
         end
       end
 

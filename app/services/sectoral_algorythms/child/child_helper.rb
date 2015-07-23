@@ -3,8 +3,8 @@ module SectoralAlgorythms
     class ChildHelper
 
       # Типы товаров
-      ITEM_TYPES = %w(cloth shoe sock pantyhose toy education food nappy hygiene furniture school transport)
-      SIZE_TYPES = %w(cloth shoe sock pantyhose)
+      ITEM_TYPES = %w(cloth shoe sock toy education food nappy hygiene furniture school transport)
+      SIZE_TYPES = %w(cloth shoe sock)
 
       class << self
         def fetch_child(children)

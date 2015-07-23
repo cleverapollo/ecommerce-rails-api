@@ -12,11 +12,11 @@ module SizeTables
       {
           e: {
               adult: Proc.new { |size| size.to_i - 14 },
-              child: {}
+              child: Proc.new { |size| size.to_i - 14 },
           },
           b: {
               adult: Proc.new { |size| size.to_i + 15 },
-              child: {}
+              child: Proc.new { |size| size.to_i + 15 },
           },
           u: {
               adult: {
@@ -26,7 +26,13 @@ module SizeTables
                   'XL' => 29,
                   'XXL' => 31,
               },
-              child: {}
+              child: {
+                  'S' => 10,
+                  'M' => 12,
+                  'L' => 14,
+                  'XL' => 16,
+                  'XXL' => 18,
+              }
           }
       }
     end
