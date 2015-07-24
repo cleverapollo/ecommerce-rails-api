@@ -15,14 +15,14 @@ class YmlWorker
 
     # Обработать все магазины с YML файлами.
     def process_all
-      Shop.active.connected.with_yml.find_each do |shop|
+      Shop.active.connected.with_yml.where(shard: SHARD_ID).find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
 
     # Обработать приоритетные магазины
     def process_priority
-      Shop.active.connected.with_yml.find_each do |shop|
+      Shop.active.connected.with_yml.where(shard: SHARD_ID).find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
