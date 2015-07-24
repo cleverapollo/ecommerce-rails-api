@@ -12,3 +12,13 @@ production:
     username: master_shard_user_name
     password: ******
     <<: *defaults
+
+test:
+  master:
+    database: master_database
+    host: localhost
+    port: 6666
+    username: master_shard_user_name
+    password: ******
+    <<: *defaults
+
