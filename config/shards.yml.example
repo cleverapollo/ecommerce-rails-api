@@ -3,22 +3,21 @@ defaults: &defaults
   encoding: unicode
   pool: 5
   timeout: 5000
+  port: 5432
 
 production:
   master:
     database: master_database
     host: localhost
-    port: 6666
-    username: master_shard_user_name
-    password: ******
+    username: rees46
+    password: rees46
     <<: *defaults
 
 test:
   master:
     database: master_database
     host: localhost
-    port: 6666
-    username: master_shard_user_name
-    password: ******
+    username: rees46
+    password: rees46
     <<: *defaults
 
