@@ -1,6 +1,6 @@
 class AdvertiserStatisticsEvent < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
+  establish_connection MASTER_DB
 
 
   validates :advertiser_statistic_id, :advertiser_shop_id, :event, presence: true

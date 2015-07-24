@@ -3,7 +3,7 @@
 #
 class Shop < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
+  establish_connection MASTER_DB
 
 
   include Redis::Objects

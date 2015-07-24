@@ -3,7 +3,7 @@
 #
 class ProfileAttribute < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
+  establish_connection MASTER_DB
 
 
   belongs_to :shop

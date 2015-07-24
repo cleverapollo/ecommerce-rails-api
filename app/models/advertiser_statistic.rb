@@ -1,6 +1,6 @@
 class AdvertiserStatistic < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
+  establish_connection MASTER_DB
 
 
   validates :cost, :advertiser_id, :views, :original_clicks, :recommended_clicks, :original_purchases, :recommended_purchases, :date, presence: true

@@ -3,7 +3,7 @@
 #
 class Category < ActiveRecord::Base
 
-  establish_connection MASTER_DB if !Rails.env.test?
+  establish_connection MASTER_DB
 
 
   has_many :shops
