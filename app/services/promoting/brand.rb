@@ -18,7 +18,7 @@ module Promoting
 
       def advertisers_for_categories(shop_id, categories)
         Advertiser.active.prioritized.where(id: AdvertiserItemCategory.where(item_category_id:
-                                                              ItemCategory.where(shop_id: shop_id,external_id: categories))
+                                                              ItemCategory.where(shop_id: shop_id,external_id: categories).pluck(:id))
                                  .select('advertiser_id'))
       end
 
