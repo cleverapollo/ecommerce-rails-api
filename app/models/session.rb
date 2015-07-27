@@ -20,6 +20,7 @@ class Session < ActiveRecord::Base
           # Найти сессию по коду.
 
           # Убедиться, что у сессии есть юзер.
+
           if session.user.blank?
             session.create_user
           end
