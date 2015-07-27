@@ -30,14 +30,16 @@ module SectoralAlgorythms
       def increment_history(item, history_key)
         if item.try(:gender)
           # определим в какого ребенка производим запись
+          current_child_index, @children = ChildHelper.fetch_child(@children)
 
-          @gender['history'] ||= default_history
-          @gender['history'][item.gender][history_key] += 1 if @gender['history'][item.gender].present?
+          @children[current_child_index]['gender']['history'] ||= default_history
+          @children[current_child_index]['gender']['history'][item.gender][history_key] += 1 if @children[current_child_index]['gender'][item.gender].present?
         end
       end
 
       def recalculate
-        history = @gender['history']
+        current_child_index, @children = ChildHelper.fetch_child(@children)
+        history =  @children[current_child_index]['gender']['history']
 
         if history
           # Нормализуем
@@ -46,18 +48,18 @@ module SectoralAlgorythms
           # Минимальное значение просмотров - 10, чтобы избежать категоричных оценок новых пользователей
           normalized_views = NormalizeHelper.normalize_or_flat([history['m']['views'], history['f']['views']], min_value:MIN_VIEWS_SCORE)
 
-          @gender['m']=normalized_views[0] * K_VIEW + normalized_purchase[0] * K_PURCHASE
-          @gender['f']=normalized_views[1] * K_VIEW + normalized_purchase[1] * K_PURCHASE
+          @children[current_child_index]['gender']['m']=normalized_views[0] * K_VIEW + normalized_purchase[0] * K_PURCHASE
+          @children[current_child_index]['gender']['f']=normalized_views[1] * K_VIEW + normalized_purchase[1] * K_PURCHASE
 
           normalized_gender = NormalizeHelper.normalize_or_flat([@gender['m'], @gender['f']])
 
-          @gender['m']=(normalized_gender[0] * 100).to_i
-          @gender['f']=(normalized_gender[1] * 100).to_i
+          @children[current_child_index]['gender']['m']=(normalized_gender[0] * 100).to_i
+          @children[current_child_index]['gender']['f']=(normalized_gender[1] * 100).to_i
         end
       end
 
       def attributes_for_update
-        { :gender => @gender }
+        { :children => @children }
       end
 
       private

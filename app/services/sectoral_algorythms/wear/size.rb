@@ -26,11 +26,11 @@ module SectoralAlgorythms
       end
 
       def increment_history(item, history_key)
-        size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
-                                            gender: item.gender,
-                                            feature: item.feature)
 
         if sizes = item.try(:sizes)
+            size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
+                                                     gender: item.gender,
+                                                     feature: item.feature)
           @size['history'] ||= {}
 
           sizes.each do |size|
