@@ -26,7 +26,8 @@ module Recommender
       end
 
       def items_to_recommend
-        super.where(Item.in_categories(categories_for_query)).where.not(id: item.id)
+        ids = Item.in_categories(categories_for_query).pluck(:id)
+        super.where(id:ids).where.not(id: item.id)
       end
 
       def items_to_weight
@@ -48,7 +49,7 @@ module Recommender
         if result.size <limit
 
           # ТОРМОЗИИИИИИИТ
-          result += shop.actions.where(item_id: items_relation_with_price_condition.limit(LIMIT_CF_ITEMS)).
+          result += shop.actions.where(item_id: items_relation_with_price_condition).
               where('timestamp > ?', min_date).
               group(:item_id).by_average_rating.
               limit(LIMIT_CF_ITEMS).pluck(:item_id)
