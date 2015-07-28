@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150728131054) do
+ActiveRecord::Schema.define(version: 20150728170421) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -264,18 +264,18 @@ ActiveRecord::Schema.define(version: 20150728131054) do
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                                       null: false
-    t.integer  "user_id",           limit: 8,                                   null: false
-    t.string   "uniqid",            limit: 255,                                 null: false
-    t.datetime "date",                          default: '2015-07-10 20:05:47', null: false
-    t.decimal  "value",                         default: 0.0,                   null: false
-    t.boolean  "recommended",                   default: false,                 null: false
+    t.integer  "shop_id",                                       null: false
+    t.integer  "user_id",           limit: 8,                   null: false
+    t.string   "uniqid",            limit: 255,                 null: false
+    t.datetime "date",                                          null: false
+    t.decimal  "value",                         default: 0.0,   null: false
+    t.boolean  "recommended",                   default: false, null: false
     t.integer  "ab_testing_group"
-    t.decimal  "recommended_value",             default: 0.0,                   null: false
-    t.decimal  "common_value",                  default: 0.0,                   null: false
+    t.decimal  "recommended_value",             default: 0.0,   null: false
+    t.decimal  "common_value",                  default: 0.0,   null: false
     t.integer  "source_id"
     t.string   "source_type"
-    t.integer  "status",                        default: 0,                     null: false
+    t.integer  "status",                        default: 0,     null: false
     t.date     "status_date"
   end
 

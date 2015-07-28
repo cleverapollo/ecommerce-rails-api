@@ -12,6 +12,8 @@ class Order < ActiveRecord::Base
   belongs_to :source, polymorphic: true
   belongs_to :shop
 
+  before_create :record_date
+
   STATUS_NEW = 0
   STATUS_SUCCESS = 1
   STATUS_CANCELLED = 2
@@ -105,6 +107,13 @@ class Order < ActiveRecord::Base
     if [STATUS_NEW, STATUS_CANCELLED, STATUS_SUCCESS].include?(new_status) && status != new_status
       update status: new_status, status_date: Date.current
     end
+  end
+
+  protected
+
+  # Устанавливаем перед созданием заказа текущую дату заказа
+  def record_date
+    self.date = read_attribute(:date) || Time.now
   end
 
 end
