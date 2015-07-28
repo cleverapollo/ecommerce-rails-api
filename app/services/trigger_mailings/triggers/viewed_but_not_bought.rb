@@ -5,7 +5,7 @@ module TriggerMailings
         time_start = (1.day.ago.beginning_of_day)
         time_range = time_start..(1.day.ago.end_of_day)
 
-        if user.orders.where(date: time_start..Time.current).any?
+        if user.orders.where(date: time_start..Time.current).exists?
           return false
         end
 

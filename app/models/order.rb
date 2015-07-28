@@ -23,7 +23,7 @@ class Order < ActiveRecord::Base
       return nil if duplicate?(shop, user, uniqid, items)
 
       # Иногда заказы бывают без ID
-      uniqid = generate_uniqid if uniqid.blank?
+      uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Привязка заказа к письму
       if source.present? && source['from'].present?
@@ -79,17 +79,17 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        Order.where(uniqid: uniqid, shop_id: shop.id).any?
+        Order.where(uniqid: uniqid, shop_id: shop.id).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
-             .where("date > ?", 5.minutes.ago).any?
+             .where("date > ?", 5.minutes.ago).exists?
       end
     end
 
-    def generate_uniqid
+    def generate_uniqid(shop_id)
       loop do
         uuid = SecureRandom.uuid
-        return uuid if Order.where(uniqid: uuid).none?
+        return uuid if Order.where(uniqid: uuid).where(shop_id: shop_id).none?
       end
     end
   end
