@@ -13,9 +13,9 @@ module Sharding
       puts "Processing transfer_beacon_messages"
       transfer_beacon_messages only_new
       puts "Processing transfer"
-      transfer transfer_client_errors only_new
+      transfer_client_errors only_new
       puts "Processing transfer_digestmailings"
-      transfer_digestmailings only_new
+      transfer_digest_mailings only_new
       puts "Processing transfer_digest_mailing_batches"
       transfer_digest_mailing_batches only_new
       puts "Processing transfer_digest_mailing_settings"

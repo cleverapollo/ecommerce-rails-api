@@ -32,7 +32,7 @@ end
 # ВЕРНУТЬ ПОСЛЕ ПЕРЕЕЗДА НА ШАРДЫ
 every 20.minutes do
   # runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
-  # rake 'mailings:trigger_process_all'
+  rake 'mailings:trigger_process_all'
 end
 
 # Каждую ночь в 3 часа пересчитываем SalesRate
