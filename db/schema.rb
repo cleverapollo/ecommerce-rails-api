@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150728124346) do
+ActiveRecord::Schema.define(version: 20150728131054) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,6 +70,8 @@ ActiveRecord::Schema.define(version: 20150728124346) do
     t.datetime "updated_at"
     t.string   "referer",           limit: 255
   end
+
+  add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
 
   create_table "clients", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                              null: false
