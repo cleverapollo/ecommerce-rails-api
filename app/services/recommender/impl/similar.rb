@@ -26,7 +26,7 @@ module Recommender
       end
 
       def items_to_recommend
-        super.in_categories(categories_for_query).where.not(id: item.id)
+        super.where(Item.in_categories(categories_for_query)).where.not(id: item.id)
       end
 
       def items_to_weight
