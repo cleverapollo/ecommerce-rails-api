@@ -47,7 +47,7 @@ module Recommender
         # result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
         # result.limit(LIMIT).pluck(:item_id)
 
-        OrderItem.where(order_id: Order.where(shop_id: shop.id).limit(LIMIT * 10) ).order(id: :desc).limit(LIMIT).pluck(:item_id)
+        result = OrderItem.where(order_id: Order.where(shop_id: shop.id).limit(LIMIT * 10) ).where(item_id: all_items).order(id: :desc).limit(LIMIT).pluck(:item_id)
 
       end
 
