@@ -10,11 +10,11 @@ module SectoralAlgorythms
 
       def initialize(user)
         super
-        @size = user.size
+        @children = user.children
       end
 
       def value
-       {'m'=>@size['m'], 'f'=>@size['f']}
+        return @children
       end
 
       def trigger_view(item)
@@ -26,35 +26,40 @@ module SectoralAlgorythms
       end
 
       def increment_history(item, history_key)
-        size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
-                                            gender: item.gender,
-                                            feature: item.feature)
 
         if sizes = item.try(:sizes)
-          @size['history'] ||= {}
+
+
+          size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
+                                                   gender: item.gender,
+                                                   feature: 'child')
+
+          current_child_index, @children = ChildHelper.fetch_child(@children)
+
+          @children[current_child_index]['size']['history'] ||= {}
 
           sizes.each do |size|
             calculate_size = SizeHelper.to_ru(size.to_s, size_params)
 
             if calculate_size && calculate_size.to_i > 5
-              @size['history'][size_params[:gender]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size] ||= default_history
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size][history_key] += 1
+              @children[current_child_index]['size']['history'][size_params[:gender]]||={}
+              @children[current_child_index]['size']['history'][size_params[:gender]][size_params[:wear_type]]||={}
+              @children[current_child_index]['size']['history'][size_params[:gender]][size_params[:wear_type]][calculate_size] ||= default_history
+              @children[current_child_index]['size']['history'][size_params[:gender]][size_params[:wear_type]][calculate_size][history_key] += 1
             end
           end
         end
       end
 
       def recalculate
-        full_history = @size['history']
+        current_child_index, @children = ChildHelper.fetch_child(@children)
+        full_history =  @children[current_child_index]['size']['history']
 
         return if full_history.nil? || full_history.empty?
 
         full_history.each do |gender, gender_history|
           gender_history.each do |wear_type, wear_type_history|
-            wear_type_history.each do |feature, history|
+            wear_type_history.each do |_, history|
               sizes = history.keys.compact
 
               # Нормализуем
@@ -69,11 +74,10 @@ module SectoralAlgorythms
               normalized_sizes = NormalizeHelper.normalize_or_flat(normalized_sizes.values)
               max_probability_size_index = normalized_sizes.each_with_index.max[1]
 
-              @size[gender]||={}
-              @size[gender][wear_type]||={}
-              @size[gender][wear_type][feature]||={}
-              @size[gender][wear_type][feature]['size']=sizes[max_probability_size_index]
-              @size[gender][wear_type][feature]['probability']=(normalized_sizes[max_probability_size_index]*100).to_i
+              @children[current_child_index]['size'][gender]||={}
+              @children[current_child_index]['size'][gender][wear_type]||={}
+              @children[current_child_index]['size']['size']=sizes[max_probability_size_index]
+              @children[current_child_index]['size']['probability']=(normalized_sizes[max_probability_size_index]*100).to_i
             end
           end
         end

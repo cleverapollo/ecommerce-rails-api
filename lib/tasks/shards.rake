@@ -24,7 +24,7 @@ namespace :shards do
   # RAILS_ENV=production bundle exec rake shards:transfer_interactions
 
 
-  transfer_connection_string = "dbname=postgres hostaddr=#{MASTER_DB['host']} dbname=#{MASTER_DB['database']} user=#{MASTER_DB['username']} password=#{MASTER_DB['password']} port=#{MASTER_DB['port']}"
+  # transfer_connection_string = "dbname=postgres hostaddr=#{MASTER_DB['host']} dbname=#{MASTER_DB['database']} user=#{MASTER_DB['username']} password=#{MASTER_DB['password']} port=#{MASTER_DB['port']}"
 
   desc 'Transfer actions'
   task :transfer_actions => :environment do

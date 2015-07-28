@@ -40,7 +40,7 @@ describe Order do
   end
 
   describe '.generate_uniqid' do
-    subject { Order.generate_uniqid }
+    subject { Order.generate_uniqid(shop.id) }
 
     it 'generates unique id' do
       expect(subject).to be_an_instance_of(String)

@@ -5,36 +5,42 @@ module SizeTables
           m: {
               e: {
                   adult: Proc.new { |size| size.to_i-1 },
-                  child: {}
+                  child: Proc.new { |size| size.to_f },
               },
               b: {
                   adult: Proc.new do |size|
                     size = size.to_f
                     british_value(size)
                   end,
-                  child: {}
+                  child: Proc.new do |size|
+                    size = size.to_f
+                    british_value(size)
+                  end,
               },
               u: {
                   adult: Proc.new {|size| size.to_i+32},
-                  child: {}
+                  child: Proc.new {|size| size.to_i+32},
               }
           },
 
           f: {
               e: {
                   adult: Proc.new { |size| size.to_i-1 },
-                  child: {}
+                  child: Proc.new { |size| size.to_f },
               },
               b: {
                   adult: Proc.new do |size|
                     size = size.to_f
                     british_value(size)
                   end,
-                  child: {}
+                  child: Proc.new do |size|
+                    size = size.to_f
+                    british_value(size)
+                  end,
               },
               u: {
                   adult: Proc.new {|size| size.to_i+30},
-                  child: {}
+                  child: Proc.new {|size| size.to_i+32},
               }
           }
       }
@@ -43,7 +49,7 @@ module SizeTables
     def british_value(size)
       value=nil
       case size
-        when 3..5
+        when 1..5
           value = (size+32).to_i
         when 5.5..6.5
           value = (size+32.5).to_i

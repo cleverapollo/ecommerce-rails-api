@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150723171722) do
+ActiveRecord::Schema.define(version: 20150728090009) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -91,8 +91,10 @@ ActiveRecord::Schema.define(version: 20150723171722) do
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
     t.integer "digest_mailing_id", limit: 8,                   null: false
@@ -221,6 +223,7 @@ ActiveRecord::Schema.define(version: 20150723171722) do
   add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
@@ -246,6 +249,7 @@ ActiveRecord::Schema.define(version: 20150723171722) do
   end
 
   add_index "order_items", ["item_id"], name: "index_order_items_on_item_id", using: :btree
+  add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                       null: false
@@ -265,6 +269,9 @@ ActiveRecord::Schema.define(version: 20150723171722) do
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
+  add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", using: :btree
+  add_index "orders", ["shop_id"], name: "index_orders_on_shop_id", using: :btree
+  add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
 
   create_table "recommendations_requests", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                           null: false
