@@ -95,7 +95,7 @@ class SalesRateCalculator
             shop.items.recommendable.where(id: ids).update_all sales_rate: sales_rate
           end
         end
-      rescue
+      rescue StandardError => e
         Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
       end
 
