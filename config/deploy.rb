@@ -21,7 +21,7 @@ set :default_stage,   'production'
 
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
-set :rvm_ruby_string, "2.2.2"
+set :rvm_ruby_string, "2.2.0"
 
 
 # Whenever
