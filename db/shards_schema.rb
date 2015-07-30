@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150727083518) do
+ActiveRecord::Schema.define(version: 20150729145844) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,7 +74,7 @@ ActiveRecord::Schema.define(version: 20150727083518) do
     t.integer  "advertiser_id"
     t.integer  "item_id",        limit: 8
     t.integer  "shop_id"
-    t.integer  "order_id"
+    t.integer  "order_id",       limit: 8
     t.float    "price"
     t.string   "recommended_by"
     t.date     "date"
@@ -455,11 +455,11 @@ ActiveRecord::Schema.define(version: 20150727083518) do
   end
 
   create_table "profile_attributes", force: :cascade do |t|
-    t.integer  "user_id",    null: false
-    t.integer  "shop_id",    null: false
-    t.jsonb    "value",      null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "user_id",    limit: 8, null: false
+    t.integer  "shop_id",              null: false
+    t.jsonb    "value",                null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
   add_index "profile_attributes", ["user_id"], name: "index_profile_attributes_on_user_id", using: :btree
