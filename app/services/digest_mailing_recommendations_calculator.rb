@@ -37,8 +37,17 @@ class DigestMailingRecommendationsCalculator
     # Мы должны быть уверены, что туннель открыт.
     ensure_tunnel_is_opened!
 
+    params_interesting = OpenStruct.new(
+        shop: @shop,
+        user: @current_user,
+        limit: @limit - item_ids.count,
+        recommend_only_widgetable: true,
+        recommender_type: 'interesting',
+        exclude: item_ids
+    )
+
     # Сначала получаем рекомендации "Вам это будет интересно".
-    item_ids = interesting_ids
+    item_ids = Recommender::Impl::Interesting.new(params_interesting).recommended_ids
 
     # Если их недостаточно, то добавляем "Популярных".
     if item_ids.count < @limit
