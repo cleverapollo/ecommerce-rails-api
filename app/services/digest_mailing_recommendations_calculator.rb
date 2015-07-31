@@ -40,7 +40,7 @@ class DigestMailingRecommendationsCalculator
     params_interesting = OpenStruct.new(
         shop: @shop,
         user: @current_user,
-        limit: @limit - item_ids.count,
+        limit: @limit,
         recommend_only_widgetable: true,
         recommender_type: 'interesting',
         exclude: []
