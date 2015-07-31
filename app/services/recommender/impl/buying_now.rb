@@ -41,13 +41,13 @@ module Recommender
         # Выводит топ товаров за последние сутки.
         # Те, что чаще покупаются - будут выше.
         # Если покупок нет, все равно будет работать.
-        # result = shop.actions.where('timestamp >= ?', min_date)
-        # result = result.where(item_id: all_items)
-        # result = result.group(:item_id)
-        # result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
-        # result.limit(LIMIT).pluck(:item_id)
+        result = shop.actions.where('timestamp >= ?', min_date)
+        result = result.where(item_id: all_items)
+        result = result.group(:item_id)
+        result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
+        result.limit(LIMIT).pluck(:item_id)
 
-        result = OrderItem.where(order_id: Order.where(shop_id: shop.id).limit(LIMIT * 10) ).where(item_id: all_items).order(id: :desc).limit(LIMIT).pluck(:item_id)
+        # result = OrderItem.where(order_id: Order.where(shop_id: shop.id).limit(LIMIT * 10) ).where(item_id: all_items).order(id: :desc).limit(LIMIT * 5).pluck(:item_id).uniq.slice(0, LIMIT)
 
       end
 
