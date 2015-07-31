@@ -117,30 +117,4 @@ class DigestMailingRecommendationsCalculator
 
     result
   end
-
-  # Получить ID рекомендуемых товаров по алгоритму "Вам это будет интересно".
-  #
-  # @return [Array] массив ID товаров.
-  def interesting_ids
-    return [] if @current_user.nil?
-
-    items_to_include = if shop_works_with_locations?
-      @shop.items.recommendable.widgetable.in_locations(locations_for_current_user).pluck(:id)
-    else
-      @items_in_shop ||= @shop.items.recommendable.widgetable.pluck(:id)
-    end
-
-    Timeout::timeout(2) {
-      mahout_service.user_based(
-        @current_user.id,
-        @shop.id,
-        nil,
-        include: items_to_include,
-        exclude: @shop.item_ids_bought_or_carted_by(@current_user),
-        limit: @limit
-      )
-    }
-  rescue Timeout::Error => e
-    retry
-  end
 end

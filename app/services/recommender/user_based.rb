@@ -8,6 +8,9 @@ module Recommender
 
       excluded_items = excluded_items_ids
 
+      # при отправке тестового письма пользователь не может быть инициализирован, поэтому для него выдаем пустые рекомендации
+      return [] unless params.user
+
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
@@ -20,7 +23,7 @@ module Recommender
         break if new_result.empty?
         # По отраслевым отсеивать тут
         # уберем товары, которые не актуальные или не соответствуют полу
-        new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map{|v| v[0]}
+        new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
         result = result+new_result
         excluded_items = (excluded_items+new_result).compact.uniq
         iterations+=1
@@ -28,6 +31,7 @@ module Recommender
 
 
       ms.close
+
 
       if result.size > params.limit
         result.take(params.limit)
