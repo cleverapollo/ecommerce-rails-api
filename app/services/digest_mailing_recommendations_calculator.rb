@@ -43,7 +43,7 @@ class DigestMailingRecommendationsCalculator
         limit: @limit - item_ids.count,
         recommend_only_widgetable: true,
         recommender_type: 'interesting',
-        exclude: item_ids
+        exclude: []
     )
 
     # Сначала получаем рекомендации "Вам это будет интересно".
