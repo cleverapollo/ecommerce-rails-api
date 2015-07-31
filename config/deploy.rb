@@ -16,7 +16,7 @@ set :linked_dirs, %w(tmp/sockets tmp/ymls log tmp/pids tmp/cache tmp/sockets ven
 set :normalize_asset_timestamps, false
 
 set :rails_env,   'production'
-set :default_stage,   'production'
+set :default_stage,   'api_00'
 
 
 set :rvm_type, :user
