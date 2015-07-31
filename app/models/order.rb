@@ -2,6 +2,7 @@
 # Заказ
 #
 class Order < ActiveRecord::Base
+
   RECOMMENDED_BY_DECAY = 2.weeks
 
   include UserLinkable
@@ -10,6 +11,8 @@ class Order < ActiveRecord::Base
   has_many :advertiser_purchases
   belongs_to :source, polymorphic: true
   belongs_to :shop
+
+  before_create :record_date
 
   STATUS_NEW = 0
   STATUS_SUCCESS = 1
@@ -22,7 +25,7 @@ class Order < ActiveRecord::Base
       return nil if duplicate?(shop, user, uniqid, items)
 
       # Иногда заказы бывают без ID
-      uniqid = generate_uniqid if uniqid.blank?
+      uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Привязка заказа к письму
       if source.present? && source['from'].present?
@@ -78,17 +81,17 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        Order.where(uniqid: uniqid, shop_id: shop.id).any?
+        Order.where(uniqid: uniqid, shop_id: shop.id).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
-             .where("date > ?", 5.minutes.ago).any?
+             .where("date > ?", 5.minutes.ago).exists?
       end
     end
 
-    def generate_uniqid
+    def generate_uniqid(shop_id)
       loop do
         uuid = SecureRandom.uuid
-        return uuid if Order.where(uniqid: uuid).none?
+        return uuid if Order.where(uniqid: uuid).where(shop_id: shop_id).none?
       end
     end
   end
@@ -104,6 +107,13 @@ class Order < ActiveRecord::Base
     if [STATUS_NEW, STATUS_CANCELLED, STATUS_SUCCESS].include?(new_status) && status != new_status
       update status: new_status, status_date: Date.current
     end
+  end
+
+  protected
+
+  # Устанавливаем перед созданием заказа текущую дату заказа
+  def record_date
+    self.date = read_attribute(:date) || Time.now
   end
 
 end

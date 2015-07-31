@@ -2,6 +2,7 @@
 # Отправленное триггерное письмо
 #
 class TriggerMail < ActiveRecord::Base
+
   belongs_to :shop
   belongs_to :client
   belongs_to :mailing, class_name: 'TriggerMailing', foreign_key: 'trigger_mailing_id'

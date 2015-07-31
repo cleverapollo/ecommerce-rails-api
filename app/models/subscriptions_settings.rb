@@ -2,6 +2,10 @@
 # Настройки сбора e-mail. Создаются в rees46-rails
 #
 class SubscriptionsSettings < ActiveRecord::Base
+
+  establish_connection MASTER_DB
+
+
   belongs_to :shop
 
   def readonly?

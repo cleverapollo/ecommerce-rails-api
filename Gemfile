@@ -2,7 +2,7 @@ LANG="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
 
 source 'https://rubygems.org'
-ruby '2.2.2'
+ruby '2.2.0'
 
 # Rails
 gem 'rails', '4.2.3'
@@ -31,6 +31,7 @@ gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
 gem 'rack-utf8_sanitizer', '~> 1.2.3'
+gem 'figaro'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -41,7 +42,7 @@ gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает �
 gem 'bounce_email', '~> 0.2.2', require: false # Определяет тип баунса
 
 # zip
- gem 'libarchive-ruby', '0.0.3' # codeship должен установить
+gem 'libarchive-ruby', '0.0.3'
 
 # Development tools
 group :development do
@@ -51,9 +52,13 @@ group :development do
   gem 'letter_opener', '~> 1.2.0'
 
   # Deploy
-  gem 'capistrano', '~> 2.15.5'
-  gem 'rvm-capistrano', '~> 1.5.0',  require: false
-  gem 'capistrano-sidekiq', '~> 0.5.2'
+  gem 'capistrano', '~> 3.4.0'
+  gem 'rvm-capistrano'
+  gem 'capistrano-rvm'
+  gem 'capistrano-rails'
+  gem 'capistrano-bundler'
+  gem 'capistrano-sidekiq'
+
 
   # Preloader
   gem 'spring', '~> 1.2.0' # ?
@@ -66,6 +71,7 @@ group :development, :test do
   gem 'jazz_hands', github: 'nixme/jazz_hands', branch: 'bring-your-own-debugger' # Консоль
   gem 'rspec-rails', '~> 3.1.0'
   gem 'guard-rspec', '~> 4.5.0', require: false # Следит за состояние файлов и запускает тесты при изменении файла
+  gem 'thin'
 end
 
 # Test tools

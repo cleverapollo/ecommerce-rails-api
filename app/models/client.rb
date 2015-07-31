@@ -3,6 +3,7 @@
 # В некоторых случаях объект User может отсутствовать.
 #
 class Client < ActiveRecord::Base
+
   belongs_to :shop
   belongs_to :user
   has_many :trigger_mails

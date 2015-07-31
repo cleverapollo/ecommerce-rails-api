@@ -2,6 +2,10 @@
 # Сессия.
 #
 class Session < ActiveRecord::Base
+
+  establish_connection MASTER_DB
+
+
   include UserLinkable
 
   validates :code, presence: true
@@ -16,6 +20,7 @@ class Session < ActiveRecord::Base
           # Найти сессию по коду.
 
           # Убедиться, что у сессии есть юзер.
+
           if session.user.blank?
             session.create_user
           end

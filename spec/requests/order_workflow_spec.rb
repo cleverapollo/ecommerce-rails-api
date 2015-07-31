@@ -12,7 +12,7 @@ describe 'Order workflow' do
 
     # Session and user should be created
     expect(Session.count).to eq(1)
-    expect(User.count).to eq(1)
+    expect(User.count).to eq(2)
     @session = Session.first
     @user = @session.user
 
@@ -78,7 +78,7 @@ describe 'Order workflow' do
 
     # Session and user should be same count
     expect(Session.count).to eq(1)
-    expect(User.count).to eq(1)
+    expect(User.count).to eq(2)
 
     # Action should modyfied
     expect(Action.count).to eq(1)

@@ -2,6 +2,7 @@
 # Дайджестная рассылка.
 #
 class DigestMailing < ActiveRecord::Base
+
   class DisabledError < StandardError; end
 
   include Redis::Objects

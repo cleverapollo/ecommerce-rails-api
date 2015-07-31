@@ -2,6 +2,7 @@
 # Событие, связанное с магазином.
 #
 class Event < ActiveRecord::Base
+
   belongs_to :shop
 
   validates :shop_id, presence: true

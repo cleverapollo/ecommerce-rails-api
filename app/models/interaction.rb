@@ -2,6 +2,7 @@
 # Действие пользователя
 #
 class Interaction < ActiveRecord::Base
+
   include UserLinkable
 
   CODES = {

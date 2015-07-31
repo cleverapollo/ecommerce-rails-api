@@ -16,6 +16,8 @@
 /tmp
 config/database.yml
 config/secrets.yml
+config/shards.yml
+config/application.yml
 
 # Ignore coverage reports
 /coverage
@@ -28,3 +30,6 @@ config/secrets.yml
 /.idea
 20150609125754_readd_brand_to_advertiser.rb
 shards.yml
+
+# Ignore application configuration
+/config/application.yml

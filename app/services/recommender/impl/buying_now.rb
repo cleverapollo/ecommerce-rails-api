@@ -45,8 +45,8 @@ module Recommender
         result = result.where(item_id: all_items)
         result = result.group(:item_id)
         result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
+        result.limit(params.limit).pluck(:item_id)
 
-        result.limit(LIMIT).pluck(:item_id)
       end
 
 

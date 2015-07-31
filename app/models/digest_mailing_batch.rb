@@ -2,6 +2,7 @@
 # Часть дайджестной рассылки.
 #
 class DigestMailingBatch < ActiveRecord::Base
+
   include Redis::Objects
   value :current_processed_client_id
 

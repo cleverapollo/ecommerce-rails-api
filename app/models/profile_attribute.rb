@@ -2,6 +2,10 @@
 # Аттрибут профиля пользователя
 #
 class ProfileAttribute < ActiveRecord::Base
+
+  establish_connection MASTER_DB
+
+
   belongs_to :shop
   belongs_to :user
 

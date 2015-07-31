@@ -2,6 +2,8 @@
 # Товар
 #
 class Item < ActiveRecord::Base
+
+
   attr_accessor :amount, :action_id, :mail_recommended_by
 
   belongs_to :shop
@@ -43,6 +45,7 @@ class Item < ActiveRecord::Base
   }
 
   class << self
+
     # Отключаем протухшие туры и купоны – товары со сроком годности
     def disable_expired
       Item.available.expired.find_each do |item|
@@ -127,4 +130,5 @@ class Item < ActiveRecord::Base
   def price_in(location)
     locations[location].try(:price) || self.price
   end
+
 end

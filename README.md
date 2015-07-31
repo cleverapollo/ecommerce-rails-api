@@ -20,13 +20,19 @@ Back-end для приема событий и выдачи рекомендац
 3. Импорты. Заказы, товары, yandex market file.
 
 ### Внешние зависимости
-* ruby-2.2.2
+* ruby-2.2.0
 * PostgreSQL 9.4+
 * Redis
 * https://bitbucket.org/mkechinov/rees46_brb
 
 
 ### Развертывание
+
+Для Debian:
+```
+# apt-get install libarchive-dev
+```
+
 Для mac OS X:
 ```
 $ brew install libarchive
@@ -39,20 +45,14 @@ $ bin/rake db:create db:schema:load
 $ foreman start
 ```
 
+### Специфичные файлы конфигурации
+
+/config/application.yml - прописать переменную REES46_SHARD (двузначный номер - 00, 01, ...)
+/config/secrets – прописать весь набор ключей, указанный в примере secrets.yml.example
+/config/shards.yml – прописать доступ к мастер-базе (базе, где содержатся клиенты сервиса, магазины и т.д.
 
 ### Тесты
 ```
 $ bin/rspec
 ```
 
-### Структура БД
-
-Распределение таблиц по серверам БД:
-* Сайт
-** потом решим
-* API магазина
-** actions
-** clients
-** items
-** advertiser_item_categories - нет прямой связи с shop_id и редактируется на стороне магазина
-** advertiser_purchases - используется и на сайте и в API. Больше на сайте, поэтому подумать.

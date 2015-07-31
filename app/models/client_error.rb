@@ -2,6 +2,7 @@
 # Клиенсткая ошибка (ту, что возвращаем в JS)
 #
 class ClientError < ActiveRecord::Base
+
   belongs_to :shop
 
   store :params, coder: JSON
