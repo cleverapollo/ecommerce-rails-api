@@ -41,6 +41,9 @@ gem 'dkim', '~> 1.0.0' # Ставит цифровые подписи
 gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает боунсы писем из bounced@rees46.com
 gem 'bounce_email', '~> 0.2.2', require: false # Определяет тип баунса
 
+# Upload files
+gem 'paperclip', '~> 4.2.1'
+
 # zip
 gem 'libarchive-ruby', '0.0.3'
 
