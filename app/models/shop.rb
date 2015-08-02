@@ -39,7 +39,7 @@ class Shop < ActiveRecord::Base
   default_scope { where(shard: SHARD_ID) }
 
   scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
-  scope :with_enabled_triggers, -> { joins(:trigger_mailings).where('trigger_mailings.enabled = true').uniq }
+  scope :with_enabled_triggers, -> { where(id: TriggerMailing.where(enabled: true).pluck(:shop_id).uniq ) }
   scope :active, -> { where(active: true) }
   scope :connected, -> { where(connected: true) }
   scope :unrestricted, -> { active.where(restricted: false) }
