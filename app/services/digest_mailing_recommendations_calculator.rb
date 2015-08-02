@@ -37,8 +37,17 @@ class DigestMailingRecommendationsCalculator
     # Мы должны быть уверены, что туннель открыт.
     ensure_tunnel_is_opened!
 
+    params_interesting = OpenStruct.new(
+        shop: @shop,
+        user: @current_user,
+        limit: @limit,
+        recommend_only_widgetable: true,
+        recommender_type: 'interesting',
+        exclude: []
+    )
+
     # Сначала получаем рекомендации "Вам это будет интересно".
-    item_ids = interesting_ids
+    item_ids = Recommender::Impl::Interesting.new(params_interesting).recommended_ids
 
     # Если их недостаточно, то добавляем "Популярных".
     if item_ids.count < @limit
@@ -107,31 +116,5 @@ class DigestMailingRecommendationsCalculator
     end
 
     result
-  end
-
-  # Получить ID рекомендуемых товаров по алгоритму "Вам это будет интересно".
-  #
-  # @return [Array] массив ID товаров.
-  def interesting_ids
-    return [] if @current_user.nil?
-
-    items_to_include = if shop_works_with_locations?
-      @shop.items.recommendable.widgetable.in_locations(locations_for_current_user).pluck(:id)
-    else
-      @items_in_shop ||= @shop.items.recommendable.widgetable.pluck(:id)
-    end
-
-    Timeout::timeout(2) {
-      mahout_service.user_based(
-        @current_user.id,
-        @shop.id,
-        nil,
-        include: items_to_include,
-        exclude: @shop.item_ids_bought_or_carted_by(@current_user),
-        limit: @limit
-      )
-    }
-  rescue Timeout::Error => e
-    retry
   end
 end
