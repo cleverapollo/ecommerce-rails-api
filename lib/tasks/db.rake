@@ -20,5 +20,15 @@ namespace :db do
     task :create do
       ActiveRecord::Base.connection.execute("CREATE DATABASE #{MASTER_DB['database']}")
     end
+
+    desc 'Prepare config for codeship'
+    task :codeship_prepare do
+      config = YAML.load(ERB.new(File.read("config/shards.yml.example")).result).to_yaml
+      filename = "#{Rails.root}/config/shards.yml"
+      File.open(filename, 'w:utf-8') do |file|
+        file.write(config)
+      end
+    end
+
   end
 end
