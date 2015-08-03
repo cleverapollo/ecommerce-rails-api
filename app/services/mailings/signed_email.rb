@@ -36,7 +36,7 @@ module Mailings
     def generate_return_path
       type = @options.fetch(:type)
       code = @options[:code] || 'test'
-      "bounced+#{type}=#{code}@rees46.com"
+      "bounced+shard#{SHARD_ID}+#{type}=#{code}@rees46.com"
     end
 
     def sign(m)
