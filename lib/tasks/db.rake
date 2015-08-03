@@ -1,6 +1,11 @@
 namespace :db do
 
   namespace :test do
+    task :prepare => [:environment, :load_config] do
+      ActiveRecord::Base.establish_connection(MASTER_DB)
+      ActiveRecord::Base.connection.execute("TRUNCATE TABLE users")
+    end
+
     desc 'load tests schema'
     task :load_schema do
       ActiveRecord::Base.establish_connection(MASTER_DB)

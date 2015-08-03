@@ -13,7 +13,7 @@ class DigestMailingBatchWorker
   def perform(id)
     @batch = DigestMailingBatch.find(id)
     @mailing = @batch.mailing
-    @shop = @mailing.shop
+    @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
 
     unless @settings.enabled?
