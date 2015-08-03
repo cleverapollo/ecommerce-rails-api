@@ -17,7 +17,7 @@ namespace :db do
     end
 
     desc 'Create database'
-    task :create do
+    task :create => [:environment, :load_config] do
       ActiveRecord::Base.connection.execute("CREATE DATABASE #{MASTER_DB['database']}")
     end
 
