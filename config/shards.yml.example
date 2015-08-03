@@ -7,7 +7,7 @@ defaults: &defaults
 
 production:
   master:
-    database: master_database_<%= ENV['TEST_ENV_NUMBER'] %>
+    database: master_database
     host: localhost
     username: <%= ENV['PG_USER'] %>
     password: <%= ENV['PG_PASSWORD'] %>
@@ -15,7 +15,7 @@ production:
 
 test:
   master:
-    database: master_database_test_<%= ENV['TEST_ENV_NUMBER'] %>
+    database: master_database
     host: localhost
     username: <%= ENV['PG_USER'] %>
     password: <%= ENV['PG_PASSWORD'] %>
