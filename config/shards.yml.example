@@ -9,15 +9,15 @@ production:
   master:
     database: master_database
     host: localhost
-    username: rees46
-    password: rees46
+    username: <%= ENV['PG_USER'] %>
+    password: <%= ENV['PG_PASSWORD'] %>
     <<: *defaults
 
 test:
   master:
     database: master_database
     host: localhost
-    username: rees46
-    password: rees46
+    username: <%= ENV['PG_USER'] %>
+    password: <%= ENV['PG_PASSWORD'] %>
     <<: *defaults
 
