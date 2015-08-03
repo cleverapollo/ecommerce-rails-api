@@ -24,6 +24,7 @@ class DigestMailingBatchWorker
     if @mailing.failed?
       return
     end
+    
 
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
 
