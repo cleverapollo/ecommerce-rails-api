@@ -26,6 +26,7 @@ class DigestMailingBatchWorker
     end
     
 
+
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
 
     DigestMailingRecommendationsCalculator.open(@shop, recommendations_count) do |calculator|
