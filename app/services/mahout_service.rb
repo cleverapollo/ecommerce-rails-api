@@ -1,6 +1,8 @@
 class MahoutService
   BRB_ADDRESS = 'localhost:5555'
 
+  include ::NewRelic::Agent::MethodTracer
+
   attr_reader :tunnel
 
   def initialize(brb_adress = nil)
@@ -66,6 +68,9 @@ class MahoutService
       options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
     end
   end
+
+  add_method_tracer :user_based, 'Custom/user_based'
+  add_method_tracer :item_based_weight, 'Custom/item_based_weight'
 
   def set_preference(shop_id, user_id, item_id, rating)
     unless Rails.env.test?
