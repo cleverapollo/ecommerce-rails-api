@@ -18,33 +18,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   enable_extension "btree_gin"
   enable_extension "uuid-ossp"
 
-  create_table "actions", force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                                               null: false
-    t.integer  "item_id",          limit: 8,                                               null: false
-    t.integer  "view_count",                   default: 0,                                 null: false
-    t.datetime "view_date"
-    t.integer  "cart_count",                   default: 0,                                 null: false
-    t.datetime "cart_date"
-    t.integer  "purchase_count",               default: 0,                                 null: false
-    t.datetime "purchase_date"
-    t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",          limit: 8,                                               null: false
-    t.integer  "timestamp",                    default: "date_part('epoch'::text, now())", null: false
-    t.string   "recommended_by",   limit: 255
-    t.integer  "last_action",      limit: 2,   default: 1,                                 null: false
-    t.integer  "rate_count",                   default: 0,                                 null: false
-    t.datetime "rate_date"
-    t.integer  "last_user_rating"
-    t.boolean  "repeatable",                   default: false,                             null: false
-    t.datetime "recommended_at"
-  end
-
-  add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
-  add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
-  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
-  add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
-
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
     t.text     "body"
@@ -163,18 +136,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
 
   add_index "advertisers_orders", ["advertiser_statistics_id"], name: "index_advertisers_orders_on_advertiser_statistics_id", using: :btree
 
-  create_table "beacon_messages", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.integer  "user_id"
-    t.integer  "session_id"
-    t.text     "params",                                 null: false
-    t.boolean  "notified",               default: false, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "deal_id",    limit: 255
-    t.boolean  "tracked",                default: false, null: false
-  end
-
   create_table "categories", force: :cascade do |t|
     t.string   "name",            limit: 255
     t.boolean  "deletable",                   default: true, null: false
@@ -186,43 +147,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   end
 
   add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
-
-  create_table "client_errors", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.string   "exception_class",   limit: 255,                 null: false
-    t.string   "exception_message", limit: 255,                 null: false
-    t.text     "params",                                        null: false
-    t.boolean  "resolved",                      default: false, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "referer",           limit: 255
-  end
-
-  add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
-
-  create_table "clients", force: :cascade do |t|
-    t.integer  "shop_id",                                                              null: false
-    t.integer  "user_id",                                                              null: false
-    t.boolean  "bought_something",                      default: false,                null: false
-    t.integer  "ab_testing_group"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "external_id",               limit: 255
-    t.string   "email",                     limit: 255
-    t.boolean  "digests_enabled",                       default: true,                 null: false
-    t.uuid     "code",                                  default: "uuid_generate_v4()"
-    t.boolean  "subscription_popup_showed",             default: false,                null: false
-    t.boolean  "triggers_enabled",                      default: true,                 null: false
-    t.datetime "last_trigger_mail_sent_at"
-    t.boolean  "accepted_subscription",                 default: false,                null: false
-    t.string   "location"
-  end
-
-  add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
-  add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
-  add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
-  add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
-  add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
 
   create_table "cmses", force: :cascade do |t|
     t.string   "code",               limit: 255,                 null: false
@@ -276,59 +200,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
 
-  create_table "digest_mailing_batches", force: :cascade do |t|
-    t.integer "digest_mailing_id",                             null: false
-    t.integer "end_id"
-    t.boolean "completed",                     default: false, null: false
-    t.integer "start_id"
-    t.string  "test_email",        limit: 255
-  end
-
-  add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree
-
-  create_table "digest_mailing_settings", force: :cascade do |t|
-    t.integer "shop_id",                             null: false
-    t.boolean "on",                  default: false, null: false
-    t.string  "sender",  limit: 255,                 null: false
-  end
-
-  add_index "digest_mailing_settings", ["shop_id"], name: "index_digest_mailing_settings_on_shop_id", using: :btree
-
-  create_table "digest_mailings", force: :cascade do |t|
-    t.integer  "shop_id",                                          null: false
-    t.string   "name",              limit: 255,                    null: false
-    t.string   "subject",           limit: 255,                    null: false
-    t.text     "template",                                         null: false
-    t.string   "items",             limit: 255
-    t.string   "state",             limit: 255, default: "draft",  null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "item_template",                                    null: false
-    t.integer  "total_mails_count"
-    t.datetime "started_at"
-    t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text"
-    t.string   "edit_mode",         limit: 255, default: "simple", null: false
-  end
-
-  add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
-
-  create_table "digest_mails", force: :cascade do |t|
-    t.integer  "shop_id",                                                null: false
-    t.integer  "digest_mailing_id",                                      null: false
-    t.integer  "digest_mailing_batch_id",                                null: false
-    t.uuid     "code",                    default: "uuid_generate_v4()"
-    t.boolean  "clicked",                 default: false,                null: false
-    t.boolean  "opened",                  default: false,                null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "client_id",                                              null: false
-    t.boolean  "bounced",                 default: false,                null: false
-  end
-
-  add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
-  add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
 
   create_table "faqs", force: :cascade do |t|
     t.text     "question",                null: false
@@ -549,6 +420,7 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
@@ -693,6 +565,9 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   end
 
   create_table "users", id: :bigserial, force: :cascade do |t|
+    t.jsonb "gender",   default: {"f"=>50, "m"=>50}, null: false
+    t.jsonb "size",     default: {},                 null: false
+    t.jsonb "children", default: [],                 null: false
   end
 
 end
