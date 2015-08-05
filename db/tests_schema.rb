@@ -570,4 +570,9 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.jsonb "children", default: [],                 null: false
   end
 
+  create_table "wear_type_dictionaries", force: :cascade do |t|
+    t.string "word"
+    t.string "type_name"
+  end
+
 end

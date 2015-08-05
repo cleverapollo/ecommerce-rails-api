@@ -38,6 +38,10 @@ class DigestMailingBatchWorker
         # Отмечаем пачку как завершенную.
         @batch.complete!
       else
+        # Подчистим память перед рассылкой следующей порции дайджеста
+        # Медленней, зато с меньшим потреблением памяти
+        GC.start
+
         # Полноценный режим.
         if @batch.current_processed_client_id.nil?
           @batch.current_processed_client_id = @batch.start_id

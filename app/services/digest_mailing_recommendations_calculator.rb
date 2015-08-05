@@ -34,9 +34,6 @@ class DigestMailingRecommendationsCalculator
   def recommendations_for(user)
     @current_user = user
 
-    # Мы должны быть уверены, что туннель открыт.
-    ensure_tunnel_is_opened!
-
     params_interesting = OpenStruct.new(
         shop: @shop,
         user: @current_user,
