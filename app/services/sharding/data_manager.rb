@@ -42,6 +42,8 @@ module Sharding
       transfer_recommendations_requests only_new
       puts "Processing transfer_interactions"
       transfer_interactions only_new
+      puts "Processing transfer_subscriptions_settings"
+      transfer_subscriptions_settings
     end
 
 
@@ -359,9 +361,23 @@ module Sharding
       SQL
       ActiveRecord::Base.connection.execute query
     end
-    
-    
 
+    def transfer_subscriptions_settings(only_new = false)
+      max_id = only_new ? max_id = SubscriptionsSettings.where('id < 2147483647').order(id: :desc).limit(1).pluck(:id)[0] : 0
+      table_name = 'subscriptions_settings'
+      fields = { id: "bigint", shop_id: "integer", enabled: "boolean", '"overlay"': "boolean", header: "text", text: "text", created_at: "timestamp without time zone", updated_at: "timestamp without time zone", picture_file_name: "character varying(255)", picture_content_type: "character varying(255)", picture_file_size: "integer", picture_updated_at: "timestamp without time zone" }
+      fields_list = fields.keys.map {|x| x.to_s}.join(', ')
+      fields_with_type = fields.to_a.map {|v| "#{v[0]} #{v[1]}" }.join(", ")
+      query = <<-SQL
+      INSERT INTO #{table_name} (#{fields_list})
+        SELECT * FROM
+          dblink(
+            '#{@connection_string}',
+            'SELECT #{fields_list} FROM #{table_name} WHERE id > #{max_id} AND shop_id IN (SELECT id FROM shops WHERE (id % 2) = #{SHARD_ID} )')
+          AS t1(#{fields_with_type});
+      SQL
+      ActiveRecord::Base.connection.execute query
+    end
 
   end
 end
