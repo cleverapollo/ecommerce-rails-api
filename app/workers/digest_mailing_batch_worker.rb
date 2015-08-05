@@ -39,7 +39,7 @@ class DigestMailingBatchWorker
       else
         # Подчистим память перед рассылкой следующей порции дайджеста
         # Медленней, зато с меньшим потреблением памяти
-        GC.start
+        #GC.start
 
         # Полноценный режим.
         if @batch.current_processed_client_id.nil?
