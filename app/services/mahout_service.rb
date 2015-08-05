@@ -11,7 +11,6 @@ class MahoutService
 
   def open
     unless Rails.env.test?
-     return if tunnel_active?
 
       begin
         Timeout::timeout(0.2) {
