@@ -3,6 +3,8 @@
 #
 class SubscriptionsSettings < ActiveRecord::Base
 
+  establish_connection MASTER_DB
+
   belongs_to :shop
 
   def readonly?
