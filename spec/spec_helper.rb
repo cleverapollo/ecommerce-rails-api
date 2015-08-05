@@ -23,6 +23,16 @@ end
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+
+  config.before(:suite) do
+    # Вычищаем мастер-базу
+    ActiveRecord::Base.establish_connection(MASTER_DB)
+    conn = ActiveRecord::Base.connection
+    tables = conn.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';").map { |r| r['table_name'] }
+    tables.each { |t| conn.execute("TRUNCATE TABLE #{t}") }
+
+    ActiveRecord::Base.establish_connection
+  end
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

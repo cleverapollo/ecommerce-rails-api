@@ -58,6 +58,7 @@ describe DigestMailingBatchWorker do
       s.current_client = client
       s.current_digest_mail = digest_mail
       s.mailing = mailing
+      s.perform(batch.id)
       s.letter_body([item], 'test@example.com')
     end
 

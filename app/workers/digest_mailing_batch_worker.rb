@@ -13,7 +13,7 @@ class DigestMailingBatchWorker
   def perform(id)
     @batch = DigestMailingBatch.find(id)
     @mailing = @batch.mailing
-    @shop = @mailing.shop
+    @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
 
     unless @settings.enabled?
@@ -24,6 +24,7 @@ class DigestMailingBatchWorker
     if @mailing.failed?
       return
     end
+
 
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
 
@@ -125,6 +126,13 @@ class DigestMailingBatchWorker
     # UTM
     utm = "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}"
     result.gsub!('{{ utm_params }}', utm)
+
+    # Cтавим логотип
+    if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
+      result.sub!(/<img(.*?)<\/tr>/m," ")
+    else
+      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
+    end
 
     # Добавляем футер
     footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
