@@ -133,11 +133,7 @@ class DigestMailingBatchWorker
     result.gsub!('{{ utm_params }}', utm)
 
     # Cтавим логотип
-    if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
-      result.sub!(/<img(.*?)<\/tr>/m," ")
-    else
-      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
-    end
+    result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
 
     # Добавляем футер
     footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,

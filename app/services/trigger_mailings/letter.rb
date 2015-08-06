@@ -81,7 +81,11 @@ module TriggerMailings
       end
 
       # Cтавим логотип
-      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
+      if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
+        result.sub!(/<tr>(.*?)<\/tr>/m," ")
+      else
+        result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
+      end
 
       # Ставим utm-параметры
       result.gsub!('{{ utm_params }}', Mailings::Composer.utm_params(trigger_mail, as: :string))
