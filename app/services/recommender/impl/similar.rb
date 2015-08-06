@@ -59,6 +59,7 @@ module Recommender
           end
 
           
+          
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
             result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
