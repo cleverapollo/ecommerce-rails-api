@@ -26,7 +26,7 @@ module Recommender
       end
 
       def items_to_recommend
-        super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id).order(:sales_rate)
+        super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id)
       end
 
       def items_to_weight
@@ -99,7 +99,7 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.order('price DESC')
+        items_to_recommend.order('price DESC, sales_rate ASC')
       end
 
       def items_relation_with_price_condition
