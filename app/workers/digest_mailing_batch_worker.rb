@@ -133,10 +133,10 @@ class DigestMailingBatchWorker
     result.gsub!('{{ utm_params }}', utm)
 
     # Cтавим логотип
-    if MailingsSettings.using(@shop.shard_name).where(shop_id: @shop.id).first.fetch_logo_url.blank?
+    if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
       result.sub!(/<img(.*?)<\/tr>/m," ")
     else
-      result.gsub!('{{ logo_url }}', MailingsSettings.using(@shop.shard_name).where(shop_id: @shop.id).first.fetch_logo_url)
+      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
     end
 
     # Добавляем футер
