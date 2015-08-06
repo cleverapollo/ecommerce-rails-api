@@ -30,8 +30,7 @@ module Recommender
                    end
 
         # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)
-                     .limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :categories)
+        result = relation.by_sales_rate.limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :categories)
 
 
         result.to_a.map { |value| [value[0], {sales_rate: value[1], categories:value[2]}] }.to_h
