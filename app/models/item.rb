@@ -44,6 +44,10 @@ class Item < ActiveRecord::Base
     result
   }
 
+  scope :by_sales_rate, ->(){
+    order('sales_rate desc nulls last')
+  }
+
   class << self
 
     # Отключаем протухшие туры и купоны – товары со сроком годности
