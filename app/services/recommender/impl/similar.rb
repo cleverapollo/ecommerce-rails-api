@@ -99,7 +99,7 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.order('price DESC').by_sales_rate
+        items_to_recommend.by_sales_rate
       end
 
       def items_relation_with_price_condition
