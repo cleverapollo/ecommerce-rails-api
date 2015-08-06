@@ -26,6 +26,7 @@ class DigestMailingBatchWorker
     end
 
 
+
     recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
 
     DigestMailingRecommendationsCalculator.open(@shop, recommendations_count) do |calculator|
@@ -132,10 +133,11 @@ class DigestMailingBatchWorker
     result.gsub!('{{ utm_params }}', utm)
 
     # Cтавим логотип
-    - if MailingsSettings.using(@shop.shard_name).where(shop_id: @shop.id).first.fetch_logo_url.blank?
+    if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
       result.sub!(/<img(.*?)<\/tr>/m," ")
-    - else
-      result.gsub!('{{ logo_url }}', MailingsSettings.using(@shop.shard_name).where(shop_id: @shop.id).first.fetch_logo_url)
+    else
+      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
+    end
 
     # Добавляем футер
     footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
