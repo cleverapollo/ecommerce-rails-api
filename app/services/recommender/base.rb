@@ -28,8 +28,8 @@ module Recommender
 
       # Проверяет, допустимая ли модификация
       # @return Boolean
-      def valid_modification?(modification_name)
-        return MODIFICATIONS.include?(modification_name)
+      def valid_modification?(shop, modification_name)
+        return MODIFICATIONS.include?(modification_name) && shop.allow_industrial?
       end
 
     end
