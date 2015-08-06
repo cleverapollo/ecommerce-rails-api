@@ -26,7 +26,7 @@ module Recommender
       end
 
       def items_to_recommend
-        super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id)
+        super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id).order(:sales_rate)
       end
 
       def items_to_weight
