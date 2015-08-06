@@ -58,6 +58,7 @@ module Recommender
             result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
           end
 
+          
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
             result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
