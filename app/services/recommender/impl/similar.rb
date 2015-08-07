@@ -62,7 +62,7 @@ module Recommender
           
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
-            result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
+            result += items_relation.where.not(id: result).limit(limit - result.size).order(price: :desc).pluck(:id)
           end
         end
         # взвешиваем по SR

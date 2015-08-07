@@ -122,6 +122,11 @@ class YmlItem
   def wear_type
     return StringHelper.encode_and_truncate(@content['fashion']['type']) if @content['fashion'].present? && @content['fashion']['type'].present?
     return StringHelper.encode_and_truncate(@content['child']['type']) if @content['child'].present? && @content['child']['type'].present?
+
+    # ищем тип по категории
+    #ap categories
+
+    # Все еще не нашли - ищем в названии.
   end
 
   def feature

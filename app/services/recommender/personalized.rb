@@ -8,6 +8,24 @@ module Recommender
     include ItemInjector
     include WeightHelper
 
+    def items_to_recommend
+      if params.modification.present?
+        result = super
+        if params.modification == 'fashion'
+          if categories.try(:any?)
+            # в категории
+          else
+            # на главной
+            gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+            result = gender_algo.modify_relation(result)
+          end
+        end
+        result
+      else
+        super
+      end
+    end
+
 
     # @return Int[]
     def recommended_ids

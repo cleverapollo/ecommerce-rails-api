@@ -2,10 +2,10 @@
 <yml_catalog>
   <shop>
     <categories>
-      <category id="1">Some category</category>
+      <category id="1">Футболки</category>
 
-      <category id="2">Some root category</category>
-      <category id="3" parentId="2">Some leaf category</category>
+      <category id="2">Платья</category>
+      <category id="3" parentId="2">Летние</category>
     </categories>
 
     <offers>
@@ -139,6 +139,27 @@
 
         <vendorCode>APPL</vendorCode>
         <model>iPhone 6 128Gb</model>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
+      </offer>
+
+
+      <offer available="true" id="6000">
+        <url>http://example.com/item/6000</url>
+        <price>500</price>
+        <categoryId>1</categoryId>
+        <picture>http://example.com/item/1000.jpg</picture>
+
+        <description>Existing item description</description>
+
+        <name>Платье</name>
 
         <locations>
           <location id="1">

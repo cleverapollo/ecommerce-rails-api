@@ -89,5 +89,14 @@ describe YmlWorker do
 
       expect{ subject } .to change{ absent_item.reload.is_available }.from(true).to(false)
     end
+
+    context 'gets correct type by' do
+      it 'category' do
+
+      end
+      it 'name' do
+
+      end
+    end
   end
 end
