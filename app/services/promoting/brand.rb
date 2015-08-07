@@ -16,6 +16,16 @@ module Promoting
        advertisers_for_categories(item.shop_id, item.categories).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
       end
 
+      def advertiser_for_item(item)
+
+        # Если бренд не определен, то ничего нет
+        brand = item.brand
+        return nil if brand.blank?
+
+        # Если категории не в списке площадок для продвижения, то ничего нет
+        advertisers_for_categories(item.shop_id, item.categories).where(downcase_brand:brand.downcase).limit(1)[0]
+      end
+
       def advertisers_for_categories(shop_id, categories)
         Advertiser.active.prioritized.where(id: AdvertiserItemCategory.where(item_category_id:
                                                               ItemCategory.where(shop_id: shop_id,external_id: categories).pluck(:id))

@@ -37,17 +37,18 @@ module Recommender
           return result
         end
 
-        advertiser = Promoting::Brand.find_by_item(item)
-        if advertiser.any?
-          advertiser.each do |advertiser_id|
-            break if result.size >= limit
-            result += Advertiser.find(advertiser_id).get_from_categories(shop.id, item.categories, excluded_items_ids, limit)
-          end
+        # Подмешивание брендов, заполняем по полной, если товар брендовый.
+        advertiser = Promoting::Brand.advertiser_for_item(item)
+        if advertiser
+          @only_one_promo = item.brand
+          #advertiser.each do |advertiser_id|
+          #  break if result.size >= limit
+          #  result += Advertiser.find(advertiser_id).get_from_categories(relation, shop.id, item.categories, excluded_items_ids, limit)
+          #end
         end
 
         if result.size <limit
 
-          # ТОРМОЗИИИИИИИТ
           result += shop.actions.where(item_id: items_relation_with_price_condition).
               where('timestamp > ?', min_date).
               group(:item_id).by_average_rating.
@@ -101,7 +102,11 @@ module Recommender
       end
 
       def items_relation
-        items_to_recommend.by_sales_rate
+        relation = items_to_recommend.by_sales_rate
+        if @only_one_promo
+          relation = relation.where(brand:@only_one_promo).where.not(brand:nil)
+        end
+        relation
       end
 
       def items_relation_with_price_condition
