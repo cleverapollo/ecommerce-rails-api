@@ -17,6 +17,6 @@ class MailingsSettings < ActiveRecord::Base
   end
 
   def fetch_logo_url
-    self.logo.present? ? URI.join("http://#{ActionController::Base.asset_host}", self.logo.url).to_s : ''
+    self.logo.present? ? URI.join("#{Rees46.site_url}", self.logo.url).to_s : ''
   end
 end

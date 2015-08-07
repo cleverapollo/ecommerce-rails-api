@@ -18,7 +18,6 @@ class SubscriptionsSettings < ActiveRecord::Base
   end
 
   def picture_url
-    host = Rails.env.development? ? 'localhost:3000' : 'rees46.com'
-    "http://#{host}/subscription_picture/#{shop.uniqid}"
+    "#{Rees46.site_url}/subscription_picture/#{shop.uniqid}"
   end
 end

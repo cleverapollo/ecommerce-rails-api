@@ -66,8 +66,12 @@ module Recommender
             result += items_relation.where.not(id: result).limit(limit - result.size).order(price: :desc).pluck(:id)
           end
         end
-        # взвешиваем по SR
-        sr_weight(result)
+        # если делаем промо по монобренду, то взвешивать по SR не надо (уже отсортирован)
+        if @only_one_promo
+          index_weight(result)
+        else
+          sr_weight(result)
+        end
 
       end
 
