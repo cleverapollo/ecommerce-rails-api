@@ -151,7 +151,7 @@ module ActionPush
 
 
         if shop.has_imported_yml?
-          # товара в yml нет - значит не рекомендуем  
+          # товара в yml нет - значит не рекомендуем   
           item_attributes.is_available = false
         else
 
