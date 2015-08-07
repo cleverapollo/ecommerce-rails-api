@@ -32,8 +32,8 @@ class Advertiser < ActiveRecord::Base
         .by_sales_rate.limit(1)[0].try(:id)
   end
 
-  def get_from_categories(shop_id, categories, excluded_ids=[], limit=8)
-    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil)
+  def get_from_categories(relation, shop_id, categories, excluded_ids=[], limit=8)
+    relation.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil)
         .by_sales_rate.order(price: :desc).limit(limit).pluck(:id)
   end
 
