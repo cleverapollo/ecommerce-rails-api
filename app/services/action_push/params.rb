@@ -149,7 +149,12 @@ module ActionPush
         item_attributes.tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
 
-        unless shop.has_imported_yml?
+
+        if shop.has_imported_yml?
+          # товара в yml нет - значит не рекомендуем  
+          item_attributes.is_available = false
+        else
+
           item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
           item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
           item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
