@@ -1,23 +1,38 @@
 module TriggerMailings
   class TriggerMailingTimeLock
-    include Redis::Objects
-    value :sending_trigger_mails, :expiration => 30.minutes
 
     def sending_available?
-      return false if self.sending_trigger_mails == 'true'
-      true
+      # проверка pid файла
+      if File.exists?(path_file)
+        data = File.read(path_file)
+        # проверка pid процесса
+        begin
+          Process.getpgid( data.to_i )
+          false
+        rescue Errno::ESRCH
+          true
+        end
+      else
+        true
+      end
     end
 
     def start_sending!
-      self.sending_trigger_mails = true
+      # создание pid файла
+      File.open(path_file, "w+") do |f|
+        f.write(Process.pid.to_s)
+      end
     end
 
     def stop_sending!
-      self.sending_trigger_mails = false
+      # удаление pid файла
+      File.delete(path_file)
     end
 
-    def id
-      1
+    private
+
+    def path_file
+      "#{Rails.root}/tmp/trigger_sending.pid"
     end
   end
 end

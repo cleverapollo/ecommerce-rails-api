@@ -1,6 +1,7 @@
 require 'archive'
 class Yml
   class NotRespondingError < StandardError; end
+  class NoXMLFileInArchiveError < StandardError; end
 
   def initialize(shop)
     @shop = shop
@@ -14,11 +15,12 @@ class Yml
     if responds?
       download
       raise NotRespondingError if !File.exists?(file_name)
-      gzip_archive? ? ungzip : File.rename(file_name, file_name_xml)
-      if is_xml?
-        yield file
+      if gzip_archive?
+        ungzip
+        is_xml? ? (yield file) : (raise NoXMLFileInArchiveError)
       else
-        ErrorsMailer.yml_import_error('goko.gorgiovski@mkechinov.ru', @shop).deliver_now
+        File.rename(file_name, file_name_xml)
+        yield file
       end
       delete(file_name_xml)
       delete(file_name)

@@ -1,6 +1,6 @@
 module Recommender
   module Impl
-    class Experiment < Recommender::Impl::Popular
+    class Experiment < Recommender::Impl::Interesting
       def items_to_recommend
         if params.modification.present?
           result = super

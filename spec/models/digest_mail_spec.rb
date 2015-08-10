@@ -5,7 +5,7 @@ describe DigestMail do
   let!(:user) { create(:user) }
   let!(:client) { create(:client, :with_email, shop: shop, user: user) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
-  let!(:batch) { create(:digest_mailing_batch, mailing: mailing) }
+  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, shop: shop) }
   let!(:digest_mail) { create(:digest_mail, shop: shop, client: client, mailing: mailing, batch: batch) }
 
   it 'has a valid factory' do
