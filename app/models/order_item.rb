@@ -6,6 +6,9 @@ class OrderItem < ActiveRecord::Base
   belongs_to :order
   belongs_to :item
   belongs_to :action
+  belongs_to :shop
+
+  validates :shop_id, presence: true
 
   class << self
     # Сохранить товар заказа
@@ -16,6 +19,7 @@ class OrderItem < ActiveRecord::Base
       result = OrderItem.create!(order_id: order.id,
                                  item_id: item.id,
                                  action_id: action.id,
+                                 shop_id: order.shop_id,
                                  amount: amount,
                                  recommended_by: recommended_by)
 

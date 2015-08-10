@@ -138,7 +138,7 @@ module Sharding
     def transfer_digest_mailing_batches(only_new = false)
       max_id = only_new ? max_id = DigestMailingBatch.where('id < 2147483647').order(id: :desc).limit(1).pluck(:id)[0] : 0
       table_name = 'digest_mailing_batches'
-      fields = {id: "bigint", digest_mailing_id: "bigint", end_id: "bigint", completed: "boolean", start_id: "bigint", test_email: "character varying(255)"}
+      fields = {id: "bigint", digest_mailing_id: "bigint", end_id: "bigint", completed: "boolean", start_id: "bigint", test_email: "character varying(255)", shop_id: "integer"}
       fields_list = fields.keys.map {|x| x.to_s}.join(', ')
       fields_with_type = fields.to_a.map {|v| "#{v[0]} #{v[1]}" }.join(", ")
       query = <<-SQL
@@ -295,7 +295,7 @@ module Sharding
     def transfer_order_items(only_new = false)
       max_id = only_new ? max_id = OrderItem.where('id < 2147483647').order(id: :desc).limit(1).pluck(:id)[0] : 0
       table_name = 'order_items'
-      fields = {id: "bigint", order_id: "bigint", item_id: "bigint", action_id: "bigint", amount: "integer", recommended_by: "character varying"}
+      fields = {id: "bigint", order_id: "bigint", item_id: "bigint", action_id: "bigint", amount: "integer", recommended_by: "character varying", shop_id: "integer"}
       fields_list = fields.keys.map {|x| x.to_s}.join(', ')
       fields_with_type = fields.to_a.map {|v| "#{v[0]} #{v[1]}" }.join(", ")
       query = <<-SQL

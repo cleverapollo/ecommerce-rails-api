@@ -14,7 +14,7 @@ describe Recommender::Impl::AlsoBought do
       order = build(:order, shop: shop, user: other_user)
 
       [item1, item2, item3].each do |i|
-        order.order_items.build(item: i, action_id: 123)
+        order.order_items.build(item: i, action_id: 123, shop_id: shop.id)
       end
 
       order.save!

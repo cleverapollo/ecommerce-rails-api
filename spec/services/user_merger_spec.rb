@@ -111,7 +111,7 @@ describe UserMerger do
 
         context 'digest mailings' do
           let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
-          let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing) }
+          let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing, shop: shop) }
           let!(:digest_mail) { create(:digest_mail, client: new_client, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch) }
 
           it 're-links digest_mail' do
