@@ -13,8 +13,6 @@ module TriggerMailings
           Shop.unrestricted.with_enabled_triggers.each do |shop|
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
               shop.clients.ready_for_trigger_mailings.each do |client|
-                # обновляем переменную в Redis каждые 5 мин
-                TriggerMailings::TriggerMailingTimeLock.new.start_sending! if Time.now.to_i-last_refresh > LAST_REFRESH_TIMEOUT
                 begin
                   if trigger = trigger_detector.detect(client)
                     TriggerMailings::Letter.new(client, trigger).send
