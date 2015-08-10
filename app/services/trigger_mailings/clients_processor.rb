@@ -3,7 +3,7 @@ module TriggerMailings
   # Класс, отвечающий за обработку пользователей магазинов.
   #
   class ClientsProcessor
-    LAST_REFRESH_TIMEOUT = 600
+
     class << self
       # Обработать всех пользователей: искать для каждого триггеры, если есть - отправить письмо.
       def process_all
@@ -28,5 +28,6 @@ module TriggerMailings
         end
       end
     end
+
   end
 end

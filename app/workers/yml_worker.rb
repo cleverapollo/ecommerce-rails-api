@@ -74,8 +74,13 @@ class YmlWorker
         disable_remaining_in_cache
       end
     rescue Yml::NotRespondingError => e
+      ErrorsMailer.yml_url_not_respond(@shop).deliver_now
       raise YmlWorker::Error.new("Плохой код ответа.")
+    rescue Yml::NoXMLFileInArchiveError
+      ErrorsMailer.yml_import_error(@shop, "Не обноружено XML-файлв в архиве.").deliver_now
+      raise YmlWorker::Error.new("Не обноружено XML-файлв в архиве.")
     rescue Nokogiri::XML::SyntaxError => e
+      ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
   end
