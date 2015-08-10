@@ -14,7 +14,7 @@ class MahoutPreferences
     if @item_id.present?
       result << @item_id
     else
-      result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(10).pluck(:item_id)
+      result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(limit).pluck(:item_id)
     end
 
     result
