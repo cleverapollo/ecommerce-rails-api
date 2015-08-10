@@ -11,7 +11,11 @@ class AddShopIdToShardedTables < ActiveRecord::Migration
     add_index :digest_mailing_batches, :shop_id
     add_column :order_items, :shop_id, :integer
     OrderItem.all.each do |row|
-      row.update shop_id: row.order.shop_id
+      if row.order.nil?
+        row.destroy
+      else
+        row.update shop_id: row.order.shop_id
+      end
     end
     add_index :order_items, :shop_id
   end
