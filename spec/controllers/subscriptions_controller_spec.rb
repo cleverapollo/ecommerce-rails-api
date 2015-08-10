@@ -26,7 +26,7 @@ describe SubscriptionsController do
   describe 'GET track' do
     context 'for digest mailings' do
       let!(:mailing) { create(:digest_mailing, shop: shop) }
-      let!(:batch) { create(:digest_mailing_batch, mailing: mailing) }
+      let!(:batch) { create(:digest_mailing_batch, mailing: mailing, shop: shop) }
       let!(:client) { create(:client, shop: shop).reload }
       let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
 

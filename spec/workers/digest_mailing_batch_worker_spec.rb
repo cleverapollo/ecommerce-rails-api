@@ -5,7 +5,7 @@ describe DigestMailingBatchWorker do
   let!(:settigns) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@example.com') }
-  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id) }
+  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do

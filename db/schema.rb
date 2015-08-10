@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150805073102) do
+ActiveRecord::Schema.define(version: 20150810114514) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -110,9 +110,11 @@ ActiveRecord::Schema.define(version: 20150805073102) do
     t.boolean "completed",                     default: false, null: false
     t.integer "start_id",          limit: 8
     t.string  "test_email",        limit: 255
+    t.integer "shop_id"
   end
 
   add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree
+  add_index "digest_mailing_batches", ["shop_id"], name: "index_digest_mailing_batches_on_shop_id", using: :btree
 
   create_table "digest_mailing_settings", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",                             null: false
@@ -258,10 +260,12 @@ ActiveRecord::Schema.define(version: 20150805073102) do
     t.integer "action_id",      limit: 8,               null: false
     t.integer "amount",                     default: 1, null: false
     t.string  "recommended_by", limit: 255
+    t.integer "shop_id"
   end
 
   add_index "order_items", ["item_id"], name: "index_order_items_on_item_id", using: :btree
   add_index "order_items", ["order_id"], name: "index_order_items_on_order_id", using: :btree
+  add_index "order_items", ["shop_id"], name: "index_order_items_on_shop_id", using: :btree
 
   create_table "orders", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                       null: false
