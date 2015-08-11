@@ -171,6 +171,26 @@
         </locations>
       </offer>
 
+      <offer available="true" id="7000">
+        <url>http://example.com/item/6000</url>
+        <price>500</price>
+        <categoryId>3</categoryId>
+        <picture>http://example.com/item/1000.jpg</picture>
+
+        <description>Existing item description</description>
+
+        <name>Сарафанчик</name>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
+      </offer>
+
 
     </offers>
   </shop>

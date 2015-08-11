@@ -3,6 +3,7 @@ class CategoriesTree
     @shop = shop
     @categories_array = []
     @categories_tree = { }
+    @categories_info = {}
   end
 
   def <<(category)
@@ -12,6 +13,11 @@ class CategoriesTree
   def [](key)
     build! unless built?
     (@categories_tree[key] || []).flatten
+  end
+
+  def info(id)
+    build! unless built?
+    @categories_info[id]
   end
 
   private
@@ -75,7 +81,12 @@ class CategoriesTree
     @categories_tree.each do |k, v|
       v.sort!
     end
+
+    # Заполняем хеш для быстрого получения информации по id
+    @categories_info = @categories_array.map {|category_info| [category_info[:id], category_info]}.to_h
   end
+
+
 
   def built?
     @categories_tree.any?

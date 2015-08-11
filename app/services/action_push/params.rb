@@ -151,8 +151,8 @@ module ActionPush
 
 
         if shop.has_imported_yml?
-          # товара в yml нет - значит не рекомендуем   
-          item_attributes.is_available = false
+          # товара в yml нет - значит не рекомендуем
+          item_attributes.is_available = false unless Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
         else
 
           item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])

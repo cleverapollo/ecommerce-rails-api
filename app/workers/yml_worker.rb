@@ -58,6 +58,12 @@ class YmlWorker
     @advertisers_cache ||= Advertiser.prioritized.to_a
   end
 
+  def wear_types_dictionaries
+    # Объединенные по типам слова для матчинга
+    #SizeHelper::SIZE_TYPES.map{|size_type| [size_type, Regexp.union(WearTypeDictionary.by_type(size_type).pluck(:word))]}.to_h
+    SizeHelper::SIZE_TYPES.map{|size_type| [size_type, '']}.to_h
+  end
+
   def process
     begin
       yml.get do |yml|
@@ -98,7 +104,8 @@ class YmlWorker
                            is_available: available,
                            content: item_data,
                            categories_resolver: categories_tree,
-                           advertisers:advertisers_cache)
+                           advertisers:advertisers_cache,
+                           wear_type_dictionaries:wear_types_dictionaries)
 
     # Достаем товар из кэша или создаем новый
     item = items_cache.pop(yml_item.uniqid) || shop.items.new(uniqid: yml_item.uniqid)
