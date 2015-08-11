@@ -41,10 +41,6 @@ module Recommender
         advertiser = Promoting::Brand.advertiser_for_item(item)
         if advertiser
           @only_one_promo = item.brand
-          #advertiser.each do |advertiser_id|
-          #  break if result.size >= limit
-          #  result += Advertiser.find(advertiser_id).get_from_categories(relation, shop.id, item.categories, excluded_items_ids, limit)
-          #end
         end
 
         if result.size <limit
@@ -63,7 +59,7 @@ module Recommender
           
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
-            result += items_relation.where.not(id: result).limit(limit - result.size).order(price: :desc).pluck(:id)
+            result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
           end
         end
         # если делаем промо по монобренду, то взвешивать по SR не надо (уже отсортирован)
