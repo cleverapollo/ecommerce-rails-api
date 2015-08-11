@@ -162,6 +162,7 @@ FactoryGirl.define do
     send_from 'test@example.com'
   end
 
+
   factory :interaction do
     shop
     item
@@ -174,5 +175,8 @@ FactoryGirl.define do
   end
 
   factory :item_category do
+  end
+
+  factory :wear_type_dictionary do
   end
 end
