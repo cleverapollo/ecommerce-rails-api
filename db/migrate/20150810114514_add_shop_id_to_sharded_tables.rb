@@ -1,7 +1,7 @@
 class AddShopIdToShardedTables < ActiveRecord::Migration
   def change
     add_column :digest_mailing_batches, :shop_id, :integer
-    # DigestMailingBatch.all.each do |row|
+    # DigestMailingBatch.all.find_each do |row|
     #   if row.mailing.nil?
     #     row.destroy
     #   else
