@@ -54,6 +54,10 @@ class YmlWorker
     @categories_tree ||= CategoriesTree.new(shop)
   end
 
+  def advertisers_cache
+    @advertisers_cache ||= Advertiser.active.prioritized
+  end
+
   def process
     begin
       yml.get do |yml|
@@ -77,8 +81,8 @@ class YmlWorker
       ErrorsMailer.yml_url_not_respond(@shop).deliver_now
       raise YmlWorker::Error.new("Плохой код ответа.")
     rescue Yml::NoXMLFileInArchiveError
-      ErrorsMailer.yml_import_error(@shop, "Не обноружено XML-файлв в архиве.").deliver_now
-      raise YmlWorker::Error.new("Не обноружено XML-файлв в архиве.")
+      ErrorsMailer.yml_import_error(@shop, "Не обнаружено XML-файлв в архиве.").deliver_now
+      raise YmlWorker::Error.new("Не обнаружено XML-файлов в архиве.")
     rescue Nokogiri::XML::SyntaxError => e
       ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
