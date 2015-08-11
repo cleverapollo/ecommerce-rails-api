@@ -4,6 +4,9 @@ module Experimentor
       def populate
         clear_all
         local_shop = Shop.find_by(name:'Megashop')
+        unless local_shop
+          local_shop = create(:shop, id:670)
+        end
 
         100.times do |i|
           create(:user)

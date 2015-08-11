@@ -19,6 +19,7 @@ class Shop < ActiveRecord::Base
   belongs_to :plan
   belongs_to :customer
   belongs_to :category
+  belongs_to :manager, -> { admins }, class_name: 'Customer'
   has_many :clients
   has_many :actions
   has_many :mahout_actions

@@ -12,6 +12,7 @@ module Recommender
 
     def inject_promotions(result_ids)
       return result_ids if result_ids.empty?
+
       promotions_placed = 0
       in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
