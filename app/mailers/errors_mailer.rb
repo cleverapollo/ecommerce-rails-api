@@ -21,4 +21,11 @@ class ErrorsMailer < ActionMailer::Base
       foramt.html { "<p>Здравствуйте</p><p>К сожалению мы не смогли загрузить YML-файл вашего интернет-магазина <a href='#{shop.url}'>#{shop.name}</a>. </br>Пожалуйста, проверьте правильность ссылки, указанной в <a href='#{Rees46.site_url}/shops/#{shop.id}'>личном кабинете</a>.</p><p>На все ваши вопросы ответит ваш менеджер #{manager.name}. <br /><a href='http://rees46.com' target='_blank'>rees46.com</a> | <a href='mailto:#{manager.email}' target='_blank'>#{manager.email}</a> | +7 (812) 426-13-45 </p>" }
     end
   end
+
+  def yml_off(shop)
+        manager =  shop.manager.present? ? shop.manager : Customer.default_manager
+    mail(from: manager.email, to: shop.customer.email, bcc: manager.email, subject: 'Обработка YML-файла отключена') do |foramt|
+      foramt.html { "<p>Здравствуйте</p><p>К сожалению мы не смогли загрузить YML-файл вашего интернет-магазина <a href='#{shop.url}'>#{shop.name}</a> в течение 5-ти дней. </br>Пожалуйста, проверьте правильность ссылки, указанной в <a href='#{Rees46.site_url}/shops/#{shop.id}'>личном кабинете</a>.</p><p>На все ваши вопросы ответит ваш менеджер #{manager.name}. <br /><a href='http://rees46.com' target='_blank'>rees46.com</a> | <a href='mailto:#{manager.email}' target='_blank'>#{manager.email}</a> | +7 (812) 426-13-45 </p>" }
+    end
+  end
 end
