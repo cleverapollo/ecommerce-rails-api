@@ -55,7 +55,7 @@ class YmlWorker
   end
 
   def advertisers_cache
-    @advertisers_cache ||= Advertiser.active.prioritized
+    @advertisers_cache ||= Advertiser.prioritized.to_a
   end
 
   def process
@@ -97,7 +97,8 @@ class YmlWorker
     yml_item = YmlItem.new(id: id,
                            is_available: available,
                            content: item_data,
-                           categories_resolver: categories_tree)
+                           categories_resolver: categories_tree,
+                           advertisers:advertisers_cache)
 
     # Достаем товар из кэша или создаем новый
     item = items_cache.pop(yml_item.uniqid) || shop.items.new(uniqid: yml_item.uniqid)

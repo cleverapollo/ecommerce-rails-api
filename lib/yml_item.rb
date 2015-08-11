@@ -16,6 +16,7 @@ class YmlItem
     @categories_resolver = args.fetch(:categories_resolver)
     # В этот объект будут делегироваться вызовы аттрибутов, которых нет у данного класса
     @blank_item = Item.new
+    @advertisers = args.fetch(:advertisers)
   end
 
   def uniqid
@@ -61,7 +62,7 @@ class YmlItem
 
     if brand.empty?
       # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
-      Advertiser.find_each do |advertiser|
+      @advertisers.each do |advertiser|
         if in_name?(name, advertiser)
           brand = advertiser.downcase_brand
         end
