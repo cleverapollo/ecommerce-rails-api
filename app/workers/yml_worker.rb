@@ -20,11 +20,11 @@ class YmlWorker
       end
     end
 
-    # Обработать приоритетные магазины
+    # # Обработать приоритетные магазины
     def process_priority
-      Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-        YmlWorker.perform_async(shop.id)
-      end
+    #   Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+    #     YmlWorker.perform_async(shop.id)
+    #   end
     end
 
   end
