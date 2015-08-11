@@ -15,16 +15,16 @@ class YmlWorker
 
     # Обработать все магазины с YML файлами.
     def process_all
-      Shop.active.connected.with_yml.where(shard: SHARD_ID).find_each do |shop|
+      Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
         YmlWorker.perform_async(shop.id)
       end
     end
 
-    # Обработать приоритетные магазины
+    # # Обработать приоритетные магазины
     def process_priority
-      Shop.active.connected.with_yml.where(shard: SHARD_ID).find_each do |shop|
-        YmlWorker.perform_async(shop.id)
-      end
+    #   Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+    #     YmlWorker.perform_async(shop.id)
+    #   end
     end
 
   end
@@ -55,7 +55,7 @@ class YmlWorker
   end
 
   def advertisers_cache
-    @advertisers_cache ||= Advertiser.active.prioritized
+    @advertisers_cache ||= Advertiser.prioritized.to_a
   end
 
   def process
@@ -78,13 +78,16 @@ class YmlWorker
         disable_remaining_in_cache
       end
     rescue Yml::NotRespondingError => e
-      ErrorsMailer.yml_url_not_respond(@shop).deliver_now
+      @shop.increment_yml_errors!
+      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_url_not_respond(@shop).deliver_now
       raise YmlWorker::Error.new("Плохой код ответа.")
     rescue Yml::NoXMLFileInArchiveError
-      ErrorsMailer.yml_import_error(@shop, "Не обнаружено XML-файлв в архиве.").deliver_now
-      raise YmlWorker::Error.new("Не обнаружено XML-файлов в архиве.")
+      @shop.increment_yml_errors!
+      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_import_error(@shop, "Не обноружено XML-файлв в архиве.").deliver_now
+      raise YmlWorker::Error.new("Не обноружено XML-файлв в архиве.")
     rescue Nokogiri::XML::SyntaxError => e
-      ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now
+      @shop.increment_yml_errors!
+      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
   end
@@ -97,7 +100,8 @@ class YmlWorker
     yml_item = YmlItem.new(id: id,
                            is_available: available,
                            content: item_data,
-                           categories_resolver: categories_tree)
+                           categories_resolver: categories_tree,
+                           advertisers:advertisers_cache)
 
     # Достаем товар из кэша или создаем новый
     item = items_cache.pop(yml_item.uniqid) || shop.items.new(uniqid: yml_item.uniqid)
@@ -112,7 +116,7 @@ class YmlWorker
   end
 
   def mark_as_loaded
-    shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current)
+    shop.update_columns(yml_loaded: true, last_valid_yml_file_loaded_at: Time.current, yml_errors: 0)
   end
 
   # Обрабатываемая ошибка при обработке
