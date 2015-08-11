@@ -43,7 +43,7 @@ module Recommender
         # Коллаборативка в контексте текущего товара - как будто пользователь этот товар уже купил
         r = ms.user_based(params.user.id,
                           params.shop.id,
-                          params.item.id,
+                          params.item_id,
                           include: [], # Махаут в курсе итемов
                           exclude: excluded_items,
                           limit: params.limit*8)
