@@ -39,7 +39,7 @@ class Shop < ActiveRecord::Base
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
 
-  scope :with_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''") }
+  scope :with_valid_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''").where("yml_errors < 5" ) }
   scope :with_enabled_triggers, -> { where(id: TriggerMailing.where(enabled: true).pluck(:shop_id).uniq ) }
   scope :active, -> { where(active: true) }
   scope :connected, -> { where(connected: true) }
@@ -126,5 +126,9 @@ class Shop < ActiveRecord::Base
 
   def has_imported_yml?
     self.yml_loaded && self.last_valid_yml_file_loaded_at.present? && self.last_valid_yml_file_loaded_at >= 48.hours.ago
+  end
+
+  def increment_yml_errors!
+    update(yml_errors: self.yml_errors += 1)
   end
 end
