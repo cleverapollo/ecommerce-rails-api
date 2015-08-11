@@ -91,24 +91,32 @@ describe YmlWorker do
     end
 
     context 'gets correct type by' do
+
+      let!(:wear_type_dictionary) do
+        create(:wear_type_dictionary, type_name:'shirt', word:'платья')
+        create(:wear_type_dictionary, type_name:'shirt', word:'рубашка')
+        create(:wear_type_dictionary, type_name:'tshirt', word:'футболка')
+        create(:wear_type_dictionary, type_name:'tshirt', word:'майка')
+      end
+
       it 'category' do
-        # existing_item = create(:item, uniqid: '7000', shop: shop)
-        # subject
-        #
-        # existing_item.reload
-        # {
-        #     wear_type: 'shirt'
-        # }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+        existing_item = create(:item, uniqid: '7000', shop: shop)
+        subject
+
+        existing_item.reload
+        {
+            wear_type: 'shirt'
+        }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
       end
 
       it 'name' do
-        # existing_item = create(:item, uniqid: '6000', shop: shop)
-        # subject
-        #
-        # existing_item.reload
-        # {
-        #     wear_type: 'shirt'
-        # }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+        existing_item = create(:item, uniqid: '6000', shop: shop)
+        subject
+
+        existing_item.reload
+        {
+            wear_type: 'tshirt'
+        }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
       end
     end
   end

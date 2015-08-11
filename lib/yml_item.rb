@@ -126,9 +126,22 @@ class YmlItem
     return StringHelper.encode_and_truncate(@content['child']['type']) if @content['child'].present? && @content['child']['type'].present?
 
     # ищем тип по категории
-    #ap @wear_type_dictionaries
+    categories.each do |category|
+      @wear_type_dictionaries.each_with_index do |type_data, _|
+        if type_data[1].match(@categories_resolver.info(category)[:name])
+          return type_data[0]
+        end
+      end
+    end
 
     # Все еще не нашли - ищем в названии.
+    @wear_type_dictionaries.each_with_index do |type_data, _|
+      if type_data[1].match(name)
+        return type_data[0]
+      end
+    end
+
+    nil
   end
 
   def feature
