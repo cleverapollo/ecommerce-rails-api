@@ -17,6 +17,7 @@ class YmlItem
     # В этот объект будут делегироваться вызовы аттрибутов, которых нет у данного класса
     @blank_item = Item.new
     @advertisers = args.fetch(:advertisers)
+    @wear_type_dictionaries = args.fetch(:wear_type_dictionaries)
   end
 
   def uniqid
@@ -125,7 +126,7 @@ class YmlItem
     return StringHelper.encode_and_truncate(@content['child']['type']) if @content['child'].present? && @content['child']['type'].present?
 
     # ищем тип по категории
-    #ap categories
+    #ap @wear_type_dictionaries
 
     # Все еще не нашли - ищем в названии.
   end

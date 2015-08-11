@@ -92,10 +92,23 @@ describe YmlWorker do
 
     context 'gets correct type by' do
       it 'category' do
-
+        # existing_item = create(:item, uniqid: '7000', shop: shop)
+        # subject
+        #
+        # existing_item.reload
+        # {
+        #     wear_type: 'shirt'
+        # }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
       end
-      it 'name' do
 
+      it 'name' do
+        # existing_item = create(:item, uniqid: '6000', shop: shop)
+        # subject
+        #
+        # existing_item.reload
+        # {
+        #     wear_type: 'shirt'
+        # }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
       end
     end
   end
