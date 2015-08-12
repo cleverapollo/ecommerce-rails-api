@@ -113,11 +113,12 @@ class YmlItem
   end
 
   def gender
-    gender = ''
+    gender = nil
     # Для совместимости sex->gender
     gender = StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
     gender = StringHelper.encode_and_truncate(@content['fashion']['gender']) if @content['fashion'].present? && @content['fashion']['gender'].present?
     gender = StringHelper.encode_and_truncate(@content['child']['gender']) if @content['child'].present? && @content['child']['gender'].present?
+    return nil if gender==''
     gender
   end
 
