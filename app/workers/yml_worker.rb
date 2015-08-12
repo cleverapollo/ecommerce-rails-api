@@ -60,8 +60,8 @@ class YmlWorker
 
   def wear_type_dictionaries
     # Объединенные по типам слова для матчинга
-    SizeHelper::SIZE_TYPES
-        .map{|size_type| [size_type, Regexp.union(WearTypeDictionary.by_type(size_type).pluck(:word)
+    @wear_type_dictionaries ||=
+        SizeHelper::SIZE_TYPES.map{|size_type| [size_type, Regexp.union(WearTypeDictionary.by_type(size_type).pluck(:word)
                                                                         .map{|word| Regexp.new(word, Regexp::IGNORECASE)})]}.to_h
   end
 
