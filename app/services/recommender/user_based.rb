@@ -22,13 +22,17 @@ module Recommender
         new_result = fetch_user_based(excluded_items, ms)
         break if new_result.empty?
         # По отраслевым отсеивать тут
-        # уберем товары, которые не актуальные или не соответствуют полу
-        new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
+        if params.modification.present?
+          if params.modification == 'fashion'
+            # уберем товары, которые не актуальные или не соответствуют полу
+            new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
+          end
+        end
         result = result+new_result
         excluded_items = (excluded_items+new_result).compact.uniq
         iterations+=1
       end
-      
+
       ms.close
 
       if result.size > params.limit

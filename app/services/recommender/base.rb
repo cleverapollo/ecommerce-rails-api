@@ -143,8 +143,18 @@ module Recommender
         relation = items_in_shop.in_categories(categories, any:true)
       end
 
+      # фильтруем по отраслевым
+      if params.modification.present?
+        if params.modification == 'fashion'
+          # уберем товары, которые не актуальные или не соответствуют полу
+          gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+          relation = gender_algo.modify_relation(relation)
+        end
+      end
+
       # Не использовать order RANDOM()
       additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).limit(RANDOM_LIMIT_MULTIPLY * limit).pluck(:id)
+
 
       given_ids + additional_ids.sample(limit - given_ids.count)
     end
