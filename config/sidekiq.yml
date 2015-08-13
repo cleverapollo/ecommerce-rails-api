@@ -14,4 +14,4 @@ development:
   critical: 3
   default: 7
   long:     2
-  mailing:  3
+  mailing:  10

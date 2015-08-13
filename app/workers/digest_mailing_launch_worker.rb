@@ -7,6 +7,8 @@ class DigestMailingLaunchWorker
 
   attr_reader :shop
 
+  BATCH_SIZE = 20
+
   # Запустить дайджестную рассылку.
   # Содержимое входящих параметров:
   # {
@@ -32,7 +34,7 @@ class DigestMailingLaunchWorker
 
       if digest_mailing.batches.incomplete.none?
         # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
-        shop.clients.suitable_for_digest_mailings.each_batch_with_start_end_id(100) do |start_id, end_id|
+        shop.clients.suitable_for_digest_mailings.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
           digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
         end
       end

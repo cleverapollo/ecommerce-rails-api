@@ -36,9 +36,17 @@ class YmlWorker
       @yml = Yml.new(shop)
       process
     rescue YmlWorker::Error => e
+      binding.pry if Rails.env.development?
       raise e if Rails.env.test?
       if retried
-        Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url, shop_yml_url: shop.yml_file_url)
+        @shop.increment_yml_errors!
+        if @shop.yml_errors >= 5
+          ErrorsMailer.yml_off(@shop).deliver_now
+        else
+          ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
+          ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обноружено XML-файлв в архиве.')
+          ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML')
+        end
       else
         retried = true
         retry
@@ -60,8 +68,8 @@ class YmlWorker
 
   def wear_type_dictionaries
     # Объединенные по типам слова для матчинга
-    SizeHelper::SIZE_TYPES
-        .map{|size_type| [size_type, Regexp.union(WearTypeDictionary.by_type(size_type).pluck(:word)
+    @wear_type_dictionaries ||=
+        SizeHelper::SIZE_TYPES.map{|size_type| [size_type, Regexp.union(WearTypeDictionary.by_type(size_type).pluck(:word)
                                                                         .map{|word| Regexp.new(word, Regexp::IGNORECASE)})]}.to_h
   end
 
@@ -85,16 +93,10 @@ class YmlWorker
         disable_remaining_in_cache
       end
     rescue Yml::NotRespondingError => e
-      @shop.increment_yml_errors!
-      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_url_not_respond(@shop).deliver_now
       raise YmlWorker::Error.new("Плохой код ответа.")
     rescue Yml::NoXMLFileInArchiveError
-      @shop.increment_yml_errors!
-      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_import_error(@shop, "Не обноружено XML-файлв в архиве.").deliver_now
       raise YmlWorker::Error.new("Не обноружено XML-файлв в архиве.")
     rescue Nokogiri::XML::SyntaxError => e
-      @shop.increment_yml_errors!
-      @shop.yml_errors >= 5 ? ErrorsMailer.yml_off(@shop).deliver_now : ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
   end
