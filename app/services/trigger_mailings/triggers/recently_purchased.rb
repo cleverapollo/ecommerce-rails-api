@@ -17,14 +17,16 @@ module TriggerMailings
         params = OpenStruct.new(
           shop: shop,
           user: user,
-          item: @bought_item,
           limit: count,
-          recommend_only_widgetable: true,
-          locations: @bought_item.locations
+          recommend_only_widgetable: true
         )
 
         # Сначала сопутку
-        result = Recommender::Impl::AlsoBought.new(params).recommended_ids
+        if @bought_item
+          result = Recommender::Impl::AlsoBought.new(params).recommended_ids
+          params.item = @bought_item
+          params.locations =@bought_item.locations
+        end
 
         # Затем интересные
         if result.count < count
