@@ -25,7 +25,7 @@ class TriggerMail < ActiveRecord::Base
   end
 
   def tracking_url
-    Routes.track_mail_url(code: self.code, type: 'trigger', host: Rees46::HOST)
+    Routes.track_mail_url(code: self.code, type: 'trigger', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
   def mark_as_bounced!
