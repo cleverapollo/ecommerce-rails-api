@@ -50,11 +50,11 @@ class Client < ActiveRecord::Base
   end
 
   def digest_unsubscribe_url
-    Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46::HOST)
+    Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
   def trigger_unsubscribe_url
-    Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST)
+    Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
   def unsubscribe_from(mailings_type)

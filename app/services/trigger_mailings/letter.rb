@@ -53,6 +53,7 @@ module TriggerMailings
 
         decorated_source_item.each do |key, value|
           result.gsub!("{{ source_item.#{key} }}", value)
+          result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
         end
       end
 
@@ -66,6 +67,7 @@ module TriggerMailings
           recommended_item_template = trigger.settings[:item_template].dup
           decorated_recommended_item.each do |key, value|
             recommended_item_template.gsub!("{{ #{key} }}", value)
+            recommended_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
           end
 
           result['{{ recommended_item }}'] = recommended_item_template
