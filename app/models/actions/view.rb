@@ -23,9 +23,11 @@ module Actions
     def post_process
       super
 
-      # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
-      Promoting::Brand.find_by_item(item).each do |advertiser_id|
-        BrandLogger.track_click advertiser_id, shop.id, recommended_by
+      if item
+        # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
+        Promoting::Brand.find_by_item(item).each do |advertiser_id|
+          BrandLogger.track_click advertiser_id, shop.id, recommended_by
+        end
       end
 
     end
