@@ -577,4 +577,13 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.string "type_name"
   end
 
+
+  create_table "brands", force: :cascade do |t|
+    t.string   "name"
+    t.string   "keyword"
+    t.text     "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
 end
