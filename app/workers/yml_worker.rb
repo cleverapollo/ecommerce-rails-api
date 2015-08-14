@@ -62,8 +62,8 @@ class YmlWorker
     @categories_tree ||= CategoriesTree.new(shop)
   end
 
-  def advertisers_cache
-    @advertisers_cache ||= Advertiser.prioritized.to_a
+  def brands_cache
+    @brands_cache ||= Brand.all
   end
 
   def wear_type_dictionaries
@@ -110,7 +110,7 @@ class YmlWorker
                            is_available: available,
                            content: item_data,
                            categories_resolver: categories_tree,
-                           advertisers:advertisers_cache,
+                           brands:brands_cache,
                            wear_type_dictionaries:wear_type_dictionaries)
 
     # Достаем товар из кэша или создаем новый
