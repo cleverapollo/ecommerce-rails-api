@@ -16,7 +16,7 @@ class YmlItem
     @categories_resolver = args.fetch(:categories_resolver)
     # В этот объект будут делегироваться вызовы аттрибутов, которых нет у данного класса
     @blank_item = Item.new
-    @advertisers = args.fetch(:advertisers)
+    @brands = args.fetch(:brands)
     @wear_type_dictionaries = args.fetch(:wear_type_dictionaries)
   end
 
@@ -63,14 +63,19 @@ class YmlItem
 
     if brand.empty?
       # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
-      @advertisers.each do |advertiser|
-        if in_name?(name, advertiser)
-          brand = advertiser.downcase_brand
+      @brands.each do |brand|
+        if in_name?(name, brand)
+          brand = brand.keyword
         end
       end
     end
 
-    brand.downcase
+    if brand.blank?
+      return nil
+    else
+      return brand.downcase
+    end
+
   end
 
   def image_url
@@ -187,7 +192,7 @@ class YmlItem
   end
 
   # Проверяет наличие бренда рекламодателя в имени айтема
-  def in_name?(item_name, advertiser)
-    !item_name.match(/\b#{advertiser.downcase_brand}\b/i).nil?
+  def in_name?(item_name, brand)
+    !item_name.match(/\b#{brand.keyword}\b/i).nil?
   end
 end
