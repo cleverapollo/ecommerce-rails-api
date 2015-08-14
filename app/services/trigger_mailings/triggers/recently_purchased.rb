@@ -23,9 +23,9 @@ module TriggerMailings
 
         # Сначала сопутку
         if @bought_item
-          result = Recommender::Impl::AlsoBought.new(params).recommended_ids
           params.item = @bought_item
-          params.locations =@bought_item.locations
+          params.locations = @bought_item.locations
+          result = Recommender::Impl::AlsoBought.new(params).recommended_ids
         end
 
         # Затем интересные
