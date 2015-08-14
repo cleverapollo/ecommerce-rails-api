@@ -5,6 +5,8 @@ describe YmlWorker do
     let!(:shop) { create(:shop) }
     let!(:promotion) { create(:advertiser, downcase_brand:'apple')}
 
+    let!(:promo_brand) { create(:brand, keyword:'apple') unless Brand.where(keyword:'apple').limit(1)[0]}
+
     before {
       allow_any_instance_of(Yml).to receive(:get).and_yield(File.open("#{Rails.root}/spec/files/yml.xml", 'rb'))
     }
