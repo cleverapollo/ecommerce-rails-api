@@ -4,14 +4,18 @@ class Brand < ActiveRecord::Base
 
   before_save :lowercase_keyword
 
-  validates :name, :keyword, presence: true
+  validates :name, :keyword, presence: true, uniqueness: true
 
 
 
   private
 
   def lowercase_keyword
-    keyword.downcase! unless keyword.nil?
+    if keyword.nil?
+      self.keyword = name.downcase
+    else
+      self.keyword.downcase!
+    end
   end
 
 end
