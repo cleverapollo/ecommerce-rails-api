@@ -56,24 +56,24 @@ class YmlItem
   end
 
   def brand
-    brand = ''
-    brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
-    brand = StringHelper.encode_and_truncate(@content['child']['brand'], 255) if @content['child'].present? && @content['child']['brand'].present?
-    brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand.empty? && @content['vendor'].present?
+    _brand = ''
+    _brand = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
+    _brand = StringHelper.encode_and_truncate(@content['child']['brand'], 255) if @content['child'].present? && @content['child']['brand'].present?
+    _brand = StringHelper.encode_and_truncate(@content['vendor'], 255) if _brand.empty? && @content['vendor'].present?
 
-    if brand.empty?
+    if _brand.empty?
       # костыль для магазинов, принципиально не способных поставить бренд самостоятельно
-      @brands.each do |brand|
-        if in_name?(name, brand)
-          brand = brand.keyword
+      @brands.each do |brand_name|
+        if in_name?(name, brand_name)
+          _brand = brand_name.keyword
         end
       end
     end
 
-    if brand.blank?
+    if _brand.blank?
       return nil
     else
-      return brand.downcase
+      return _brand.downcase
     end
 
   end
