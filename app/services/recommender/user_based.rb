@@ -29,7 +29,7 @@ module Recommender
           end
         else
           if params.recommend_only_widgetable
-            # Отфильтруем, чтобы не попали товары, недоступные к показу
+            # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
             new_result = Item.where(id: new_result).pluck(:id, :widgetable).delete_if { |val| !val[1] }.map { |v| v[0] }
           end
         end
