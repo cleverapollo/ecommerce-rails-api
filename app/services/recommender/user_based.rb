@@ -27,6 +27,11 @@ module Recommender
             # уберем товары, которые не актуальные или не соответствуют полу
             new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
           end
+        else
+          if params.recommend_only_widgetable
+            # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
+            new_result = Item.where(id: new_result).pluck(:id, :widgetable).delete_if { |val| !val[1] }.map { |v| v[0] }
+          end
         end
         result = result+new_result
         excluded_items = (excluded_items+new_result).compact.uniq
