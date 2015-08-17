@@ -179,4 +179,8 @@ FactoryGirl.define do
 
   factory :wear_type_dictionary do
   end
+
+  factory :brand do
+    name { 'Apple' }
+  end
 end

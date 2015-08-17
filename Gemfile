@@ -20,7 +20,7 @@ gem 'sidekiq', '~> 3.3.3'
 gem 'sidekiq-limit_fetch', '~> 2.4.1'
 
 # Services
-gem 'rollbar', '~> 1.5.3'
+gem 'rollbar', '~> 2.1.1'
 gem 'newrelic_rpm', '~> 3.12.0'
 
 # BrB
