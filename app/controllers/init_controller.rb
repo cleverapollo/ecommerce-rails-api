@@ -33,4 +33,8 @@ class InitController < ApplicationController
 
     render js: InitServerString.make(shop: shop, session: session)
   end
+
+  def init_experiment
+    render json: cookies
+  end
 end
