@@ -3,6 +3,8 @@ Rees46Api::Application.routes.draw do
 
   # Инициализация
   get 'init_script', to: 'init#init_script'
+  get 'init_experiment', to: 'init#init_experiment'
+
 
   # Генерация кода сессии - используется мобильными приложениями
   get 'generate_ssid', to: 'init#generate_ssid'
