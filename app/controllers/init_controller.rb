@@ -35,6 +35,6 @@ class InitController < ApplicationController
   end
 
   def init_experiment
-    render json: cookies
+    render json: cookies[Rees46::COOKIE_NAME]
   end
 end
