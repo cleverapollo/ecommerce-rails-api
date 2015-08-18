@@ -5,6 +5,16 @@ class Session < ActiveRecord::Base
 
   establish_connection MASTER_DB
 
+  def before_save(record)
+    if record.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2'
+      open('err_session.out', 'a') do |f|
+        f.puts record.inspect
+        f.puts caller
+        f.puts '-----------------------------------------------------'
+      end
+    end
+  end
+
 
   include UserLinkable
 
