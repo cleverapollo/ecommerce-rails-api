@@ -6,9 +6,14 @@ class Session < ActiveRecord::Base
   establish_connection MASTER_DB
 
   after_save :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
+  after_initialize :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
+  around_save :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
+  before_update :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
+  after_update :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
+  after_commit :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
 
   def record_session
-    open('err_session.out', 'a') do |f|
+    open('log/err_session.out', 'a') do |f|
       f << '-----------AFTER_SAVE--------------------------------'
       f << self.inspect
       f << "\n"
