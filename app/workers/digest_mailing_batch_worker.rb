@@ -125,6 +125,9 @@ class DigestMailingBatchWorker
     #   end
     # end
 
+    # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
+    result.gsub!('{{ recommended_item }}', '')
+
     # Убираем лишнее.
     result.gsub!(/\{\{ user.\w+ }}/, '')
 
