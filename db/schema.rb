@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150810114514) do
+ActiveRecord::Schema.define(version: 20150818153315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,18 @@ ActiveRecord::Schema.define(version: 20150810114514) do
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
+
+  create_table "articles", force: :cascade do |t|
+    t.string   "external_id",              null: false
+    t.text     "url"
+    t.integer  "medium_id"
+    t.string   "title",       limit: 5000
+    t.text     "image"
+    t.text     "description"
+    t.string   "encoding"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "beacon_messages", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
@@ -252,6 +264,16 @@ ActiveRecord::Schema.define(version: 20150810114514) do
     t.string   "logo_content_type", limit: 255
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
+  end
+
+  create_table "medium_actions", force: :cascade do |t|
+    t.integer  "medium_id"
+    t.integer  "user_id"
+    t.integer  "article_id"
+    t.string   "medium_action_type", null: false
+    t.string   "recommended_by"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "order_items", id: :bigserial, force: :cascade do |t|
