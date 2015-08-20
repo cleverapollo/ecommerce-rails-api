@@ -14,6 +14,8 @@ class Order < ActiveRecord::Base
 
   before_create :record_date
 
+  scope :successful, -> { where(status: self::STATUS_SUCCESS) }
+
   STATUS_NEW = 0
   STATUS_SUCCESS = 1
   STATUS_CANCELLED = 2
