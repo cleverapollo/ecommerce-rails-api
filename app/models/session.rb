@@ -14,13 +14,13 @@ class Session < ActiveRecord::Base
 
   def record_session
     open('log/err_session.out', 'a') do |f|
-      f << '-----------AFTER_SAVE--------------------------------'
+      f << "\n\n\n-----------AFTER_SAVE--------#{Time.now}------------"
       f << self.inspect
       f << "\n"
       f << caller
       f << "\n"
-      f << '-----------------------------------------------------'
-      f << "\n"
+      f << "-----------------------------------------------------"
+      f << "\n\n\n\n"
     end
   end
 

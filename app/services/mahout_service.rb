@@ -76,6 +76,14 @@ class MahoutService
     end
   end
 
+  def relink_user(from, to)
+    unless Rails.env.test?
+      if tunnel_active?
+        tunnel.relink_user({from:from, to:to})
+      end
+    end
+  end
+
 
 
   def tunnel_active?

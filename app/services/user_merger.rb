@@ -4,7 +4,7 @@
 # Происходит перелинковка связанных сущностей.
 #
 class UserMerger
-  DEPENDENCIES = [Client, Action, Session, MahoutAction, Order, Interaction]
+  DEPENDENCIES = [Client, Action, MahoutAction, Session, Order, Interaction]
 
   class << self
     def merge(master, slave)
