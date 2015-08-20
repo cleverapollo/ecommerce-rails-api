@@ -32,7 +32,7 @@ class MahoutService
 
   # @param user_id
   # @param shop_id
-  # @param item_id Если указан, то вся история пользователя будет состоять только из этого текущего товара, а если нет – то используем в качестве истории всю историю покупок клиента
+  # @param item_id Если указан, будет добавлен в историю товаров
   # @param options
   def user_based(user_id, shop_id, item_id, options)
     unless Rails.env.test?
@@ -72,6 +72,14 @@ class MahoutService
     unless Rails.env.test?
       if tunnel_active? && rating.to_f>0.0
         tunnel.set_preference(shop_id, {user_id:user_id, item_id:item_id, rating:rating})
+      end
+    end
+  end
+
+  def relink_user(from, to)
+    unless Rails.env.test?
+      if tunnel_active?
+        tunnel.relink_user({from:from, to:to})
       end
     end
   end
