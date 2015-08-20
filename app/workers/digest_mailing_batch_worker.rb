@@ -141,7 +141,7 @@ class DigestMailingBatchWorker
 
     # Добавляем футер
     footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
-                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new.tracking_url,
+                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
                                        unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url)
     result['{{ footer }}'] = footer
 
