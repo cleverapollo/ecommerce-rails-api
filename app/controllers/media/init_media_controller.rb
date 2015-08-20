@@ -12,7 +12,7 @@ class Media::InitMediaController < ApplicationController
 
     session = Session.fetch(code: session_id,
                             useragent: sanitized_header(:user_agent),
-                            # email: params[:user_email],
+                            email: params[:user_email],
                             city: sanitized_header(:city),
                             country: sanitized_header(:country),
                             language: sanitized_header(:language))

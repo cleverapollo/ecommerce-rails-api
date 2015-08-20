@@ -15,11 +15,10 @@ describe Media::RecommendationsController do
       end
 
       it 'limit not specified' do
-        binding.pry
         get :create, @params
 
         session_last = Session.last!
-        expect(session_last.code).to eq(@session.code)
+        expect(session_last.code).to eq(session.code)
 
         article = Article.last!
         expect(article.external_id).to eq(@article.external_id)
@@ -30,8 +29,8 @@ describe Media::RecommendationsController do
         @params[:limit] = 3
         get :create, @params
 
-        session = Session.last!
-        expect(session.code).to eq(@session.code)
+        session_last = Session.last!
+        expect(session_last.code).to eq(session.code)
 
         article = Article.last!
         expect(article.external_id).to eq(@article.external_id)
@@ -49,7 +48,7 @@ describe Media::RecommendationsController do
       end
       context 'when articles exist' do
         before do
-          @article = @medium.articles.create!(external_id: 'article_test')
+          @article = medium.articles.create!(external_id: 'article_test')
           @params = { format: :json, medium_id: medium.uniqid, session_id: session.code, article_id: 'article_test', limit: 3 }
           allow(Media::RecommenderService).to receive(:recommendations).and_return([@article.id])
           get :create, @params
