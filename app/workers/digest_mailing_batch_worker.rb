@@ -113,6 +113,7 @@ class DigestMailingBatchWorker
 
       decorated_item.each do |key, value|
         item_template.gsub!("{{ #{key} }}", value)
+        recommended_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
       end
 
       result['{{ recommended_item }}'] = item_template
