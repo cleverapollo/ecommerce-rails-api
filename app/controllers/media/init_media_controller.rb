@@ -8,8 +8,6 @@ class Media::InitMediaController < ApplicationController
   def init_script
     session_id = cookies[Rees46::COOKIE_NAME] || params[Rees46::COOKIE_NAME]
 
-    binding.pry
-
     session = Session.fetch(code: session_id,
                             useragent: sanitized_header(:user_agent),
                             email: params[:user_email],
