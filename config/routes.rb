@@ -61,4 +61,10 @@ Rees46Api::Application.routes.draw do
   # iBeacons
   get 'geo/notify', to: 'beacons#notify'
   get 'geo/track',  to: 'beacons#track'
+
+  namespace :media do
+    resources :media_actions, only: [:create]
+    get '/init_script' => 'init_media#init_script'
+    get '/recommend' => 'recommendations#create'
+  end
 end
