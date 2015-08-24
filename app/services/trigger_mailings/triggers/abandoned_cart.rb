@@ -19,11 +19,15 @@ module TriggerMailings
 
       def condition_happened?
         # Находим товар, который был положен в корзину в нужном периоде, но не был из нее удален или куплен
-        if action = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(1)[0]
+        user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).each do |action|
           @happened_at = action.cart_date
           @source_item = action.item
+
+          if @source_item.present? && @source_item.widgetable?
+            return true
+          end
         end
-        @source_item.present? && @source_item.widgetable?
+        false
       end
 
       # Рекомендации для брошенной корзины
