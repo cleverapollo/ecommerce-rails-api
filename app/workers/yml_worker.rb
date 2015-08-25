@@ -36,7 +36,6 @@ class YmlWorker
       @yml = Yml.new(shop)
       process
     rescue YmlWorker::Error => e
-      binding.pry if Rails.env.development?
       raise e if Rails.env.test?
       if retried
         @shop.increment_yml_errors!

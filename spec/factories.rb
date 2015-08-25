@@ -40,6 +40,13 @@ FactoryGirl.define do
     restricted false
   end
 
+  factory :medium do
+    uniqid { SecureRandom.hex }
+    secret { SecureRandom.hex }
+    name 'MediaTest'
+    url 'http://example.com'
+  end
+
   factory :plan do
     name 'Тариф'
     plan_type 'free'

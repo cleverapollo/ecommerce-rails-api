@@ -24,7 +24,7 @@ class DigestMail < ActiveRecord::Base
   end
 
   def tracking_url
-    Routes.track_mail_url(code: self.code || 'test', type: 'digest', host: Rees46::HOST)
+    Routes.track_mail_url(code: self.code || 'test', type: 'digest', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
   def mark_as_bounced!

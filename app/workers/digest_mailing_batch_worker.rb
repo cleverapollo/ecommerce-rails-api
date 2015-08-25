@@ -113,6 +113,7 @@ class DigestMailingBatchWorker
 
       decorated_item.each do |key, value|
         item_template.gsub!("{{ #{key} }}", value)
+        item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
       end
 
       result['{{ recommended_item }}'] = item_template
@@ -124,6 +125,9 @@ class DigestMailingBatchWorker
     #     result.gsub!("{{ user.#{key} }}", value)
     #   end
     # end
+
+    # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
+    result.gsub!('{{ recommended_item }}', '')
 
     # Убираем лишнее.
     result.gsub!(/\{\{ user.\w+ }}/, '')
@@ -141,8 +145,8 @@ class DigestMailingBatchWorker
 
     # Добавляем футер
     footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
-                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new.tracking_url,
-                                       unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new.digest_unsubscribe_url)
+                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
+                                       unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url)
     result['{{ footer }}'] = footer
 
     result
