@@ -17,6 +17,11 @@ describe UserProfile::AttributesProcessor do
       it 'stores profile attribute' do
         expect { subject }.to change { ProfileAttribute.count }.from(1).to(2)
       end
+
+      it 'fix gender attribute' do
+        subject
+        expect(user.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
+      end
     end
 
     context 'when profile attribute already logged' do

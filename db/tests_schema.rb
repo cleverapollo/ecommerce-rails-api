@@ -148,6 +148,21 @@ ActiveRecord::Schema.define(version: 20150729145844) do
 
   add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
 
+
+  create_table "beacon_offers", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "uuid",                         null: false
+    t.string   "major",                        null: false
+    t.string   "image_url",                    null: false
+    t.string   "title",                        null: false
+    t.string   "notification",                 null: false
+    t.boolean  "enabled",      default: false, null: false
+    t.text     "description",                  null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+
   create_table "cmses", force: :cascade do |t|
     t.string   "code",               limit: 255,                 null: false
     t.string   "name",               limit: 255,                 null: false
@@ -584,6 +599,21 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.text     "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "media", force: :cascade do |t|
+    t.string   "uniqid",                                                                  null: false
+    t.string   "name",                                                                    null: false
+    t.string   "url",                 limit: 255
+    t.integer  "customer_id"
+    t.boolean  "restricted",                                              default: false, null: false
+    t.string   "secret",              limit: 255
+    t.decimal  "efficiency",                      precision: 5, scale: 2, default: 0.0,   null: false
+    t.integer  "manager_id"
+    t.integer  "shard",                                                   default: 0,     null: false
+    t.datetime "manager_remind_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end

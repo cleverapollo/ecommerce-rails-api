@@ -1,6 +1,19 @@
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 FactoryGirl.define do
+
+  factory :beacon_offer do
+    uuid { SecureRandom.uuid }
+    major { SecureRandom.random_number(100).to_s }
+    image_url { Faker::Lorem.phrase }
+    title { Faker::Lorem.phrase }
+    notification { Faker::Lorem.phrase }
+    description { Faker::Lorem.phrase }
+    enabled false
+    shop_id { SecureRandom.random_number(100) }
+  end
+
+
   factory :user do
     factory :user_with_session do
       after(:create) do |user, _|
@@ -38,6 +51,13 @@ FactoryGirl.define do
     category_id 5
     active true
     restricted false
+  end
+
+  factory :medium do
+    uniqid { SecureRandom.hex }
+    secret { SecureRandom.hex }
+    name 'MediaTest'
+    url 'http://example.com'
   end
 
   factory :plan do
