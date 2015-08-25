@@ -9,7 +9,7 @@ class BeaconsController < ApplicationController
 
       user = session.user
 
-      beacon_offer = BeaconOffer.where(shop_id: shop.id, uuid: params[:uuid], major: params[:major]).limit(1)[0]
+      beacon_offer = BeaconOffer.active.where(shop_id: shop.id, uuid: params[:uuid], major: params[:major]).limit(1)[0]
       if beacon_offer.nil?
         return respond_with_client_error('Beacon Offer not found')
       end
@@ -50,7 +50,7 @@ class BeaconsController < ApplicationController
 
       user = session.user
 
-      beacon_offer = BeaconOffer.where(shop_id: shop.id, uuid: params[:uuid], major: params[:major]).limit(1)[0]
+      beacon_offer = BeaconOffer.active.where(shop_id: shop.id, uuid: params[:uuid], major: params[:major]).limit(1)[0]
       if beacon_offer.nil?
         return respond_with_client_error('Beacon Offer not found')
       end

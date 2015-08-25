@@ -7,4 +7,6 @@ class BeaconOffer < ActiveRecord::Base
 
   validates :uuid, :major, :image_url, :title, :description, :notification, :enabled, :shop_id, presence: true
 
+  scope :active, -> { where(enabled: true) }
+
 end

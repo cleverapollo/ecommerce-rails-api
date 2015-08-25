@@ -9,7 +9,7 @@ FactoryGirl.define do
     title { Faker::Lorem.phrase }
     notification { Faker::Lorem.phrase }
     description { Faker::Lorem.phrase }
-    enabled { false }
+    enabled false
     shop_id { SecureRandom.random_number(100) }
   end
 
