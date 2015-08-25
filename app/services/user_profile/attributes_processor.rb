@@ -22,6 +22,17 @@ module UserProfile
         end
       end
 
+      # Проверяем на наличие пола
+      if attributes['gender'].present?
+        gender = attributes['gender']
+        if ['m','f'].include?(gender)
+          # И сохраняем
+          algo = SectoralAlgorythms::Wear::Gender.new(user)
+          algo.fix_value(gender)
+          user.update(algo.attributes_for_update)
+        end
+      end
+
     end
   end
 end
