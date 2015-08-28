@@ -4,9 +4,9 @@ module TriggerMailings
     # Базовый класс для триггеров "брошенная корзина"
     #
     class AbandonedCart < Base
-      # Отправляем, если товар был положен в корзину больше часа, но меньше двух назад.
+      # Отправляем, если товар был положен в корзину больше часа, но меньше четырех часов назад.
       def trigger_time_range
-        (120.minutes.ago..60.minutes.ago)
+        (240.minutes.ago..60.minutes.ago)
       end
 
       def priority

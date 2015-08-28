@@ -35,6 +35,7 @@ class Shop < ActiveRecord::Base
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
   has_one :mailings_settings
+  has_many :beacon_offers
 
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
