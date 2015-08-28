@@ -4,14 +4,14 @@ describe BeaconsController do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:session) { create(:session, user: user) }
+  let!(:beacon_offer) { create(:beacon_offer, shop_id: shop.id, major: 0, enabled: true) }
   let!(:params) {
     {
       shop_id: shop.uniqid,
       ssid: session.code,
       type: 'lead',
-      uuid: '1234567890',
-      major: 'potato_major',
-      minor: 'potato_minor',
+      uuid: beacon_offer.uuid,
+      major: beacon_offer.major,
       platform: 'ios',
       device_type: 'smartphone',
       device_version: 'iphone 6'
@@ -22,9 +22,10 @@ describe BeaconsController do
   describe 'GET notify' do
     context 'when shop_id is correct' do
       context 'when type = lead' do
+
         context 'when user had notification 2 weeks ago' do
           before {
-            shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago )
+            shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago, beacon_offer_id: beacon_offer.id )
           }
 
           it 'responds with 204' do
@@ -42,7 +43,7 @@ describe BeaconsController do
 
         context 'when user didnt had notification for 2 weeks' do
           before {
-            shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 15.days.ago )
+            shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 15.days.ago, beacon_offer_id: beacon_offer.id )
           }
 
           it 'responds with JSON' do
@@ -50,10 +51,11 @@ describe BeaconsController do
 
             expect(response.code).to eq('200')
             json = {
-              image: 'http://cdn.rees46.com/bk.png',
-              title: 'Обед Кинг Хит – всего за 149 рублей',
-              description: "Привет!\nАкция от БургерКинг - покажи на кассе этот экран и получи обед Кинг Хит всего за 149 рублей.",
-              deal_id: '1'
+              image: beacon_offer.image_url,
+              title: beacon_offer.title,
+              notification: beacon_offer.notification,
+              description: beacon_offer.description,
+              deal_id: beacon_offer.id
             }
             expect(response.body).to eq(json.to_json)
           end
@@ -62,7 +64,7 @@ describe BeaconsController do
             get :notify, params
 
             expect(BeaconMessage.last!.notified).to be_truthy
-            expect(BeaconMessage.last!.deal_id).to eq('1')
+            expect(BeaconMessage.last!.beacon_offer_id).to eq(beacon_offer.id)
           end
         end
       end
@@ -115,12 +117,14 @@ describe BeaconsController do
   describe 'GET track' do
     context 'when shop_id is correct' do
       before {
-        shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago, deal_id: '1' )
+        shop.beacon_messages.create(user_id: user.id, session_id: session.id, params: { test: 'test' }, notified: true, created_at: 13.days.ago, beacon_offer_id: beacon_offer.id )
       }
       let(:params) { {
         shop_id: shop.uniqid,
         ssid: session.code,
-        deal_id: '1'
+        uuid: beacon_offer.uuid,
+        major: beacon_offer.major,
+        deal_id: beacon_offer.id
       } }
 
       it 'responds with 204' do
@@ -130,11 +134,11 @@ describe BeaconsController do
       end
 
       it 'marks beacon_message as tracked' do
-        expect(BeaconMessage.first!.tracked).to eq(false)
+        expect(BeaconMessage.last!.tracked).to eq(false)
 
         get :track, params
 
-        expect(BeaconMessage.first!.tracked).to eq(true)
+        expect(BeaconMessage.last!.tracked).to eq(true)
       end
     end
 
