@@ -55,12 +55,12 @@ module Experimentor
       end
 
       def iterate(iteration_params)
-        ap User.first.id
-        ap User.last.id
+       first_id=10
+       second_id=100
 
         mahout_service = MahoutService.new
         mahout_service.open
-        mahout_service.relink_user(User.first.id, User.last.id)
+        mahout_service.relink_user(first_id, second_id)
         mahout_service.close
         # recommender = Recommender::Impl::Experiment.new(iteration_params)
         # ap recommender.recommendations
