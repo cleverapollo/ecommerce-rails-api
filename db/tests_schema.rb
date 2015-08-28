@@ -514,6 +514,7 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.integer  "shard",                                                             default: 0,     null: false
     t.datetime "manager_remind_date"
     t.integer  "yml_errors",                                                        default: 0,     null: false
+    t.integer  "trigger_pause",                                                     default: 14
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
