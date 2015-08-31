@@ -39,4 +39,39 @@ describe Recommendations::Params do
       end
     end
   end
+
+  describe '.extract by email' do
+    before do
+      @shop = create(:shop)
+      @session = create(:session_with_user)
+      @user = @session.user
+      @client = create(:client, user: @user, email: 'kechinoff@gmail.com', shop: @shop)
+
+      @params = {
+          email: 'kechinoff@gmail.com',
+          shop_id: @shop.uniqid,
+          recommender_type: 'interesting'
+      }
+    end
+
+    subject { Recommendations::Params.extract(@params) }
+
+    context 'params validation' do
+
+      it 'raises an exception without a email' do
+        @params[:email] = nil
+        expect{ subject }.to raise_error(Recommendations::IncorrectParams)
+      end
+
+    end
+
+    context 'output data' do
+      it 'have user' do
+        expect(subject.user).to eq(@user)
+      end
+    end
+
+  end
+
+
 end
