@@ -139,9 +139,7 @@ module ActionPush
       raw[:item_id].each_with_index do |item_id, i|
         item_attributes = OpenStruct.new(uniqid: item_id)
 
-        item_attributes.price = raw[:price][i] if raw[:price][i].to_i > 0
         item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
-        item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
         item_attributes.repeatable = raw[:repeatable][i].present? ? raw[:repeatable][i] : false
         item_attributes.available_till = raw[:available_till][i].present? ? Time.at(raw[:available_till][i].to_i).to_date : nil
         item_attributes.ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
@@ -155,6 +153,8 @@ module ActionPush
           item_attributes.is_available = false unless Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
         else
 
+          item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
+          item_attributes.price = raw[:price][i] if raw[:price][i].to_i > 0
           item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
           item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
           item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
