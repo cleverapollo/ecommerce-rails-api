@@ -10,7 +10,7 @@ module TriggerMailings
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
           last_refresh = Time.now.to_i
-          Shop.unrestricted.with_enabled_triggers.each do |shop|
+          Shop.unrestricted.with_valid_yml.with_enabled_triggers.each do |shop|
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
               shop.clients.ready_for_trigger_mailings(shop).each do |client|
                 begin
