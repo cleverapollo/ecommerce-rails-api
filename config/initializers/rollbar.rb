@@ -51,7 +51,7 @@ Rollbar.configure do |config|
   # Enable delayed reporting (using Sidekiq)
   config.use_sidekiq
   # You can supply custom Sidekiq options:
-  # config.use_sidekiq 'queue' => 'my_queue'
+  config.use_sidekiq 'queue' => 'rollbar'
 end
 
 
