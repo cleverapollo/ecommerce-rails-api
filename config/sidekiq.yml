@@ -10,8 +10,10 @@ development:
   - default
   - long
   - mailing
+  - rollbar
 :limits:
   critical: 3
   default: 7
   long:     2
   mailing:  10
+  rollbar: 3

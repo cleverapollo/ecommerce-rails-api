@@ -6,7 +6,7 @@ Rollbar.configure do |config|
   config.access_token = Rails.application.secrets.rollbar_access_token
 
   # Here we'll disable in 'test':
-  if Rails.env.test? or Rails.env.development?
+  if Rails.env.test? || Rails.env.development?
     config.enabled = false
   end
 
@@ -51,10 +51,10 @@ Rollbar.configure do |config|
   # Enable delayed reporting (using Sidekiq)
   config.use_sidekiq
   # You can supply custom Sidekiq options:
-  # config.use_sidekiq 'queue' => 'my_queue'
+  config.use_sidekiq 'queue' => 'rollbar'
 end
 
 
-Sidekiq.configure_server do |config|
-  config.error_handlers << Proc.new {|ex,ctx_hash| Rollbar.error(ex, ctx_hash) }
-end
+# Sidekiq.configure_server do |config|
+#   config.error_handlers << Proc.new {|ex,ctx_hash| Rollbar.error(ex, ctx_hash) }
+# end
