@@ -12,7 +12,7 @@ module TriggerMailings
           last_refresh = Time.now.to_i
           Shop.unrestricted.with_enabled_triggers.each do |shop|
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
-              shop.clients.ready_for_trigger_mailings.each do |client|
+              shop.clients.ready_for_trigger_mailings(shop).each do |client|
                 begin
                   if trigger = trigger_detector.detect(client)
                     TriggerMailings::Letter.new(client, trigger).send
