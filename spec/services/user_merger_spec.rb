@@ -3,7 +3,14 @@ require 'rails_helper'
 describe UserMerger do
   let!(:shop) { create(:shop) }
   let!(:master) { create(:user) }
-  let!(:slave) { create(:user) }
+  let!(:slave) { create(:user,
+                        gender: {"f"=>1, "m"=>98,
+                                 "history"=>
+                                     {"f"=>{"views"=>2, "purchase"=>0},
+                                      "m"=>{"views"=>8, "purchase"=>1}}},
+                        size: {"f"=>{"tshirt"=>{"adult"=>{"size"=>"38", "probability"=>100}}},
+                               "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0}}}}}},
+                        children: []) }
 
   describe '.merge' do
     subject { UserMerger.merge(master, slave) }
@@ -44,6 +51,11 @@ describe UserMerger do
 
     context 'when user signs in' do
       context 'user dependencies re-linking' do
+
+        context 'virtual profile' do
+          let!(:session) { create(:session, user: slave) }
+        end
+
         context 'sessions' do
           let!(:session) { create(:session, user: slave) }
 

@@ -106,7 +106,7 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] исключение с сообщением
     def check
-      raise Recommendations::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank?
+      raise Recommendations::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank? && raw[:email].blank?
       raise Recommendations::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
       raise Recommendations::IncorrectParams.new('Recommender type not provided') if raw[:recommender_type].blank?
       raise Recommendations::IncorrectParams.new("Unknown recommender: #{raw[:recommender_type]}") unless Recommender::Base::TYPES.include?(raw[:recommender_type])

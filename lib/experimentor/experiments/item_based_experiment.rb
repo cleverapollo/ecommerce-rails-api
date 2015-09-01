@@ -55,7 +55,7 @@ module Experimentor
       end
 
       def iterate(iteration_params)
-       first_id=10
+       first_id=11
        second_id=100
 
         mahout_service = MahoutService.new
