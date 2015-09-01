@@ -10,7 +10,7 @@ end
 # end
 
 # Каждые сутки синхронизируем YML
-every '0 2 * * *' do
+every 20.minutes do
   runner "RunnerWrapper.run('YmlWorker.process_all')"
 end
 
