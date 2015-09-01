@@ -83,8 +83,8 @@ module TriggerMailings
       end
 
       # Cтавим логотип
-      if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
-        result.sub!(/<tr>(.*?)<\/tr>/m," ")
+      if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank? && (result.include?'{{ logo_url }}')
+        result.sub!(/<img(.*?)<\/tr>/m," ")
       else
         result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
       end
