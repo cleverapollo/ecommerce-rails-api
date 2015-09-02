@@ -82,7 +82,6 @@ module TriggerMailings
           result.push(items_data[id])
         end
 
-
         result
       end
 
