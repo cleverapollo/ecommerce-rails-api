@@ -30,6 +30,10 @@ module SectoralAlgorythms
       raise NotImplementedError.new('This should be implemented in concrete Algorythm class')
     end
 
+    def merge(slave)
+      raise NotImplementedError.new('This should be implemented in concrete Algorythm class')
+    end
+
     def modify_relation(relation)
       relation
     end

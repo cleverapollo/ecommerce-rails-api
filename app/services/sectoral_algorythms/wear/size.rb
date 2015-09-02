@@ -14,7 +14,7 @@ module SectoralAlgorythms
       end
 
       def value
-       {'m'=>@size['m'], 'f'=>@size['f']}
+        { 'm' => @size['m'], 'f' => @size['f'] }
       end
 
       def trigger_view(item)
@@ -28,9 +28,9 @@ module SectoralAlgorythms
       def increment_history(item, history_key)
 
         if sizes = item.try(:sizes)
-            size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
-                                                     gender: item.gender,
-                                                     feature: item.feature)
+          size_params = SizeHelper.bad_to_default(wear_type: item.wear_type,
+                                                  gender: item.gender,
+                                                  feature: item.feature)
           @size['history'] ||= {}
 
           sizes.each do |size|
@@ -77,9 +77,24 @@ module SectoralAlgorythms
             end
           end
         end
+      end
 
-
-
+      def merge(slave)
+        if slave.size['history'].present?
+          slave_history = slave.size['history']
+          master_history = @size['history']
+          @size['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
+            gender_slave_value.merge(gender_master_value) do |_, type_slave_value, type_master_value|
+              type_slave_value.merge(type_master_value) do |_, feature_slave_value, feature_master_value|
+                feature_slave_value.merge(feature_master_value) do |_, size_slave_value, size_master_value|
+                  size_slave_value.merge(size_master_value) do |_, history_slave_value, history_master_value|
+                    history_slave_value.to_i+history_master_value.to_i
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       def attributes_for_update

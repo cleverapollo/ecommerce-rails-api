@@ -2,14 +2,22 @@ require 'rails_helper'
 
 describe UserMerger do
   let!(:shop) { create(:shop) }
-  let!(:master) { create(:user) }
+  let!(:master) { create(:user,
+                         gender: {"f"=>1, "m"=>98,
+                                  "history"=>
+                                      {"f"=>{"views"=>1, "purchase"=>2},
+                                       "m"=>{"views"=>3, "purchase"=>4}}},
+                         size: {"f"=>{"tshirt"=>{"adult"=>{"size"=>"38", "probability"=>100}}},
+                                "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0}}},
+                                                  "shoe"=>{"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}}},
+                         children: []) }
   let!(:slave) { create(:user,
                         gender: {"f"=>1, "m"=>98,
                                  "history"=>
-                                     {"f"=>{"views"=>2, "purchase"=>0},
-                                      "m"=>{"views"=>8, "purchase"=>1}}},
+                                     {"f"=>{"views"=>5, "purchase"=>6},
+                                      "m"=>{"views"=>7, "purchase"=>8}}},
                         size: {"f"=>{"tshirt"=>{"adult"=>{"size"=>"38", "probability"=>100}}},
-                               "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0}}}}}},
+                               "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0},"40"=>{"views"=>1, "purchase"=>1}}}}}},
                         children: []) }
 
   describe '.merge' do
@@ -54,6 +62,29 @@ describe UserMerger do
 
         context 'virtual profile' do
           let!(:session) { create(:session, user: slave) }
+          it 'merge virtual profile gender correctly' do
+            subject
+            expect(master.gender['history']).to eq({ "f" => {
+                                                       "views" => 6,
+                                                       "purchase" => 8
+                                                   },
+                                                     "m" => {
+                                                         "views" => 10,
+                                                         "purchase" => 12
+                                                     }
+                                                   })
+          end
+
+          it 'merge virtual profile sizes correctly' do
+            subject
+            expect(master.size['history']).to eq({"f"=>
+                                                      {"tshirt"=>
+                                                           {"adult"=>
+                                                                {"38"=>{"views"=>2, "purchase"=>0},
+                                                                 "40"=>{"views"=>1, "purchase"=>1}}},
+                                                       "shoe"=>
+                                                           {"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}})
+          end
         end
 
         context 'sessions' do

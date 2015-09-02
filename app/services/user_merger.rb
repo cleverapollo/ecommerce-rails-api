@@ -17,6 +17,10 @@ class UserMerger
             dependency.public_send(:relink_user, from: slave, to: master)
           end
 
+          # сливаем виртуальный профиль
+          SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_algorythms)
+              .merge(slave)
+
           slave.delete
 
           master
