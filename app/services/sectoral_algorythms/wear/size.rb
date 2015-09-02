@@ -80,6 +80,7 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
+        return unless @size && @size['history'].present?
         if slave.size['history'].present?
           slave_history = slave.size['history']
           master_history = @size['history']
