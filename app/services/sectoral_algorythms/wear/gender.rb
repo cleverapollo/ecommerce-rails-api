@@ -80,6 +80,7 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
+        return unless @gender && @gender['history'].present?
         # Сливаем суммированием истории
         if slave.gender['history'].present?
           slave_history = slave.gender['history']
