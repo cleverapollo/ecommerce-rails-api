@@ -87,7 +87,11 @@ module SectoralAlgorythms
       end
 
       def attributes_for_update
-        { :size => @size }
+        { :children => @children }
+      end
+
+      def merge(slave)
+
       end
 
       private

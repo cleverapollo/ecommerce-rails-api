@@ -79,6 +79,19 @@ module SectoralAlgorythms
         @gender['fixed']=true
       end
 
+      def merge(slave)
+        # Сливаем суммированием истории
+        if slave.gender['history'].present?
+          slave_history = slave.gender['history']
+          master_history = @gender['history']
+          @gender['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
+            gender_slave_value.merge(gender_master_value) do |_, history_slave_value, history_master_value|
+              history_slave_value+history_master_value
+            end
+          end
+        end
+      end
+
       private
 
       def default_history

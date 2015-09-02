@@ -62,6 +62,10 @@ module SectoralAlgorythms
         { :children => @children }
       end
 
+      def merge(slave)
+
+      end
+
       private
 
       def default_history
