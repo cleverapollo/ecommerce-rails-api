@@ -81,7 +81,7 @@ module TriggerMailings
         ids.each do |id|
           result.push(items_data[id])
         end
-        
+
         result
       end
 

@@ -122,7 +122,7 @@ module Recommendations
       @extended = raw[:extended].present?
       @custom_attributes_filter = if raw[:custom_attributes_filter].present?
         raw[:custom_attributes_filter].each do |key, value|
-          raw[:custom_attributes_filter][key] = value.strip.mb_chars.downcase.to_s
+          raw[:custom_attributes_filter][key] = value.to_s.split(',').map {|val| val.strip.mb_chars.downcase.to_s }
         end
       else
         {}
