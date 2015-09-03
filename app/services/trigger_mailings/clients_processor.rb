@@ -9,10 +9,17 @@ module TriggerMailings
       def process_all
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
-          last_refresh = Time.now.to_i
+
           Shop.unrestricted.with_valid_yml.with_enabled_triggers.each do |shop|
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
-              shop.clients.ready_for_trigger_mailings(shop).each do |client|
+              clients =
+                if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
+                  ( shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop) )
+                else
+                  shop.clients.ready_for_trigger_mailings(shop)
+                end
+
+              clients.each do |client|
                 begin
                   if trigger = trigger_detector.detect(client)
                     TriggerMailings::Letter.new(client, trigger).send

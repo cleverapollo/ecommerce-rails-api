@@ -11,6 +11,10 @@ module TriggerMailings
                                                         .map(&:constantize)
     end
 
+    def triggers_classes
+      @triggers_classes
+    end
+
     # Найти триггер для пользователя в магазине
     # @param client [Client] пользователь магазина
     #
