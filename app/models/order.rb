@@ -23,12 +23,12 @@ class Order < ActiveRecord::Base
   class << self
     # Сохранить заказ
     def persist(shop, user, uniqid, items, source = {})
-      # Иногда заказы бывают без ID
-      uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Иногда событие заказа приходит несколько раз
       return nil if duplicate?(shop, user, uniqid, items)
 
+      # Иногда заказы бывают без ID
+      uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Привязка заказа к письму
       if source.present? && source['from'].present?
@@ -87,7 +87,7 @@ class Order < ActiveRecord::Base
         Order.where(uniqid: uniqid, shop_id: shop.id).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
-             .where("date > ?", 5.minutes.ago).exists?
+             .where("date > ?", 1.minutes.ago).exists?
       end
     end
 
