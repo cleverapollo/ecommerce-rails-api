@@ -23,11 +23,12 @@ class Order < ActiveRecord::Base
   class << self
     # Сохранить заказ
     def persist(shop, user, uniqid, items, source = {})
+      # Иногда заказы бывают без ID
+      uniqid = generate_uniqid(shop.id) if uniqid.blank?
+
       # Иногда событие заказа приходит несколько раз
       return nil if duplicate?(shop, user, uniqid, items)
 
-      # Иногда заказы бывают без ID
-      uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Привязка заказа к письму
       if source.present? && source['from'].present?
