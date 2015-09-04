@@ -14,6 +14,7 @@ describe 'Persisting locations info' do
       price: [item.price],
       is_available: [1],
       locations: ['1,3']
+  
     }
   }
 
