@@ -85,6 +85,7 @@ describe UserMerger do
                                                        "shoe"=>
                                                            {"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}})
           end
+
         end
 
         context 'sessions' do
