@@ -118,7 +118,7 @@ class Item < ActiveRecord::Base
 
     assign_attributes(attrs)
 
-    self.widgetable = self.name.present? && self.url.present? && self.image_url.present?
+    self.widgetable = self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
 
     attrs
   end
