@@ -25,12 +25,12 @@ module Recommender
         if params.modification.present?
           if params.modification == 'fashion'
             # уберем товары, которые не актуальные или не соответствуют полу
-            new_result = Item.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
+            new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
           end
         else
           if recommend_only_widgetable?
             # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
-            new_result = Item.where(id: new_result).pluck(:id, :widgetable).delete_if { |val| !val[1] }.map { |v| v[0] }
+            new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id, :widgetable).delete_if { |val| !val[1] }.map { |v| v[0] }
           end
         end
         result = result+new_result
