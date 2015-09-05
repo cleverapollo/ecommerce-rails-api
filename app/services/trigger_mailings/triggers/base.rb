@@ -71,7 +71,7 @@ module TriggerMailings
       # @return [Array[Item]] массив рекомендованных товаров
       def recommendations(count)
         ids = recommended_ids(count)
-        items_list = shop.items.recommendable.widgetable.where(id: recommended_ids(count)).load
+        items_list = shop.items.recommendable.widgetable.where(id: ids).load
         items_list.sort_by do |element|
           ids.index(element.id)
         end
