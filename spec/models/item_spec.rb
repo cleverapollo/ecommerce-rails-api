@@ -43,12 +43,13 @@ describe Item do
 
   describe '#disable!' do
     let(:shop) { create(:shop) }
-    let!(:item) { create(:item, shop: shop) }
+    let!(:item) { create(:item, shop: shop, widgetable: true) }
 
     it 'disables the item' do
       item.disable!
 
       expect(item.is_available).to be_falsey
+      expect(item.widgetable).to be_falsey
     end
   end
 

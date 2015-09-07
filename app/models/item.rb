@@ -118,14 +118,14 @@ class Item < ActiveRecord::Base
 
     assign_attributes(attrs)
 
-    self.widgetable = self.name.present? && self.url.present? && self.image_url.present?
+    self.widgetable = self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
 
     attrs
   end
 
   # Выключает товар
   def disable!
-    update(is_available: false) if is_available == true
+    update(is_available: false, widgetable: false) if is_available == true || widgetable == true
   end
 
   # Цена в определенном городе
