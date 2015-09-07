@@ -192,6 +192,41 @@
       </offer>
 
 
+      <offer available="true" id="8000">
+        <url>http://example.com/item/8000</url>
+        <price>500</price>
+        <categoryId>1</categoryId>
+        <picture>http://example.com/item/8000.jpg</picture>
+
+        <description>Existing item description</description>
+
+        <typePrefix>Smart</typePrefix>
+        <vendorCode>APPL</vendorCode>
+        <model>iPhone 6 128Gb</model>
+
+        <locations>
+          <location id="1">
+            <price>550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
+
+        <cosmetic>
+          <brand>3Com</brand>
+          <hypoallergenic>1</hypoallergenic>
+          <gender>m</gender>
+          <part_type>body</part_type>
+          <skin_type>normal</skin_type>
+          <condition>damaged</condition>
+          <volume>200</volume>
+
+        </cosmetic>
+
+      </offer>
+
+
     </offers>
   </shop>
 </yml_catalog>
