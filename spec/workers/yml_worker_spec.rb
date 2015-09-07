@@ -64,6 +64,23 @@ describe YmlWorker do
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
+
+    it 'gets correct cosmetic attributes' do
+      existing_item = create(:item, uniqid: '8000', shop: shop)
+      subject
+
+      existing_item.reload
+      {
+          brand:'3com',
+          hypoallergenic:true,
+          gender:'m',
+          part_type:'body',
+          skin_type:'normal',
+          condition:'damaged',
+          volume:200
+      }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+    end
+
     it 'gets correct name from typePrefix, vendor, model & correct age' do
       existing_item = create(:item, uniqid: '4000', shop: shop)
       subject

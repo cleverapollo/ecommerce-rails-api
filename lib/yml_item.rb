@@ -59,6 +59,7 @@ class YmlItem
     brand_name = ''
     brand_name = StringHelper.encode_and_truncate(@content['fashion']['brand'], 255) if @content['fashion'].present? && @content['fashion']['brand'].present?
     brand_name = StringHelper.encode_and_truncate(@content['child']['brand'], 255) if @content['child'].present? && @content['child']['brand'].present?
+    brand_name = StringHelper.encode_and_truncate(@content['cosmetic']['brand'], 255) if @content['cosmetic'].present? && @content['cosmetic']['brand'].present?
     brand_name = StringHelper.encode_and_truncate(@content['vendor'], 255) if brand_name.empty? && @content['vendor'].present?
 
     if brand_name.empty?
@@ -124,6 +125,7 @@ class YmlItem
     gender = StringHelper.encode_and_truncate(@content['fashion']['sex']) if @content['fashion'].present? && @content['fashion']['sex'].present?
     gender = StringHelper.encode_and_truncate(@content['fashion']['gender']) if @content['fashion'].present? && @content['fashion']['gender'].present?
     gender = StringHelper.encode_and_truncate(@content['child']['gender']) if @content['child'].present? && @content['child']['gender'].present?
+    gender = StringHelper.encode_and_truncate(@content['cosmetic']['gender']) if @content['cosmetic'].present? && @content['cosmetic']['gender'].present?
     return nil if gender==''
     gender
   end
@@ -181,6 +183,29 @@ class YmlItem
 
   def age_min
     @content['child']['age']['min'].to_f if @content['child'].present? && @content['child']['age'].present? && @content['child']['age']['min'].present?
+  end
+
+  def hypoallergenic
+    if @content['cosmetic'].present? && @content['cosmetic']['hypoallergenic'].present? && ['1', 'true', 't'].include?(@content['cosmetic']['hypoallergenic'])
+      return true
+    end
+    return false
+  end
+
+  def part_type
+    StringHelper.encode_and_truncate(@content['cosmetic']['part_type']) if @content['cosmetic'].present? && @content['cosmetic']['part_type'].present?
+  end
+
+  def condition
+    StringHelper.encode_and_truncate(@content['cosmetic']['condition']) if @content['cosmetic'].present? && @content['cosmetic']['condition'].present?
+  end
+
+  def skin_type
+    StringHelper.encode_and_truncate(@content['cosmetic']['skin_type']) if @content['cosmetic'].present? && @content['cosmetic']['skin_type'].present?
+  end
+
+  def volume
+    @content['cosmetic']['volume'].to_i if @content['cosmetic'].present? && @content['cosmetic']['volume'].present?
   end
 
   # Delegate all unknown calls to new item object

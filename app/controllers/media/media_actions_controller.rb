@@ -19,13 +19,13 @@ class Media::MediaActionsController < ApplicationController
       article.update!(article_params)
     rescue PG::CharacterNotInRepertoire
       a_params = article_params
-      a_params[:title] = a_params[:title].encode('UTF-8');
-      a_params[:description] = a_params[:description].encode('UTF-8');
+      a_params[:title] = a_params[:title].encode('UTF-8')
+      a_params[:description] = a_params[:description].encode('UTF-8')
       article.update!(a_params)
     rescue ActiveRecord::StatementInvalid
       a_params = article_params
-      a_params[:title] = a_params[:title].force_encoding('Windows-1251').encode('UTF-8');
-      a_params[:description] = a_params[:description].force_encoding('Windows-1251').encode('UTF-8');
+      a_params[:title] = a_params[:title].force_encoding('Windows-1251').encode('UTF-8')
+      a_params[:description] = a_params[:description].force_encoding('Windows-1251').encode('UTF-8')
       article.update!(a_params)
     end
 

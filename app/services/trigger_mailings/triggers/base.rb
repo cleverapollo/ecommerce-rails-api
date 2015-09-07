@@ -70,19 +70,12 @@ module TriggerMailings
       #
       # @return [Array[Item]] массив рекомендованных товаров
       def recommendations(count)
-        items_data = {}
         ids = recommended_ids(count)
-        shop.items.recommendable.widgetable.where(id: ids).each do |item|
-          items_data[item.id] = item
+        items_list = shop.items.recommendable.widgetable.where(id: ids).load
+        items_list.sort_by do |element|
+          ids.index(element.id)
         end
-
-        result = []
-        # Сохраним оригинальный порядок
-        ids.each do |id|
-          result.push(items_data[id])
-        end
-
-        result
+        items_list
       end
 
       # Возвращает массив ID рекомендованных товаров для данного триггера.

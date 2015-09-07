@@ -113,19 +113,24 @@ class Item < ActiveRecord::Base
         feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
         sizes: ValuesHelper.present_one(new_item, self, :sizes),
         age_min: ValuesHelper.present_one(new_item, self, :age_min),
-        age_max: ValuesHelper.present_one(new_item, self, :age_max)
+        age_max: ValuesHelper.present_one(new_item, self, :age_max),
+        hypoallergenic: ValuesHelper.present_one(new_item, self, :hypoallergenic),
+        part_type: ValuesHelper.present_one(new_item, self, :part_type),
+        skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
+        condition: ValuesHelper.present_one(new_item, self, :condition),
+        volume: ValuesHelper.present_one(new_item, self, :volume)
     }
 
     assign_attributes(attrs)
 
-    self.widgetable = self.name.present? && self.url.present? && self.image_url.present?
+    self.widgetable = self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
 
     attrs
   end
 
   # Выключает товар
   def disable!
-    update(is_available: false) if is_available == true
+    update(is_available: false, widgetable: false) if is_available == true || widgetable == true
   end
 
   # Цена в определенном городе
