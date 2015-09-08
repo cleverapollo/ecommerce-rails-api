@@ -74,9 +74,9 @@ describe YmlWorker do
           brand:'3com',
           hypoallergenic:true,
           gender:'m',
-          part_type:'body',
-          skin_type:'normal',
-          condition:'damaged',
+          part_type:['hair','body'],
+          skin_type:['normal','oily'],
+          condition:['colored','damaged'],
           volume:200
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
