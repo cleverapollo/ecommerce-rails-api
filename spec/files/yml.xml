@@ -217,9 +217,18 @@
           <brand>3Com</brand>
           <hypoallergenic>1</hypoallergenic>
           <gender>m</gender>
-          <part_type>body</part_type>
-          <skin_type>normal</skin_type>
-          <condition>damaged</condition>
+          <part_types>
+            <part_type>hair</part_type>
+            <part_type>body</part_type>
+          </part_types>
+          <skin_types>
+            <skin_type>normal</skin_type>
+            <skin_type>oily</skin_type>
+          </skin_types>
+          <conditions>
+            <condition>colored</condition>
+            <condition>damaged</condition>
+          </conditions>
           <volume>200</volume>
 
         </cosmetic>

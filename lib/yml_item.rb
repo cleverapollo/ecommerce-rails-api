@@ -193,15 +193,33 @@ class YmlItem
   end
 
   def part_type
-    StringHelper.encode_and_truncate(@content['cosmetic']['part_type']) if @content['cosmetic'].present? && @content['cosmetic']['part_type'].present?
+    if @content['cosmetic'].present? && @content['cosmetic']['part_types'].present? && @content['cosmetic']['part_types']['part_type'].present?
+      types_raw = @content['cosmetic']['part_types']['part_type']
+      types_raw = [types_raw] unless types_raw.is_a? Array
+      types_raw
+    else
+      []
+    end
   end
 
   def condition
-    StringHelper.encode_and_truncate(@content['cosmetic']['condition']) if @content['cosmetic'].present? && @content['cosmetic']['condition'].present?
+    if @content['cosmetic'].present? && @content['cosmetic']['conditions'].present? && @content['cosmetic']['conditions']['condition'].present?
+      types_raw = @content['cosmetic']['conditions']['condition']
+      types_raw = [types_raw] unless types_raw.is_a? Array
+      types_raw
+    else
+      []
+    end
   end
 
   def skin_type
-    StringHelper.encode_and_truncate(@content['cosmetic']['skin_type']) if @content['cosmetic'].present? && @content['cosmetic']['skin_type'].present?
+    if @content['cosmetic'].present? && @content['cosmetic']['skin_types'].present? && @content['cosmetic']['skin_types']['skin_type'].present?
+      types_raw = @content['cosmetic']['skin_types']['skin_type']
+      types_raw = [types_raw] unless types_raw.is_a? Array
+      types_raw
+    else
+      []
+    end
   end
 
   def volume
