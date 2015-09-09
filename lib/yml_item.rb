@@ -223,6 +223,7 @@ class YmlItem
   end
 
   def volume
+
     @content['cosmetic']['volume'].to_i if @content['cosmetic'].present? && @content['cosmetic']['volume'].present?
   end
 

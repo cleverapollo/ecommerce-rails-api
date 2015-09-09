@@ -39,7 +39,7 @@ class Item < ActiveRecord::Base
     params.each do |key, value|
       value = [value] unless value.is_a? Array
       value = value.map { |v| "'#{v}'" }.join(', ')
-      result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value.map { |l| "'#{l}'" }.join(',')}]")
+      result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value}]")
     end
     result
   }

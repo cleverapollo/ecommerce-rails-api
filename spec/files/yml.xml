@@ -230,6 +230,16 @@
             <condition>damaged</condition>
           </conditions>
           <volume>200</volume>
+          <volumes>
+            <volume>
+              <value>200</value>
+              <price>1000</price>
+            </volume>
+            <volume>
+              <value>400</value>
+              <price>2000</price>
+            </volume>
+          </volumes>
 
         </cosmetic>
 
