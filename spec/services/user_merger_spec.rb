@@ -10,6 +10,12 @@ describe UserMerger do
                          size: {"f"=>{"tshirt"=>{"adult"=>{"size"=>"38", "probability"=>100}}},
                                 "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0}}},
                                                   "shoe"=>{"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}}},
+                         physiology:{"history"=>
+                                         {"f"=>
+                                              {"hair"=>
+                                                   {"skin_type"=>
+                                                        {"dry"=>{"views"=>1, "purchase"=>1}},
+                                                    "condition"=>{"colored"=>{"views"=>2, "purchase"=>2}}}}}},
                          children: []) }
   let!(:slave) { create(:user,
                         gender: {"f"=>1, "m"=>98,
@@ -18,6 +24,11 @@ describe UserMerger do
                                       "m"=>{"views"=>7, "purchase"=>8}}},
                         size: {"f"=>{"tshirt"=>{"adult"=>{"size"=>"38", "probability"=>100}}},
                                "history"=>{"f"=>{"tshirt"=>{"adult"=>{"38"=>{"views"=>1, "purchase"=>0},"40"=>{"views"=>1, "purchase"=>1}}}}}},
+                        physiology:{"history"=>
+                                        {"f"=>
+                                             {"hair"=>
+                                                  {"skin_type"=> {"dry"=>{"views"=>1, "purchase"=>1}},
+                                                   "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2}}}}}},
                         children: []) }
 
   describe '.merge' do
@@ -84,6 +95,16 @@ describe UserMerger do
                                                                  "40"=>{"views"=>1, "purchase"=>1}}},
                                                        "shoe"=>
                                                            {"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}})
+          end
+
+          it 'merge virtual profile physiology correctly' do
+            subject
+            expect(master.physiology['history']).to eq({"f"=>
+                                                            {"hair"=>
+                                                                 {"skin_type"=>
+                                                                      {"dry"=>{"views"=>2, "purchase"=>2}},
+                                                                  "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2},
+                                                                                "colored"=>{"views"=>2, "purchase"=>2}}}}})
           end
 
         end
