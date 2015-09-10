@@ -126,7 +126,7 @@ class Shop < ActiveRecord::Base
   end
 
   def has_imported_yml?
-    self.yml_loaded && self.last_valid_yml_file_loaded_at.present? && self.last_valid_yml_file_loaded_at >= 48.hours.ago
+    self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
   end
 
   def increment_yml_errors!
