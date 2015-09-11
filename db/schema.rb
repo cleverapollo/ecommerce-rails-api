@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150908103411) do
+ActiveRecord::Schema.define(version: 20150909174305) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -241,10 +241,10 @@ ActiveRecord::Schema.define(version: 20150908103411) do
     t.float   "age_min"
     t.float   "age_max"
     t.boolean "hypoallergenic"
-    t.integer "volume"
     t.string  "part_type",                                                  array: true
     t.string  "skin_type",                                                  array: true
     t.string  "condition",                                                  array: true
+    t.jsonb   "volume"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
