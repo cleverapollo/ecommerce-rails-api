@@ -229,7 +229,6 @@
             <condition>colored</condition>
             <condition>damaged</condition>
           </conditions>
-          <volume>200</volume>
           <volumes>
             <volume>
               <value>200</value>
@@ -240,7 +239,6 @@
               <price>2000</price>
             </volume>
           </volumes>
-
         </cosmetic>
 
       </offer>

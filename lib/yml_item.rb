@@ -223,8 +223,19 @@ class YmlItem
   end
 
   def volume
-
-    @content['cosmetic']['volume'].to_i if @content['cosmetic'].present? && @content['cosmetic']['volume'].present?
+    if @content['cosmetic'].present? && @content['cosmetic']['volumes'].present? && @content['cosmetic']['volumes']['volume'].present?
+      volumes_raw = @content['cosmetic']['volumes']['volume']
+      volumes_raw = [volumes_raw] unless volumes_raw.is_a? Array
+      values = []
+      volumes_raw.each do |vol|
+        if vol['price'] && vol['value']
+          values << {price:vol['price'].to_i, value:vol['value'].to_i}
+        end
+      end
+      values
+    else
+      []
+    end
   end
 
   # Delegate all unknown calls to new item object
