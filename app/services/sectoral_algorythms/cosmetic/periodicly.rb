@@ -8,8 +8,6 @@ module SectoralAlgorythms
       #период без уточнения
       FIRST_PURCHASE_PERIOD = 4 * 7 * 24 * 3600
 
-      PART_TYPES=['hair', 'face', 'body', 'intim', 'hand', 'leg']
-
       def initialize(user)
         super
         @periodicly = user.periodicly
@@ -65,6 +63,20 @@ module SectoralAlgorythms
             @periodicly['calc_periods'][item_id] = FIRST_PURCHASE_PERIOD
           end
         end
+
+        times = []
+        items = []
+        # Ближайший триггер выносим наверх
+        @periodicly['history'].each do |item_id, purchase_times|
+          last_purchase_time = purchase_times.last
+          times << last_purchase_time+@periodicly['calc_periods'][item_id]
+          items << item_id
+        end
+
+        next_trigger_time = times.each_with_index.min
+        @periodicly['next_trigger'] = next_trigger_time.first
+        @periodicly['next_item'] = items[next_trigger_time.last]
+
 
       end
 
