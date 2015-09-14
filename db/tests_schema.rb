@@ -588,6 +588,7 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.jsonb "size",     default: {},                 null: false
     t.jsonb "children", default: [],                 null: false
     t.jsonb "physiology",   default: {}, null: false
+    t.jsonb "periodicly",   default: {}, null: false
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

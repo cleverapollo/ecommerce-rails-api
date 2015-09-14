@@ -6,10 +6,12 @@ module SectoralAlgorythms
     class Physiology < SectoralAlgorythms::Base
       K_VIEW = 1
       K_PURCHASE = 10
+
       MIN_VIEWS_SCORE = 10
       MIN_HYPPALGENIC_SCORE = 30
 
-      PART_TYPES=['hair','face','body','intim','hand','leg']
+
+      PART_TYPES=['hair', 'face', 'body', 'intim', 'hand', 'leg']
 
       def initialize(user)
         super
@@ -26,8 +28,6 @@ module SectoralAlgorythms
 
       def trigger_purchase(item)
         increment_history(item, 'purchase')
-        # сохраняем периодичность
-        refresh_periodicly(item)
       end
 
       def increment_history(item, history_key)
@@ -58,10 +58,6 @@ module SectoralAlgorythms
             end
           end
         end
-      end
-
-      def refresh_periodicly(item)
-
       end
 
 
@@ -101,6 +97,7 @@ module SectoralAlgorythms
             end
           end
         end
+
       end
 
       def merge(slave)
