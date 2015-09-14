@@ -3,7 +3,7 @@
 #
 class DigestMailingBatchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'mailing'
+  sidekiq_options retry: 5, queue: 'mailing'
 
   attr_accessor :mailing, :current_client, :current_digest_mail
 
@@ -38,9 +38,6 @@ class DigestMailingBatchWorker
         # Отмечаем пачку как завершенную.
         @batch.complete!
       else
-        # Подчистим память перед рассылкой следующей порции дайджеста
-        # Медленней, зато с меньшим потреблением памяти
-        #GC.start
 
         # Полноценный режим.
         if @batch.current_processed_client_id.nil?
@@ -48,11 +45,11 @@ class DigestMailingBatchWorker
         end
 
         # Проходим по всей доступной аудитории
-        @shop.clients.suitable_for_digest_mailings.includes(:user)
-             .where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).each do |client|
+        @shop.clients.suitable_for_digest_mailings.includes(:user).where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id).each do |client|
+
           # Каждый раз запоминаем текущий обрабатываемый ID
           @current_client = client
-          @batch.current_processed_client_id = @current_client.id
+          @batch.update current_processed_client_id: @current_client.id
 
           @current_digest_mail = @batch.digest_mails.create!(shop: @shop, client: @current_client, mailing: @mailing).reload
 
