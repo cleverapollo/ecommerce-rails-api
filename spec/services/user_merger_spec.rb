@@ -16,6 +16,10 @@ describe UserMerger do
                                                    {"skin_type"=>
                                                         {"dry"=>{"views"=>1, "purchase"=>1}},
                                                     "condition"=>{"colored"=>{"views"=>2, "purchase"=>2}}}}}},
+                          periodicly: {"history"=> {
+                              '1'=>[ 40, 20],
+                              '2'=>[ 50, 30]
+                          }},
                          children: []) }
   let!(:slave) { create(:user,
                         gender: {"f"=>1, "m"=>98,
@@ -29,6 +33,10 @@ describe UserMerger do
                                              {"hair"=>
                                                   {"skin_type"=> {"dry"=>{"views"=>1, "purchase"=>1}},
                                                    "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2}}}}}},
+                        periodicly: {"history"=> {
+                            '2'=>[ 40, 30],
+                            '3'=>[ 30, 10]
+                        }},
                         children: []) }
 
   describe '.merge' do
@@ -105,6 +113,12 @@ describe UserMerger do
                                                                       {"dry"=>{"views"=>2, "purchase"=>2}},
                                                                   "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2},
                                                                                 "colored"=>{"views"=>2, "purchase"=>2}}}}})
+          end
+
+
+          it 'merge virtual profile periodicly correctly' do
+            subject
+            expect(master.periodicly['history']).to eq({"2"=>[30, 40, 50], "3"=>[30, 10], "1"=>[40, 20]})
           end
 
         end

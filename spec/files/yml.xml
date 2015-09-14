@@ -239,6 +239,7 @@
               <price>2000</price>
             </volume>
           </volumes>
+          <periodic>1</periodic>
         </cosmetic>
 
       </offer>

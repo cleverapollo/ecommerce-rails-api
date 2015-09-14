@@ -192,6 +192,13 @@ class YmlItem
     return false
   end
 
+  def periodic
+    if @content['cosmetic'].present? && @content['cosmetic']['periodic'].present? && ['1', 'true', 't'].include?(@content['cosmetic']['periodic'])
+      return true
+    end
+    return false
+  end
+
   def part_type
     if @content['cosmetic'].present? && @content['cosmetic']['part_types'].present? && @content['cosmetic']['part_types']['part_type'].present?
       types_raw = @content['cosmetic']['part_types']['part_type']

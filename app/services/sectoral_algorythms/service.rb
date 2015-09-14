@@ -2,7 +2,7 @@ module SectoralAlgorythms
   class Service
 
     def self.all_algorythms
-      [Wear::Gender, Wear::Size, Child::Gender, Child::Size, Cosmetic::Physiology]
+      [Wear::Gender, Wear::Size, Child::Gender, Child::Size, Cosmetic::Physiology, Cosmetic::Periodicly]
     end
 
     def initialize(user, algorythms=[])
