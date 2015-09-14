@@ -115,6 +115,7 @@ class Item < ActiveRecord::Base
         age_min: ValuesHelper.present_one(new_item, self, :age_min),
         age_max: ValuesHelper.present_one(new_item, self, :age_max),
         hypoallergenic: ValuesHelper.present_one(new_item, self, :hypoallergenic),
+        periodic: ValuesHelper.present_one(new_item, self, :periodic),
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
         condition: ValuesHelper.present_one(new_item, self, :condition),

@@ -77,6 +77,7 @@ describe YmlWorker do
           part_type:['hair','body'],
           skin_type:['normal','oily'],
           condition:['colored','damaged'],
+          periodic:true,
           volume:[{"price"=>1000, "value"=>200}, {"price"=>2000, "value"=>400}]
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
