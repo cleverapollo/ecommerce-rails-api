@@ -11,10 +11,11 @@ module Recommender
       # при отправке тестового письма пользователь не может быть инициализирован, поэтому для него выдаем пустые рекомендации
       return [] unless params.user
 
+      result = []
+
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
-      result = []
       opposite_gender = SectoralAlgorythms::Wear::Gender.new(params.user).opposite_gender
       # ограничим количество итераций во избежании зацикливания
       iterations = 0
@@ -23,7 +24,7 @@ module Recommender
         break if new_result.empty?
         # По отраслевым отсеивать тут
         if params.modification.present?
-          if params.modification == 'fashion'
+          if params.modification == 'fashion' || params.modification == 'cosmetic'
             # уберем товары, которые не актуальные или не соответствуют полу
             new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
           end
