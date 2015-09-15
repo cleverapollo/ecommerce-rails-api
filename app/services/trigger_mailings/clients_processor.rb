@@ -13,7 +13,7 @@ module TriggerMailings
           Shop.unrestricted.with_valid_yml.with_enabled_triggers.each do |shop|
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
               clients =
-                if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
+                if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart) && shop.allow_industrial?
                   ( shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop) )
                 else
                   shop.clients.ready_for_trigger_mailings(shop)
