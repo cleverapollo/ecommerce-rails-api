@@ -40,6 +40,10 @@ class BeaconsController < ApplicationController
     end
   end
 
+  # Вообще в текущей реализации этот экшн почему-то не используется.
+  # За трекинг считается запись BeaconMessage с params[:type] == 'conversion'
+  # Это не совсем правильно, но работаем в таком формате.
+  # Когда доберемся до полноценной работы с iBeacon, нужно все это переделать.
   def track
     if shop = Shop.find_by(uniqid: params[:shop_id])
 
