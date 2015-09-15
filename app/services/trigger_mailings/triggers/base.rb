@@ -4,7 +4,7 @@ module TriggerMailings
     # Базовый класс, от которого наследуются реализации триггеров
     #
     class Base
-      attr_accessor :shop, :user, :happened_at, :source_item, :additional_info
+      attr_accessor :shop, :user, :client, :happened_at, :source_item, :additional_info
 
       class << self
         # Код триггера
@@ -43,6 +43,7 @@ module TriggerMailings
       def initialize(client)
         @user = client.user
         @shop = client.shop
+        @client = client
       end
 
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
