@@ -18,6 +18,10 @@ module TriggerMailings
       end
 
       def condition_happened?
+        # Находим не открытую брошеную корзину
+        trigger_mailing = TriggerMailing.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
+        unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: trigger_mailing.id).where(client_id: client.id)
+        return false if !unopened_abandoned_cart
         # Находим товар, который был положен в корзину в нужном периоде, но не был из нее удален или куплен
         user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).each do |action|
           @happened_at = action.cart_date
