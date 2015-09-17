@@ -6,6 +6,7 @@ module SectoralAlgorythms
 
     def trigger_action(action, items)
       items.each { |item| trigger_view(item) } if action == 'view'
+      items.each { |item| trigger_view(item) } if action == 'cart'
 
       items.each { |item| trigger_purchase(item) } if action== 'purchase'
     end

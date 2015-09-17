@@ -37,9 +37,6 @@ module SectoralAlgorythms
         else
           @periodicly['history'][item.id]=[Time.now.to_i]
         end
-
-        # Пересчитываем для определения времени (на это завязан рекоммендер)
-        recalculate
       end
 
 
