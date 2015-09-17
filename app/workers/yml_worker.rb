@@ -45,7 +45,7 @@ class YmlWorker
       raise e if Rails.env.test?
       if retried
         @shop.increment_yml_errors!
-        if @shop.yml_errors >= 5
+        if @shop.yml_errors == 5
           ErrorsMailer.yml_off(@shop).deliver_now
         else
           ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
