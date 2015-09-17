@@ -18,7 +18,8 @@ class YmlWorker
       if YmlTimeLock.new.process_available?
         YmlTimeLock.new.start_processing!
         Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-          if shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)
+          if (shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)) && ( shop.last_try_to_load_yml_at.blank? || shop.last_try_to_load_yml_at < (DateTime.current - shop.yml_load_period.hours) )
+            shop.update_columns(last_try_to_load_yml_at: DateTime.current)
             YmlWorker.perform_async(shop.id)
           end
         end
@@ -46,11 +47,11 @@ class YmlWorker
       if retried
         @shop.increment_yml_errors!
         if @shop.yml_errors >= 5
-          ErrorsMailer.yml_off(@shop).deliver_now
+          # ErrorsMailer.yml_off(@shop).deliver_now
         else
-          ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
-          ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обноружено XML-файлв в архиве.')
-          ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML')
+          # ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
+          # ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обнаружено XML-файла в архиве.')
+          # ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML:')
         end
       else
         retried = true
@@ -100,7 +101,7 @@ class YmlWorker
     rescue Yml::NotRespondingError => e
       raise YmlWorker::Error.new("Плохой код ответа.")
     rescue Yml::NoXMLFileInArchiveError
-      raise YmlWorker::Error.new("Не обноружено XML-файлв в архиве.")
+      raise YmlWorker::Error.new("Не обнаружено XML-файла в архиве.")
     rescue Nokogiri::XML::SyntaxError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end

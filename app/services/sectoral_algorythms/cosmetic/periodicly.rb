@@ -64,14 +64,21 @@ module SectoralAlgorythms
           end
         end
 
+
+        # Ближайший триггер выносим наверх
         times = []
         items = []
-        # Ближайший триггер выносим наверх
+
+        item_times_buy = {}
+
         @periodicly['history'].each do |item_id, purchase_times|
           last_purchase_time = purchase_times.last
-          times << last_purchase_time+@periodicly['calc_periods'][item_id]
+          time_to_buy = last_purchase_time+@periodicly['calc_periods'][item_id]
+          times << time_to_buy
           items << item_id
+          item_times_buy[item_id]=time_to_buy
         end
+        @periodicly['item_times_to_buy']=item_times_buy
 
         next_trigger_time = times.each_with_index.min
         @periodicly['next_trigger'] = next_trigger_time.first
@@ -93,6 +100,20 @@ module SectoralAlgorythms
 
       def attributes_for_update
         { :periodicly => @periodicly }
+      end
+
+      def items_need_to_buy
+        items = []
+        current_time = Time.now.to_i
+        if @periodicly['next_trigger'] < Time.now.to_i
+          # ищем товары, срок которых подошел
+          @periodicly['item_times_to_buy'].each do |item_id, time|
+            if time<current_time
+              items << item_id
+            end
+          end
+        end
+        items
       end
 
       private

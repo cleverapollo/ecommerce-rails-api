@@ -9,7 +9,7 @@ module Recommender
       def items_to_recommend
         if params.modification.present?
           result = super
-          if params.modification == 'fashion'
+          if params.modification == 'fashion' || params.modification == 'cosmetic'
             if ['m', 'f'].include?(item.gender)
              gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
              result = gender_algo.modify_relation(result)

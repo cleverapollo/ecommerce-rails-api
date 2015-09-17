@@ -130,6 +130,6 @@ class Shop < ActiveRecord::Base
   end
 
   def increment_yml_errors!
-    update(yml_errors: self.yml_errors += 1)
+    update_columns(yml_errors: self.yml_errors += 1)
   end
 end
