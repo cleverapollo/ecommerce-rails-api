@@ -18,7 +18,8 @@ class YmlWorker
       if YmlTimeLock.new.process_available?
         YmlTimeLock.new.start_processing!
         Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-          if shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)
+          if (shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)) && ( shop.last_try_to_load_yml_at.blank? || shop.last_try_to_load_yml_at < (DateTime.current - shop.yml_load_period.hours) )
+            shop.update_columns(last_try_to_load_yml_at: DateTime.current)
             YmlWorker.perform_async(shop.id)
           end
         end
