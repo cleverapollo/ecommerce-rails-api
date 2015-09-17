@@ -12,6 +12,7 @@ class BounceHandlerWorker
           # Достаем "само" письмо
           message = email.message
           bounced_message = BounceEmail::Mail.new(email.message)
+          bounced_message.charset = 'UTF-8'
 
           if bounced_message.is_bounce? && bounced_message.type == 'Permanent Failure'
             # Адрес получателя
@@ -40,9 +41,30 @@ class BounceHandlerWorker
               end
             end
 
+
+          elsif bounced_message.is_bounce? || bounced_message.type == 'Permanent Failure'
+
+            # ** Если письмо просто 'Permanent Failure', но не bounce или наоборот (например, автоответчик), то просто удаляем его
+
+            # Адрес получателя
+            to = message.to.first
+
+            # Работаем только с письмами текущего шарда
+            if shard = to.match(/shard(\d{2})/)
+              if shard[1] == SHARD_ID
+
+                # Архивируем письмо
+                email.delete!
+
+              end
+            end
+
           end
+
         end
       end
+
+
     end
 
     # Чистит письма, не относящиеся к боунсам (спам, ответы и прочий мусор), чтобы ящик не засорялся
