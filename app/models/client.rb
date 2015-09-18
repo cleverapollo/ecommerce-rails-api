@@ -20,7 +20,7 @@ class Client < ActiveRecord::Base
   scope :ready_for_second_abandoned_cart, -> (shop) do
     trigger_mailing = TriggerMailing.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
     clients_ids = TriggerMail.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(opened: false).where(trigger_mailing_id: trigger_mailing.id).pluck(:client_id)
-    where(id: clients_ids)
+    where(id: clients_ids).where(last_trigger_mail_sent_at: 28.hours.ago..24.hours.ago)
   end
 
   class << self
