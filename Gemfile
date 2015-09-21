@@ -9,7 +9,7 @@ gem 'rails', '4.2.3'
 gem 'rails-api', '0.4.0'
 
 # Server
-gem 'unicorn', '~> 4.8.1'
+gem 'unicorn', '~> 4.9.0'
 
 # Database
 gem 'pg', '~> 0.18.1'
