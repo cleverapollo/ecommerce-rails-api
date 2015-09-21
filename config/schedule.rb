@@ -27,9 +27,9 @@ every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
 end
 
-# every 20.minutes do
-#   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
-# end
+every 20.minutes do
+  runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
+end
 
 # Каждую ночь в 3 часа пересчитываем SalesRate
 every '0 3 * * *' do
