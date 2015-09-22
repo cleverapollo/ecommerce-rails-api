@@ -47,11 +47,11 @@ class YmlWorker
       if retried
         @shop.increment_yml_errors!
         if @shop.yml_errors >= 5
-          # ErrorsMailer.yml_off(@shop).deliver_now
+          ErrorsMailer.yml_off(@shop).deliver_now
         else
-          # ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
-          # ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обнаружено XML-файла в архиве.')
-          # ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML:')
+          ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
+          ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обнаружено XML-файла в архиве.')
+          ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML:')
         end
       else
         retried = true
