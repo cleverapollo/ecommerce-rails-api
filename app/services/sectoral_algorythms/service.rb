@@ -2,7 +2,7 @@ module SectoralAlgorythms
   class Service
 
     def self.all_algorythms
-      [Wear::Gender, Wear::Size, Cosmetic::Physiology, Cosmetic::Periodicly, Child::Gender]
+      [Wear::Gender, Wear::Size, Cosmetic::Physiology, Cosmetic::Periodicly]
     end
 
     def initialize(user, algorythms=[])
@@ -25,7 +25,7 @@ module SectoralAlgorythms
       changes = {}
       @algorythms.each do |algorythm|
         algorythm.merge(slave)
-        algorythm.recalculate
+       # algorythm.recalculate
         changes.merge!(algorythm.attributes_for_update)
       end
 
