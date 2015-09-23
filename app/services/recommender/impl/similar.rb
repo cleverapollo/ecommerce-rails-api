@@ -33,6 +33,9 @@ module Recommender
 
         result = []
 
+        # @noff Временно заблокировал similar, т.к. он убивает все нахрен
+        return result
+
         if categories_for_query.empty?
           return result
         end
