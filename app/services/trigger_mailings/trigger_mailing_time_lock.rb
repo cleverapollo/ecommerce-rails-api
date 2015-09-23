@@ -32,7 +32,7 @@ module TriggerMailings
     private
 
     def path_file
-      "#{Rails.root}/tmp/trigger_sending.pid"
+      "#{Rails.root}/tmp/pids/trigger_sending.pid"
     end
   end
 end
