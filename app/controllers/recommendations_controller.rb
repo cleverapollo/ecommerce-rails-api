@@ -8,9 +8,6 @@ class RecommendationsController < ApplicationController
 
   def get
 
-    render json: []
-    return
-
     # Извлекаем данные из входящих параметров
     extracted_params = Recommendations::Params.extract(params)
     # Запускаем процессор с извлеченными данными
