@@ -4,8 +4,7 @@ class RunnerWrapper
       begin
         eval(what)
       rescue Exception => e
-        # @MARK_ROLLBAR_DISABLED
-        # Rollbar.error(e)
+        Rollbar.error(e)
       end
     end
   end

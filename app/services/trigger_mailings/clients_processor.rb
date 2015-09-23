@@ -26,8 +26,7 @@ module TriggerMailings
                     client.update_columns(last_trigger_mail_sent_at: Time.now)
                   end
                 rescue StandardError => e
-                  # @MARK_ROLLBAR_DISABLED
-                  # Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
+                  Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
                 end
               end
             end
