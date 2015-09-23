@@ -75,10 +75,6 @@ class SalesRateCalculator
 
       end
 
-      # Обнуляем sales_rate у всех товаров магазина
-      shop.items.recommendable.where('sales_rate is not null').update_all sales_rate: nil
-
-
       # Обновляем sales_rate у товаров. Делаем это группами по схожим sales_rate, чтобы не делать 40000 индивидуальных запросов UPDATE
       # Большие группы разбиваем по 500 товаров, чтобы не получать огромные запросы WHERE id IN (10000 идентификаторов)
       chunks = {}
@@ -97,6 +93,14 @@ class SalesRateCalculator
         end
       rescue StandardError => e
         Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
+      end
+
+      # Обнуляем sales rate у товаров, для которых его не было рассчитано
+      if chunks.count > 0
+        garbage_items = shop.items.recommendable.where('sales_rate is not null').pluck(:id) - chunks.map {|k, v| v }.sum
+        if garbage_items.length > 0
+          Item.where(id: garbage_items).update_all sales_rate: nil
+        end
       end
 
       nil

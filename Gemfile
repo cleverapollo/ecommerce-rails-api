@@ -9,7 +9,7 @@ gem 'rails', '4.2.3'
 gem 'rails-api', '0.4.0'
 
 # Server
-gem 'unicorn', '~> 4.8.1'
+gem 'unicorn', '~> 4.9.0'
 
 # Database
 gem 'pg', '~> 0.18.1'
@@ -21,7 +21,7 @@ gem 'sidekiq-limit_fetch', '~> 2.4.1'
 
 # Services
 gem 'rollbar', '~> 2.2.1'
-gem 'newrelic_rpm', '~> 3.12.0'
+gem 'newrelic_rpm'
 
 # BrB
 gem 'brb', '~> 0.3.1'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150911140105) do
+ActiveRecord::Schema.define(version: 20150922091159) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -350,14 +350,15 @@ ActiveRecord::Schema.define(version: 20150911140105) do
   end
 
   create_table "trigger_mailings", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                   null: false
-    t.string   "trigger_type",  limit: 255,                 null: false
-    t.string   "subject",       limit: 255,                 null: false
-    t.text     "template",                                  null: false
-    t.text     "item_template",                             null: false
-    t.boolean  "enabled",                   default: false, null: false
+    t.integer  "shop_id",                                          null: false
+    t.string   "trigger_type",         limit: 255,                 null: false
+    t.string   "subject",              limit: 255,                 null: false
+    t.text     "template",                                         null: false
+    t.text     "item_template",                                    null: false
+    t.boolean  "enabled",                          default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "source_item_template"
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree
@@ -376,6 +377,7 @@ ActiveRecord::Schema.define(version: 20150911140105) do
   end
 
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
+  add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
 end
