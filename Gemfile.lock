@@ -254,7 +254,6 @@ GEM
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
-    rack-timeout (0.3.2)
     rack-utf8_sanitizer (1.2.4)
       rack (~> 1.0)
     rails (4.2.3)
@@ -395,7 +394,6 @@ DEPENDENCIES
   newrelic_rpm
   paperclip (~> 4.2.1)
   pg (~> 0.18.1)
-  rack-timeout
   rack-utf8_sanitizer (~> 1.2.3)
   rails (= 4.2.3)
   rails-api (= 0.4.0)
