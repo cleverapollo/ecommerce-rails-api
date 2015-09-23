@@ -105,15 +105,15 @@ describe UserMerger do
                                                            {"adult"=>{"40"=>{"views"=>1, "purchase"=>0}}}}})
           end
 
-          it 'merge virtual profile physiology correctly' do
-            subject
-            expect(master.physiology['history']).to eq({"f"=>
-                                                            {"hair"=>
-                                                                 {"skin_type"=>
-                                                                      {"dry"=>{"views"=>2, "purchase"=>2}},
-                                                                  "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2},
-                                                                                "colored"=>{"views"=>2, "purchase"=>2}}}}})
-          end
+          # it 'merge virtual profile physiology correctly' do
+          #   subject
+          #   expect(master.physiology['history']).to eq({"f"=>
+          #                                                   {"hair"=>
+          #                                                        {"skin_type"=>
+          #                                                             {"dry"=>{"views"=>2, "purchase"=>2}},
+          #                                                         "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2},
+          #                                                                       "colored"=>{"views"=>2, "purchase"=>2}}}}})
+          # end
 
 
           # it 'merge virtual profile periodicly correctly' do
