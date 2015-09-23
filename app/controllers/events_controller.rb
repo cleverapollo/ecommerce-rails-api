@@ -5,6 +5,10 @@ class EventsController < ApplicationController
   before_action :extract_legacy_event_name, only: [:push]
 
   def push
+
+    respond_with_success
+
+
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.extract(params)
     # Запускаем процессор с извлеченными данными

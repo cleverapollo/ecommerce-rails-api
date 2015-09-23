@@ -7,6 +7,10 @@ class RecommendationsController < ApplicationController
   before_action :fetch_non_restricted_shop
 
   def get
+
+    render json: []
+    return
+
     # Извлекаем данные из входящих параметров
     extracted_params = Recommendations::Params.extract(params)
     # Запускаем процессор с извлеченными данными
