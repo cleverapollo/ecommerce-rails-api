@@ -7,6 +7,7 @@ module SectoralAlgorythms
       K_VIEW = 1
       K_PURCHASE = 10
       MIN_VIEWS_SCORE = 10
+      K_SIZE_DEVIATION=10
 
       def initialize(user)
         super
@@ -102,10 +103,43 @@ module SectoralAlgorythms
         { :size => @size }
       end
 
+      def modify_relation(relation)
+        #{"f"=>{"shirt"=>{"adult"=>{"size"=>"48", "probability"=>100}}}
+
+        addition_relations = []
+
+        if gender = user_gender
+          type_sizes = @size[gender]
+          type_sizes.each do |type, feature|
+            feature.each do |_, feature_sizes|
+              size = feature_sizes['size'].to_i
+              probability = feature_sizes['probability']
+              deviation = ((100-probability)/K_SIZE_DEVIATION).to_i
+              sizes = []
+              # берем размеры, кратные 2 (особенность русской сетки)
+              (size-deviation..size+deviation).each { |size_value| sizes<<size_value if size_value.even? }
+
+              # Разные типы - разные размеры
+              addition_relations << "(wear_type='#{type}' AND  '{#{sizes.map {|size| "\"#{size}\""}.join(',')}}' && sizes )"
+            end
+          end
+          relation =  relation.where(addition_relations.join(" OR ")).where.not(sizes:nil)
+        end
+
+        relation
+      end
+
       private
 
       def default_history
         { 'views' => 0, 'purchase' => 0 }
+      end
+
+      def user_gender
+        cur_gender = @user.gender
+        cur_gender.delete 'history'
+        return false if cur_gender['m']==cur_gender['f']
+        cur_gender.max_by { |_, v| v }.first.to_s
       end
     end
   end
