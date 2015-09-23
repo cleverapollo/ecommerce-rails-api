@@ -92,8 +92,7 @@ class SalesRateCalculator
           end
         end
       rescue StandardError => e
-        # @MARK_ROLLBAR_DISABLED
-        # Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
+        Rollbar.error(e, shop_id: shop.id, shop_name: shop.name, shop_url: shop.url)
       end
 
       # Обнуляем sales rate у товаров, для которых его не было рассчитано
