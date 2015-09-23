@@ -13,13 +13,12 @@ class MahoutAction < ActiveRecord::Base
   belongs_to :user
 
   class << self
-    # @noff: закомментировал в качестве проверки тормозов
-    # def relink_user(options = {})
-    #   mahout_service = MahoutService.new
-    #   mahout_service.open
-    #   mahout_service.relink_user(options.fetch(:from).id, options.fetch(:to).id)
-    #   mahout_service.close
-    # end
+    def relink_user(options = {})
+      mahout_service = MahoutService.new
+      mahout_service.open
+      mahout_service.relink_user(options.fetch(:from).id, options.fetch(:to).id)
+      mahout_service.close
+    end
   end
 
   protected
