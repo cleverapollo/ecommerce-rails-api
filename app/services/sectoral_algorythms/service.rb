@@ -3,7 +3,7 @@ module SectoralAlgorythms
 
     def self.all_algorythms
       # [Wear::Gender, Wear::Size, Cosmetic::Physiology, Cosmetic::Periodicly]
-      [Wear::Gender, Wear::Size, Cosmetic::Physiology]
+      [Wear::Gender, Wear::Size]
     end
 
     def initialize(user, algorythms=[])
