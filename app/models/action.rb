@@ -108,7 +108,7 @@ class Action < ActiveRecord::Base
   end
 
   def save_to_mahout
-    if shop && user && item
+    if shop && shop.use_brb? && user && item
       mahout_service = MahoutService.new(shop.brb_address)
       mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
     end

@@ -11,6 +11,9 @@ module Recommender
       # при отправке тестового письма пользователь не может быть инициализирован, поэтому для него выдаем пустые рекомендации
       return [] unless params.user
 
+      # Не лезем к BRB, если магазину запрещено его использовать
+      return [] unless params.shop.use_brb?
+
       result = []
 
       ms = MahoutService.new(shop.brb_address)
@@ -49,6 +52,10 @@ module Recommender
     end
 
     def fetch_user_based(excluded_items, ms)
+
+      # Не лезем к BRB, если магазину запрещено его использовать
+      return [] unless params.shop.use_brb?
+
       if ms.tunnel && ms.tunnel.active?
         # Коллаборативка в контексте текущего товара - как будто пользователь этот товар уже купил
         r = ms.user_based(params.user.id,

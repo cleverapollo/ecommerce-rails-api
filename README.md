@@ -53,6 +53,7 @@ $ foreman start
 
 ### Тесты
 ```
+$ rake db:test:load_schema
 $ bin/rspec
 ```
 
