@@ -10,6 +10,7 @@ gem 'rails-api', '0.4.0'
 
 # Server
 gem 'unicorn', '~> 4.9.0'
+gem 'rack-timeout'
 
 # Database
 gem 'pg', '~> 0.18.1'
