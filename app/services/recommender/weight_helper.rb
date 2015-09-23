@@ -7,16 +7,28 @@ module Recommender
 
     def cf_weight(items_to_weight)
       cf_weighted = {}
-      if items_to_weight.any? && params.user
-        ms = MahoutService.new(shop.brb_address)
-        ms.open
-        cf_result = ms.item_based_weight(params.user.id, shop.id,
-                                         weight: items_to_weight,
-                                         limit: LIMIT_CF_ITEMS)
-        ms.close
-        #  ориентироваться на оценку, выданную махаутом.
-        cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f * RATING_MULTIPLY]}.to_h
+
+      if shop.use_brb?
+
+        if items_to_weight.any? && params.user
+          ms = MahoutService.new(shop.brb_address)
+          ms.open
+          cf_result = ms.item_based_weight(params.user.id, shop.id,
+                                           weight: items_to_weight,
+                                           limit: LIMIT_CF_ITEMS)
+          ms.close
+          #  ориентироваться на оценку, выданную махаутом.
+          cf_weighted = cf_result.map{|item| [item[:item], item[:rating].to_f * RATING_MULTIPLY]}.to_h
+
+        end
+
+      else
+
+        cf_weighted = index_weight(items_to_weight)
+
       end
+
+
       cf_weighted
     end
 

@@ -51,6 +51,7 @@ FactoryGirl.define do
     category_id 5
     active true
     restricted false
+    use_brb false
   end
 
   factory :medium do
