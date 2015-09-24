@@ -21,8 +21,6 @@ module TriggerMailings
         # Проверка что последное письмо отправили киленту 1 дня назад
         return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
 
-        return false # Пока отключил вторую брошенную корзину - подозрение на чрезмерную нагрузку
-
         # Находим вчерашную не открытую брошеную корзину
         trigger_mailing = TriggerMailing.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
         unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: trigger_mailing.id).where(client_id: client.id)
