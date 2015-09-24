@@ -36,7 +36,7 @@ module Recommender
         result = []
 
         # @noff Временно заблокировал similar, т.к. он убивает все нахрен
-        # return result #if shop.id != 356
+        return result #if shop.id != 356
 
         if categories_for_query.empty?
           return result
