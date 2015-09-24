@@ -51,6 +51,10 @@ class YmlItem
     StringHelper.encode_and_truncate(@content['description'])
   end
 
+  def barcode
+    StringHelper.encode_and_truncate(@content['barcode'])
+  end
+
   def url
     StringHelper.encode_and_truncate(@content['url'], 2000)
   end

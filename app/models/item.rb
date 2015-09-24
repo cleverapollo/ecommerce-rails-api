@@ -119,7 +119,8 @@ class Item < ActiveRecord::Base
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
         condition: ValuesHelper.present_one(new_item, self, :condition),
-        volume: ValuesHelper.present_one(new_item, self, :volume)
+        volume: ValuesHelper.present_one(new_item, self, :volume),
+        barcode: ValuesHelper.present_one(new_item, self, :barcode)
     }
 
     assign_attributes(attrs)
