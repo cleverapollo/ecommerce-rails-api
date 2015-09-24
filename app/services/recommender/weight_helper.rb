@@ -2,7 +2,7 @@
 module Recommender
   module WeightHelper
 
-    LIMIT_CF_ITEMS = 400
+    LIMIT_CF_ITEMS = 100
     RATING_MULTIPLY = 3500
 
     def cf_weight(items_to_weight)
