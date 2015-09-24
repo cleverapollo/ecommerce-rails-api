@@ -163,6 +163,8 @@ module ActionPush
           item_attributes.name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
           item_attributes.description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
 
+          item_attributes.barcode = raw[:barcode].present? && raw[:barcode][i].present? ? StringHelper.encode_and_truncate(raw[:barcode][i]) : nil
+
           item_attributes.url = raw[:url][i] ? StringHelper.encode_and_truncate(raw[:url][i], 1000) : nil
           if item_attributes.url.present? && !item_attributes.url.include?('://')
             item_attributes.url = correct_url_joiner(shop.url, item_attributes.url)
