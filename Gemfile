@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 ruby '2.2.3'
 
 # Rails
-gem 'rails', '4.2.3'
+gem 'rails', '4.2.4'
 gem 'rails-api', '0.4.0'
 
 # Server
