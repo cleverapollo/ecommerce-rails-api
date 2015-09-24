@@ -26,12 +26,17 @@ module Recommender
       end
 
       def items_to_recommend
-        super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id)
+        # super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id)
+        # super.in_categories(categories_for_query).where.not(id: item.id)
+        super.in_categories(categories_for_query).where.not(id: excluded_items_ids)
       end
 
       def items_to_weight
 
         result = []
+
+        # @noff Временно заблокировал similar, т.к. он убивает все нахрен
+        return result #if shop.id != 356
 
         if categories_for_query.empty?
           return result
@@ -110,11 +115,11 @@ module Recommender
       end
 
       def items_relation_with_price_condition
-        items_relation.where(price: price_range)
+        items_relation.where(price: price_range).where('price IS NOT NULL') # is not null нужен для активации индекса
       end
 
       def items_relation_with_larger_price_condition
-        items_relation.where(price: large_price_range)
+        items_relation.where(price: large_price_range).where('price IS NOT NULL') # is not null нужен для активации индекса
       end
 
     end

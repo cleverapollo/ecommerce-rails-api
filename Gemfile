@@ -2,15 +2,14 @@ LANG="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
 
 source 'https://rubygems.org'
-ruby '2.2.0'
+ruby '2.2.3'
 
 # Rails
-gem 'rails', '4.2.3'
+gem 'rails', '4.2.4'
 gem 'rails-api', '0.4.0'
 
 # Server
 gem 'unicorn', '~> 4.9.0'
-gem 'rack-timeout'
 
 # Database
 gem 'pg', '~> 0.18.1'
@@ -22,7 +21,7 @@ gem 'sidekiq-limit_fetch', '~> 2.4.1'
 
 # Services
 gem 'rollbar', '~> 2.2.1'
-gem 'newrelic_rpm'
+gem 'newrelic_rpm', '~> 3.12.0'
 
 # BrB
 gem 'brb', '~> 0.3.1'

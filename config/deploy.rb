@@ -21,7 +21,7 @@ set :default_stage,   'api_00'
 
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
-set :rvm_ruby_string, "2.2.0"
+set :rvm_ruby_string, "2.2.3"
 
 
 # Whenever
