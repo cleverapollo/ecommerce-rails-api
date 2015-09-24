@@ -113,11 +113,11 @@ module Recommender
       end
 
       def items_relation_with_price_condition
-        items_relation.where(price: price_range)
+        items_relation.where(price: price_range).where('price IS NOT NULL') # is not null нужен для активации индекса
       end
 
       def items_relation_with_larger_price_condition
-        items_relation.where(price: large_price_range)
+        items_relation.where(price: large_price_range).where('price IS NOT NULL') # is not null нужен для активации индекса
       end
 
     end
