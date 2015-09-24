@@ -27,6 +27,7 @@ module Recommender
 
       def items_to_recommend
         # super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: item.id)
+        # super.where(id:Item.in_categories(categories_for_query).where(shop_id:shop.id)).where.not(id: excluded_items_ids)
         # super.in_categories(categories_for_query).where.not(id: item.id)
         super.in_categories(categories_for_query).where.not(id: excluded_items_ids)
       end
@@ -36,7 +37,7 @@ module Recommender
         result = []
 
         # @noff Временно заблокировал similar, т.к. он убивает все нахрен
-        return result #if shop.id != 356
+        # return result #if shop.id != 356
 
         if categories_for_query.empty?
           return result
@@ -50,10 +51,7 @@ module Recommender
 
         if result.size <limit
 
-          result += shop.actions.where(item_id: items_relation_with_price_condition).
-              where('timestamp > ?', min_date).
-              group(:item_id).by_average_rating.
-              limit(LIMIT_CF_ITEMS).pluck(:item_id)
+          result += items_relation_with_price_condition.order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id).uniq
 
           if result.size < limit
             # Расширяем границы поиска
