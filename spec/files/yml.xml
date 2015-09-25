@@ -43,6 +43,10 @@
         </fashion>
       </offer>
 
+      <offer available="true" id="1000">
+        <url>http://example.com/item/1000</url>
+      </offer>
+
       <offer available="true" id="2000">
         <url>http://example.com/item/2000</url>
         <price>900</price>
