@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.datetime "updated_at"
     t.float    "balance",                default: 0.0,   null: false
     t.integer  "cpm",                    default: 1500,  null: false
+    t.float    "cpc",                    default: 10.0,  null: false
     t.string   "brand"
     t.string   "downcase_brand"
     t.boolean  "campaign_launched",      default: false, null: false
