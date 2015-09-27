@@ -32,6 +32,7 @@ class YmlWorker
     #   Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
     #     YmlWorker.perform_async(shop.id)
     #   end
+      
     end
 
   end
@@ -120,10 +121,15 @@ class YmlWorker
                            wear_type_dictionaries:wear_type_dictionaries)
 
     # Достаем товар из кэша или создаем новый
-    item = items_cache.pop(yml_item.uniqid) || shop.items.new(uniqid: yml_item.uniqid)
+    item = items_cache.pop(yml_item.uniqid)
+    current_item_in_db = nil
+    if item.blank?
+      current_item_in_db = Item.where(shop_id:shop.id, uniqid: yml_item.uniqid).limit(1)[0]
+      item = shop.items.new(uniqid: yml_item.uniqid) unless current_item_in_db
+    end
 
     # Передаем в него параметры из YML-файла
-    item.apply_attributes(yml_item)
+    item.apply_attributes(yml_item) unless current_item_in_db
   end
 
   # Выключить товары, которые остались в кэше.

@@ -16,6 +16,7 @@
         <picture>http://example.com/item/1000.jpg</picture>
         <name>Existing item</name>
         <description>Existing item description</description>
+        <barcode>123456</barcode>
 
         <typePrefix>Смартфон</typePrefix>
         <vendor>Apple</vendor>
@@ -40,6 +41,10 @@
             <size>M</size>
           </sizes>
         </fashion>
+      </offer>
+
+      <offer available="true" id="1000">
+        <url>http://example.com/item/1000</url>
       </offer>
 
       <offer available="true" id="2000">
