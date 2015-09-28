@@ -32,7 +32,7 @@ class YmlWorker
     #   Shop.active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
     #     YmlWorker.perform_async(shop.id)
     #   end
-      
+
     end
 
   end

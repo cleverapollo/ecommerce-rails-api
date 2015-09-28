@@ -63,14 +63,33 @@ module SectoralAlgorythms
 
       def modify_relation(relation)
         opposite_gender_loc = opposite_gender
-        return relation.where('gender!=? or gender IS NULL', opposite_gender_loc) if opposite_gender_loc
+        filter_by_opposite_gender(opposite_gender_loc, relation)
+      end
+
+      def filter_by_opposite_gender(gender, relation)
+        return relation.where('gender!=? or gender IS NULL', gender) if gender
         relation
+      end
+
+      def filter_by_gender(gender, relation)
+        opposite_gender_loc = false
+
+        opposite_gender_loc = 'f' if gender.to_s=='m'
+        opposite_gender_loc = 'm' if gender.to_s=='f'
+
+        filter_by_opposite_gender(opposite_gender_loc, relation)
       end
 
       def opposite_gender
         cur_gender = value
         return false if cur_gender[:m]==cur_gender[:f]
         cur_gender.min_by { |_, v| v }.first.to_s
+      end
+
+      def current_gender
+        cur_gender = value
+        return false if cur_gender[:m]==cur_gender[:f]
+        cur_gender.max_by { |_, v| v }.first.to_s
       end
 
       def fix_value(gender)
