@@ -1,10 +1,7 @@
 ##
 # Тариф
 #
-class Plan < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class Plan < MasterTable
 
   has_many :shops
 

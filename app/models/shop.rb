@@ -1,10 +1,7 @@
 ##
 # Магазин
 #
-class Shop < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class Shop < MasterTable
 
   include Redis::Objects
 

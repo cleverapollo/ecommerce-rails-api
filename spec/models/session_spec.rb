@@ -33,7 +33,7 @@ describe Session do
       end
 
       it 'creates user for new session' do
-        expect{ subject }.to change(User, :count).from(1).to(2)
+        expect{ subject }.to change(User, :count).from(0).to(1)
       end
 
       it 'returns new session' do

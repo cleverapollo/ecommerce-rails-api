@@ -1,7 +1,4 @@
-class AdvertiserPurchase < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class AdvertiserPurchase < MasterTable
 
   belongs_to :advertiser
   belongs_to :item

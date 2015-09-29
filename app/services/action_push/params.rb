@@ -150,7 +150,12 @@ module ActionPush
 
         if shop.has_imported_yml?
           # товара в yml нет - значит не рекомендуем
-          item_attributes.is_available = false unless Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
+          cur_item = Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
+          if cur_item
+            item_attributes.is_available = cur_item.is_available
+          else
+            item_attributes.is_available = false
+          end
         else
 
           item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []

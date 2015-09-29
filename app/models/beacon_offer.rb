@@ -1,6 +1,4 @@
-class BeaconOffer < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class BeaconOffer < MasterTable
 
   belongs_to :shop
   has_many :beacon_messages
