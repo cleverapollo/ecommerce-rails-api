@@ -153,8 +153,10 @@ module ActionPush
           cur_item = Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
           if cur_item
             item_attributes.is_available = cur_item.is_available
+            item_attributes.widgetable = cur_item.widgetable
           else
             item_attributes.is_available = false
+            item_attributes.widgetable = false
           end
         else
 
