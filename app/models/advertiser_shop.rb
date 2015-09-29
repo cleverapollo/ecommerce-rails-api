@@ -1,6 +1,4 @@
-class AdvertiserShop < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class AdvertiserShop < MasterTable
 
   belongs_to :advertiser
   belongs_to :shop

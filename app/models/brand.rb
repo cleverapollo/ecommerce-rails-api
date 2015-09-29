@@ -1,6 +1,4 @@
-class Brand < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class Brand < MasterTable
 
   before_save :lowercase_keyword
 

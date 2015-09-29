@@ -15,7 +15,7 @@ describe UserProfile::AttributesProcessor do
 
     context 'when profile attribute is new' do
       it 'stores profile attribute' do
-        expect { subject }.to change { ProfileAttribute.count }.from(1).to(2)
+        expect { subject }.to change { ProfileAttribute.count }.from(0).to(1)
       end
 
       it 'fix gender attribute' do

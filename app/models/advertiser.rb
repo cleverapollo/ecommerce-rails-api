@@ -1,6 +1,4 @@
-class Advertiser < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class Advertiser < MasterTable
 
   validates :email, :first_name, :last_name, :company, :website, :mobile_phone, :work_phone, :country, :city, presence: true, length: { maximum: 255 }
   validates :cpm, numericality: {only_integer: true, greater_than: 0}, presence: true

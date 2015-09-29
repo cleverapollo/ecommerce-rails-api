@@ -1,10 +1,7 @@
 ##
 # Категория магазина
 #
-class Category < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class Category < MasterTable
 
   has_many :shops
 

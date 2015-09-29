@@ -1,6 +1,4 @@
-class Medium < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class Medium < MasterTable
 
   has_many :medium_actions
   has_many :articles
