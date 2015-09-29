@@ -1,9 +1,7 @@
 ##
 # Клиент (тот, кто регается на rees46.com)
 #
-class Customer < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class Customer < MasterTable
 
   has_many :shops
 

@@ -1,10 +1,7 @@
 ##
 # Магазин на InSales.
 #
-class InsalesShop < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class InsalesShop < MasterTable
 
   belongs_to :shop
 end

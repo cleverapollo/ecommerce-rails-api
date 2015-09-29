@@ -1,9 +1,7 @@
 ##
 # Пользователь.
 #
-class User < ActiveRecord::Base
-
-  establish_connection MASTER_DB
+class User < MasterTable
 
   include Redis::Objects
 

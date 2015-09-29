@@ -1,10 +1,7 @@
 ##
 # Корзины и покупки. Используются в коллаборативке
 #
-class MahoutAction < ActiveRecord::Base
-
-  establish_connection MASTER_DB
-
+class MahoutAction < MasterTable
 
   before_create :assign_timestamp
 
