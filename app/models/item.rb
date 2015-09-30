@@ -83,7 +83,7 @@ class Item < ActiveRecord::Base
 
   # Доступен для отображения?
   def widgetable?
-    price.present? && name.present? && url.present? && image_url.present?
+    is_available && price.present? && name.present? && url.present? && image_url.present?
   end
 
   # Назначить аттрибуты
@@ -125,7 +125,7 @@ class Item < ActiveRecord::Base
 
     assign_attributes(attrs)
 
-    self.widgetable = self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
+    self.widgetable = self.is_available && self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
 
     attrs
   end
