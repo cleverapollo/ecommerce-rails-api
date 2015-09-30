@@ -20,7 +20,7 @@ class Yml
         is_xml? ? (yield file) : (raise NoXMLFileInArchiveError)
       else
         File.rename(file_name, file_name_xml)
-        yield file
+        is_xml? ? (yield file) : (raise NotRespondingError)
       end
       delete(file_name_xml)
       delete(file_name)
