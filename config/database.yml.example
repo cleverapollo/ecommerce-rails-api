@@ -19,3 +19,26 @@ test:
   host: localhost
   port: 5432
   timeout: 5000
+
+master_defaults: &master_defaults
+  adapter: postgresql
+  encoding: unicode
+  pool: 50
+  timeout: 5000
+  port: 5434
+
+
+production_master:
+    database: master_database
+    host: localhost
+    username: rees46
+    password: rees46
+    <<: *master_defaults
+
+test_master:
+    database: master_database
+    host: localhost
+    username: rees46
+    password: rees46
+    <<: *master_defaults
+
