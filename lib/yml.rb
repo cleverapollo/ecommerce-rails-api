@@ -20,7 +20,7 @@ class Yml
         is_xml? ? (yield file) : (raise NoXMLFileInArchiveError)
       else
         File.rename(file_name, file_name_xml)
-        yield file
+        is_xml? ? (yield file) : (raise NotRespondingError)
       end
       delete(file_name_xml)
       delete(file_name)
@@ -34,9 +34,11 @@ class Yml
   end
 
   def is_xml?
+    # [16188].pack('S') => "<?"
+    # [48111].pack('S') => "\xEF\xBB"
+
     File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188 ||
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111 ||
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 26684
+    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111
   end
 
   def responds?
