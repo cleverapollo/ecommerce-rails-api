@@ -6,6 +6,14 @@
 
       <category id="2">Платья</category>
       <category id="3" parentId="2">Летние</category>
+
+      <category id="4">Холодильники</category>
+      <category id="5">Утюги</category>
+      <category id="6">Терки</category>
+      <category id="7">Пылесосы</category>
+      <category id="8">Миксеры</category>
+      <category id="9">Кофеварки</category>
+      <category id="10">Проекторы</category>
     </categories>
 
     <offers>
@@ -246,6 +254,42 @@
           </volumes>
           <periodic>1</periodic>
         </cosmetic>
+
+      </offer>
+
+      <offer available="true" id="9000">
+        <!-- kotofoto style -->
+        <url>http://example.com/item/9000</url>
+        <price>900</price>
+        <name>Apple iphone 9S</name>
+        <description>New new item description</description>
+
+        <locations>
+          <location id="1">
+            <price>559</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
+
+      </offer>
+
+      <offer available="true" id="10000">
+        <!-- kotofoto style -->
+        <url>http://example.com/item/10000</url>
+        <price>1000</price>
+        <name>Apple iphone 7S</name>
+        <description>New New Newitem description</description>
+
+        <locations>
+          <location id="1">
+            <price>1550</price>
+          </location>
+
+          <location id="2">
+          </location>
+        </locations>
 
       </offer>
 
