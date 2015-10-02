@@ -1,14 +1,14 @@
 module SectoralAlgorythms
   class Service
 
-    def self.all_algorythms
-      # [Wear::Gender, Wear::Size, Cosmetic::Physiology, Cosmetic::Periodicly]
-      [Wear::Gender, Wear::Size]
+    def self.all_virtual_profile_fields
+      # [Wear::Gender, Wear::Size, ]
+      [VirtualProfile::Gender, VirtualProfile::Size, VirtualProfile::Physiology, VirtualProfile::Periodicly]
     end
 
     def initialize(user, algorythms=[])
-      @user = user
-      @algorythms = algorythms.map {|algorythm| algorythm.new(@user)}
+      @profile = user.profile
+      @algorythms = algorythms.map {|algorythm| algorythm.new(@profile)}
     end
 
     def trigger_action(action, items)
@@ -19,7 +19,7 @@ module SectoralAlgorythms
         changes.merge!(algorythm.attributes_for_update)
       end
 
-      @user.update(changes)
+      @profile.update(changes)
     end
 
     def merge(slave)
@@ -30,7 +30,7 @@ module SectoralAlgorythms
         changes.merge!(algorythm.attributes_for_update)
       end
 
-      @user.update(changes) if changes.any?
+      @profile.update(changes) if changes.any?
     end
 
 

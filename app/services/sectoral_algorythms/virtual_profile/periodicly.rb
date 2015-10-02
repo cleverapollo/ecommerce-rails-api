@@ -2,7 +2,7 @@
 # Расчет размера пользователя
 #
 module SectoralAlgorythms
-  module Cosmetic
+  module VirtualProfile
     class Periodicly < SectoralAlgorythms::Base
 
       #период без уточнения
@@ -10,11 +10,7 @@ module SectoralAlgorythms
 
       def initialize(user)
         super
-        @periodicly = user.periodicly
-      end
-
-      def value
-        { 'm' => @physiology['m'], 'f' => @physiology['f'] }
+        @periodicly = @profile.periodicly
       end
 
       def trigger_view(item)
@@ -22,7 +18,7 @@ module SectoralAlgorythms
       end
 
       def trigger_purchase(item)
-        if item.periodic
+        if item.try(:periodic) && item.periodic
           # сохраняем периодичность
           refresh_periodicly(item)
         end
@@ -30,22 +26,22 @@ module SectoralAlgorythms
       end
 
       def refresh_periodicly(item)
-        @periodicly['history'] ||= {}
-        if @periodicly['history'][item.id].present?
+        @periodicly[:history] ||= {}
+        if @periodicly[:history][item.id].present?
           # Добавляем покупку
-          @periodicly['history'][item.id].push(Time.now.to_i)
+          @periodicly[:history][item.id].push(Time.now.to_i)
         else
-          @periodicly['history'][item.id]=[Time.now.to_i]
+          @periodicly[:history][item.id]=[Time.now.to_i]
         end
       end
 
 
       def recalculate
 
-        periodicly_history = @periodicly['history']
+        periodicly_history = @periodicly[:history]
         return if periodicly_history.nil? || periodicly_history.empty?
 
-        @periodicly['calc_periods'] ||= {}
+        @periodicly[:calc_periods] ||= {}
         periodicly_history.each do |item_id, purchase_times|
           # Более 1 покупки, рассчитываем среднее
           if purchase_times.size > 1
@@ -57,10 +53,10 @@ module SectoralAlgorythms
               prev_purchase_time = time
             end
             calc_period = periods.map(&:to_i).reduce(:+) / periods.size
-            @periodicly['calc_periods'][item_id] = calc_period
+            @periodicly[:calc_periods][item_id] = calc_period
           else
             # Считаем период по умолчанию
-            @periodicly['calc_periods'][item_id] = FIRST_PURCHASE_PERIOD
+            @periodicly[:calc_periods][item_id] = FIRST_PURCHASE_PERIOD
           end
         end
 
@@ -71,28 +67,28 @@ module SectoralAlgorythms
 
         item_times_buy = {}
 
-        @periodicly['history'].each do |item_id, purchase_times|
+        @periodicly[:history].each do |item_id, purchase_times|
           last_purchase_time = purchase_times.last
-          time_to_buy = last_purchase_time+@periodicly['calc_periods'][item_id]
+          time_to_buy = last_purchase_time+@periodicly[:calc_periods][item_id]
           times << time_to_buy
           items << item_id
           item_times_buy[item_id]=time_to_buy
         end
-        @periodicly['item_times_to_buy']=item_times_buy
+        @periodicly[:item_times_to_buy]=item_times_buy
 
         next_trigger_time = times.each_with_index.min
-        @periodicly['next_trigger'] = next_trigger_time.first
-        @periodicly['next_item'] = items[next_trigger_time.last]
+        @periodicly[:next_trigger] = next_trigger_time.first
+        @periodicly[:next_item] = items[next_trigger_time.last]
 
 
       end
 
       def merge(slave)
-        return unless @periodicly && @periodicly['history'].present?
-        if slave.periodicly['history'].present?
-          slave_history = slave.periodicly['history']
-          master_history = @periodicly['history']
-          @periodicly['history'] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
+        return unless @periodicly && @periodicly[:history].present?
+        if slave.periodicly[:history].present?
+          slave_history = slave.periodicly[:history]
+          master_history = @periodicly[:history]
+          @periodicly[:history] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
             (periodicly_slave_value+periodicly_master_value).sort.uniq
           end
         end
@@ -105,9 +101,9 @@ module SectoralAlgorythms
       def items_need_to_buy
         items = []
         current_time = Time.now.to_i
-        if @periodicly['next_trigger'] < Time.now.to_i
+        if @periodicly[:next_trigger] < Time.now.to_i
           # ищем товары, срок которых подошел
-          @periodicly['item_times_to_buy'].each do |item_id, time|
+          @periodicly[:item_times_to_buy].each do |item_id, time|
             if time<current_time
               items << item_id
             end
@@ -119,7 +115,7 @@ module SectoralAlgorythms
       private
 
       def default_history
-        { 'views' => 0, 'purchase' => 0 }
+        { :views => 0, :purchase => 0 }
       end
     end
   end

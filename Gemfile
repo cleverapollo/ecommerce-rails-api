@@ -14,6 +14,7 @@ gem 'unicorn', '~> 4.9.0'
 # Database
 gem 'pg', '~> 0.18.1'
 gem 'redis-objects', '~> 0.9.0'
+gem 'mongoid', '~> 5.0.0'
 
 # Workers
 gem 'sidekiq', '~> 3.3.3'

@@ -2,7 +2,7 @@
 # Расчет размера пользователя
 #
 module SectoralAlgorythms
-  module Wear
+  module VirtualProfile
     class Size < SectoralAlgorythms::Base
       K_VIEW = 1
       K_PURCHASE = 10
@@ -11,11 +11,7 @@ module SectoralAlgorythms
 
       def initialize(user)
         super
-        @size = user.size
-      end
-
-      def value
-        { 'm' => @size['m'], 'f' => @size['f'] }
+        @size = @profile.size
       end
 
       def trigger_view(item)
@@ -32,24 +28,24 @@ module SectoralAlgorythms
           size_params = SizeHelper.bad_to_default(wear_type: item.wear_type,
                                                   gender: item.gender,
                                                   feature: item.feature)
-          @size['history'] ||= {}
+          @size[:history] ||= {}
 
           sizes.each do |size|
             calculate_size = SizeHelper.to_ru(size.to_s, size_params)
 
             if calculate_size && calculate_size.to_i > 5
-              @size['history'][size_params[:gender]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size] ||= default_history
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size][history_key] += 1
+              @size[:history][size_params[:gender]]||={}
+              @size[:history][size_params[:gender]][size_params[:wear_type]]||={}
+              @size[:history][size_params[:gender]][size_params[:wear_type]][size_params[:feature]]||={}
+              @size[:history][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size] ||= default_history
+              @size[:history][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size][history_key] += 1
             end
           end
         end
       end
 
       def recalculate
-        full_history = @size['history']
+        full_history = @size[:history]
 
         return if full_history.nil? || full_history.empty?
 
@@ -59,10 +55,10 @@ module SectoralAlgorythms
               sizes = history.keys.compact
 
               # Нормализуем
-              normalized_purchase = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size]['purchase'] })
+              normalized_purchase = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size][:purchase] })
 
               # Минимальное значение просмотров - 10, чтобы избежать категоричных оценок новых пользователей
-              normalized_views = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size]['views'] }, min_value: MIN_VIEWS_SCORE)
+              normalized_views = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size][:views] }, min_value: MIN_VIEWS_SCORE)
 
               normalized_sizes = {}
               sizes.each_with_index { |size, index| normalized_sizes[size]= normalized_views[index] * K_VIEW + normalized_purchase[index] * K_PURCHASE }
@@ -73,19 +69,19 @@ module SectoralAlgorythms
               @size[gender]||={}
               @size[gender][wear_type]||={}
               @size[gender][wear_type][feature]||={}
-              @size[gender][wear_type][feature]['size']=sizes[max_probability_size_index]
-              @size[gender][wear_type][feature]['probability']=(normalized_sizes[max_probability_size_index]*100).to_i
+              @size[gender][wear_type][feature][:size]=sizes[max_probability_size_index]
+              @size[gender][wear_type][feature][:probability]=(normalized_sizes[max_probability_size_index]*100).to_i
             end
           end
         end
       end
 
       def merge(slave)
-        return unless @size && @size['history'].present?
-        if slave.size['history'].present?
-          slave_history = slave.size['history']
-          master_history = @size['history']
-          @size['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
+        return unless @size && @size[:history].present?
+        if slave.size[:history].present?
+          slave_history = slave.size[:history]
+          master_history = @size[:history]
+          @size[:history] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
             gender_slave_value.merge(gender_master_value) do |_, type_slave_value, type_master_value|
               type_slave_value.merge(type_master_value) do |_, feature_slave_value, feature_master_value|
                 feature_slave_value.merge(feature_master_value) do |_, size_slave_value, size_master_value|
@@ -112,8 +108,8 @@ module SectoralAlgorythms
           type_sizes = @size[gender]
           type_sizes.each do |type, feature|
             feature.each do |_, feature_sizes|
-              size = feature_sizes['size'].to_i
-              probability = feature_sizes['probability']
+              size = feature_sizes[:size].to_i
+              probability = feature_sizes[:probability]
               deviation = ((100-probability)/K_SIZE_DEVIATION).to_i
               sizes = []
               # берем размеры, кратные 2 (особенность русской сетки)
@@ -132,13 +128,13 @@ module SectoralAlgorythms
       private
 
       def default_history
-        { 'views' => 0, 'purchase' => 0 }
+        { :views => 0, :purchase => 0 }
       end
 
       def user_gender
-        cur_gender = @user.gender
-        cur_gender.delete 'history'
-        return false if cur_gender['m']==cur_gender['f']
+        cur_gender = @profile.gender
+        return false if cur_gender[:m]==cur_gender[:f]
+        cur_gender.delete :history
         cur_gender.max_by { |_, v| v }.first.to_s
       end
     end

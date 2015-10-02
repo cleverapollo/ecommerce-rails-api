@@ -27,9 +27,9 @@ module UserProfile
         gender = attributes['gender']
         if ['m','f'].include?(gender)
           # И сохраняем
-          algo = SectoralAlgorythms::Wear::Gender.new(user)
+          algo = SectoralAlgorythms::VirtualProfile::Gender.new(user)
           algo.fix_value(gender)
-          user.update(algo.attributes_for_update)
+          user.profile.update(algo.attributes_for_update)
         end
       end
 

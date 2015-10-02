@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe SectoralAlgorythms::Wear::Size do
+describe SectoralAlgorythms::VirtualProfile::Size do
   describe '.calculate_for' do
     let!(:shop) { create(:shop) }
     let!(:user) { create(:user) }
@@ -9,7 +9,7 @@ describe SectoralAlgorythms::Wear::Size do
     context 'when cold' do
       let(:item) { create(:item, shop: shop, sizes: ['e42', 'r44']) }
 
-      subject { SectoralAlgorythms::Wear::Size.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Size.new(user).value }
 
       it 'returns user size' do
         expect(subject.keys).to eql(['m', 'f'])
@@ -17,7 +17,7 @@ describe SectoralAlgorythms::Wear::Size do
     end
 
     context 'when have views ' do
-      subject { SectoralAlgorythms::Wear::Size.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Size.new(user).value }
 
       let(:male_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, sizes: ['r42', 'e44', 'M', 'b5'], wear_type: size_type) } }
       let(:male_small_items_size) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, gender: 'm', sizes: ['42', '44'], wear_type: size_type) } }
@@ -26,13 +26,13 @@ describe SectoralAlgorythms::Wear::Size do
 
       context 'when user small view' do
         subject {
-          service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::Wear::Size])
+          service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::VirtualProfile::Size])
           # (SectoralAlgorythms::Wear::Size::MIN_VIEWS_SCORE*2)
           2.times { service.trigger_action('view', male_small_items) }
           2.times { service.trigger_action('view', female_small_items) }
 
 
-          SectoralAlgorythms::Wear::Size.new(user).value
+          SectoralAlgorythms::VirtualProfile::Size.new(user).value
         }
 
         it 'returns size that user views most' do
@@ -43,14 +43,14 @@ describe SectoralAlgorythms::Wear::Size do
 
       context 'modify relation' do
         subject {
-          service = SectoralAlgorythms::Service.new(size_user, [SectoralAlgorythms::Wear::Size, SectoralAlgorythms::Wear::Gender])
+          service = SectoralAlgorythms::Service.new(size_user, [SectoralAlgorythms::VirtualProfile::Size, SectoralAlgorythms::VirtualProfile::Gender])
           # (SectoralAlgorythms::Wear::Size::MIN_VIEWS_SCORE*2)
           5.times { service.trigger_action('view', male_small_items_size) }
         }
 
         it 'correctly modify by type_size' do
           subject
-          algo = SectoralAlgorythms::Wear::Size.new(size_user)
+          algo = SectoralAlgorythms::VirtualProfile::Size.new(size_user)
           expect(algo.modify_relation(Item.where(gender:'m')).pluck(:sizes).flatten.uniq).not_to include('50', '52')
         end
       end
