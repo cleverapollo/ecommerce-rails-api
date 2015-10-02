@@ -9,17 +9,17 @@ module SectoralAlgorythms
       MIN_VIEWS_SCORE = 10
       K_SIZE_DEVIATION=10
 
-      def initialize(user)
+      def initialize(profile)
         super
         @size = @profile.size
       end
 
       def trigger_view(item)
-        increment_history(item, 'views')
+        increment_history(item, :views)
       end
 
       def trigger_purchase(item)
-        increment_history(item, 'purchase')
+        increment_history(item, :purchase)
       end
 
       def increment_history(item, history_key)
@@ -129,6 +129,10 @@ module SectoralAlgorythms
 
       def default_history
         { :views => 0, :purchase => 0 }
+      end
+
+      def value
+        @size
       end
 
       def user_gender

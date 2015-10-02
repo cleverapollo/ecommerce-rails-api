@@ -13,17 +13,17 @@ module SectoralAlgorythms
 
       PART_TYPES=['hair', 'face', 'body', 'intim', 'hand', 'leg']
 
-      def initialize(user)
+      def initialize(profile)
         super
         @physiology = @profile.physiology
       end
 
       def trigger_view(item)
-        increment_history(item, 'views')
+        increment_history(item, :views)
       end
 
       def trigger_purchase(item)
-        increment_history(item, 'purchase')
+        increment_history(item, :purchase)
       end
 
       def increment_history(item, history_key)

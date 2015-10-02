@@ -11,9 +11,9 @@ module SectoralAlgorythms
         MIN_VIEWS_SCORE = 10
 
 
-        def initialize(user)
+        def initialize(profile)
           super
-          @children = user.children
+          @children = @profile.children
         end
 
         def value
@@ -21,11 +21,11 @@ module SectoralAlgorythms
         end
 
         def trigger_view(item)
-          increment_history(item, 'views')
+          increment_history(item, :views)
         end
 
         def trigger_purchase(item)
-          increment_history(item, 'purchase')
+          increment_history(item, :purchase)
         end
 
         def increment_history(item, history_key)
@@ -33,14 +33,14 @@ module SectoralAlgorythms
             # определим в какого ребенка производим запись
             current_child_index, @children = ChildHelper.fetch_child(@children)
 
-            @children[current_child_index]['gender']['history'] ||= default_history
-            @children[current_child_index]['gender']['history'][item.gender][history_key] += 1 if @children[current_child_index]['gender'][item.gender].present?
+            @children[current_child_index][:gender][:history] ||= default_history
+            @children[current_child_index][:gender][:history][item.gender][history_key] += 1 if @children[current_child_index][:gender][item.gender.to_sym].present?
           end
         end
 
         def recalculate
 
-          @children.delete_if {|child| !child['approved'] && child['age'].empty? && child['size'].empty?}
+          @children.delete_if {|child| !child[:approved] && child[:age].empty? && child[:size].empty?}
 
           # current_child_index, @children = ChildHelper.fetch_child(@children)
           # history =  @children[current_child_index]['gender']['history']
@@ -73,7 +73,7 @@ module SectoralAlgorythms
         private
 
         def default_history
-          { 'm' => { 'views' => 0, 'purchase' => 0 }, 'f' => { 'views' => 0, 'purchase' => 0 } }
+          { :m => { :views => 0, :purchase => 0 }, :f => { :views => 0, :purchase => 0 } }
         end
 
 

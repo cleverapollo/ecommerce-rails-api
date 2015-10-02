@@ -8,7 +8,7 @@ module SectoralAlgorythms
       #период без уточнения
       FIRST_PURCHASE_PERIOD = 4 * 7 * 24 * 3600
 
-      def initialize(user)
+      def initialize(profile)
         super
         @periodicly = @profile.periodicly
       end

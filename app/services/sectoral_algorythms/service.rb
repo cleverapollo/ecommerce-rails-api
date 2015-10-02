@@ -24,8 +24,9 @@ module SectoralAlgorythms
 
     def merge(slave)
       changes = {}
+      slave_profile = slave.profile
       @algorythms.each do |algorythm|
-        algorythm.merge(slave)
+        algorythm.merge(slave_profile)
        # algorythm.recalculate
         changes.merge!(algorythm.attributes_for_update)
       end

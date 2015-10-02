@@ -29,7 +29,7 @@ module Recommender
         result = super
         if params.modification.present?
           if params.modification == 'fashion' || params.modification == 'cosmetic'
-            gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
             if item_gender = item.try(:gender)
               if item_gender!=gender_algo.current_gender
                 result = gender_algo.filter_by_gender(item_gender, result)

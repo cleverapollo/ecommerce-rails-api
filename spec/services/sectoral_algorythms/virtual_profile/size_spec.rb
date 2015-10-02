@@ -9,7 +9,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
     context 'when cold' do
       let(:item) { create(:item, shop: shop, sizes: ['e42', 'r44']) }
 
-      subject { SectoralAlgorythms::VirtualProfile::Size.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value }
 
       it 'returns user size' do
         expect(subject.keys).to eql(['m', 'f'])
@@ -17,7 +17,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
     end
 
     context 'when have views ' do
-      subject { SectoralAlgorythms::VirtualProfile::Size.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value }
 
       let(:male_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, sizes: ['r42', 'e44', 'M', 'b5'], wear_type: size_type) } }
       let(:male_small_items_size) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, gender: 'm', sizes: ['42', '44'], wear_type: size_type) } }
@@ -32,7 +32,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
           2.times { service.trigger_action('view', female_small_items) }
 
 
-          SectoralAlgorythms::VirtualProfile::Size.new(user).value
+          SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value
         }
 
         it 'returns size that user views most' do
@@ -50,7 +50,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
 
         it 'correctly modify by type_size' do
           subject
-          algo = SectoralAlgorythms::VirtualProfile::Size.new(size_user)
+          algo = SectoralAlgorythms::VirtualProfile::Size.new(size_user.profile)
           expect(algo.modify_relation(Item.where(gender:'m')).pluck(:sizes).flatten.uniq).not_to include('50', '52')
         end
       end

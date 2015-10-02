@@ -9,7 +9,7 @@ module SectoralAlgorythms
 
         class << self
           def fetch_child(children)
-            child = {'gender'=>{}, 'age'=>{}, 'size'=>{}, 'approved'=>false}
+            child = { :gender =>{}, :age =>{}, :size =>{}, :approved =>false}
             current_child_index = 0
             if children.empty?
               # Если детей нет, создадим нового

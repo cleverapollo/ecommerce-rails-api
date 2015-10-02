@@ -8,7 +8,7 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
     context 'when cold' do
       let(:item) { create(:item, shop: shop, gender:'m') }
 
-      subject { SectoralAlgorythms::VirtualProfile::Gender.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value }
 
       it 'returns current_item gender' do
         expect(subject).not_to be_empty
@@ -19,7 +19,7 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
       end
     end
     context 'when has info' do
-      subject { SectoralAlgorythms::VirtualProfile::Gender.new(user).value }
+      subject { SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value }
 
       context 'when user male view' do
         let(:male_item) { create(:item, shop: shop, gender: 'm') }
@@ -30,7 +30,7 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::VirtualProfile::Gender])
           (SectoralAlgorythms::VirtualProfile::Gender::MIN_VIEWS_SCORE*2).times { service.trigger_action('view', [male_item]) }
 
-          SectoralAlgorythms::VirtualProfile::Gender.new(user).value
+          SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value
         }
 
         it 'returns gender that user views most' do
@@ -48,7 +48,7 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
           service.trigger_action('purchase', [female_item])
         }
         subject {
-          SectoralAlgorythms::VirtualProfile::Gender.new(user).value
+          SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value
         }
 
         it 'returns gender that user purchase most' do

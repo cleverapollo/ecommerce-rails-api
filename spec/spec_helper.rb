@@ -32,6 +32,8 @@ RSpec.configure do |config|
     tables.each { |t| conn.execute("TRUNCATE TABLE #{t}") }
 
     ActiveRecord::Base.establish_connection
+
+
   end
 
   # Вычищаем монгу

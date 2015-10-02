@@ -13,7 +13,7 @@ module Recommender
               # в категории
             else
               # на главной
-              gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+              gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
               result = gender_algo.modify_relation(result)
             end
           end

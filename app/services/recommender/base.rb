@@ -147,7 +147,7 @@ module Recommender
       if params.modification.present?
         if params.modification == 'fashion'
           # уберем товары, которые не актуальные или не соответствуют полу
-          gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+          gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
           relation = gender_algo.modify_relation(relation)
         end
       end

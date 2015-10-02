@@ -9,9 +9,9 @@ module SectoralAlgorythms
         K_PURCHASE = 10
         MIN_VIEWS_SCORE = 10
 
-        def initialize(user)
+        def initialize(profile)
           super
-          @children = user.children
+          @children = @profile.children
         end
 
         def value

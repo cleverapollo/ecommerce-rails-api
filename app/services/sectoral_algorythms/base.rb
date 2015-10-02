@@ -1,7 +1,7 @@
 module SectoralAlgorythms
   class Base
-    def initialize(user)
-      @profile = user.profile
+    def initialize(profile)
+      @profile = profile
     end
 
     def trigger_action(action, items)
