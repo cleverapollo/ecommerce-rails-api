@@ -148,21 +148,28 @@ module ActionPush
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
 
 
+        raw_is_avalilable =  IncomingDataTranslator.is_available?(raw[:is_available][i])
+        available_present = raw[:is_available].present? && raw[:is_available][i].present?
+
+        # У товара есть YML
         if shop.has_imported_yml?
-          # товара в yml нет - значит не рекомендуем
           cur_item = Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
           if cur_item
-            item_attributes.is_available = cur_item.is_available
-            item_attributes.widgetable = cur_item.widgetable
+            # товар есть в базе
+            if available_present
+              item_attributes.is_available=raw_is_avalilable
+            else
+              item_attributes.is_available = cur_item.is_available
+            end
           else
-            item_attributes.is_available = false
-            item_attributes.widgetable = false
+            item_attributes.is_available = raw_is_avalilable if available_present
           end
         else
 
+          item_attributes.is_available = raw_is_avalilable
+
           item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
           item_attributes.price = raw[:price][i] if raw[:price][i].to_i > 0
-          item_attributes.is_available = IncomingDataTranslator.is_available?(raw[:is_available][i])
           item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
           item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
           item_attributes.categories = (item_attributes.categories + [item_attributes.category]).uniq.compact
