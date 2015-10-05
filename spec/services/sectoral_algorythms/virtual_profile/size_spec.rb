@@ -12,7 +12,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
       subject { SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value }
 
       it 'returns user size' do
-        expect(subject.keys).to eql(['m', 'f'])
+        expect(subject.keys).to eql([:m, :f])
       end
     end
 
@@ -36,8 +36,8 @@ describe SectoralAlgorythms::VirtualProfile::Size do
         }
 
         it 'returns size that user views most' do
-          expect(subject['m']['shoe']['adult']['probability']).to be > 0
-          expect(subject['f']['shoe']['adult']['probability']).to be > 0
+          expect(subject[:m][:shoe][:adult][:probability]).to be > 0
+          expect(subject[:f][:shoe][:adult][:probability]).to be > 0
         end
       end
 

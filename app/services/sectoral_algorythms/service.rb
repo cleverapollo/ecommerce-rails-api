@@ -19,19 +19,23 @@ module SectoralAlgorythms
         changes.merge!(algorythm.attributes_for_update)
       end
 
-      @profile.update(changes)
+      @profile.update(changes) if changes.any?
+      @profile.reload
     end
 
     def merge(slave)
       changes = {}
       slave_profile = slave.profile
-      @algorythms.each do |algorythm|
-        algorythm.merge(slave_profile)
-       # algorythm.recalculate
-        changes.merge!(algorythm.attributes_for_update)
+      if slave_profile
+        @algorythms.each do |algorythm|
+          algorythm.merge(slave_profile)
+          algorythm.recalculate
+          changes.merge!(algorythm.attributes_for_update)
+        end
+        @profile.update(changes) if changes.any?
+        @profile.reload
       end
 
-      @profile.update(changes) if changes.any?
     end
 
 

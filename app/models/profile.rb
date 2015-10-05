@@ -3,7 +3,7 @@ class Profile
   field :user_id, type: Integer
   field :gender, default: { :f => 50, :m => 50 }, type: Hash
   field :size, default: {}, type: Hash
-  field :children, default: [], type: Hash
+  field :children, default: [], type: Array
   field :physiology, default: {}, type: Hash
   field :periodicly, default: {}, type: Hash
 

@@ -28,13 +28,14 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
 
         subject {
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::VirtualProfile::Gender])
-          (SectoralAlgorythms::VirtualProfile::Gender::MIN_VIEWS_SCORE*2).times { service.trigger_action('view', [male_item]) }
+          (SectoralAlgorythms::VirtualProfile::Gender::MIN_VIEWS_SCORE*4).times { service.trigger_action('view', [male_item]) }
 
           SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value
         }
 
         it 'returns gender that user views most' do
-          expect(subject[:m]).to be > subject[:f]
+          value = subject
+          expect(value[:m]).to be > value[:f]
         end
       end
 

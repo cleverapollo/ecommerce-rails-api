@@ -36,8 +36,9 @@ RSpec.configure do |config|
 
   end
 
-  # Вычищаем монгу
+
   config.before(:each) do
+    # Вычищаем монгу
     Mongoid.purge!
   end
   # rspec-expectations config goes here. You can use an alternate
