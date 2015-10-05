@@ -52,7 +52,7 @@ class YmlWorker
         else
           ErrorsMailer.yml_url_not_respond(@shop).deliver_now if (e.to_s == 'Плохой код ответа.')
           ErrorsMailer.yml_import_error(@shop, e.to_s).deliver_now if e.to_s == ('Не обнаружено XML-файла в архиве.')
-          ErrorsMailer.yml_import_error(@shop, "Невалидный XML.").deliver_now if e.to_s.include?('Невалидный XML:')
+          ErrorsMailer.yml_import_error(@shop,  e.to_s).deliver_now if e.to_s.include?('Невалидный XML')
         end
       else
         retried = true
@@ -84,18 +84,30 @@ class YmlWorker
     begin
       yml.get do |yml|
         worker = self # Сохраняем контекст
+
+        categories_counter = 0
+        offers_counter = 0
+
         Xml::Parser.new(Nokogiri::XML::Reader(yml, *XML_READER_PARAMS)) do
           inside_element 'categories' do
             for_element 'category' do
               worker.process_category(attribute('id'), attribute('parentId'), inner_xml)
+              categories_counter += 1
             end
           end
+
           inside_element 'offers' do
             for_element 'offer' do
               worker.process_item(attribute('id'), attribute('available'), inner_xml)
+              offers_counter += 1
             end
           end
+
         end
+
+        raise YmlWorker::Error.new("Невалидный XML - нет категории в YML.") if categories_counter < 10
+        raise YmlWorker::Error.new("Невалидный XML - нет товаров в YML.") if offers_counter < 10
+
         mark_as_loaded
         disable_remaining_in_cache
       end
