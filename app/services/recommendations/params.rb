@@ -192,7 +192,7 @@ module Recommendations
       @categories << raw[:category].to_s if raw[:category].present?
 
       if raw[:categories].present?
-        @categories += raw[:categories].split(',')
+        @categories += raw[:categories].to_s.split(',')
       end
     end
 
