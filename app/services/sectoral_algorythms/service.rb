@@ -26,7 +26,7 @@ module SectoralAlgorythms
       changes = {}
       @algorythms.each do |algorythm|
         algorythm.merge(slave)
-       # algorythm.recalculate
+        algorythm.recalculate
         changes.merge!(algorythm.attributes_for_update)
       end
 
