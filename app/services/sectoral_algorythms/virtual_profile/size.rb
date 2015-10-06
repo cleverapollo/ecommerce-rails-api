@@ -45,7 +45,7 @@ module SectoralAlgorythms
       end
 
       def recalculate
-        full_history = @size[:history]
+        full_history = @size['history']
 
         return if full_history.nil? || full_history.empty?
 
@@ -81,16 +81,8 @@ module SectoralAlgorythms
         if slave.size['history'].present?
           slave_history = slave.size['history']
           master_history = @size['history']
-          @size['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
-            gender_slave_value.merge(gender_master_value) do |_, type_slave_value, type_master_value|
-              type_slave_value and type_slave_value.merge(type_master_value) do |_, feature_slave_value, feature_master_value|
-                feature_slave_value.merge(feature_master_value) do |_, size_slave_value, size_master_value|
-                  size_slave_value.merge(size_master_value) do |_, history_slave_value, history_master_value|
-                    history_slave_value.to_i+history_master_value.to_i
-                  end
-                end
-              end
-            end
+          @size['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+            master_value.to_i+slave_value.to_i
           end
         end
       end

@@ -3,7 +3,11 @@ module SectoralAlgorythms
 
     def self.all_virtual_profile_fields
       # [Wear::Gender, Wear::Size, ]
-      [VirtualProfile::Gender, VirtualProfile::Size, VirtualProfile::Physiology, VirtualProfile::Periodicly]
+      [
+          VirtualProfile::Gender, VirtualProfile::Size,
+          VirtualProfile::Physiology,
+          VirtualProfile::Periodicly
+      ]
     end
 
     def initialize(user, algorythms=[])

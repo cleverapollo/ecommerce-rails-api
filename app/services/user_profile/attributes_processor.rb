@@ -29,7 +29,6 @@ module UserProfile
           # И сохраняем
           algo = SectoralAlgorythms::VirtualProfile::Gender.new(user.profile)
           algo.fix_value(gender)
-          user.profile.update(algo.attributes_for_update)
         end
       end
 

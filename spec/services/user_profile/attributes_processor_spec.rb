@@ -20,7 +20,7 @@ describe UserProfile::AttributesProcessor do
 
       it 'fix gender attribute' do
         subject
-        expect(user.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
+        expect(user.profile.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
       end
     end
 

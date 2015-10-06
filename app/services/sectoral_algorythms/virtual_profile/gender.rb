@@ -29,7 +29,7 @@ module SectoralAlgorythms
       def increment_history(item, history_key)
         if item.try(:gender)
           @gender['history'] ||= default_history
-          @gender['history'][item.gender.to_sym][history_key] += 1 if @gender['history'][item.gender].present?
+          @gender['history'][item.gender][history_key] += 1 if @gender['history'][item.gender].present?
         end
       end
 
@@ -101,6 +101,7 @@ module SectoralAlgorythms
           @gender[opposite_gender_loc]=0
           @gender['fixed']=true
         end
+        @profile.update(attributes_for_update)
       end
 
       def merge(slave)
@@ -109,10 +110,8 @@ module SectoralAlgorythms
         if slave.gender['history'].present?
           slave_history = slave.gender['history']
           master_history = @gender['history']
-          @gender['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
-            gender_slave_value.merge(gender_master_value) do |_, history_slave_value, history_master_value|
-              history_slave_value+history_master_value
-            end
+          @gender['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+            master_value.to_i+slave_value.to_i
           end
         end
       end

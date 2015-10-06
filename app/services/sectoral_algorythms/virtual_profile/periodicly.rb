@@ -26,22 +26,22 @@ module SectoralAlgorythms
       end
 
       def refresh_periodicly(item)
-        @periodicly[:history] ||= {}
-        if @periodicly[:history][item.id].present?
+        @periodicly['history'] ||= {}
+        if @periodicly['history'][item.id].present?
           # Добавляем покупку
-          @periodicly[:history][item.id].push(Time.now.to_i)
+          @periodicly['history'][item.id].push(Time.now.to_i)
         else
-          @periodicly[:history][item.id]=[Time.now.to_i]
+          @periodicly['history'][item.id]=[Time.now.to_i]
         end
       end
 
 
       def recalculate
 
-        periodicly_history = @periodicly[:history]
+        periodicly_history = @periodicly['history']
         return if periodicly_history.nil? || periodicly_history.empty?
 
-        @periodicly[:calc_periods] ||= {}
+        @periodicly['calc_periods'] ||= {}
         periodicly_history.each do |item_id, purchase_times|
           # Более 1 покупки, рассчитываем среднее
           if purchase_times.size > 1
@@ -53,10 +53,10 @@ module SectoralAlgorythms
               prev_purchase_time = time
             end
             calc_period = periods.map(&:to_i).reduce(:+) / periods.size
-            @periodicly[:calc_periods][item_id] = calc_period
+            @periodicly['calc_periods'][item_id] = calc_period
           else
             # Считаем период по умолчанию
-            @periodicly[:calc_periods][item_id] = FIRST_PURCHASE_PERIOD
+            @periodicly['calc_periods'][item_id] = FIRST_PURCHASE_PERIOD
           end
         end
 
@@ -67,28 +67,28 @@ module SectoralAlgorythms
 
         item_times_buy = {}
 
-        @periodicly[:history].each do |item_id, purchase_times|
+        @periodicly['history'].each do |item_id, purchase_times|
           last_purchase_time = purchase_times.last
-          time_to_buy = last_purchase_time+@periodicly[:calc_periods][item_id]
+          time_to_buy = last_purchase_time+@periodicly['calc_periods'][item_id]
           times << time_to_buy
           items << item_id
           item_times_buy[item_id]=time_to_buy
         end
-        @periodicly[:item_times_to_buy]=item_times_buy
+        @periodicly['item_times_to_buy']=item_times_buy
 
         next_trigger_time = times.each_with_index.min
-        @periodicly[:next_trigger] = next_trigger_time.first
-        @periodicly[:next_item] = items[next_trigger_time.last]
+        @periodicly['next_trigger'] = next_trigger_time.first
+        @periodicly['next_item'] = items[next_trigger_time.last]
 
 
       end
 
       def merge(slave)
-        return unless @periodicly && @periodicly[:history].present?
-        if slave.periodicly[:history].present?
-          slave_history = slave.periodicly[:history]
-          master_history = @periodicly[:history]
-          @periodicly[:history] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
+        return unless @periodicly && @periodicly['history'].present?
+        if slave.periodicly['history'].present?
+          slave_history = slave.periodicly['history']
+          master_history = @periodicly['history']
+          @periodicly['history'] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
             (periodicly_slave_value+periodicly_master_value).sort.uniq
           end
         end

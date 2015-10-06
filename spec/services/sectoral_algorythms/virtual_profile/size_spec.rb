@@ -31,13 +31,12 @@ describe SectoralAlgorythms::VirtualProfile::Size do
           2.times { service.trigger_action('view', male_small_items) }
           2.times { service.trigger_action('view', female_small_items) }
 
-
           SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value
         }
 
         it 'returns size that user views most' do
-          expect(subject[:m][:shoe][:adult][:probability]).to be > 0
-          expect(subject[:f][:shoe][:adult][:probability]).to be > 0
+          expect(subject[:m]['shoe']['adult']['probability']).to be > 0
+          expect(subject[:f]['shoe']['adult']['probability']).to be > 0
         end
       end
 
