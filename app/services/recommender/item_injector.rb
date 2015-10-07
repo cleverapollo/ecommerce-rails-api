@@ -10,16 +10,16 @@ module Recommender
       params.categories.try(:any?) ? params.categories : nil
     end
 
-    def inject_promotions(result_ids)
+    def inject_promotions(result_ids, expansion_only=false)
       return result_ids if result_ids.empty?
 
       promotions_placed = 0
       in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
       if in_categories
-        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories_for_promo)
+        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories_for_promo, expansion_only)
       else
-        advertisers_list = Promoting::Brand.advertises_for_shop(shop.id)
+        advertisers_list = Promoting::Brand.advertises_for_shop(shop.id, expansion_only)
       end
 
       advertisers_list.each do |advertiser|
