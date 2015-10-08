@@ -13,6 +13,7 @@ class Advertiser < MasterTable
 
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
   scope :prioritized, -> { order(priority: :desc) }
+  scope :expansion, -> { where(is_expansion: true)}
 
   # Изменяет баланс рекламодателя
   def change_balance(amount)
