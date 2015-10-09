@@ -19,36 +19,48 @@ module SectoralAlgorythms
       end
 
       def trigger_view(item)
-        increment_history(item, :views)
+        increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
-        increment_history(item, :purchase)
+        increment_history(item, 'purchase')
       end
 
       def increment_history(item, history_key)
 
-        if part_types = item.try(:part_type) && gender = item.try(:gender)
-          @physiology['history'] ||= {}
+        part_types = item.try(:part_type)
+        gender = item.try(:gender)
 
+        if part_types && gender
+          @physiology['history'] ||= {}
           part_types.each do |part_type|
             if part_type && PART_TYPES.include?(part_type)
+
               @physiology['history'][gender]||={}
               @physiology['history'][gender][part_type]||={}
 
-              if skin_type=item.try(:skin_type)
-                @physiology['history'][gender][part_type][skin_type]||= default_history
-                @physiology['history'][gender][part_type][skin_type][history_key] += 1
+              if skin_types=item.try(:skin_type)
+                @physiology['history'][gender][part_type]['skin_type']||={}
+                skin_types.each do |skin_type|
+                  @physiology['history'][gender][part_type]['skin_type'][skin_type]||= default_history
+                  @physiology['history'][gender][part_type]['skin_type'][skin_type][history_key] += 1
+                end
               end
 
-              if condition=item.try(:condition)
-                @physiology['history'][gender][part_type][condition]||= default_history
-                @physiology['history'][gender][part_type][condition][history_key] += 1
+              if conditions=item.try(:condition)
+                @physiology['history'][gender][part_type]['condition']||={}
+                conditions.each do |condition|
+                  @physiology['history'][gender][part_type]['condition'][condition]||= default_history
+                  @physiology['history'][gender][part_type]['condition'][condition][history_key] += 1
+                end
               end
 
-              if hypoallergenic=item.try(:hypoallergenic) && hypoallergenic
-                @physiology['history'][gender][part_type]['hypoallergenic']||= default_history
-                @physiology['history'][gender][part_type]['hypoallergenic'] += 1
+              hypoallergenic=item.try(:hypoallergenic)
+
+              if hypoallergenic.present?
+                @physiology['history'][gender][part_type]['hypoallergenic']||={}
+                @physiology['history'][gender][part_type]['hypoallergenic'][hypoallergenic.to_s]||= default_history
+                @physiology['history'][gender][part_type]['hypoallergenic'][hypoallergenic.to_s][history_key] += 1
               end
 
             end
@@ -110,6 +122,10 @@ module SectoralAlgorythms
 
       def attributes_for_update
         { :physiology => @physiology }
+      end
+
+      def value
+        {m:@physiology['m'], f:@physiology['f']}
       end
 
       private

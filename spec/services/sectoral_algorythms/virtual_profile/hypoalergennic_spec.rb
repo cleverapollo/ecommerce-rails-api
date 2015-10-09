@@ -6,35 +6,33 @@ describe SectoralAlgorythms::VirtualProfile::Physiology do
     let!(:user) { create(:user) }
 
     context 'when cold' do
-      let(:item) { create(:item, shop: shop, part_type: ['hair', 'face']) }
+      let(:item) { create(:item, shop: shop, part_type: ['hair', 'face'], hypoallergenic:1) }
 
       subject { SectoralAlgorythms::VirtualProfile::Physiology.new(user.profile).value }
 
-      it 'returns user size' do
-        expect(subject.keys).to eql(['m', 'f'])
+      it 'returns user hyppo' do
+        expect(subject.keys).to eql([:m, :f])
       end
     end
 
-    context 'when have views ' do
-      subject { SectoralAlgorythms::VirtualProfile::Physiology.new(user.profile).value }
+    context 'when have views hypo' do
+      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender:'m', skin_type: ['dry', 'normal'], part_type: [part_type], hypoallergenic:1) } }
+      let(:female_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender: 'f', skin_type: ['oily', 'comby'], part_type: [part_type], hypoallergenic:1) } }
 
-      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender:'m', skin_type: ['dry', 'normal'], part_type: part_type) } }
-      let(:female_small_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender: 'f', skin_type: ['oily', 'comby'], part_type: part_type) } }
-
-      context 'when user small view' do
+      context 'when user view hypo' do
         subject {
           service = SectoralAlgorythms::Service.new(user, [SectoralAlgorythms::VirtualProfile::Physiology])
 
           2.times { service.trigger_action('view', male_items) }
           2.times { service.trigger_action('view', female_items) }
 
-
           SectoralAlgorythms::VirtualProfile::Physiology.new(user.profile).value
         }
 
-        it 'returns size that user views most' do
-          expect(subject[:m][:hair][:dry][:probability]).to be > 0
-          expect(subject[:f][:hair][:oily][:probability]).to be > 0
+        it 'returns hyppo' do
+
+          expect(subject[:m][:hair][:hypoallergenic][:probability]).to be > 0
+          expect(subject[:f][:hair][:hypoallergenic][:probability]).to be > 0
         end
       end
 
