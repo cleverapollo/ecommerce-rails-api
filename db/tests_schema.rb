@@ -11,12 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151010093907) do
+ActiveRecord::Schema.define(version: 20151012120320) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "btree_gin"
-  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -416,17 +414,6 @@ ActiveRecord::Schema.define(version: 20151010093907) do
     t.datetime "updated_at"
   end
 
-  create_table "mahout_actions", force: :cascade do |t|
-    t.integer "user_id",    limit: 8
-    t.integer "item_id",    limit: 8
-    t.integer "shop_id",    limit: 8
-    t.integer "timestamp"
-    t.float   "preference"
-  end
-
-  add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
-  add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
-
   create_table "media", force: :cascade do |t|
     t.string   "uniqid",                                                                  null: false
     t.string   "name",                                                                    null: false
@@ -609,19 +596,6 @@ ActiveRecord::Schema.define(version: 20151010093907) do
     t.boolean  "success",                                       null: false
   end
 
-  create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",   limit: 8,                  null: false
-    t.string  "code",      limit: 255,                null: false
-    t.boolean "is_active",             default: true
-    t.string  "useragent", limit: 255
-    t.string  "city",      limit: 255
-    t.string  "country",   limit: 255
-    t.string  "language",  limit: 255
-  end
-
-  add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
-  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
-
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
     t.decimal "natural"
@@ -748,14 +722,6 @@ ActiveRecord::Schema.define(version: 20151010093907) do
     t.datetime "updated_at"
     t.text     "comment"
     t.integer  "shop_id"
-  end
-
-  create_table "users", id: :bigserial, force: :cascade do |t|
-    t.jsonb "gender",     default: {"f"=>50, "m"=>50}, null: false
-    t.jsonb "size",       default: {},                 null: false
-    t.jsonb "children",   default: [],                 null: false
-    t.jsonb "physiology", default: {},                 null: false
-    t.jsonb "periodicly", default: {},                 null: false
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
