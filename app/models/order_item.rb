@@ -32,7 +32,7 @@ class OrderItem < ActiveRecord::Base
         BrandLogger.track_purchase advertiser_id, order.shop_id, recommended_by
 
         # В продажи бренда
-        AdvertiserPurchase.create order_id: order.id, item_id: item.id, shop_id: order.shop_id, advertiser_id: advertiser_id, date: Date.current, price: (item.price || 0), recommended_by: recommended_by
+        BrandCampaignPurchase.create order_id: order.id, item_id: item.id, shop_id: order.shop_id, advertiser_id: advertiser_id, date: Date.current, price: (item.price || 0), recommended_by: recommended_by
       end
 
       result

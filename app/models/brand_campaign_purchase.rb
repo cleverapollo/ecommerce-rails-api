@@ -1,4 +1,4 @@
-class AdvertiserPurchase < MasterTable
+class BrandCampaignPurchase < MasterTable
 
   belongs_to :advertiser
   belongs_to :item

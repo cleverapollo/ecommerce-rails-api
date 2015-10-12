@@ -13,7 +13,7 @@ module Promoting
         return [] if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-       advertisers_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
+       brand_campaigns_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
       end
 
       def advertiser_for_item(item, expansion_only)
@@ -23,21 +23,21 @@ module Promoting
         return nil if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-        advertisers_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).limit(1)[0]
+        brand_campaigns_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).limit(1)[0]
       end
 
-      def advertisers_for_categories(shop_id, categories, expansion_only)
-        relation = Advertiser.active.prioritized
+      def brand_campaigns_for_categories(shop_id, categories, expansion_only)
+        relation = BrandCampaign.active.prioritized
         relation = relation.expansion if expansion_only
-        relation.where(id: AdvertiserItemCategory.where(item_category_id:
+        relation.where(id: BrandCampaignItemCategory.where(item_category_id:
                                                               ItemCategory.where(shop_id: shop_id,external_id: categories).pluck(:id))
-                                 .select('advertiser_id'))
+                                 .select('brand_campaign_id'))
       end
 
-      def advertises_for_shop(shop, expansion_only)
-        relation = Advertiser.active.prioritized
+      def brand_campaigns_for_shop(shop, expansion_only)
+        relation = BrandCampaign.active.prioritized
         relation = relation.expansion if expansion_only
-        relation.where(id: AdvertiserShop.where(shop_id: shop).select('advertiser_id'))
+        relation.where(id: BrandCampaignShop.where(shop_id: shop).select('brand_campaign_id'))
       end
 
     end

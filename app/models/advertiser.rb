@@ -7,9 +7,9 @@ class Advertiser < MasterTable
   has_many :advertiser_statistics, dependent: :nullify
   has_many :advertiser_shops
   has_many :shops, through: :advertiser_shops
-  has_many :advertiser_item_categories
+  has_many :brand_campaign_item_categories
   has_many :item_categories, through: :advertiser_item_categories
-  has_many :advertiser_purchases
+  has_many :brand_campaign_purchases
 
   has_many :brand_campaigns
 
