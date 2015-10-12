@@ -6,10 +6,16 @@ class Profile
   field :children, default: [], type: Array
   field :physiology, default: {}, type: Hash
   field :periodicly, default: {}, type: Hash
+  field :profile_type, default: :main, type: Symbol
 
   index({ user_id: 1 }, { unique: true, background: true,  name: "user_id_index" })
 
-  has_many :profiles, store_as: "linked_profiles"
-  belongs_to :profile, store_as: "parent_profile"
+  recursively_embeds_many
+
+  def create_linked_profile(type, attributes)
+    linked_profile = self.child_profiles
+  end
+
+
 
 end
