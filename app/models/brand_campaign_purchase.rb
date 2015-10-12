@@ -1,8 +1,8 @@
 class BrandCampaignPurchase < MasterTable
 
-  belongs_to :advertiser
+  belongs_to :brand_campaign
   belongs_to :item
   belongs_to :shop
   belongs_to :order
-  validates :advertiser_id, :item_id, :shop_id, :order_id, :price, :date, presence: true
+  validates :brand_campaign_id, :item_id, :shop_id, :order_id, :price, :date, presence: true
 end

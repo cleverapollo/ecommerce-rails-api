@@ -9,6 +9,6 @@ class ItemCategory < ActiveRecord::Base
   validates :external_id, presence: true
 
   has_many :brand_campaign_item_categories
-  has_many :item_categories, through: :advertiser_item_categories
+  has_many :item_categories, through: :brand_campaign_item_categories
 
 end

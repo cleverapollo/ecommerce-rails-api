@@ -4,11 +4,11 @@ class Advertiser < MasterTable
   after_find :protect_it
 
 
-  has_many :advertiser_statistics, dependent: :nullify
-  has_many :advertiser_shops
-  has_many :shops, through: :advertiser_shops
+  has_many :brand_campaign_statistics, dependent: :nullify
+  has_many :brand_campaign_shops
+  has_many :shops, through: :brand_campaign_shops
   has_many :brand_campaign_item_categories
-  has_many :item_categories, through: :advertiser_item_categories
+  has_many :item_categories, through: :brand_campaign_item_categories
   has_many :brand_campaign_purchases
 
   has_many :brand_campaigns

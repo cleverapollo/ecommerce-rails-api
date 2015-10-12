@@ -5,7 +5,7 @@ module Promoting
 
       # Находит бренды, которые промоутируют этот товар
       # @param item Item
-      # @return Advertiser[]
+      # @return BrandCampaign[]
       def find_by_item(item, expansion_only)
 
         # Если бренд не определен, то ничего нет
@@ -16,7 +16,7 @@ module Promoting
        brand_campaigns_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
       end
 
-      def advertiser_for_item(item, expansion_only)
+      def brand_campaign_for_item(item, expansion_only)
 
         # Если бренд не определен, то ничего нет
         brand = item.brand
