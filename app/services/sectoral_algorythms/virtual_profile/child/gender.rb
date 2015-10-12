@@ -5,7 +5,7 @@ require 'matrix'
 module SectoralAlgorythms
   module VirtualProfile
     module Child
-      class Gender < SectoralAlgorythms::Base
+      class Gender < SectoralAlgorythms::VirtualProfileFieldBase
         K_VIEW = 1
         K_PURCHASE = 10
         MIN_VIEWS_SCORE = 10

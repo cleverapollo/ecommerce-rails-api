@@ -1,5 +1,5 @@
 module SectoralAlgorythms
-  class Base
+  class VirtualProfileFieldBase
     def initialize(profile)
       @profile = profile
     end

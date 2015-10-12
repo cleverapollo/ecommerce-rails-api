@@ -3,7 +3,7 @@
 #
 module SectoralAlgorythms
   module VirtualProfile
-    class Physiology < SectoralAlgorythms::Base
+    class Physiology < SectoralAlgorythms::VirtualProfileFieldBase
       K_VIEW = 1
       K_PURCHASE = 10
 

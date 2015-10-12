@@ -4,7 +4,7 @@
 module SectoralAlgorythms
   module VirtualProfile
     module Child
-      class Size < SectoralAlgorythms::Base
+      class Size < SectoralAlgorythms::VirtualProfileFieldBase
         K_VIEW = 1
         K_PURCHASE = 10
         MIN_VIEWS_SCORE = 10

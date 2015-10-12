@@ -3,7 +3,7 @@
 #
 module SectoralAlgorythms
   module VirtualProfile
-    class Periodicly < SectoralAlgorythms::Base
+    class Periodicly < SectoralAlgorythms::VirtualProfileFieldBase
 
       #период без уточнения
       FIRST_PURCHASE_PERIOD = 4 * 7 * 24 * 3600
