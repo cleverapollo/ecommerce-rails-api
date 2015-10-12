@@ -3,14 +3,6 @@ class Advertiser < MasterTable
   # Prevent from changes
   after_find :protect_it
 
-
-  has_many :brand_campaign_statistics, dependent: :nullify
-  has_many :brand_campaign_shops
-  has_many :shops, through: :brand_campaign_shops
-  has_many :brand_campaign_item_categories
-  has_many :item_categories, through: :brand_campaign_item_categories
-  has_many :brand_campaign_purchases
-
   has_many :brand_campaigns
 
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
