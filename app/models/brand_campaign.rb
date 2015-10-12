@@ -1,13 +1,23 @@
-class Advertiser < MasterTable
+class BrandCampaign < MasterTable
 
   # Prevent from changes
   after_find :protect_it
 
-  has_many :brand_campaigns
-
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
   scope :prioritized, -> { order(priority: :desc) }
   scope :expansion, -> { where(is_expansion: true)}
+
+  belongs_to :advertiser
+  has_many :brand_campaign_item_categories
+  has_many :brand_campaign_purchases
+  has_many :brand_campaign_shops
+  has_many :shops, through: :brand_campaign_shops
+  has_many :brand_campaign_statistics, dependent: :nullify
+
+  # Активна ли рекламная кампания?
+  def active?
+    campaign_launched? && balance > 0
+  end
 
 
 
@@ -29,12 +39,8 @@ class Advertiser < MasterTable
   def first_in_shop(shop_id, excluded_ids=[])
     Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil)
         .by_sales_rate.limit(1)[0].try(:id)
-    
+
   end
 
-  # Активна ли рекламная кампания?
-  def active?
-    campaign_launched? && balance > 0
-  end
 
 end

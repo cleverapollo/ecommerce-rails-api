@@ -81,10 +81,16 @@ FactoryGirl.define do
     campaign_launched true
   end
 
-  factory :advertiser_statistic do
+  factory :brand_campaign do
+    brand             { Faker::Lorem.word }
+    downcase_brand    { brand.downcase }
+    campaign_launched true
   end
 
-  factory :advertiser_shop do
+  factory :brand_campaign_statistic do
+  end
+
+  factory :brand_campaign_shop do
   end
 
   factory :item do
