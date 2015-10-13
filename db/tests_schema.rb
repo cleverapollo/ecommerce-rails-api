@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151012120320) do
+ActiveRecord::Schema.define(version: 20151013083532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,86 +31,13 @@ ActiveRecord::Schema.define(version: 20151012120320) do
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
-  create_table "advertiser_item_categories", force: :cascade do |t|
-    t.integer  "advertiser_id"
-    t.integer  "item_category_id",  limit: 8
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
-  add_index "advertiser_item_categories", ["brand_campaign_id"], name: "index_advertiser_item_categories_on_brand_campaign_id", using: :btree
-  add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
-
-  create_table "advertiser_purchases", force: :cascade do |t|
-    t.integer  "advertiser_id"
-    t.integer  "item_id",           limit: 8
-    t.integer  "shop_id"
-    t.integer  "order_id",          limit: 8
-    t.float    "price"
-    t.string   "recommended_by"
-    t.date     "date"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "advertiser_purchases", ["advertiser_id", "shop_id"], name: "index_advertiser_purchases_on_advertiser_id_and_shop_id", using: :btree
-  add_index "advertiser_purchases", ["advertiser_id"], name: "index_advertiser_purchases_on_advertiser_id", using: :btree
-  add_index "advertiser_purchases", ["brand_campaign_id", "shop_id", "advertiser_id"], name: "index_advertiser_purchases_on_brand_shop_advertiser", using: :btree
-  add_index "advertiser_purchases", ["brand_campaign_id", "shop_id"], name: "index_advertiser_purchases_on_brand_campaign_id_and_shop_id", using: :btree
-  add_index "advertiser_purchases", ["brand_campaign_id"], name: "index_advertiser_purchases_on_brand_campaign_id", using: :btree
-
-  create_table "advertiser_shops", force: :cascade do |t|
-    t.integer  "advertiser_id"
-    t.integer  "shop_id"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
-    t.datetime "last_event_at"
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "advertiser_shops", ["advertiser_id"], name: "index_advertiser_shops_on_advertiser_id", using: :btree
-  add_index "advertiser_shops", ["brand_campaign_id"], name: "index_advertiser_shops_on_brand_campaign_id", using: :btree
-  add_index "advertiser_shops", ["shop_id"], name: "index_advertiser_shops_on_shop_id", using: :btree
-
-  create_table "advertiser_statistics", force: :cascade do |t|
-    t.integer  "advertiser_id"
-    t.integer  "views",                 default: 0,   null: false
-    t.integer  "original_purchases",    default: 0,   null: false
-    t.integer  "recommended_purchases", default: 0,   null: false
-    t.float    "cost",                  default: 0.0, null: false
-    t.date     "date",                                null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "recommended_clicks",    default: 0,   null: false
-    t.integer  "original_clicks",       default: 0,   null: false
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", unique: true, using: :btree
-  add_index "advertiser_statistics", ["brand_campaign_id", "date"], name: "index_advertiser_statistics_on_brand_campaign_id_and_date", using: :btree
-
-  create_table "advertiser_statistics_events", force: :cascade do |t|
-    t.integer  "advertiser_statistic_id",                 null: false
-    t.integer  "advertiser_shop_id",                      null: false
-    t.string   "recommender"
-    t.string   "event",                                   null: false
-    t.boolean  "recommended",             default: false, null: false
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
-  end
-
-  add_index "advertiser_statistics_events", ["advertiser_statistic_id"], name: "index_advertiser_statistics_events_on_advertiser_statistic_id", using: :btree
-
   create_table "advertisers", force: :cascade do |t|
     t.string   "email"
-    t.string   "encrypted_password",     default: "",    null: false
+    t.string   "encrypted_password",     default: "",  null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,     null: false
+    t.integer  "sign_in_count",          default: 0,   null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -125,18 +52,10 @@ ActiveRecord::Schema.define(version: 20151012120320) do
     t.string   "city"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.float    "balance",                default: 0.0,   null: false
-    t.integer  "cpm",                    default: 1500,  null: false
+    t.float    "balance",                default: 0.0, null: false
     t.string   "brand"
-    t.string   "downcase_brand"
-    t.boolean  "campaign_launched",      default: false, null: false
-    t.integer  "priority",               default: 100,   null: false
-    t.float    "cpc",                    default: 10.0,  null: false
-    t.boolean  "is_expansion",           default: false
-    t.integer  "campaign_type",          default: 1
   end
 
-  add_index "advertisers", ["campaign_launched", "priority"], name: "index_advertisers_on_campaign_launched_and_priority", using: :btree
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
 
@@ -596,6 +515,19 @@ ActiveRecord::Schema.define(version: 20151012120320) do
     t.boolean  "success",                                       null: false
   end
 
+  create_table "sessions", id: :bigserial, force: :cascade do |t|
+    t.integer "user_id",   limit: 8,                  null: false
+    t.string  "code",      limit: 255,                null: false
+    t.boolean "is_active",             default: true
+    t.string  "useragent", limit: 255
+    t.string  "city",      limit: 255
+    t.string  "country",   limit: 255
+    t.string  "language",  limit: 255
+  end
+
+  add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
+
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
     t.decimal "natural"
@@ -722,6 +654,14 @@ ActiveRecord::Schema.define(version: 20151012120320) do
     t.datetime "updated_at"
     t.text     "comment"
     t.integer  "shop_id"
+  end
+
+  create_table "users", id: :bigserial, force: :cascade do |t|
+    t.jsonb "gender",     default: {"f"=>50, "m"=>50}, null: false
+    t.jsonb "size",       default: {},                 null: false
+    t.jsonb "children",   default: [],                 null: false
+    t.jsonb "physiology", default: {},                 null: false
+    t.jsonb "periodicly", default: {},                 null: false
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
