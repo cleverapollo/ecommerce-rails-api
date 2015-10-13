@@ -43,7 +43,7 @@ development_master:
   port: 5432
 
 test_master:
-  database: rees46_development
+  database: rees46_test
   host: localhost
   username:  <%= ENV['PG_USER'] %>
   password: <%= ENV['PG_PASSWORD'] %>
@@ -56,7 +56,7 @@ test_master:
 test:
   adapter: postgresql
   encoding: unicode
-  database: rees46_development
+  database: rees46_test
   pool: 5
   username:  <%= ENV['PG_USER'] %>
   password: <%= ENV['PG_PASSWORD'] %>
