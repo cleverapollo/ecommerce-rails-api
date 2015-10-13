@@ -141,16 +141,6 @@ describe UserMerger do
           end
         end
 
-        context 'mahout_actions' do
-          let!(:mahout_action) { create(:mahout_action, user: slave) }
-
-          it 're-links mahout_action' do
-            #by BRB
-            subject
-           # expect(mahout_action.reload.user_id).to eq(master.id)
-          end
-        end
-
         context 'orders' do
           let!(:order) { create(:order, user: slave, shop: shop) }
 

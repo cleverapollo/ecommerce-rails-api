@@ -9,7 +9,6 @@ class Item < ActiveRecord::Base
   belongs_to :shop
   has_many :actions
   has_many :order_items
-  has_many :mahout_actions
   has_many :brand_campaign_purchases
 
   scope :recommendable, -> { available.where(ignored: false) }
