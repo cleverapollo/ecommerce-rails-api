@@ -57,8 +57,8 @@ module Recommender
         end
 
         # Подмешивание брендов, заполняем по полной, если товар брендовый.
-        advertiser = Promoting::Brand.advertiser_for_item(item)
-        if advertiser
+        brand_campaign = Promoting::Brand.brand_campaign_for_item(item, false)
+        if brand_campaign
           @only_one_promo = item.brand
         end
 

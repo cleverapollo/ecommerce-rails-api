@@ -78,13 +78,18 @@ FactoryGirl.define do
     country           { Faker::Address.country_code }
     city              { Faker::Address.city }
     email             { Faker::Internet.email }
+  end
+
+  factory :brand_campaign do
+    brand             { Faker::Lorem.word }
+    downcase_brand    { brand.downcase }
     campaign_launched true
   end
 
-  factory :advertiser_statistic do
+  factory :brand_campaign_statistic do
   end
 
-  factory :advertiser_shop do
+  factory :brand_campaign_shop do
   end
 
   factory :item do

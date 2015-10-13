@@ -36,6 +36,16 @@ class UserFetcher
       client.update(location: location)
     end
 
+    if client.email.present?
+      client_email = client.email
+      # Найдем всех пользователей с тем же мылом в данном магазине
+      clients_with_current_mail = shop.clients.where(email:client_email).order(id: :asc)
+      if clients_with_current_mail.size>1
+        oldest_user = clients_with_current_mail.first.user
+        clients_with_current_mail.each {|merge_client| UserMerger.merge(oldest_user, merge_client.user) unless merge_client.user.id==oldest_user.id }
+      end
+    end
+
     # Если известен ID пользователя в магазине
     if external_id.present?
       if old_client = shop.clients.where.not(id: client.id).find_by(external_id: external_id)

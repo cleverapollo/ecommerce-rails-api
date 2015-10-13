@@ -7,6 +7,8 @@ class OrdersImportWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
+  attr_accessor :mahout_service
+
   def perform(opts)
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
@@ -17,6 +19,9 @@ class OrdersImportWorker
       if opts['orders'].none?
         raise OrdersImportError.new('Пустой массив заказов')
       end
+
+      # Connect to BRB
+      @mahout_service = MahoutService.new(@current_shop.brb_address)
 
       opts['orders'].each do |order|
         @current_order = order
@@ -115,7 +120,9 @@ class OrdersImportWorker
       else
         action.update(rating: 5.0, purchase_count: 1)
 
-        MahoutAction.find_or_create_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
+        # Send rate to BRB
+        mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
+
       end
     rescue PG::UniqueViolation => e
       retry

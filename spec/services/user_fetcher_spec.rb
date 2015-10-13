@@ -5,7 +5,7 @@ describe UserFetcher do
 
   describe '#fetch' do
     let!(:user) { create(:user) }
-    let!(:session) { create(:session, user: user) }
+    let!(:session) { create(:session, user: user, code:'12345678') }
     subject { UserFetcher.new(params).fetch }
 
 
@@ -104,6 +104,28 @@ describe UserFetcher do
 
         expect(UserMerger).to have_received(:merge).with(old_user, user)
       end
+    end
+
+
+    context 'when had mail' do
+
+      let!(:params) { { session_code: session.code, shop: shop, location: '256' } }
+
+      let!(:first_mail_user) { create(:user)}
+      let!(:second_mail_user) { create(:user)}
+      let!(:third_mail_user) { create(:user)}
+
+      let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@example.com') }
+
+      let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@example.com') }
+      let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@example.com') }
+      let!(:third_client) { create(:client, shop: shop, user: third_mail_user, email: 'old@example.com') }
+
+        it 're-links by mail' do
+          subject
+          expect(Client.where(id:[second_client.id, third_client.id]).pluck(:user_id)).to eq([])
+        end
+
     end
   end
 end

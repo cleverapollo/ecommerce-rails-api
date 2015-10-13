@@ -1,18 +1,7 @@
-development:
+production:
   adapter: postgresql
   encoding: unicode
-  database: rees46_development
-  pool: 5
-  username: rees46
-  password: rees46
-  host: localhost
-  port: 5432
-  timeout: 5000
-
-test:
-  adapter: postgresql
-  encoding: unicode
-  database: rees46_test
+  database: rees46_production
   pool: 5
   username: rees46
   password: rees46
@@ -31,14 +20,46 @@ production_master:
   timeout: 5000
   port: 5432
 
-test_master:
-  database: master_database
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: rees46_development
+  pool: 5
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
   host: localhost
-  username: rees46
-  password: rees46
+  port: 5432
+  timeout: 5000
+
+development_master:
+  database: rees46_development_master
+  host: localhost
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
   adapter: postgresql
   encoding: unicode
   pool: 50
   timeout: 5000
   port: 5432
 
+test_master:
+  database: rees46_test
+  host: localhost
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
+  adapter: postgresql
+  encoding: unicode
+  pool: 50
+  timeout: 5000
+  port: 5432
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: rees46_test
+  pool: 5
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
+  host: localhost
+  port: 5432
+  timeout: 5000
