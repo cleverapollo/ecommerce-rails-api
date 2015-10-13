@@ -8,7 +8,7 @@ class Order < ActiveRecord::Base
   include UserLinkable
 
   has_many :order_items, dependent: :destroy
-  has_many :advertiser_purchases
+  has_many :brand_campaign_purchases
   belongs_to :source, polymorphic: true
   belongs_to :shop
 

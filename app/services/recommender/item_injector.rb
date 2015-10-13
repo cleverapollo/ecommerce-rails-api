@@ -17,19 +17,19 @@ module Recommender
       in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
       if in_categories
-        advertisers_list = Promoting::Brand.advertisers_for_categories(shop.id, categories_for_promo, expansion_only)
+        brand_campaigns_list = Promoting::Brand.brand_campaigns_for_categories(shop.id, categories_for_promo, expansion_only)
       else
-        advertisers_list = Promoting::Brand.advertises_for_shop(shop.id, expansion_only)
+        brand_campaigns_list = Promoting::Brand.brand_campaigns_for_shop(shop.id, expansion_only)
       end
 
-      advertisers_list.each do |advertiser|
+      brand_campaigns_list.each do |brand_campaign|
         # проверяем места на занятость
         break if promotions_placed >= MAX_PROMOTIONS || (in_categories && promotions_placed >= PLACES_FOR_PROMO)
 
         # Выбрали рекламодателя
         # @todo: Приоритет выбора рекламодателя
 
-        promoted_item_id = advertiser.first_in_selection(result_ids)
+        promoted_item_id = brand_campaign.first_in_selection(result_ids)
 
         if promoted_item_id.present?
           # нашли, вставляем на одно из первых мест
@@ -41,9 +41,9 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if in_categories
-            promoted_item_id = advertiser.first_in_categories(shop, categories_for_promo, excluded_items_ids)
+            promoted_item_id = brand_campaign.first_in_categories(shop, categories_for_promo, excluded_items_ids)
           else
-            promoted_item_id = advertiser.first_in_shop(shop, excluded_items_ids)
+            promoted_item_id = brand_campaign.first_in_shop(shop, excluded_items_ids)
           end
 
           if promoted_item_id.present?
@@ -56,7 +56,7 @@ module Recommender
 
         # Считаем просмотр для бренда
         if promoted_item_id.present?
-          BrandLogger.track_view(advertiser.id, shop.id, params.type)
+          BrandLogger.track_view(brand_campaign.id, shop.id, params.type)
         end
       end
 
