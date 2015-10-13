@@ -109,11 +109,13 @@ describe UserFetcher do
 
     context 'when had mail' do
 
-      let!(:params) { { session_code: session.code, shop: shop, email: 'old@example.com', location: '256' } }
+      let!(:params) { { session_code: session.code, shop: shop, location: '256' } }
 
       let!(:first_mail_user) { create(:user)}
       let!(:second_mail_user) { create(:user)}
       let!(:third_mail_user) { create(:user)}
+
+      let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@example.com') }
 
       let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@example.com') }
       let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@example.com') }
