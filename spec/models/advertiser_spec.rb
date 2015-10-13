@@ -8,15 +8,6 @@ RSpec.describe Advertiser, :type => :model do
       expect(create(:advertiser)).to be_valid
     end
 
-    it 'allows positive and negative balance' do
-      advertiser = create(:advertiser)
-      expect(advertiser.balance).to eq(0)
-      advertiser.change_balance(30)
-      expect(advertiser.balance).to eq(30)
-      advertiser.change_balance(-60)
-      expect(advertiser.balance).to eq(-30)
-    end
-
   end
 
   let!(:shop) { create(:shop) }

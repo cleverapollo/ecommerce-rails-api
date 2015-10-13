@@ -11,12 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150729145844) do
+ActiveRecord::Schema.define(version: 20151012120320) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "btree_gin"
-  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -35,38 +33,46 @@ ActiveRecord::Schema.define(version: 20150729145844) do
 
   create_table "advertiser_item_categories", force: :cascade do |t|
     t.integer  "advertiser_id"
-    t.integer  "item_category_id", limit: 8
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.integer  "item_category_id",  limit: 8
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "brand_campaign_id"
   end
 
   add_index "advertiser_item_categories", ["advertiser_id"], name: "index_advertiser_item_categories_on_advertiser_id", using: :btree
+  add_index "advertiser_item_categories", ["brand_campaign_id"], name: "index_advertiser_item_categories_on_brand_campaign_id", using: :btree
   add_index "advertiser_item_categories", ["item_category_id"], name: "index_advertiser_item_categories_on_item_category_id", using: :btree
 
   create_table "advertiser_purchases", force: :cascade do |t|
     t.integer  "advertiser_id"
-    t.integer  "item_id",        limit: 8
+    t.integer  "item_id",           limit: 8
     t.integer  "shop_id"
-    t.integer  "order_id",       limit: 8
+    t.integer  "order_id",          limit: 8
     t.float    "price"
     t.string   "recommended_by"
     t.date     "date"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "brand_campaign_id"
   end
 
   add_index "advertiser_purchases", ["advertiser_id", "shop_id"], name: "index_advertiser_purchases_on_advertiser_id_and_shop_id", using: :btree
   add_index "advertiser_purchases", ["advertiser_id"], name: "index_advertiser_purchases_on_advertiser_id", using: :btree
+  add_index "advertiser_purchases", ["brand_campaign_id", "shop_id", "advertiser_id"], name: "index_advertiser_purchases_on_brand_shop_advertiser", using: :btree
+  add_index "advertiser_purchases", ["brand_campaign_id", "shop_id"], name: "index_advertiser_purchases_on_brand_campaign_id_and_shop_id", using: :btree
+  add_index "advertiser_purchases", ["brand_campaign_id"], name: "index_advertiser_purchases_on_brand_campaign_id", using: :btree
 
   create_table "advertiser_shops", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.integer  "shop_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
     t.datetime "last_event_at"
+    t.integer  "brand_campaign_id"
   end
 
   add_index "advertiser_shops", ["advertiser_id"], name: "index_advertiser_shops_on_advertiser_id", using: :btree
+  add_index "advertiser_shops", ["brand_campaign_id"], name: "index_advertiser_shops_on_brand_campaign_id", using: :btree
   add_index "advertiser_shops", ["shop_id"], name: "index_advertiser_shops_on_shop_id", using: :btree
 
   create_table "advertiser_statistics", force: :cascade do |t|
@@ -80,9 +86,11 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.datetime "updated_at",                          null: false
     t.integer  "recommended_clicks",    default: 0,   null: false
     t.integer  "original_clicks",       default: 0,   null: false
+    t.integer  "brand_campaign_id"
   end
 
   add_index "advertiser_statistics", ["advertiser_id", "date"], name: "index_advertiser_statistics_on_advertiser_id_and_date", unique: true, using: :btree
+  add_index "advertiser_statistics", ["brand_campaign_id", "date"], name: "index_advertiser_statistics_on_brand_campaign_id_and_date", using: :btree
 
   create_table "advertiser_statistics_events", force: :cascade do |t|
     t.integer  "advertiser_statistic_id",                 null: false
@@ -119,36 +127,97 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.datetime "updated_at"
     t.float    "balance",                default: 0.0,   null: false
     t.integer  "cpm",                    default: 1500,  null: false
-    t.float    "cpc",                    default: 10.0,  null: false
     t.string   "brand"
     t.string   "downcase_brand"
     t.boolean  "campaign_launched",      default: false, null: false
     t.integer  "priority",               default: 100,   null: false
+    t.float    "cpc",                    default: 10.0,  null: false
+    t.boolean  "is_expansion",           default: false
+    t.integer  "campaign_type",          default: 1
   end
 
   add_index "advertisers", ["campaign_launched", "priority"], name: "index_advertisers_on_campaign_launched_and_priority", using: :btree
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
 
-  create_table "advertisers_orders", force: :cascade do |t|
-    t.integer "advertiser_statistics_id"
-    t.integer "orders_id"
+  create_table "advertising_platform_purchases", force: :cascade do |t|
+    t.integer  "advertising_platform_id"
+    t.integer  "shop_id"
+    t.integer  "order_id"
+    t.float    "price"
+    t.date     "date"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.integer  "status",                  default: 0, null: false
+    t.date     "status_date"
   end
 
-  add_index "advertisers_orders", ["advertiser_statistics_id"], name: "index_advertisers_orders_on_advertiser_statistics_id", using: :btree
-
-  create_table "categories", force: :cascade do |t|
-    t.string   "name",            limit: 255
-    t.boolean  "deletable",                   default: true, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "code",            limit: 255,                null: false
-    t.decimal  "increase_units"
-    t.decimal  "increase_rubles"
+  create_table "advertising_platform_shops", force: :cascade do |t|
+    t.integer  "advertising_platform_id"
+    t.integer  "shop_id"
+    t.date     "last_event_at"
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.integer  "min_price",               default: 0,    null: false
+    t.boolean  "active",                  default: true, null: false
   end
 
-  add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
+  create_table "advertising_platform_statistics", force: :cascade do |t|
+    t.integer  "advertising_platform_id"
+    t.integer  "views",                   default: 0,   null: false
+    t.integer  "purchases",               default: 0,   null: false
+    t.float    "cost",                    default: 0.0, null: false
+    t.date     "date",                                  null: false
+    t.integer  "clicks",                  default: 0,   null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+  end
 
+  create_table "advertising_platform_statistics_events", force: :cascade do |t|
+    t.integer  "advertising_platform_shop_id"
+    t.string   "event",                             null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "advertising_platform_statistic_id"
+  end
+
+  create_table "advertising_platform_transactions", force: :cascade do |t|
+    t.integer  "advertising_platform_id"
+    t.integer  "advertising_platform_shop_id"
+    t.integer  "amount"
+    t.integer  "transaction_type"
+    t.integer  "status"
+    t.text     "comment"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  create_table "advertising_platforms", force: :cascade do |t|
+    t.string   "email"
+    t.string   "encrypted_password",     default: "",  null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,   null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.inet     "current_sign_in_ip"
+    t.inet     "last_sign_in_ip"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "company"
+    t.string   "website"
+    t.string   "mobile_phone"
+    t.string   "work_phone"
+    t.string   "country"
+    t.string   "city"
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.integer  "balance",                default: 0,   null: false
+    t.decimal  "ctr",                    default: 0.0, null: false
+    t.decimal  "btr",                    default: 0.0, null: false
+    t.decimal  "commission",             default: 0.0, null: false
+  end
 
   create_table "beacon_offers", force: :cascade do |t|
     t.integer  "shop_id"
@@ -163,6 +232,103 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.datetime "updated_at",                   null: false
   end
 
+  create_table "brand_campaign_item_categories", force: :cascade do |t|
+    t.integer  "item_category_id",  limit: 8
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "brand_campaign_id"
+  end
+
+  add_index "brand_campaign_item_categories", ["brand_campaign_id"], name: "index_brand_campaign_item_categories_on_brand_campaign_id", using: :btree
+  add_index "brand_campaign_item_categories", ["item_category_id"], name: "index_brand_campaign_item_categories_on_item_category_id", using: :btree
+
+  create_table "brand_campaign_purchases", force: :cascade do |t|
+    t.integer  "item_id",           limit: 8
+    t.integer  "shop_id"
+    t.integer  "order_id",          limit: 8
+    t.float    "price"
+    t.string   "recommended_by"
+    t.date     "date"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "brand_campaign_id"
+  end
+
+  add_index "brand_campaign_purchases", ["brand_campaign_id", "shop_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id_and_shop_id", using: :btree
+  add_index "brand_campaign_purchases", ["brand_campaign_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id", using: :btree
+
+  create_table "brand_campaign_shops", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.datetime "last_event_at"
+    t.integer  "brand_campaign_id"
+  end
+
+  add_index "brand_campaign_shops", ["brand_campaign_id"], name: "index_brand_campaign_shops_on_brand_campaign_id", using: :btree
+  add_index "brand_campaign_shops", ["shop_id"], name: "index_brand_campaign_shops_on_shop_id", using: :btree
+
+  create_table "brand_campaign_statistics", force: :cascade do |t|
+    t.integer  "views",                 default: 0,   null: false
+    t.integer  "original_purchases",    default: 0,   null: false
+    t.integer  "recommended_purchases", default: 0,   null: false
+    t.float    "cost",                  default: 0.0, null: false
+    t.date     "date",                                null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.integer  "recommended_clicks",    default: 0,   null: false
+    t.integer  "original_clicks",       default: 0,   null: false
+    t.integer  "brand_campaign_id"
+  end
+
+  add_index "brand_campaign_statistics", ["brand_campaign_id", "date"], name: "index_brand_campaign_statistics_on_brand_campaign_id_and_date", using: :btree
+
+  create_table "brand_campaign_statistics_events", force: :cascade do |t|
+    t.integer  "brand_campaign_statistic_id",                 null: false
+    t.integer  "brand_campaign_shop_id",                      null: false
+    t.string   "recommender"
+    t.string   "event",                                       null: false
+    t.boolean  "recommended",                 default: false, null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+  end
+
+  add_index "brand_campaign_statistics_events", ["brand_campaign_statistic_id"], name: "index_brand_campaign_statistics_events_on_brand_campaign_stat", using: :btree
+
+  create_table "brand_campaigns", force: :cascade do |t|
+    t.integer  "advertiser_id"
+    t.float    "balance",           default: 0.0,   null: false
+    t.integer  "cpm",               default: 1500,  null: false
+    t.string   "brand",                             null: false
+    t.string   "downcase_brand",                    null: false
+    t.boolean  "campaign_launched", default: false, null: false
+    t.integer  "priority",          default: 100,   null: false
+    t.float    "cpc",               default: 10.0,  null: false
+    t.boolean  "is_expansion",      default: false
+    t.integer  "campaign_type",     default: 1
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
+  create_table "brands", force: :cascade do |t|
+    t.string   "name"
+    t.string   "keyword"
+    t.text     "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string   "name",            limit: 255
+    t.boolean  "deletable",                   default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "code",            limit: 255,                null: false
+    t.decimal  "increase_units"
+    t.decimal  "increase_rubles"
+  end
+
+  add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
 
   create_table "cmses", force: :cascade do |t|
     t.string   "code",               limit: 255,                 null: false
@@ -216,7 +382,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
 
-
   create_table "faqs", force: :cascade do |t|
     t.text     "question",                null: false
     t.text     "answer",                  null: false
@@ -249,16 +414,22 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.datetime "updated_at"
   end
 
-  create_table "mahout_actions", force: :cascade do |t|
-    t.integer "user_id",    limit: 8
-    t.integer "item_id",    limit: 8
-    t.integer "shop_id",    limit: 8
-    t.integer "timestamp"
-    t.float   "preference"
+  create_table "media", force: :cascade do |t|
+    t.string   "uniqid",                                                                  null: false
+    t.string   "name",                                                                    null: false
+    t.string   "url",                 limit: 255
+    t.integer  "customer_id"
+    t.boolean  "restricted",                                              default: false, null: false
+    t.string   "secret",              limit: 255
+    t.decimal  "efficiency",                      precision: 5, scale: 2, default: 0.0,   null: false
+    t.integer  "manager_id"
+    t.integer  "shard",                                                   default: 0,     null: false
+    t.datetime "manager_remind_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
-  add_index "mahout_actions", ["shop_id"], name: "index_mahout_actions_on_shop_id", using: :btree
-  add_index "mahout_actions", ["user_id", "item_id"], name: "index_mahout_actions_on_user_id_and_item_id", unique: true, using: :btree
+  add_index "media", ["uniqid"], name: "index_media_on_uniqid", unique: true, using: :btree
 
   create_table "monthly_statistic_items", force: :cascade do |t|
     t.integer  "monthly_statistic_id",                         null: false
@@ -425,19 +596,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.boolean  "success",                                       null: false
   end
 
-  create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",   limit: 8,                  null: false
-    t.string  "code",      limit: 255,                null: false
-    t.boolean "is_active",             default: true
-    t.string  "useragent", limit: 255
-    t.string  "city",      limit: 255
-    t.string  "country",   limit: 255
-    t.string  "language",  limit: 255
-  end
-
-  add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
-  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
-
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"
     t.decimal "natural"
@@ -515,6 +673,7 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.integer  "shard",                                                             default: 0,     null: false
     t.datetime "manager_remind_date"
     t.integer  "yml_errors",                                                        default: 0,     null: false
+    t.boolean  "track_order_status",                                                default: false, null: false
     t.integer  "trigger_pause",                                                     default: 14
     t.integer  "yml_load_period",                                                   default: 24,    null: false
     t.datetime "last_try_to_load_yml_at"
@@ -537,21 +696,6 @@ ActiveRecord::Schema.define(version: 20150729145844) do
 
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
-
-  create_table "subscriptions", force: :cascade do |t|
-    t.integer  "shop_id",                                                       null: false
-    t.integer  "user_id",                                                       null: false
-    t.boolean  "active",                         default: true,                 null: false
-    t.boolean  "declined",                       default: false,                null: false
-    t.string   "email",              limit: 255
-    t.string   "name",               limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "dont_disturb_until"
-    t.uuid     "code",                           default: "uuid_generate_v4()"
-  end
-
-  add_index "subscriptions", ["shop_id", "user_id"], name: "index_subscriptions_on_shop_id_and_user_id", unique: true, using: :btree
 
   create_table "subscriptions_settings", force: :cascade do |t|
     t.integer  "shop_id",                                          null: false
@@ -580,48 +724,9 @@ ActiveRecord::Schema.define(version: 20150729145844) do
     t.integer  "shop_id"
   end
 
-  create_table "url_aliases", force: :cascade do |t|
-    t.string   "pattern",    limit: 255, null: false
-    t.string   "alias",      limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "users", id: :bigserial, force: :cascade do |t|
-    t.jsonb "gender",   default: {"f"=>50, "m"=>50}, null: false
-    t.jsonb "size",     default: {},                 null: false
-    t.jsonb "children", default: [],                 null: false
-    t.jsonb "physiology",   default: {}, null: false
-    t.jsonb "periodicly",   default: {}, null: false
-  end
-
   create_table "wear_type_dictionaries", force: :cascade do |t|
-    t.string "word"
     t.string "type_name"
-  end
-
-
-  create_table "brands", force: :cascade do |t|
-    t.string   "name"
-    t.string   "keyword"
-    t.text     "comment"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "media", force: :cascade do |t|
-    t.string   "uniqid",                                                                  null: false
-    t.string   "name",                                                                    null: false
-    t.string   "url",                 limit: 255
-    t.integer  "customer_id"
-    t.boolean  "restricted",                                              default: false, null: false
-    t.string   "secret",              limit: 255
-    t.decimal  "efficiency",                      precision: 5, scale: 2, default: 0.0,   null: false
-    t.integer  "manager_id"
-    t.integer  "shard",                                                   default: 0,     null: false
-    t.datetime "manager_remind_date"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "word"
   end
 
 end

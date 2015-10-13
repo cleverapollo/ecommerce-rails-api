@@ -3,7 +3,7 @@ require 'rails_helper'
 describe YmlWorker do
   describe '#perform' do
     let!(:shop) { create(:shop) }
-    let!(:promotion) { create(:advertiser, downcase_brand:'apple')}
+    let!(:brand_campaign) { create(:brand_campaign, brand: 'Apple', downcase_brand:'apple')}
 
     let!(:promo_brand) { create(:brand, keyword:'apple') unless Brand.where(keyword:'apple').limit(1)[0]}
 
