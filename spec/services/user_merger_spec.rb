@@ -39,6 +39,7 @@ describe UserMerger do
                         # }},
                         children: []) }
 
+
   describe '.merge' do
     subject { UserMerger.merge(master, slave) }
 
@@ -158,6 +159,7 @@ describe UserMerger do
             expect(interaction.reload.user_id).to eq(master.id)
           end
         end
+
       end
 
       context 'client merging' do
@@ -200,6 +202,8 @@ describe UserMerger do
           end
         end
       end
+
+
     end
   end
 end
