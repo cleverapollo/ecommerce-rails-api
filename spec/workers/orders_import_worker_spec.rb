@@ -52,10 +52,6 @@ describe OrdersImportWorker do
     expect(action.purchase_count).to eq(1)
     expect(action.rating).to eq(5.0)
 
-    # Check mahout actions
-    mahout_action = MahoutAction.first!
-    expect(mahout_action.item_id).to eq(item.id)
-    expect(mahout_action.shop_id).to eq(shop.id)
-    expect(mahout_action.user_id).to eq(user.id)
+
   end
 end
