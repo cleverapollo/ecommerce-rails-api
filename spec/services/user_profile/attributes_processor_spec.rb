@@ -4,7 +4,15 @@ describe UserProfile::AttributesProcessor do
   describe '.process' do
     let!(:shop) { create(:shop) }
     let!(:user) { create(:user) }
-    let!(:attributes) { { 'gender' => 'f', 'type' => 'shoe', 'size' => 'e44', 'email' => 'test@example.com' } }
+    let!(:first_mail_user) { create(:user)}
+    let!(:second_mail_user) { create(:user)}
+    let!(:third_mail_user) { create(:user)}
+
+    let!(:attributes) { { 'gender' => 'f', 'type' => 'shoe', 'size' => 'e44', 'email' => 'old@example.com' } }
+
+    let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@example.com') }
+    let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@example.com') }
+    let!(:third_client) { create(:client, shop: shop, user: third_mail_user, email: 'old@example.com') }
 
     subject { UserProfile::AttributesProcessor.process(shop, user, attributes) }
 
