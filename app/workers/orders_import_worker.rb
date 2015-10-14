@@ -34,7 +34,7 @@ class OrdersImportWorker
           raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")
         end
 
-        @current_user = fetch_user(@current_shop, @current_order['user_id'], @current_order['user_email'])
+        @current_user = fetch_user(@current_shop, @current_order['user_id'], IncomingDataTranslator.email(@current_order['user_email']))
 
         next if order_already_saved?(order, @current_shop.id)
 
