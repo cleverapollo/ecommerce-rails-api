@@ -24,6 +24,7 @@ module UserProfile
           #   oldest_user = clients_with_current_mail.first.user
           #   clients_with_current_mail.each {|merge_client| UserMerger.merge(oldest_user, merge_client.user) unless merge_client.user.id==oldest_user.id }
           # end
+          
         end
       end
 
