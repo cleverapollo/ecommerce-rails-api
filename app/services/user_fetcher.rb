@@ -11,7 +11,7 @@ class UserFetcher
     @external_id = params[:external_id]
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
-    @email = params[:email]
+    @email = IncomingDataTranslator.email(params[:email])
     @location = params[:location]
   end
 
