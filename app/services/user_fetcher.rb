@@ -2,7 +2,8 @@
 # Класс, отвечающий за поиск пользователя по определенным входящим параметрам.
 #
 class UserFetcher
-  class SessionNotFoundError < StandardError; end
+  class SessionNotFoundError < StandardError;
+  end
 
   attr_reader :external_id, :session_code, :shop, :email, :location
 
@@ -10,7 +11,7 @@ class UserFetcher
     @external_id = params[:external_id]
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
-    @email = params[:email]
+    @email = IncomingDataTranslator.email(params[:email])
     @location = params[:location]
   end
 
@@ -29,16 +30,6 @@ class UserFetcher
 
     result = client.user
 
-    if email.present?
-      client.update(email: email)
-      # client_email = @email
-      # # Найдем всех пользователей с тем же мылом в данном магазине
-      # clients_with_current_mail = shop.clients.where(email:client_email).order(id: :asc)
-      # if clients_with_current_mail.size>1
-      #   oldest_user = clients_with_current_mail.first.user
-      #   clients_with_current_mail.each {|merge_client| UserMerger.merge(oldest_user, merge_client.user) unless merge_client.user.id==oldest_user.id }
-      # end
-    end
     if location.present?
       client.update(location: location)
     end
@@ -57,6 +48,10 @@ class UserFetcher
         exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and external_id = '#{external_id}')"
         shop.clients.where(id: client.id).where(exclude_query).update_all(external_id: external_id)
       end
+    end
+
+    if email.present?
+      UserMerger.merge_by_mail(shop, client, email)
     end
 
     result

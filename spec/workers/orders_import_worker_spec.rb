@@ -32,6 +32,19 @@ describe OrdersImportWorker do
                     'amount' => '4'
                 }
             ]
+        },
+        {
+            'id' => '1245', 'user_id' => '4575', 'user_email' => 'test@test.te', 'date' => 1.month.ago.to_i.to_s,
+
+            'items' => [
+                {
+                    'id' => '8889',
+                    'price' => '15009.44',
+                    'categories' => ['55'],
+                    'is_available' => '1',
+                    'amount' => '4'
+                }
+            ]
         }
       ]
     }
@@ -67,6 +80,6 @@ describe OrdersImportWorker do
 
     expect(shop.clients.where(external_id:'457').first.email).to eq(nil)
 
-
+    expect(Client.where(email: 'test@test.te').count).to eq(1)
   end
 end
