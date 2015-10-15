@@ -2,7 +2,8 @@
 # Класс, отвечающий за поиск пользователя по определенным входящим параметрам.
 #
 class UserFetcher
-  class SessionNotFoundError < StandardError; end
+  class SessionNotFoundError < StandardError;
+  end
 
   attr_reader :external_id, :session_code, :shop, :email, :location
 
@@ -29,18 +30,23 @@ class UserFetcher
 
     result = client.user
 
-    if email.present?
-      client.update(email: email)
-      # client_email = @email
-      # # Найдем всех пользователей с тем же мылом в данном магазине
-      # clients_with_current_mail = shop.clients.where(email:client_email).order(id: :asc)
-      # if clients_with_current_mail.size>1
-      #   oldest_user = clients_with_current_mail.first.user
-      #   clients_with_current_mail.each {|merge_client| UserMerger.merge(oldest_user, merge_client.user) unless merge_client.user.id==oldest_user.id }
-      # end
-    end
     if location.present?
       client.update(location: location)
+    end
+
+    if email.present?
+      client_email = @email
+      # Найдем пользователя с тем же мылом в данном магазине
+      if client_with_current_mail = shop.clients.where.not(id: client.id).find_by(email: client_email)
+        old_user = client_with_current_mail.user
+        client_with_current_mail.each { |merge_client| UserMerger.merge(old_user, merge_client.user) unless merge_client.user.id==old_user.id }
+      else
+        # И при этом этого мыла больше нигде нет
+        # Запоминаем его для текущего пользователя
+        # Адовый способ не ломать транзакцию
+        exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and email = '#{client_email}')"
+        shop.clients.where(id: client.id).where(exclude_query).update_all(email: client_email)
+      end
     end
 
     # Если известен ID пользователя в магазине

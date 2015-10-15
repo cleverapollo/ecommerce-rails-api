@@ -62,9 +62,6 @@ class OrdersImportWorker
   # Упрощенный поиск пользователя для импорта
   def fetch_user(shop, user_id, user_email = nil)
     user_id = user_id.to_s
-    # if user_email.present?
-    #   user_email = IncomingDataTranslator.email(user_email)
-    # end
 
     client = shop.clients.find_by(external_id: user_id)
     if client.present?
