@@ -79,7 +79,7 @@ class OrdersImportWorker
     end
 
     if user_email.present?
-      UserMerger.merge_by_mail(shop, client, user_email)
+      user = UserMerger.merge_by_mail(shop, client, user_email)
     end
 
     user
