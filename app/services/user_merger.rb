@@ -46,6 +46,7 @@ class UserMerger
         # Адовый способ не ломать транзакцию
         exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and email = '#{user_email}')"
         shop.clients.where(id: client.id).where(exclude_query).update_all(email: user_email)
+        client.user
       end
     end
   end

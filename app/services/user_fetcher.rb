@@ -32,12 +32,14 @@ class UserFetcher
       client.update(location: location)
     end
 
+    user = client.user
+
     # Если известен ID пользователя в магазине
     if external_id.present?
       if old_client = shop.clients.where.not(id: client.id).find_by(external_id: external_id)
         # И при этом этот ID есть у другой связки
         # Значит, нужно сливать этих двух пользователей
-        UserMerger.merge(old_client.user, client.user)
+        user = UserMerger.merge(old_client.user, client.user)
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
@@ -48,10 +50,10 @@ class UserFetcher
     end
 
     if email.present?
-      UserMerger.merge_by_mail(shop, client, email)
+      user = UserMerger.merge_by_mail(shop, client, email)
     end
 
 
-    client.reload.user
+    user
   end
 end
