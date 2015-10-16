@@ -40,14 +40,12 @@ class UserMerger
       if client_with_current_mail = shop.clients.where.not(id: client.id).find_by(email: user_email)
         old_user = client_with_current_mail.user
         UserMerger.merge(old_user, client.user) unless client.user.id==old_user.id
-        old_user
       else
         # И при этом этого мыла больше нигде нет
         # Запоминаем его для текущего пользователя
         # Адовый способ не ломать транзакцию
         exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and email = '#{user_email}')"
         shop.clients.where(id: client.id).where(exclude_query).update_all(email: user_email)
-        client.user
       end
     end
   end
