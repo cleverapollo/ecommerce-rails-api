@@ -47,6 +47,7 @@ describe UserMerger do
   user
   }
 
+
   describe '.merge' do
     subject { UserMerger.merge(master, slave) }
 
@@ -149,16 +150,6 @@ describe UserMerger do
           end
         end
 
-        context 'mahout_actions' do
-          let!(:mahout_action) { create(:mahout_action, user: slave) }
-
-          it 're-links mahout_action' do
-            #by BRB
-            subject
-            # expect(mahout_action.reload.user_id).to eq(master.id)
-          end
-        end
-
         context 'orders' do
           let!(:order) { create(:order, user: slave, shop: shop) }
 
@@ -176,6 +167,7 @@ describe UserMerger do
             expect(interaction.reload.user_id).to eq(master.id)
           end
         end
+
       end
 
       context 'client merging' do
@@ -218,6 +210,8 @@ describe UserMerger do
           end
         end
       end
+
+
     end
   end
 end

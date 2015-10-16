@@ -78,7 +78,6 @@ FactoryGirl.define do
     country           { Faker::Address.country_code }
     city              { Faker::Address.city }
     email             { Faker::Internet.email }
-    campaign_launched true
   end
 
   factory :brand_campaign do

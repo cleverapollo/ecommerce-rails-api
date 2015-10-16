@@ -1,13 +1,7 @@
 ##
 # Корзины и покупки. Используются в коллаборативке
 #
-class MahoutAction < MasterTable
-
-  before_create :assign_timestamp
-
-  belongs_to :item
-  belongs_to :shop
-  belongs_to :user
+class MahoutAction
 
   class << self
     def relink_user(options = {})
@@ -18,9 +12,4 @@ class MahoutAction < MasterTable
     end
   end
 
-  protected
-
-  def assign_timestamp
-    self.timestamp = Time.current.to_i
-  end
 end

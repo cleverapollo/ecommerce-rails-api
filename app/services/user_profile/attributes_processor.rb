@@ -17,8 +17,7 @@ module UserProfile
         if email = IncomingDataTranslator.email(attributes['email'])
           # И сохраняем
           client = shop.clients.find_or_create_by!(user_id: user.id)
-          client.email = email
-          client.save
+          UserMerger.merge_by_mail(shop, client, email)
         end
       end
 

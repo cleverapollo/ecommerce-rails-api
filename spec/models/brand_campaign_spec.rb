@@ -15,6 +15,7 @@ RSpec.describe BrandCampaign, :type => :model do
 
   it 'has a valid factory' do
     expect(brand_campaign).to be_valid
+    expect(brand_campaign.downcase_brand).to eq(brand_campaign.brand.downcase)
   end
 
 
