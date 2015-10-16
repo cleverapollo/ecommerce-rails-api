@@ -74,7 +74,6 @@ class OrdersImportWorker
         client = shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
       rescue ActiveRecord::RecordNotUnique => e
         client = shop.clients.find_by(external_id: user_id)
-        user = client.user
       end
     end
 
@@ -83,6 +82,7 @@ class OrdersImportWorker
     end
 
     user
+
   end
 
   # Упрощенный поиск товара для импорта
