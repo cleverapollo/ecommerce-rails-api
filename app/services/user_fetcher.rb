@@ -28,8 +28,6 @@ class UserFetcher
       client = shop.clients.find_by!(user_id: session.user_id)
     end
 
-    result = client.user
-
     if location.present?
       client.update(location: location)
     end
@@ -40,21 +38,20 @@ class UserFetcher
         # И при этом этот ID есть у другой связки
         # Значит, нужно сливать этих двух пользователей
         UserMerger.merge(old_client.user, client.user)
-        result = old_client.user
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
         # Адовый способ не ломать транзакцию
         exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = #{shop.id} and external_id = '#{external_id}')"
         shop.clients.where(id: client.id).where(exclude_query).update_all(external_id: external_id)
-        result = client.user
       end
     end
 
     if email.present?
-      result = UserMerger.merge_by_mail(shop, client, email)
+      UserMerger.merge_by_mail(shop, client, email)
     end
 
-    result
+
+    client.reload.user
   end
 end
