@@ -2,15 +2,28 @@
 # Класс, ответственный за импорт истории заказов магазина. Работает в фоне
 #
 class OrdersImportWorker
+
   class OrdersImportError < StandardError;
+  end
+
+  class OrdersImportOrderWithoutItemError < StandardError;
   end
 
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
   attr_accessor :mahout_service
+  attr_accessor :import_status_messages
 
   def perform(opts)
+
+    @import_status_messages = {
+        order_without_id: [],       # put here order row
+        order_without_user_id: [],  # put here order row
+        order_without_items: [],    # put here order row
+        order_item_without_id: []   # put here order row
+    }
+
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
 
@@ -25,14 +38,19 @@ class OrdersImportWorker
       @mahout_service = MahoutService.new(@current_shop.brb_address)
 
       opts['orders'].each do |order|
+
         @current_order = order
 
         if @current_order['id'].blank?
-          raise OrdersImportError.new('Передан заказ без ID')
+          @import_status_messages[:order_without_id] << @current_order
+          next
+          # raise OrdersImportError.new('Передан заказ без ID')
         end
 
         if @current_order['user_id'].blank?
-          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")
+          @import_status_messages[:order_without_user_id] << @current_order
+          next
+          # raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")
         end
 
         @current_user = fetch_user(@current_shop, @current_order['user_id'], IncomingDataTranslator.email(@current_order['user_email']))
@@ -42,22 +60,35 @@ class OrdersImportWorker
         items = []
 
         if @current_order['items'].nil? || @current_order['items'].none?
-          raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без массива товаров")
+          @import_status_messages[:order_without_items] << @current_order
+          next
+          # raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без массива товаров")
         end
 
-        order['items'].each do |i|
-          item = fetch_item(i, @current_shop.id)
-          item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
-          item.amount = i['amount'].to_i
-          items << item
+        begin
+          order['items'].each do |i|
+            item = fetch_item(i, @current_shop.id)
+            item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
+            item.amount = i['amount'].to_i
+            items << item
+          end
+        rescue OrdersImportOrderWithoutItemError => e
+          # Если проблема с поиском товара в заказе, то пропускаем такой заказ
+          @import_status_messages[:order_item_without_id] << @current_order
+          next
         end
 
         persist_order(@current_order, items, @current_shop.id, @current_user.id)
       end
+
+      # Report import results
+      ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
+
     rescue OrdersImportError => e
       email = opts['errors_to'] || @current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
     end
+
   end
 
   # Упрощенный поиск пользователя для импорта
@@ -88,7 +119,7 @@ class OrdersImportWorker
   # Упрощенный поиск товара для импорта
   def fetch_item(item_raw, shop_id)
     if item_raw['id'].blank?
-      raise OrdersImportError.new("В заказе ##{@current_order['id']} передан товар без ID")
+      raise OrdersImportOrderWithoutItemError.new("В заказе ##{@current_order['id']} передан товар без ID")
     end
 
     item_raw['price'] = 0.0 if item_raw['price'].blank?
