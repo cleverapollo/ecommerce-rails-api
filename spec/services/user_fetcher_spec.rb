@@ -5,7 +5,7 @@ describe UserFetcher do
 
   describe '#fetch' do
     let!(:user) { create(:user) }
-    let!(:session) { create(:session, user: user, code:'12345678') }
+    let!(:session) { create(:session, user: user, code: '12345678') }
     subject { UserFetcher.new(params).fetch }
 
 
@@ -17,15 +17,15 @@ describe UserFetcher do
       end
 
       it 'doesnt create new session' do
-        expect{ subject }.to_not change(Session, :count)
+        expect { subject }.to_not change(Session, :count)
       end
 
       it 'doesnt create new user' do
-        expect{ subject }.to_not change(User, :count)
+        expect { subject }.to_not change(User, :count)
       end
 
       it 'links user with shop' do
-        expect{ subject }.to change(Client, :count).from(0).to(1)
+        expect { subject }.to change(Client, :count).from(0).to(1)
 
         client = Client.first!
         expect(client.shop).to eq(shop)
@@ -43,15 +43,15 @@ describe UserFetcher do
       end
 
       it 'doesnt create new session' do
-        expect{ subject }.to_not change(Session, :count)
+        expect { subject }.to_not change(Session, :count)
       end
 
       it 'doesnt create new user' do
-        expect{ subject }.to_not change(User, :count)
+        expect { subject }.to_not change(User, :count)
       end
 
       it 'doesnt create new link' do
-        expect{ subject }.to_not change(Client, :count)
+        expect { subject }.to_not change(Client, :count)
       end
     end
 
@@ -65,15 +65,15 @@ describe UserFetcher do
       end
 
       it 'doesnt create new session' do
-        expect{ subject }.to_not change(Session, :count)
+        expect { subject }.to_not change(Session, :count)
       end
 
       it 'doesnt create new user' do
-        expect{ subject }.to_not change(User, :count)
+        expect { subject }.to_not change(User, :count)
       end
 
       it 'doesnt create new link' do
-        expect{ subject }.to_not change(Client, :count)
+        expect { subject }.to_not change(Client, :count)
       end
 
       it 'saves external_id to link' do
@@ -107,25 +107,33 @@ describe UserFetcher do
     end
 
 
-    # context 'when had mail' do
-    #
-    #   let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@example.com' } }
-    #
-    #   let!(:first_mail_user) { create(:user)}
-    #   let!(:second_mail_user) { create(:user)}
-    #   let!(:third_mail_user) { create(:user)}
-    #
-    #   let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@example.com') }
-    #
-    #   let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@example.com') }
-    #   let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@example.com') }
-    #   let!(:third_client) { create(:client, shop: shop, user: third_mail_user, email: 'old@example.com') }
-    #
-    #     it 're-links by mail' do
-    #       subject
-    #       expect(Client.where(id:[second_client.id, third_client.id]).pluck(:user_id)).to eq([])
-    #     end
-    #
-    # end
+    context 'when had mail' do
+
+      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@example.com' } }
+
+      let!(:first_mail_user) { create(:user) }
+      let!(:second_mail_user) { create(:user) }
+      let!(:third_mail_user) { create(:user) }
+
+      let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@example.com') }
+
+
+      it 're-links by mail' do
+        subject
+        expect(Client.where(email: 'old@example.com').count).to eq(1)
+      end
+
+    end
+
+    context 'when mail not in base' do
+
+      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@example.com' } }
+
+      it 're-links by mail' do
+        subject
+        expect(Client.where(email: 'old@example.com').count).to eq(1)
+      end
+
+    end
   end
 end

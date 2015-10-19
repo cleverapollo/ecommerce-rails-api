@@ -32,7 +32,7 @@ class IncomingDataTranslator
     # @param value [String] входящий e-mail
     # @return [String] обработанный e-mail
     def email(email)
-      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i && email != 'anonymous@somedomain.com'  # && !email.downcase.scan('example.com').any?
         email.downcase.strip
       end
     end

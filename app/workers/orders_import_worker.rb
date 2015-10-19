@@ -2,7 +2,8 @@
 # Класс, ответственный за импорт истории заказов магазина. Работает в фоне
 #
 class OrdersImportWorker
-  class OrdersImportError < StandardError; end
+  class OrdersImportError < StandardError;
+  end
 
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
@@ -62,23 +63,26 @@ class OrdersImportWorker
   # Упрощенный поиск пользователя для импорта
   def fetch_user(shop, user_id, user_email = nil)
     user_id = user_id.to_s
-    # if user_email.present?
-    #   user_email = IncomingDataTranslator.email(user_email)
-    # end
 
     client = shop.clients.find_by(external_id: user_id)
     if client.present?
-      client.update(email: user_email)
-      client.user
+      client.update(email: user_email) if user_email.present?
+      user = client.user
     else
       user = User.create
       begin
-        shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
+        client = shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
       rescue ActiveRecord::RecordNotUnique => e
-        user = shop.clients.find_by(external_id: user_id).user
+        client = shop.clients.find_by(external_id: user_id)
       end
-      user
     end
+
+    if user_email.present?
+      user = UserMerger.merge_by_mail(shop, client, user_email)
+    end
+
+    user
+
   end
 
   # Упрощенный поиск товара для импорта
@@ -91,10 +95,10 @@ class OrdersImportWorker
 
     # Вытаскиваем массив категорий, как бы их не назвал тот, кто вызвал импорт
     item_raw['categories'] = ([item_raw['category']] +
-                              [item_raw['category_id']] +
-                              [item_raw['category_uniqid']] +
-                              [item_raw['categories']] +
-                              [item_raw['categories']].try(:split, ',')).flatten.select(&:present?).uniq
+        [item_raw['category_id']] +
+        [item_raw['category_uniqid']] +
+        [item_raw['categories']] +
+        [item_raw['categories']].try(:split, ',')).flatten.select(&:present?).uniq
 
     item = Item.find_or_initialize_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
 
@@ -112,6 +116,7 @@ class OrdersImportWorker
   end
 
   def fetch_actions(item, shop_id, user_id)\
+
     begin
       action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
 
@@ -141,7 +146,7 @@ class OrdersImportWorker
                          uniqid: order['id'],
                          date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current,
                          recommended: false,
-                         value: items.map{|i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum)
+                         value: items.map { |i| (i.price.try(:to_f) || 0.0) * (i.amount.try(:to_f) || 1.0) }.sum)
 
     items.each do |item|
       OrderItem.create(order_id: order.id,
