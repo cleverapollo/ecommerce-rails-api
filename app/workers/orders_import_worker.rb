@@ -66,7 +66,7 @@ class OrdersImportWorker
 
     client = shop.clients.find_by(external_id: user_id)
     if client.present?
-      client.update(email: user_email)
+      client.update(email: user_email) if user_email.present?
       user = client.user
     else
       user = User.create

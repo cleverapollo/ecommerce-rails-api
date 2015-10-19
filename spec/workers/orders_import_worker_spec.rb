@@ -9,42 +9,15 @@ describe OrdersImportWorker do
       'orders' => [
         {
           'id' => '123', 'user_id' => '456', 'user_email' => 'test@test.te', 'date' => 1.month.ago.to_i.to_s,
-
-          'items' => [
-            {
-              'id' => '888',
-              'price' => '1500.44',
-              'categories' => ['55'],
-              'is_available' => '1',
-              'amount' => '4'
-            }
-          ]
+          'items' => [ { 'id' => '888', 'price' => '1500.44', 'categories' => ['55'], 'is_available' => '1', 'amount' => '4' } ]
         },
         {
             'id' => '124', 'user_id' => '457', 'user_email' => '', 'date' => 1.month.ago.to_i.to_s,
-
-            'items' => [
-                {
-                    'id' => '888',
-                    'price' => '1500.44',
-                    'categories' => ['55'],
-                    'is_available' => '1',
-                    'amount' => '4'
-                }
-            ]
+            'items' => [ { 'id' => '888', 'price' => '1500.44', 'categories' => ['55'], 'is_available' => '1', 'amount' => '4' } ]
         },
         {
             'id' => '1245', 'user_id' => '4575', 'user_email' => 'test@test.te', 'date' => 1.month.ago.to_i.to_s,
-
-            'items' => [
-                {
-                    'id' => '8889',
-                    'price' => '15009.44',
-                    'categories' => ['55'],
-                    'is_available' => '1',
-                    'amount' => '4'
-                }
-            ]
+            'items' => [ { 'id' => '8889', 'price' => '15009.44', 'categories' => ['55'], 'is_available' => '1', 'amount' => '4' } ]
         }
       ]
     }
