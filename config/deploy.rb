@@ -19,7 +19,7 @@ set :rails_env,   'production'
 set :default_stage,   'api_00'
 
 
-set :rollbar_token, Rails.application.secrets.rollbar_access_token
+set :rollbar_token, '8b197bc247a844278f109dbd06ad2e66'
 set :rollbar_env, Proc.new { fetch :stage }
 set :rollbar_role, Proc.new { :app }
 
