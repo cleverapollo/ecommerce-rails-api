@@ -39,7 +39,7 @@ class UserMerger
       # Найдем пользователя с тем же мылом в данном магазине
       if client_with_current_mail = shop.clients.where.not(id: client.id).find_by(email: user_email)
         old_user = client_with_current_mail.user
-        UserMerger.merge(old_user, client.user) unless client.user.id==old_user.id
+        UserMerger.merge(old_user, client.user) 
       else
         # И при этом этого мыла больше нигде нет
         # Запоминаем его для текущего пользователя
