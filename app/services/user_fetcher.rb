@@ -55,8 +55,6 @@ class UserFetcher
     end
 
 
-
-
     user
   end
 end

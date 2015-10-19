@@ -23,7 +23,8 @@ class UserMerger
           SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_algorythms)
               .merge(slave)
 
-          slave.delete
+          # Не удалять, если у пользователя есть несколько клиентов с одинаковым мылом
+          slave.delete unless slave.id == master.id
 
           master
         }
