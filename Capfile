@@ -19,6 +19,8 @@ require 'capistrano/sidekiq'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
 
+require 'rollbar/capistrano3'
+
 # Includes tasks from other gems included in your Gemfile
 #
 # For documentation on these, see for example:
