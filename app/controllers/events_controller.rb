@@ -9,12 +9,13 @@ class EventsController < ApplicationController
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.extract(params)
     # Запускаем процессор с извлеченными данными
+    ep = extracted_params # @mkechinov удалить после решения проблемы 875
     ActionPush::Processor.new(extracted_params).process
 
     respond_with_success
 
   rescue ActiveRecord::RecordInvalid => e
-    Rollbar.critical(e, raw_params: params, extracted_params: extracted_params)
+    Rollbar.critical(e, raw_params: params, extracted_params: extracted_params, ep: ep)
     respond_with_client_error(e)
   rescue ActionPush::Error => e
     log_client_error(e)
