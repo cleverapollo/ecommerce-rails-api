@@ -10,6 +10,7 @@ module SectoralAlgorythms
       MIN_VIEWS_SCORE = 10
       MIN_HYPPALGENIC_SCORE = 30
 
+      include GenderLinkable
 
       PART_TYPES=['hair', 'face', 'body', 'intim', 'hand', 'leg']
 
@@ -19,10 +20,12 @@ module SectoralAlgorythms
       end
 
       def trigger_view(item)
+        link_gender(item)
         increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
+        link_create_gender(item)
         increment_history(item, 'purchase')
       end
 

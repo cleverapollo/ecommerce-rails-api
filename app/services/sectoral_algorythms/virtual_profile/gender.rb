@@ -9,6 +9,8 @@ module SectoralAlgorythms
       K_PURCHASE = 10
       MIN_VIEWS_SCORE = 1
 
+      include GenderLinkable
+
       def initialize(profile)
         super
         @gender = @profile.gender
@@ -19,10 +21,13 @@ module SectoralAlgorythms
       end
 
       def trigger_view(item)
+        link_gender(item)
         increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
+        # Ищем связанный профиль противоположного пола
+        link_create_gender(item)
         increment_history(item, 'purchase')
       end
 
@@ -54,7 +59,6 @@ module SectoralAlgorythms
             @gender['f']=(normalized_gender[1] * 100).to_i
           end
         end
-
       end
 
       def attributes_for_update
@@ -84,12 +88,6 @@ module SectoralAlgorythms
         cur_gender = value
         return false if cur_gender['m']==cur_gender['f']
         cur_gender.min_by { |_, v| v }.first.to_s
-      end
-
-      def current_gender
-        cur_gender = value
-        return false if cur_gender['m']==cur_gender['f']
-        cur_gender.max_by { |_, v| v }.first.to_s
       end
 
       def fix_value(gender)

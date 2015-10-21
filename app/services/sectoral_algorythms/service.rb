@@ -2,11 +2,10 @@ module SectoralAlgorythms
   class Service
 
     def self.all_virtual_profile_fields
-      # [Wear::Gender, Wear::Size, ]
+      # Список отраслевых, реагирующих на действия пользователя
       [
           VirtualProfile::Gender, VirtualProfile::Size,
-          VirtualProfile::Physiology,
-          VirtualProfile::Periodicly
+          VirtualProfile::Physiology, VirtualProfile::Periodicly
       ]
     end
 
@@ -17,6 +16,8 @@ module SectoralAlgorythms
 
     def trigger_action(action, items)
       changes = {}
+
+      # Обновляем информацию по профилю
       @algorythms.each do |algorythm|
         algorythm.trigger_action(action, items)
         algorythm.recalculate
@@ -41,8 +42,6 @@ module SectoralAlgorythms
       end
 
     end
-
-
 
 
   end

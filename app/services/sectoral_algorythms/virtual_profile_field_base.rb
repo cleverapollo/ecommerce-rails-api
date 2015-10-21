@@ -1,5 +1,8 @@
 module SectoralAlgorythms
   class VirtualProfileFieldBase
+
+    attr_accessor :profile
+
     def initialize(profile)
       @profile = profile
     end

@@ -9,16 +9,20 @@ module SectoralAlgorythms
       MIN_VIEWS_SCORE = 10
       K_SIZE_DEVIATION=10
 
+      include GenderLinkable
+
       def initialize(profile)
         super
         @size = @profile.size
       end
 
       def trigger_view(item)
+        link_gender(item)
         increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
+        link_create_gender(item)
         increment_history(item, 'purchase')
       end
 
@@ -96,7 +100,7 @@ module SectoralAlgorythms
 
         addition_relations = []
 
-        if gender = user_gender
+        if gender = current_gender
           type_sizes = @size[gender]
           type_sizes.each do |type, feature|
             feature.each do |_, feature_sizes|
@@ -125,14 +129,6 @@ module SectoralAlgorythms
 
       def default_history
         { 'views' => 0, 'purchase' => 0 }
-      end
-
-
-      def user_gender
-        cur_gender = @profile.gender
-        return false if cur_gender['m']==cur_gender['f']
-        cur_gender.delete 'history'
-        cur_gender.max_by { |_, v| v }.first.to_sym
       end
     end
   end
