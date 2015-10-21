@@ -19,6 +19,10 @@ set :rails_env,   'production'
 set :default_stage,   'api_00'
 
 
+set :rollbar_token, '8b197bc247a844278f109dbd06ad2e66'
+set :rollbar_env, Proc.new { fetch :stage }
+set :rollbar_role, Proc.new { :app }
+
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
 set :rvm_ruby_string, "2.2.3"

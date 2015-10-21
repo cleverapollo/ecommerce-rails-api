@@ -179,10 +179,38 @@ describe UserMerger do
           expect { new_client.reload }.to raise_exception(ActiveRecord::RecordNotFound)
         end
 
+        it 'destroys slave user' do
+          subject
+          expect{ slave.reload }.to raise_exception(ActiveRecord::RecordNotFound)
+        end
+
         it 'saves new_client email in old_client' do
           subject
           expect(old_client.reload.email).to eq(new_client.email)
         end
+
+        it 'merges two clients into one by email' do
+        end
+
+        it 'merges two clients into one by email and saves first external_id' do
+        end
+
+
+
+      end
+
+      context 'client merging of the same user' do
+        let!(:master_client) { create(:client, shop: shop, user: master, email: 'old@example.com') }
+        let!(:slave_client) { create(:client, shop: shop, user: master, email: 'old@example.com') }
+
+        it 'merges two clients of same user and dont lose user' do
+          UserMerger.merge(master, master)
+          expect{ master.reload }.not_to raise_error()
+        end
+
+        it 'merges two clients of different users and removes slave user' do
+        end
+
       end
 
       context 'mailings re-linking' do
