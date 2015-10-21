@@ -36,6 +36,7 @@ class UserFetcher
 
     if email.present?
       user = UserMerger.merge_by_mail(shop, client, email)
+      client = user.clients.where(shop_id: shop.id).limit(1)[0]
     end
 
     # Если известен ID пользователя в магазине
