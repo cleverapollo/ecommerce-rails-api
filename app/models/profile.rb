@@ -18,6 +18,7 @@ class Profile
     linked_prof[type]||=[]
     linked_prof[type].push(profile['_id'])
     self.linked = linked_prof
+    profile
   end
 
   def linked_profiles(type)
