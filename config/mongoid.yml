@@ -1,0 +1,40 @@
+development:
+  # Configure available database clients. (required)
+  clients:
+    # Defines the default client. (required)
+    default:
+      # Defines the name of the default database that Mongoid can connect to.
+      # (required).
+      database: profiles_development
+      # Provides the hosts the default client can connect to. Must be an array
+      # of host:port pairs. (required)
+      hosts:
+        - localhost:27017
+      options:
+        server_selection_timeout: 10
+        max_pool_size: 10
+        min_pool_size: 1
+
+        wait_queue_timeout: 5
+        connect_timeout: 5
+        socket_timeout: 5
+
+  # Configure Mongoid specific options. (optional)
+  options:
+    raise_not_found_error: true
+    scope_overwrite_exception: true
+    use_utc: true
+test:
+  clients:
+    default:
+      database: profiles_test
+      hosts:
+        - localhost:27017
+      options:
+         server_selection_timeout: 10
+         max_pool_size: 10
+         min_pool_size: 1
+
+         wait_queue_timeout: 5
+         connect_timeout: 5
+         socket_timeout: 5

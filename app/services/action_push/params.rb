@@ -39,6 +39,8 @@ module ActionPush
     attr_accessor :digest_mail_code
     # Источник
     attr_accessor :source
+    # Модификация
+    attr_accessor :modification
 
     # Проверяет и обрабатывает параметры
     #
@@ -55,6 +57,7 @@ module ActionPush
       extract_static_attributes
       extract_shop
       extract_user
+      extract_modification
       normalize_item_arrays and extract_items
       self
     end
@@ -117,6 +120,14 @@ module ActionPush
                                      shop: shop,
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
+    end
+
+
+    # Извлекает модификацию отраслевого алгоритма
+    def extract_modification
+      if raw[:modification].present? && Recommender::Base::MODIFICATIONS.include?(raw[:modification])
+        @modification = raw[:modification]
+      end
     end
 
     # Приводит входящие массивы в каноничный вид

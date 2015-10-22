@@ -11,7 +11,7 @@ module Recommender
           result = super
           if params.modification == 'fashion' || params.modification == 'cosmetic'
             if ['m', 'f'].include?(item.gender)
-             gender_algo = SectoralAlgorythms::Wear::Gender.new(params.user)
+             gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
              result = gender_algo.modify_relation(result)
             end
           end

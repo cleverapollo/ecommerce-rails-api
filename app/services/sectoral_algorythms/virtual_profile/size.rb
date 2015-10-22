@@ -2,27 +2,27 @@
 # Расчет размера пользователя
 #
 module SectoralAlgorythms
-  module Wear
-    class Size < SectoralAlgorythms::Base
+  module VirtualProfile
+    class Size < SectoralAlgorythms::VirtualProfileFieldBase
       K_VIEW = 1
       K_PURCHASE = 10
       MIN_VIEWS_SCORE = 10
       K_SIZE_DEVIATION=10
 
-      def initialize(user)
-        super
-        @size = user.size
-      end
+      include GenderLinkable
 
-      def value
-        { 'm' => @size['m'], 'f' => @size['f'] }
+      def initialize(profile)
+        super
+        @size = @profile.size
       end
 
       def trigger_view(item)
+        link_gender(item)
         increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
+        link_create_gender(item)
         increment_history(item, 'purchase')
       end
 
@@ -85,16 +85,8 @@ module SectoralAlgorythms
         if slave.size['history'].present?
           slave_history = slave.size['history']
           master_history = @size['history']
-          @size['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
-            gender_slave_value.merge(gender_master_value) do |_, type_slave_value, type_master_value|
-              type_slave_value.merge(type_master_value) do |_, feature_slave_value, feature_master_value|
-                feature_slave_value.merge(feature_master_value) do |_, size_slave_value, size_master_value|
-                  size_slave_value.merge(size_master_value) do |_, history_slave_value, history_master_value|
-                    history_slave_value.to_i+history_master_value.to_i
-                  end
-                end
-              end
-            end
+          @size['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+            master_value.to_i+slave_value.to_i
           end
         end
       end
@@ -108,7 +100,7 @@ module SectoralAlgorythms
 
         addition_relations = []
 
-        if gender = user_gender
+        if gender = current_gender
           type_sizes = @size[gender]
           type_sizes.each do |type, feature|
             feature.each do |_, feature_sizes|
@@ -129,17 +121,14 @@ module SectoralAlgorythms
         relation
       end
 
+      def value
+        {m:@size['m'], f:@size['f']}
+      end
+
       private
 
       def default_history
         { 'views' => 0, 'purchase' => 0 }
-      end
-
-      def user_gender
-        cur_gender = @user.gender
-        cur_gender.delete 'history'
-        return false if cur_gender['m']==cur_gender['f']
-        cur_gender.max_by { |_, v| v }.first.to_s
       end
     end
   end

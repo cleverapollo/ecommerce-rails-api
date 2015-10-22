@@ -19,7 +19,7 @@ module Recommender
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
-      opposite_gender = SectoralAlgorythms::Wear::Gender.new(params.user).opposite_gender
+      opposite_gender = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile).opposite_gender
       # ограничим количество итераций во избежании зацикливания
       iterations = 0
       while result.size<params.limit && iterations<3

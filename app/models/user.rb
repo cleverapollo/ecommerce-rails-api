@@ -22,4 +22,8 @@ class User < MasterTable
   def ab_testing_group_in(shop)
     shop.clients.find_or_create_by(user_id: self.id).ab_testing_group
   end
+
+  def profile
+    Profile.find_or_create_by!(user_id:self.id)
+  end
 end
