@@ -20,8 +20,7 @@ class UserMerger
           end
 
           # сливаем виртуальный профиль
-          SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_algorythms)
-              .merge(slave)
+          SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_virtual_profile_fields).merge(slave)
 
           # Не удалять, если у пользователя есть несколько клиентов с одинаковым мылом
           slave.delete unless slave.id == master.id

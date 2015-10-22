@@ -2,57 +2,68 @@
 # Расчет размера пользователя
 #
 module SectoralAlgorythms
-  module Cosmetic
-    class Physiology < SectoralAlgorythms::Base
+  module VirtualProfile
+    class Physiology < SectoralAlgorythms::VirtualProfileFieldBase
       K_VIEW = 1
       K_PURCHASE = 10
 
       MIN_VIEWS_SCORE = 10
       MIN_HYPPALGENIC_SCORE = 30
 
+      include GenderLinkable
 
       PART_TYPES=['hair', 'face', 'body', 'intim', 'hand', 'leg']
 
-      def initialize(user)
+      def initialize(profile)
         super
-        @physiology = user.physiology
-      end
-
-      def value
-        { 'm' => @physiology['m'], 'f' => @physiology['f'] }
+        @physiology = @profile.physiology
       end
 
       def trigger_view(item)
+        link_gender(item)
         increment_history(item, 'views')
       end
 
       def trigger_purchase(item)
+        link_create_gender(item)
         increment_history(item, 'purchase')
       end
 
       def increment_history(item, history_key)
 
-        if part_types = item.try(:part_type) && gender = item.try(:gender)
-          @physiology['history'] ||= {}
+        part_types = item.try(:part_type)
+        gender = item.try(:gender)
 
+        if part_types && gender
+          @physiology['history'] ||= {}
           part_types.each do |part_type|
             if part_type && PART_TYPES.include?(part_type)
-              @size['history'][gender]||={}
-              @size['history'][gender][part_type]||={}
 
-              if skin_type=item.try(:skin_type)
-                @size['history'][gender][part_type][skin_type]||= default_history
-                @size['history'][gender][part_type][skin_type][history_key] += 1
+              @physiology['history'][gender]||={}
+              @physiology['history'][gender][part_type]||={}
+
+              if skin_types=item.try(:skin_type)
+                @physiology['history'][gender][part_type]['skin_type']||={}
+                skin_types.each do |skin_type|
+                  @physiology['history'][gender][part_type]['skin_type'][skin_type]||= default_history
+                  @physiology['history'][gender][part_type]['skin_type'][skin_type][history_key] += 1
+                end
               end
 
-              if condition=item.try(:condition)
-                @size['history'][gender][part_type][condition]||= default_history
-                @size['history'][gender][part_type][condition][history_key] += 1
+              if conditions=item.try(:condition)
+                @physiology['history'][gender][part_type]['condition']||={}
+                conditions.each do |condition|
+                  @physiology['history'][gender][part_type]['condition'][condition]||= default_history
+                  @physiology['history'][gender][part_type]['condition'][condition][history_key] += 1
+                end
               end
 
-              if hypoallergenic=item.try(:hypoallergenic) && hypoallergenic
-                @size['history'][gender][part_type]['hypoallergenic']||= default_history
-                @size['history'][gender][part_type]['hypoallergenic'] += 1
+              hypoallergenic=item.try(:hypoallergenic)
+
+              if hypoallergenic.present?
+                @physiology['history'][gender][part_type]['hypoallergenic']||={}
+                @physiology['history'][gender][part_type]['hypoallergenic'][hypoallergenic.to_s]||= default_history
+                @physiology['history'][gender][part_type]['hypoallergenic'][hypoallergenic.to_s][history_key] += 1
               end
 
             end
@@ -105,22 +116,19 @@ module SectoralAlgorythms
         if slave.physiology['history'].present?
           slave_history = slave.physiology['history']
           master_history = @physiology['history']
-          @physiology['history'] = slave_history.merge(master_history) do |_, gender_slave_value, gender_master_value|
-            gender_slave_value.merge(gender_master_value) do |_, type_slave_value, type_master_value|
-              type_slave_value.merge(type_master_value) do |_, feature_slave_value, feature_master_value|
-                feature_slave_value.merge(feature_master_value) do |_, feature_value_slave_value, feature_value_master_value|
-                  feature_value_slave_value.merge(feature_value_master_value) do |_, history_slave_value, history_master_value|
-                    history_slave_value.to_i+history_master_value.to_i
-                  end
-                end
-              end
-            end
+          @physiology['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+            master_value.to_i+slave_value.to_i
           end
         end
       end
 
+
       def attributes_for_update
         { :physiology => @physiology }
+      end
+
+      def value
+        {m:@physiology['m'], f:@physiology['f']}
       end
 
       private
