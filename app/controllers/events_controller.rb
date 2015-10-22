@@ -12,6 +12,7 @@ class EventsController < ApplicationController
     ActionPush::Processor.new(extracted_params).process
 
     respond_with_success
+
   rescue ActionPush::Error => e
     log_client_error(e)
     respond_with_client_error(e)
