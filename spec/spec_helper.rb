@@ -39,7 +39,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     # Вычищаем монгу
-   Mongoid.purge!
+    Mongoid.purge!
    Mongoid::Tasks::Database.create_indexes
   end
   # rspec-expectations config goes here. You can use an alternate

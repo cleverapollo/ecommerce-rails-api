@@ -8,7 +8,7 @@ class Profile
   field :periodicly, default: {}, type: Hash
   field :linked, default:{}, type: Hash
 
-  index({ user_id: 1 }, { unique: true, background: true,  name: "user_id_index" })
+  index({ user_id: 1 }, { background: true,  name: "user_id_index" })
 
   def create_linked_profile(type, attributes={})
     user = User.create
