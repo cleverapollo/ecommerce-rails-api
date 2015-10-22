@@ -87,22 +87,21 @@ ActiveRecord::Schema.define(version: 20150924125442) do
   add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
 
   create_table "clients", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                                                null: false
-    t.integer  "user_id",                     limit: 8,                                  null: false
-    t.boolean  "bought_something",                        default: false,                null: false
+    t.integer  "shop_id",                                                              null: false
+    t.integer  "user_id",                   limit: 8,                                  null: false
+    t.boolean  "bought_something",                      default: false,                null: false
     t.integer  "ab_testing_group"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "external_id",                 limit: 255
-    t.string   "email",                       limit: 255
-    t.boolean  "digests_enabled",                         default: true,                 null: false
-    t.uuid     "code",                                    default: "uuid_generate_v4()"
-    t.boolean  "subscription_popup_showed",               default: false,                null: false
-    t.boolean  "triggers_enabled",                        default: true,                 null: false
+    t.string   "external_id",               limit: 255
+    t.string   "email",                     limit: 255
+    t.boolean  "digests_enabled",                       default: true,                 null: false
+    t.uuid     "code",                                  default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed",             default: false,                null: false
+    t.boolean  "triggers_enabled",                      default: true,                 null: false
     t.datetime "last_trigger_mail_sent_at"
-    t.boolean  "accepted_subscription",                   default: false,                null: false
+    t.boolean  "accepted_subscription",                 default: false,                null: false
     t.string   "location"
-    t.datetime "last_supply_trigger_send_at"
   end
 
   add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
