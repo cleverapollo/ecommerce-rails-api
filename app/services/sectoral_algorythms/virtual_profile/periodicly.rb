@@ -2,19 +2,15 @@
 # Расчет размера пользователя
 #
 module SectoralAlgorythms
-  module Cosmetic
-    class Periodicly < SectoralAlgorythms::Base
+  module VirtualProfile
+    class Periodicly < SectoralAlgorythms::VirtualProfileFieldBase
 
       #период без уточнения
       FIRST_PURCHASE_PERIOD = 4 * 7 * 24 * 3600
 
-      def initialize(user)
+      def initialize(profile)
         super
-        @periodicly = user.periodicly
-      end
-
-      def value
-        { 'm' => @physiology['m'], 'f' => @physiology['f'] }
+        @periodicly = @profile.periodicly
       end
 
       def trigger_view(item)
@@ -22,7 +18,7 @@ module SectoralAlgorythms
       end
 
       def trigger_purchase(item)
-        if item.periodic
+        if item.try(:periodic) && item.periodic
           # сохраняем периодичность
           refresh_periodicly(item)
         end
@@ -105,9 +101,9 @@ module SectoralAlgorythms
       def items_need_to_buy
         items = []
         current_time = Time.now.to_i
-        if @periodicly['next_trigger'] < Time.now.to_i
+        if @periodicly[:next_trigger] < Time.now.to_i
           # ищем товары, срок которых подошел
-          @periodicly['item_times_to_buy'].each do |item_id, time|
+          @periodicly[:item_times_to_buy].each do |item_id, time|
             if time<current_time
               items << item_id
             end
@@ -119,7 +115,7 @@ module SectoralAlgorythms
       private
 
       def default_history
-        { 'views' => 0, 'purchase' => 0 }
+        { :views => 0, :purchase => 0 }
       end
     end
   end

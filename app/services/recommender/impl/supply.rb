@@ -19,7 +19,7 @@ module Recommender
 
 
         # найдем товары, которые пора бы прикупить
-        supply_ids = Item.widgetable.recommendable.where(id: SectoralAlgorythms::Cosmetic::Periodicly.new(params.user).items_need_to_buy)
+        supply_ids = Item.widgetable.recommendable.where(id: SectoralAlgorythms::VirtualProfile::Periodicly.new(params.user.profile).items_need_to_buy)
 
         return [] if supply_ids.none?
 
