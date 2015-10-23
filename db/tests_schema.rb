@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151013083532) do
+ActiveRecord::Schema.define(version: 20151023064533) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,17 +216,18 @@ ActiveRecord::Schema.define(version: 20151013083532) do
 
   create_table "brand_campaigns", force: :cascade do |t|
     t.integer  "advertiser_id"
-    t.float    "balance",           default: 0.0,   null: false
-    t.integer  "cpm",               default: 1500,  null: false
-    t.string   "brand",                             null: false
-    t.string   "downcase_brand",                    null: false
-    t.boolean  "campaign_launched", default: false, null: false
-    t.integer  "priority",          default: 100,   null: false
-    t.float    "cpc",               default: 10.0,  null: false
-    t.boolean  "is_expansion",      default: false
-    t.integer  "campaign_type",     default: 1
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.float    "balance",               default: 0.0,   null: false
+    t.integer  "cpm",                   default: 1500,  null: false
+    t.string   "brand",                                 null: false
+    t.string   "downcase_brand",                        null: false
+    t.boolean  "campaign_launched",     default: false, null: false
+    t.integer  "priority",              default: 100,   null: false
+    t.float    "cpc",                   default: 10.0,  null: false
+    t.boolean  "is_expansion",          default: false
+    t.integer  "campaign_type",         default: 1
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.integer  "product_minimum_price", default: 0,     null: false
   end
 
   create_table "brands", force: :cascade do |t|
