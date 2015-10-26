@@ -8,6 +8,8 @@ class YmlWorker
   sidekiq_options retry: false, queue: 'long'
 
   XML_READER_PARAMS = [nil, nil, (1 << 1)]
+  MIN_CATEGORIES_COUNT = 5
+  MIN_OFFERS_COUNT=10
 
   attr_reader :shop, :yml
 
@@ -105,8 +107,8 @@ class YmlWorker
 
         end
 
-        raise YmlWorker::Error.new("Невалидный XML - нет категории в YML.") if categories_counter < 10
-        raise YmlWorker::Error.new("Невалидный XML - нет товаров в YML.") if offers_counter < 10
+        raise YmlWorker::Error.new("Невалидный XML - в YML менее #{MIN_CATEGORIES_COUNT} категорий.") if categories_counter < MIN_CATEGORIES_COUNT
+        raise YmlWorker::Error.new("Невалидный XML - в YML менее #{MIN_OFFERS_COUNT} товаров.") if offers_counter < MIN_OFFERS_COUNT
 
         mark_as_loaded
         disable_remaining_in_cache
