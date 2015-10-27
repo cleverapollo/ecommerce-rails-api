@@ -113,7 +113,7 @@ module SectoralAlgorythms
               # Разные типы - разные размеры
               addition_relations << type_size_condition(type, sizes)
             end
-          end
+          end if type_sizes
           relation =  relation.where(addition_relations.join(" OR ")).where.not(sizes:nil)
         end
 
