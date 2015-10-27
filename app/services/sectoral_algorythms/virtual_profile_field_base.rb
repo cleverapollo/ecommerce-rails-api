@@ -42,6 +42,19 @@ module SectoralAlgorythms
       relation
     end
 
+    # Модифицировать запрос с откатом в случае пустого результата
+    # @return new_relation - в случае если результат не пуст
+    # @return relation - в случае если результат пуст
+    def modify_relation_with_rollback(relation)
+      modified_relation = modify_relation(relation)
+      first_result = modified_relation.limit(1)[0]
+      if first_result
+        modified_relation
+      else
+        relation
+      end
+    end
+
 
     protected
 
