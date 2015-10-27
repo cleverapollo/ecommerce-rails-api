@@ -50,7 +50,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
         it 'correctly modify by type_size' do
           subject
           algo = SectoralAlgorythms::VirtualProfile::Size.new(size_user.profile)
-          expect(algo.modify_relation(Item.where(gender:'m')).pluck(:sizes).flatten.uniq).not_to include('50', '52')
+          expect(algo.modify_relation_with_rollback(Item.where(gender:'m')).pluck(:sizes).flatten.uniq).not_to include('50', '52')
         end
       end
 
