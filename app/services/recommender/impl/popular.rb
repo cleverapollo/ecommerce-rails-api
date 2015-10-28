@@ -9,12 +9,12 @@ module Recommender
         if params.modification.present?
           result = super
           if params.modification == 'fashion' || params.modification == 'cosmetic'
-            if categories.try(:any?)
-              # в категории
-            else
-              # на главной
-              gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-              result = gender_algo.modify_relation(result)
+            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
+            result = gender_algo.modify_relation_with_rollback(result)
+            # Если fashion - дополнительно фильтруем по размеру
+            if params.modification == 'fashion'
+              size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
+              result = size_algo.modify_relation_with_rollback(result)
             end
           end
           result
@@ -22,7 +22,6 @@ module Recommender
           super
         end
       end
-
 
 
       def categories_for_promo
@@ -33,7 +32,7 @@ module Recommender
       def inject_promotions(result)
         if categories.try(:any?)
           # Промо только в категориях товара выдачи
-          @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+          @categories_for_promo = Item.where(id: result).pluck(:categories).flatten.compact.uniq
           super(result)
         else
           result
@@ -53,7 +52,7 @@ module Recommender
         result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :categories)
 
 
-        result.to_a.map { |value| [value[0], {sales_rate: value[1], categories:value[2]}] }.to_h
+        result.to_a.map { |value| [value[0], { sales_rate: value[1], categories: value[2] }] }.to_h
       end
 
 
@@ -61,7 +60,7 @@ module Recommender
       def rescore(items_weighted, cf_weighted)
         items_weighted.merge!(cf_weighted) do |_, weighted_sr_item, cf|
           # подмешиваем оценку CF
-          {sales_rate: (K_SR * weighted_sr_item[:sales_rate].to_f + K_CF * cf.to_f)/(K_CF+K_SR), categories:weighted_sr_item[:categories]}
+          { sales_rate: (K_SR * weighted_sr_item[:sales_rate].to_f + K_CF * cf.to_f)/(K_CF+K_SR), categories: weighted_sr_item[:categories] }
         end
 
         items_weighted = items_weighted.sort do |x, y|
@@ -78,7 +77,7 @@ module Recommender
           items_with_uniq_categories[item[:categories].first] ||= []
 
           # берем только первую указанную категорию, чтобы избежать дублирование товара
-          items_with_uniq_categories[item[:categories].first].push({id => item[:sales_rate]})
+          items_with_uniq_categories[item[:categories].first].push({ id => item[:sales_rate] })
         end
 
         # сколько брать из каждой категории
@@ -95,9 +94,6 @@ module Recommender
 
         result
       end
-
-
-
 
 
       # Популярные по всему магазину

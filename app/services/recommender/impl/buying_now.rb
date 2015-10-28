@@ -10,21 +10,21 @@ module Recommender
 
       def inject_promotions(result)
         # Промо только в категориях товара выдачи
-         @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
-         super(result, true)
+        @categories_for_promo = Item.where(id: result).pluck(:categories).flatten.compact.uniq
+        super(result, true)
       end
 
       def items_to_recommend
         if params.modification.present?
           result = super
-          if params.modification == 'fashion'
-            # gender = SectoralAlgorythms::Wear::Gender.value_for(user, shop: shop, current_item: item)
-            # result = result.by_ca(gender: gender)
-
-            # фильтрация по размерам одежды
-            #if item && item.custom_attributes['sizes'].try(:first).try(:present?)
-            #  result = result.by_ca(sizes: item.custom_attributes['sizes'])
-            #end
+          if params.modification == 'fashion' || params.modification == 'cosmetic'
+            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
+            result = gender_algo.modify_relation_with_rollback(result)
+            # Если fashion - дополнительно фильтруем по размеру
+            if params.modification == 'fashion'
+              size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
+              result = size_algo.modify_relation_with_rollback(result)
+            end
           end
           result
         else

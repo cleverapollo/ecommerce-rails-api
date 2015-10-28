@@ -29,13 +29,20 @@ module Recommender
         if params.modification.present?
           if params.modification == 'fashion' || params.modification == 'cosmetic'
             # уберем товары, которые не актуальные или не соответствуют полу
-            new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id, :widgetable, :gender).delete_if { |val| !val[1] || val[2]==opposite_gender }.map { |v| v[0] }
+            new_result = Item.widgetable.recommendable.where(id: new_result)
+
+            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
+            new_result = gender_algo.modify_relation_with_rollback(new_result)
+            # Если fashion - дополнительно фильтруем по размеру
+            if params.modification == 'fashion'
+              size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
+              new_result = size_algo.modify_relation_with_rollback(new_result)
+            end
+            new_result = new_result.pluck(:id)
           end
         else
-          if recommend_only_widgetable?
-            # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
-            new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id, :widgetable).delete_if { |val| !val[1] }.map { |v| v[0] }
-          end
+          # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
+          new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id)
         end
         result = result+new_result
         excluded_items = (excluded_items+new_result).compact.uniq
