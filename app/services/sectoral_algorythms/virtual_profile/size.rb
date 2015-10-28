@@ -98,10 +98,9 @@ module SectoralAlgorythms
       def modify_relation(relation)
         #{"f"=>{"shirt"=>{"adult"=>{"size"=>"48", "probability"=>100}}}
 
-        addition_relations = []
-
         if gender = current_gender
           type_sizes = @size[gender]
+          addition_relations = []
           type_sizes.each do |type, feature|
             feature.each do |_, feature_sizes|
               size = feature_sizes['size'].to_i
@@ -112,13 +111,28 @@ module SectoralAlgorythms
               (size-deviation..size+deviation).each { |size_value| sizes<<size_value if size_value.even? }
 
               # Разные типы - разные размеры
-              addition_relations << "(wear_type='#{type}' AND  '{#{sizes.map {|size| "\"#{size}\""}.join(',')}}' && sizes )"
+              addition_relations << type_size_condition(type, sizes)
             end
-          end
+          end if type_sizes
           relation =  relation.where(addition_relations.join(" OR ")).where.not(sizes:nil)
         end
 
         relation
+      end
+
+      def type_size_condition(type, sizes)
+        "(wear_type='#{type}' AND  '{#{sizes.map { |size| "\"#{size}\"" }.join(',')}}' && sizes )"
+      end
+
+      def filter_by_sizes_with_rollback(relation, type, sizes)
+        modified_relation = relation.where(type_size_condition(type, sizes)).where.not(sizes:nil)
+        first_result = modified_relation.limit(1)[0]
+        if first_result
+          modified_relation
+        else
+          relation
+        end
+
       end
 
       def value

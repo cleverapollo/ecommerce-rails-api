@@ -1,17 +1,19 @@
 require 'rails_helper'
 
 describe Recommender::Impl::Popular do
-  let!(:shop) { create(:shop) }
+  let!(:plan) { create(:plan, plan_type:'custom')}
+  let!(:shop) { create(:shop, plan:plan, paid_till: 7.days.since(Time.now).to_date) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:test_item) { create(:item, shop: shop, sales_rate:10000) }
+  let!(:test_item) { create(:item, shop: shop, sales_rate: 10000) }
+  let!(:test_item_small_sr) { create(:item, shop: shop, sales_rate: 100) }
 
   10.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate:rand(100..200), categories:"{1}") }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), categories: "{1}") }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'experiment') }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'experiment') }
 
   def create_action(user_data, item, is_buy = false)
     a = item.actions.new(user: user_data,
@@ -49,8 +51,8 @@ describe Recommender::Impl::Popular do
     end
 
 
-     context 'when category provided' do
-       before { params[:categories] = test_item.categories }
+    context 'when category provided' do
+      before { params[:categories] = test_item.categories }
 
       context 'when there is enough purchases' do
         it 'returns most frequently buyed items' do
@@ -58,6 +60,36 @@ describe Recommender::Impl::Popular do
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
       end
+
+      context 'when modification=fashion' do
+        before { params[:modification]='fashion' }
+        it 'allowed industrial' do
+          expect(shop.allow_industrial?).to eq(true)
+        end
+        it 'no filter by gender when no gender items provided' do
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+        context 'when items with gender provided' do
+
+
+
+          it 'filter by gender' do
+
+          end
+          it 'no filter by size when no size items provided' do
+
+          end
+          context 'when items with size provided' do
+            it 'filter by size' do
+
+            end
+          end
+        end
+
+      end
     end
+
+
   end
 end

@@ -12,7 +12,12 @@ module Recommender
           if params.modification == 'fashion' || params.modification == 'cosmetic'
             if ['m', 'f'].include?(item.gender)
              gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-             result = gender_algo.modify_relation(result)
+             result = gender_algo.modify_relation_with_rollback(result)
+             # Если fashion - дополнительно фильтруем по размеру
+             if item.try(:sizes) && params.modification == 'fashion'
+               size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
+               result = size_algo.modify_relation_with_rollback(result)
+             end
             end
           end
           result
