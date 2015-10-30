@@ -24,6 +24,7 @@ module Rees46Api
 
     config.generators do |g|
       g.test_framework :rspec
+      g.orm :active_record
     end
 
     config.autoload_paths += ["#{Rails.root}/app/exceptions", "#{Rails.root}/lib"]
