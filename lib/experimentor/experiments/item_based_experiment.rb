@@ -8,12 +8,12 @@ module Experimentor
           local_shop = create(:shop, id: 670)
         end
 
-        100.times do |i|
+        10.times do |i|
           create(:user)
         end
 
         100.times do |i|
-          create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{1}", brand: 'datakam')
+          create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{1}", brand: 'datakam', gender:'f')
         end
 
         100.times do |i|
@@ -23,7 +23,7 @@ module Experimentor
         ItemCategory.create!(shop_id: local_shop.id, name: "Видеорегисраторы", external_id: '1')
         ItemCategory.create!(shop_id: local_shop.id, name: 'Все остальное', external_id: '2')
 
-        10.times do |i|
+        1.times do |i|
           ap "create action #{i}"
           create_action(local_shop, user[i], item[i])
           create_action(local_shop, user[i], item[i*2])

@@ -24,8 +24,8 @@ module SectoralAlgorythms
       def current_gender
         cur_gender = @profile.gender
         return false if cur_gender['m']==cur_gender['f']
-        cur_gender.delete 'history'
-        cur_gender.max_by { |_, v| v }.first.to_sym
+        #cur_gender.delete 'history'
+        {'m':cur_gender['m'], 'f':cur_gender['f']}.max_by { |_, v| v }.first.to_sym
       end
     end
   end
