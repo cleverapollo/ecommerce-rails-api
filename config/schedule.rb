@@ -1,8 +1,16 @@
 # encoding: UTF-8
+
 # Каждую полночь выключаем товары со "сроком годности"
 every '0 0 * * *' do
   runner "RunnerWrapper.run('Item.disable_expired')"
 end
+
+# Каждую полночь выключаем товары со "сроком годности"
+every '0 3 * * *' do
+  runner "RunnerWrapper.run('ShopKPI.process_all')"
+end
+
+
 
 # # Каждые 4 часа синхронизируем приоритетные YML
 # every 4.hours do

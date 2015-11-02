@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150924125442) do
+ActiveRecord::Schema.define(version: 20151031132329) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -335,6 +335,32 @@ ActiveRecord::Schema.define(version: 20150924125442) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "shop_metrics", force: :cascade do |t|
+    t.integer "shop_id"
+    t.integer "orders",                 default: 0,   null: false
+    t.integer "real_orders",            default: 0,   null: false
+    t.decimal "revenue",                default: 0.0, null: false
+    t.decimal "real_revenue",           default: 0.0, null: false
+    t.decimal "orders_quality",         default: 0.0, null: false
+    t.decimal "arpu",                   default: 0.0, null: false
+    t.decimal "arppu",                  default: 0.0, null: false
+    t.decimal "conversion",             default: 0.0, null: false
+    t.integer "visitors",               default: 0,   null: false
+    t.integer "products_viewed",        default: 0,   null: false
+    t.integer "triggers_enabled_count", default: 0,   null: false
+    t.decimal "triggers_ctr",           default: 0.0, null: false
+    t.integer "triggers_orders",        default: 0,   null: false
+    t.decimal "triggers_revenue",       default: 0.0, null: false
+    t.decimal "digests_ctr",            default: 0.0, null: false
+    t.integer "digests_orders",         default: 0,   null: false
+    t.decimal "digests_revenue",        default: 0.0, null: false
+    t.integer "abandoned_products",     default: 0,   null: false
+    t.decimal "abandoned_money",        default: 0.0, null: false
+    t.date    "date",                                 null: false
+  end
+
+  add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
 
   create_table "subscriptions_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                          null: false
