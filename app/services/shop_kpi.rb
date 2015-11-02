@@ -8,6 +8,15 @@ class ShopKPI
       end
     end
 
+    # Так как статусы заказов синхроинизируются часто намного позже, чем заказы создаются, нужно пересчитывать старые данные
+    def recalculate_all_for_last_week
+      Shop.on_current_shard.connected.active.unrestricted.with_tracking_orders_status.each do |shop|
+        (1..7).each do |x|
+          new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+        end
+      end
+    end
+
   end
 
   def initialize(shop)

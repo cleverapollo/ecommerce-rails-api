@@ -44,7 +44,7 @@ class Shop < MasterTable
   scope :unrestricted, -> { active.where(restricted: false) }
   scope :newbies, -> { unrestricted.where('connected_at >= ? OR created_at >= ?', 3.days.ago, 3.days.ago ) }
   scope :on_current_shard, -> { where(shard: SHARD_ID) }
-
+  scope :with_tracking_orders_status, -> { where(track_order_status: true) }
 
   # ID товаров, купленных или добавленных в корзину пользователем
   def item_ids_bought_or_carted_by(user)
