@@ -12,6 +12,8 @@ class TriggerMail < ActiveRecord::Base
   validates :trigger_mailing_id, presence: true
   validates :trigger_data, presence: true
 
+  scope :clicked, -> { where(clicked: true) }
+
   store :trigger_data, coder: JSON
 
   # Отметить факт открытия письма

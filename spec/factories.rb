@@ -2,6 +2,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 FactoryGirl.define do
 
+  factory :shop_metric do
+  end
+
   factory :beacon_offer do
     uuid { SecureRandom.uuid }
     major { SecureRandom.random_number(100).to_s }
@@ -114,6 +117,9 @@ FactoryGirl.define do
   factory :order do
     uniqid SecureRandom.uuid
     sequence(:date) {|n| Time.current }
+  end
+
+  factory :order_item do
   end
 
   factory :mailers_digest_params, class: HashWithIndifferentAccess do

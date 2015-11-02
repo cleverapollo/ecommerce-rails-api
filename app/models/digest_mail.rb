@@ -13,6 +13,8 @@ class DigestMail < ActiveRecord::Base
   validates :mailing, presence: true
   validates :batch, presence: true
 
+  scope :clicked, -> { where(clicked: true) }
+
   # Отметить факт открытия письма
   def mark_as_opened!
     update_columns(opened: true) unless opened?
