@@ -9,6 +9,9 @@ end
 every '0 3 * * *' do
   runner "RunnerWrapper.run('ShopKPI.process_all')"
 end
+every '0 5 * * 6' do
+  runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_week')"
+end
 
 
 
