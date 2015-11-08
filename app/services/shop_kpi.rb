@@ -2,16 +2,20 @@ class ShopKPI
 
   class << self
 
-    def process_all
-      Shop.on_current_shard.connected.active.unrestricted.each do |shop|
-        new(shop).calculate_and_write_statistics_at(Date.yesterday)
-      end
-    end
+    # Неактуален, так как работает только со вчерашним днем, а это неполные данные для рассылок
+    # и синхронизации статусов заказов
+    # def process_all
+    #   Shop.on_current_shard.connected.active.unrestricted.each do |shop|
+    #     new(shop).calculate_and_write_statistics_at(Date.yesterday)
+    #   end
+    # end
 
-    # Так как статусы заказов синхроинизируются часто намного позже, чем заказы создаются, нужно пересчитывать старые данные
-    def recalculate_all_for_last_week
-      Shop.on_current_shard.connected.active.unrestricted.with_tracking_orders_status.each do |shop|
-        (1..7).each do |x|
+    # Так как статусы заказов синхроинизируются часто намного позже, чем заказы создаются,
+    # А также заказы с рассылок приходят значительно позже после их отправки,
+    # нужно пересчитывать старые данные за 14 дней.
+    def recalculate_all_for_last_period
+      Shop.on_current_shard.connected.active.unrestricted.each do |shop|
+        (1..14).each do |x|
           new(shop).calculate_and_write_statistics_at(Date.today - x.days)
         end
       end
@@ -41,13 +45,17 @@ class ShopKPI
     @shop_metric.triggers_enabled_count = triggers_enabled_count
 
     if @shop_metric.triggers_enabled_count > 0
-      trigger_mailings_ids = TriggerMailing.enabled.where(shop_id: @shop.id).pluck(:id)
+
+      # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.
+      trigger_mailings_ids = TriggerMailing.where(shop_id: @shop.id).pluck(:id)
       if trigger_mailings_ids.count > 0
-        relation = TriggerMail.where(trigger_mailing_id: trigger_mailings_ids).where(created_at: @datetime_interval)
+        relation = TriggerMail.where(trigger_mailing_id: trigger_mailings_ids).where(shop_id: @shop.id).where(created_at: @datetime_interval)
         triggers_sent = relation.count
-        if triggers_sent > 0
-          @shop_metric.triggers_ctr = relation.clicked.count.to_f / triggers_sent.to_f
-          relation = Order.where(id: OrderItem.select(:order_id).where(shop_id: @shop.id).where(recommended_by: 'trigger_mail') ).where(date: @datetime_interval)
+        triggers_clicked = relation.clicked.count
+        @shop_metric.triggers_ctr = triggers_clicked.to_f / triggers_sent.to_f if triggers_sent > 0
+        mail_ids = relation.pluck(:id)
+        if mail_ids.count > 0
+          relation = Order.where(source_type: 'TriggerMail').where(shop_id: @shop.id).where(source_id: mail_ids)
           relation = relation.successful if @shop.track_order_status?
           @shop_metric.triggers_orders = relation.count
           @shop_metric.triggers_revenue = relation.sum(:value)
@@ -55,12 +63,13 @@ class ShopKPI
       end
     end
 
-
     relation = DigestMail.where(shop_id: @shop.id).where(created_at: @datetime_interval)
     digests_sent = relation.count
-    if digests_sent > 0
-      @shop_metric.digests_ctr = relation.clicked.count.to_f / digests_sent.to_f
-      relation = Order.where(id: OrderItem.select(:order_id).where(shop_id: @shop.id).where(recommended_by: 'digest_mail') ).where(date: @datetime_interval)
+    digests_clicked = relation.clicked.count
+    @shop_metric.digests_ctr = digests_clicked.to_f / digests_sent.to_f if digests_sent > 0
+    mail_ids = relation.pluck(:id)
+    if mail_ids.length > 0
+      relation = Order.where(source_type: 'DigestMail').where(shop_id: @shop.id).where(source_id: mail_ids)
       relation = relation.successful if @shop.track_order_status?
       @shop_metric.digests_orders = relation.count
       @shop_metric.digests_revenue = relation.where.not(value: nil).sum(:value)

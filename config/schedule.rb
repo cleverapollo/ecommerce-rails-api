@@ -5,12 +5,10 @@ every '0 0 * * *' do
   runner "RunnerWrapper.run('Item.disable_expired')"
 end
 
-# Каждую полночь выключаем товары со "сроком годности"
+
+# Пересчитываем статистику магазинов за 14 дней
 every '0 3 * * *' do
-  runner "RunnerWrapper.run('ShopKPI.process_all')"
-end
-every '0 5 * * 6' do
-  runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_week')"
+  runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_period')"
 end
 
 

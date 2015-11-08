@@ -142,8 +142,8 @@ describe UserFetcher do
       let!(:user_2) { create(:user) }
       let!(:session_1) { create(:session, user: user_1, code: 's1s1s1') }
       let!(:session_2) { create(:session, user: user_2, code: 's2s2s2') }
-      let!(:params_1) { {session_code: session_1.code, shop: shop, location: '256', email: 'some@email.com', external_id: 1} }
-      let!(:params_2) { {session_code: session_2.code, shop: shop, location: '256', email: 'some@email.com', external_id: 2} }
+      let!(:params_1) { {session_code: session_1.code, shop: shop, location: '256', email: 'some@email.com', external_id: '1'} }
+      let!(:params_2) { {session_code: session_2.code, shop: shop, location: '256', email: 'some@email.com', external_id: '2'} }
 
       it 'saves old user_id for new client' do
         UserFetcher.new(params_1).fetch
