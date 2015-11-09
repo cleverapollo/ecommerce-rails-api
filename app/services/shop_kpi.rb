@@ -33,15 +33,11 @@ class ShopKPI
 
     @shop_metric = ShopMetric.find_or_initialize_by date: date, shop_id: @shop.id
     @shop_metric.orders = orders_count
-    @shop_metric.real_orders = orders_count(true) if @shop.track_order_status?
+    @shop_metric.real_orders = orders_count(true)
     @shop_metric.revenue = revenue
-    @shop_metric.real_revenue = revenue(true) if @shop.track_order_status?
-    @shop_metric.orders_quality = orders_quality @shop_metric.orders, @shop_metric.real_orders
+    @shop_metric.real_revenue = revenue(true)
     @shop_metric.visitors = visitors_count
     @shop_metric.products_viewed = products_viewed
-    @shop_metric.conversion = conversion( (@shop.track_order_status? ? @shop_metric.real_orders : @shop_metric.orders) , @shop_metric.visitors)
-    @shop_metric.arpu = arpu( (@shop.track_order_status? ? @shop_metric.real_revenue : @shop_metric.revenue) , @shop_metric.visitors)
-    @shop_metric.arppu = @shop.track_order_status? ? arppu(@shop_metric.real_revenue, @shop_metric.real_orders) : arppu(@shop_metric.revenue, @shop_metric.orders)
     @shop_metric.triggers_enabled_count = triggers_enabled_count
 
     if @shop_metric.triggers_enabled_count > 0
@@ -50,29 +46,33 @@ class ShopKPI
       trigger_mailings_ids = TriggerMailing.where(shop_id: @shop.id).pluck(:id)
       if trigger_mailings_ids.count > 0
         relation = TriggerMail.where(trigger_mailing_id: trigger_mailings_ids).where(shop_id: @shop.id).where(created_at: @datetime_interval)
-        triggers_sent = relation.count
-        triggers_clicked = relation.clicked.count
-        @shop_metric.triggers_ctr = triggers_clicked.to_f / triggers_sent.to_f if triggers_sent > 0
+        @shop_metric.triggers_sent = relation.count
+        @shop_metric.triggers_clicked = relation.clicked.count
         mail_ids = relation.pluck(:id)
         if mail_ids.count > 0
+          # All orders
           relation = Order.where(source_type: 'TriggerMail').where(shop_id: @shop.id).where(source_id: mail_ids)
-          relation = relation.successful if @shop.track_order_status?
           @shop_metric.triggers_orders = relation.count
-          @shop_metric.triggers_revenue = relation.sum(:value)
+          @shop_metric.triggers_revenue = relation.where.not(value: nil).sum(:value)
+          # Only paid orders
+          @shop_metric.triggers_orders_real = relation.successful.count
+          @shop_metric.triggers_revenue_real = relation.successful.where.not(value: nil).sum(:value)
         end
       end
     end
 
     relation = DigestMail.where(shop_id: @shop.id).where(created_at: @datetime_interval)
-    digests_sent = relation.count
-    digests_clicked = relation.clicked.count
-    @shop_metric.digests_ctr = digests_clicked.to_f / digests_sent.to_f if digests_sent > 0
+    @shop_metric.digests_sent = relation.count
+    @shop_metric.digests_clicked = relation.clicked.count
     mail_ids = relation.pluck(:id)
     if mail_ids.length > 0
       relation = Order.where(source_type: 'DigestMail').where(shop_id: @shop.id).where(source_id: mail_ids)
-      relation = relation.successful if @shop.track_order_status?
+      # All orders
       @shop_metric.digests_orders = relation.count
       @shop_metric.digests_revenue = relation.where.not(value: nil).sum(:value)
+      # Only paid orders
+      @shop_metric.digests_orders_real = relation.successful.count
+      @shop_metric.digests_revenue_real = relation.successful.where.not(value: nil).sum(:value)
     end
 
     actions = Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).pluck(:item_id, :rating).delete_if { |x| x[1] != 4.2 }
@@ -107,28 +107,12 @@ class ShopKPI
     result.sum(:value)
   end
 
-  def orders_quality(all_orders, real_orders)
-    all_orders > 0 ? (real_orders.to_f / all_orders.to_f) : 0.0
-  end
-
   def visitors_count
     Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).count('DISTINCT actions.user_id')
   end
 
   def products_viewed
     Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).count
-  end
-
-  def conversion(orders, visitors)
-    visitors > 0 ? orders.to_f / visitors.to_f : 0
-  end
-
-  def arpu(revenue, visitors)
-    visitors > 0 ? revenue.to_f / visitors.to_f : 0
-  end
-
-  def arppu(revenue, orders)
-    orders > 0 ? revenue.to_f / orders.to_f : 0
   end
 
   def triggers_enabled_count

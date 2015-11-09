@@ -32,9 +32,9 @@ describe UserMerger do
   let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing, shop: shop) }
 
   let!(:digest_mail_1) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, clicked: true, created_at: (Date.yesterday + 2.hours)) }
-  let!(:digest_mail_2) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours)) }
+  let!(:digest_mail_2) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours), clicked: true) }
   let!(:digest_mail_3) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours)) }
-  let!(:digest_mail_4) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours)) }
+  let!(:digest_mail_4) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours), clicked: true) }
 
   let!(:order_1) { create(:order, user: user, uniqid: '1', shop: shop, value: 100, date: (Date.yesterday + 2.hours), source_id: trigger_mail_1.id, source_type: 'TriggerMail') }
   let!(:order_2) { create(:order, user: user, uniqid: '2', shop: shop, status: 1, value: 200, date: (Date.yesterday + 2.hours), source_id: digest_mail_1.id, source_type: 'DigestMail') }
@@ -56,50 +56,33 @@ describe UserMerger do
       subject
       shop_metric = ShopMetric.first
       expect(shop_metric.orders).to eq(2)
-      expect(shop_metric.real_orders).to eq(0)
-      expect(shop_metric.revenue).to eq(300)
-      expect(shop_metric.real_revenue).to eq(0)
-      expect(shop_metric.orders_quality).to eq(0)
-      expect(shop_metric.visitors).to eq(3)
-      expect(shop_metric.products_viewed).to eq(4)
-      expect(shop_metric.abandoned_products).to eq(2)
-      expect(shop_metric.abandoned_money).to eq(300)
-      expect( shop_metric.conversion.round(2) ).to eq(0.67)
-      expect(shop_metric.arpu).to eq(100)
-      expect(shop_metric.arppu).to eq(150)
-      expect(shop_metric.triggers_enabled_count).to eq(2)
-      expect(shop_metric.triggers_ctr).to eq(0.25)
-      expect(shop_metric.triggers_orders).to eq(1)
-      expect(shop_metric.triggers_revenue).to eq(100)
-      expect(shop_metric.digests_ctr).to eq(0.25)
-      expect(shop_metric.digests_orders).to eq(1)
-      expect(shop_metric.digests_revenue).to eq(200)
-    end
-
-    it 'calculates correct with tracking orders status' do
-      shop.update track_order_status: true
-      subject
-      shop_metric = ShopMetric.first
-      expect(shop_metric.orders).to eq(2)
       expect(shop_metric.real_orders).to eq(1)
       expect(shop_metric.revenue).to eq(300)
       expect(shop_metric.real_revenue).to eq(200)
-      expect(shop_metric.orders_quality).to eq(0.5)
       expect(shop_metric.visitors).to eq(3)
       expect(shop_metric.products_viewed).to eq(4)
+
       expect(shop_metric.abandoned_products).to eq(2)
       expect(shop_metric.abandoned_money).to eq(300)
-      expect( shop_metric.conversion.round(2) ).to eq(0.33)
-      expect(shop_metric.arpu.round(2)).to eq(66.67)
-      expect(shop_metric.arppu).to eq(200)
+
+
       expect(shop_metric.triggers_enabled_count).to eq(2)
-      expect(shop_metric.triggers_ctr).to eq(0.25)
-      expect(shop_metric.triggers_orders).to eq(0)
-      expect(shop_metric.triggers_revenue).to eq(0)
-      expect(shop_metric.digests_ctr).to eq(0.25)
+      expect(shop_metric.triggers_sent).to eq(4)
+      expect(shop_metric.triggers_clicked).to eq(1)
+      expect(shop_metric.triggers_orders).to eq(1)
+      expect(shop_metric.triggers_revenue).to eq(100)
+      expect(shop_metric.triggers_orders_real).to eq(0)
+      expect(shop_metric.triggers_revenue_real).to eq(0)
+
+      expect(shop_metric.digests_sent).to eq(4)
+      expect(shop_metric.digests_clicked).to eq(3)
       expect(shop_metric.digests_orders).to eq(1)
       expect(shop_metric.digests_revenue).to eq(200)
+      expect(shop_metric.digests_orders_real).to eq(1)
+      expect(shop_metric.digests_revenue_real).to eq(200)
     end
+
+
 
   end
 end
