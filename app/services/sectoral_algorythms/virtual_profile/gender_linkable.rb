@@ -7,7 +7,7 @@ module SectoralAlgorythms
         if item_gender && profile_gender && item_gender!=profile_gender
           linked_profile = @profile.linked_gender_profile
           linked_profile ||= @profile.create_linked_profile(:gender)
-          initialize(linked_profile) if linked_profile
+          self.class.new(linked_profile) if linked_profile
         end
       end
 
@@ -17,7 +17,7 @@ module SectoralAlgorythms
         profile_gender = current_gender
         if item_gender && profile_gender && item_gender!=profile_gender
           linked_profile = @profile.linked_gender_profile
-          initialize(linked_profile) if linked_profile
+          self.class.new(linked_profile) if linked_profile
         end
       end
 
