@@ -11,10 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023064533) do
+ActiveRecord::Schema.define(version: 20151113123306) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "btree_gin"
+  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -612,11 +614,13 @@ ActiveRecord::Schema.define(version: 20151023064533) do
     t.datetime "last_try_to_load_yml_at"
     t.boolean  "supply_available",                                                  default: false, null: false
     t.boolean  "use_brb",                                                           default: false
+    t.boolean  "merchandising_enabled",                                             default: true,  null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["manager_id"], name: "index_shops_on_manager_id", using: :btree
+  add_index "shops", ["merchandising_enabled"], name: "index_shops_on_merchandising_enabled", where: "(merchandising_enabled IS TRUE)", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
 
   create_table "styles", force: :cascade do |t|
