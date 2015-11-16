@@ -49,7 +49,7 @@ class Shop < MasterTable
   # ID товаров, купленных или добавленных в корзину пользователем
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
-    actions.where('rating::numeric >= ?', Actions::Cart::RATING).where(user: user).where(repeatable: false).pluck(:item_id)
+    actions.where('rating::numeric >= ?', Actions::Cart::RATING).where(user: user).pluck(:item_id)
   end
 
   # Отследить отправленное событие

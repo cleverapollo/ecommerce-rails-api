@@ -102,7 +102,6 @@ class Item < ActiveRecord::Base
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
         is_available: new_item.is_available,
         available_till: ValuesHelper.present_one(new_item, self, :available_till),
-        repeatable: ValuesHelper.false_one(new_item, self, :repeatable),
         ignored: new_item.ignored.nil? ? false : new_item.ignored,
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
