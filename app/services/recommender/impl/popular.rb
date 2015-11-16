@@ -104,7 +104,7 @@ module Recommender
 
       # Популярные в конкретной категории
       def popular_in_category
-        popular_in_all_shop.in_categories(params.categories)
+        popular_in_all_shop.in_categories(params.categories, any: true)
       end
 
 
