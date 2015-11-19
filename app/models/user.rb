@@ -2,7 +2,7 @@
 # Пользователь.
 #
 class User < MasterTable
-
+  include RequestLogger
   include Redis::Objects
 
   has_many :clients

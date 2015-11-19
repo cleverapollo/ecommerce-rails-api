@@ -3,6 +3,7 @@
 # В некоторых случаях объект User может отсутствовать.
 #
 class Client < ActiveRecord::Base
+  include RequestLogger
 
   belongs_to :shop
   belongs_to :user

@@ -1,5 +1,7 @@
 class Profile
   include Mongoid::Document
+  include RequestLogger
+
   field :user_id, type: Integer
   field :gender, default: { :f => 50, :m => 50 }, type: Hash
   field :size, default: {}, type: Hash
