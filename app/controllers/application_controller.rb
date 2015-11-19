@@ -10,6 +10,8 @@ class ApplicationController < ActionController::API
     headers['Access-Control-Allow-Credentials'] = 'true'
   end
 
+  before_action :store_request_params!
+
   # Чистим входные параметры от битых данных
   def sanitize_params
     ParamsSanitizer.sanitize!(params)
@@ -34,5 +36,10 @@ class ApplicationController < ActionController::API
                                       referer: request.referer.try(:truncate, 250))
 
     CLIENT_ERRORS_LOGGER.error(client_error)
+  end
+
+  def store_request_params!
+    RequestLocals.store[:url] = request.original_url
+    RequestLocals.store[:params] = params
   end
 end

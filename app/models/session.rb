@@ -2,6 +2,7 @@
 # Сессия.
 #
 class Session < MasterTable
+  include RequestLogger
 
   # Хуки на запись сессии
   # after_save :record_session, if: Proc.new { |sess| sess.code == '2756db03-8e68-4e22-aee9-da1f0b12b0c2' }
