@@ -5,11 +5,4 @@ namespace :products do
     CartsExpirer.perform
   end
 
-
-  desc 'Disable expired products'
-  task :disable_expired_products => :environment do
-    Item.disable_expired
-  end
-
-
 end

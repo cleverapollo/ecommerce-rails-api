@@ -1,11 +1,5 @@
 # encoding: UTF-8
 
-# Каждую полночь выключаем товары со "сроком годности"
-every '0 0 * * *' do
-  runner "RunnerWrapper.run('Item.disable_expired')"
-end
-
-
 # Пересчитываем статистику магазинов за 14 дней
 every '0 3 * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_period')"

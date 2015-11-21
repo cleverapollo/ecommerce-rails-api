@@ -120,6 +120,9 @@ class YmlWorker
     rescue Nokogiri::XML::SyntaxError => e
       raise YmlWorker::Error.new("Невалидный XML: #{e.message}.")
     end
+
+    true
+
   end
 
   def process_category(id, parent_id, name)
@@ -131,8 +134,8 @@ class YmlWorker
                            is_available: available,
                            content: item_data,
                            categories_resolver: categories_tree,
-                           brands:brands_cache,
-                           wear_type_dictionaries:wear_type_dictionaries)
+                           brands: brands_cache,
+                           wear_type_dictionaries: wear_type_dictionaries)
 
     # Достаем товар из кэша или создаем новый
     item = items_cache.pop(yml_item.uniqid)

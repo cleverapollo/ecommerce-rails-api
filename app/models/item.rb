@@ -13,7 +13,6 @@ class Item < ActiveRecord::Base
 
   scope :recommendable, -> { available.where(ignored: false) }
   scope :available, -> { where(is_available: true) }
-  scope :expired, -> { where('available_till IS NOT NULL').where('available_till <= ?', Date.current) }
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = {}) {
     if categories && categories.any?
@@ -46,13 +45,6 @@ class Item < ActiveRecord::Base
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
 
   class << self
-
-    # Отключаем протухшие туры и купоны – товары со сроком годности
-    def disable_expired
-      Item.available.expired.find_each do |item|
-        item.update(is_available: false)
-      end
-    end
 
     # Найти или создать товар с аттрибутами
     def fetch(shop_id, item_proxy)
@@ -101,7 +93,6 @@ class Item < ActiveRecord::Base
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
         is_available: new_item.is_available,
-        available_till: ValuesHelper.present_one(new_item, self, :available_till),
         ignored: new_item.ignored.nil? ? false : new_item.ignored,
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
