@@ -84,13 +84,13 @@ class YmlWorker
 
   def process
     begin
-      yml.get do |yml|
+      yml.get do |io|
         worker = self # Сохраняем контекст
 
         categories_counter = 0
         offers_counter = 0
 
-        Xml::Parser.new(Nokogiri::XML::Reader(yml, *XML_READER_PARAMS)) do
+        Xml::Parser.new(Nokogiri::XML::Reader(io, *XML_READER_PARAMS)) do
           inside_element 'categories' do
             for_element 'category' do
               worker.process_category(attribute('id'), attribute('parentId'), inner_xml)
@@ -122,7 +122,6 @@ class YmlWorker
     end
 
     true
-
   end
 
   def process_category(id, parent_id, name)

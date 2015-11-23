@@ -2,14 +2,11 @@ require 'rails_helper'
 
 describe YmlWorker do
   describe '#perform' do
-    let!(:shop) { create(:shop) }
+    let!(:shop) { create(:shop, yml_file_url: "#{Rails.root}/spec/files/yml.xml") }
     let!(:brand_campaign) { create(:brand_campaign, brand: 'Apple', downcase_brand:'apple')}
 
     let!(:promo_brand) { create(:brand, keyword:'apple') unless Brand.where(keyword:'apple').limit(1)[0]}
 
-    before {
-      allow_any_instance_of(Yml).to receive(:get).and_yield(File.open("#{Rails.root}/spec/files/yml.xml", 'rb'))
-    }
     subject { YmlWorker.new.perform(shop.id) }
 
     it 'creates new item' do
@@ -54,7 +51,6 @@ describe YmlWorker do
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
 
-
     it 'gets correct brand from name' do
       existing_item = create(:item, uniqid: '3000', shop: shop)
       subject
@@ -64,7 +60,6 @@ describe YmlWorker do
           brand: 'apple',
       }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
     end
-
 
     it 'gets correct cosmetic attributes' do
       existing_item = create(:item, uniqid: '8000', shop: shop)
@@ -138,6 +133,26 @@ describe YmlWorker do
         {
             wear_type: 'tshirt'
         }.each{|attr, value| expect(existing_item.public_send(attr)).to eq(value) }
+      end
+    end
+
+    describe "exceptions" do
+      describe "fail http request" do
+        before { allow_any_instance_of(Yml).to receive(:get).and_raise(OpenURI::HTTPError) }
+
+        it { expect{ subject }.to raise_error{ YmlWorker::Error.new("Плохой код ответа.") } }
+      end
+
+      describe "invalid archive" do
+        before { allow_any_instance_of(Yml).to receive(:get).and_raise(YmlWorker::Error.new("Не обнаружено XML-файла в архиве.")) }
+
+        it { expect{ subject }.to raise_error{ YmlWorker::Error.new("Не обнаружено XML-файла в архиве.") } }
+      end
+
+      describe "invalid XML" do
+        before { allow_any_instance_of(Yml).to receive(:get).and_raise(Nokogiri::XML::SyntaxError.new("test")) }
+
+        it { expect{ subject }.to raise_error{ YmlWorker::Error.new("Невалидный XML: test.") } }
       end
     end
   end
