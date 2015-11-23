@@ -1,4 +1,7 @@
-require 'archive'
+require "archive"
+require "net/http"
+require "open-uri"
+
 class Yml
   class NotRespondingError < StandardError; end
   class NoXMLFileInArchiveError < StandardError; end
@@ -7,85 +10,36 @@ class Yml
     @shop = shop
   end
 
-
   def get
-    make_path!
-    delete(file_name_xml) if exists?(file_name_xml)
-    delete(file_name) if exists?(file_name)
-    if responds?
-      download
-      raise NotRespondingError if !File.exists?(file_name)
-      if gzip_archive?
-        ungzip
-        is_xml? ? (yield file) : (raise NoXMLFileInArchiveError)
+    download do |io|
+      if is_xml? io
+        yield io.tap(&:rewind)
       else
-        File.rename(file_name, file_name_xml)
-        is_xml? ? (yield file) : (raise NotRespondingError)
+        raise NoXMLFileInArchiveError
       end
-      delete(file_name_xml)
-      delete(file_name)
-    else
-      raise NotRespondingError
     end
   end
 
-  def gzip_archive?
-    File.open(file_name, 'rb').read(2).unpack("S").first == 35615
+  private
+
+  def gzip_archive?(io)
+    io.tap(&:rewind).read(2).unpack("S").first == 35615
   end
 
-  def is_xml?
-    # [16188].pack('S') => "<?"
-    # [48111].pack('S') => "\xEF\xBB"
-
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188 ||
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111
-  end
-
-  def responds?
-    Curl.responds?(@shop.yml_file_url)
-  end
-
-  def directory_name
-    "#{Rails.root}/tmp/ymls/"
-  end
-
-  def make_path!
-    Dir.mkdir(directory_name) unless File.exists?(directory_name)
-  end
-
-  def file_name_xml
-    directory_name + "#{@shop.id}_yml.xml"
-  end
-
-  def file_name
-    directory_name + "#{@shop.id}_yml"
-  end
-
-  def file
-    File.open(file_name_xml, 'rb')
+  def is_xml?(io)
+    # [16188].pack("S") => "<?"
+    # [48111].pack("S") => "\xEF\xBB"
+    header = io.tap(&:rewind).read(2).unpack("S").first
+    (header == 16188) || (header == 48111)
   end
 
   def download
-    Curl.download(@shop.yml_file_url, to: file_name)
-  end
-
-  def delete(input_file_name)
-    File.delete(input_file_name) if exists?(input_file_name)
-  end
-
-  def exists?(input_file_name)
-    File.exist?(input_file_name)
-  end
-
-  def ungzip
-    a = Archive.new(file_name)
-    File.open(file_name_xml, 'wb') do |xml|
-      xml.write(a.first[1])
+    open @shop.yml_file_url, "rb" do |io|
+      if gzip_archive? io.tap(&:rewind)
+        Zlib::GzipReader.open(io) { |ungziped| yield ungziped }
+      else
+        yield io
+      end
     end
-    # Zlib::GzipReader.open(file_name) do |gz|
-    #   File.open(file_name_xml, "wb") do |g|
-    #     IO.copy_stream(gz, g)
-    #   end
-    # end
   end
 end
