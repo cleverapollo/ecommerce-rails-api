@@ -10,6 +10,6 @@ module RequestLogger
   end
 
   def log_destroy_context
-    RequestLogger.logger.debug "destroy: #{ self.class.name } #{ self.attributes.to_json } #{ RequestLocals.fetch(:url) } #{ RequestLocals.fetch(:params) }"
+    RequestLogger.logger.info "destroy: #{ self.class.name } #{ self.attributes.to_json } #{ RequestLocals.fetch(:url) } #{ RequestLocals.fetch(:params) }"
   end
 end
