@@ -171,12 +171,13 @@ class YmlItem
       end
     end
 
-    if @content['child'].present? && @content['child']['sizes'].present?
-      value = []
-      @content['child']['sizes']['size'].each do |val|
-        value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: 'child' }))
-      end
-    end
+    # @noff Не работает
+    # if @content['child'].present? && @content['child']['sizes'].present?
+    #   value = []
+    #   @content['child']['sizes']['size'].each do |val|
+    #     value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: 'child' }))
+    #   end
+    # end
 
     value
   end
