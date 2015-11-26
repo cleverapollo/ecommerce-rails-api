@@ -98,6 +98,11 @@ class Client < ActiveRecord::Base
     end
   end
 
+  # Отмечает, что пользователь недавно что-то делал. Используется затем для выборки получателей триггеров
+  def track_last_activity
+    update last_activity_at: Date.current if last_activity_at != Date.current
+  end
+
   protected
   def assign_ab_testing_group
     return if self.ab_testing_group.present?
