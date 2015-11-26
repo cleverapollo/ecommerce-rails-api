@@ -5,6 +5,7 @@ describe ActionPush::Processor do
     @user = create(:user_with_session)
     @session = @user.sessions.first
     @shop = create(:shop)
+    @client = create(:client, shop: @shop, user: @user)
     @items = [ create(:item, shop: @shop) ]
 
     @sample_params = OpenStruct.new(action: 'view', items: @items, user: @user, shop: @shop)
