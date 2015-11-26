@@ -48,6 +48,11 @@ module ActionPush
 
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
+
+      # Отмечаем, что пользователь был активен
+      params.user.clients.find_by(shop_id: params.shop.id).track_last_activity
+
+
     end
 
     def fetch_action_for(item)
