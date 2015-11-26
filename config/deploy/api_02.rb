@@ -1,11 +1,6 @@
-set :application, 'a02.rees46.com'
-
-role :app, %w{46.36.221.62}
-role :web, %w{46.36.221.62}
-role :db,  %w{46.36.221.62}
-# role :app, %w{5.45.118.36}
-# role :web, %w{5.45.118.36}
-# role :db,  %w{5.45.118.36}
+role :app, %w{5.101.121.169}
+role :web, %w{5.101.121.169}
+role :db,  %w{5.101.121.169}
 
 set :stage, :api_02
 set :shard, :api_02
