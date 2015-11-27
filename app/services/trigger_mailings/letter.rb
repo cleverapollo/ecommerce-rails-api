@@ -21,6 +21,7 @@ module TriggerMailings
           trigger: trigger.to_json
         }
       ).reload
+      TriggersLogger.log "Trying to generate letter body"
       @body = generate_letter_body
     end
 
@@ -46,7 +47,7 @@ module TriggerMailings
       result = trigger.settings[:template].dup
       # Узнаем количество необходимых рекомендаций
       recommendations_count = trigger.settings[:template].scan(/{{ recommended_item }}/).count
-
+      TriggersLogger.log "Get source items"
       # Вставляем в шаблон параметры "исходного" товара
       if trigger.source_item.present?
         decorated_source_item = item_for_letter(trigger.source_item)
@@ -56,12 +57,15 @@ module TriggerMailings
           result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
         end
       end
-
+      TriggersLogger.log "Done"
+      TriggersLogger.log "Get recommendations"
       RecommendationsRequest.report do |r|
         recommendations = trigger.recommendations(recommendations_count)
+        TriggersLogger.log "Received recommendations. Rendering"
 
         # Проходимся по рекомендациям и вставляем их в шаблон
         recommendations.each do |recommended_item|
+          TriggersLogger.log "Render item #{recommended_item.id}"
           decorated_recommended_item = item_for_letter(recommended_item)
 
           recommended_item_template = trigger.settings[:item_template].dup
@@ -75,12 +79,14 @@ module TriggerMailings
 
         # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
         result.gsub!('{{ recommended_item }}', '')
+        TriggersLogger.log "Recommendations rendered"
 
         r.shop = @shop
         r.recommender_type = 'trigger_mail'
         r.recommendations = recommendations.map(&:uniqid)
         r.user_id = client.user.present? ? client.user.id : 0
       end
+      TriggersLogger.log "Render logo"
 
       # Cтавим логотип
       if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank? && (result.include?'{{ logo_url }}')
@@ -88,15 +94,18 @@ module TriggerMailings
       else
         result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
       end
+      TriggersLogger.log "Render UTM"
 
       # Ставим utm-параметры
       result.gsub!('{{ utm_params }}', Mailings::Composer.utm_params(trigger_mail, as: :string))
+      TriggersLogger.log "Render footer"
 
       # В конце прицепляем футер на отписку
       footer = Mailings::Composer.footer(email: client.email,
                                          tracking_url: trigger_mail.tracking_url,
                                          unsubscribe_url: client.trigger_unsubscribe_url)
       result.gsub!('{{ footer }}', footer)
+      TriggersLogger.log "Finished. Trying to send"
 
       result
     end
