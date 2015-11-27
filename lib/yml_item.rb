@@ -166,9 +166,16 @@ class YmlItem
     value = nil
     if @content['fashion'].present? && @content['fashion']['sizes'].present?
       value = []
-      @content['fashion']['sizes']['size'].each do |val|
-        value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+
+      # Если внутри контейнера всего один тег, то он не считает, что это коллекция. Поэтому проверяем.
+      if @content['fashion']['sizes']['size'].is_a? String
+        value << SizeHelper.to_ru(@content['fashion']['sizes']['size'], SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+      else
+        @content['fashion']['sizes']['size'].each do |val|
+          value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+        end
       end
+
     end
 
     # @noff Не работает
