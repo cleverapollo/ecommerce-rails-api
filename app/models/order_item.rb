@@ -13,7 +13,16 @@ class OrderItem < ActiveRecord::Base
   class << self
     # Сохранить товар заказа
     def persist(order, item, amount, recommended_by = nil)
-      action = Action.find_by(item_id: item.id, user_id: order.user.id) || Action.new
+
+      action = Action.find_by(item_id: item.id, user_id: order.user.id)
+      if action.nil?
+        begin
+          Action.create(item_id: item.id, user_id: order.user.id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by)
+        rescue
+          action = Action.find_by(item_id: item.id, user_id: order.user.id)
+        end
+      end
+
       recommended_by ||= action.recommended_by
 
       result = OrderItem.create!(order_id: order.id,
