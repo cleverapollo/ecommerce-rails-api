@@ -17,7 +17,7 @@ class OrderItem < ActiveRecord::Base
       action = Action.find_by(item_id: item.id, user_id: order.user.id)
       if action.nil?
         begin
-          Action.create(item_id: item.id, user_id: order.user.id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by)
+          action = Action.create!(item_id: item.id, user_id: order.user.id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by)
         rescue
           action = Action.find_by(item_id: item.id, user_id: order.user.id)
         end
