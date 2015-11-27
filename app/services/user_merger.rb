@@ -39,14 +39,14 @@ class UserMerger
       # Найдем пользователя с тем же мылом в данном магазине
       if client_with_current_mail = shop.clients.where.not(id: client.id).where(email: user_email).order(id: :asc).limit(1)[0]
         old_user = client_with_current_mail.user
-        UserMerger.merge(old_user, client.user) 
+        UserMerger.merge(old_user, client.user)
       else
         # И при этом этого мыла больше нигде нет
         # Запоминаем его для текущего пользователя
         # Адовый способ не ломать транзакцию
         exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and email = ?)"
         shop.clients.where(id: client.id).where(exclude_query, shop.id, user_email).update_all(email: user_email)
-        client.user
+        client.reload.user
       end
     end
   end

@@ -4,6 +4,7 @@ describe UserProfile::AttributesProcessor do
   describe '.process' do
     let!(:shop) { create(:shop) }
     let!(:user) { create(:user) }
+    let!(:client) { create(:client, user: user, shop: shop) }
     let!(:first_mail_user) { create(:user)}
     let!(:second_mail_user) { create(:user)}
     let!(:third_mail_user) { create(:user)}
@@ -18,7 +19,7 @@ describe UserProfile::AttributesProcessor do
 
     it 'set correct email' do
       subject
-      expect { user.clients.first.email = 'test@example.com' }
+      expect { user.reload.clients.first.email = 'test@example.com' }
     end
 
     context 'when profile attribute is new' do
@@ -28,7 +29,7 @@ describe UserProfile::AttributesProcessor do
 
       it 'fix gender attribute' do
         subject
-        expect(user.profile.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
+        expect(first_mail_user.profile.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
       end
     end
 

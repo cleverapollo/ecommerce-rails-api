@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe UserMerger do
+describe ShopKPI do
 
   let!(:user) { create(:user) }
   let!(:user_2) { create(:user) }
