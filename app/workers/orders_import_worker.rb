@@ -110,7 +110,6 @@ class OrdersImportWorker
 
     if user_email.present?
       user = UserMerger.merge_by_mail(shop, client, user_email)
-      client = shop.clients.find_by(external_id: user_id)
     end
 
     user

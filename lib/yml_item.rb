@@ -168,17 +168,19 @@ class YmlItem
       value = []
 
       # Если внутри контейнера всего один тег, то он не считает, что это коллекция. Поэтому проверяем.
-      if @content['fashion']['sizes']['size'].is_a? String
-        value << SizeHelper.to_ru(@content['fashion']['sizes']['size'], SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
-      else
-        @content['fashion']['sizes']['size'].each do |val|
-          value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+      if @content['fashion']['sizes'] && @content['fashion']['sizes']['size']
+        if @content['fashion']['sizes']['size'].is_a? String
+          value << SizeHelper.to_ru(@content['fashion']['sizes']['size'], SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+        else
+          @content['fashion']['sizes']['size'].each do |val|
+            value << SizeHelper.to_ru(val, SizeHelper.bad_to_default({ wear_type: wear_type, gender: gender, feature: feature }))
+          end
         end
       end
 
     end
 
-    # @noff Не работает
+    # @noff Не работает, тем более, что для детских размеров другой алгоритм и другая секция
     # if @content['child'].present? && @content['child']['sizes'].present?
     #   value = []
     #   @content['child']['sizes']['size'].each do |val|
