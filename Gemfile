@@ -34,6 +34,7 @@ gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
 gem 'rack-utf8_sanitizer', '~> 1.2.3'
 gem 'figaro'
+gem 'addressable', '~> 2.3', '>= 2.3.8'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false

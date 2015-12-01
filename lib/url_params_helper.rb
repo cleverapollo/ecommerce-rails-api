@@ -9,7 +9,8 @@ class UrlParamsHelper
     #
     # @return [String] URL с параметрами
     def add_params_to(url, params = {})
-      result = url
+      require 'addressable/uri'
+      result = Addressable::URI.parse(url).normalize.to_s
       params.each do |param_key, param_value|
         uri = URI.parse(result)
         result = if uri.query.present?

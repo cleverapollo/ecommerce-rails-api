@@ -356,6 +356,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  addressable (~> 2.3, >= 2.3.8)
   better_errors (~> 1.0.1)
   binding_of_caller (~> 0.7.2)
   bounce_email (~> 0.2.6)
