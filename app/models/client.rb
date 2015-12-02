@@ -50,6 +50,7 @@ class Client < ActiveRecord::Base
             master_client.external_id = slave_client.external_id if !slave_client.external_id.blank? && master_client.external_id.blank?
             master_client.last_trigger_mail_sent_at = slave_client.last_trigger_mail_sent_at if !slave_client.last_trigger_mail_sent_at.nil?
             master_client.location = slave_client.location if !slave_client.location.nil?
+            master_client.last_activity_at = slave_client.last_activity_at if master_client.last_activity_at.nil? || (!slave_client.last_activity_at.nil? && master_client.last_activity_at < slave_client.last_activity_at)
             # master_client.last_supply_trigger_send_at = slave_client.last_supply_trigger_send_at if !slave_client.last_supply_trigger_send_at.nil?
             master_client.save if master_client.changed?
           end

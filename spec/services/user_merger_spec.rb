@@ -172,7 +172,7 @@ describe UserMerger do
 
       context 'client merging' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@example.com') }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@example.com', last_activity_at: Date.current) }
 
         it 'destroys new_client' do
           subject
@@ -195,7 +195,10 @@ describe UserMerger do
         it 'merges two clients into one by email and saves first external_id' do
         end
 
-
+        it 'saves newest last_activity_at' do
+          subject
+          expect(old_client.reload.last_activity_at).to eq(new_client.last_activity_at)
+        end
 
       end
 
