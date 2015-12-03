@@ -1,7 +1,53 @@
-if ENV["RAILS_ENV"] == "development"
-  worker_processes 1
-else
-  worker_processes 3
+shared = File.expand_path(File.join(File.dirname(__FILE__), '../../../shared'))
+
+worker_processes (ENV["CONCURRENCY"] || 20).to_i
+timeout 10
+preload_app true
+
+pid File.join(shared, 'tmp/pids/unicorn.pid')
+
+listen File.join(shared, 'tmp/sockets/unicorn.sock'), backlog: 1024
+listen 4646, tcp_nopush: true
+
+working_directory File.expand_path(File.join(shared, '../current'))
+
+stderr_path File.join(shared, 'log/unicorn.error.log')
+stdout_path File.join(shared, 'log/unicorn.access.log')
+
+before_fork do |server, worker|
+  Redis.current.quit
+  ActiveRecord::Base.connection.disconnect!
+
+  old_pid = "#{server.config[:pid]}.oldbin"
+
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+    end
+  end
 end
 
-timeout 3000
+after_fork do |server, worker|
+  CONCURRENCY ||= (ENV["CONCURRENCY"] || 20).to_i
+
+  if defined?(Redis) && defined?(ConnectionPool)
+    redis_db = [0,0,2][ENV['REES46_SHARD'].to_i]
+
+    Redis.current = ConnectionPool.new(size: CONCURRENCY, timeout: 5) do
+      Redis.new({
+        url: "redis://localhost:6379/#{ redis_db }",
+        namespace: "rees46_api_#{ Rails.env }"
+      })
+    end
+
+    puts 
+  end
+
+  if defined?(ActiveRecord::Base)
+    config = ActiveRecord::Base.configurations[Rails.env] || Rails.application.config.database_configuration[Rails.env]
+    config['pool'] = CONCURRENCY
+
+    ActiveRecord::Base.establish_connection(config)
+  end
+end
