@@ -27,6 +27,7 @@ gem 'newrelic_rpm', '~> 3.12.0'
 
 # BrB
 gem 'brb', '~> 0.3.1'
+gem "sinatra", require: false
 
 gem 'connection_pool'
 # Tools
