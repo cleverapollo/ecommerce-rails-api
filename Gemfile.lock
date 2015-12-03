@@ -33,6 +33,11 @@ PATH
       postrank-uri
       virtus (>= 1.0)
 
+PATH
+  remote: vendor/gems/size_tables
+  specs:
+    size_tables (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -428,6 +433,7 @@ DEPENDENCIES
   sidekiq (~> 3.3.3)
   sidekiq-limit_fetch (~> 2.4.1)
   simplecov (~> 0.7.1)
+  size_tables!
   spring (~> 1.2.0)
   spring-commands-rspec (~> 1.0.4)
   subcontractor (~> 0.8.0)
