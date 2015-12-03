@@ -14,7 +14,7 @@ end
 
 # Каждые сутки синхронизируем YML
 every 45.minutes do
-  runner "RunnerWrapper.run('YmlWorker.process_all')"
+  runner "RunnerWrapper.run('Shop.import_yml_files')"
 end
 
 # Каждую ночь в 4 часа выключаем корзины

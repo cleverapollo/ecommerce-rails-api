@@ -36,6 +36,16 @@ class Item < ActiveRecord::Base
   scope :widgetable, ->() {
     where(widgetable:true)
   }
+  # Фильтрация по кастомным аттрибутам
+  scope :by_ca, ->(params) {
+    result = self
+    params.each do |key, value|
+      value = [value] unless value.is_a? Array
+      value = value.map { |v| "'#{v}'" }.join(', ')
+      result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value}]")
+    end
+    result
+  }
 
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
 
