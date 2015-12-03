@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe YmlWorker do
   describe '#perform' do
-    let!(:shop) { create(:shop, yml_file_url: "#{Rails.root}/spec/files/yml.xml") }
+    let!(:shop) { create(:shop, yml_file_url: "#{Rails.root}/spec/files/example.xml") }
     let!(:brand_campaign) { create(:brand_campaign, brand: 'Apple', downcase_brand:'apple')}
 
     let!(:promo_brand) { create(:brand, keyword:'apple') unless Brand.where(keyword:'apple').limit(1)[0]}
@@ -208,8 +208,13 @@ describe YmlWorker do
         "http://av-aks.ru/var/files/YML/1_yandex_market.yml",
         "http://www.piter.com/marketplace/12303.xml",
         "http://city-boom.ru/yamarket.xml",
-        "http://www.alfa-shopping.ru/marketplace/21183.xml"
-      ].each do |url|
+        "http://www.alfa-shopping.ru/marketplace/21183.xml",
+        "http://tmp.netcat/netcat/modules/netshop/export/yandex/bundle1.xml",
+        "http://beta50.on-advantshop.net/beta_65697_izxeruunnj/yamarket.xml",
+        "http://in-trend.club/marketplace/21972.xml",
+        "http://kumiho.club/market/novye/yml/",
+        "http://www.only-rayban.ru/collection/zhenskaya",
+      ].uniq.each do |url|
         it url, skip: !ENV["INTEGRATION_SPEC"].present? do
           expect {
             shop = create(:shop, yml_file_url: url)

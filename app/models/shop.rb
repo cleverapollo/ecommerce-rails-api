@@ -72,6 +72,21 @@ class Shop < MasterTable
     save
   end
 
+  def yml_file(&block)
+    Yml.new(self).get { |io| block.call(Rees46ML::File.new(io)) }
+  end
+
+  def self.import_yml_files
+    active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+      condition = (shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)) &&
+                  (shop.last_try_to_load_yml_at.blank?       || shop.last_try_to_load_yml_at       < (DateTime.current - shop.yml_load_period.hours))
+
+      if condition
+        YmlImporter.perform_async(shop.id)
+      end
+    end
+  end
+
   def first_event?
     connected_events_last_track.values.select{|v| v != nil }.none?
   end
