@@ -48,6 +48,9 @@ gem 'bounce_email', '~> 0.2.6', require: false # Определяет тип б�
 # Upload files
 gem 'paperclip', '~> 4.2.1'
 
+# Internal gems
+gem "rees46_ml", path: "vendor/gems/rees46_ml"
+
 # zip
 gem 'libarchive-ruby', '0.0.3'
 
