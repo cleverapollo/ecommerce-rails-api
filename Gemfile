@@ -28,6 +28,7 @@ gem 'newrelic_rpm', '~> 3.12.0'
 # BrB
 gem 'brb', '~> 0.3.1'
 
+gem 'connection_pool'
 # Tools
 gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
