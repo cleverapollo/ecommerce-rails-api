@@ -14,7 +14,7 @@ gem 'request_store_rails'
 
 # Database
 gem 'pg', '~> 0.18.1'
-gem 'redis-objects', '~> 0.9.0'
+gem 'redis-objects'
 gem 'mongoid', '~> 5.0.0'
 
 # Workers
