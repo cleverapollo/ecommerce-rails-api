@@ -51,10 +51,6 @@ gem 'paperclip', '~> 4.2.1'
 
 # Internal gems
 gem "rees46_ml", path: "vendor/gems/rees46_ml"
-
-# zip
-gem 'libarchive-ruby', '0.0.3'
-
 gem "size_tables", path: "vendor/gems/size_tables"
 
 # Development tools
