@@ -18,7 +18,6 @@ set :normalize_asset_timestamps, false
 set :rails_env,   'production'
 set :default_stage,   'api_00'
 
-
 set :rollbar_token, '8b197bc247a844278f109dbd06ad2e66'
 set :rollbar_env, Proc.new { fetch :stage }
 set :rollbar_role, Proc.new { :app }
@@ -26,7 +25,6 @@ set :rollbar_role, Proc.new { :app }
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
 set :rvm_ruby_string, "2.2.3"
-
 
 # Whenever
 set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
@@ -39,29 +37,25 @@ set :sidekiq_env, 'production'
 set :sidekiq_options, '-C config/sidekiq.yml'
 set :sidekiq_timeout, 300
 
-namespace :deploy do
+after 'deploy:publishing', 'deploy:restart'
 
+namespace :deploy do
   desc 'Start unicorn'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "cd #{current_path}; ~/.rvm/bin/rvm default do bundle exec unicorn -c config/unicorn.rb -E #{fetch :rails_env} -D"
+      invoke 'unicorn:start'
     end
   end
 
-  desc 'Stop unicorn'
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      invoke 'unicorn:stop'
     end
   end
 
-  desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      invoke 'unicorn:restart'
     end
   end
-
 end
-
-require './config/boot'
