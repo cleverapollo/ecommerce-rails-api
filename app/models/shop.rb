@@ -72,8 +72,8 @@ class Shop < MasterTable
     save
   end
 
-  def yml_file(&block)
-    Yml.new(self).get { |io| block.call(Rees46ML::File.new(io)) }
+  def yml
+    @yml ||= Rees46ML::File.new(Yml.new(yml_file_url)).lazy
   end
 
   def self.import_yml_files

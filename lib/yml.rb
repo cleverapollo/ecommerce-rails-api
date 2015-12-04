@@ -1,45 +1,56 @@
-require "archive"
 require "net/http"
 require "open-uri"
 
-class Yml
-  class NotRespondingError < StandardError; end
-  class NoXMLFileInArchiveError < StandardError; end
+class Yml < Struct.new(:path)
+  extend Forwardable
+  include ActionView::Helpers::NumberHelper
 
-  def initialize(shop)
-    @shop = shop
-  end
+  NotRespondingError = Class.new(StandardError)
+  NoXMLFileInArchiveError = Class.new(StandardError)
 
-  def get
-    download do |io|
-      if is_xml? io
-        yield io.tap(&:rewind)
-      else
-        raise NoXMLFileInArchiveError
-      end
-    end
-  end
+  def_delegators :io, :read, :readpartial, :rewind
 
   private
 
-  def gzip_archive?(io)
-    io.tap(&:rewind).read(2).unpack("S").first == 35615
-  end
-
-  def is_xml?(io)
-    # [16188].pack("S") => "<?"
-    # [48111].pack("S") => "\xEF\xBB"
-    header = io.tap(&:rewind).read(2).unpack("S").first
-    (header == 16188) || (header == 48111)
+  def io
+    @io ||= begin
+      file = download
+      file = gzip_archive?(file) ? Zlib::GzipReader.new(file.tap(&:rewind)) : file
+      fail NoXMLFileInArchiveError unless is_xml?(file)
+      file
+    end
   end
 
   def download
-    open @shop.yml_file_url, "rb" do |io|
-      if gzip_archive? io.tap(&:rewind)
-        Zlib::GzipReader.open(io) { |ungziped| yield ungziped }
+    attempts = 3
+
+    begin
+      open path, "rb", {
+        progress_proc: ->(bytes) { STDOUT.write "\rDownloaded : #{ number_to_human_size(bytes) }" },
+        read_timeout: 10.minutes,
+        redirect: true
+      }
+    rescue Errno::ETIMEDOUT, Net::ReadTimeout
+      if attempts -= 1
+        retry
       else
-        yield io
+        raise NotRespondingError.new("Не удаётся выгрузить YML файл в течение 30 минут.")
       end
+    rescue OpenURI::HTTPError
+      NotRespondingError.new("YML файл недоступен.")
+    rescue SocketError
+      NotRespondingError.new("Некоректный адрес YML файла.")
     end
+  end
+
+  def gzip_archive?(file)
+    file.tap(&:rewind).read(2).unpack("S").first == 35615
+  end
+
+  def is_xml?(file)
+    # [16188].pack("S") => "<?"
+    # [48111].pack("S") => "\xEF\xBB"
+    header = file.tap(&:rewind).read(2).unpack("S").first
+    (header == 16188) || (header == 48111)
   end
 end
