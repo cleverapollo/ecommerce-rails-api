@@ -55,8 +55,7 @@ group :development do
   gem 'pry'
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
-  gem 'capistrano', '~> 3.4.0'
-  gem 'rvm-capistrano'
+  gem 'capistrano'
   gem 'capistrano-rvm'
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
