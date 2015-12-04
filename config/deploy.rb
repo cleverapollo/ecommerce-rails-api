@@ -43,19 +43,19 @@ namespace :deploy do
   desc 'Start unicorn'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
-      invoke 'unicorn:start'
+      # invoke 'unicorn:start'
     end
   end
 
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      invoke 'unicorn:stop'
+      # invoke 'unicorn:stop'
     end
   end
 
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      invoke 'unicorn:restart'
+      # invoke 'unicorn:restart'
     end
   end
 end
