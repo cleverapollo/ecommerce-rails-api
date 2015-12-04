@@ -15,4 +15,4 @@ set :ssh_options, {
 
 set :deploy_to, "/home/rails/staging.rees46.com"
 set :branch, 'develop'
-set :rails_env, 'production'
+set :rails_env, 'staging'
