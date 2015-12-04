@@ -24,7 +24,7 @@ class OfferUpdater
       if offer.fashion?
         item.feature = offer.fashion.feature
         item.wear_type = offer.type
-        item.brand = offer.fashion.brand # TODO : ask about crutch
+        item.brand = offer.fashion.brand
 
         size_table = "SizeTables::#{ offer.type.camelcase }".constantize.new
         item.sizes = offer.fashion.sizes.map { |size|
@@ -40,11 +40,11 @@ class OfferUpdater
         item.periodic = offer.cosmetic.periodic
       end
 
-      # FUTURE
-      # item.volume = offer.volume
-      # item.part_type = offer.part_types.map(&:to_hash)
-      # item.skin_type = offer.skin_types.map(&:to_hash)
-      # item.condition = offer.conditions.to_a
+      item.part_type = offer.part_types.map(&:value) if offer.part_types
+      item.skin_type = offer.skin_types.map(&:value) if offer.skin_types
+      item.condition = offer.conditions.map(&:value) if offer.conditions
+
+      # TODO : item.volume = offer.volume
 
       item.is_available = !!offer.available
       item.ignored = !!offer.ignored
