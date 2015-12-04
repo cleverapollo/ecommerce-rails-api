@@ -1,7 +1,7 @@
 class YmlImporter
   include Sidekiq::Worker
 
-  sidekiq_options retry: 2, queue: "long"
+  sidekiq_options retry: 2, queue: "long", failures: true
 
   def perform(shop_id)
     shop = Shop.find(shop_id)
