@@ -1,7 +1,7 @@
 class YmlImporter
   include Sidekiq::Worker
 
-  sidekiq_options retry: false, queue: "long"
+  sidekiq_options retry: 2, queue: "long"
 
   def perform(shop_id)
     shop = Shop.find(shop_id)
@@ -16,7 +16,7 @@ class YmlImporter
       category_ids = yml_shop.categories.path_to(offer.category_id)
       location_ids = offer.locations.flat_map{ |l| yml_shop.locations.path_to(l.id) }
 
-      OfferUpdater.new.perform_async shop.id, YAML.dump(offer), category_ids, location_ids
+      OfferUpdater.perform_async shop.id, YAML.dump(offer), category_ids, location_ids
     end
   end
 end
