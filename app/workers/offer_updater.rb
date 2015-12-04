@@ -1,7 +1,7 @@
 class OfferUpdater
   include Sidekiq::Worker
 
-  sidekiq_options retry: 2, queue: "default", failures: true
+  sidekiq_options retry: 2, failures: true
 
   def perform(shop_id, offer_dump, category_ids, location_ids)
     offer = YAML.load(offer_dump)
