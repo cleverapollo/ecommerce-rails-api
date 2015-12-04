@@ -18,5 +18,8 @@ class YmlImporter
 
       OfferUpdater.perform_async shop.id, YAML.dump(offer), category_ids, location_ids
     end
+
+    uids = shop.yml.select{ |element| element.is_a?(Rees46ML::Offer) }.map{ |s| s.id }.force.to_a
+    Item.where(shop_id: shop_id).where("uniqid not in (?)", uids).update_all(is_available: false)
   end
 end
