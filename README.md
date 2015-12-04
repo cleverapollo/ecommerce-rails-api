@@ -28,17 +28,6 @@ Back-end для приема событий и выдачи рекомендац
 
 ### Развертывание
 
-Для Debian:
-```
-# apt-get install libarchive-dev
-```
-
-Для mac OS X:
-```
-$ brew install libarchive
-$ bundle config build.libarchive-ruby --with-opt-dir=$(brew --prefix libarchive)
-```
-
 ```
 $ bundle
 $ bin/rake db:create db:schema:load

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<yml_catalog date="2015-11-20 07:43">
+  <shop>
+    <name>Магазин укрепления семьи</name>
+    <company>example.com</company>
+    <url>http://example.com/</url>
+
+    <currencies>
+      <currency id="RUB" rate="1"/>
+      <currency id="EUR" rate="75.05"/>
+      <currency id="USD" rate="66.48"/>
+    </currencies>
+
+    <categories>
+      <category id="4" parentId="3">Категория 4</category>
+      <category id="3" parentId="2">Категория 3</category>
+      <category id="2" parentId="1">Категория 2</category>
+      <category id="1" parentId="0">Категория 1</category>
+      <category id="0">Корень категорий</category>
+    </categories>
+
+    <locations>
+      <location id="1" type="city" name="Москва" />
+      <location id="2" type="city" name="Санкт-Петербург" />
+      <location id="3" type="store" name="Пункт выдачи на Арбате" parentId="1" />
+    </locations>
+
+    <local_delivery_cost>200</local_delivery_cost>
+
+    <offers>
+      <offer available="true" id="1" type="vendor.model">
+        <url>http://www.example.com/catalog/show/KID/1</url>
+        <price>899</price>
+        <currencyId>RUR</currencyId>
+        <categoryId>1</categoryId>
+        <picture>http://example.com/image/1.jpg</picture>
+        <picture>http://example.com/image/1.1.jpg</picture>
+        <store>false</store>
+        <pickup>true</pickup>
+        <delivery>true</delivery>
+        <vendor>Clementoni</vendor>
+        <model>Электронная погремушка Обезьянка для вашего мужа</model>
+        <description>Cупер дупер оберег для вашей собаки</description>
+        <country_of_origin>Китай</country_of_origin>
+        <param name="Ширина" unit="мм">170</param>
+        <param name="Глубина" unit="мм">180</param>
+        <param name="Высота" unit="мм">50</param>
+        <param name="Вес" unit="г">230</param>
+        <param name="Возраст от" unit="месяцев">3</param>
+        <param name="Возраст до" unit="месяцев">12</param>
+        <param name="Пол">Унисекс</param>
+        <child>
+          <age>
+            <min>0.25</min>
+            <max>1</max>
+          </age>
+          <gender>u</gender>
+          <type>hygiene</type>
+          <brand>Clementoni</brand>
+        </child>
+
+        <locations>
+          <location id="1">
+            <price>50300</price>
+          </location>
+          <location id="3"></location>
+          <location id="4">
+            <price>49000</price>
+          </location>
+        </locations>
+      </offer>
+
+      <offer available="true" group_id="2" id="2">
+        <url>http://example.com/dress1</url>
+        <price>2599</price>
+        <currencyId>RUB</currencyId>
+        <categoryId>2</categoryId>
+        <picture>http://example.com/product/big/4046_big.jpg</picture>
+        <picture>http://example.com/product/big/4047_big.jpg</picture>
+        <name>Элегантное вечернее платье</name>
+        <description>Супер дупер тряпка для вашей тян</description>
+
+        <param name="Цвет">Темно-Синий</param>
+        <param name="Размер">S</param>
+
+        <cosmetic>
+          <gender>f</gender>
+          <hypoallergenic>0</hypoallergenic>
+          <periodic>1</periodic>
+          <brand>Nivea</brand>
+
+          <part_types>
+            <part_type>hair</part_type>
+            <part_type>body</part_type>
+          </part_types>
+
+          <skin_types>
+            <skin_type>normal</skin_type>
+            <skin_type>oily</skin_type>
+          </skin_types>
+
+          <conditions>
+            <condition>colored</condition>
+            <condition>damaged</condition>
+          </conditions>
+
+          <volumes>
+            <volume>
+              <value>200</value>
+              <price>1000</price>
+            </volume>
+            <volume>
+              <value>400</value>
+              <price>2000</price>
+            </volume>
+          </volumes>
+        </cosmetic>
+
+        <locations>
+          <location id="1">
+            <price>50300</price>
+          </location>
+          <location id="2"></location>
+          <location id="4">
+            <price>49000</price>
+          </location>
+        </locations>
+
+        <accessories>
+          <accessory id="5574" />
+          <accessory id="131" />
+          <accessory id="99444" />
+          <accessory id="334411" />
+        </accessories>
+      </offer>
+
+      <offer available="true" group_id="2" id="3">
+        <url>http://example.com/dress1</url>
+        <price>2599</price>
+        <currencyId>RUB</currencyId>
+        <categoryId>3</categoryId>
+        <picture>http://example.com/product/big/4046_big.jpg</picture>
+        <picture>http://example.com/product/big/4047_big.jpg</picture>
+        <name>Элегантное вечернее платье</name>
+        <description>Супер дупер тряпка для вашей тян</description>
+
+        <param name="Цвет">Темно-Синий</param>
+        <param name="Размер">S</param>
+
+        <fashion>
+          <gender>f</gender>
+          <type>shirt</type>
+          <sizes>
+            <size>XL</size>
+            <size>S</size>
+            <size>M</size>
+            <size>48</size>
+          </sizes>
+          <brand>Gucci</brand>
+        </fashion>
+      </offer>
+    </offers>
+
+  </shop>
+</yml_catalog>
