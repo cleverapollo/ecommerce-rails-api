@@ -119,8 +119,8 @@ module Rees46ML
     end
 
     def part_types
-      cosmetic.part_types
-      child.part_types
+      return cosmetic.part_types if cosmetic?
+      return child.part_types if child?
     end
 
     def skin_types
