@@ -39,29 +39,25 @@ set :sidekiq_env, 'production'
 set :sidekiq_options, '-C config/sidekiq.yml'
 set :sidekiq_timeout, 300
 
-namespace :deploy do
+after 'deploy:publishing', 'deploy:restart'
 
+namespace :deploy do
   desc 'Start unicorn'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "cd #{current_path}; ~/.rvm/bin/rvm default do bundle exec unicorn -c config/unicorn.rb -E #{fetch :rails_env} -D"
+      invoke 'unicorn:start'
     end
   end
 
-  desc 'Stop unicorn'
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      invoke 'unicorn:stop'
     end
   end
 
-  desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      invoke 'unicorn:legacy_restart'
     end
   end
-
 end
-
-require './config/boot'

@@ -18,6 +18,7 @@ require 'capistrano/rvm'
 require 'capistrano/sidekiq'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
+require 'capistrano3/unicorn'
 
 require 'rollbar/capistrano3'
 

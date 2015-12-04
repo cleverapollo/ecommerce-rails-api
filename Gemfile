@@ -61,6 +61,7 @@ group :development do
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
   gem 'capistrano-sidekiq'
+  gem 'capistrano3-unicorn'
 end
 
 # Rspec
