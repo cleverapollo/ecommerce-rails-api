@@ -4,7 +4,7 @@
 production:
   :concurrency: 15
 staging:
-  :concurrency: 52
+  :concurrency: 111
 development:
   :concurrency: 15
 :queues:
@@ -17,5 +17,5 @@ development:
   critical: 1
   rollbar: 1
   long: 10
-  mailing: 10
-  default: 30
+  mailing: 19
+  default: 80
