@@ -23,6 +23,7 @@ gem 'connection_pool'
 # Workers
 gem 'sidekiq', '~> 3.3.3'
 gem 'sidekiq-limit_fetch', '~> 2.4.1'
+gem 'sidekiq-failures'
 
 # Services
 gem 'rollbar', '~> 2.4.0'

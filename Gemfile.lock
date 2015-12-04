@@ -263,6 +263,8 @@ GEM
       json
       redis (>= 3.0.6)
       redis-namespace (>= 1.3.1)
+    sidekiq-failures (0.4.5)
+      sidekiq (>= 2.16.0)
     sidekiq-limit_fetch (2.4.2)
       sidekiq (>= 2.6.5, < 4.0)
     simplecov (0.7.1)
@@ -346,6 +348,7 @@ DEPENDENCIES
   rollbar (~> 2.4.0)
   rspec-rails (~> 3.1.0)
   sidekiq (~> 3.3.3)
+  sidekiq-failures
   sidekiq-limit_fetch (~> 2.4.1)
   simplecov (~> 0.7.1)
   sinatra
