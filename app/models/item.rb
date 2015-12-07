@@ -68,6 +68,47 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # Назначить аттрибуты
+  # deprecated
+  def merge_attributes(new_item)
+    new_item.is_available = true if new_item.is_available.nil?
+    self.locations = ItemLocationsMerger.merge(self.locations, new_item.locations)
+
+    attrs = {
+        price: ValuesHelper.present_one(new_item, self, :price),
+        categories: ValuesHelper.with_contents(new_item, self, :categories),
+        name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
+        description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
+        url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
+        image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
+        brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
+        is_available: new_item.is_available,
+        ignored: new_item.ignored.nil? ? false : new_item.ignored,
+        type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
+        vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
+        model: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :model)),
+        gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :gender)),
+        wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :wear_type)),
+        feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
+        sizes: ValuesHelper.present_one(new_item, self, :sizes),
+        age_min: ValuesHelper.present_one(new_item, self, :age_min),
+        age_max: ValuesHelper.present_one(new_item, self, :age_max),
+        hypoallergenic: ValuesHelper.present_one(new_item, self, :hypoallergenic),
+        periodic: ValuesHelper.present_one(new_item, self, :periodic),
+        part_type: ValuesHelper.present_one(new_item, self, :part_type),
+        skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
+        condition: ValuesHelper.present_one(new_item, self, :condition),
+        volume: ValuesHelper.present_one(new_item, self, :volume),
+        barcode: ValuesHelper.present_one(new_item, self, :barcode)
+    }
+
+    assign_attributes(attrs)
+
+    self.widgetable = self.name.present? && self.url.present? && self.image_url.present? && self.price.present?
+
+    attrs
+  end
+
   def to_s
     "Item ##{id} (external #{uniqid}) #{name} at #{price}"
   end
