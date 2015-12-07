@@ -34,6 +34,7 @@ module Recommendations
     attr_accessor :limit
     # Массив местоположений, для которых получаем рекомендации
     attr_accessor :locations
+    attr_accessor :brands
     # Массив товаров, для ранжирования
     attr_accessor :items
     # Рекомендовать только товары с параметрами для отображения
@@ -66,6 +67,7 @@ module Recommendations
       extract_items
       extract_categories
       extract_locations
+      extract_brands
       extract_exclude
       extract_modification
       self
@@ -78,6 +80,12 @@ module Recommendations
       item.try(:id)
     end
 
+    Recommender::Base::MODIFICATIONS.each do |n|
+      define_method "#{ n }?" do
+        modification == n
+      end
+    end
+
     private
 
     # Конструктор, инициализирует аттрибуты, выполняет первоначальную проверку параметров
@@ -88,6 +96,7 @@ module Recommendations
       @raw                       = params
       @categories                = []
       @locations                 = []
+      @brands                    = []
       @cart_item_ids             = []
       @limit                     = 8
       @recommend_only_widgetable = false
@@ -195,6 +204,13 @@ module Recommendations
       if raw[:locations].present?
         @locations += raw[:locations].split(',')
       end
+    end
+
+    # Извлекает бренды: приходят массивом
+    #
+    # @private
+    def extract_brands
+      @brands += raw[:brands].split(',').map{ |s| StringHelper.encode_and_truncate(s.mb_chars.downcase.strip) } if raw[:brands].present?
     end
 
     # Извлекает содержимое корзины

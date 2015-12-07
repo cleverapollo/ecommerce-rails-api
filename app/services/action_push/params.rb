@@ -130,7 +130,7 @@ module ActionPush
       end
     end
 
-    # Приводит входящие массивы в каноничный вид
+    # Нормализует входящие массивы
     #
     # @private
     def normalize_item_arrays
@@ -152,9 +152,7 @@ module ActionPush
 
         item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         item_attributes.ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
-        # May be unused
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
-
 
         raw_is_avalilable =  IncomingDataTranslator.is_available?(raw[:is_available][i])
         available_present = raw[:is_available].present? && raw[:is_available][i].present?

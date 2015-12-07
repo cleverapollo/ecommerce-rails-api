@@ -4,7 +4,7 @@ module Recommender
       def items_to_recommend
         if params.modification.present?
           result = super
-          if params.modification == 'fashion'
+          if params.fashion?
             if categories.try(:any?)
               # в категории
             else

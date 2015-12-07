@@ -27,14 +27,14 @@ module Recommender
         break if new_result.empty?
         # По отраслевым отсеивать тут
         if params.modification.present?
-          if params.modification == 'fashion' || params.modification == 'cosmetic'
+          if params.fashion? || params.cosmetic?
             # уберем товары, которые не актуальные или не соответствуют полу
             new_result = Item.widgetable.recommendable.where(id: new_result)
 
             gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
             new_result = gender_algo.modify_relation_with_rollback(new_result)
             # Если fashion - дополнительно фильтруем по размеру
-            if params.modification == 'fashion'
+            if params.fashion?
               size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
               new_result = size_algo.modify_relation_with_rollback(new_result)
             end

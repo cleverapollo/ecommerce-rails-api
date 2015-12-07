@@ -106,6 +106,19 @@ FactoryGirl.define do
     name 'test'
     widgetable true
     description ''
+
+    trait :widgetable do
+      widgetable true
+    end
+
+    trait :available do
+      is_available true
+    end
+
+    trait :recommendable do
+      available
+      ignored false
+    end
   end
 
   factory :action do
