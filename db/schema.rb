@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151207061505) do
+ActiveRecord::Schema.define(version: 20151207064223) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -263,7 +263,6 @@ ActiveRecord::Schema.define(version: 20151207061505) do
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id"], name: "widgetable_shop", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
   add_index "items", ["sizes"], name: "index_items_on_sizes_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                       null: false
