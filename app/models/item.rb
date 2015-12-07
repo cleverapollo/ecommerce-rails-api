@@ -27,6 +27,11 @@ class Item < ActiveRecord::Base
       where("locations ?| array[#{locations.map { |l| "'#{l}'" }.join(',')}]")
     end
   }
+
+  scope :by_brands, ->(*brands) {
+    brands.flatten.any? ? where("brand in (?)", brands.flatten) : all
+  }
+
   # Доступные для отображения
   scope :widgetable, ->() {
     where(widgetable:true)
