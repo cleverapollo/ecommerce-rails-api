@@ -86,7 +86,6 @@ class DigestMailingBatchWorker
   #
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
-  # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
   def send_mail(email, recommendations)
     Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
@@ -99,7 +98,7 @@ class DigestMailingBatchWorker
   # Сформировать тело письма.
   #
   # @param items [Array] массив товаров.
-  # @param custom_attributes = {} [Hash] кастомные аттрибуты пользователя.
+  # @param email [String] E-mail покупателя
   def letter_body(items, email)
     result = @mailing.template.dup
 
@@ -115,13 +114,6 @@ class DigestMailingBatchWorker
 
       result['{{ recommended_item }}'] = item_template
     end
-
-    # if custom_attributes.present? && custom_attributes.any?
-    #   # Вставляем в письмо кастомные аттрибуты пользователя.
-    #   custom_attributes.each do |key, value|
-    #     result.gsub!("{{ user.#{key} }}", value)
-    #   end
-    # end
 
     # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
     result.gsub!('{{ recommended_item }}', '')

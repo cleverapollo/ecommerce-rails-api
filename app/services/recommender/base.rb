@@ -5,7 +5,7 @@ module Recommender
   class Base
 
     # Доступные модификации отраслевых алгоритмов
-    MODIFICATIONS = %w(fashion child fmcg coupon travel media dating cosmetic)
+    MODIFICATIONS = %w(fashion child fmcg cosmetic pets)
     RANDOM_LIMIT_MULTIPLY = 3
 
     # Массив реализаций рекомендеров
@@ -114,9 +114,6 @@ module Recommender
       # Оставляем только те, которые содержат полные данные о товаре
       # для отображения карточки на клиенте без дополнительных запросов к БД
       relation = relation.widgetable if recommend_only_widgetable?
-
-      # Фильтрация по кастомным атрибутам, если был запрос на это
-      relation = relation.by_ca(params.custom_attributes_filter) if params.custom_attributes_filter.present?
 
       relation
     end

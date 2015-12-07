@@ -46,6 +46,9 @@ class Order < ActiveRecord::Base
       # Расчитываем суммы по заказу
       values = order_values(shop, user, items, source.present?)
 
+      # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
+      return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+
       order = Order.create!(shop_id: shop.id,
                             user_id: user.id,
                             uniqid: uniqid,

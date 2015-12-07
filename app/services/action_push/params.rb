@@ -134,7 +134,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :tags, :brand, :categories, :priority, :attributes].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -153,7 +153,6 @@ module ActionPush
         item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
         item_attributes.ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
         # May be unused
-        item_attributes.tags = raw[:tags][i].present? ? raw[:tags][i].split(',') : []
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : ''
 
 
@@ -244,19 +243,6 @@ module ActionPush
           if child_attributes['age'].present?
             item_attributes.age_min = child_attributes['age']['min'] if child_attributes['age']['min'].present?
             item_attributes.age_max = child_attributes['age']['max'] if child_attributes['age']['max'].present?
-          end
-        end
-
-        item_attributes.custom_attributes = attributes
-        if item_attributes.custom_attributes.present?
-          item_attributes.custom_attributes.each do |k, value|
-            if value.is_a?(Array)
-              value = value.map { |v| v.strip.mb_chars.downcase.to_s }
-            else
-              value = value.to_s.strip.mb_chars.downcase.to_s
-            end
-
-            item_attributes.custom_attributes[k] = value
           end
         end
 
