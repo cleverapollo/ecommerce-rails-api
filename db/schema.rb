@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151207064223) do
+ActiveRecord::Schema.define(version: 20151207083621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -214,45 +214,42 @@ ActiveRecord::Schema.define(version: 20151207064223) do
   add_index "item_categories", ["shop_id", "external_id"], name: "index_item_categories_on_shop_id_and_external_id", unique: true, using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                                        null: false
-    t.string  "uniqid",            limit: 255,                  null: false
+    t.integer "shop_id",                                     null: false
+    t.string  "uniqid",         limit: 255,                  null: false
     t.decimal "price"
-    t.boolean "is_available",                   default: true,  null: false
-    t.string  "name",              limit: 255
+    t.boolean "is_available",                default: true,  null: false
+    t.string  "name",           limit: 255
     t.text    "description"
     t.text    "url"
     t.text    "image_url"
-    t.string  "tags",                           default: [],                 array: true
-    t.boolean "widgetable",                     default: false, null: false
-    t.string  "brand",             limit: 255
-    t.string  "categories",                     default: [],                 array: true
-    t.boolean "ignored",                        default: false, null: false
-    t.jsonb   "custom_attributes",              default: {},    null: false
-    t.jsonb   "locations",                      default: {},    null: false
+    t.boolean "widgetable",                  default: false, null: false
+    t.string  "brand",          limit: 255
+    t.string  "categories",                  default: [],                 array: true
+    t.boolean "ignored",                     default: false, null: false
+    t.jsonb   "locations",                   default: {},    null: false
     t.float   "sr"
-    t.integer "sales_rate",        limit: 2
+    t.integer "sales_rate",     limit: 2
     t.string  "type_prefix"
     t.string  "vendor_code"
     t.string  "model"
-    t.string  "gender",            limit: 1
-    t.string  "wear_type",         limit: 20
-    t.string  "feature",           limit: 20
-    t.string  "sizes",                          default: [],                 array: true
+    t.string  "gender",         limit: 1
+    t.string  "wear_type",      limit: 20
+    t.string  "feature",        limit: 20
+    t.string  "sizes",                       default: [],                 array: true
     t.float   "age_min"
     t.float   "age_max"
     t.boolean "hypoallergenic"
-    t.string  "part_type",                                                   array: true
-    t.string  "skin_type",                                                   array: true
-    t.string  "condition",                                                   array: true
+    t.string  "part_type",                                                array: true
+    t.string  "skin_type",                                                array: true
+    t.string  "condition",                                                array: true
     t.jsonb   "volume"
     t.boolean "periodic"
-    t.string  "barcode",           limit: 1914
+    t.string  "barcode",        limit: 1914
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
   add_index "items", ["categories"], name: "index_items_on_categories", using: :gin
   add_index "items", ["categories"], name: "index_items_on_categories_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["custom_attributes"], name: "index_items_on_custom_attributes", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
   add_index "items", ["price"], name: "index_items_on_price", where: "(((is_available = true) AND (ignored = false)) AND (price IS NOT NULL))", using: :btree
