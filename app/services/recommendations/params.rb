@@ -42,8 +42,6 @@ module Recommendations
     attr_accessor :exclude
     # Расширенный режим ответа (передавать аттрибуты товаров)
     attr_accessor :extended
-    # Фильтрация по кастомным аттрибутам
-    attr_accessor :custom_attributes_filter
     # Маркет отраслевого алгоритма
     attr_accessor :modification
 
@@ -121,13 +119,6 @@ module Recommendations
       @limit = 500 if @limit > 500 # Ограничиваем 500 рекомендаций максимум. В будущем разрешить больше для особых клиентов
       @limit = 1 if @limit < 1
       @extended = raw[:extended].present?
-      @custom_attributes_filter = if raw[:custom_attributes_filter].present?
-        raw[:custom_attributes_filter].each do |key, value|
-          raw[:custom_attributes_filter][key] = value.to_s.split(',').map {|val| val.strip.mb_chars.downcase.to_s }
-        end
-      else
-        {}
-      end
     end
 
     # Извлекает магазин

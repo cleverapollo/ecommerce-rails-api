@@ -15,7 +15,6 @@ describe 'Pushing an event' do
       is_available: [1, 0],
       category: [191, 15],
       attributes: ['{"fashion":{"gender":"m","type":"shoe","sizes":["e39.5","e41","e41.5"],"brand":"ARTIOLI"}, "child":{"age":{"min":0.25, "max":1.25}}}'],
-      custom_attributes_filter:{'color'=>'red, white'},
       recommended_by: 'similar'
     }
   end

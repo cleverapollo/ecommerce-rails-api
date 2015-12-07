@@ -115,9 +115,6 @@ module Recommender
       # для отображения карточки на клиенте без дополнительных запросов к БД
       relation = relation.widgetable if recommend_only_widgetable?
 
-      # Фильтрация по кастомным атрибутам, если был запрос на это
-      relation = relation.by_ca(params.custom_attributes_filter) if params.custom_attributes_filter.present?
-
       relation
     end
 

@@ -31,16 +31,6 @@ class Item < ActiveRecord::Base
   scope :widgetable, ->() {
     where(widgetable:true)
   }
-  # Фильтрация по кастомным аттрибутам
-  scope :by_ca, ->(params) {
-    result = self
-    params.each do |key, value|
-      value = [value] unless value.is_a? Array
-      value = value.map { |v| "'#{v}'" }.join(', ')
-      result = result.where("custom_attributes ? '#{key}'").where("custom_attributes->'#{key}' ?| array[#{value}]")
-    end
-    result
-  }
 
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
 
@@ -80,13 +70,11 @@ class Item < ActiveRecord::Base
   # Назначить аттрибуты
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
-    self.custom_attributes = new_item.custom_attributes || {}
     self.locations = ItemLocationsMerger.merge(self.locations, new_item.locations)
 
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
         categories: ValuesHelper.with_contents(new_item, self, :categories),
-        tags: ValuesHelper.with_contents(new_item, self, :tags),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
         description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
         url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
