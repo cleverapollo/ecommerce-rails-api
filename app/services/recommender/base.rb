@@ -142,7 +142,7 @@ module Recommender
 
       # фильтруем по отраслевым
       if params.modification.present?
-        if params.modification == 'fashion'
+        if params.fashion?
           # уберем товары, которые не актуальные или не соответствуют полу
           gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
           relation = gender_algo.modify_relation(relation)

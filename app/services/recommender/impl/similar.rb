@@ -28,7 +28,7 @@ module Recommender
       def items_to_recommend
         result = super.in_categories(categories_for_query).where.not(id: excluded_items_ids)
         if params.modification.present?
-          if params.modification == 'fashion' || params.modification == 'cosmetic'
+          if params.fashion? || params.cosmetic?
             gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
             if item_gender = item.try(:gender)
               if item_gender!=gender_algo.current_gender
@@ -36,7 +36,7 @@ module Recommender
               else
                 result = gender_algo.modify_relation_with_rollback(result)
                 # Если fashion - дополнительно фильтруем по размеру
-                if params.modification == 'fashion'
+                if params.fashion?
                   size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
                   result = size_algo.modify_relation_with_rollback(result)
                 end

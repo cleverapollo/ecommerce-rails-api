@@ -9,12 +9,12 @@ module Recommender
       def items_to_recommend
         if params.modification.present?
           result = super
-          if params.modification == 'fashion' || params.modification == 'cosmetic'
+          if params.fashion? || params.cosmetic?
             if ['m', 'f'].include?(item.gender)
              gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
              result = gender_algo.modify_relation_with_rollback(result)
              # Если fashion - дополнительно фильтруем по размеру
-             if item.try(:sizes) && params.modification == 'fashion'
+             if item.try(:sizes) && params.fashion?
                size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
                result = size_algo.modify_relation_with_rollback(result)
              end
@@ -58,7 +58,7 @@ module Recommender
         end
 
         # Для купонных сервисов, где товары покупают по одному, добавляем по просмотрам
-        if params.modification == 'coupon' && shop.allow_industrial?
+        if params.coupon? && shop.allow_industrial?
           if ids.size < limit
             # Добираем по просмотрам
             # Получим пользователей, которые просматривали данный товар за последнюю неделю
