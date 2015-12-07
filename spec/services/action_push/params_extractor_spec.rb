@@ -4,7 +4,7 @@ describe ActionPush::Params do
   describe '.extract' do
     context 'parameters validation' do
       before {
-        @session = create(:session_with_user)
+        @session = create(:session_with_user, code: rand(1000))
         @user = @session.user
         @shop = create(:shop, url:'http://example.com/')
         @action = 'view'
