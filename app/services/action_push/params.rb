@@ -73,12 +73,6 @@ module ActionPush
       check
     end
 
-    %w[fashion cosmetic coupon].each do |n|
-      define_method "#{ n }?" do
-        modification == n
-      end
-    end
-
     # Выполняет первоначальную проверку входящих параметров
     #
     # @private

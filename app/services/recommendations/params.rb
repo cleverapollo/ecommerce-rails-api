@@ -80,6 +80,12 @@ module Recommendations
       item.try(:id)
     end
 
+    Recommender::Base::MODIFICATIONS.each do |n|
+      define_method "#{ n }?" do
+        modification == n
+      end
+    end
+
     private
 
     # Конструктор, инициализирует аттрибуты, выполняет первоначальную проверку параметров
