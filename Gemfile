@@ -7,33 +7,32 @@ ruby '2.2.3'
 # Rails
 gem 'rails', '4.2.4'
 gem 'rails-api', '0.4.0'
+gem "sinatra", require: false # for sidekiq
 
 # Server
 gem 'unicorn', '~> 4.9.0'
 gem 'request_store_rails'
+gem 'rack-utf8_sanitizer', '~> 1.2.3'
 
 # Database
 gem 'pg', '~> 0.18.1'
 gem 'redis-objects'
 gem 'mongoid', '~> 5.0.0'
+gem 'connection_pool'
 
 # Workers
 gem 'sidekiq', '~> 3.3.3'
 gem 'sidekiq-limit_fetch', '~> 2.4.1'
+gem 'sidekiq-failures'
 
 # Services
 gem 'rollbar', '~> 2.4.0'
 gem 'newrelic_rpm', '~> 3.12.0'
 
-# BrB
-gem 'brb', '~> 0.3.1'
-
-gem 'connection_pool'
 # Tools
 gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
-gem 'rack-utf8_sanitizer', '~> 1.2.3'
 gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 
@@ -48,36 +47,27 @@ gem 'bounce_email', '~> 0.2.6', require: false # Определяет тип б�
 # Upload files
 gem 'paperclip', '~> 4.2.1'
 
-# zip
-gem 'libarchive-ruby', '0.0.3'
+# Internal
+gem 'brb', '~> 0.3.1'
+gem "rees46_ml", path: "vendor/gems/rees46_ml"
+gem "size_tables", path: "vendor/gems/size_tables"
 
-# Development tools
 group :development do
+  gem 'pry'
   gem 'dotenv-rails', '~> 0.8.0' # ?
-  gem 'better_errors', '~> 1.0.1'
-  gem 'binding_of_caller', '~> 0.7.2'
   gem 'letter_opener', '~> 1.2.0'
-
-  # Deploy
-  gem 'capistrano', '~> 3.4.0'
-  gem 'rvm-capistrano'
+  gem 'capistrano'
   gem 'capistrano-rvm'
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
   gem 'capistrano-sidekiq'
-
-
-  # Preloader
-  gem 'spring', '~> 1.2.0' # ?
-  gem 'spring-commands-rspec', '~> 1.0.4'
+  gem 'capistrano3-unicorn'
 end
 
 # Rspec
 group :development, :test do
   gem 'timecop', '~> 0.7.1' # Изменяет в тестах текущее время
-  gem 'jazz_hands', github: 'nixme/jazz_hands', branch: 'bring-your-own-debugger' # Консоль
   gem 'rspec-rails', '~> 3.1.0'
-  gem 'guard-rspec', '~> 4.5.0', require: false # Следит за состояние файлов и запускает тесты при изменении файла
   gem 'thin'
 end
 
@@ -89,7 +79,3 @@ group :test do
   gem 'ffaker', '~> 1.25.0' # Генерирует данные (имя, e-mail) для тестов
 end
 
-# Documentation
-group :doc do
-  gem 'yard', '~> 0.8.7.4'
-end
