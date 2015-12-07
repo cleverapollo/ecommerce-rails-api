@@ -136,7 +136,7 @@ module ActionPush
       end
     end
 
-    # Приводит входящие массивы в каноничный вид
+    # Нормализует входящие массивы
     #
     # @private
     def normalize_item_arrays

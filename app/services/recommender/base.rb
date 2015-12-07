@@ -35,7 +35,7 @@ module Recommender
     end
 
     # Методы-сокращалки
-    [:shop, :item, :user, :categories, :locations, :cart_item_ids, :limit].each do |accessor|
+    [:shop, :item, :user, :categories, :locations, :brands, :cart_item_ids, :limit].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
@@ -114,6 +114,7 @@ module Recommender
       # Оставляем только те, которые содержат полные данные о товаре
       # для отображения карточки на клиенте без дополнительных запросов к БД
       relation = relation.widgetable if recommend_only_widgetable?
+      relation = relation.by_brands(brands)
 
       relation
     end
