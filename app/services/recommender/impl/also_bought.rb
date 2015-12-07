@@ -57,20 +57,6 @@ module Recommender
           ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
         end
 
-        # Для купонных сервисов, где товары покупают по одному, добавляем по просмотрам
-        if params.coupon? && shop.allow_industrial?
-          if ids.size < limit
-            # Добираем по просмотрам
-            # Получим пользователей, которые просматривали данный товар за последнюю неделю
-            users = Action.select(:user_id).where(shop_id: shop.id)
-                        .where(item_id: items_which_cart_to_analyze).where('timestamp > ?', 7.days.ago.to_i)
-                        .where('view_count > 1').group(:user_id).limit(limit).pluck(:user_id)
-
-            # Получим товары, которые данные пользователи смотрели
-            ids += Action.where(user_id: users).limit(limit-ids.size).pluck(:item_id)
-          end
-        end
-
         sr_weight(ids)
       end
 
