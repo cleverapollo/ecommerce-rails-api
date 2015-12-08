@@ -14,6 +14,7 @@ module InitServerString
       result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
       result += "  currency: '#{shop.currency}',"
       result += "  showPromotion: false,"
+      result += "  segments: [],"
 
       # Поиск связки пользователя и магазина
       s_u = begin
