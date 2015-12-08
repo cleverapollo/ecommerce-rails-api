@@ -1,25 +1,75 @@
+require "csv"
+
 class YmlImporter
   include Sidekiq::Worker
+  include TempFiles
 
-  sidekiq_options retry: 2, queue: "long", failures: true
+  sidekiq_options retry: 2, queue: "long", failures: true, backtrace: true
+
+  def self.perform_async(*args)
+    @logger ||= Logger.new(Rails.root.join("log", "yml_importer.log"))
+    env = ENV.map { |k,v| "#{ k } = #{ v }" }.join(" ")
+    @logger.info "PID: #{ Process.pid } LOGIN: #{ Etc.getlogin } ENV: (#{ env })"
+    super *args
+  end
 
   def perform(shop_id)
     shop = Shop.find(shop_id)
-    shop.update_columns(last_try_to_load_yml_at: DateTime.current)
+    report = YmlReport.new
+    report.shop_id = shop_id
 
-    yml_shop = shop.yml.detect{ |element| element.is_a?(Rees46ML::Shop) }
+    yml_file = shop.yml
+    yml_shop = yml_file.shop
 
-    yml_shop.categories.valid? # and … ? add to report
-    yml_shop.locations.valid?  # and … ? add to report
+    unless yml_shop.present?
+      report.shop_not_exists!
+    else
+      report.invalid_categories! yml_shop.categories unless yml_shop.categories.valid?
+      report.invalid_locations!  yml_shop.locations  unless yml_shop.locations.valid?
 
-    shop.yml.select{ |element| element.is_a?(Rees46ML::Offer) }.each do |offer|
-      category_ids = yml_shop.categories.path_to(offer.category_id)
-      location_ids = offer.locations.flat_map{ |l| yml_shop.locations.path_to(l.id) }
+      offers_count = 0
 
-      OfferUpdater.perform_async shop.id, YAML.dump(offer), category_ids, location_ids
+      temp_file do |file|
+        csv_file file, col_sep: ',' do |csv|
+          csv << Item.csv_header
+
+          yml_file.offers.each_with_index do |offer, index|
+            category_ids = yml_shop.categories.path_to offer.category_id
+            location_ids = offer.locations.flat_map{ |location| yml_shop.locations.path_to location.id }
+
+            offers_count += 1
+
+            report.invalid_offer! offer unless offer.valid?
+
+            new_item = Item.build_by_offer(offer)
+            new_item.id = index
+            new_item.shop_id = shop_id
+            new_item.category_ids = category_ids
+            new_item.location_ids = location_ids.uniq
+            new_item.locations = {}
+            new_item.categories = category_ids
+
+            csv << new_item.csv_row
+          end
+        end
+
+        attempt = 0
+
+        begin
+          Item.bulk_update shop_id, file
+        rescue PG::UniqueViolation
+          attempt += 1
+          retry if attempt < 3
+        end
+      end
+
+      if offers_count == 0
+        report.offers_not_exists!
+      elsif offers_count <= 5
+        report.offers_less_than_five!
+      end
     end
 
-    uids = shop.yml.select{ |element| element.is_a?(Rees46ML::Offer) }.map{ |s| s.id }.force.to_a
-    Item.where(shop_id: shop_id).where("uniqid not in (?)", uids).update_all(is_available: false)
+    YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
   end
 end

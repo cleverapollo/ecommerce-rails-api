@@ -5,7 +5,7 @@ require 'rees46_ml/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "rees46_ml"
-  spec.version       = YandexMl::VERSION
+  spec.version       = Rees46ML::VERSION
   spec.authors       = ["Andrey Zinenko"]
   spec.email         = ["azinenko@mkechinov.com"]
   spec.summary       = %q{Write a short summary, because Rubygems requires one.}
@@ -25,10 +25,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "ox",     ">= 2.2"
-  spec.add_runtime_dependency "aasm",   ">= 4.0"
+  spec.add_runtime_dependency "nokogiri", ">= 1.6"
+  spec.add_runtime_dependency "aasm", ">= 4.0"
   spec.add_runtime_dependency "virtus", ">= 1.0"
-  spec.add_runtime_dependency "postrank-uri"
   spec.add_runtime_dependency "activemodel"
 
   spec.add_development_dependency "bundler", ">= 1.7"

@@ -16,6 +16,6 @@ development:
 :limits:
   critical: 1
   rollbar: 1
-  long: 10
-  mailing: 19
-  default: 80
+  long: 50
+  mailing: 18
+  default: 30

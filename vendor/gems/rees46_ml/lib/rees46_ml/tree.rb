@@ -14,6 +14,18 @@ module Rees46ML
       @collection[id]
     end
 
+    def empty?
+      @collection.empty?
+    end
+
+    def include?(v)
+      @collection.values.include?(v)
+    end
+
+    def size
+      @collection.keys.size
+    end
+
     def cycles
       inverse_index.strongly_connected_components.select{ |components|
         components.size > 1
@@ -50,7 +62,7 @@ module Rees46ML
       include TSort
 
       alias tsort_each_node each_key
-      
+
       def tsort_each_child(node, &block)
         fetch(node).each(&block)
       end

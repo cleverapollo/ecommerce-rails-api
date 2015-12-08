@@ -1,6 +1,10 @@
 module Rees46ML
   class SkinType < Rees46ML::Element
-    attribute :value, Rees46ML::SafeString
+    TYPES = %w[dry normal oily comby]
+
+    attribute :value, String, default: ""
+
+    validates :value, inclusion: { in: TYPES }
 
     alias_method :skin_type, :value
     alias_method :skin_type=, :value=

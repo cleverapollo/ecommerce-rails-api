@@ -73,7 +73,10 @@ class Shop < MasterTable
   end
 
   def yml
-    @yml ||= Rees46ML::File.new(Yml.new(yml_file_url)).lazy
+    @yml ||= begin
+      update_columns(last_try_to_load_yml_at: DateTime.current)
+      Rees46ML::File.new(Yml.new(yml_file_url.strip))
+    end
   end
 
   def self.import_yml_files

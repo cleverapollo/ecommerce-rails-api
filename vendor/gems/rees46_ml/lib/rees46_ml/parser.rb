@@ -1,5 +1,5 @@
 module Rees46ML
-  class Parser < ::Ox::Sax
+  class Parser < Nokogiri::XML::SAX::Document
     include AASM
 
     aasm do
@@ -166,14 +166,6 @@ module Rees46ML
         transitions from: :platform, to: :shop
       end
 
-      event :start_price_margin do
-        transitions from: :offer,  to: :price_margin
-      end
-
-      event :end_price_margin do
-        transitions from: :price_margin, to: :offer
-      end
-
       event :start_version do
         transitions from: :shop,  to: :version
       end
@@ -209,11 +201,21 @@ module Rees46ML
       end
 
       event :start_cpa do
-        transitions from: :shop,  to: :cpa
+        transitions from: :shop, to: :cpa
+        transitions from: :offer, to: :cpa
       end
 
       event :end_cpa do
-        transitions from: :cpa, to: :shop
+        transitions from: :cpa, to: :shop, guard: :in_shop?
+        transitions from: :cpa, to: :offer, guard: :in_offer?
+      end
+
+      event :start_weight do
+        transitions from: :offer,  to: :weight
+      end
+
+      event :end_weight do
+        transitions from: :weight, to: :offer
       end
 
       event :start_ordering_time do
@@ -486,6 +488,11 @@ module Rees46ML
 
       event :end_accessory do
         transitions from: :accessory, to: :accessories
+      end
+
+      event :start_hypoallergenic do
+        transitions from: :cosmetic, to: :hypoallergenic
+        transitions from: :child,    to: :hypoallergenic
       end
 
       event :end_hypoallergenic do
@@ -1044,7 +1051,7 @@ module Rees46ML
 
     aasm.states.map(&:name).each do |state_name|
       define_method "in_#{ state_name }?" do
-        path[-2] == state_name
+        path[-2] == state_name.to_s
       end
     end
 
@@ -1055,61 +1062,60 @@ module Rees46ML
       @logger = logger
     end
 
-    def start_element(name)
+    def start_element(name, attrs = [])
       debug "> #{ name }"
 
       path.push name
       event_name = underscore("start_#{ name }")
 
-      binding.pry if name == "size"
-
       if aasm.may_fire_event? event_name.to_sym
         case name
-        when :shop
+        when "shop"
           self.current_element = Rees46ML::Shop.new
-        when :offers
+        when "offers"
           # pop shop after offers section
           @consumer.call self.current_element
           stack.pop
-        when :currency
+        when "currency"
           self.current_element = Rees46ML::Currency.new
-        when :option
+        when "option"
           self.current_element = Rees46ML::DeliveryOption.new
-        when :category
+        when "category"
           self.current_element = Rees46ML::Category.new
-        when :location
+        when "location"
           self.current_element = Rees46ML::ShopLocation.new if self.current_element.is_a?(Rees46ML::Shop)
           self.current_element = Rees46ML::Location.new if self.current_element.is_a?(Rees46ML::Offer)
-        when :accessory
+        when "accessory"
           self.current_element = Rees46ML::Accessory.new
-        when :price
+        when "price"
           self.current_element = Rees46ML::Price.new if in_location?
-        when :child
+        when "child"
           self.current_element = Rees46ML::Child.new
-        when :fashion
+        when "fashion"
           self.current_element = Rees46ML::Fashion.new
-        when :cosmetic
+        when "cosmetic"
           self.current_element = Rees46ML::Cosmetic.new
-        when :volume
+        when "volume"
           self.current_element = Rees46ML::CosmeticVolume.new unless in_offer?
-        when :age
+        when "age"
           self.current_element = Rees46ML::Age.new if in_offer?
           self.current_element = Rees46ML::ChildAge.new if in_child?
-        when :gender
+        when "gender"
           self.current_element = Rees46ML::Gender.new
-        when :size
+        when "size"
           self.current_element = Rees46ML::Size.new
-        when :part_type
+        when "part_type"
           self.current_element = Rees46ML::PartType.new
-        when :skin_type
+        when "skin_type"
           self.current_element = Rees46ML::SkinType.new
-        when :offer
+        when "offer"
           self.current_element = Rees46ML::Offer.new
-        when :param
+        when "param"
           self.current_element = Rees46ML::Param.new
         end
 
         send event_name
+        attrs.each{ |(k,v)| attr k,v }
       else
         start_unsupported_element name
       end
@@ -1119,6 +1125,8 @@ module Rees46ML
       debug "< #{ name }"
 
       if in_unsupported_element?
+        self.current_element.text = safe_buffer
+
         if self.parent_element.present?
           self.parent_element.usupported_elements << self.current_element
         else
@@ -1127,61 +1135,81 @@ module Rees46ML
 
         stack.pop
       else
+        if buffer?
+          attibute = underscore(path.last)
+
+          case attibute
+          when "barcode"
+            self.current_element.barcodes << safe_buffer
+          when "picture"
+            self.current_element.pictures << safe_buffer
+          when "condition"
+            self.current_element.conditions << safe_buffer
+          when "data_tour"
+            self.current_element.data_tours << safe_buffer
+          when "currencies"
+          else
+            if self.current_element.respond_to?(attibute)
+              (self.current_element[attibute] = safe_buffer) rescue binding.pry
+            end
+          end
+        end
+
         case name
-        when :category
+        when "category"
           self.parent_element.categories << self.current_element
           stack.pop
-        when :location
+        when "location"
           self.parent_element.locations << self.current_element
           stack.pop
-        when :accessory
+        when "accessory"
           self.parent_element.accessories << self.current_element
           stack.pop
-        when :price
+        when "price"
           if in_location?
             self.parent_element.prices << self.current_element
             stack.pop
           end
-        when :currency
+        when "currency"
           self.parent_element.currencies << self.current_element
           stack.pop
-        when :option
+        when "option"
           self.parent_element.delivery_options << self.current_element
           stack.pop
-        when :param
+        when "param"
           self.parent_element.params << self.current_element
           stack.pop
-        when :child
+        when "child"
           self.parent_element.child = self.current_element
           stack.pop
-        when :fashion
+        when "fashion"
           self.parent_element.fashion = self.current_element
           stack.pop
-        when :cosmetic
+        when "cosmetic"
           self.parent_element.cosmetic = self.current_element
           stack.pop
-        when :age
+        when "age"
           self.parent_element.age = self.current_element   if self.parent_element.respond_to?(:age)
           self.parent_element.ages << self.current_element if self.parent_element.respond_to?(:ages)
           stack.pop
-        when :gender
+        when "gender"
           self.parent_element.gender = self.current_element
           stack.pop
-        when :volume
+        when "volume"
           unless in_offer?
             self.parent_element.volumes << self.current_element
             stack.pop
           end
-        when :size
+        when "size"
           self.parent_element.sizes << self.current_element
           stack.pop
-        when :part_type
+        when "part_type"
           self.parent_element.part_types << self.current_element
           stack.pop
-        when :skin_type
+        when "skin_type"
           self.parent_element.skin_types << self.current_element
           stack.pop
-        when :offer
+        when "offer"
           @consumer.call self.current_element
           stack.pop
         end
@@ -1189,6 +1217,7 @@ module Rees46ML
         send underscore("end_#{ name }")
       end
 
+      reset_buffer!
       path.pop
     end
 
@@ -1198,30 +1227,41 @@ module Rees46ML
       if in_unsupported_element?
         self.current_element.attrs[name] = value
       else
-        self.current_element[name] = value if current_element
-      end
-    end
+        attibute = underscore(name)
 
-    def text(value)
-      debug " text : #{ value }"
-
-      if in_unsupported_element?
-        self.current_element.text = value
-      else
-        case path.last
-        when :barcode
-          self.current_element.barcodes << value
-        when :picture
-          self.current_element.pictures << Virtus::Attribute.build(Rees46ML::URL, strict: false).coerce(value)
-        when :condition
-          self.current_element.conditions << Virtus::Attribute.build(Rees46ML::SafeString, strict: false).coerce(value)
-        else
-          self.current_element[underscore(path.last)] = value unless value.empty?
+        if current_element
+          if current_element.respond_to? "#{ attibute }="
+            self.current_element[attibute] = value
+          end
         end
       end
     end
 
-    alias_method :cdata, :text
+    def buffer
+      @buffer ||= ""
+    end
+
+    def safe_buffer
+      buffer.encode('UTF-8', {invalid: :replace, undef: :replace, replace: ''})
+    end
+
+    def reset_buffer!
+      @buffer = nil
+    end
+
+    def buffer?
+      !@buffer.to_s.empty?
+    end
+
+    def text(value)
+      return if value.strip.empty?
+      buffer << value
+      debug " text : #{ value }"
+      value
+    end
+
+    alias_method :cdata_block, :text
+    alias_method :characters, :text
 
     def stack
       @stack ||= []
@@ -1257,7 +1297,13 @@ module Rees46ML
 
     def underscore(string)
       @underscore_cache ||= {}
-      @underscore_cache[string] ||= string.to_s.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').gsub(/([a-z\d])([A-Z])/,'\1_\2').tr("-", "_").downcase
+      @underscore_cache[string] ||= begin
+        v = string.to_s
+        v.gsub!(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
+        v.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+        v.downcase!
+        v.tr("-", "_")
+      end
     end
   end
 end
