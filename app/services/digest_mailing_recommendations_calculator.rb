@@ -109,7 +109,7 @@ class DigestMailingRecommendationsCalculator
 
     if result.size < @limit
       Rollbar.info('Недостаточно рекомендаций', shop_id: @shop.id, user_id: @current_user.try(:id))
-      result += @shop.items.widgetable.limit(@limit - result.size)
+      result += @shop.items.recommendable.widgetable.limit(@limit - result.size)
     end
 
     result
