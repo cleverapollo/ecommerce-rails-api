@@ -47,7 +47,6 @@ class Item < ActiveRecord::Base
       brand
       categories
       ignored
-      custom_attributes
       type_prefix
       vendor_code
       model
