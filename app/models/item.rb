@@ -42,7 +42,6 @@ class Item < ActiveRecord::Base
       description
       url
       image_url
-      tags
       widgetable
       brand
       categories
