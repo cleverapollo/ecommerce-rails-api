@@ -7,32 +7,33 @@ class Item < ActiveRecord::Base
   attr_accessor :amount, :action_id, :mail_recommended_by
 
   belongs_to :shop
+
   has_many :actions
   has_many :order_items
   has_many :brand_campaign_purchases
 
   scope :recommendable, -> { available.where(ignored: false) }
-  scope :available, -> { where(is_available: true) }
+  scope :widgetable,    -> { where(widgetable:true) }
+  scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
+  scope :available,     -> { where(is_available: true) }
+
   # Фильтрация по категориям
-  scope :in_categories, ->(categories, args = {}) {
+  scope :in_categories, ->(categories, args = { any: false }) {
     if categories && categories.any?
-      operator = args[:any] ? '&&' : '<@'
-      where("? #{operator} categories", "{#{categories.join(',')}}")
+      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } category_ids", categories)
+    else
+      all
     end
-  }
-  # Фильтрация по городам
-  scope :in_locations, ->(locations) {
-    if locations && locations.any?
-      locations = locations.keys if locations.is_a? Hash
-      where("locations ?| array[#{locations.map { |l| "'#{l}'" }.join(',')}]")
-    end
-  }
-  # Доступные для отображения
-  scope :widgetable, ->() {
-    where(widgetable:true)
   }
 
-  scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
+  # Фильтрация по городам
+  scope :in_locations, ->(locations, args = { any: true }) {
+    if locations && locations.any?
+      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } location_ids", (locations.is_a?(Hash) ? locations.keys : locations))
+    else
+      all
+    end
+  }
 
   def self.yml_update_columns
     @yml_update_columns ||= %w[
@@ -68,7 +69,6 @@ class Item < ActiveRecord::Base
   end
 
   class << self
-
     # Найти или создать товар с аттрибутами
     def fetch(shop_id, item_proxy)
       item = find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
@@ -144,11 +144,6 @@ class Item < ActiveRecord::Base
   # Выключает товар
   def disable!
     update(is_available: false, widgetable: false) if is_available == true || widgetable == true
-  end
-
-  # Цена в определенном городе
-  def price_in(location)
-    locations[location].try(:price) || self.price
   end
 
   def self.bulk_update(shop_id, csv_file)
