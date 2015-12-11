@@ -6,13 +6,6 @@ class YmlImporter
 
   sidekiq_options retry: 2, queue: "long", failures: true, backtrace: true
 
-  def self.perform_async(*args)
-    @logger ||= Logger.new(Rails.root.join("log", "yml_importer.log"))
-    env = ENV.map { |k,v| "#{ k } = #{ v }" }.join(" ")
-    @logger.info "PID: #{ Process.pid } LOGIN: #{ Etc.getlogin } ENV: (#{ env })"
-    super *args
-  end
-
   def perform(shop_id)
     shop = Shop.find(shop_id)
     report = YmlReport.new
