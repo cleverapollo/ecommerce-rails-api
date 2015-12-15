@@ -20,6 +20,9 @@ class YmlImporter
       report.invalid_categories! yml_shop.categories unless yml_shop.categories.valid?
       report.invalid_locations!  yml_shop.locations  unless yml_shop.locations.valid?
 
+      wear_type_dictionaries_index = WearTypeDictionary.index
+      brand_index = Brand.all
+
       offers_count = 0
 
       temp_file do |file|
@@ -28,6 +31,7 @@ class YmlImporter
 
           yml_file.offers.each_with_index do |offer, index|
             category_ids = yml_shop.categories.path_to offer.category_id
+            category = yml_shop.categories[offer.category_id].try(:name)
             location_ids = offer.locations.flat_map{ |location| yml_shop.locations.path_to location.id }
 
             offers_count += 1
@@ -41,6 +45,9 @@ class YmlImporter
             new_item.location_ids = location_ids.uniq
             new_item.locations = {}
             new_item.categories = category_ids
+            (new_item.wear_type ||= wear_type_dictionaries_index.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
+            (new_item.wear_type ||= wear_type_dictionaries_index.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
+            (new_item.brand ||= brand_index.detect{ |brand| brand.match? new_item.name }.try(:name)) if new_item.name.present?
 
             csv << new_item.csv_row
           end
@@ -50,6 +57,7 @@ class YmlImporter
 
         begin
           Item.bulk_update shop_id, file
+          ItemCategory.bulk_update shop_id, yml_shop.categories
         rescue PG::UniqueViolation
           attempt += 1
           retry if attempt < 3

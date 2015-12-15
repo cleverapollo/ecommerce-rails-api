@@ -6,6 +6,10 @@ module Rees46ML
       @collection = {}
     end
 
+    def each
+      @collection.each{ |_, node| yield node } if block_given?
+    end
+
     def <<(node)
       @collection[node.id] = node
     end

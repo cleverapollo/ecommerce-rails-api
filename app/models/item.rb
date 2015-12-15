@@ -214,6 +214,7 @@ class Item < ActiveRecord::Base
           size_table.value(offer.gender.value, size.region, (offer.adult? ? :adult : :child), size.value)
         }.compact
       elsif offer.child?
+        item.brand = offer.child.brand
         item.hypoallergenic = offer.child.hypoallergenic
         item.gender = offer.child.gender.value if offer.child.gender
         item.periodic = offer.child.periodic
@@ -223,6 +224,7 @@ class Item < ActiveRecord::Base
         item.skin_type = offer.child.skin_types.map(&:value) if offer.child.skin_types
         item.condition = offer.child.conditions.map(&:value) if offer.child.conditions
       elsif offer.cosmetic?
+        item.brand = offer.cosmetic.brand
         item.gender = offer.cosmetic.gender.value if offer.cosmetic.gender
         item.hypoallergenic = offer.cosmetic.hypoallergenic
         item.periodic = offer.cosmetic.periodic

@@ -25,6 +25,7 @@ module Sidekiq
     Sidekiq.redis {|c| c.del('stat:processed') }
     Sidekiq.redis {|c| c.del('stat:failed') }
     Sidekiq::Stats.new.reset
+    Sidekiq::RetrySet.new.clear
     Sidekiq::Failures.reset_failures
   end
 end
