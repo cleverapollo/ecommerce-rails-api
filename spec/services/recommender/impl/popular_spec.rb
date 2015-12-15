@@ -52,7 +52,7 @@ describe Recommender::Impl::Popular do
 
 
     context 'when category provided' do
-      before { params[:categories] = test_item.categories }
+      before { params[:categories] = test_item.category_ids }
 
       context 'when there is enough purchases' do
         it 'returns most frequently buyed items' do
