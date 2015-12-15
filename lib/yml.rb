@@ -8,7 +8,7 @@ class Yml < Struct.new(:path)
   NotRespondingError = Class.new(StandardError)
   NoXMLFileInArchiveError = Class.new(StandardError)
 
-  def_delegators :io, :read, :readpartial, :rewind
+  def_delegators :io, :read, :readpartial, :rewind, :close
 
   private
 
@@ -22,7 +22,7 @@ class Yml < Struct.new(:path)
   end
 
   def download
-    attempts = 3
+    attempts = 10
 
     begin
       open path, "rb", {
@@ -30,7 +30,7 @@ class Yml < Struct.new(:path)
         read_timeout: 10.minutes,
         redirect: true
       }
-    rescue Errno::ETIMEDOUT, Net::ReadTimeout
+    rescue Errno::ETIMEDOUT, Net::ReadTimeout, EOFError, Errno::ECONNRESET
       if attempts -= 1
         retry
       else

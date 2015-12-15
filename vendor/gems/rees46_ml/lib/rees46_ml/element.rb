@@ -5,13 +5,16 @@ module Rees46ML
     include Virtus.model do |model|
       model.coerce = true
       model.nullify_blank = true
-      # model.strict = true
     end
 
     attribute :usupported_elements, Array[Rees46ML::UnsupportedElement]
 
-    def with_usupported_elements?
-      usupported_elements.any?
+    def ==(other)
+      self.hash == other.hash
+    end
+
+    def hash
+      attributes.hash
     end
   end
 end

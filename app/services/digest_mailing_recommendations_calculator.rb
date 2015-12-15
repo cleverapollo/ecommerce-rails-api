@@ -96,20 +96,19 @@ class DigestMailingRecommendationsCalculator
   end
 
   def items_of(ids)
-    result = []
-    from_base = []
-    ids.each do |id|
-      if @items_cache[id].blank?
-        from_base << id
-      else
-        result << @items_cache[id]
-      end
-    end
-    result += Item.where(id: from_base).each { |item| @items_cache[item.id] = item } if from_base.any?
+
+    # Помещаем в кеш товары, которых там еще нет
+    Item.recommendable.widgetable.where(id: (ids - @items_cache.keys)).each { |item| @items_cache[item.id] = item } if (ids - @items_cache.keys).any?
+
+    # Оставляем идентификаторы только тех товаров, которые все же были в БД
+    ids = ids - (ids - @items_cache.keys)
+
+    # Заполняем результирующий массив
+    result = ids.collect { |id| @items_cache[id] }
 
     if result.size < @limit
       Rollbar.info('Недостаточно рекомендаций', shop_id: @shop.id, user_id: @current_user.try(:id))
-      result += @shop.items.widgetable.limit(@limit - result.size)
+      result += @shop.items.recommendable.widgetable.where.not(id: ids).limit(@limit - result.size)
     end
 
     result

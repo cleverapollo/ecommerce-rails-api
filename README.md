@@ -46,3 +46,11 @@ $ RAILS_ENV=test rake db:test:load_schema
 $ bin/rspec
 ```
 
+### Ручное импортирование YML файла
+
+```
+YmlImporter.new.perform(Shop.last.id)
+# Downloaded : 9.6 MB => nil
+```
+
+Если не возникло исключений, то файл успешно импортирован.

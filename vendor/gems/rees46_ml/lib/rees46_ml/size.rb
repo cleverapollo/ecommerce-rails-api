@@ -3,7 +3,7 @@ module Rees46ML
     ALLOWS_PREFIX = %w(r e b)
     DEFAULT_PREFIX = "u".freeze
 
-    attribute :value, Rees46ML::SafeString
+    attribute :value, String, default: ""
 
     alias_method :size, :value
     alias_method :size=, :value=
