@@ -1150,7 +1150,7 @@ module Rees46ML
           when "currencies"
           else
             if self.current_element.respond_to?(attibute)
-              (self.current_element[attibute] = safe_buffer) rescue binding.pry
+              (self.current_element[attibute] = safe_buffer)
             end
           end
         end
