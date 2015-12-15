@@ -35,6 +35,10 @@ class Item < ActiveRecord::Base
     end
   }
 
+  scope :by_brands, ->(*brands) {
+    brands.flatten.any? ? where("brand in (?)", brands.flatten) : all
+  }
+
   def self.yml_update_columns
     @yml_update_columns ||= %w[
       price
