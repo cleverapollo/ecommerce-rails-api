@@ -16,11 +16,12 @@ class YmlImporter
 
     if !yml_shop.present?
       report.shop_not_exists!
-    elsif yml_shop.categories.invalid?
-      report.invalid_categories! yml_shop.categories
-    elsif yml_shop.locations.invalid?
-      report.invalid_locations! yml_shop.locations
+    # elsif yml_shop.categories.invalid?
+    # elsif yml_shop.locations.invalid?
     else
+      report.invalid_locations! yml_shop.locations
+      report.invalid_categories! yml_shop.categories
+      
       wear_type_dictionaries_index = WearTypeDictionary.index
       brand_index = Brand.all
 
