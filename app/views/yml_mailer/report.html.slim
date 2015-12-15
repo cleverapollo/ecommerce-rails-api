@@ -40,5 +40,6 @@ html
           ul
             - error.element.errors.full_messages.each do |message|
               li= message
-          .code= offer_report error.element
+          - if error.element.is_a? Rees46ML::Offer
+            .code= offer_report error.element
       hr

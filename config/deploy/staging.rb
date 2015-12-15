@@ -14,6 +14,6 @@ set :ssh_options, {
 }
 
 set :deploy_to, "/home/rails/staging.rees46.com"
-set :branch, 'develop'
+set :branch, 'optimyze_yml_updates'
 set :rails_env, 'staging'
 set :sidekiq_env, 'staging'

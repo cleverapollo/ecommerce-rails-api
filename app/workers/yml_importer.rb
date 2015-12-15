@@ -14,12 +14,13 @@ class YmlImporter
     yml_file = shop.yml
     yml_shop = yml_file.shop
 
-    unless yml_shop.present?
+    if !yml_shop.present?
       report.shop_not_exists!
+    elsif yml_shop.categories.invalid?
+      report.invalid_categories! yml_shop.categories
+    elsif yml_shop.locations.invalid?
+      report.invalid_locations! yml_shop.locations
     else
-      report.invalid_categories! yml_shop.categories unless yml_shop.categories.valid?
-      report.invalid_locations!  yml_shop.locations  unless yml_shop.locations.valid?
-
       wear_type_dictionaries_index = WearTypeDictionary.index
       brand_index = Brand.all
 
