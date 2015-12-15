@@ -35,6 +35,10 @@ class Item < ActiveRecord::Base
     end
   }
 
+  scope :by_brands, ->(*brands) {
+    brands.flatten.any? ? where("brand in (?)", brands.flatten) : all
+  }
+
   def self.yml_update_columns
     @yml_update_columns ||= %w[
       price
@@ -95,7 +99,6 @@ class Item < ActiveRecord::Base
   # deprecated
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
-    self.locations = ItemLocationsMerger.merge(self.locations, new_item.locations)
 
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
