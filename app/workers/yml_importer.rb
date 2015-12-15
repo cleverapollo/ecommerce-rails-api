@@ -73,6 +73,6 @@ class YmlImporter
       end
     end
 
-    YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
+    # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
   end
 end
