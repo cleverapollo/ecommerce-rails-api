@@ -2,8 +2,8 @@
 
 module Rees46ML
   class DeliveryOption < Rees46ML::Element
-    attribute :cost
-    attribute :days
-    attribute :order_before
+    attribute :cost, Integer, lazy: true
+    attribute :days, String, default: "", lazy: true
+    attribute :order_before, String, default: "", lazy: true
   end
 end

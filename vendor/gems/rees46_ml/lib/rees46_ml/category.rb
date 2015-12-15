@@ -1,8 +1,8 @@
 module Rees46ML
   class Category < Rees46ML::Element
-    attribute :id, Rees46ML::SafeString
-    attribute :parentId, Rees46ML::SafeString
-    attribute :name, Rees46ML::SafeString
+    attribute :id, String, default: "", lazy: true
+    attribute :parentId, String, default: "", lazy: true
+    attribute :name, String, default: "", lazy: true
 
     validates :id, :name, presence: true
 

@@ -1,0 +1,11 @@
+ru:
+  rees46_ml:
+    error:
+      invalid_categories: Ошибка в дереве категорий
+      invalid_locations: Ошибка в дереве точек продаж
+      shop_not_exists: Не обнаруженно ни одного магазина
+      invalid_categories: Не обнаруженно ни одной категории
+      invalid_locations: Не обнаруженно ни одной точек продаж
+      offers_not_exists: Не обнаруженно ни одного оффера
+      offers_less_than_five: Оферов меньше чем 5 штук
+      invalid_offer: Невалидный офер

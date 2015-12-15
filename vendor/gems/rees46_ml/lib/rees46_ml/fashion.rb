@@ -3,10 +3,10 @@ module Rees46ML
     TYPES = %w(shoe shirt tshirt underwear trouser jacket blazer sock belt hat glove).freeze
     FEATURES = %w(child pregnant adult).freeze
 
-    attribute :brand,   Rees46ML::SafeString
-    attribute :type,    Rees46ML::SafeString, default: 'tshirt'.freeze
-    attribute :feature, Rees46ML::SafeString, default: 'adult'.freeze
-    attribute :sizes,   Set[Rees46ML::Size]
-    attribute :gender,  Rees46ML::Gender
+    attribute :brand,   String, default: "", lazy: true
+    attribute :type,    String, default: "", default: 'tshirt'.freeze, lazy: true
+    attribute :feature, String, default: "", default: 'adult'.freeze, lazy: true
+    attribute :sizes,   Set[Rees46ML::Size], lazy: true
+    attribute :gender,  Rees46ML::Gender, lazy: true
   end
 end

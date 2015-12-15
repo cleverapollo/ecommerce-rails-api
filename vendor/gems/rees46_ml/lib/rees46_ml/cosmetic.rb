@@ -4,13 +4,15 @@ module Rees46ML
     SKIN_TYPE = %w[dry normal oily comby]
     CONDITIONS = %w[colored damaged waved seborea akne loss grow dehydrated sensitive problem fading]
 
-    attribute :gender, Rees46ML::Gender
-    attribute :brand, Rees46ML::SafeString
-    attribute :hypoallergenic, Rees46ML::Boolean
-    attribute :periodic, Rees46ML::Boolean
-    attribute :part_types, Set[Rees46ML::PartType]
-    attribute :skin_types, Set[Rees46ML::SkinType]
-    attribute :conditions, Set[Rees46ML::SafeString]
-    attribute :volumes,    Set[Rees46ML::CosmeticVolume]
+    attribute :gender, Rees46ML::Gender, lazy: true
+    attribute :brand, String, default: "", lazy: true
+    attribute :hypoallergenic, Rees46ML::Boolean, lazy: true
+    attribute :periodic, Rees46ML::Boolean, lazy: true
+    attribute :part_types, Set[Rees46ML::PartType], lazy: true
+    attribute :skin_types, Set[Rees46ML::SkinType], lazy: true
+    attribute :conditions, Set[String], lazy: true
+    attribute :volumes, Set[Rees46ML::CosmeticVolume], lazy: true
+
+    validates :hypoallergenic, inclusion: { in: (Rees46ML::Boolean::TRUE + Rees46ML::Boolean::FALSE) }
   end
 end

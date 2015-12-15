@@ -1,27 +1,36 @@
 require "tsort"
+require "forwardable"
 
 module Rees46ML
   class Tree
+    include ActiveModel::Validations
+    include Enumerable
+    extend Forwardable
+
+    validate :check_invalid_nodes
+    validate :check_cycles, unless: ->{ with_invalid_parent_id.any? }
+
     def initialize
       @collection = {}
+    end
+
+    def_delegator :nodes, :each
+    def_delegator :@collection, :[]
+
+    def nodes
+      @collection.values
     end
 
     def <<(node)
       @collection[node.id] = node
     end
 
-    def [](id)
-      @collection[id]
-    end
-
     def cycles
-      inverse_index.strongly_connected_components.select{ |components|
-        components.size > 1
-      }
+      inverse_index.strongly_connected_components.select{ |c| c.size > 1 }
     end
 
-    def valid?
-      not cycles.any?
+    def with_invalid_parent_id
+      nodes.select{ |node| node.parent_id.present? }.reject{ |node| self[node.parent_id].present? }
     end
 
     def path_to(id)
@@ -37,6 +46,16 @@ module Rees46ML
 
     private
 
+    def check_invalid_nodes
+      with_invalid_parent_id.each do |node|
+        errors.add :base, "Не удалось определить родительскую категорию для #{ node.id } - #{ node.name }"
+      end
+    end
+
+    def check_cycles
+      errors.add :base, "Ошибка в структуре дерева #{ cycles.join(' -> ') }" if cycles.any?
+    end
+
     def inverse_index
       @collection.values.inject(InverseIndex.new) do |index, node|
         index[node.parent_id] ||= []
@@ -50,7 +69,7 @@ module Rees46ML
       include TSort
 
       alias tsort_each_node each_key
-      
+
       def tsort_each_child(node, &block)
         fetch(node).each(&block)
       end

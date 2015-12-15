@@ -17,6 +17,7 @@ gem 'rack-utf8_sanitizer', '~> 1.2.3'
 # Database
 gem 'pg', '~> 0.18.1'
 gem 'redis-objects'
+gem 'postgres-copy'
 gem 'mongoid', '~> 5.0.0'
 gem 'connection_pool'
 
@@ -43,6 +44,7 @@ gem 'whenever', '~> 0.9.2', require: false
 gem 'dkim', '~> 1.0.0' # Ставит цифровые подписи
 gem 'gmail', github: 'gmailgem/gmail', require: false # Вытаскивает боунсы писем из bounced@rees46.com
 gem 'bounce_email', '~> 0.2.6', require: false # Определяет тип баунса
+gem 'slim-rails'
 
 # Upload files
 gem 'paperclip', '~> 4.2.1'
@@ -54,6 +56,7 @@ gem "size_tables", path: "vendor/gems/size_tables"
 
 group :development do
   gem 'pry'
+  gem 'stackprof'
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
   gem 'capistrano'
