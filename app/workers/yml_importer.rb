@@ -32,6 +32,7 @@ class YmlImporter
           csv << Item.csv_header
 
           yml_file.offers.each_with_index do |offer, index|
+            next unless offer.id.present?
             category_ids = yml_shop.categories.path_to offer.category_id
             category = yml_shop.categories[offer.category_id].try(:name)
             location_ids = offer.locations.flat_map{ |location| yml_shop.locations.path_to location.id }
