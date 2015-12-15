@@ -141,7 +141,7 @@ class Item < ActiveRecord::Base
 
   # Доступен для отображения?
   def widgetable?
-    price.present? && name.present? && url.present? && image_url.present?
+    !!widgetable || (price.present? && name.present? && url.present? && image_url.present?)
   end
 
   # Выключает товар
