@@ -1,5 +1,5 @@
 # In the future make redis database equal shard id
-redis_db = [0,0,2][SHARD_ID.to_i]
+redis_db = [0,1,2][SHARD_ID.to_i]
 
 Sidekiq.configure_server do |config|
   config.failures_max_count = 5000
