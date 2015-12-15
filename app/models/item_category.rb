@@ -19,7 +19,7 @@ class ItemCategory < ActiveRecord::Base
         if yml_category.parent_id.present?
           yml_parent_category = categories_tree[yml_category.parent_id]
 
-          parent_category = where(shop_id: shop_id, external_id: yml_parent_category.id).first_or_create
+          parent_category = where(shop_id: shop_id, external_id: yml_parent_category.try(:id)).first_or_create
 
           category.update! parent_id: parent_category.id,
                            external_id: yml_category.id,
