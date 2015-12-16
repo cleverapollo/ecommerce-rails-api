@@ -178,6 +178,7 @@ GEM
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
     oauth (0.4.7)
+    open_uri_redirections (0.2.1)
     origin (2.1.1)
     paperclip (4.2.4)
       activemodel (>= 3.2.0)
@@ -347,6 +348,7 @@ DEPENDENCIES
   letter_opener (~> 1.2.0)
   mongoid (~> 5.0.0)
   newrelic_rpm (~> 3.12.0)
+  open_uri_redirections
   paperclip (~> 4.2.1)
   pg (~> 0.18.1)
   postgres-copy

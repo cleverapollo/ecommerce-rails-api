@@ -4,7 +4,7 @@ module Rees46ML
     FEMALE = 'f'.freeze
     UNISEX = 'u'.freeze
 
-    attribute :value, String, default: "", default: UNISEX, lazy: true
+    attribute :value, String, default: UNISEX, lazy: true
 
     alias_method :gender, :value
     alias_method :gender=, :value=

@@ -16,11 +16,12 @@ class YmlImporter
 
     if !yml_shop.present?
       report.shop_not_exists!
-    elsif yml_shop.categories.invalid?
-      report.invalid_categories! yml_shop.categories
-    elsif yml_shop.locations.invalid?
-      report.invalid_locations! yml_shop.locations
+    # elsif yml_shop.categories.invalid?
+    # elsif yml_shop.locations.invalid?
     else
+      report.invalid_locations! yml_shop.locations
+      report.invalid_categories! yml_shop.categories
+      
       wear_type_dictionaries_index = WearTypeDictionary.index
       brand_index = Brand.all
 
@@ -31,6 +32,7 @@ class YmlImporter
           csv << Item.csv_header
 
           yml_file.offers.each_with_index do |offer, index|
+            next unless offer.id.present?
             category_ids = yml_shop.categories.path_to offer.category_id
             category = yml_shop.categories[offer.category_id].try(:name)
             location_ids = offer.locations.flat_map{ |location| yml_shop.locations.path_to location.id }
@@ -72,6 +74,6 @@ class YmlImporter
       end
     end
 
-    YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
+    # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
   end
 end

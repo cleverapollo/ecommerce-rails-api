@@ -36,6 +36,7 @@ gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
 gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
+gem 'open_uri_redirections'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -55,7 +56,6 @@ gem "rees46_ml", path: "vendor/gems/rees46_ml"
 gem "size_tables", path: "vendor/gems/size_tables"
 
 group :development do
-  gem 'pry'
   gem 'stackprof'
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
@@ -69,6 +69,7 @@ end
 
 # Rspec
 group :development, :test do
+  gem 'pry'
   gem 'timecop', '~> 0.7.1' # Изменяет в тестах текущее время
   gem 'rspec-rails', '~> 3.1.0'
   gem 'thin'

@@ -1,3 +1,5 @@
+require 'addressable/uri'
+
 ##
 # Магазин
 #
@@ -75,18 +77,14 @@ class Shop < MasterTable
   def yml
     @yml ||= begin
       update_columns(last_try_to_load_yml_at: DateTime.current)
-      Rees46ML::File.new(Yml.new(yml_file_url.strip))
+      normalized_uri = ::Addressable::URI.parse(yml_file_url.strip).normalize
+      Rees46ML::File.new(Yml.new(normalized_uri))
     end
   end
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      condition = (shop.last_valid_yml_file_loaded_at.blank? || shop.last_valid_yml_file_loaded_at < (DateTime.current - shop.yml_load_period.hours)) &&
-                  (shop.last_try_to_load_yml_at.blank?       || shop.last_try_to_load_yml_at       < (DateTime.current - shop.yml_load_period.hours))
-
-      if condition
-        YmlImporter.perform_async(shop.id)
-      end
+      YmlImporter.perform_async(shop.id)
     end
   end
 

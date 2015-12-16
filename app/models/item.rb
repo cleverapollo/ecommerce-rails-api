@@ -141,7 +141,7 @@ class Item < ActiveRecord::Base
 
   # Доступен для отображения?
   def widgetable?
-    price.present? && name.present? && url.present? && image_url.present?
+    !!widgetable || (price.present? && name.present? && url.present? && image_url.present?)
   end
 
   # Выключает товар
@@ -212,10 +212,15 @@ class Item < ActiveRecord::Base
         item.brand = offer.fashion.brand
         item.gender = offer.fashion.gender.value if offer.fashion.gender
 
-        size_table = "SizeTables::#{ offer.type.camelcase }".constantize.new
-        item.sizes = offer.fashion.sizes.map { |size|
-          size_table.value(offer.gender.value, size.region, (offer.adult? ? :adult : :child), size.value)
-        }.compact
+        size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
+
+        if size_table && offer.fashion.gender.value
+          table = size_table.new
+
+          item.sizes = offer.fashion.sizes.map { |size|
+            size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
+          }.compact
+        end
       elsif offer.child?
         item.brand = offer.child.brand
         item.hypoallergenic = offer.child.hypoallergenic
