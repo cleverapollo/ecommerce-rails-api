@@ -1,3 +1,5 @@
+require 'addressable/uri'
+
 ##
 # Магазин
 #
@@ -70,6 +72,20 @@ class Shop < MasterTable
     connected_recommenders_last_track[recommender] = Date.current.to_time.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Date.current.to_time.to_i)
     check_connection!
     save
+  end
+
+  def yml
+    @yml ||= begin
+      update_columns(last_try_to_load_yml_at: DateTime.current)
+      normalized_uri = ::Addressable::URI.parse(yml_file_url.strip).normalize
+      Rees46ML::File.new(Yml.new(normalized_uri))
+    end
+  end
+
+  def self.import_yml_files
+    active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+      YmlImporter.perform_async(shop.id)
+    end
   end
 
   def first_event?

@@ -9,7 +9,7 @@ describe DigestMailingBatchWorker do
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do
-    let!(:item) { create(:item, shop: shop) }
+    let!(:item) { create(:item, :widgetable, shop: shop) }
     let!(:action) { create(:action, shop: shop, item: item, user: client.user) }
     let!(:letter) do
       batch.current_processed_client_id = nil
@@ -52,7 +52,7 @@ describe DigestMailingBatchWorker do
 
   describe '#letter_body' do
     let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
-    let!(:item) { create(:item, shop: shop) }
+    let!(:item) { create(:item, :widgetable, shop: shop) }
     subject do
       s = DigestMailingBatchWorker.new
       s.current_client = client
@@ -69,7 +69,7 @@ describe DigestMailingBatchWorker do
 
   describe '#item_for_letter' do
     context 'when item is widgetable' do
-      let!(:item) { create(:item, shop: shop) }
+      let!(:item) { create(:item, :widgetable, shop: shop) }
       let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
       subject do
         d_m_b_w = DigestMailingBatchWorker.new

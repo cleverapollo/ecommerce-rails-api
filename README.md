@@ -28,17 +28,6 @@ Back-end для приема событий и выдачи рекомендац
 
 ### Развертывание
 
-Для Debian:
-```
-# apt-get install libarchive-dev
-```
-
-Для mac OS X:
-```
-$ brew install libarchive
-$ bundle config build.libarchive-ruby --with-opt-dir=$(brew --prefix libarchive)
-```
-
 ```
 $ bundle
 $ bin/rake db:create db:schema:load
@@ -57,3 +46,11 @@ $ RAILS_ENV=test rake db:test:load_schema
 $ bin/rspec
 ```
 
+### Ручное импортирование YML файла
+
+```
+YmlImporter.new.perform(Shop.last.id)
+# Downloaded : 9.6 MB => nil
+```
+
+Если не возникло исключений, то файл успешно импортирован.

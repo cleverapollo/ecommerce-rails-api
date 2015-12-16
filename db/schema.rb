@@ -15,9 +15,7 @@ ActiveRecord::Schema.define(version: 20151207083621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "btree_gin"
   enable_extension "uuid-ossp"
-  enable_extension "dblink"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                   null: false
@@ -198,7 +196,6 @@ ActiveRecord::Schema.define(version: 20151207083621) do
   end
 
   add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
-  add_index "interactions", ["shop_id", "item_id"], name: "tmpidx_interactions_1", using: :btree
   add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
 
   create_table "item_categories", id: :bigserial, force: :cascade do |t|
@@ -245,6 +242,8 @@ ActiveRecord::Schema.define(version: 20151207083621) do
     t.jsonb   "volume"
     t.boolean "periodic"
     t.string  "barcode",        limit: 1914
+    t.string  "category_ids",                                             array: true
+    t.string  "location_ids",                                             array: true
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree

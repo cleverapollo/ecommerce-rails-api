@@ -9,16 +9,13 @@
 
 # Load DSL and Setup Up Stages
 require 'capistrano/setup'
-
-# Includes default deployment tasks
 require 'capistrano/deploy'
-require 'whenever/capistrano'
-
 require 'capistrano/rvm'
-require 'capistrano/sidekiq'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
-
+require 'capistrano/sidekiq'
+require 'capistrano3/unicorn'
+require 'whenever/capistrano'
 require 'rollbar/capistrano3'
 
 # Includes tasks from other gems included in your Gemfile

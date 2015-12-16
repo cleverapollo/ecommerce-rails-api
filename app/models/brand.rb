@@ -4,7 +4,13 @@ class Brand < MasterTable
 
   validates :name, :keyword, presence: true, uniqueness: true
 
+  def match?(s)
+    (s =~ regexp).present?
+  end
 
+  def regexp
+    @regexp ||= /\b#{keyword}\b/i
+  end
 
   private
 

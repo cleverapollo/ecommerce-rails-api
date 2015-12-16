@@ -1,91 +1,57 @@
-require 'archive'
-class Yml
-  class NotRespondingError < StandardError; end
-  class NoXMLFileInArchiveError < StandardError; end
+require "net/http"
+require "open-uri"
 
-  def initialize(shop)
-    @shop = shop
-  end
+class Yml < Struct.new(:path)
+  extend Forwardable
+  include ActionView::Helpers::NumberHelper
 
+  NotRespondingError = Class.new(StandardError)
+  NoXMLFileInArchiveError = Class.new(StandardError)
 
-  def get
-    make_path!
-    delete(file_name_xml) if exists?(file_name_xml)
-    delete(file_name) if exists?(file_name)
-    if responds?
-      download
-      raise NotRespondingError if !File.exists?(file_name)
-      if gzip_archive?
-        ungzip
-        is_xml? ? (yield file) : (raise NoXMLFileInArchiveError)
-      else
-        File.rename(file_name, file_name_xml)
-        is_xml? ? (yield file) : (raise NotRespondingError)
-      end
-      delete(file_name_xml)
-      delete(file_name)
-    else
-      raise NotRespondingError
+  def_delegators :io, :read, :readpartial, :rewind, :close
+
+  private
+
+  def io
+    @io ||= begin
+      file = download
+      file = gzip_archive?(file) ? Zlib::GzipReader.new(file.tap(&:rewind)) : file
+      fail NoXMLFileInArchiveError unless is_xml?(file)
+      file
     end
-  end
-
-  def gzip_archive?
-    File.open(file_name, 'rb').read(2).unpack("S").first == 35615
-  end
-
-  def is_xml?
-    # [16188].pack('S') => "<?"
-    # [48111].pack('S') => "\xEF\xBB"
-
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 16188 ||
-    File.open(file_name_xml, 'rb').read(2).unpack("S").first == 48111
-  end
-
-  def responds?
-    Curl.responds?(@shop.yml_file_url)
-  end
-
-  def directory_name
-    "#{Rails.root}/tmp/ymls/"
-  end
-
-  def make_path!
-    Dir.mkdir(directory_name) unless File.exists?(directory_name)
-  end
-
-  def file_name_xml
-    directory_name + "#{@shop.id}_yml.xml"
-  end
-
-  def file_name
-    directory_name + "#{@shop.id}_yml"
-  end
-
-  def file
-    File.open(file_name_xml, 'rb')
   end
 
   def download
-    Curl.download(@shop.yml_file_url, to: file_name)
-  end
+    attempts = 10
 
-  def delete(input_file_name)
-    File.delete(input_file_name) if exists?(input_file_name)
-  end
-
-  def exists?(input_file_name)
-    File.exist?(input_file_name)
-  end
-
-  def ungzip
-    a = Archive.new(file_name)
-    File.open(file_name_xml, 'wb') do |xml|
-      xml.write(a.first[1])
+    begin
+      open path, "rb", {
+        allow_redirections: :safe,
+        progress_proc: ->(bytes) { STDOUT.write "\rDownloaded : #{ number_to_human_size(bytes) }" },
+        read_timeout: 10.minutes,
+        redirect: true
+      }
+    rescue Errno::ETIMEDOUT, Net::ReadTimeout, EOFError, Errno::ECONNRESET
+      if attempts -= 1
+        retry
+      else
+        raise NotRespondingError.new("Не удаётся выгрузить YML файл в течение 30 минут.")
+      end
+    rescue OpenURI::HTTPError
+      NotRespondingError.new("YML файл недоступен.")
+    rescue SocketError
+      NotRespondingError.new("Некоректный адрес YML файла.")
     end
-    # Zlib::GzipReader.open(file_name) do |gz|
-    #   File.open(file_name_xml, "wb") do |g|
-    #     IO.copy_stream(gz, g)
-    #   end
-    # end
+  end
+
+  def gzip_archive?(file)
+    file.tap(&:rewind).read(2).unpack("S").first == 35615
+  end
+
+  def is_xml?(file)
+    # [16188].pack("S") => "<?"
+    # [48111].pack("S") => "\xEF\xBB"
+    header = file.tap(&:rewind).read(2).unpack("S").first
+    (header == 16188) || (header == 48111)
   end
 end

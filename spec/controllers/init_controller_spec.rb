@@ -55,20 +55,20 @@ describe InitController do
     end
 
     context 'with cookie' do
-      before { request.cookies[Rees46::COOKIE_NAME] = sample_session_id }
+      before { request.cookies[Rees46::COOKIE_NAME] = '12345' }
 
       it_behaves_like 'an api initializer with data'
     end
 
     context 'with parameter' do
-      before { init_params.merge!(rees46_session_id: sample_session_id) }
+      before { init_params.merge!(rees46_session_id: '12345') }
 
       it_behaves_like 'an api initializer with data'
     end
 
     context 'with cookie and parameter' do
-      before { request.cookies[Rees46::COOKIE_NAME] = sample_session_id }
-      before { init_params.merge!(rees46_session_id: sample_session_id) }
+      before { request.cookies[Rees46::COOKIE_NAME] = '12345' }
+      before { init_params.merge!(rees46_session_id: '12345') }
 
       it_behaves_like 'an api initializer with data'
     end

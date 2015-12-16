@@ -9,10 +9,10 @@ describe Recommender::Impl::Similar do
 
   5.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, price:i*200) }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, price:i*200, location_ids: []) }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'similar', item:item2) }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'similar', item: item2) }
 
   def create_action(user_data, item, is_buy = false)
     a = item.actions.new(user: user_data,
@@ -24,7 +24,7 @@ describe Recommender::Impl::Similar do
       a.purchase_count = 1
       a.rating = Actions::Purchase::RATING
     end
-    a.save
+    a.save!
   end
 
   describe '#recommend' do
@@ -53,7 +53,7 @@ describe Recommender::Impl::Similar do
 
 
     context 'when category provided' do
-      before { params[:categories] = test_item.categories }
+      before { params[:categories] = test_item.category_ids }
 
       context 'when there is enough purchases' do
         it 'returns most similar items' do
