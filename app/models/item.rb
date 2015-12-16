@@ -214,9 +214,10 @@ class Item < ActiveRecord::Base
 
         size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
 
-        if size_table && offer.gender.value && size.region && offer.fashion.sizes.any?
+        if size_table && offer.fashion.gender.value
+          table = size_table.new
           item.sizes = offer.fashion.sizes.map { |size|
-            size_table.value(offer.gender.value, size.region, (offer.adult? ? :adult : :child), size.value)
+            table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.value)
           }.compact
         end
       elsif offer.child?
