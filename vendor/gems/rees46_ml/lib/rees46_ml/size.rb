@@ -12,6 +12,14 @@ module Rees46ML
       ALLOWS_PREFIX.include?(prefix) ? prefix : DEFAULT_PREFIX
     end
 
+    def num
+      value[1..-1]
+    end
+
+    def ru?
+      prefix == "r"
+    end
+
     def prefix
       @prefix ||= value.to_s[0]
     end

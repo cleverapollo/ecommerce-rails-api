@@ -216,8 +216,9 @@ class Item < ActiveRecord::Base
 
         if size_table && offer.fashion.gender.value
           table = size_table.new
+
           item.sizes = offer.fashion.sizes.map { |size|
-            table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.value)
+            size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
           }.compact
         end
       elsif offer.child?
