@@ -14,8 +14,8 @@ require 'capistrano/rvm'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
 require 'capistrano/sidekiq'
-# require 'capistrano3/unicorn'
-# require 'whenever/capistrano'
+require 'capistrano3/unicorn'
+require 'whenever/capistrano'
 require 'rollbar/capistrano3'
 
 # Includes tasks from other gems included in your Gemfile

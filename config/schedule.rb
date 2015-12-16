@@ -13,7 +13,7 @@ end
 # end
 
 # Каждые сутки синхронизируем YML
-every 45.minutes do
+every 12.hours do
   runner "RunnerWrapper.run('Shop.import_yml_files')"
 end
 
