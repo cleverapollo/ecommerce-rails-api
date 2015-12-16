@@ -17,5 +17,5 @@ set :ssh_options, {
 }
 
 set :deploy_to, "/home/rails/#{fetch(:application)}"
-set :branch, 'develop'
+set :branch, 'master'
 set :rails_env, 'production'
