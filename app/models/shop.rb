@@ -75,7 +75,8 @@ class Shop < MasterTable
   def yml
     @yml ||= begin
       update_columns(last_try_to_load_yml_at: DateTime.current)
-      Rees46ML::File.new(Yml.new(yml_file_url.strip))
+      normalized_uri = Addressable::URI.parse(yml_file_url.strip).normalize
+      Rees46ML::File.new(Yml.new(normalized_uri))
     end
   end
 
