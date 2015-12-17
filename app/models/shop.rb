@@ -99,8 +99,11 @@ class Shop < MasterTable
   end
 
   def yml_allow_import?
-    # binding.pry
     yml_expired? && ((yml_errors || 0) < 5)
+  end
+
+  def yml_allow_import!
+    update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
 
   def import
