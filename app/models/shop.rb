@@ -99,16 +99,16 @@ class Shop < MasterTable
   end
 
   def yml_expired?
-    last_valid_yml_file_loaded_at > (Time.now - shop.yml_load_period.hours)
+    last_valid_yml_file_loaded_at > (Time.now - yml_load_period.hours)
   end
 
   def import
     begin
-      report = YmlReport.new.tap{ |r| r.shop_id = shop_id }
+      report = YmlReport.new.tap{ |r| r.shop_id = self.id }
       yield yml, report if block_given?
-      shop.update(last_valid_yml_file_loaded_at: Time.now)
+      update(last_valid_yml_file_loaded_at: Time.now)
     rescue
-      shop.increment!(:yml_errors)
+      increment!(:yml_errors)
     ensure
       # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
     end
