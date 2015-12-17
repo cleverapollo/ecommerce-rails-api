@@ -78,14 +78,39 @@ class Shop < MasterTable
     @yml ||= begin
       update_columns(last_try_to_load_yml_at: DateTime.current)
       normalized_uri = ::Addressable::URI.parse(yml_file_url.strip).normalize
-      Rees46ML::File.new(Yml.new(normalized_uri))
+      file = Rees46ML::File.new(Yml.new(normalized_uri))
+      update_columns(yml_loaded: true)
+      file
+    rescue
+      update_columns(yml_loaded: false)
+      raise
     end
   end
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      next if shop.last_valid_yml_file_loaded_at > (Time.now - shop.yml_load_period.hours)
+      next if (yml_already_loaded? && yml_expired?) || (yml_errors || 0) >= 5
       YmlImporter.perform_async(shop.id)
+    end
+  end
+
+  def yml_already_loaded?
+    last_valid_yml_file_loaded_at.present?
+  end
+
+  def yml_expired?
+    last_valid_yml_file_loaded_at > (Time.now - shop.yml_load_period.hours)
+  end
+
+  def import
+    begin
+      report = YmlReport.new.tap{ |r| r.shop_id = shop_id }
+      yield yml, report if block_given?
+      shop.update(last_valid_yml_file_loaded_at: Time.now)
+    rescue
+      shop.increment!(:yml_errors)
+    ensure
+      # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
     end
   end
 
