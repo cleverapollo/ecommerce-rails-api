@@ -18,9 +18,19 @@ FactoryGirl.define do
       }
     end
 
-    trait :without_yml do
-      yml_file_url nil
+    trait(:with_yml)           { yml_file_url "http://example.com/shop.xml" }
+    trait(:without_yml)        { yml_file_url nil }
+    trait(:with_yml_errors)    { yml_errors 5 }
+    trait(:without_yml_errors) { yml_errors 0 }
+
+    trait :with_imported_yml do
+      with_yml
+      yml_loaded true
+      without_yml_errors
     end
+
+    trait(:active)    { active true }
+    trait(:connected) { connected true}
   end
 
   factory :shop_metric do
