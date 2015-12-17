@@ -13,6 +13,14 @@ FactoryGirl.define do
     factory :session_with_user do
       user
     end
+
+    trait :with_user do
+      user
+    end
+
+    trait :uniq do
+      code
+    end
   end
 
   factory :brand_campaign do
