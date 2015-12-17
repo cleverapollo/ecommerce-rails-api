@@ -90,7 +90,7 @@ class Shop < MasterTable
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      next if (shop.yml_already_loaded? && shop.yml_expired?) || (shop.yml_errors || 0) >= 5
+      next if (shop.yml_already_loaded? && !shop.yml_expired?) || ((shop.yml_errors || 0) >= 5)
       YmlImporter.perform_async(shop.id)
     end
   end
@@ -167,9 +167,5 @@ class Shop < MasterTable
 
   def has_imported_yml?
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
-  end
-
-  def increment_yml_errors!
-    update_columns(yml_errors: self.yml_errors += 1)
   end
 end
