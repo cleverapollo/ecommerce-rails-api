@@ -6,7 +6,7 @@ every '0 3 * * *' do
 end
 
 # Каждые сутки синхронизируем YML
-every 1.hour do
+every 3.hour do
   runner "RunnerWrapper.run('Shop.import_yml_files')"
 end
 
