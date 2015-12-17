@@ -1,15 +1,6 @@
 namespace :yml do
-
   desc 'Process all YML'
   task :process_all => :environment do
-    YmlWorker.process_all
+    Shop.import_yml_files
   end
-
-
-  desc 'Process newbies'
-  task :process_priority => :environment do
-    YmlWorker.process_priority
-  end
-
-
 end

@@ -5,13 +5,6 @@ every '0 3 * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_period')"
 end
 
-
-
-# # Каждые 4 часа синхронизируем приоритетные YML
-# every 4.hours do
-#   runner "RunnerWrapper.run('YmlWorker.process_priority')"
-# end
-
 # Каждые сутки синхронизируем YML
 every 12.hours do
   runner "RunnerWrapper.run('Shop.import_yml_files')"
