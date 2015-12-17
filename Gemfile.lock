@@ -242,6 +242,10 @@ GEM
       railties (>= 4.2.0, < 5)
     rollbar (2.4.0)
       multi_json
+    rspec (3.1.0)
+      rspec-core (~> 3.1.0)
+      rspec-expectations (~> 3.1.0)
+      rspec-mocks (~> 3.1.0)
     rspec-core (3.1.7)
       rspec-support (~> 3.1.0)
     rspec-expectations (3.1.2)
@@ -257,6 +261,9 @@ GEM
       rspec-expectations (~> 3.1.0)
       rspec-mocks (~> 3.1.0)
       rspec-support (~> 3.1.0)
+    rspec-sidekiq (2.1.0)
+      rspec (~> 3.0, >= 3.0.0)
+      sidekiq (>= 2.4.0)
     rspec-support (3.1.2)
     sidekiq (3.3.4)
       celluloid (>= 0.16.0)
@@ -361,6 +368,7 @@ DEPENDENCIES
   request_store_rails
   rollbar (~> 2.4.0)
   rspec-rails (~> 3.1.0)
+  rspec-sidekiq
   sidekiq (~> 3.3.3)
   sidekiq-failures
   sidekiq-limit_fetch (~> 2.4.1)
