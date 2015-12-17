@@ -81,8 +81,9 @@ class Shop < MasterTable
       file = Rees46ML::File.new(Yml.new(normalized_uri))
       update_columns(yml_loaded: true)
       file
-    rescue
+    rescue => ex
       update_columns(yml_loaded: false)
+      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(id: self.id))
       raise
     end
   end
