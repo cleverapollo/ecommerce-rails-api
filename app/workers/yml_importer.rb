@@ -67,6 +67,8 @@ class YmlImporter
         end
       end
 
+      shop.update(last_valid_yml_file_loaded_at: Time.now)
+
       if offers_count == 0
         report.offers_not_exists!
       elsif offers_count <= 5
