@@ -1,5 +1,6 @@
 FactoryGirl.define do
   sequence(:id)                  { |n| n }
+  sequence(:code)                { |n| n }
   sequence(:name)                { |n| "name #{n}" }
   sequence(:company)             { |n| "company #{n}" }
   sequence(:brand)               { |n| "brand #{n}" }
