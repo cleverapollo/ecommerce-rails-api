@@ -81,6 +81,12 @@ class Shop < MasterTable
       file = Rees46ML::File.new(Yml.new(normalized_uri))
       update_columns(yml_loaded: true)
       file
+    rescue NotRespondingError => ex
+      ErrorsMailer.yml_url_not_respond.deliver_now
+      update_columns(yml_loaded: false)
+    rescue NoXMLFileInArchiveError => ex
+      ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлв в архиве.").deliver_now
+      update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
       Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(id: self.id))
@@ -90,7 +96,11 @@ class Shop < MasterTable
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      YmlImporter.perform_async(shop.id) if shop.yml_allow_import?
+      if shop.yml_allow_import?
+        YmlImporter.perform_async(shop.id)
+      elsif shop.yml_errors >= 5 
+        ErrorsMailer.yml_off(shop).deliver_now 
+      end
     end
   end
 
