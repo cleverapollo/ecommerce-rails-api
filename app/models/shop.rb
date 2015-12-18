@@ -59,9 +59,9 @@ class Shop < MasterTable
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
     end
-      connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
-      check_connection!
-      save
+    connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
+    check_connection!
+    save
   end
 
   # Отследить запрошенную рекомендацию
@@ -85,11 +85,11 @@ class Shop < MasterTable
       ErrorsMailer.yml_url_not_respond.deliver_now
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
-      ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлв в архиве.").deliver_now
+      ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
       update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
-      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(id: self.id))
+      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       raise
     end
   end
