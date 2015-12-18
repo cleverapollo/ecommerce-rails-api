@@ -81,5 +81,6 @@ group :test do
   gem 'factory_girl_rails', '~> 4.5.0' # Объекты для тестов
   gem 'database_cleaner', '~> 1.3.0'
   gem 'ffaker', '~> 1.25.0' # Генерирует данные (имя, e-mail) для тестов
+  gem 'rspec-sidekiq'
 end
 

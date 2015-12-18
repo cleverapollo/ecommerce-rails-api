@@ -40,8 +40,6 @@ set :sidekiq_timeout, 300
 after 'deploy:publishing', 'deploy:restart'
 
 namespace :deploy do
-
-
   desc 'Start unicorn'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
@@ -62,6 +60,16 @@ namespace :deploy do
       execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
     end
   end
+end
 
-
+namespace :yml do
+  task :import do
+    on roles(:app) do
+      within current_path do
+        with rails_env: :production do
+          execute :rake, "yml:process_all"
+        end
+      end
+    end
+  end
 end

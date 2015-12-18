@@ -90,17 +90,20 @@ class Shop < MasterTable
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      next if (shop.yml_already_loaded? && !shop.yml_expired?) || ((shop.yml_errors || 0) >= 5)
-      YmlImporter.perform_async(shop.id)
+      YmlImporter.perform_async(shop.id) if shop.yml_allow_import?
     end
   end
 
-  def yml_already_loaded?
-    last_valid_yml_file_loaded_at.present?
+  def yml_expired?
+    last_valid_yml_file_loaded_at.present? ? ((last_valid_yml_file_loaded_at.utc + yml_load_period.hours) < Time.now.utc) : true
   end
 
-  def yml_expired?
-    last_valid_yml_file_loaded_at > (Time.now - yml_load_period.hours)
+  def yml_allow_import?
+    yml_expired? && ((yml_errors || 0) < 5)
+  end
+
+  def yml_allow_import!
+    update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
 
   def import
