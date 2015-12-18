@@ -57,8 +57,7 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
-      # execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
     end
   end
 end
