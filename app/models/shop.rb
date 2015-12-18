@@ -108,13 +108,10 @@ class Shop < MasterTable
 
   def import
     begin
-      report = YmlReport.new.tap{ |r| r.shop_id = self.id }
-      yield yml, report if block_given?
+      yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now)
     rescue
       increment!(:yml_errors)
-    ensure
-      # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
     end
   end
 
