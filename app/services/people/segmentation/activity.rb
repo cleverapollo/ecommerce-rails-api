@@ -24,6 +24,10 @@ module People
         @client.activity_segment == C
       end
 
+      def inactive?
+        @client.activity_segment.nil?
+      end
+
 
 
     end

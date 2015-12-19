@@ -2,9 +2,13 @@ module People
   module Segmentation
     class ActivityWorker
 
+      class << self
+        Shop.active.connected.each do |shop|
+          self.new(shop).perform
+        end
+      end
+
       attr_accessor :shop
-
-
 
       def initialize(shop)
         @shop = shop
@@ -22,7 +26,6 @@ module People
         if index_a > 0
           result[:a] = data[0..(index_a-1)]
         end
-        puts index_a
         if index_a < data.length
           index_b = index_a + (data.length * 0.35).ceil
           if index_b > index_a
@@ -32,9 +35,9 @@ module People
         end
 
         @shop.clients.where.not(id: data.map { |x| x[:user_id] } ).update_all activity_segment: nil
-        @shop.clients.where(id: result[:a].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::A
-        @shop.clients.where(id: result[:b].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::B
-        @shop.clients.where(id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
+        @shop.clients.where(user_id: result[:a].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::A
+        @shop.clients.where(user_id: result[:b].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::B
+        @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
 
         true
 
