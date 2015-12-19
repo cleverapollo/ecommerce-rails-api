@@ -119,7 +119,7 @@ class Shop < MasterTable
   def import
     begin
       yield yml if block_given?
-      update(last_valid_yml_file_loaded_at: Time.now)
+      update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
     rescue
       increment!(:yml_errors)
     end
