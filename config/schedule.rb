@@ -37,4 +37,7 @@ every 30.minutes do
   runner "RunnerWrapper.run('SalesRateCalculator.perform_newbies')"
 end
 
-
+# Каждую ночь пересчитываем сегменты активных покупателей
+every '0 23 * * *' do
+  runner "RunnerWrapper.run('People::Segmentation::ActivityWorker.perform_all')"
+end
