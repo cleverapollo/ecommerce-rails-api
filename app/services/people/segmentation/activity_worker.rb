@@ -3,8 +3,10 @@ module People
     class ActivityWorker
 
       class << self
-        Shop.active.connected.each do |shop|
-          self.new(shop).perform
+        def perform_all
+          Shop.active.connected.each do |shop|
+            self.new(shop).perform
+          end
         end
       end
 
