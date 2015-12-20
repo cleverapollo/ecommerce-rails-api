@@ -245,6 +245,8 @@ class Item < ActiveRecord::Base
         item.condition = offer.cosmetic.conditions.map(&:value) if offer.cosmetic.conditions
       end
 
+      item.brand = offer.vendor if !item.brand.present? && offer.vendor
+
       # TODO : item.volume = offer.volume
 
       item.is_available = !!offer.available
