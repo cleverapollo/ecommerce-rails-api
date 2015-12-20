@@ -18,6 +18,7 @@ config/database.yml
 config/secrets.yml
 config/shards.yml
 config/application.yml
+config/unicorn.rb
 
 # Ignore coverage reports
 /coverage

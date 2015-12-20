@@ -150,45 +150,49 @@ class Item < ActiveRecord::Base
   end
 
   def self.bulk_update(shop_id, csv_file)
-    tap do |table|
-      begin
-        table.connection.execute <<-SQL
-          DROP TABLE IF EXISTS temp_#{ shop_id }_items;
-          CREATE UNLOGGED TABLE IF NOT EXISTS temp_#{ shop_id }_items(LIKE items);
-        SQL
+    ActiveRecord::Base.connection_pool.with_connection do |conn|
+      tap do |table|
+        table.transaction do
+          begin
+            table.connection.execute <<-SQL
+              DROP TABLE IF EXISTS temp_#{ shop_id }_items;
+              CREATE UNLOGGED TABLE IF NOT EXISTS temp_#{ shop_id }_items(LIKE items);
+            SQL
 
-        table.table_name = "temp_#{ shop_id }_items"
-        table.copy_from csv_file.path
-        table.table_name = "items"
+            table.table_name = "temp_#{ shop_id }_items"
+            table.copy_from csv_file.path
+            table.table_name = "items"
 
-        columns = table.columns.map(&:name).reject{ |c| c == 'id' }
+            columns = table.columns.map(&:name).reject{ |c| c == 'id' }
 
-        table.connection.execute <<-SQL
-          UPDATE items
-             SET (#{ yml_update_columns.join(', ') }) = 
-                 (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
-            FROM temp_#{ shop_id }_items AS temp
-           WHERE temp.shop_id = items.shop_id
-             AND temp.uniqid = items.uniqid;
+            table.connection.execute <<-SQL
+              UPDATE items
+                 SET (#{ yml_update_columns.join(', ') }) = 
+                     (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
+                FROM temp_#{ shop_id }_items AS temp
+               WHERE temp.shop_id = items.shop_id
+                 AND temp.uniqid = items.uniqid;
 
-          UPDATE items
-             SET is_available = false
-           WHERE shop_id = #{ shop_id }
-             AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp);
+              UPDATE items
+                 SET is_available = false
+               WHERE shop_id = #{ shop_id }
+                 AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp);
 
-          DELETE
-            FROM temp_#{ shop_id }_items
-           WHERE uniqid in (SELECT items.uniqid FROM items WHERE items.shop_id = #{ shop_id });
+              DELETE
+                FROM temp_#{ shop_id }_items
+               WHERE uniqid in (SELECT items.uniqid FROM items WHERE items.shop_id = #{ shop_id });
 
-          INSERT
-            INTO items (#{ columns.join(', ') })
-          SELECT #{ columns.map{|c| "temp.#{ c }"}.join(', ') }
-            FROM temp_#{ shop_id }_items as temp;
+              INSERT
+                INTO items (#{ columns.join(', ') })
+              SELECT #{ columns.map{|c| "temp.#{ c }"}.join(', ') }
+                FROM temp_#{ shop_id }_items as temp;
 
-          DROP TABLE temp_#{ shop_id }_items;
-        SQL
-      ensure
-        table.table_name = "items"
+              DROP TABLE temp_#{ shop_id }_items;
+            SQL
+          ensure
+            table.table_name = "items"
+          end
+        end
       end
     end
   end

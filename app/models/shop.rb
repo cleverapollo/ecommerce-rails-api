@@ -59,9 +59,9 @@ class Shop < MasterTable
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
     end
-      connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
-      check_connection!
-      save
+    connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
+    check_connection!
+    save
   end
 
   # Отследить запрошенную рекомендацию
@@ -81,16 +81,26 @@ class Shop < MasterTable
       file = Rees46ML::File.new(Yml.new(normalized_uri))
       update_columns(yml_loaded: true)
       file
+    rescue NotRespondingError => ex
+      ErrorsMailer.yml_url_not_respond.deliver_now
+      update_columns(yml_loaded: false)
+    rescue NoXMLFileInArchiveError => ex
+      ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
+      update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
-      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(id: self.id))
+      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       raise
     end
   end
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      YmlImporter.perform_async(shop.id) if shop.yml_allow_import?
+      if shop.yml_allow_import?
+        YmlImporter.perform_async(shop.id)
+      elsif shop.yml_errors >= 5 
+        ErrorsMailer.yml_off(shop).deliver_now 
+      end
     end
   end
 
@@ -99,19 +109,19 @@ class Shop < MasterTable
   end
 
   def yml_allow_import?
-    # binding.pry
     yml_expired? && ((yml_errors || 0) < 5)
+  end
+
+  def yml_allow_import!
+    update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
 
   def import
     begin
-      report = YmlReport.new.tap{ |r| r.shop_id = self.id }
-      yield yml, report if block_given?
-      update(last_valid_yml_file_loaded_at: Time.now)
+      yield yml if block_given?
+      update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
     rescue
       increment!(:yml_errors)
-    ensure
-      # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
     end
   end
 
