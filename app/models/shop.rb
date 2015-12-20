@@ -122,7 +122,8 @@ class Shop < MasterTable
     begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
-    rescue
+    rescue Exception => e
+      Rollbar.warning(e, "YML process error")
       increment!(:yml_errors)
     end
   end
