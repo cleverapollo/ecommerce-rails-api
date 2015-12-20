@@ -7,7 +7,7 @@ require "./config/environment"
 
 unless environment == "development"
   use Rack::Auth::Basic do |username, password|
-    username == "admin" && password == "admin"
+    username == "monitoring" && password == "xqs7mk93mS3op3W3K58r"
   end
 end
 
