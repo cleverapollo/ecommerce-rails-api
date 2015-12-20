@@ -1,77 +1,49 @@
 require 'rails_helper'
 
 describe Recommendations::Params do
-  describe '.extract' do
-    before do
-      @shop = create(:shop)
-      @session = create(:session_with_user)
-      @user = @session.user
+  let(:shop)    { create(:shop) }
+  let(:session) { create(:session, :uniq, :with_user) }
+  let(:user)    { session.user }
 
-      @params = {
-        ssid: @session.code,
-        shop_id: @shop.uniqid,
+  subject { Recommendations::Params.extract(params) }
+
+  shared_examples "raise error without param" do |attr|
+    context "without #{ attr }" do
+      it { expect{ Recommendations::Params.extract(params.except(attr)) }.to raise_error(Recommendations::IncorrectParams) }
+    end
+  end
+
+  describe '.extract' do
+    let(:params) do
+      {
+        ssid: session.code,
+        shop_id: shop.uniqid,
+        recommender_type: 'interesting'
+      } 
+    end
+
+    include_examples "raise error without param", :ssid
+    include_examples "raise error without param", :shop_id
+    include_examples "raise error without param", :recommender_type
+
+    it { expect(subject.user).to eq(user) }
+    it { expect(subject.shop).to eq(shop) }
+    it { expect(subject.type).to eq(params[:recommender_type]) }
+  end
+
+  describe '.extract by email' do
+    let(:client) { create(:client, user: user, email: 'kechinoff@gmail.com', shop: shop) }
+
+    let(:params) do
+      {
+        email: client.email,
+        shop_id: shop.uniqid,
         recommender_type: 'interesting'
       }
     end
 
-    subject { Recommendations::Params.extract(@params) }
+    include_examples "raise error without param", :email
 
-    context 'params validation' do
-      [:ssid, :shop_id, :recommender_type].each do |attr|
-        it "raises an exception without a #{attr}" do
-          @params[attr] = nil
-          expect{ subject }.to raise_error(Recommendations::IncorrectParams)
-        end
-      end
-    end
-
-    context 'output data' do
-      it 'have user' do
-        expect(subject.user).to eq(@user)
-      end
-
-      it 'have shop' do
-        expect(subject.shop).to eq(@shop)
-      end
-
-      it 'have type' do
-        expect(subject.type).to eq(@params[:recommender_type])
-      end
-    end
+    it{ expect(subject.user).to eq(user) }
   end
-
-  describe '.extract by email' do
-    before do
-      @shop = create(:shop)
-      @session = create(:session_with_user)
-      @user = @session.user
-      @client = create(:client, user: @user, email: 'kechinoff@gmail.com', shop: @shop)
-
-      @params = {
-          email: 'kechinoff@gmail.com',
-          shop_id: @shop.uniqid,
-          recommender_type: 'interesting'
-      }
-    end
-
-    subject { Recommendations::Params.extract(@params) }
-
-    context 'params validation' do
-
-      it 'raises an exception without a email' do
-        @params[:email] = nil
-        expect{ subject }.to raise_error(Recommendations::IncorrectParams)
-      end
-
-    end
-
-    context 'output data' do
-      it 'have user' do
-        expect(subject.user).to eq(@user)
-      end
-    end
-
-  end
-
-
 end

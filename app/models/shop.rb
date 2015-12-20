@@ -78,13 +78,40 @@ class Shop < MasterTable
     @yml ||= begin
       update_columns(last_try_to_load_yml_at: DateTime.current)
       normalized_uri = ::Addressable::URI.parse(yml_file_url.strip).normalize
-      Rees46ML::File.new(Yml.new(normalized_uri))
+      file = Rees46ML::File.new(Yml.new(normalized_uri))
+      update_columns(yml_loaded: true)
+      file
+    rescue => ex
+      update_columns(yml_loaded: false)
+      Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(id: self.id))
+      raise
     end
   end
 
   def self.import_yml_files
     active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
-      YmlImporter.perform_async(shop.id)
+      YmlImporter.perform_async(shop.id) if shop.yml_allow_import?
+    end
+  end
+
+  def yml_expired?
+    last_valid_yml_file_loaded_at.present? ? ((last_valid_yml_file_loaded_at.utc + yml_load_period.hours) < Time.now.utc) : true
+  end
+
+  def yml_allow_import?
+    # binding.pry
+    yml_expired? && ((yml_errors || 0) < 5)
+  end
+
+  def import
+    begin
+      report = YmlReport.new.tap{ |r| r.shop_id = self.id }
+      yield yml, report if block_given?
+      update(last_valid_yml_file_loaded_at: Time.now)
+    rescue
+      increment!(:yml_errors)
+    ensure
+      # YMLMailer.report(YAML.dump(report)).deliver_now if report.errors.any?
     end
   end
 
@@ -140,9 +167,5 @@ class Shop < MasterTable
 
   def has_imported_yml?
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
-  end
-
-  def increment_yml_errors!
-    update_columns(yml_errors: self.yml_errors += 1)
   end
 end

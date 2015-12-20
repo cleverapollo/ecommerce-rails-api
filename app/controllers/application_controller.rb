@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::API
   before_action :set_headers
-  before_action :sanitize_params
 
   protected
 
@@ -11,11 +10,6 @@ class ApplicationController < ActionController::API
   end
 
   before_action :store_request_params!
-
-  # Чистим входные параметры от битых данных
-  def sanitize_params
-    ParamsSanitizer.sanitize!(params)
-  end
 
   # Отдать успешный ответ
   def respond_with_success
