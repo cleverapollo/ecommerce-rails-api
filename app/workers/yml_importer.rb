@@ -45,7 +45,8 @@ class YmlImporter
         begin
           Item.bulk_update shop_id, file
           ItemCategory.bulk_update shop_id, shop.categories
-        rescue PG::UniqueViolation
+        rescue PG::UniqueViolation => e
+          Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
           attempt += 1
           retry if attempt < 10
         end

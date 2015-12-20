@@ -83,9 +83,11 @@ class Shop < MasterTable
       file
     rescue NotRespondingError => ex
       ErrorsMailer.yml_url_not_respond.deliver_now
+      Rollbar.error(ex, "Yml not respond", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
       ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
+      Rollbar.error(ex, "Не обноружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
