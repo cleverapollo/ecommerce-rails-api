@@ -2,7 +2,7 @@ module TempFiles
   extend ActiveSupport::Concern
 
   def temp_file
-    Tempfile.open(Time.now.to_s) { |file| yield file }
+    Tempfile.open(Time.now.to_i.to_s) { |file| yield file }
   end
 
   def csv_file(file, options = {})
