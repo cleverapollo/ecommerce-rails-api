@@ -18,9 +18,9 @@ module People
 
       def perform
         users = {}
-        Order.where(shop_id: @shop.id).where('date >= ?', 6.months.ago).lazy.each do |order|
-          users[order.user_id] = 0 unless users.key?(order.user_id)
-          users[order.user_id] += order.value
+        Order.where(shop_id: @shop.id).where('date >= ?', 6.months.ago).pluck(:user_id, :value).each do |order|
+          users[order[0]] = 0 unless users.key?(order[0])
+          users[order[0]] += order[1]
         end
         data = users.map { |k, v| { user_id: k, sum: users[k].to_i } }.collect.sort { |a,b| a[:sum] <=> b[:sum] }.reverse
         result = {a: [], b: [], c: []}
