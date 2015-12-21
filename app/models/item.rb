@@ -246,13 +246,6 @@ class Item < ActiveRecord::Base
       end
 
       item.brand = offer.vendor if !item.brand.present? && offer.vendor
-
-      # Downcase brand
-      item.brand = item.brand.downcase if item.brand.present?
-
-      item.brand = offer.vendor if !item.brand.present? && offer.vendor
-
-      # Downcase brand
       item.brand = item.brand.mb_chars.downcase.strip.normalize.to_s if item.brand.present?
 
       # TODO : item.volume = offer.volume
