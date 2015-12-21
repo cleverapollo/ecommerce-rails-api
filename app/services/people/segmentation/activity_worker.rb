@@ -41,14 +41,15 @@ module People
             result[:c] = data[index_b..data.length]
           end
         end
+        puts result
         Rails.logger.warn "All calculated. Nullify all"
-        @shop.clients.where.not(id: data.map { |x| x[:user_id] } ).where('activity_segment is not null').update_all activity_segment: nil
+        @shop.clients.where.not(user_id: data.map { |x| x[:user_id] } ).where('activity_segment is not null').update_all activity_segment: nil
         Rails.logger.warn "Save A"
-        @shop.clients.where(user_id: result[:a].map { |x| x[:user_id] } ).where('activity_segment != ?', People::Segmentation::Activity::A).update_all activity_segment: People::Segmentation::Activity::A
+        @shop.clients.where(user_id: result[:a].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::A
         Rails.logger.warn "Save B"
-        @shop.clients.where(user_id: result[:b].map { |x| x[:user_id] } ).where('activity_segment != ?', People::Segmentation::Activity::B).update_all activity_segment: People::Segmentation::Activity::B
+        @shop.clients.where(user_id: result[:b].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::B
         Rails.logger.warn "Save C"
-        @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).where('activity_segment != ?', People::Segmentation::Activity::C).update_all activity_segment: People::Segmentation::Activity::C
+        @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
         Rails.logger.warn "Done"
 
         true
