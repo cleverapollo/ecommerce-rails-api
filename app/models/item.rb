@@ -159,9 +159,10 @@ class Item < ActiveRecord::Base
               CREATE UNLOGGED TABLE IF NOT EXISTS temp_#{ shop_id }_items(LIKE items);
             SQL
 
-            table.table_name = "temp_#{ shop_id }_items"
-            table.copy_from csv_file.path
-            table.table_name = "items"
+            # table.table_name = "temp_#{ shop_id }_items"
+            # table.copy_from csv_file.path
+            # table.table_name = "items"
+            table.copy_from csv_file.path, table: "temp_#{ shop_id }_items"
 
             columns = table.columns.map(&:name).reject{ |c| c == 'id' }
 
@@ -190,7 +191,7 @@ class Item < ActiveRecord::Base
               DROP TABLE temp_#{ shop_id }_items;
             SQL
           ensure
-            table.table_name = "items"
+            # table.table_name = "items"
           end
         end
       end
@@ -264,7 +265,7 @@ class Item < ActiveRecord::Base
   end
 
   def csv_row
-    Item.table_name = "items" # Костыль, иначе https://rollbar.com/noff/api.rees46.com/items/1081/?item_page=0&#instances
+    # Item.table_name = "items" # Костыль, иначе https://rollbar.com/noff/api.rees46.com/items/1081/?item_page=0&#instances
     Item.columns.map do |column|
       value = self[column.name]
 

@@ -41,7 +41,6 @@ module People
             result[:c] = data[index_b..data.length]
           end
         end
-        puts result
         Rails.logger.warn "All calculated. Nullify all"
         @shop.clients.where.not(user_id: data.map { |x| x[:user_id] } ).where('activity_segment is not null').update_all activity_segment: nil
         Rails.logger.warn "Save A"
