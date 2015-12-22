@@ -20,6 +20,7 @@ class InitController < ApplicationController
     session = Session.fetch(code: session_id,
                             useragent: sanitized_header(:user_agent),
                             email: params[:user_email],
+                            location: params[:user_location],
                             city: sanitized_header(:city),
                             country: sanitized_header(:country),
                             language: sanitized_header(:language))
@@ -31,7 +32,14 @@ class InitController < ApplicationController
       expires: 1.year.from_now
     }
 
-    render js: InitServerString.make(shop: shop, session: session)
+    # Поиск связки пользователя и магазина
+    begin
+      client = Client.find_or_create_by!(user_id: session.user_id, shop_id: shop.id)
+    rescue ActiveRecord::RecordNotUnique => e
+      client = Client.find_by!(user_id: session.user_id, shop_id: shop.id)
+    end
+
+    render js: InitServerString.make(shop: shop, session: session, client: client)
   end
 
   def init_experiment
