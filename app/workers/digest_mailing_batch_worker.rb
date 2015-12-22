@@ -33,7 +33,7 @@ class DigestMailingBatchWorker
       if @batch.test_mode?
         # Тестовый режим: генерируем тестовое письмо для пустого пользователя и отправляем его на тестовый адрес.
         recommendations = calculator.recommendations_for(nil)
-        send_mail(@batch.test_email, recommendations)
+        send_mail(@batch.test_email, recommendations, nil)
 
         # Отмечаем пачку как завершенную.
         @batch.complete!
@@ -59,7 +59,7 @@ class DigestMailingBatchWorker
 
               recommendations = calculator.recommendations_for(@current_client.user)
 
-              send_mail(@current_client.email, recommendations)
+              send_mail(@current_client.email, recommendations, @current_client.location)
 
               r.shop = @shop
               r.recommender_type = 'digest_mail'
@@ -86,11 +86,11 @@ class DigestMailingBatchWorker
   #
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
-  def send_mail(email, recommendations)
+  def send_mail(email, recommendations, location)
     Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
                                   from: @settings.send_from,
-                                  body: letter_body(recommendations, email),
+                                  body: letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code)).deliver_now
   end
@@ -99,13 +99,14 @@ class DigestMailingBatchWorker
   #
   # @param items [Array] массив товаров.
   # @param email [String] E-mail покупателя
-  def letter_body(items, email)
+  # @param location [String] Код локации получателя письма для локальной цены
+  def letter_body(items, email, location)
     result = @mailing.template.dup
 
     # Вставляем в письмо товары
     items.each do |item|
       item_template = @mailing.item_template.dup
-      decorated_item = item_for_letter(item)
+      decorated_item = item_for_letter(item, location)
 
       decorated_item.each do |key, value|
         item_template.gsub!("{{ #{key} }}", value)
@@ -144,14 +145,15 @@ class DigestMailingBatchWorker
   # Обертка над товаром для отображения в письме.
   #
   # @param [Item] товар.
+  # @param location [String] Код локации для локальной цены
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
   # @return [Hash] обертка.
-  def item_for_letter(item)
+  def item_for_letter(item, location)
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
       description: item.description,
-      price: ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: "'"),
+      price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: "'"),
       url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_medium: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",

@@ -149,6 +149,17 @@ class Item < ActiveRecord::Base
     update(is_available: false, widgetable: false) if is_available == true || widgetable == true
   end
 
+  # Цена товара с учетом локации
+  def price_at_location(client_location = nil)
+    client_location = client_location.to_s # Подстраховка
+    if !locations.nil? && locations.class == Hash && locations.key?(client_location) && locations[client_location].key?('price') && locations[client_location]['price'] > 0
+      locations[client_location]['price']
+    else
+      price
+    end
+  end
+
+
   def self.bulk_update(shop_id, csv_file)
     ActiveRecord::Base.connection_pool.with_connection do |conn|
       tap do |table|
@@ -202,6 +213,7 @@ class Item < ActiveRecord::Base
     new do |item|
       item.uniqid = offer.id
       item.name = offer.name
+      item.name = offer.model if !item.name.present? && offer.model.present?
       item.description = offer.description
       item.model = offer.model
       item.price = offer.price
