@@ -10,7 +10,7 @@ describe UserFetcher do
 
 
     context 'first visit' do
-      let!(:params) { { session_code: session.code, shop: shop } }
+      let!(:params) { { session_code: session.code, shop: shop, location: "3" } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -32,6 +32,14 @@ describe UserFetcher do
         expect(client.user).to eq(session.user)
         expect(client.external_id).to eq(nil)
       end
+
+      it 'saves client location' do
+        subject
+        client = Client.first!
+        expect(client.location).to eq("3")
+      end
+
+
     end
 
     context 'second visit' do

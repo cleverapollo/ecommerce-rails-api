@@ -59,7 +59,7 @@ describe DigestMailingBatchWorker do
       s.current_digest_mail = digest_mail
       s.mailing = mailing
       s.perform(batch.id)
-      s.letter_body([item], 'test@example.com')
+      s.letter_body([item], 'test@example.com', nil)
     end
 
     it 'returns string' do
@@ -74,7 +74,7 @@ describe DigestMailingBatchWorker do
       subject do
         d_m_b_w = DigestMailingBatchWorker.new
         d_m_b_w.current_digest_mail = digest_mail
-        d_m_b_w.item_for_letter(item)
+        d_m_b_w.item_for_letter(item, nil)
       end
 
       it 'returns hash' do
@@ -104,7 +104,7 @@ describe DigestMailingBatchWorker do
       let!(:item) { create(:item, shop: shop, name: nil, widgetable: false) }
 
       it 'raises Mailings::NotWidgetableItemError' do
-        expect{ subject.item_for_letter(item) }.to raise_error(Mailings::NotWidgetableItemError)
+        expect{ subject.item_for_letter(item, nil) }.to raise_error(Mailings::NotWidgetableItemError)
       end
     end
   end
