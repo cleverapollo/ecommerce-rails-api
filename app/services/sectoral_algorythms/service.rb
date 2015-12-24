@@ -4,8 +4,10 @@ module SectoralAlgorythms
     def self.all_virtual_profile_fields
       # Список отраслевых, реагирующих на действия пользователя
       [
-          VirtualProfile::Gender, VirtualProfile::Size,
-          VirtualProfile::Physiology, VirtualProfile::Periodicly
+          VirtualProfile::Gender,
+          VirtualProfile::Size,
+          VirtualProfile::Physiology,
+          VirtualProfile::Periodicly
       ]
     end
 

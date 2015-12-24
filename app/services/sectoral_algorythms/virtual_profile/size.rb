@@ -32,6 +32,7 @@ module SectoralAlgorythms
           size_params = SizeHelper.bad_to_default(wear_type: item.wear_type,
                                                   gender: item.gender,
                                                   feature: item.feature)
+
           @size['history'] ||= {}
 
           sizes.each do |size|
@@ -41,8 +42,8 @@ module SectoralAlgorythms
               @size['history'][size_params[:gender]]||={}
               @size['history'][size_params[:gender]][size_params[:wear_type]]||={}
               @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]]||={}
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size] ||= default_history
-              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size][history_key] += 1
+              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size.to_s] ||= default_history
+              @size['history'][size_params[:gender]][size_params[:wear_type]][size_params[:feature]][calculate_size.to_s][history_key] += 1
             end
           end
         end
@@ -53,6 +54,7 @@ module SectoralAlgorythms
 
         return if full_history.nil? || full_history.empty?
 
+
         full_history.each do |gender, gender_history|
           gender_history.each do |wear_type, wear_type_history|
             wear_type_history.each do |feature, history|
@@ -61,6 +63,7 @@ module SectoralAlgorythms
               # Нормализуем
               normalized_purchase = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size]['purchase'] })
 
+
               # Минимальное значение просмотров - 10, чтобы избежать категоричных оценок новых пользователей
               normalized_views = NormalizeHelper.normalize_or_flat(sizes.map { |size| history[size]['views'] }, min_value: MIN_VIEWS_SCORE)
 
@@ -68,16 +71,23 @@ module SectoralAlgorythms
               sizes.each_with_index { |size, index| normalized_sizes[size]= normalized_views[index] * K_VIEW + normalized_purchase[index] * K_PURCHASE }
 
               normalized_sizes = NormalizeHelper.normalize_or_flat(normalized_sizes.values)
-              max_probability_size_index = normalized_sizes.each_with_index.max[1]
+
+              # Если просмотры всех размеров одинаковы (первый просмотр товара), то выбираем среднее значение, иначе максимальное
+              if normalized_sizes.uniq.length == 1
+                max_probability_size_index = (normalized_sizes.length / 2.0).floor
+              else
+                max_probability_size_index = normalized_sizes.each_with_index.max[1]
+              end
 
               @size[gender]||={}
               @size[gender][wear_type]||={}
               @size[gender][wear_type][feature]||={}
-              @size[gender][wear_type][feature]['size']=sizes[max_probability_size_index]
-              @size[gender][wear_type][feature]['probability']=(normalized_sizes[max_probability_size_index]*100).to_i
+              @size[gender][wear_type][feature]['size'] = sizes[max_probability_size_index]
+              @size[gender][wear_type][feature]['probability'] = (normalized_sizes[max_probability_size_index]*100).to_i
             end
           end
         end
+
       end
 
       def merge(slave)
