@@ -16,14 +16,14 @@ class AudienceImportWorker
       email = IncomingDataTranslator.email(a.fetch('email'))
       next if id.blank? || email.blank?
 
-      s_u = shop.clients.find_by(external_id: id)
-      if s_u.blank?
-        s_u = shop.clients.build(external_id: id, user: User.create)
+      client = shop.clients.find_by(external_id: id)
+      if client.blank?
+        client = shop.clients.build(external_id: id, user: User.create)
       end
 
-      s_u.email = email || s_u.email
+      client.email = email || client.email
 
-      s_u.save!
+      client.save!
     end
   end
 end

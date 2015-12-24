@@ -146,9 +146,20 @@ module Recommendations
     # @raise [Recommendations::IncorrectParams] в случае, если не удалось найти сессию.
     def extract_user
       if raw[:email].present?
-        client = @shop.clients.find_by email: raw[:email]
-        raise Recommendations::IncorrectParams.new('Invalid email') if client.blank?
-        @session = client.user.sessions.limit(1)[0]
+        email = IncomingDataTranslator.email(raw[:email])
+        client = Client.find_by email: email, shop_id: @shop.id
+        if client.nil?
+          begin
+            client = Client.create!(shop_id: @shop.id, email: email, user_id: User.create.id)
+          rescue # Concurrency?
+            client =  Client.find_by email: email, shop_id: @shop.id
+          end
+        end
+        raise Recommendations::IncorrectParams.new('Client not found') if client.blank?
+        @session = Session.find_by user_id: client.user_id
+        if @session.nil?
+          @session = Session.create user_id: client.user_id
+        end
       else
         @session = Session.find_by(code: raw[:ssid])
         raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
