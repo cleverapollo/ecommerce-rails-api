@@ -231,6 +231,7 @@ class Item < ActiveRecord::Base
 
         size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
 
+        # TODO: тут не работает unisex
         if size_table && offer.fashion.gender.value
           table = size_table.new
 
