@@ -25,7 +25,8 @@ class Interaction < ActiveRecord::Base
        'trigger_mail' => 9,
         'digest_mail' => 10,
             'dating'  => 11,
-      'experiment'  => 12
+      'experiment'    => 12,
+      'search'        => 13
   }
 
   belongs_to :user

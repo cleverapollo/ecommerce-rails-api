@@ -9,6 +9,7 @@ class User < MasterTable
   has_many :sessions
   has_many :actions
   has_many :orders
+  has_many :search_queries
   has_many :profile_attributes
 
   # Редисовая блокировка. Используется при слиянии пользователей
