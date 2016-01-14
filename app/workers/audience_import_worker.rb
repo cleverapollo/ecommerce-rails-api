@@ -18,7 +18,10 @@ class AudienceImportWorker
 
       client = shop.clients.find_by(external_id: id)
       if client.blank?
-        client = shop.clients.build(external_id: id, user: User.create)
+        client = shop.clients.find_by(email: email)
+        if client.blank?
+          client = shop.clients.build(external_id: id, user: User.create)
+        end
       end
 
       client.email = email || client.email
