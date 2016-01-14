@@ -45,6 +45,12 @@ module Recommender
       end
 
 
+      def check_params!
+        super
+        raise Recommendations::Error.new('Empty search query') if !search_query.present?
+      end
+
+
     end
   end
 end
