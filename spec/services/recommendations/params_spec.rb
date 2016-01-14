@@ -46,4 +46,29 @@ describe Recommendations::Params do
 
     it{ expect(subject.user).to eq(user) }
   end
+
+
+
+
+
+  describe '.extract search query' do
+
+    let!(:params) do
+      {
+          ssid: session.code,
+          shop_id: shop.uniqid,
+          recommender_type: 'search',
+          search_query: 'apple'
+      }
+    end
+
+    it 'saves search query' do
+      q = SearchQuery.count
+      subject
+      expect(SearchQuery.count > q).to be_truthy
+    end
+
+  end
+
+
 end

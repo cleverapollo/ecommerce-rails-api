@@ -45,6 +45,8 @@ module Recommendations
     attr_accessor :extended
     # Маркет отраслевого алгоритма
     attr_accessor :modification
+    # Поисковый запрос для поисковых рекомендаций
+    attr_accessor :search_query
 
     # Проверяет и обрабатывает параметры
     #
@@ -70,6 +72,7 @@ module Recommendations
       extract_brands
       extract_exclude
       extract_modification
+      extract_search_query
       self
     end
 
@@ -246,6 +249,16 @@ module Recommendations
     def extract_modification
       if raw[:modification].present? && Recommender::Base.valid_modification?(@shop, raw[:modification])
         @modification = raw[:modification]
+      end
+    end
+
+    def extract_search_query
+      if raw[:search_query].present?
+        q = StringHelper.encode_and_truncate(raw[:search_query].to_s.mb_chars.downcase.strip)
+        if q.present?
+          @search_query = q
+          SearchQuery.find_or_create_by user_id: @user.id, shop_id: @shop.id, date: Date.current, query: @search_query
+        end
       end
     end
 
