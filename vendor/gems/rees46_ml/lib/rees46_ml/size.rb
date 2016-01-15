@@ -13,7 +13,7 @@ module Rees46ML
     end
 
     def num
-      value[1..-1]
+      value.match(/[0-9]/) ? value[1..-1] : value
     end
 
     def ru?

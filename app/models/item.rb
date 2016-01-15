@@ -238,6 +238,19 @@ class Item < ActiveRecord::Base
           item.sizes = offer.fashion.sizes.map { |size|
             size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
           }.compact
+
+
+          if item.uniqid == '27'
+            puts "====="
+            puts "====="
+            offer.fashion.sizes.map { |size|
+              puts table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
+              # size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
+            }.inspect
+            puts "====="
+            puts "====="
+          end
+
         end
       elsif offer.child?
         item.brand = offer.child.brand
