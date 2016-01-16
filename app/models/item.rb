@@ -42,6 +42,7 @@ class Item < ActiveRecord::Base
   def self.yml_update_columns
     @yml_update_columns ||= %w[
       price
+      price_margin
       is_available
       name
       description
@@ -102,6 +103,7 @@ class Item < ActiveRecord::Base
 
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
+        price_margin: ValuesHelper.present_one(new_item, self, :price_margin),
         categories: ValuesHelper.with_contents(new_item, self, :categories),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
         description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
