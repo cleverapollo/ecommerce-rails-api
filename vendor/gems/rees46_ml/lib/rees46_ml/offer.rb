@@ -50,6 +50,7 @@ module Rees46ML
     attribute :pickup, Rees46ML::Boolean, lazy: true
     attribute :place, String, default: "", lazy: true
     attribute :price, String, default: "", lazy: true
+    attribute :price_margin, String, default: "", lazy: true
     attribute :publisher, String, default: "", lazy: true
     attribute :recording_length, String, default: "", lazy: true
     attribute :region, String, default: "", lazy: true
@@ -126,6 +127,7 @@ module Rees46ML
         xml.offer(id: self.id, available: self.available) {
           xml.url         { xml.text self.url }         if self.url
           xml.price       { xml.text self.price }       if self.price
+          xml.price_margin { xml.text self.price_margin } if self.price_margin
           xml.categoryId  { xml.text self.category_id } if self.category_id
           xml.name        { xml.text self.name }        if self.name
           xml.description { xml.text self.description } if self.description

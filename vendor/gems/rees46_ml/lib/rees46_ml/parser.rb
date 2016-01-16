@@ -32,6 +32,7 @@ module Rees46ML
       state :locations
       state :location
       state :price
+      state :price_margin
       state :baseprice
       state :ordering_time
       state :ordering

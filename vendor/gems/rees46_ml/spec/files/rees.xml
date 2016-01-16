@@ -106,6 +106,7 @@
         <picture>http://example.com/image/1.1.jpg</picture>
         <manufacturer_warranty>t</manufacturer_warranty>
         <weight>2.07</weight>
+        <price_margin>33</price_margin>
 
         <delivery-options>
           <option cost="1300" days="2"/>

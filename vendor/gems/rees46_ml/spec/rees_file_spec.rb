@@ -30,7 +30,7 @@ describe "check rees.xml" do
       expect(shop.currencies).to include(Rees46ML::Currency.new(id: "EUR", rate: "75.05"))
       expect(shop.currencies).to include(Rees46ML::Currency.new(id: "USD", rate: "66.48"))
 
-      expect(shop.categories.size).to eq(5)
+      expect(shop.categories.to_a.size).to eq(5)
       expect(shop.categories).to include(Rees46ML::Category.new(id: "4", name: "Категория 4", parentId: "3"))
       expect(shop.categories).to include(Rees46ML::Category.new(id: "3", name: "Категория 3", parentId: "2"))
       expect(shop.categories).to include(Rees46ML::Category.new(id: "2", name: "Категория 2", parentId: "1"))
