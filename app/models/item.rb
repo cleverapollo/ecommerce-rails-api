@@ -228,7 +228,7 @@ class Item < ActiveRecord::Base
 
       if offer.fashion?
         item.feature = offer.fashion.feature
-        item.wear_type = offer.type
+        item.wear_type = offer.fashion.type
         item.brand = offer.fashion.brand
         item.gender = offer.fashion.gender.value if offer.fashion.gender
 
