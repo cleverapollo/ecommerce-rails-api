@@ -7,7 +7,7 @@ FactoryGirl.define do
   sequence(:type_prefix)         { |n| "type.prefiix #{n}" }
   sequence(:barcode)             { |n| SecureRandom.hex }
   sequence(:size)                { |n| rand(50) }
-  sequence(:gender)              { |n| ['f','m', 'u'][rand(3)] }
+  sequence(:gender)              { |n| ['f','m'][rand(2)] }
   sequence(:vendor_code)         { |n| SecureRandom.hex }
   sequence(:wear_type)           { Rees46ML::Fashion::TYPES[rand(Rees46ML::Fashion::TYPES.size)] }
   sequence(:feature)             { Rees46ML::Fashion::FEATURES[rand(Rees46ML::Fashion::FEATURES.size)] }

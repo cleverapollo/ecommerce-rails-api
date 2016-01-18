@@ -63,6 +63,7 @@ describe Item do
     let(:locations)      { (1..4).map{ rand 10 } }
     let(:category_ids)   { (1..4).map{ rand 10 } }
     let(:location_ids)   { (1..4).map{ rand 10 } }
+    let(:price_margin)   { rand 10 }
 
     subject do
       build(:item, {
@@ -87,7 +88,6 @@ describe Item do
         gender: gender,
         wear_type: wear_type,
         feature: feature,
-        sizes: sizes,
         age_min: age_min,
         age_max: age_max,
         hypoallergenic: hypoallergenic,
@@ -99,6 +99,8 @@ describe Item do
         barcode: barcode,
         category_ids: category_ids,
         location_ids: location_ids,
+        sizes: sizes,
+        price_margin: price_margin
       })
     end
 
@@ -123,18 +125,19 @@ describe Item do
     it { expect(subject.csv_row[19]).to eq(gender) }
     it { expect(subject.csv_row[20]).to eq(wear_type) }
     it { expect(subject.csv_row[21]).to eq(feature) }
-    it { expect(subject.csv_row[22]).to eq("{#{sizes.join(',')}}") }
-    it { expect(subject.csv_row[23]).to eq(age_min) }
-    it { expect(subject.csv_row[24]).to eq(age_max) }
-    it { expect(subject.csv_row[25]).to eq(hypoallergenic) }
-    it { expect(subject.csv_row[26]).to eq("{#{part_type.join(',')}}") }
-    it { expect(subject.csv_row[27]).to eq("{#{skin_type.join(',')}}") }
-    it { expect(subject.csv_row[28]).to eq("{#{condition.join(',')}}") }
-    it { expect(subject.csv_row[29]).to eq(volume) }
-    it { expect(subject.csv_row[30]).to eq(periodic) }
-    it { expect(subject.csv_row[31]).to eq(barcode) }
-    it { expect(subject.csv_row[32]).to eq("{#{category_ids.join(',')}}") }
-    it { expect(subject.csv_row[33]).to eq("{#{location_ids.join(',')}}") }
+    it { expect(subject.csv_row[22]).to eq(age_min) }
+    it { expect(subject.csv_row[23]).to eq(age_max) }
+    it { expect(subject.csv_row[24]).to eq(hypoallergenic) }
+    it { expect(subject.csv_row[25]).to eq("{#{part_type.join(',')}}") }
+    it { expect(subject.csv_row[26]).to eq("{#{skin_type.join(',')}}") }
+    it { expect(subject.csv_row[27]).to eq("{#{condition.join(',')}}") }
+    it { expect(subject.csv_row[28]).to eq(volume) }
+    it { expect(subject.csv_row[29]).to eq(periodic) }
+    it { expect(subject.csv_row[30]).to eq(barcode) }
+    it { expect(subject.csv_row[31]).to eq("{#{category_ids.join(',')}}") }
+    it { expect(subject.csv_row[32]).to eq("{#{location_ids.join(',')}}") }
+    it { expect(subject.csv_row[33]).to eq(price_margin) }
+    it { expect(subject.csv_row[34]).to eq("{#{sizes.join(',')}}") }
   end
 
   describe '.fetch' do

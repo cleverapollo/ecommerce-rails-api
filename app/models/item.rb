@@ -280,10 +280,8 @@ class Item < ActiveRecord::Base
   end
 
   def csv_row
-    # Item.table_name = "items" # Костыль, иначе https://rollbar.com/noff/api.rees46.com/items/1081/?item_page=0&#instances
     Item.columns.map do |column|
       value = self[column.name]
-
       if value.nil?
         column.default
       else
