@@ -31,6 +31,7 @@ describe Recommendations::Params do
     it { expect(subject.type).to eq(params[:recommender_type]) }
   end
 
+
   describe '.extract by email' do
     let(:client) { create(:client, user: user, email: 'kechinoff@gmail.com', shop: shop) }
 
@@ -48,7 +49,33 @@ describe Recommendations::Params do
   end
 
 
+  describe '.extract modification' do
+    let!(:shop_with_child)    { create(:shop, enabled_child: true) }
+    let!(:shop_without_child)    { create(:shop, enabled_child: false) }
 
+    let!(:params) do
+      {
+          ssid: session.code,
+          shop_id: shop_with_child.uniqid,
+          recommender_type: 'interesting',
+          modification: 'child'
+      }
+    end
+
+    it { expect(subject.modification).to eq('child') }
+
+    let!(:params) do
+      {
+          ssid: session.code,
+          shop_id: shop_without_child.uniqid,
+          recommender_type: 'interesting',
+          modification: 'child'
+      }
+    end
+
+    it { expect(subject.modification).to eq(nil) }
+
+  end
 
 
   describe '.extract search query' do

@@ -1,4 +1,5 @@
 # Методы работы с DMP и виртуальными профилями.
+# Status: не доделано, т.к. нет возможности проксировать запрос с NGINX на какой-то конкретный шард.
 
 class ProfileController < ApplicationController
 

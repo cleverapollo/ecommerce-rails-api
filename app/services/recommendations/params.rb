@@ -247,7 +247,7 @@ module Recommendations
 
     # Извлекает модификацию отраслевого алгоритма
     def extract_modification
-      if raw[:modification].present? && Recommender::Base.valid_modification?(@shop, raw[:modification])
+      if raw[:modification].present? && Recommender::Base.valid_modification?(@shop, raw[:modification]) && @shop.public_send("enabled_#{raw[:modification]}?")
         @modification = raw[:modification]
       end
     end

@@ -5,7 +5,7 @@ module Recommender
   class Base
 
     # Доступные модификации отраслевых алгоритмов
-    MODIFICATIONS = %w(fashion child fmcg cosmetic pets)
+    MODIFICATIONS = %w(fashion child fmcg cosmetic pets appliances construction)
     RANDOM_LIMIT_MULTIPLY = 3
 
     # Массив реализаций рекомендеров

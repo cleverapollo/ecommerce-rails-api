@@ -617,6 +617,13 @@ ActiveRecord::Schema.define(version: 20151113123306) do
     t.boolean  "merchandising_enabled",                                             default: true,  null: false
     t.decimal  "triggers_cpa",                                                      default: 4.6,   null: false
     t.decimal  "digests_cpa",                                                       default: 2.0,   null: false
+    t.boolean  "enabled_fashion",                                                   default: false, null: false
+    t.boolean  "enabled_child",                                                      default: false, null: false
+    t.boolean  "enabled_cosmetic",                                                  default: false, null: false
+    t.boolean  "enabled_pets",                                                      default: false, null: false
+    t.boolean  "enabled_construction",                                              default: false, null: false
+    t.boolean  "enabled_appliances",                                                default: false, null: false
+    t.boolean  "enabled_fmcg",                                                      default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
