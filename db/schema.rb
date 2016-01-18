@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160115193800) do
+ActiveRecord::Schema.define(version: 20160117100250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
-  enable_extension "uuid-ossp"
   enable_extension "dblink"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                   null: false
@@ -200,7 +200,6 @@ ActiveRecord::Schema.define(version: 20160115193800) do
   end
 
   add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
-  add_index "interactions", ["shop_id", "item_id"], name: "tmpidx_interactions_1", using: :btree
   add_index "interactions", ["user_id"], name: "index_interactions_on_user_id", using: :btree
 
   create_table "item_categories", id: :bigserial, force: :cascade do |t|
@@ -237,7 +236,6 @@ ActiveRecord::Schema.define(version: 20160115193800) do
     t.string  "gender",         limit: 1
     t.string  "wear_type",      limit: 20
     t.string  "feature",        limit: 20
-    t.string  "sizes",                       default: [],                 array: true
     t.float   "age_min"
     t.float   "age_max"
     t.boolean "hypoallergenic"
@@ -250,6 +248,7 @@ ActiveRecord::Schema.define(version: 20160115193800) do
     t.string  "category_ids",                                             array: true
     t.string  "location_ids",                                             array: true
     t.integer "price_margin"
+    t.string  "sizes",                                                    array: true
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
@@ -265,7 +264,7 @@ ActiveRecord::Schema.define(version: 20160115193800) do
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id"], name: "widgetable_shop", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
-  add_index "items", ["sizes"], name: "index_items_on_sizes_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["sizes", "wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((sizes IS NOT NULL) AND (wear_type IS NOT NULL)))", using: :gin
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                       null: false

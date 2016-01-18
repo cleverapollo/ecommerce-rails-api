@@ -3,8 +3,7 @@ module Rees46ML
     TYPES = %w[cloth shoe sock toy education food nappy hygiene furniture school transport]
 
     attribute :age, Rees46ML::ChildAge, default: ->(*){ Rees46ML::ChildAge.new }, lazy: true
-    attribute :type, String, default: "", lazy: true
-    attribute :brand, String, default: "", lazy: true
+    attribute :type, String, lazy: true
     attribute :sizes, Set[Rees46ML::Size], lazy: true
     attribute :gender, Rees46ML::Gender, default: ->(*){ Rees46ML::Gender.new }, lazy: true
     attribute :hypoallergenic, Rees46ML::Boolean, lazy: true
@@ -17,7 +16,7 @@ module Rees46ML
     validates :type, presence: true, inclusion: { in: TYPES }
 
     def empty?
-      type.empty? || brand.empty?
+      type.empty?
     end
   end
 end

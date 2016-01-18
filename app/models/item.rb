@@ -229,22 +229,21 @@ class Item < ActiveRecord::Base
       if offer.fashion?
         item.feature = offer.fashion.feature
         item.wear_type = offer.fashion.type
-        item.brand = offer.fashion.brand
         item.gender = offer.fashion.gender.value if offer.fashion.gender
 
-        size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
-
-        # TODO: тут не работает unisex
-        if size_table && offer.fashion.gender.value
-          table = size_table.new
-
-          item.sizes = offer.fashion.sizes.map { |size|
-            size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
-          }.compact
-
+        if offer.fashion.gender && offer.fashion.type
+          size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
+          # TODO: тут не работает unisex
+          if size_table && offer.fashion.gender.value
+            table = size_table.new
+            _sizes = offer.fashion.sizes.map { |size|
+              size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
+            }.compact
+            item.sizes = _sizes && _sizes.any? ? _sizes : nil
+          end
         end
+
       elsif offer.child?
-        item.brand = offer.child.brand
         item.hypoallergenic = offer.child.hypoallergenic
         item.gender = offer.child.gender.value if offer.child.gender
         item.periodic = offer.child.periodic
@@ -254,7 +253,6 @@ class Item < ActiveRecord::Base
         item.skin_type = offer.child.skin_types.map(&:value) if offer.child.skin_types
         item.condition = offer.child.conditions.map(&:value) if offer.child.conditions
       elsif offer.cosmetic?
-        item.brand = offer.cosmetic.brand
         item.gender = offer.cosmetic.gender.value if offer.cosmetic.gender
         item.hypoallergenic = offer.cosmetic.hypoallergenic
         item.periodic = offer.cosmetic.periodic
@@ -263,7 +261,7 @@ class Item < ActiveRecord::Base
         item.condition = offer.cosmetic.conditions.map(&:value) if offer.cosmetic.conditions
       end
 
-      item.brand = offer.vendor if !item.brand.present? && offer.vendor
+      item.brand = offer.vendor
       item.brand = item.brand.mb_chars.downcase.strip.normalize.to_s if item.brand.present?
 
       # TODO : item.volume = offer.volume

@@ -110,7 +110,6 @@ describe "check rees.xml" do
 
     expect(offer.child.age.min).to eq("0.25")
     expect(offer.child.age.max).to eq("1")
-    expect(offer.child.brand).to eq("Clementoni")
     expect(offer.child.gender.value).to eq("u")
     expect(offer.child.type).to eq("hygiene")
     expect(offer.child.gender.value).to eq("u")
@@ -131,7 +130,6 @@ describe "check rees.xml" do
     expect(offer.child.conditions).to include("colored")
     expect(offer.child.conditions).to include("damaged")
 
-    expect(offer.fashion.brand).to eq("Gucci")
     expect(offer.fashion.type).to eq("shirt")
     expect(offer.fashion.feature).to eq("adult")
     expect(offer.fashion.gender.value).to eq("f")

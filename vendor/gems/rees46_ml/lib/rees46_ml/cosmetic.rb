@@ -5,7 +5,6 @@ module Rees46ML
     CONDITIONS = %w[colored damaged waved seborea akne loss grow dehydrated sensitive problem fading]
 
     attribute :gender, Rees46ML::Gender, lazy: true
-    attribute :brand, String, default: "", lazy: true
     attribute :hypoallergenic, Rees46ML::Boolean, lazy: true
     attribute :periodic, Rees46ML::Boolean, lazy: true
     attribute :part_types, Set[Rees46ML::PartType], lazy: true
