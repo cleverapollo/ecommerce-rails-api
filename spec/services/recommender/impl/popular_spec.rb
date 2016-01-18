@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Recommender::Impl::Popular do
   let!(:plan) { create(:plan, plan_type:'custom')}
-  let!(:shop) { create(:shop, plan:plan, paid_till: 7.days.since(Time.now).to_date) }
+  let!(:shop) { create(:shop, plan:plan, paid_till: 7.days.since(Time.now).to_date, enabled_fashion: true) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
   let!(:test_item) { create(:item, shop: shop, sales_rate: 10000) }

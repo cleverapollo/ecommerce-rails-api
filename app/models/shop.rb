@@ -176,7 +176,10 @@ class Shop < MasterTable
   end
 
   def allow_industrial?
-    !payment_ended? && plan.plan_type == 'custom'
+    Recommender::Base::MODIFICATIONS.each do |modification|
+      return true if public_send("enabled_#{modification}?")
+    end
+    false
   end
 
   def has_imported_yml?

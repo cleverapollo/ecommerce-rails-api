@@ -49,9 +49,8 @@ describe Recommendations::Params do
   end
 
 
-  describe '.extract modification' do
+  describe '.extract modification when enabled' do
     let!(:shop_with_child)    { create(:shop, enabled_child: true) }
-    let!(:shop_without_child)    { create(:shop, enabled_child: false) }
 
     let!(:params) do
       {
@@ -63,6 +62,12 @@ describe Recommendations::Params do
     end
 
     it { expect(subject.modification).to eq('child') }
+
+  end
+
+  describe '.extract empty modification when disabled' do
+
+    let!(:shop_without_child) { create(:shop, enabled_child: false) }
 
     let!(:params) do
       {

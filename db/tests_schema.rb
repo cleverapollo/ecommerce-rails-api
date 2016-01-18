@@ -624,6 +624,7 @@ ActiveRecord::Schema.define(version: 20151113123306) do
     t.boolean  "enabled_construction",                                              default: false, null: false
     t.boolean  "enabled_appliances",                                                default: false, null: false
     t.boolean  "enabled_fmcg",                                                      default: false, null: false
+    t.integer  "plan_id"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

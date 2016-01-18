@@ -4,28 +4,18 @@ describe Shop do
   it { expect(build(:shop)).to be_valid }
 
   describe "#allow_industrial?" do
-    let(:plan)      { create(:plan) }
-    let(:paid_till) { DateTime.now + 1.day }
-    let(:shop)      { create(:shop, plan: plan, paid_till: paid_till) }
-
-    context "plan type: free" do
-      let(:plan) { create(:plan, plan_type: "free") }
-
-      it { expect(shop.allow_industrial?).to be false }
-    end
-
-    context "plan type: custom" do
-      let(:plan) { create(:plan, plan_type: "custom") }
-
+    context "with enabled modification" do
+      let(:shop) { create(:shop, enabled_child: true) }
       it { expect(shop.allow_industrial?).to be true }
     end
-
-    context "expired paid_till" do
-      let(:paid_till) { DateTime.now - 1.day }
-
+    context "without enabled modification" do
+      let(:shop) { create(:shop) }
       it { expect(shop.allow_industrial?).to be false }
     end
   end
+
+
+
 
   describe "#has_imported_yml?" do
     it { expect(build(:shop, :with_imported_yml).has_imported_yml?).to be true }
