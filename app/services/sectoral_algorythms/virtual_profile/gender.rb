@@ -17,7 +17,7 @@ module SectoralAlgorythms
       end
 
       def value
-        return { 'm' => @profile.gender['m'], 'f' => @profile.gender['f'] }
+        return { m: @profile.gender['m'], f: @profile.gender['f'] }
       end
 
       def trigger_view(item)
@@ -86,7 +86,7 @@ module SectoralAlgorythms
 
       def opposite_gender
         cur_gender = value
-        return false if cur_gender['m']==cur_gender['f']
+        return false if cur_gender[:m]==cur_gender[:f]
         cur_gender.min_by { |_, v| v }.first.to_s
       end
 
