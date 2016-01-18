@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160117100250) do
+ActiveRecord::Schema.define(version: 20160118123503) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -104,6 +104,7 @@ ActiveRecord::Schema.define(version: 20160117100250) do
     t.string   "location"
     t.date     "last_activity_at"
     t.integer  "activity_segment"
+    t.boolean  "supply_trigger_sent"
   end
 
   add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree

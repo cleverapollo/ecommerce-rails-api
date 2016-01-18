@@ -1,10 +1,12 @@
 require 'rails_helper'
 
 describe 'Pushing an event' do
+
   before do
     @shop = create(:shop)
     @user = create(:user)
     @session = create(:session, user: @user)
+    @client = create(:client, shop: @shop, user: @user, supply_trigger_sent: true)
 
     @params = {
       event: 'view',
@@ -78,4 +80,15 @@ describe 'Pushing an event' do
 
     expect(Action.all.map(&:rating)).to match_array([3.7, 3.7])
   end
+
+
+  it 'clears supply_trigger_sent for client' do
+    @params[:event] = 'purchase'
+    @params[:amount] = [1,1]
+    post '/push', @params
+    expect(response.body).to eq({ status: 'success' }.to_json)
+    expect(@client.reload.supply_trigger_sent).to eq(nil)
+  end
+
+
 end

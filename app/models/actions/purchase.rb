@@ -22,7 +22,7 @@ module Actions
     end
 
     def post_process
-      Client.where(user_id: self.user_id, shop_id: self.shop_id).update_all(bought_something: true)
+      Client.where(user_id: self.user_id, shop_id: self.shop_id).update_all(bought_something: true, supply_trigger_sent: nil)
     end
 
     def needs_to_update_rating?

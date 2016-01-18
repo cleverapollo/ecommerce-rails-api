@@ -17,7 +17,7 @@ module SectoralAlgorythms
       end
 
       def value
-        return { m: @profile.gender['m'], f: @profile.gender['f'] }
+        return { 'm' => @profile.gender['m'], 'f' => @profile.gender['f'] }
       end
 
       def trigger_view(item)
