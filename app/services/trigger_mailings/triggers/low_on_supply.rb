@@ -10,8 +10,9 @@ module TriggerMailings
         (2.months.ago..60.minutes.ago)
       end
 
+      # Приоритетнее недавней покупки
       def priority
-        10
+        55
       end
 
       def appropriate_time_to_send?
