@@ -27,29 +27,38 @@ module TriggerMailings
         # Этот флаг стирается при каждом заказе пользователя
         return false if client.supply_trigger_sent?
 
-        # TODO: отключить, когда будет готов триггер
-        return false
-
         # Есть ли периодические товары, на которые должен сработать триггер?
         return find_periodic_products.any?
 
       end
 
-      # Рекомендации для брошенной корзины
+      # Рекомендации
+      # Рекомендуем товары, которые скоро закончатся (как source) и сопутствующие/интересные/популярные в дополнение.
       def recommended_ids(count)
+
+        # Выполняем поиск исходных товаров
+        find_periodic_products
+
         params = OpenStruct.new(
-          shop: shop,
-          user: user,
-          item: source_item,
-          limit: count,
-          recommend_only_widgetable: true,
-          locations: source_item.locations
+            shop: shop,
+            user: user,
+            limit: count,
+            recommend_only_widgetable: true,
         )
 
-        # Сначала похожие товары
-        result = Recommender::Impl::Similar.new(params).recommended_ids
+        result = []
 
-        # Затем интересные
+        # Ищем похожие товары
+        @source_items.each do |source_item|
+          params[:item] = source_item
+          params[:locations] = source_item.locations
+          params[:limit] = count - result.count
+          params[:exclude] = result
+          result + Recommender::Impl::Similar.new(params).recommended_ids
+          result.uniq!
+        end
+
+        # Если не хватает, докидываем интересные
         if result.count < count
           result += Recommender::Impl::Interesting.new(params.tap { |p|
             p.limit = (count - result.count)
@@ -66,6 +75,7 @@ module TriggerMailings
         end
 
         result
+
       end
 
 
@@ -77,33 +87,51 @@ module TriggerMailings
       # Причем два одинаковых товара в разных заказах.
       # @return Item[]
       def find_periodic_products
-        periodic_items = {} # { id: {dates: []} }
+        periodic_items = {}
         Order.where(shop_id: shop.id).where(user_id: user.id).where(date: trigger_time_range).each do |order|
           order.order_items.includes(:item).each do |order_item|
-            if order_item.item.periodic?
+            if order_item.item.periodic? && order_item.item.is_available? && order_item.item.widgetable? && !order_item.item.ignored?
               if !periodic_items.key?(order_item.item_id)
                 periodic_items[order_item.item_id] = []
               end
-              periodic_items[order_item.item_id][] << { item: order_item.item, date: order.date.to_date }
+              periodic_items[order_item.item_id] << order.date.to_date
             end
           end
         end
 
+        # Оставляем только уникальные даты, чтобы не учитывать заказы в один день
+        periodic_items.each { |k, v| periodic_items[k].uniq! }
+
         # Выбираем только те, которые покупали больше одного раза
-        appropriate_items = periodic_items.select { |k, v| v.count > 1 }.values
+        periodic_items.delete_if { |k, v| v.count < 2 }
 
-        # TODO Отсортировать даты в порядке покупок, чтобы первая дата была самой свежей
+        # Отсортировать даты в порядке покупок, чтобы первая дата была самой свежей
+        periodic_items.each { |k, v| periodic_items[k].sort! }
 
-        # Рассчитываем средний интервал покупок
-        appropriate_items.each do |k, history|
-          appropriate_items[k][:period] = history # Тут что-то нужно написать. Видимо, отсортировать даты
+        # Ищем финальный список товаров, дата покупки которых либо закончилась либо закончится через 5 дней, но не более 20% от интервала покупки (если интервал покупки 5 дней, то не более 1 дня)
+        final_ids = []
+        periodic_items.each do |id, dates|
+
+          # Посчитаем средний интервал покупок
+          diffs = []
+          dates.each_index do |i|
+            diffs << dates[i+1].to_time.to_i - dates[i].to_time.to_i if i < (dates.length - 1)
+          end
+          interval = diffs.inject{ |sum, el| sum + el }.to_f / diffs.size
+
+          # Рассчитываем дату, когда товар должен закончиться
+          deadline = dates.last + interval.seconds
+
+          # Если дата в прошлом либо наступит через 5 дней
+          if deadline < (DateTime.current + 5.days)
+            final_ids << id
+          end
+
         end
 
-        # Оставляем только те, которые теоретически еще не закончились
+        @source_items = Item.where(shop_id: shop.id).widgetable.recommendable.where(id: final_ids)
 
-
-
-        []
+        @source_items.pluck(:id)
       end
 
     end

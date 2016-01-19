@@ -6,7 +6,7 @@ describe BrandLogger do
     let!(:advertiser) { create(:advertiser) }
     let!(:brand_campaign) { create(:brand_campaign, advertiser: advertiser) }
     let!(:shop) { create(:shop) }
-    let!(:brand_campaing_shop) { create(:brand_campaign_shop, shop: shop, advertiser: advertiser, brand_campaign: brand_campaign) }
+    let!(:brand_campaign_shop) { create(:brand_campaign_shop, shop: shop, brand_campaign: brand_campaign) }
 
     it 'creates statistics row on first view and updates it on next view' do
       expect(BrandCampaignStatistic.count).to eq(0)

@@ -4,7 +4,7 @@ module TriggerMailings
     # Базовый класс, от которого наследуются реализации триггеров
     #
     class Base
-      attr_accessor :shop, :user, :client, :happened_at, :source_item, :additional_info
+      attr_accessor :shop, :user, :client, :happened_at, :source_item, :source_items, :additional_info
 
       class << self
         # Код триггера
@@ -25,6 +25,7 @@ module TriggerMailings
             subject: mailing.subject,
             template: mailing.template,
             item_template: mailing.item_template,
+            source_item_template: mailing.source_item_template
           }
         end
 

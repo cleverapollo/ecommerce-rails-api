@@ -29,6 +29,7 @@ module TriggerMailings
                   if trigger = trigger_detector.detect(client)
                     TriggerMailings::Letter.new(client, trigger).send
                     client.update_columns(last_trigger_mail_sent_at: Time.now)
+                    client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
                   end
                 rescue StandardError => e
                   Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )

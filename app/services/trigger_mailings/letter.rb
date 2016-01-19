@@ -44,13 +44,36 @@ module TriggerMailings
     # @private
     def generate_letter_body
       result = trigger.settings[:template].dup
+
       # Узнаем количество необходимых рекомендаций
       recommendations_count = trigger.settings[:template].scan(/{{ recommended_item }}/).count
 
-      # Вставляем в шаблон параметры "исходного" товара
-      if trigger.source_item.present?
-        decorated_source_item = item_for_letter(trigger.source_item, client.location)
+      # Вставляем в шаблон параметры "исходного" товара или "исходных, если их больше"
+      if trigger.source_items.present? && trigger.source_items.any?
 
+        source_items_count = trigger.settings[:template].scan(/{{ source_item }}/).count
+
+        # Несколько товаров
+        trigger.source_items.take(source_items_count).each do |item|
+
+          source_item_template = trigger.settings[:source_item_template].dup
+          decorated_source_item = item_for_letter(item, client.location)
+          decorated_source_item.each do |key, value|
+            source_item_template.gsub!("{{ #{key} }}", value)
+            source_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+          end
+          result['{{ source_item }}'] = source_item_template
+
+        end
+
+        # Удаляем лишние заглушки
+        result.gsub!('{{ source_item }}', '')
+
+      elsif trigger.source_item.present?
+
+        # Один товар
+
+        decorated_source_item = item_for_letter(trigger.source_item, client.location)
         decorated_source_item.each do |key, value|
           result.gsub!("{{ source_item.#{key} }}", value)
           result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'

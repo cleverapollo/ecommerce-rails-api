@@ -42,7 +42,7 @@ FactoryGirl.define do
   end
 
   factory :order do
-    uniqid SecureRandom.uuid
+    uniqid { SecureRandom.uuid }
     sequence(:date) {|n| Time.current }
   end
 
