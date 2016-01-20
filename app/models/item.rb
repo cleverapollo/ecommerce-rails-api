@@ -258,7 +258,7 @@ class Item < ActiveRecord::Base
         item.periodic = offer.cosmetic.periodic
         item.part_type = offer.cosmetic.part_types.map(&:value) if offer.cosmetic.part_types
         item.skin_type = offer.cosmetic.skin_types.map(&:value) if offer.cosmetic.skin_types
-        item.condition = offer.cosmetic.conditions.map(&:value) if offer.cosmetic.conditions
+        item.condition = offer.cosmetic.conditions.map.to_a if offer.cosmetic.conditions
       end
 
       item.brand = offer.vendor
