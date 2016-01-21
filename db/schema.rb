@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160118123503) do
+ActiveRecord::Schema.define(version: 20160121182201) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -211,9 +211,12 @@ ActiveRecord::Schema.define(version: 20160118123503) do
     t.string   "name"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
+    t.string   "taxonomy"
   end
 
   add_index "item_categories", ["shop_id", "external_id"], name: "index_item_categories_on_shop_id_and_external_id", unique: true, using: :btree
+  add_index "item_categories", ["shop_id"], name: "index_item_categories_with_taxonomy", where: "(taxonomy IS NOT NULL)", using: :btree
+  add_index "item_categories", ["shop_id"], name: "index_item_categories_without_taxonomy", where: "((taxonomy IS NULL) AND (name IS NOT NULL))", using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",                                     null: false

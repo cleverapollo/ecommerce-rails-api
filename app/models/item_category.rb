@@ -11,6 +11,10 @@ class ItemCategory < ActiveRecord::Base
   has_many :brand_campaign_item_categories
   has_many :item_categories, through: :brand_campaign_item_categories
 
+  scope :without_taxonomy, -> { where('taxonomy is null') }
+  scope :with_taxonomy, -> { where('taxonomy is not null') }
+  scope :for_taxonomy_definition, -> { where('taxonomy is not null and name is not null') }
+
   def self.bulk_update(shop_id, categories_tree)
     transaction do
       categories_tree.each do |yml_category|
@@ -34,4 +38,45 @@ class ItemCategory < ActiveRecord::Base
       end
     end
   end
+
+
+  def self.process_taxonomies
+    Shop.active.find_each do |shop|
+      shop.item_categories.without_taxonomy.find_each do |item_category|
+        item_category.define_taxonomy!
+      end
+    end
+  end
+
+  def define_taxonomy!
+    if _taxonomy = find_taxonomy
+      update taxonomy: _taxonomy
+    end
+  end
+
+
+  private
+
+  def find_taxonomy
+
+    return 'appliances.refrigerators' if name.mb_chars.downcase.scan('холодильник').any?
+    return 'appliances.vacuum' if name.mb_chars.downcase.scan('пылесос').any?
+    return 'appliances.blender' if name.mb_chars.downcase.scan('брендер').any?
+    return 'appliances.air_conditioner' if name.mb_chars.downcase.scan('кондиционер').any?
+    return 'appliances.coffee_machine' if name.mb_chars.downcase.scan('кофевар').any?
+    return 'appliances.coffee_grinder' if name.mb_chars.downcase.scan('кофемолк').any?
+    return 'appliances.microwave' if name.mb_chars.downcase.scan('микроволн').any?
+    return 'appliances.mixer' if name.mb_chars.downcase.scan('миксер').any?
+    return 'appliances.toster' if name.mb_chars.downcase.scan('тостер').any?
+    return 'appliances.iron' if name.mb_chars.downcase.scan('утюг').any?
+    return 'appliances.kettle' if name.mb_chars.downcase.scan('чайник').any?
+    return 'appliances.epilator' if name.mb_chars.downcase.scan('эпиллятор').any?
+
+    nil
+
+  end
+
+
+
+
 end
