@@ -1,8 +1,5 @@
 Rees46Api::Application.routes.draw do
 
-  # For DMP
-  get 'profile/check'
-
   root to: 'home#index'
 
   # Инициализация
