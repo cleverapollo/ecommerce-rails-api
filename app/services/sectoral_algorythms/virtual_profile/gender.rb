@@ -103,14 +103,18 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
-        return unless @gender && @gender['history'].present?
-        # Сливаем суммированием истории
-        if slave.gender['history'].present?
-          slave_history = slave.gender['history']
-          master_history = @gender['history']
-          @gender['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
-            master_value.to_i+slave_value.to_i
+        if @gender && @gender['history'].present?
+          # Сливаем суммированием истории
+          if slave.gender['history'].present?
+            slave_history = slave.gender['history']
+            master_history = @gender['history']
+            @gender['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+              master_value.to_i+slave_value.to_i
+            end
           end
+        else
+          # У мастера истории нет, поэтому перезаписываем слейвом
+          @gender['history'] = slave.gender['history'] if slave.gender['history'].present?
         end
       end
 

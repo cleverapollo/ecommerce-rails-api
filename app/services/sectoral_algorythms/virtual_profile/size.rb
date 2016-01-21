@@ -91,13 +91,17 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
-        return unless @size && @size['history'].present?
-        if slave.size['history'].present?
-          slave_history = slave.size['history']
-          master_history = @size['history']
-          @size['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
-            master_value.to_i+slave_value.to_i
+        if @size && @size['history'].present?
+          if slave.size['history'].present?
+            slave_history = slave.size['history']
+            master_history = @size['history']
+            @size['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+              master_value.to_i+slave_value.to_i
+            end
           end
+        else
+          # У мастера истории нет, поэтому перезаписываем слейвом
+          @size['history'] = slave.size['history'] if slave.size['history'].present?
         end
       end
 

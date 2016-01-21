@@ -84,13 +84,17 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
-        return unless @periodicly && @periodicly['history'].present?
-        if slave.periodicly['history'].present?
-          slave_history = slave.periodicly['history']
-          master_history = @periodicly['history']
-          @periodicly['history'] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
-            (periodicly_slave_value+periodicly_master_value).sort.uniq
+        if @periodicly && @periodicly['history'].present?
+          if slave.periodicly['history'].present?
+            slave_history = slave.periodicly['history']
+            master_history = @periodicly['history']
+            @periodicly['history'] = slave_history.merge(master_history) do |_, periodicly_slave_value, periodicly_master_value|
+              (periodicly_slave_value+periodicly_master_value).sort.uniq
+            end
           end
+        else
+          # У мастера истории нет, поэтому перезаписываем слейвом
+          @periodicly['history'] = slave.periodicly['history'] if slave.periodicly['history'].present?
         end
       end
 

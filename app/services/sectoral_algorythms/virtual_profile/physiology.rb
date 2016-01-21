@@ -112,13 +112,17 @@ module SectoralAlgorythms
       end
 
       def merge(slave)
-        return unless @physiology && @physiology['history'].present?
-        if slave.physiology['history'].present?
-          slave_history = slave.physiology['history']
-          master_history = @physiology['history']
-          @physiology['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
-            master_value.to_i+slave_value.to_i
+        if @physiology && @physiology['history'].present?
+          if slave.physiology['history'].present?
+            slave_history = slave.physiology['history']
+            master_history = @physiology['history']
+            @physiology['history'] = merge_history(master_history, slave_history) do |master_value, slave_value|
+              master_value.to_i+slave_value.to_i
+            end
           end
+        else
+          # У мастера истории нет, поэтому перезаписываем слейвом
+          @physiology['history'] = slave.physiology['history'] if slave.physiology['history'].present?
         end
       end
 
