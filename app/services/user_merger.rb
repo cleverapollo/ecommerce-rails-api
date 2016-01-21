@@ -19,13 +19,19 @@ class UserMerger
             dependency.public_send(:relink_user, from: slave, to: master)
           end
 
-          # сливаем виртуальный профиль
-          SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_virtual_profile_fields).merge(slave)
+          # Если случайно не склеиваем профиль с самим собой (у одного пользователя может быть несколько клиентов с одинаковым e-mail)
+          if slave.id != master.id
 
-          # Не удалять, если у пользователя есть несколько клиентов с одинаковым мылом
-          slave.delete unless slave.id == master.id
+            # Сливаем виртуальный профиль
+            SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_virtual_profile_fields).merge(slave)
+
+            # Удаляем дочерний элемент
+            slave.delete
+
+          end
 
           master
+
         }
       rescue Redis::Lock::LockTimeout
         # Обработка уже ведется - ничего делать не нужно.
