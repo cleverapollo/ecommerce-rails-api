@@ -53,7 +53,7 @@ module ActionPush
       Client.find_by(user_id: params.user.id, shop_id: params.shop.id).track_last_activity
 
       # Трекаем таксономию в DMP
-      UserTaxonomy.track params.user, params.items
+      UserTaxonomy.track params.user, params.items, params.shop
 
     end
 

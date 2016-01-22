@@ -246,6 +246,7 @@ ActiveRecord::Schema.define(version: 20160121210810) do
     t.string   "code",            limit: 255,                null: false
     t.decimal  "increase_units"
     t.decimal  "increase_rubles"
+    t.string   "taxonomy"
   end
 
   add_index "categories", ["code"], name: "index_categories_on_code", unique: true, using: :btree
