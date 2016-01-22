@@ -52,6 +52,9 @@ module ActionPush
       # Отмечаем, что пользователь был активен
       Client.find_by(user_id: params.user.id, shop_id: params.shop.id).track_last_activity
 
+      # Трекаем таксономию в DMP
+      UserTaxonomy.track params.user, params.items
+
     end
 
     def fetch_action_for(item)

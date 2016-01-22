@@ -6,7 +6,12 @@ describe ActionPush::Processor do
     @session = @user.sessions.first
     @shop = create(:shop)
     @client = create(:client, shop: @shop, user: @user)
-    @items = [ create(:item, shop: @shop) ]
+
+    create(:item_category, shop: @shop, external_id: '123', taxonomy: 'apparel.shoe')
+    create(:item_category, shop: @shop, external_id: '321', taxonomy: 'apparel.shirt')
+    create(:item_category, shop: @shop, external_id: '333')
+
+    @items = [ create(:item, shop: @shop, category_ids: ['123', '321', '333']) ]
 
     @sample_params = OpenStruct.new(action: 'view', items: @items, user: @user, shop: @shop)
   end
@@ -29,6 +34,12 @@ describe ActionPush::Processor do
     it 'fetches every items action' do
       @instance.process
     end
+
+    it 'writes taxonomy to user' do
+      @instance.process
+      expect(UserTaxonomy.where(user_id: @user.id).count).to eq(2)
+    end
+
   end
 
   describe '#fetch_action_for' do

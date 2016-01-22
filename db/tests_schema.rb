@@ -11,12 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151113123306) do
+ActiveRecord::Schema.define(version: 20160121210810) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "btree_gin"
-  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -375,33 +373,6 @@ ActiveRecord::Schema.define(version: 20151113123306) do
 
   add_index "monthly_statistics", ["month", "year"], name: "index_monthly_statistics_on_month_and_year", unique: true, using: :btree
 
-  create_table "partners", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",    null: false
-    t.string   "encrypted_password",     limit: 255, default: "",    null: false
-    t.string   "reset_password_token",   limit: 255
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,     null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip",     limit: 255
-    t.string   "last_sign_in_ip",        limit: 255
-    t.string   "name",                   limit: 255
-    t.string   "phone",                  limit: 255
-    t.string   "city",                   limit: 255
-    t.string   "company",                limit: 255
-    t.integer  "role",                               default: 1
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "token",                  limit: 255,                 null: false
-    t.text     "description"
-    t.string   "url",                    limit: 255
-    t.boolean  "approved",                           default: false, null: false
-  end
-
-  add_index "partners", ["email"], name: "index_partners_on_email", unique: true, using: :btree
-  add_index "partners", ["reset_password_token"], name: "index_partners_on_reset_password_token", unique: true, using: :btree
-
   create_table "payments", force: :cascade do |t|
     t.integer  "shop_id",                       null: false
     t.integer  "plan_id",                       null: false
@@ -490,6 +461,14 @@ ActiveRecord::Schema.define(version: 20151113123306) do
   end
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
+
+  create_table "saas_requests", force: :cascade do |t|
+    t.string   "name"
+    t.string   "url"
+    t.string   "contact"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "sales_requests", force: :cascade do |t|
     t.string   "first_name"
@@ -615,16 +594,18 @@ ActiveRecord::Schema.define(version: 20151113123306) do
     t.boolean  "supply_available",                                                  default: false, null: false
     t.boolean  "use_brb",                                                           default: false
     t.boolean  "merchandising_enabled",                                             default: true,  null: false
+    t.integer  "scoring",                                                           default: 0,     null: false
     t.decimal  "triggers_cpa",                                                      default: 4.6,   null: false
     t.decimal  "digests_cpa",                                                       default: 2.0,   null: false
+    t.integer  "triggers_cpa_cap",                                                  default: 250,   null: false
+    t.integer  "digests_cpa_cap",                                                   default: 200,   null: false
     t.boolean  "enabled_fashion",                                                   default: false, null: false
-    t.boolean  "enabled_child",                                                      default: false, null: false
+    t.boolean  "enabled_child",                                                     default: false, null: false
     t.boolean  "enabled_cosmetic",                                                  default: false, null: false
     t.boolean  "enabled_pets",                                                      default: false, null: false
     t.boolean  "enabled_construction",                                              default: false, null: false
     t.boolean  "enabled_appliances",                                                default: false, null: false
     t.boolean  "enabled_fmcg",                                                      default: false, null: false
-    t.integer  "plan_id"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -670,6 +651,15 @@ ActiveRecord::Schema.define(version: 20151113123306) do
     t.text     "comment"
     t.integer  "shop_id"
   end
+
+  create_table "user_taxonomies", force: :cascade do |t|
+    t.integer "user_id"
+    t.date    "date"
+    t.string  "taxonomy"
+  end
+
+  add_index "user_taxonomies", ["date"], name: "index_user_taxonomies_on_date", using: :btree
+  add_index "user_taxonomies", ["taxonomy"], name: "index_user_taxonomies_on_taxonomy", using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
     t.jsonb "gender",     default: {"f"=>50, "m"=>50}, null: false
