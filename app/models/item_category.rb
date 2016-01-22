@@ -15,6 +15,95 @@ class ItemCategory < ActiveRecord::Base
   scope :with_taxonomy, -> { where('taxonomy is not null') }
   scope :for_taxonomy_definition, -> { where('taxonomy is not null and name is not null') }
 
+  TAXONOMY_KEYWORDS = {
+
+      'kids' => [],
+
+      'pets' => [],
+
+      'apparel.shoes' => ['ботинк', 'туфл', 'сапог', 'сандали', 'тапочк'],
+      'apparel.trousers' => ['брюки', 'штаны', 'колготк'],
+      'apparel.belt' => ['ремни', 'ремень'],
+      'apparel.blazer' => ['блейзер'],
+      'apparel.glove' => ['перчатк'],
+      'apparel.hat' => ['шапк', 'шляп', 'шапочк'],
+      'apparel.jaket' => ['пиджак'],
+      'apparel.costume' => ['костюм'],
+      'apparel.shirt' => ['рубашк', 'пуловер', 'толстовк'],
+      'apparel.sock' => ['носки'],
+      'apparel.tshirt' => ['футболк'],
+      'apparel.underwear' => ['трусы', 'бюстгал', 'нижнее белье'],
+
+      'appliances.kitchen.refrigerators' => ['холодильник'],
+      'appliances.kitchen.washer' => ['стиральн'],
+      'appliances.kitchen.dishwasher' => ['посудомоечн'],
+      'appliances.kitchen.blender' => ['блендер'],
+      'appliances.kitchen.coffee_machine' => ['кофевар'],
+      'appliances.kitchen.coffee_grinder' => ['кофемолк'],
+      'appliances.kitchen.microwave' => ['микроволн'],
+      'appliances.kitchen.mixer' => ['миксер'],
+      'appliances.kitchen.toster' => ['тостер'],
+      'appliances.kitchen.kettle' => ['чайник', 'термопот'],
+      'appliances.environment.vacuum' => ['пылесос'],
+      'appliances.environment.air_conditioner' => ['кондиционер', 'сплит-систем'],
+      'appliances.environment.climate' => ['климатическ'],
+      'appliances.environment.air_heater' => ['конвектор', 'тепловентилят', 'обогревател'],
+      'appliances.environment.water_heater' => ['водонагревател', ''],
+      'appliances.environment.fan' => ['вентилятор'],
+      'appliances.iron' => ['утюг'],
+      'appliances.personal.epilator' => ['эпиллятор'],
+
+      'electronics.camera.photo' => ['canon', 'nikon', 'pentax', 'объектив', 'бленда'],
+      'electronics.camera.video' => ['видеокамер'],
+      'electronics.video.projector' => ['проектор'],
+      'electronics.video.tv' => ['телевизор'],
+      'electronics.audio.acoustic' => ['акустик', 'акустичес'],
+      'electronics.audio.dictaphone' => ['диктофон'],
+      'electronics.audio.music_tools.piano' => ['синтезатор', 'midi'],
+      'electronics.audio.headphone' => ['наушник'],
+      'electronics.clocks' => ['часы'],
+      'electronics.smartphone' => ['смартфон'],
+      'electronics.telephone' => ['телефон'],
+      'electronics.tablet' => ['планшет'],
+
+      'computers.desktop' => ['компьютер', 'моноблок'],
+      'computers.notebook' => ['ноутбук', 'ультрабук'],
+      'computers.gaming' => ['игровая консоль', 'игровые консоли', 'playstation', 'x-box', 'psp'],
+      'computers.peripherals.mouse' => ['мыши'],
+      'computers.peripherals.monitor' => ['монитор'],
+      'computers.peripherals.keyboard' => ['клавиатур'],
+      'computers.peripherals.printer' => ['принтер'],
+      'computers.peripherals.camera' => ['веб-камер'],
+      'computers.network.router' => ['маршрутизатор', 'роутер'],
+      'computers.software.operating_system' => ['операционные системы'],
+      'computers.software.office' => ['офисные приложения'],
+      'computers.software.accounting' => ['бухгалтерские приложения'],
+
+      'cosmetic' => [],
+
+      'construction.tools.drill' => ['дрель', 'дрели', 'сверл', 'перфоратор'],
+      'construction.tools.saw' => ['пила', 'пилы'],
+      'construction.tools.lawn_mower' => ['газонокосил'],
+      'construction.tools.pump' => ['насос'],
+      'construction.tools.welding' => ['сварочн', 'сварк'],
+      'construction.tools.generator' => ['генератор'],
+
+      'furniture.living_room.sofa' => ['диван', 'тахта'],
+      'furniture.living_room.cabinet' => ['шкаф'],
+      'furniture.bedroom.bed' => ['кроват'],
+      'furniture.kitchen.table' => ['столы'],
+      'furniture.kitchen.chair' => ['стул'],
+      'furniture.bathroom.bath' => ['ванны', 'ванна'],
+      'furniture.bathroom.mirror' => ['зеркало', 'зеркала'],
+
+      'auto.accessories.videoregister' => ['видеорегистратор', 'видео-регистратор', 'видео регистратор'],
+      'auto.accessories.immobilizer' => ['иммобилайзер'],
+      'auto.accessories.acoustic' => ['автоакустика'],
+
+      'banking.equipment' => ['банковское оборудование', 'счетчики банкнот'],
+
+  }
+
   def self.bulk_update(shop_id, categories_tree)
     transaction do
       categories_tree.each do |yml_category|
@@ -59,18 +148,11 @@ class ItemCategory < ActiveRecord::Base
 
   def find_taxonomy
 
-    return 'appliances.refrigerators' if name.mb_chars.downcase.scan('холодильник').any?
-    return 'appliances.vacuum' if name.mb_chars.downcase.scan('пылесос').any?
-    return 'appliances.blender' if name.mb_chars.downcase.scan('брендер').any?
-    return 'appliances.air_conditioner' if name.mb_chars.downcase.scan('кондиционер').any?
-    return 'appliances.coffee_machine' if name.mb_chars.downcase.scan('кофевар').any?
-    return 'appliances.coffee_grinder' if name.mb_chars.downcase.scan('кофемолк').any?
-    return 'appliances.microwave' if name.mb_chars.downcase.scan('микроволн').any?
-    return 'appliances.mixer' if name.mb_chars.downcase.scan('миксер').any?
-    return 'appliances.toster' if name.mb_chars.downcase.scan('тостер').any?
-    return 'appliances.iron' if name.mb_chars.downcase.scan('утюг').any?
-    return 'appliances.kettle' if name.mb_chars.downcase.scan('чайник').any?
-    return 'appliances.epilator' if name.mb_chars.downcase.scan('эпиллятор').any?
+    TAXONOMY_KEYWORDS.each do |k, keywords|
+      keywords.each do |word|
+        return k if name.mb_chars.downcase.scan(word).any?
+      end
+    end
 
     nil
 
