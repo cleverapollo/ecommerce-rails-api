@@ -33,7 +33,7 @@ class ItemCategory < ActiveRecord::Base
       'apparel.blazer' => ['блейзер'],
       'apparel.glove' => ['перчатк'],
       'apparel.hat' => ['шапк', 'шляп', 'шапочк'],
-      'apparel.jaket' => ['пиджак'],
+      'apparel.jacket' => ['пиджак'],
       'apparel.costume' => ['костюм'],
       'apparel.shirt' => ['рубашк', 'пуловер', 'толстовк'],
       'apparel.sock' => ['носки'],
