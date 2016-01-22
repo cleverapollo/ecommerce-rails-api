@@ -48,7 +48,7 @@ class ItemCategory < ActiveRecord::Base
       'appliances.environment.air_conditioner' => ['кондиционер', 'сплит-систем'],
       'appliances.environment.climate' => ['климатическ'],
       'appliances.environment.air_heater' => ['конвектор', 'тепловентилят', 'обогревател'],
-      'appliances.environment.water_heater' => ['водонагревател', ''],
+      'appliances.environment.water_heater' => ['водонагревател'],
       'appliances.environment.fan' => ['вентилятор'],
       'appliances.iron' => ['утюг'],
       'appliances.personal.epilator' => ['эпиллятор'],
@@ -150,7 +150,7 @@ class ItemCategory < ActiveRecord::Base
 
     TAXONOMY_KEYWORDS.each do |k, keywords|
       keywords.each do |word|
-        return k if name.mb_chars.downcase.scan(word).any?
+        return k if word.strip.present? && name.mb_chars.downcase.scan(word.strip).any?
       end
     end
 
