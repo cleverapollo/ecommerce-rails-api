@@ -23,9 +23,11 @@ describe UserProfile::AttributesProcessor do
     end
 
     context 'when profile attribute is new' do
-      it 'stores profile attribute' do
-        expect { subject }.to change { ProfileAttribute.count }.from(0).to(1)
-      end
+
+      # Не актуально
+      # it 'stores profile attribute' do
+      #   expect { subject }.to change { ProfileAttribute.count }.from(0).to(1)
+      # end
 
       it 'fix gender attribute' do
         subject
@@ -33,12 +35,13 @@ describe UserProfile::AttributesProcessor do
       end
     end
 
-    context 'when profile attribute already logged' do
-      before { ProfileAttribute.create(user: user, shop: shop, value: attributes) }
-      it 'does nothing' do
-        expect { subject }.to_not change { ProfileAttribute.count }
-      end
-
-    end
+    # Не актуально
+    # context 'when profile attribute already logged' do
+    #   before { ProfileAttribute.create(user: user, shop: shop, value: attributes) }
+    #   it 'does nothing' do
+    #     expect { subject }.to_not change { ProfileAttribute.count }
+    #   end
+    #
+    # end
   end
 end
