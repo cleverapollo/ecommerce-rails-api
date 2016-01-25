@@ -16,14 +16,12 @@ module TriggerMailings
 
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
-              clients = shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop)
-
-              # clients =
-              #   if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart) && shop.allow_industrial?
-              #     ( shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop) ).uniq
-              #   else
-              #     shop.clients.ready_for_trigger_mailings(shop)
-              #   end
+              clients =
+                if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
+                  ( shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop) ).uniq
+                else
+                  shop.clients.ready_for_trigger_mailings(shop)
+                end
 
               clients.each do |client|
 
