@@ -32,9 +32,7 @@ every '0 3 * * *' do
   runner "RunnerWrapper.run('SalesRateCalculator.perform')"
 end
 
-every '0 23 * * *' do
-  runner 'RunnerWrapper.run("ItemCategory.process_taxonomies")'
-end
+
 
 # Каждые 30 минут пересчитываем SalesRate для новых магазинов
 every 30.minutes do
