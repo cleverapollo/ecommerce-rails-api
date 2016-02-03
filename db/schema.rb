@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160121182201) do
+ActiveRecord::Schema.define(version: 20160203080214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -425,5 +425,16 @@ ActiveRecord::Schema.define(version: 20160121182201) do
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
+
+  create_table "tsum_tracks", force: :cascade do |t|
+    t.string   "engine"
+    t.string   "block"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "tsum_tracks", ["engine", "block"], name: "index_tsum_tracks_on_engine_and_block", using: :btree
+  add_index "tsum_tracks", ["engine", "created_at"], name: "index_tsum_tracks_on_engine_and_created_at", using: :btree
+  add_index "tsum_tracks", ["engine"], name: "index_tsum_tracks_on_engine", using: :btree
 
 end

@@ -4,6 +4,17 @@ class EventsController < ApplicationController
   before_action :fetch_active_shop
   before_action :extract_legacy_event_name, only: [:push]
 
+
+  # Удалить после окончания A/B-теста на ЦУМе
+  def track_tsum
+    if params[:engine].present? && params[:block].present?
+      TsumTrack.create engine: params[:engine], block: params[:block]
+    end
+    render nothing: true
+  end
+
+
+
   def push
 
     # Извлекаем данные из входящих параметров
