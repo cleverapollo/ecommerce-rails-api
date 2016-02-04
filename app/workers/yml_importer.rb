@@ -24,6 +24,8 @@ class YmlImporter
             category_ids = shop.categories.path_to offer.category_id
             category = shop.categories[offer.category_id].try(:name)
             location_ids = offer.locations.flat_map{ |location| shop.locations.path_to location.id }
+            locations = {}
+            offer.locations.each { |l| locations[l.id] = {}; locations[l.id]['price'] = l.prices.first.value.to_i if l.prices.any? } if offer.locations && offer.locations.any?
 
             offers_count += 1
 
@@ -32,7 +34,7 @@ class YmlImporter
             new_item.shop_id = shop_id
             new_item.category_ids = category_ids
             new_item.location_ids = location_ids.uniq
-            new_item.locations = {}
+            new_item.locations = locations
             new_item.categories = category_ids
             (new_item.wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
             (new_item.wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
