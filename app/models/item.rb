@@ -60,7 +60,6 @@ class Item < ActiveRecord::Base
       feature
       sizes
       age_min
-      locations
       age_max
       hypoallergenic
       part_type
@@ -71,6 +70,7 @@ class Item < ActiveRecord::Base
       barcode
       category_ids
       location_ids
+      locations
     ].sort
   end
 
@@ -112,7 +112,6 @@ class Item < ActiveRecord::Base
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
         is_available: new_item.is_available,
-        locations: new_item.locations,
         ignored: new_item.ignored.nil? ? false : new_item.ignored,
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
