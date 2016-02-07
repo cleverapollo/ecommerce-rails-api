@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160121210810) do
+ActiveRecord::Schema.define(version: 20160207190227) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -259,6 +259,14 @@ ActiveRecord::Schema.define(version: 20160121210810) do
     t.boolean  "supported",                      default: false, null: false
     t.string   "documentation_link", limit: 255
   end
+
+  create_table "cpa_invoices", force: :cascade do |t|
+    t.integer "shop_id"
+    t.date    "date"
+    t.float   "amount"
+  end
+
+  add_index "cpa_invoices", ["shop_id", "date"], name: "index_cpa_invoices_on_shop_id_and_date", using: :btree
 
   create_table "currencies", force: :cascade do |t|
     t.string   "code",       null: false
@@ -657,10 +665,13 @@ ActiveRecord::Schema.define(version: 20160121210810) do
     t.integer "user_id"
     t.date    "date"
     t.string  "taxonomy"
+    t.string  "brand"
   end
 
   add_index "user_taxonomies", ["date"], name: "index_user_taxonomies_on_date", using: :btree
   add_index "user_taxonomies", ["taxonomy"], name: "index_user_taxonomies_on_taxonomy", using: :btree
+  add_index "user_taxonomies", ["user_id", "taxonomy", "date", "brand"], name: "index_user_taxonomies_with_brand", using: :btree
+  add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
     t.jsonb "gender",     default: {"f"=>50, "m"=>50}, null: false
