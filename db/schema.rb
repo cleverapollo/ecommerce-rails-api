@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160207095040) do
+ActiveRecord::Schema.define(version: 20160207121615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -429,9 +429,10 @@ ActiveRecord::Schema.define(version: 20160207095040) do
   create_table "tsum_tracks", force: :cascade do |t|
     t.string   "engine"
     t.string   "block"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "ssid"
+    t.string   "item_uniqid"
   end
 
   add_index "tsum_tracks", ["engine", "block"], name: "index_tsum_tracks_on_engine_and_block", using: :btree
