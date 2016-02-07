@@ -8,7 +8,7 @@ class EventsController < ApplicationController
   # Удалить после окончания A/B-теста на ЦУМе
   def track_tsum
     if params[:engine].present? && params[:block].present?
-      TsumTrack.create engine: params[:engine], block: params[:block], (params[:ssid] || nil)
+      TsumTrack.create engine: params[:engine], block: params[:block], ssid: (params[:ssid] || nil)
     end
     render nothing: true
   end
