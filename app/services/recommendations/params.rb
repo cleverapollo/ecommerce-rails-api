@@ -141,6 +141,10 @@ module Recommendations
       unless @shop = Shop.find_by(uniqid: raw[:shop_id])
         raise Recommendations::IncorrectParams.new("Shop with ID #{raw[:shop_id]} not found")
       end
+
+      # TODO после теста ЦУМа убрать
+      @limit = 50 if @shop.id == 992
+
     end
 
     # Извлекает юзера через сессию
