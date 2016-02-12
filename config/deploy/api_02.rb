@@ -14,5 +14,5 @@ set :ssh_options, {
 }
 
 set :deploy_to, "/home/rails/#{fetch(:application)}"
-set :branch, 'master'
+set :branch, 'rabbitmq_brb'
 set :rails_env, 'production'

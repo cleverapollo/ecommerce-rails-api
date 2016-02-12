@@ -8,7 +8,7 @@ God.watch do |w|
   rvm_command = "rvm jruby-1.7.20 do bundle exec"
   pid_command = "ps aux | grep 'jruby' | grep -v grep | awk '{print $2}' | head -n1"
 
-  w.name = 'daemon'
+  w.name = 'brb'
   w.dir = ROOT
 
   w.env = {
@@ -38,9 +38,8 @@ God.watch do |w|
   ROOT = '/home/rails/rees46_cf_daemons/current'
   w.name = 'cf_events_saver'
   w.start = "ruby #{ROOT}/bin/cf_events.saver.rb"
-  w.keep_alive interval: 10.seconds
+  w.keepalive interval: 10.seconds
   w.env = {
       'RAILS_ENV' => 'production',
   }
-  w.keepalive(:interval=>10.seconds)
 end
