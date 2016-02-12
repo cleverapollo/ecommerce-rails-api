@@ -36,10 +36,12 @@ end
 
 God.watch do |w|
   ROOT = '/home/rails/rees46_cf_daemons/current'
+  rvm_command = "rvm ruby-2.2.3 do bundle exec"
   w.name = 'cf_events_saver'
-  w.start = "RAILS_ENV=production ruby #{ROOT}/bin/cf_events_saver.rb"
+  w.start = "cd #{ROOT} && RAILS_ENV=production #{rvm_command} #{ROOT}/bin/cf_events_saver.rb"
   w.keepalive interval: 10.seconds
-  # w.env = {
-  #     'RAILS_ENV' => 'production',
-  # }
+  w.log = "/var/log/god/cf_events_saver.log"
+  w.env = {
+      'RAILS_ENV' => 'production',
+  }
 end
