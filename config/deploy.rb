@@ -123,6 +123,19 @@ namespace :god do
     end
   end
 
+  task :relink_start do
+    on roles(:app) do
+      execute :god, 'start cf_user_relink'
+    end
+  end
+
+  task :relink_stop do
+    on roles(:app) do
+      #execute :ruby,'-v'
+      execute :god,'stop cf_user_relink'
+    end
+  end
+
 
 end
 
