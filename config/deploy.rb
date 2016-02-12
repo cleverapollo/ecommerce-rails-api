@@ -73,3 +73,56 @@ namespace :yml do
     end
   end
 end
+
+
+
+SSHKit.config.command_map[:god] = "~/.rvm/bin/rvm 2.2.3 do god"
+
+namespace :god do
+  task :start do
+    on roles(:app) do
+      execute :god
+    end
+  end
+
+  task :load_config do
+    on roles(:app) do
+      execute :god, "load #{File.join deploy_to, 'current', 'config', 'god.rb'}"
+    end
+  end
+
+  task :quit do
+    on roles(:app) do
+      execute :god, 'quit'
+    end
+  end
+
+  task :brb_start do
+    on roles(:app) do
+      execute :god, 'start brb'
+    end
+  end
+
+  task :brb_stop do
+    on roles(:app) do
+      #execute :ruby,'-v'
+      execute :god,'stop brb'
+    end
+  end
+
+  task :saver_start do
+    on roles(:app) do
+      execute :god, 'start cf_events_saver'
+    end
+  end
+
+  task :saver_stop do
+    on roles(:app) do
+      #execute :ruby,'-v'
+      execute :god,'stop cf_events_saver'
+    end
+  end
+
+
+end
+
