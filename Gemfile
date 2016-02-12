@@ -25,10 +25,12 @@ gem 'connection_pool'
 gem 'sidekiq', '~> 3.3.3'
 gem 'sidekiq-limit_fetch', '~> 2.4.1'
 gem 'sidekiq-failures'
+gem "bunny", ">= 2.2.2"
 
 # Services
 gem 'rollbar', '~> 2.7.1'
 gem 'newrelic_rpm', '~> 3.12.0'
+gem 'god'
 
 # Tools
 gem 'foreman', '~> 0.63.0'

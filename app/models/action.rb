@@ -4,6 +4,8 @@
 #
 class Action < ActiveRecord::Base
 
+  MAHOUT_QUEUE_SCORE_SAVER = 'rees46.cf.score_saver'
+
   belongs_to :user
   belongs_to :item
   belongs_to :shop
@@ -16,6 +18,27 @@ class Action < ActiveRecord::Base
   scope :carts, -> { where('rating::numeric = ?', Actions::Cart::RATING) }
 
   class << self
+
+    def publish_to_mahout(message)
+      q  = channel_to_mahout.queue MAHOUT_QUEUE_SCORE_SAVER
+      x  = channel_to_mahout.default_exchange
+      x.publish message, :routing_key => q.name
+    end
+
+    def connection_to_mahout
+      @connection_to_mahout ||= Bunny.new.tap do |c|
+        c.start
+      end
+    end
+
+    def channel_to_mahout
+      @channel_to_mahout ||= connection_to_mahout.create_channel
+    end
+
+
+
+
+
     def relink_user(options = {})
       master = options.fetch(:to)
       slave = options.fetch(:from)
@@ -58,6 +81,9 @@ class Action < ActiveRecord::Base
       'Actions::' + type.camelize
     end
   end
+
+
+
 
   # Точка входа при обработке события. Вся работа происходит здесь.
   def process(params)
@@ -107,12 +133,15 @@ class Action < ActiveRecord::Base
     self.recommended_at = Time.current
   end
 
+
   def save_to_mahout
     if shop && shop.use_brb? && user && item
-      mahout_service = MahoutService.new(shop.brb_address)
-      mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
+      Action.publish_to_mahout [shop.id, user.id, item.id, self.rating].join(',')
+      # mahout_service = MahoutService.new(shop.brb_address)
+      # mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
     end
   end
+
 
   def recalculate_purchase_count_and_date!
     update_columns(
