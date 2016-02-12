@@ -45,3 +45,17 @@ God.watch do |w|
       'RAILS_ENV' => 'production',
   }
 end
+
+
+
+God.watch do |w|
+  ROOT = '/home/rails/rees46_cf_daemons/current'
+  rvm_command = "rvm ruby-2.2.3 do bundle exec"
+  w.name = 'cf_user_relink'
+  w.start = "cd #{ROOT} && RAILS_ENV=production #{rvm_command} #{ROOT}/bin/cf_user_relink.rb"
+  w.keepalive interval: 10.seconds
+  w.log = "/var/log/god/cf_user_relink.log"
+  w.env = {
+      'RAILS_ENV' => 'production',
+  }
+end
