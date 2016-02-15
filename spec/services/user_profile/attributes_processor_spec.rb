@@ -24,24 +24,11 @@ describe UserProfile::AttributesProcessor do
 
     context 'when profile attribute is new' do
 
-      # Не актуально
-      # it 'stores profile attribute' do
-      #   expect { subject }.to change { ProfileAttribute.count }.from(0).to(1)
-      # end
-
       it 'fix gender attribute' do
         subject
         expect(first_mail_user.profile.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
       end
     end
 
-    # Не актуально
-    # context 'when profile attribute already logged' do
-    #   before { ProfileAttribute.create(user: user, shop: shop, value: attributes) }
-    #   it 'does nothing' do
-    #     expect { subject }.to_not change { ProfileAttribute.count }
-    #   end
-    #
-    # end
   end
 end

@@ -414,16 +414,6 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.datetime "updated_at"
   end
 
-  create_table "profile_attributes", force: :cascade do |t|
-    t.integer  "user_id",    limit: 8, null: false
-    t.integer  "shop_id",              null: false
-    t.jsonb    "value",                null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-  end
-
-  add_index "profile_attributes", ["user_id"], name: "index_profile_attributes_on_user_id", using: :btree
-
   create_table "promotions", force: :cascade do |t|
     t.string   "brand",        null: false
     t.string   "categories",   null: false, array: true
