@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160207121615) do
+ActiveRecord::Schema.define(version: 20160216002612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,23 +20,22 @@ ActiveRecord::Schema.define(version: 20160207121615) do
   enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                   null: false
-    t.integer  "item_id",          limit: 8,                   null: false
-    t.integer  "view_count",                   default: 0,     null: false
+    t.integer  "user_id",          limit: 8,                 null: false
+    t.integer  "item_id",          limit: 8,                 null: false
+    t.integer  "view_count",                   default: 0,   null: false
     t.datetime "view_date"
-    t.integer  "cart_count",                   default: 0,     null: false
+    t.integer  "cart_count",                   default: 0,   null: false
     t.datetime "cart_date"
-    t.integer  "purchase_count",               default: 0,     null: false
+    t.integer  "purchase_count",               default: 0,   null: false
     t.datetime "purchase_date"
     t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",                                      null: false
-    t.integer  "timestamp",                    default: 0,     null: false
+    t.integer  "shop_id",                                    null: false
+    t.integer  "timestamp",                    default: 0,   null: false
     t.string   "recommended_by",   limit: 255
-    t.integer  "last_action",      limit: 2,   default: 1,     null: false
-    t.integer  "rate_count",                   default: 0,     null: false
+    t.integer  "last_action",      limit: 2,   default: 1,   null: false
+    t.integer  "rate_count",                   default: 0,   null: false
     t.datetime "rate_date"
     t.integer  "last_user_rating"
-    t.boolean  "repeatable",                   default: false, null: false
     t.datetime "recommended_at"
   end
 
