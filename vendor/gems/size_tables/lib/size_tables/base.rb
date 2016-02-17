@@ -37,6 +37,8 @@ module SizeTables
     def value(gender, region, age, key)
 
       return nil unless key
+      return nil if table[gender.to_sym].nil? || table[gender.to_sym][region.to_sym].nil? || table[gender.to_sym][region.to_sym][age.to_sym].nil?
+
 
       value = table[gender.to_sym][region.to_sym][age.to_sym]
       if value
