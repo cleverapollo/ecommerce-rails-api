@@ -47,8 +47,6 @@ after_fork do |server, worker|
         })
       end
     end
-
-    puts 
   end
 
   if defined?(ActiveRecord::Base)
