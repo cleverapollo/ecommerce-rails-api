@@ -30,6 +30,7 @@ gem "bunny", ">= 2.2.2"
 # Services
 gem 'rollbar', '~> 2.7.1'
 gem 'newrelic_rpm', '~> 3.12.0'
+gem 'newrelic_moped'
 gem 'god'
 
 # Tools
