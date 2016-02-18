@@ -16,11 +16,11 @@ class UserTaxonomy < MasterTable
           taxonomies = ItemCategory.where(shop: items.first.shop_id).where('taxonomy is not null').where(external_id: category_ids).pluck(:taxonomy).uniq
           taxonomies.each do |taxonomy|
             begin
-              taxonomy = UserTaxonomy.find_by date: Date.current, taxonomy: taxonomy, user_id: user.id, brand: item.brand
-              if taxonomy
+              txn = UserTaxonomy.find_by date: Date.current, taxonomy: taxonomy, user_id: user.id, brand: item.brand
+              if txn
                 # Если в таксономии нет события или оно менее важное, чем нам передали, то обновляем его
-                if taxonomy.event.nil? || TYPES.index(taxonomy.event).nil? || TYPES.index(taxonomy.event) < TYPES.index(event)
-                  taxonomy.update event: event
+                if txn.event.nil? || TYPES.index(txn.event).nil? || TYPES.index(txn.event) < TYPES.index(event)
+                  txn.update event: event
                 end
               else
                 UserTaxonomy.create date: Date.current, taxonomy: taxonomy, user_id: user.id, brand: item.brand, event: event
@@ -33,11 +33,11 @@ class UserTaxonomy < MasterTable
 
       if shop.category.present? && shop.category.taxonomy.present?
         begin
-          taxonomy = UserTaxonomy.find_by date: Date.current, taxonomy: shop.category.taxonomy, user_id: user.id
-          if taxonomy
+          txn = UserTaxonomy.find_by date: Date.current, taxonomy: shop.category.taxonomy, user_id: user.id
+          if txn
             # Если в таксономии нет события или оно менее важное, чем нам передали, то обновляем его
-            if taxonomy.event.nil? || TYPES.index(taxonomy.event).nil? || TYPES.index(taxonomy.event) < TYPES.index(event)
-              taxonomy.update event: event
+            if txn.event.nil? || TYPES.index(txn.event).nil? || TYPES.index(txn.event) < TYPES.index(event)
+              txn.update event: event
             end
           else
             UserTaxonomy.create date: Date.current, taxonomy: taxonomy, user_id: user.id, event: event
