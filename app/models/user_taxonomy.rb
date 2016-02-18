@@ -40,7 +40,7 @@ class UserTaxonomy < MasterTable
               txn.update event: event
             end
           else
-            UserTaxonomy.create date: Date.current, taxonomy: taxonomy, user_id: user.id, event: event
+            UserTaxonomy.create date: Date.current, taxonomy: shop.category.taxonomy, user_id: user.id, event: event
           end
         rescue ActiveRecord::RecordNotUnique
         end
