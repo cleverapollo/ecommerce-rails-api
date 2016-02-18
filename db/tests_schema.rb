@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160207190227) do
+ActiveRecord::Schema.define(version: 20160218122005) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -269,10 +269,13 @@ ActiveRecord::Schema.define(version: 20160207190227) do
   add_index "cpa_invoices", ["shop_id", "date"], name: "index_cpa_invoices_on_shop_id_and_date", using: :btree
 
   create_table "currencies", force: :cascade do |t|
-    t.string   "code",       null: false
-    t.string   "symbol",     null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "code",                          null: false
+    t.string   "symbol",                        null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "min_payment",   default: 500,   null: false
+    t.float    "exchange_rate", default: 1.0,   null: false
+    t.boolean  "payable",       default: false
   end
 
   create_table "customers", force: :cascade do |t|
@@ -297,7 +300,7 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.integer  "balance",                            default: 0,     null: false
+    t.float    "balance",                            default: 0.0,   null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
@@ -306,6 +309,7 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.string   "industry_code"
     t.string   "suggested_plan"
     t.string   "juridical_person"
+    t.integer  "currency_id",                        default: 1,     null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -404,15 +408,23 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.datetime "updated_at"
   end
 
-  create_table "potential_customers", force: :cascade do |t|
-    t.string   "name",       limit: 255
-    t.string   "email",      limit: 255
-    t.string   "phone",      limit: 255
-    t.text     "comment"
-    t.boolean  "subscribe",              default: true, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  create_table "profile_events", force: :cascade do |t|
+    t.integer "user_id",   limit: 8, null: false
+    t.integer "shop_id",             null: false
+    t.integer "industry",            null: false
+    t.integer "category",            null: false
+    t.integer "property",            null: false
+    t.integer "value",               null: false
+    t.integer "views"
+    t.integer "carts"
+    t.integer "purchases"
   end
+
+  add_index "profile_events", ["user_id", "industry", "category", "property"], name: "index_profile_all_without_value", using: :btree
+  add_index "profile_events", ["user_id", "shop_id", "industry", "category", "property", "value"], name: "index_profile_all_fields", unique: true, using: :btree
+  add_index "profile_events", ["user_id", "shop_id", "industry", "category", "property"], name: "index_profile_all_without_value_for_shop", using: :btree
+  add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
+  add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
 
   create_table "promotions", force: :cascade do |t|
     t.string   "brand",        null: false
@@ -497,9 +509,8 @@ ActiveRecord::Schema.define(version: 20160207190227) do
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",   limit: 8,                  null: false
-    t.string  "code",      limit: 255,                null: false
-    t.boolean "is_active",             default: true
+    t.integer "user_id",   limit: 8,   null: false
+    t.string  "code",      limit: 255, null: false
     t.string  "useragent", limit: 255
     t.string  "city",      limit: 255
     t.string  "country",   limit: 255
@@ -566,7 +577,7 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "tracked_monthly_orders_count",                                      default: 0,     null: false
-    t.string   "rivals",                                                            default: [],                 array: true
+    t.string   "rivals",                        limit: 255,                         default: [],                 array: true
     t.boolean  "has_orders_last_week",                                              default: false, null: false
     t.boolean  "strict_recommendations",                                            default: false, null: false
     t.decimal  "recommended_items_view_rate",                                       default: 0.0,   null: false
@@ -624,20 +635,6 @@ ActiveRecord::Schema.define(version: 20160207190227) do
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 
-  create_table "subscriptions_settings", force: :cascade do |t|
-    t.integer  "shop_id",                                          null: false
-    t.boolean  "enabled",                          default: false, null: false
-    t.boolean  "overlay",                          default: true,  null: false
-    t.text     "header",                                           null: false
-    t.text     "text",                                             null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "picture_file_name",    limit: 255
-    t.string   "picture_content_type", limit: 255
-    t.integer  "picture_file_size"
-    t.datetime "picture_updated_at"
-  end
-
   create_table "transactions", force: :cascade do |t|
     t.integer  "amount",                       default: 500, null: false
     t.integer  "transaction_type",             default: 0,   null: false
@@ -649,6 +646,7 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.datetime "updated_at"
     t.text     "comment"
     t.integer  "shop_id"
+    t.integer  "currency_id",                  default: 1,   null: false
   end
 
   create_table "user_taxonomies", force: :cascade do |t|
@@ -656,6 +654,7 @@ ActiveRecord::Schema.define(version: 20160207190227) do
     t.date    "date"
     t.string  "taxonomy"
     t.string  "brand"
+    t.string  "event"
   end
 
   add_index "user_taxonomies", ["date"], name: "index_user_taxonomies_on_date", using: :btree
@@ -664,11 +663,6 @@ ActiveRecord::Schema.define(version: 20160207190227) do
   add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
-    t.jsonb "gender",     default: {"f"=>50, "m"=>50}, null: false
-    t.jsonb "size",       default: {},                 null: false
-    t.jsonb "children",   default: [],                 null: false
-    t.jsonb "physiology", default: {},                 null: false
-    t.jsonb "periodicly", default: {},                 null: false
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
