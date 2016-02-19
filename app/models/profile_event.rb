@@ -11,7 +11,7 @@ class ProfileEvent < MasterTable
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
       where(user_id: slave_user.id).each do |slave_row|
-        master_row = find_by(user_id: slave_row.user_id, shop_id: slave_row.shop_id, industry: slave_row.industry, category: slave_row.category, property: slave_row.property,  value: slave_row.value)
+        master_row = find_by(user_id: master_user.id, shop_id: slave_row.shop_id, industry: slave_row.industry, category: slave_row.category, property: slave_row.property,  value: slave_row.value)
         if master_row
           hash_for_update = {}
           hash_for_update[:views] = (slave_row.views + master_row.views) if slave_row.views.present? && master_row.views.present?
