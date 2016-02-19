@@ -11,6 +11,7 @@ class User < MasterTable
   has_many :orders
   has_many :search_queries
   has_many :user_taxonomies
+  has_many :profile_events
 
   # Редисовая блокировка. Используется при слиянии пользователей
   lock :merging, expiration: 60, timeout: 1

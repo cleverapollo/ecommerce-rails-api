@@ -4,7 +4,7 @@
 # Происходит перелинковка связанных сущностей.
 #
 class UserMerger
-  DEPENDENCIES = [Client, Action, MahoutAction, Session, Order, Interaction]
+  DEPENDENCIES = [Client, Action, MahoutAction, Session, Order, Interaction, ProfileEvent]
   # @noff: закомментировал в качестве проверки тормозов
   # DEPENDENCIES = [Client, Action, Session, Order, Interaction]
 

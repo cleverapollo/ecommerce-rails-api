@@ -43,8 +43,7 @@ module ActionPush
       concrete_action_class.mass_process(params)
 
       # Активируем триггеры отраслевых алгоритмов
-      SectoralAlgorythms::Service.new(params.user, SectoralAlgorythms::Service.all_virtual_profile_fields)
-          .trigger_action(params.action, params.items)
+      SectoralAlgorythms::Service.new(params.user, SectoralAlgorythms::Service.all_virtual_profile_fields).trigger_action(params.action, params.items)
 
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
