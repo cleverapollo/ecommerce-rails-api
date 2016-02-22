@@ -40,7 +40,7 @@ class InitController < ApplicationController
     end
 
     if shop.id == 992 && params[:tsum_segment].present?
-      TsumSegment.track sessino_id, params[:tsum_segment]
+      TsumSegment.track session_id, params[:tsum_segment]
     end
 
     render js: InitServerString.make(shop: shop, session: session, client: client)
