@@ -143,7 +143,7 @@ module Recommendations
       end
 
       # TODO после теста ЦУМа убрать
-      @limit = 50 if @shop.id == 992
+      @limit = 20 if @shop.id == 992
 
     end
 
