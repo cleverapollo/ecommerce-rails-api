@@ -8,6 +8,7 @@ class RecommendationsController < ApplicationController
 
   def get
     # Извлекаем данные из входящих параметров
+    params[:recommender_type] = 'interesting' if params.shop_id == '716c1aada866ad40ce4a893ff9a280' # Для ЦУМа костыль, потому что сами они по две недели косяки чинят
     extracted_params = Recommendations::Params.extract(params)
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)
