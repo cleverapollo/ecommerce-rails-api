@@ -16,7 +16,7 @@ module Rees46ML
     validates :type, presence: true, inclusion: { in: TYPES }
 
     def empty?
-      type.empty?
+      type.nil? || type.empty?
     end
   end
 end
