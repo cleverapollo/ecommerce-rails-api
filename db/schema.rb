@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160222133111) do
+ActiveRecord::Schema.define(version: 20160224182305) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -270,14 +270,17 @@ ActiveRecord::Schema.define(version: 20160222133111) do
   add_index "items", ["sizes", "wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((sizes IS NOT NULL) AND (wear_type IS NOT NULL)))", using: :gin
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                       null: false
-    t.string   "send_from",         limit: 255, null: false
+    t.integer  "shop_id",                                     null: false
+    t.string   "send_from",           limit: 255,             null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "logo_file_name",    limit: 255
-    t.string   "logo_content_type", limit: 255
+    t.string   "logo_file_name",      limit: 255
+    t.string   "logo_content_type",   limit: 255
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
+    t.integer  "mailing_service",                 default: 0
+    t.string   "getresponse_api_key"
+    t.string   "getresponse_api_url"
   end
 
   create_table "medium_actions", force: :cascade do |t|
