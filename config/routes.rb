@@ -23,6 +23,9 @@ Rees46Api::Application.routes.draw do
   post 'push_attributes', to: 'events#push_attributes'
   get 'push_attributes', to: 'events#push_attributes'
 
+  get 'triggers/trigger_content'
+  get 'triggers/additional_content'
+
   # Импорты
   resource :import, only: :none do
     # Заказы
