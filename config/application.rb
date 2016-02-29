@@ -56,7 +56,7 @@ class SetUnicornProcline
 
   def call(env)
     user_ip = env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
-    request_info = "#{env['REQUEST_METHOD']} #{env['REQUEST_PATH']}"
+    request_info = "#{env['REQUEST_METHOD']} #{env['REQUEST_URI']}"
     worker_line = $0.split(']')[0] + "] #{user_ip}"
     set_procline "#{worker_line}: #{request_info}"[0..200]
     status, headers, body = @app.call(env)
