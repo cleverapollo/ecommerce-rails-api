@@ -14,6 +14,9 @@ module TriggerMailings
 
           Shop.unrestricted.with_valid_yml.with_enabled_triggers.each do |shop|
 
+            # Не даем рассылать триггеры тем магазинам, у кого нет денег
+            next if shop.customer.balance < 0
+
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
               # Сначала перебираем вторые брошенные корзины
