@@ -16,7 +16,9 @@ class RecommendationsRequest < ActiveRecord::Base
       yield recommendations_request
       time_finish = Time.now
       recommendations_request.duration = time_finish - time_start
-      recommendations_request.save!
+      # Пока неясно, зачем нам эта модель вообще.
+      # Удалить после 01.05.2016, если не решим, зачем нужна.
+      # recommendations_request.save!
     end
   end
 
