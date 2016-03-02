@@ -37,6 +37,8 @@ module ActionPush
     attr_accessor :trigger_mail_code
     # Код дайджестной рассылки
     attr_accessor :digest_mail_code
+    # Код показа в RTB
+    attr_accessor :r46_returner_code
     # Источник
     attr_accessor :source
     # Модификация
@@ -107,6 +109,7 @@ module ActionPush
       @order_id = raw[:order_id]
       @trigger_mail_code = raw[:trigger_mail_code]
       @digest_mail_code = raw[:digest_mail_code]
+      @r46_returner_code = raw[:returner_code]
       @source = raw[:source].present? ? JSON.parse(raw[:source]) : nil
     end
 

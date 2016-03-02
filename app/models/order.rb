@@ -36,6 +36,8 @@ class Order < ActiveRecord::Base
           TriggerMail
         elsif source['from'] == 'digest_mail'
           DigestMail
+        elsif source['from'] == 'r46_returner'
+          RtbImpression
         end
 
         source = klass.find_by(code: source['code'])

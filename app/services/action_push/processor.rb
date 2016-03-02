@@ -49,7 +49,10 @@ module ActionPush
       params.shop.report_event(params.action.to_sym)
 
       # Отмечаем, что пользователь был активен
-      Client.find_by(user_id: params.user.id, shop_id: params.shop.id).track_last_activity
+      client = Client.find_by(user_id: params.user.id, shop_id: params.shop.id)
+      if client
+        client.track_last_activity
+      end
 
       # Трекаем таксономию в DMP
       UserTaxonomy.track params.user, params.items, params.shop, params.action
