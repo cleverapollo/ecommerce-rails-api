@@ -98,7 +98,7 @@ class Shop < MasterTable
   end
 
   def self.import_yml_files
-    active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+    active.connected.with_valid_yml.where(shard: SHARD_ID).each do |shop|
       if shop.yml_allow_import?
         YmlImporter.perform_async(shop.id)
       elsif shop.yml_errors >= 5 

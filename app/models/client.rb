@@ -29,7 +29,7 @@ class Client < ActiveRecord::Base
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
 
-      where(user_id: slave_user.id).order(id: :desc).find_each do |slave_client|
+      where(user_id: slave_user.id).order(id: :desc).each do |slave_client|
         if master_client = where(shop_id: slave_client.shop_id, user_id: master_user.id).where.not(id: slave_client.id).order(:id).limit(1)[0]
 
           # Может возникнуть ситуация, что два client принадлежат одному user, поэтому master_user == slave_user

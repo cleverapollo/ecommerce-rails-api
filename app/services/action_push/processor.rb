@@ -54,6 +54,16 @@ module ActionPush
         client.track_last_activity
       end
 
+      # Сообщаем брокеру брошенных корзин RTB
+      case params.action.to_sym
+        when :cart
+          Rtb::Broker.new(params.shop).notify(params.user, params.items)
+        when :purchase
+          Rtb::Broker.new(params.shop).clear(params.user)
+        when :remove_from_cart
+          Rtb::Broker.new(params.shop).clear(params.user, params.items)
+      end
+
       # Трекаем таксономию в DMP
       UserTaxonomy.track params.user, params.items, params.shop, params.action
 

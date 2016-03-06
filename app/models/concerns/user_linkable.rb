@@ -12,7 +12,7 @@ module UserLinkable
   module ClassMethods
     # Привязать сущность к новому пользователю
     def relink_user(options = {})
-      where(user_id: options.fetch(:from).id).find_each do |entity|
+      where(user_id: options.fetch(:from).id).each do |entity|
         begin
           entity.update_columns(user_id: options.fetch(:to).id)
         rescue ActiveRecord::RecordNotUnique

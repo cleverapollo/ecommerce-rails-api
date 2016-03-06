@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160302134013) do
+ActiveRecord::Schema.define(version: 20160305172358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -310,6 +310,7 @@ ActiveRecord::Schema.define(version: 20160302134013) do
     t.string   "suggested_plan"
     t.string   "juridical_person"
     t.integer  "currency_id",                        default: 1,     null: false
+    t.string   "language",                           default: "ru",  null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -479,6 +480,18 @@ ActiveRecord::Schema.define(version: 20160302134013) do
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
 
+  create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
+    t.integer "shop_id",                       null: false
+    t.integer "user_id", limit: 8,             null: false
+    t.integer "item_id", limit: 8,             null: false
+    t.integer "counter",           default: 0, null: false
+    t.date    "date"
+  end
+
+  add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
+  add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
+  add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
+
   create_table "saas_requests", force: :cascade do |t|
     t.string   "name"
     t.string   "url"
@@ -622,6 +635,7 @@ ActiveRecord::Schema.define(version: 20160302134013) do
     t.boolean  "enabled_construction",                                              default: false, null: false
     t.boolean  "enabled_appliances",                                                default: false, null: false
     t.boolean  "enabled_fmcg",                                                      default: false, null: false
+    t.boolean  "remarketing_enabled",                                               default: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
