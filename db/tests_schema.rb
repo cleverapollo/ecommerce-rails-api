@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160305172358) do
+ActiveRecord::Schema.define(version: 20160306223642) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -481,11 +481,16 @@ ActiveRecord::Schema.define(version: 20160305172358) do
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
 
   create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                       null: false
-    t.integer "user_id", limit: 8,             null: false
-    t.integer "item_id", limit: 8,             null: false
-    t.integer "counter",           default: 0, null: false
+    t.integer "shop_id",                        null: false
+    t.integer "user_id",  limit: 8,             null: false
+    t.integer "item_id",  limit: 8,             null: false
+    t.integer "counter",            default: 0, null: false
     t.date    "date"
+    t.string  "image"
+    t.float   "price"
+    t.string  "url"
+    t.string  "currency"
+    t.string  "name"
   end
 
   add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
