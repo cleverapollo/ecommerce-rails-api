@@ -25,6 +25,11 @@ module ActionPush
         digest_mail.mark_as_clicked!
       end
 
+      # Обработка RTB-заказов
+      if params.action.to_sym == :purchase && params.r46_returner_code.present? && params.r46_returner_code != 'test' && rtb_impression = RtbImpression.find_by(code: params.r46_returner_code)
+        rtb_impression.mark_as_purchased!
+      end
+
       # Для каждого переданного товара запускаем процессинг действия
       params.items.each do |item|
         action = fetch_action_for item
