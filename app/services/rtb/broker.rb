@@ -15,7 +15,7 @@ module Rtb
       return false unless items.is_a? Array
       items.each do |item|
         # Комиссия с продажи такого товара – 92 рубля, вроде годная цена
-        if item.price >= 2000 && item.widgetable? && item.is_available? && item.name.length < 255 && item.image_url.length < 255 && item.url.length < 255
+        if item.price && item.price >= 2000 && item.widgetable? && item.is_available? && item.name.to_s.length < 255 && item.image_url.to_s.length < 255 && item.url.to_s.length < 255
           if rtb_item = RtbJob.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id)
             rtb_item.update counter: 0, date: Date.current, price: item.price, image: item.image_url, name: item.name, currency: shop.currency, url: item.url
           else
