@@ -53,6 +53,21 @@ class BounceHandlerWorker
             if shard = to.match(/shard(\d{2})/)
               if shard[1] == SHARD_ID
 
+                type = to.split('bounced+', 2).last.split('@', 2).first.split('=', 2).first
+                code = to.split('bounced+', 2).last.split('@', 2).first.split('=', 2).last
+
+                if code && type
+                  if code != 'test'
+                    entity = if type == 'digest'
+                               DigestMail.find_by(code: code)
+                             elsif type == 'trigger'
+                               TriggerMail.find_by(code: code)
+                             end
+
+                    entity.mark_as_bounced! if entity.present?
+                  end
+                end
+
                 # Архивируем письмо
                 email.delete!
 
