@@ -5,7 +5,7 @@ module TriggerMailings
   class Letter
     class IncorrectMailingSettingsError < StandardError; end
 
-    attr_accessor :client, :trigger, :trigger_mail
+    attr_accessor :client, :trigger, :trigger_mail, :body
 
     # Конструктор
     # @param client [Client] пользователь магазина
@@ -120,6 +120,17 @@ module TriggerMailings
                                          tracking_url: trigger_mail.tracking_url,
                                          unsubscribe_url: client.trigger_unsubscribe_url)
       result.gsub!('{{ footer }}', footer)
+
+      # Ставим ссылку eKomi, если нужно
+      if result.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
+        if @shop.ekomi?
+          feedback_button_link = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order].uniqid)['link']
+        else
+          feedback_button_link = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
+        end
+        result.gsub!('{{ feedback_button_link }}', feedback_button_link)
+      end
+
 
       result
     end

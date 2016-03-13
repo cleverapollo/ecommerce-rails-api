@@ -151,6 +151,10 @@ class Shop < MasterTable
     (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
   end
 
+  def ekomi?
+    ekomi_enabled? && ekomi_id.present? && ekomi_key.present?
+  end
+
   def show_promotion?
     self.manual == false && self.plan_id.present? && (self.paid == false || self.plan.try(:free?))
   end

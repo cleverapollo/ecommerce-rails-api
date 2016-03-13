@@ -45,6 +45,7 @@ module TriggerMailings
         @user = client.user
         @shop = client.shop
         @client = client
+        @additional_info = {}
       end
 
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
