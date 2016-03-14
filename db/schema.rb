@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160314112857) do
+ActiveRecord::Schema.define(version: 20160314212150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,17 @@ ActiveRecord::Schema.define(version: 20160314112857) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "audience_segment_statistics", force: :cascade do |t|
+    t.integer "shop_id"
+    t.integer "overall",         default: 0, null: false
+    t.integer "activity_a",      default: 0, null: false
+    t.integer "activity_b",      default: 0, null: false
+    t.integer "activity_c",      default: 0, null: false
+    t.date    "recalculated_at",             null: false
+  end
+
+  add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
 
   create_table "beacon_messages", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"

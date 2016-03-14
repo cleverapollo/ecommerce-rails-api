@@ -51,6 +51,8 @@ module People
         @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
         Rails.logger.warn "Done"
 
+        AudienceSegmentStatistic.fetch(@shop).update! overall: shop.clients.count, activity_a: result[:a].count, activity_b: result[:b].count, activity_c: result[:c].count, recalculated_at: Date.current
+
         true
 
       end
