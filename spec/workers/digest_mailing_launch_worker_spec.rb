@@ -7,6 +7,7 @@ describe DigestMailingLaunchWorker do
   describe '#perform' do
     subject { described_class.new.perform(params) }
     before { allow(DigestMailingBatchWorker).to receive(:perform_async) }
+
     context 'test mode' do
       let(:test_email) { 'test@example.com' }
       let(:params) { base_params.merge({ 'test_email' => test_email }) }
@@ -25,6 +26,7 @@ describe DigestMailingLaunchWorker do
         expect(DigestMailingBatchWorker).to have_received(:perform_async).with(batch_id).once
       end
     end
+
     context 'common mode' do
       let(:params) { base_params }
       let!(:client1) { create(:client, :with_email, shop: shop) }
@@ -58,6 +60,14 @@ describe DigestMailingLaunchWorker do
 
         expect(mailing.reload.started_at).to be_present
       end
+
+      it 'uses activity segments' do
+        client1.update activity_segment: People::Segmentation::Activity::A
+        mailing.update activity_segment: People::Segmentation::Activity::A
+        subject
+        expect(mailing.reload.total_mails_count).to eq(1)
+      end
+
     end
   end
 end
