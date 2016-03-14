@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160301072133) do
+ActiveRecord::Schema.define(version: 20160314112857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -157,6 +157,7 @@ ActiveRecord::Schema.define(version: 20160301072133) do
     t.text     "header"
     t.text     "text"
     t.string   "edit_mode",         limit: 255, default: "simple", null: false
+    t.integer  "activity_segment"
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
