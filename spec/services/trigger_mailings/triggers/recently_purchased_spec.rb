@@ -44,7 +44,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
     context 'ekomi integration' do
       it {
         trigger = subject
-        trigger.triggered?
+        expect( trigger.triggered? ).to be_truthy
         letter = TriggerMailings::Letter.new(client, trigger)
         expect( letter.body.scan('feedback.php').any? ).to be_truthy
       }
