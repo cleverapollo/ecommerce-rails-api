@@ -51,7 +51,32 @@ module People
         @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
         Rails.logger.warn "Done"
 
-        AudienceSegmentStatistic.fetch(@shop).update! overall: shop.clients.count, activity_a: result[:a].count, activity_b: result[:b].count, activity_c: result[:c].count, recalculated_at: Date.current
+        result[:digests_overall] = @shop.clients.suitable_for_digest_mailings.count
+        result[:digests_activity_a] = @shop.clients.suitable_for_digest_mailings.where(user_id: result[:a].map { |x| x[:user_id] } ).count
+        result[:digests_activity_b] = @shop.clients.suitable_for_digest_mailings.where(user_id: result[:b].map { |x| x[:user_id] } ).count
+        result[:digests_activity_c] = @shop.clients.suitable_for_digest_mailings.where(user_id: result[:c].map { |x| x[:user_id] } ).count
+        result[:triggers_overall] = @shop.clients.ready_for_trigger_mailings(@shop).count
+        result[:triggers_activity_a] = @shop.clients.ready_for_trigger_mailings(@shop).where(user_id: result[:a].map { |x| x[:user_id] } ).count
+        result[:triggers_activity_b] = @shop.clients.ready_for_trigger_mailings(@shop).where(user_id: result[:b].map { |x| x[:user_id] } ).count
+        result[:triggers_activity_c] = @shop.clients.ready_for_trigger_mailings(@shop).where(user_id: result[:c].map { |x| x[:user_id] } ).count
+
+        update_params = {
+            overall: shop.clients.count,
+            activity_a: result[:a].count,
+            activity_b: result[:b].count,
+            activity_c: result[:c].count,
+            recalculated_at: Date.current,
+            digests_overall: result[:digests_overall],
+            digests_activity_a: result[:digests_activity_a],
+            digests_activity_b: result[:digests_activity_b],
+            digests_activity_c: result[:digests_activity_c],
+            triggers_overall: result[:triggers_overall],
+            triggers_activity_a: result[:triggers_activity_a],
+            triggers_activity_b: result[:triggers_activity_b],
+            triggers_activity_c: result[:triggers_activity_c]
+        }
+
+        AudienceSegmentStatistic.fetch(@shop).update! update_params
 
         true
 

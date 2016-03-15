@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160314212150) do
+ActiveRecord::Schema.define(version: 20160315082313) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -61,11 +61,19 @@ ActiveRecord::Schema.define(version: 20160314212150) do
 
   create_table "audience_segment_statistics", force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "overall",         default: 0, null: false
-    t.integer "activity_a",      default: 0, null: false
-    t.integer "activity_b",      default: 0, null: false
-    t.integer "activity_c",      default: 0, null: false
-    t.date    "recalculated_at",             null: false
+    t.integer "overall",             default: 0, null: false
+    t.integer "activity_a",          default: 0, null: false
+    t.integer "activity_b",          default: 0, null: false
+    t.integer "activity_c",          default: 0, null: false
+    t.date    "recalculated_at",                 null: false
+    t.integer "triggers_overall",    default: 0, null: false
+    t.integer "triggers_activity_a", default: 0, null: false
+    t.integer "triggers_activity_b", default: 0, null: false
+    t.integer "triggers_activity_c", default: 0, null: false
+    t.integer "digests_overall",     default: 0, null: false
+    t.integer "digests_activity_a",  default: 0, null: false
+    t.integer "digests_activity_b",  default: 0, null: false
+    t.integer "digests_activity_c",  default: 0, null: false
   end
 
   add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
