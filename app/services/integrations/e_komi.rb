@@ -43,7 +43,11 @@ module Integrations
         raise Integrations::EKomiError.new("Request timeout for #{params}")
       end
       if result.is_a?(Net::HTTPSuccess)
-        return JSON.parse(result.body)
+        begin
+          return JSON.parse(result.body)
+        rescue Exception => e
+          Integrations::EKomiError.new(result)
+        end
       else
         raise Integrations::EKomiError.new(result)
       end
