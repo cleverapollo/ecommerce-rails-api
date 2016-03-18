@@ -60,7 +60,7 @@ module Experimentor
 
         mahout_service = MahoutService.new
         mahout_service.open
-        mahout_service.relink_user(first_id, second_id)
+        mahout_service.relink_user(first_id, second_id, true)
         mahout_service.close
         # recommender = Recommender::Impl::Experiment.new(iteration_params)
         # ap recommender.recommendations

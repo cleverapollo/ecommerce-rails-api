@@ -68,6 +68,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-sidekiq'
   gem 'capistrano3-unicorn'
+  gem 'jazz_hands', github: 'nixme/jazz_hands', branch: 'bring-your-own-debugger'
 end
 
 # Rspec
