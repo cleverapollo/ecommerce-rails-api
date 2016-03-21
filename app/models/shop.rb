@@ -125,9 +125,9 @@ class Shop < MasterTable
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
     rescue Yml::NoXMLFileInArchiveError => e
       Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
-      ErrorsMailer.yml_url_not_respond(shop).deliver_now
+      ErrorsMailer.yml_url_not_respond(self).deliver_now
     rescue Exception => e
-      ErrorsMailer.yml_import_error(shop, e).deliver_now
+      ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
     ensure
       increment!(:yml_errors)
