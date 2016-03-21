@@ -123,8 +123,13 @@ class Shop < MasterTable
     begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
+    rescue NoXMLFileInArchiveError => e
+      Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
+      ErrorsMailer.yml_url_not_respond(shop).deliver_now
     rescue Exception => e
+      ErrorsMailer.yml_import_error(shop, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
+    ensure
       increment!(:yml_errors)
     end
   end
