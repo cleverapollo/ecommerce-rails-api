@@ -23,6 +23,13 @@ class ErrorsMailer < ActionMailer::Base
     end
   end
 
+  def yml_syntax_error(shop, message)
+    manager =  shop.manager.present? ? shop.manager : Customer.default_manager
+    mail(from: manager.email, to: shop.customer.email, bcc: manager.email, subject: 'Ошибка синтаксиса YML-файла') do |format|
+      format.html { "<p>Здравствуйте!</p><p>К сожалению мы не смогли обработать YML-файл вашего интернет-магазина <a href='#{shop.url}'>#{shop.name}</a>. <br />Причина: <strong>#{message}</strong></p><p>Пожалуйста, укажите ссылку на корректный YML-файл в <a href='#{Rees46.site_url}/shops/#{shop.id}/edit'>личном кабинете</a>.</p><p>На все ваши вопросы ответит ваш менеджер #{manager.name}. <br /><a href='http://rees46.com' target='_blank'>rees46.com</a> | <a href='mailto:#{manager.email}' target='_blank'>#{manager.email}</a> | +7 (812) 426-13-45 </p>" }
+    end
+  end
+
   def yml_off(shop)
         manager =  shop.manager.present? ? shop.manager : Customer.default_manager
     mail(from: manager.email, to: shop.customer.email, bcc: manager.email, subject: 'Обработка YML-файла отключена') do |format|

@@ -88,7 +88,7 @@ class Shop < MasterTable
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
       ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
-      Rollbar.error(ex, "Не обноружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
+      Rollbar.error(ex, "Не обнаружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
@@ -126,6 +126,9 @@ class Shop < MasterTable
     rescue Yml::NoXMLFileInArchiveError => e
       Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
       ErrorsMailer.yml_url_not_respond(self).deliver_now
+    rescue ActiveRecord::RecordNotUnique => e
+      Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
+      ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
