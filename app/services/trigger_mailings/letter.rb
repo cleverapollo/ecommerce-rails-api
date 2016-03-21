@@ -124,7 +124,20 @@ module TriggerMailings
       # Ставим ссылку eKomi, если нужно
       if result.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
         if @shop.ekomi?
-          feedback_button_link = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order].uniqid)['link']
+          product_ids = []
+          trigger.additional_info[:order].order_items.each do |order_item|
+            item = order_item.item
+            if item && item.name.present? && item.uniqid.present?
+              item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
+              item_additional_params[:image_url] = item.image_url if item.image_url.present?
+              begin
+                Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
+                product_ids << item.uniqid
+              rescue
+              end
+            end
+          end
+          feedback_button_link = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
         else
           feedback_button_link = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
         end
