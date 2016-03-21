@@ -9,7 +9,7 @@ GIT
 PATH
   remote: vendor/gems/rees46_ml
   specs:
-    rees46_ml (0.1.0)
+    rees46_ml (0.1.1)
       aasm (>= 4.0)
       activemodel
       nokogiri (>= 1.6)
@@ -23,7 +23,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    aasm (4.5.0)
+    aasm (4.9.0)
     actionmailer (4.2.5)
       actionpack (= 4.2.5)
       actionview (= 4.2.5)
@@ -152,7 +152,7 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
-    ice_nine (0.11.1)
+    ice_nine (0.11.2)
     json (1.8.3)
     kgio (2.10.0)
     launchy (2.4.3)
@@ -166,7 +166,7 @@ GEM
     method_source (0.8.2)
     mime-types (2.99)
     mini_portile2 (2.0.0)
-    minitest (5.8.3)
+    minitest (5.8.4)
     mongo (2.1.2)
       bson (~> 3.0)
     mongoid (5.0.0)
@@ -187,7 +187,7 @@ GEM
       moped
       newrelic_rpm (~> 3.11)
     newrelic_rpm (3.12.1.298)
-    nokogiri (1.6.7.1)
+    nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     oauth (0.4.7)
     open_uri_redirections (0.2.1)
