@@ -98,8 +98,7 @@ class MahoutService
           res = socket.gets
         }
         close
-        puts res
-        res
+        res = JSON.parse(res).values[0].sort.to_h.first(options[:limit]).map { |i| { item: i[0].to_i, rating: i[1] } }
       elsif tunnel_active? && preferences.any?
         res = tunnel.item_based_block(shop_id, options)
       else
