@@ -33,8 +33,9 @@ class OrdersSyncWorker
 
           # Если статус "Отменен" и ранее статус был не "Отменен" и при этом заказ был сделан раньше, чем сегодня
           # (то есть счет за CPA уже был выставлен) и заказ еще не был компенсирован, то компенсируем комиссию
-          if element["status"].to_i == Order::STATUS_CANCELLED && @current_order != Order::STATUS_CANCELLED && @current_order.date.beginning_of_day < DateTime.current.beginning_of_day && @current_order.compensated != true
-            @current_order.update compensated: true
+          # При этом дата заказа должна быть не старше 1 месяца.
+          if element["status"].to_i == Order::STATUS_CANCELLED && @current_order.refundable?
+            @current_order.update! compensated: true
             @current_shop.customer.change_balance CpaReport.fee(@current_order, @current_shop)
           end
 
