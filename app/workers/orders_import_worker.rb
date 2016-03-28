@@ -157,10 +157,7 @@ class OrdersImportWorker
         action.update(rating: 5.0, purchase_count: 1)
 
         # Send rate to BRB
-        action.save_to_mahout
-        if shop_id == 828
-          mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
-        end
+        mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
 
       end
     rescue PG::UniqueViolation => e

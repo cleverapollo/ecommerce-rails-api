@@ -136,11 +136,8 @@ class Action < ActiveRecord::Base
 
   def save_to_mahout
     if shop && shop.use_brb? && user && item
-      Action.publish_to_mahout [shop.id, user.id, item.id, self.rating].join(',')
-      if shop.id == 828
-        mahout_service = MahoutService.new(shop.brb_address)
-        mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
-      end
+      mahout_service = MahoutService.new(shop.brb_address)
+      mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
     end
   end
 

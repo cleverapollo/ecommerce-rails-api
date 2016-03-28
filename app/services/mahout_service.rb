@@ -84,13 +84,12 @@ class MahoutService
     end
   end
 
-  # DONE
   def item_based_weight(user_id, shop_id, options)
     unless Rails.env.test?
       preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
       options.merge!(preferences: preferences)
       res = nil
-      if shop_id == 828 && socket_active? && preferences.any?
+      if socket_active? && preferences.any?
         query = options
         query.merge!(function: 'item_based', shop_id: shop_id)
         socket.puts(query.to_json)
@@ -99,8 +98,6 @@ class MahoutService
         }
         close
         res = JSON.parse(res).values[0].sort.to_h.first(options[:limit]).map { |i| { item: i[0].to_i, rating: i[1] } }
-      elsif tunnel_active? && preferences.any?
-        res = tunnel.item_based_block(shop_id, options)
       else
         res = options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
       end
@@ -113,7 +110,7 @@ class MahoutService
   # DONE
   def set_preference(shop_id, user_id, item_id, rating)
     unless Rails.env.test?
-      if shop_id == 828 && socket_active? && rating.to_f>0.0
+      if socket_active? && rating.to_f>0.0
         socket.puts({
             function: 'set_preference',
             shop_id: shop_id,
@@ -122,8 +119,6 @@ class MahoutService
             rating: rating
           }.to_json)
         close
-      elsif shop_id != 828 && tunnel_active? && rating.to_f>0.0
-        tunnel.set_preference(shop_id, {user_id:user_id, item_id:item_id, rating:rating})
       end
     end
   end
