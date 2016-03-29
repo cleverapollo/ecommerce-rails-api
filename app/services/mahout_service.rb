@@ -92,11 +92,17 @@ class MahoutService
       if socket_active? && preferences.any?
         query = options
         query.merge!(function: 'item_based', shop_id: shop_id)
-        socket.puts(query.to_json)
-        Timeout::timeout(2) {
-          res = socket.gets
-        }
-        close
+        begin
+          socket.puts(query.to_json)
+          Timeout::timeout(0.2) {
+            res = socket.gets
+          }
+        rescue Timeout::Error
+          close
+          return options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
+        rescue
+          return options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
+        end
         res = JSON.parse(res).values[0].sort.to_h.first(options[:limit]).map { |i| { item: i[0].to_i, rating: i[1] } }
       else
         res = options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
@@ -111,14 +117,18 @@ class MahoutService
   def set_preference(shop_id, user_id, item_id, rating)
     unless Rails.env.test?
       if socket_active? && rating.to_f>0.0
-        socket.puts({
-            function: 'set_preference',
-            shop_id: shop_id,
-            user_id: user_id,
-            item_id: item_id,
-            rating: rating
-          }.to_json)
-        close
+        begin
+          socket.puts({
+              function: 'set_preference',
+              shop_id: shop_id,
+              user_id: user_id,
+              item_id: item_id,
+              rating: rating
+            }.to_json)
+          close
+        rescue Errno::EPIPE => e
+          return false
+        end
       end
     end
   end
