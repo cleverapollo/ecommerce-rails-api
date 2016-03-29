@@ -25,6 +25,8 @@ class MahoutService
         return false
       rescue RuntimeError => e1
         return false
+      rescue Errno::ECONNREFUSED => e2
+        return false
       end
     end
   end
