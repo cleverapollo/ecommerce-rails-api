@@ -4,7 +4,7 @@ class MahoutService
   BRB_ADDRESS = 'localhost:5555'
   SOCKET_PATH = Rails.env.development? ? '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock' : '/home/rails/rees46_recommendations/socket_file.sock'
 
-  $stdout = File.new('tmp/benchmark.log', 'w')
+  $stdout = File.new('tmp/benchmark.log', 'a')
   $stdout.sync = true
 
   attr_reader :tunnel

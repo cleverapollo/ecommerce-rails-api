@@ -67,7 +67,7 @@ class DigestMailingRecommendationsCalculator
   private
 
   def ensure_tunnel_is_opened!
-    unless (mahout_service.tunnel && mahout_service.tunnel.active?)
+    unless (mahout_service.socket && mahout_service.socket_active?)
       mahout_service.open
     end
   end
