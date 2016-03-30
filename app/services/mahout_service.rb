@@ -1,6 +1,11 @@
+require 'benchmark'
+
 class MahoutService
   BRB_ADDRESS = 'localhost:5555'
   SOCKET_PATH = Rails.env.development? ? '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock' : '/home/rails/rees46_recommendations/socket_file.sock'
+
+  $stdout = File.new('tmp/benchmark.log', 'w')
+  $stdout.sync = true
 
   attr_reader :tunnel
   attr_reader :socket
@@ -12,7 +17,6 @@ class MahoutService
     @brb_address = 'brb://'+@brb_address
   end
 
-  # DONE---------!!!!
   def open
     unless Rails.env.test?
 
@@ -31,7 +35,6 @@ class MahoutService
     end
   end
 
-  # DONE---------!!!!
   def close
     unless Rails.env.test?
       EM.stop if EM.reactor_running?
@@ -41,44 +44,33 @@ class MahoutService
     end
   end
 
-  # DONE---------!!!!
-
   # @param user_id
   # @param shop_id
   # @param item_id Если указан, будет добавлен в историю товаров
   # @param options
-    # user_based(828828828828, 828, 98465432164654, include: [], exclude: [654654654654,654654651321321,13213213213], limit: 4)
 
   def user_based(user_id, shop_id, item_id, options)
     unless Rails.env.test?
       preferences = MahoutPreferences.new(user_id, shop_id, item_id).fetch
       options.merge!(preferences: preferences)
       res = nil
-      if shop_id == 828
-        if preferences.any? && socket_active?
-          query = options
-          query.merge!(function: 'user_based', shop_id: shop_id, user_id: user_id)
-          socket.puts(query.to_json)
+      if preferences.any? && socket_active?
+        query = options
+        query.merge!(function: 'user_based', shop_id: shop_id, user_id: user_id)
+        socket.puts(query.to_json)
 
-          res = []
-          Timeout::timeout(2) {
-            res = socket.gets
-          }
-          close
-          res = JSON.parse(res).values
-        elsif preferences.none?
-          res = []
-        else
-          res = []
-        end
+        res = []
+        Timeout::timeout(0.2) {
+          Benchmark.bm do |x|
+            x.report("user_based:") { res = socket.gets }
+          end
+        }
+        close
+        res = JSON.parse(res).values
+      elsif preferences.none?
+        res = []
       else
-        if preferences.any? && tunnel_active?
-          res = tunnel.user_based_block(shop_id, options)
-        elsif preferences.none?
-          res = []
-        else
-          res = []
-        end
+        res = []
       end
       return res
     else
@@ -97,7 +89,10 @@ class MahoutService
         begin
           socket.puts(query.to_json)
           Timeout::timeout(0.2) {
-            res = socket.gets
+            Benchmark.bm do |x|
+              x.report("item_based:")   { res = socket.gets }
+            end
+
           }
         rescue Timeout::Error
           close
