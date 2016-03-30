@@ -57,15 +57,17 @@ class MahoutService
       if preferences.any? && socket_active?
         query = options
         query.merge!(function: 'user_based', shop_id: shop_id, user_id: user_id)
-        socket.puts(query.to_json)
 
         res = []
-        Timeout::timeout(0.2) {
-          Benchmark.bm do |x|
-            x.report("user_based:") { res = socket.gets }
-          end
-        }
-        close
+        Benchmark.bm do |x|
+          x.report("user_based:") {
+            socket.puts(query.to_json)
+            Timeout::timeout(0.2) {
+              res = socket.gets
+            }
+            close
+          }
+        end
         res = JSON.parse(res).values
       elsif preferences.none?
         res = []
@@ -87,13 +89,15 @@ class MahoutService
         query = options
         query.merge!(function: 'item_based', shop_id: shop_id)
         begin
-          socket.puts(query.to_json)
-          Timeout::timeout(0.2) {
-            Benchmark.bm do |x|
-              x.report("item_based:")   { res = socket.gets }
-            end
-
-          }
+          Benchmark.bm do |x|
+            x.report("item_based:") {
+              socket.puts(query.to_json)
+              Timeout::timeout(0.2) {
+                res = socket.gets
+              }
+              close
+            }
+          end
         rescue Timeout::Error
           close
           return options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
