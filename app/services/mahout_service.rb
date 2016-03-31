@@ -1,11 +1,6 @@
-require 'benchmark'
-
 class MahoutService
   BRB_ADDRESS = 'localhost:5555'
   SOCKET_PATH = Rails.env.development? ? '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock' : '/home/rails/rees46_recommendations/socket_file.sock'
-
-  $stdout = File.new('tmp/benchmark.log', 'a')
-  $stdout.sync = true
 
   attr_reader :tunnel
   attr_reader :socket
@@ -59,15 +54,20 @@ class MahoutService
         query.merge!(function: 'user_based', shop_id: shop_id, user_id: user_id)
 
         res = []
-        Benchmark.bm do |x|
-          x.report("user_based:") {
-            socket.puts(query.to_json)
-            Timeout::timeout(0.2) {
-              res = socket.gets
-            }
-            close
+
+        begin
+          socket.puts(query.to_json)
+          Timeout::timeout(0.2) {
+            res = socket.gets
           }
+          close
+        rescue Timeout::Error
+          close
+          return []
+        rescue
+          return []
         end
+
         res = JSON.parse(res).values
       elsif preferences.none?
         res = []
@@ -89,15 +89,13 @@ class MahoutService
         query = options
         query.merge!(function: 'item_based', shop_id: shop_id)
         begin
-          Benchmark.bm do |x|
-            x.report("item_based:") {
-              socket.puts(query.to_json)
-              Timeout::timeout(0.2) {
-                res = socket.gets
-              }
-              close
-            }
-          end
+
+          socket.puts(query.to_json)
+          Timeout::timeout(0.2) {
+            res = socket.gets
+          }
+          close
+
         rescue Timeout::Error
           close
           return options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
