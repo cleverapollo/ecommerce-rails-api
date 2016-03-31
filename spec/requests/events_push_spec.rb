@@ -34,17 +34,7 @@ describe 'Pushing an event' do
     expect(@action.recommended_by).to eq('similar')
 
     item = Item.first!
-    expect({"gender"=>item.gender,
-            "type"=>item.wear_type,
-            "sizes"=>item.sizes,
-           "age_min"=>item.age_min,
-           "age_max"=>item.age_max
-           }).to eq({"gender" => "m",
-                     "type" => "shoe",
-                     "sizes" => ["e39.5","e41","e41.5"],
-                     "age_min" => 0.25,
-                     "age_max" => 1.25
-                    })
+
   end
 
   it 'updates view event to cart' do
