@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323140209) do
+ActiveRecord::Schema.define(version: 20160401112726) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -227,40 +227,49 @@ ActiveRecord::Schema.define(version: 20160323140209) do
   add_index "item_categories", ["shop_id"], name: "index_item_categories_without_taxonomy", where: "((taxonomy IS NULL) AND (name IS NOT NULL))", using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                                     null: false
-    t.string  "uniqid",         limit: 255,                  null: false
+    t.integer "shop_id",                                              null: false
+    t.string  "uniqid",                  limit: 255,                  null: false
     t.decimal "price"
-    t.boolean "is_available",                default: true,  null: false
-    t.string  "name",           limit: 255
+    t.boolean "is_available",                         default: true,  null: false
+    t.string  "name",                    limit: 255
     t.text    "description"
     t.text    "url"
     t.text    "image_url"
-    t.boolean "widgetable",                  default: false, null: false
-    t.string  "brand",          limit: 255
-    t.string  "categories",                  default: [],                 array: true
-    t.boolean "ignored",                     default: false, null: false
-    t.jsonb   "locations",                   default: {},    null: false
+    t.boolean "widgetable",                           default: false, null: false
+    t.string  "brand",                   limit: 255
+    t.string  "categories",                           default: [],                 array: true
+    t.boolean "ignored",                              default: false, null: false
+    t.jsonb   "locations",                            default: {},    null: false
     t.float   "sr"
-    t.integer "sales_rate",     limit: 2
+    t.integer "sales_rate",              limit: 2
     t.string  "type_prefix"
     t.string  "vendor_code"
     t.string  "model"
-    t.string  "gender",         limit: 1
-    t.string  "wear_type",      limit: 20
-    t.string  "feature",        limit: 20
+    t.string  "gender",                  limit: 1
+    t.string  "wear_type",               limit: 20
+    t.string  "feature",                 limit: 20
     t.float   "age_min"
     t.float   "age_max"
     t.boolean "hypoallergenic"
-    t.string  "part_type",                                                array: true
-    t.string  "skin_type",                                                array: true
-    t.string  "condition",                                                array: true
+    t.string  "part_type",                                                         array: true
+    t.string  "skin_type",                                                         array: true
+    t.string  "condition",                                                         array: true
     t.jsonb   "volume"
     t.boolean "periodic"
-    t.string  "barcode",        limit: 1914
-    t.string  "category_ids",                                             array: true
-    t.string  "location_ids",                                             array: true
+    t.string  "barcode",                 limit: 1914
+    t.string  "category_ids",                                                      array: true
+    t.string  "location_ids",                                                      array: true
     t.integer "price_margin"
-    t.string  "sizes",                                                    array: true
+    t.string  "sizes",                                                             array: true
+    t.string  "cosmetic_gender",         limit: 1
+    t.boolean "cosmetic_hypoallergenic"
+    t.string  "cosmetic_part_type",                                                array: true
+    t.string  "cosmetic_skin_type",                                                array: true
+    t.string  "cosmetic_skin_condition",                                           array: true
+    t.string  "cosmetic_hair_type",                                                array: true
+    t.string  "cosmetic_hair_condition",                                           array: true
+    t.jsonb   "cosmetic_volume"
+    t.boolean "cosmetic_periodic"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
