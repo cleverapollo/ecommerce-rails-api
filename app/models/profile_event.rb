@@ -35,12 +35,18 @@ class ProfileEvent < MasterTable
 
 
 
-    def track(item, event)
+    def track(item, event, property)
 
       # Работаем только с поддерживаемыми событиями
       return if !%w(views carts purchases).include?(event)
 
+      # update_params = {
+      #     shop_id: item.shop_id,
+      #     user_id:
+      # }
+
       # TODO: доделать трекинг
+      # Не хватает данных об отрасли и пользователе.
 
     end
 

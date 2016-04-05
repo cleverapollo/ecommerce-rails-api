@@ -23,14 +23,14 @@ module SectoralAlgorythms
       def trigger_view(item)
         link_gender(item)
         increment_history(item, 'views')
-        ProfileEvent.track item, 'views'
+        ProfileEvent.track item, 'views', 'gender'
       end
 
       def trigger_purchase(item)
         # Ищем связанный профиль противоположного пола
         link_create_gender(item)
         increment_history(item, 'purchase')
-        ProfileEvent.track item, 'purchases'
+        ProfileEvent.track item, 'purchases', 'gender'
       end
 
       def increment_history(item, history_key)
