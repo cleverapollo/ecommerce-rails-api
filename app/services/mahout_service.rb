@@ -18,7 +18,7 @@ class MahoutService
       begin
         Timeout::timeout(0.2) {
           @socket = UNIXSocket.new(SOCKET_PATH)
-          @tunnel = BrB::Tunnel.create(nil, @brb_address)
+          # @tunnel = BrB::Tunnel.create(nil, @brb_address)
         }
       rescue Timeout::Error => e
         return false
@@ -133,13 +133,11 @@ class MahoutService
   end
 
   # TODO
-  def relink_user(from, to, use_socket = false)
+  def relink_user(from, to, use_socket = true)
     unless Rails.env.test?
       if use_socket && socket_active?
         socket.puts({ function: 'relink_user', from: from, to: to }.to_json)
         close
-      elsif tunnel_active? && !use_socket
-        tunnel.relink_user({from:from, to:to})
       end
     end
   end
