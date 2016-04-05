@@ -17,4 +17,8 @@ class Customer < MasterTable
     [first_name, last_name].compact.join(' ')
   end
 
+  def change_balance(amount)
+    update! balance: (balance + amount.to_i)
+  end
+
 end

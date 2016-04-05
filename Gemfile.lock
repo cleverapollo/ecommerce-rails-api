@@ -26,7 +26,7 @@ GIT
 PATH
   remote: vendor/gems/rees46_ml
   specs:
-    rees46_ml (0.1.0)
+    rees46_ml (0.1.1)
       aasm (>= 4.0)
       activemodel
       nokogiri (>= 1.6)
@@ -427,7 +427,7 @@ DEPENDENCIES
   redis-objects
   rees46_ml!
   request_store_rails
-  rollbar (~> 2.7.1)
+  rollbar (~> 2.8.1)
   rspec-rails (~> 3.1.0)
   rspec-sidekiq
   sidekiq (~> 3.3.3)

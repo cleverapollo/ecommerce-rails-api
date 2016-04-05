@@ -1,3 +1,8 @@
 class RtbImpression < MasterTable
-  self.primary_key = 'code'
+  validates :code, :bid_id, :ad_id, :price, :currency, :shop_id, :item_id, :user_id, presence: true
+
+  def mark_as_purchased!
+    update_columns(clicked: true, purchased: true) unless purchased?
+  end
+
 end

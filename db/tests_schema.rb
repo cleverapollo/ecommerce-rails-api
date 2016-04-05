@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160302134013) do
+ActiveRecord::Schema.define(version: 20160311191954) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -310,6 +310,7 @@ ActiveRecord::Schema.define(version: 20160302134013) do
     t.string   "suggested_plan"
     t.string   "juridical_person"
     t.integer  "currency_id",                        default: 1,     null: false
+    t.string   "language",                           default: "ru",  null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -473,11 +474,37 @@ ActiveRecord::Schema.define(version: 20160302134013) do
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
-  create_table "rtb_impressions", id: false, force: :cascade do |t|
-    t.string "code"
+  create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
+    t.string  "code"
+    t.string  "bid_id",              null: false
+    t.string  "ad_id",               null: false
+    t.float   "price",               null: false
+    t.string  "currency",            null: false
+    t.integer "shop_id",             null: false
+    t.integer "item_id",   limit: 8, null: false
+    t.integer "user_id",   limit: 8, null: false
+    t.boolean "clicked"
+    t.boolean "purchased"
   end
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
+
+  create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
+    t.integer "shop_id",                        null: false
+    t.integer "user_id",  limit: 8,             null: false
+    t.integer "item_id",  limit: 8,             null: false
+    t.integer "counter",            default: 0, null: false
+    t.date    "date"
+    t.string  "image"
+    t.float   "price"
+    t.string  "url"
+    t.string  "currency"
+    t.string  "name"
+  end
+
+  add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
+  add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
+  add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
 
   create_table "saas_requests", force: :cascade do |t|
     t.string   "name"
@@ -622,6 +649,12 @@ ActiveRecord::Schema.define(version: 20160302134013) do
     t.boolean  "enabled_construction",                                              default: false, null: false
     t.boolean  "enabled_appliances",                                                default: false, null: false
     t.boolean  "enabled_fmcg",                                                      default: false, null: false
+    t.boolean  "remarketing_enabled",                                               default: false
+    t.decimal  "remarketing_cpa",                                                   default: 4.6,   null: false
+    t.decimal  "remarketing_cpa_cap",                                               default: 250.0, null: false
+    t.boolean  "ekomi_enabled"
+    t.string   "ekomi_id"
+    t.string   "ekomi_key"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

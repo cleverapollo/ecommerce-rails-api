@@ -101,12 +101,16 @@ class DigestMailingBatchWorker
   # @param email [String] E-mail покупателя
   # @param location [String] Код локации получателя письма для локальной цены
   def letter_body(items, email, location)
+
+    # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
+    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s )
+
     result = @mailing.template.dup
 
     # Вставляем в письмо товары
     items.each do |item|
       item_template = @mailing.item_template.dup
-      decorated_item = item_for_letter(item, location)
+      decorated_item = item_for_letter(item, location, track_email)
 
       decorated_item.each do |key, value|
         item_template.gsub!("{{ #{key} }}", value)
@@ -123,7 +127,7 @@ class DigestMailingBatchWorker
     result.gsub!(/\{\{ user.\w+ }}/, '')
 
     # UTM
-    utm = "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}"
+    utm = "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}"
     result.gsub!('{{ utm_params }}', utm)
 
     # Cтавим логотип
@@ -146,9 +150,10 @@ class DigestMailingBatchWorker
   #
   # @param [Item] товар.
   # @param location [String] Код локации для локальной цены
+  # @param track_email [String] Зашифрованный емейл для склеивания юзера после перехода
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
   # @return [Hash] обертка.
-  def item_for_letter(item, location)
+  def item_for_letter(item, location, track_email = "")
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
@@ -158,9 +163,11 @@ class DigestMailingBatchWorker
                                              utm_medium: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
                                              recommended_by: 'digest_mail',
-                                             rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test'),
+                                             rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test',
+                                             r46_merger: track_email
+                                        ),
       image_url: item.image_url,
-      currency: item.shop.currency
+      currency: item.shop.currency,
     }
   end
 end

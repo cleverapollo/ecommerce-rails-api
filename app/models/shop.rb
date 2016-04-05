@@ -88,7 +88,7 @@ class Shop < MasterTable
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
       ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
-      Rollbar.error(ex, "Не обноружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
+      Rollbar.error(ex, "Не обнаружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue => ex
       update_columns(yml_loaded: false)
@@ -98,7 +98,7 @@ class Shop < MasterTable
   end
 
   def self.import_yml_files
-    active.connected.with_valid_yml.where(shard: SHARD_ID).find_each do |shop|
+    active.connected.with_valid_yml.where(shard: SHARD_ID).each do |shop|
       if shop.yml_allow_import?
         YmlImporter.perform_async(shop.id)
       elsif shop.yml_errors >= 5 
@@ -123,7 +123,16 @@ class Shop < MasterTable
     begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
+    rescue Yml::NoXMLFileInArchiveError => e
+      Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
+      ErrorsMailer.yml_url_not_respond(self).deliver_now
+      increment!(:yml_errors)
+    rescue ActiveRecord::RecordNotUnique => e
+      Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
+      ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
+      increment!(:yml_errors)
     rescue Exception => e
+      ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
       increment!(:yml_errors)
     end
@@ -149,6 +158,10 @@ class Shop < MasterTable
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
     connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i &&
     (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
+  end
+
+  def ekomi?
+    ekomi_enabled? && ekomi_id.present? && ekomi_key.present?
   end
 
   def show_promotion?

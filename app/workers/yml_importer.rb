@@ -13,8 +13,6 @@ class YmlImporter
       brands = Brand.all
       offers_count = 0
 
-      # Item.table_name = "items" # Костыль, иначе https://rollbar.com/noff/api.rees46.com/items/1081/?item_page=0&#instances
-
       temp_file do |file|
         csv_file file, col_sep: "," do |csv|
           csv << Item.csv_header

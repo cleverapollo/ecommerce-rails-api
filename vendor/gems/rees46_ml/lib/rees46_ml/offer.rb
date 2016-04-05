@@ -64,7 +64,7 @@ module Rees46ML
     attribute :transport, String, default: "", lazy: true
     attribute :type, String, default: "", lazy: true
     attribute :type_prefix, String, default: "", lazy: true
-    attribute :url, String, default: "", lazy: true
+    attribute :url, URL, default: "", lazy: true
     attribute :vendor, String, default: "", lazy: true
     attribute :vendor_code, String, default: "", lazy: true
     attribute :volume, String, default: "", lazy: true
@@ -79,7 +79,7 @@ module Rees46ML
     attribute :child, Rees46ML::Child, lazy: true
     attribute :fashion, Rees46ML::Fashion, lazy: true
     attribute :cosmetic, Rees46ML::Cosmetic, lazy: true
-    attribute :pictures, Set[String], lazy: true
+    attribute :pictures, Set[URL], lazy: true # Почему-то не срабатывает тут url.rb с очисткой левых символов
 
     attribute :locations, Set, lazy: true
     attribute :accessories, Set, lazy: true

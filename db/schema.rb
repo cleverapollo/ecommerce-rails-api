@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160301072133) do
+ActiveRecord::Schema.define(version: 20160401112726) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,17 +47,25 @@ ActiveRecord::Schema.define(version: 20160301072133) do
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
 
-  create_table "articles", force: :cascade do |t|
-    t.string   "external_id",              null: false
-    t.text     "url"
-    t.integer  "medium_id"
-    t.string   "title",       limit: 5000
-    t.text     "image"
-    t.text     "description"
-    t.string   "encoding"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  create_table "audience_segment_statistics", force: :cascade do |t|
+    t.integer "shop_id"
+    t.integer "overall",             default: 0, null: false
+    t.integer "activity_a",          default: 0, null: false
+    t.integer "activity_b",          default: 0, null: false
+    t.integer "activity_c",          default: 0, null: false
+    t.date    "recalculated_at",                 null: false
+    t.integer "triggers_overall",    default: 0, null: false
+    t.integer "triggers_activity_a", default: 0, null: false
+    t.integer "triggers_activity_b", default: 0, null: false
+    t.integer "triggers_activity_c", default: 0, null: false
+    t.integer "digests_overall",     default: 0, null: false
+    t.integer "digests_activity_a",  default: 0, null: false
+    t.integer "digests_activity_b",  default: 0, null: false
+    t.integer "digests_activity_c",  default: 0, null: false
+    t.integer "with_email",          default: 0, null: false
   end
+
+  add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
 
   create_table "beacon_messages", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
@@ -157,6 +165,7 @@ ActiveRecord::Schema.define(version: 20160301072133) do
     t.text     "header"
     t.text     "text"
     t.string   "edit_mode",         limit: 255, default: "simple", null: false
+    t.integer  "activity_segment"
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -218,40 +227,49 @@ ActiveRecord::Schema.define(version: 20160301072133) do
   add_index "item_categories", ["shop_id"], name: "index_item_categories_without_taxonomy", where: "((taxonomy IS NULL) AND (name IS NOT NULL))", using: :btree
 
   create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                                     null: false
-    t.string  "uniqid",         limit: 255,                  null: false
+    t.integer "shop_id",                                              null: false
+    t.string  "uniqid",                  limit: 255,                  null: false
     t.decimal "price"
-    t.boolean "is_available",                default: true,  null: false
-    t.string  "name",           limit: 255
+    t.boolean "is_available",                         default: true,  null: false
+    t.string  "name",                    limit: 255
     t.text    "description"
     t.text    "url"
     t.text    "image_url"
-    t.boolean "widgetable",                  default: false, null: false
-    t.string  "brand",          limit: 255
-    t.string  "categories",                  default: [],                 array: true
-    t.boolean "ignored",                     default: false, null: false
-    t.jsonb   "locations",                   default: {},    null: false
+    t.boolean "widgetable",                           default: false, null: false
+    t.string  "brand",                   limit: 255
+    t.string  "categories",                           default: [],                 array: true
+    t.boolean "ignored",                              default: false, null: false
+    t.jsonb   "locations",                            default: {},    null: false
     t.float   "sr"
-    t.integer "sales_rate",     limit: 2
+    t.integer "sales_rate",              limit: 2
     t.string  "type_prefix"
     t.string  "vendor_code"
     t.string  "model"
-    t.string  "gender",         limit: 1
-    t.string  "wear_type",      limit: 20
-    t.string  "feature",        limit: 20
+    t.string  "gender",                  limit: 1
+    t.string  "wear_type",               limit: 20
+    t.string  "feature",                 limit: 20
     t.float   "age_min"
     t.float   "age_max"
     t.boolean "hypoallergenic"
-    t.string  "part_type",                                                array: true
-    t.string  "skin_type",                                                array: true
-    t.string  "condition",                                                array: true
+    t.string  "part_type",                                                         array: true
+    t.string  "skin_type",                                                         array: true
+    t.string  "condition",                                                         array: true
     t.jsonb   "volume"
     t.boolean "periodic"
-    t.string  "barcode",        limit: 1914
-    t.string  "category_ids",                                             array: true
-    t.string  "location_ids",                                             array: true
+    t.string  "barcode",                 limit: 1914
+    t.string  "category_ids",                                                      array: true
+    t.string  "location_ids",                                                      array: true
     t.integer "price_margin"
-    t.string  "sizes",                                                    array: true
+    t.string  "sizes",                                                             array: true
+    t.string  "cosmetic_gender",         limit: 1
+    t.boolean "cosmetic_hypoallergenic"
+    t.string  "cosmetic_part_type",                                                array: true
+    t.string  "cosmetic_skin_type",                                                array: true
+    t.string  "cosmetic_skin_condition",                                           array: true
+    t.string  "cosmetic_hair_type",                                                array: true
+    t.string  "cosmetic_hair_condition",                                           array: true
+    t.jsonb   "cosmetic_volume"
+    t.boolean "cosmetic_periodic"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
@@ -283,16 +301,6 @@ ActiveRecord::Schema.define(version: 20160301072133) do
     t.string   "getresponse_api_url"
   end
 
-  create_table "medium_actions", force: :cascade do |t|
-    t.integer  "medium_id"
-    t.integer  "user_id"
-    t.integer  "article_id"
-    t.string   "medium_action_type", null: false
-    t.string   "recommended_by"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "order_items", id: :bigserial, force: :cascade do |t|
     t.integer "order_id",       limit: 8,               null: false
     t.integer "item_id",        limit: 8,               null: false
@@ -320,6 +328,7 @@ ActiveRecord::Schema.define(version: 20160301072133) do
     t.string   "source_type"
     t.integer  "status",                        default: 0,     null: false
     t.date     "status_date"
+    t.boolean  "compensated"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree

@@ -30,7 +30,17 @@ class OrdersSyncWorker
         @current_order = Order.find_by uniqid: element["id"], shop_id: @current_shop.id
 
         if @current_order
+
+          # Если статус "Отменен" и ранее статус был не "Отменен" и при этом заказ был сделан раньше, чем сегодня
+          # (то есть счет за CPA уже был выставлен) и заказ еще не был компенсирован, то компенсируем комиссию
+          # При этом дата заказа должна быть не старше 1 месяца.
+          if element["status"].to_i == Order::STATUS_CANCELLED && @current_order.refundable?
+            @current_order.update! compensated: true
+            @current_shop.customer.change_balance CpaReport.fee(@current_order, @current_shop)
+          end
+
           @current_order.change_status element["status"].to_i
+
         end
 
       end

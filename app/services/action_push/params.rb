@@ -169,7 +169,7 @@ module ActionPush
           if cur_item
             # товар есть в базе
             if available_present
-              item_attributes.is_available=raw_is_avalilable
+              item_attributes.is_available = raw_is_avalilable
             else
               item_attributes.is_available = cur_item.is_available
             end
@@ -206,46 +206,6 @@ module ActionPush
 
 
         attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
-
-
-        # Прогрузим данные для отраслевых
-
-        if raw[:attributes][i].present?
-          # для fashion
-          fashion_attributes = attributes['fashion'].present? ? attributes['fashion'] : {}
-          attributes.delete('fashion')
-          if fashion_attributes['gender'].present? && ['m', 'f'].include?(fashion_attributes['gender'])
-            item_attributes.gender = fashion_attributes['gender']
-          end
-
-          if fashion_attributes['sizes'].present? && fashion_attributes['sizes'].is_a?(Array) && fashion_attributes['sizes'].any?
-            item_attributes.sizes = fashion_attributes['sizes']
-          end
-
-          if fashion_attributes['type'].present? && SizeHelper::SIZE_TYPES.include?(fashion_attributes['type'])
-            item_attributes.wear_type = fashion_attributes['type']
-          end
-
-          # для child
-          child_attributes = attributes['child'].present? ? attributes['child'] : {}
-          attributes.delete('child')
-          if child_attributes['gender'].present? && ['m', 'f'].include?(child_attributes['gender'])
-            item_attributes.gender = child_attributes['gender']
-          end
-
-          if child_attributes['sizes'].present? && child_attributes['sizes'].is_a?(Array) && child_attributes['sizes'].any?
-            item_attributes.sizes = child_attributes['sizes']
-          end
-
-          if child_attributes['type'].present? && ChildHelper::ITEM_TYPES.include?(child_attributes['type'])
-            item_attributes.wear_type = child_attributes['type']
-          end
-
-          if child_attributes['age'].present?
-            item_attributes.age_min = child_attributes['age']['min'] if child_attributes['age']['min'].present?
-            item_attributes.age_max = child_attributes['age']['max'] if child_attributes['age']['max'].present?
-          end
-        end
 
         @items << Item.fetch(shop.id, item_attributes)
       end

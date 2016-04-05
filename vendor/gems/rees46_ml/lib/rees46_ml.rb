@@ -4,6 +4,7 @@ require "virtus"
 require "active_model"
 require "logger"
 
+require "rees46_ml/url"
 require "rees46_ml/version"
 require "rees46_ml/tree"
 require "rees46_ml/boolean"

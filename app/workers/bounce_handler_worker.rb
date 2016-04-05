@@ -14,56 +14,50 @@ class BounceHandlerWorker
           bounced_message = BounceEmail::Mail.new(email.message)
           bounced_message.charset = 'UTF-8'
 
-          if bounced_message.is_bounce? && bounced_message.type == 'Permanent Failure'
-            # Адрес получателя
-            to = message.to.first
+          # Получатель
+          to = message.to.first
 
-            # Работаем только с письмами текущего шарда
-            if shard = to.match(/shard(\d{2})/)
-              if shard[1] == SHARD_ID
+          # Если получатель не bounce, то удаляем письмо
+          unless to.scan(/bounced\+shard\d+.+rees46\.com/).any?
+            email.delete!
+            next
+          end
 
-                type = to.split('bounced+', 2).last.split('@', 2).first.split('=', 2).first
-                code = to.split('bounced+', 2).last.split('@', 2).first.split('=', 2).last
+          # Если письмо не из этого шарда, пропускаем его
+          if to.match(/shard(\d{2})/)[1] != SHARD_ID
+            next
+          end
 
-                if code != 'test'
-                  entity = if type == 'digest'
-                             DigestMail.find_by(code: code)
-                           elsif type == 'trigger'
-                             TriggerMail.find_by(code: code)
-                           end
+          # Если письмо bounced?
+          if bounced_message.is_bounce?
 
-                  entity.mark_as_bounced! if entity.present?
-                end
+            # Если Permanent Failure
+            if bounced_message.type == 'Permanent Failure'
 
-                # Архивируем письмо
-                email.delete!
+              type = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
+              code = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
 
+              if code != 'test'
+                entity = if type == 'digest'
+                           DigestMail.find_by(code: code)
+                         elsif type == 'trigger'
+                           TriggerMail.find_by(code: code)
+                         end
+
+                entity.mark_as_bounced! if entity.present?
               end
+
             end
 
+            # Если Persistent Transient Failure, то в следующий раз повезет, просто удаляем
+            # nope
 
-          elsif bounced_message.is_bounce? || bounced_message.type == 'Permanent Failure'
-
-            # ** Если письмо просто 'Permanent Failure', но не bounce или наоборот (например, автоответчик), то просто удаляем его
-
-            # Адрес получателя
-            to = message.to.first
-
-            # Работаем только с письмами текущего шарда
-            if shard = to.match(/shard(\d{2})/)
-              if shard[1] == SHARD_ID
-
-                # Архивируем письмо
-                email.delete!
-
-              end
-            end
+            email.delete!
 
           end
 
         end
       end
-
 
     end
 

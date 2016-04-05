@@ -38,9 +38,9 @@ class Yml < Struct.new(:path)
         raise NotRespondingError.new("Не удаётся выгрузить YML файл в течение 30 минут.")
       end
     rescue OpenURI::HTTPError
-      NotRespondingError.new("YML файл недоступен.")
+      raise NotRespondingError.new("YML файл недоступен.")
     rescue SocketError
-      NotRespondingError.new("Некоректный адрес YML файла.")
+      raise NotRespondingError.new("Некоректный адрес YML файла.")
     end
   end
 

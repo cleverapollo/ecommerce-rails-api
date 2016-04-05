@@ -117,6 +117,15 @@ class Order < ActiveRecord::Base
     end
   end
 
+  # Если
+  # - уже не отменен
+  # - не старше 1 месяца (TODO: фактически проверять, есть ли инвойс CPA на дату заказа)
+  # - не сегодняшний (чтобы CPA инвойс уже был сформирован и комиссия снята)
+  # - не компенсирован
+  def refundable?
+    status != STATUS_CANCELLED && date >= 1.month.ago && date.beginning_of_day < DateTime.current.beginning_of_day && compensated != true
+  end
+
   protected
 
   # Устанавливаем перед созданием заказа текущую дату заказа

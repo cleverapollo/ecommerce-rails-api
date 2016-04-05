@@ -32,15 +32,18 @@ class DigestMailingLaunchWorker
     else
       # Режим полноценной рассылки.
 
+      audience_relation = shop.clients.suitable_for_digest_mailings
+      audience_relation = audience_relation.where('activity_segment is not null and activity_segment = ?', digest_mailing.activity_segment) unless digest_mailing.activity_segment.nil?
+
       if digest_mailing.batches.incomplete.none?
         # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
-        shop.clients.suitable_for_digest_mailings.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
+        audience_relation.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
           digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
         end
       end
 
       # Запоминаем, сколько пользователей попало в рассылку
-      digest_mailing.update(total_mails_count: shop.clients.suitable_for_digest_mailings.count)
+      digest_mailing.update(total_mails_count: audience_relation.count)
 
       # Запоминаем дату и время запуска
       digest_mailing.update(started_at: Time.current)
