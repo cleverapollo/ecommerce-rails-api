@@ -5,11 +5,11 @@ class MahoutService
   attr_reader :tunnel
   attr_reader :socket
 
-  # DONE
+
   def initialize(brb_adress = nil)
-    @brb_address = brb_adress
-    @brb_address = BRB_ADDRESS if brb_adress.nil? || brb_adress.empty?
-    @brb_address = 'brb://'+@brb_address
+    # @brb_address = brb_adress
+    # @brb_address = BRB_ADDRESS if brb_adress.nil? || brb_adress.empty?
+    # @brb_address = 'brb://'+@brb_address
   end
 
   def open
@@ -32,10 +32,8 @@ class MahoutService
 
   def close
     unless Rails.env.test?
-      EM.stop if EM.reactor_running?
-      unless socket && socket.closed?
-        @socket.close
-      end
+      # EM.stop if EM.reactor_running?
+      @socket.close if socket.present? && !socket.closed?
     end
   end
 
@@ -57,7 +55,7 @@ class MahoutService
 
         begin
           socket.puts(query.to_json)
-          Timeout::timeout(0.2) {
+          Timeout::timeout(0.3) {
             res = socket.gets
           }
           close
@@ -91,7 +89,7 @@ class MahoutService
         begin
 
           socket.puts(query.to_json)
-          Timeout::timeout(0.2) {
+          Timeout::timeout(0.3) {
             res = socket.gets
           }
           close
