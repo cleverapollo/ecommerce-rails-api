@@ -60,7 +60,7 @@ module Recommender
       def rescore(items_weighted, cf_weighted)
         items_weighted.merge!(cf_weighted) do |_, weighted_sr_item, cf|
           # подмешиваем оценку CF
-          { sales_rate: (K_SR * weighted_sr_item[:sales_rate].to_f + K_CF * cf.to_f)/(K_CF+K_SR), categories: weighted_sr_item[:categories] }
+          { sales_rate: (K_SR * weighted_sr_item[:sales_rate].to_f + K_CF * cf.to_f)/(K_CF+K_SR), category_ids: weighted_sr_item[:category_ids] }
         end
 
         items_weighted = items_weighted.sort do |x, y|
@@ -74,10 +74,10 @@ module Recommender
         items_with_uniq_categories = {}
         items_weighted.each do |id, item|
           break if items_with_uniq_categories.size >= params.limit
-          items_with_uniq_categories[item[:categories].first] ||= []
+          items_with_uniq_categories[item[:category_ids].first] ||= []
 
           # берем только первую указанную категорию, чтобы избежать дублирование товара
-          items_with_uniq_categories[item[:categories].first].push({ id => item[:sales_rate] })
+          items_with_uniq_categories[item[:category_ids].first].push({ id => item[:sales_rate] })
         end
 
         # сколько брать из каждой категории
