@@ -73,7 +73,8 @@ module SectoralAlgorythms
       end
 
       def filter_by_opposite_gender(gender, relation)
-        return relation.where('gender!=? or gender IS NULL', gender) if gender
+        # TODO: учитывать, что пол бывает разный у товара
+        return relation.where('fashion_gender!=? or fashion_gender IS NULL', gender) if gender
         relation
       end
 
