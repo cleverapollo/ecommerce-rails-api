@@ -45,7 +45,8 @@ module Recommender
         if ids.any? && item && item.category_ids
           _ids = []
           Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
-            unless (item.category_ids - _element[1]).empty?
+            if _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
+            # unless (item.category_ids - _element[1]).empty?
               _ids << _element[0]
             end
           end

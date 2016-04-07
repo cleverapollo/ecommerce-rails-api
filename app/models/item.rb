@@ -20,7 +20,7 @@ class Item < ActiveRecord::Base
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = { any: false }) {
     if categories && categories.any?
-      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } category_ids", categories)
+      where("category_ids IS NOT NULL AND ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } category_ids", categories)
     else
       all
     end
