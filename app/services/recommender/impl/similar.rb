@@ -30,7 +30,7 @@ module Recommender
         if params.modification.present?
           if params.fashion? || params.cosmetic?
             gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-            if item_gender = item.try(:gender)
+            if item_gender = item.try(:fashion_gender)
               if item_gender!=gender_algo.current_gender
                 result = gender_algo.filter_by_gender(item_gender, result)
               else

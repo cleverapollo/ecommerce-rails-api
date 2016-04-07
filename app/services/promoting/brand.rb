@@ -13,7 +13,7 @@ module Promoting
         return [] if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-       brand_campaigns_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
+       brand_campaigns_for_categories(item.shop_id, item.category_ids, expansion_only).where(downcase_brand:brand.downcase).pluck(:id).compact.uniq
       end
 
       def brand_campaign_for_item(item, expansion_only)
@@ -23,7 +23,7 @@ module Promoting
         return nil if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-        brand_campaigns_for_categories(item.shop_id, item.categories, expansion_only).where(downcase_brand:brand.downcase).limit(1)[0]
+        brand_campaigns_for_categories(item.shop_id, item.category_ids, expansion_only).where(downcase_brand:brand.downcase).limit(1)[0]
       end
 
       def brand_campaigns_for_categories(shop_id, categories, expansion_only)

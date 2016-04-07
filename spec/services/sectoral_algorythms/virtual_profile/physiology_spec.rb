@@ -16,8 +16,8 @@ describe SectoralAlgorythms::VirtualProfile::Physiology do
     end
 
     context 'when have views ' do
-      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender:'m', skin_type: ['dry', 'normal'], part_type: [part_type]) } }
-      let(:female_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender: 'f', skin_type: ['oily', 'comby'], part_type: [part_type]) } }
+      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, cosmetic_gender:'m', skin_type: ['dry', 'normal'], part_type: [part_type]) } }
+      let(:female_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, cosmetic_gender: 'f', skin_type: ['oily', 'comby'], part_type: [part_type]) } }
 
       context 'when user view' do
         subject {

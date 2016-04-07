@@ -9,12 +9,12 @@ describe TriggerMailings::Triggers::LowOnSupply do
     let!(:shop) { create(:shop, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
-    let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: false) }
-    let!(:item_3) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: false) }
-    let!(:item_4) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
+    let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
+    let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: false) }
+    let!(:item_3) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: false) }
+    let!(:item_4) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
 
     let!(:action) { create(:action, shop: shop, user: user, item: item_1) }
 
@@ -61,19 +61,19 @@ describe TriggerMailings::Triggers::LowOnSupply do
     let!(:shop) { create(:shop, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
-    let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: false) }
-    let!(:item_3) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: false) }
-    let!(:item_4) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_7) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_8) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_9) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_10) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_11) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_12) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
-    let!(:item_13) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, periodic: true) }
+    let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
+    let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: false) }
+    let!(:item_3) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: false) }
+    let!(:item_4) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
+    let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
+    let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
+    let!(:item_7) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_8) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_9) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_10) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_11) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_12) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
+    let!(:item_13) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
 
     let!(:action) { create(:action, shop: shop, user: user, item: item_1) }
 

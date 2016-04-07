@@ -29,12 +29,12 @@ module SectoralAlgorythms
         end
 
         def increment_history(item, history_key)
-          if item.try(:gender)
+          if item.try(:child_gender)
             # определим в какого ребенка производим запись
             current_child_index, @children = ChildHelper.fetch_child(@children)
 
             @children[current_child_index][:gender][:history] ||= default_history
-            @children[current_child_index][:gender][:history][item.gender][history_key] += 1 if @children[current_child_index][:gender][item.gender.to_sym].present?
+            @children[current_child_index][:gender][:history][item.fashion_gender][history_key] += 1 if @children[current_child_index][:gender][item.fashion_gender.to_sym].present?
           end
         end
 

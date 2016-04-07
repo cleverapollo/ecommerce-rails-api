@@ -35,7 +35,7 @@ describe 'Order workflow' do
     expect(@item.uniqid).to eq('100')
     expect(@item.price.to_i).to eq(99)
     expect(@item.is_available).to eq(true)
-    expect(@item.categories).to eq(['5'])
+    expect(@item.category_ids).to eq(['5'])
 
     # Action should be created
     expect(@user.actions.count).to eq(1)

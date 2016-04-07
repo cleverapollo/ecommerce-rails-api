@@ -41,7 +41,7 @@ $ foreman start
 
 ### Тесты
 ```
-$ RAILS_ENV=test rake db:test:load_schema
+$ RAILS_ENV=test bundle exec rake db:test:load_schema
 $ bin/rspec
 ```
 

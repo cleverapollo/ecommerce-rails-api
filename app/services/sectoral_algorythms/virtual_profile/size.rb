@@ -28,10 +28,10 @@ module SectoralAlgorythms
 
       def increment_history(item, history_key)
 
-        if sizes = item.try(:sizes)
-          size_params = SizeHelper.bad_to_default(wear_type: item.wear_type,
-                                                  gender: item.gender,
-                                                  feature: item.feature)
+        if sizes = item.try(:fashion_sizes)
+          size_params = SizeHelper.bad_to_default(wear_type: item.fashion_wear_type,
+                                                  gender: item.fashion_gender,
+                                                  feature: item.fashion_feature)
 
           @size['history'] ||= {}
 
@@ -128,18 +128,18 @@ module SectoralAlgorythms
               addition_relations << type_size_condition(type, sizes)
             end
           end if type_sizes
-          relation =  relation.where(addition_relations.join(" OR ")).where.not(sizes:nil)
+          relation =  relation.where(addition_relations.join(" OR ")).where.not(fashion_sizes:nil)
         end
 
         relation
       end
 
       def type_size_condition(type, sizes)
-        "(wear_type='#{type}' AND  '{#{sizes.map { |size| "\"#{size}\"" }.join(',')}}' && sizes )"
+        "(fashion_wear_type='#{type}' AND  '{#{sizes.map { |size| "\"#{size}\"" }.join(',')}}' && fashion_sizes )"
       end
 
       def filter_by_sizes_with_rollback(relation, type, sizes)
-        modified_relation = relation.where(type_size_condition(type, sizes)).where.not(sizes:nil)
+        modified_relation = relation.where(type_size_condition(type, sizes)).where.not(fashion_sizes:nil)
         first_result = modified_relation.limit(1)[0]
         if first_result
           modified_relation

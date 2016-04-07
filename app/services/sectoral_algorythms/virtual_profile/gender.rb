@@ -34,9 +34,9 @@ module SectoralAlgorythms
       end
 
       def increment_history(item, history_key)
-        if item.try(:gender)
+        if item.try(:fashion_gender)
           @gender['history'] ||= default_history
-          @gender['history'][item.gender][history_key] += 1 if @gender['history'][item.gender].present?
+          @gender['history'][item.fashion_gender][history_key] += 1 if @gender['history'][item.fashion_gender].present?
         end
       end
 

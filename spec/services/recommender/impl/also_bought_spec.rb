@@ -4,10 +4,10 @@ describe Recommender::Impl::AlsoBought do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:item1) { create(:item, shop: shop, categories: '{3}') }
-  let!(:item2) { create(:item, shop: shop, categories: '{3,5}') }
-  let!(:item3) { create(:item, shop: shop, categories: '{7}') }
-  let!(:item4) { create(:item, shop: shop, categories: '{12}') }
+  let!(:item1) { create(:item, shop: shop, category_ids: '{3}') }
+  let!(:item2) { create(:item, shop: shop, category_ids: '{3,5}') }
+  let!(:item3) { create(:item, shop: shop, category_ids: '{7}') }
+  let!(:item4) { create(:item, shop: shop, category_ids: '{12}') }
 
   describe '#recommendations' do
     it 'returns ids of also bought items' do

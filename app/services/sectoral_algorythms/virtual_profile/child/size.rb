@@ -31,8 +31,8 @@ module SectoralAlgorythms
           if sizes = item.try(:sizes)
 
 
-            size_params =  SizeHelper.bad_to_default(wear_type: item.wear_type,
-                                                     gender: item.gender,
+            size_params =  SizeHelper.bad_to_default(wear_type: item.fashion_wear_type,
+                                                     gender: item.fashion_gender,
                                                      feature: 'child')
 
             current_child_index, @children = ChildHelper.fetch_child(@children)

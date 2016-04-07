@@ -77,7 +77,6 @@ describe Item do
         image_url: image_url,
         widgetable: widgetable,
         brand: brand,
-        categories: categories,
         ignored: ignored,
         locations: locations,
         sr: sr,
@@ -85,21 +84,21 @@ describe Item do
         type_prefix: type_prefix,
         vendor_code: vendor_code,
         model: model,
-        gender: gender,
-        wear_type: wear_type,
-        feature: feature,
-        age_min: age_min,
-        age_max: age_max,
-        hypoallergenic: hypoallergenic,
+        fashion_gender: gender,
+        fashion_wear_type: wear_type,
+        fashion_feature: feature,
+        child_age_min: age_min,
+        child_age_max: age_max,
+        cosmetic_hypoallergenic: hypoallergenic,
         part_type: part_type,
         skin_type: skin_type,
         condition: condition,
-        volume: volume,
-        periodic: periodic,
+        fmcg_volume: volume,
+        cosmetic_periodic: periodic,
         barcode: barcode,
         category_ids: category_ids,
         location_ids: location_ids,
-        sizes: sizes,
+        fashion_sizes: sizes,
         price_margin: price_margin
       })
     end
@@ -114,7 +113,6 @@ describe Item do
     it { expect(subject.csv_row[8]).to eq(image_url) }
     it { expect(subject.csv_row[9]).to eq(widgetable) }
     it { expect(subject.csv_row[10]).to eq(brand) }
-    it { expect(subject.csv_row[11]).to eq("{#{categories.join(',')}}") }
     it { expect(subject.csv_row[12]).to eq(ignored) }
     it { expect(subject.csv_row[13]).to eq("[#{locations.join(',')}]") }
     it { expect(subject.csv_row[14]).to eq(sr) }
@@ -127,12 +125,12 @@ describe Item do
     it { expect(subject.csv_row[21]).to eq(feature) }
     it { expect(subject.csv_row[22]).to eq(age_min) }
     it { expect(subject.csv_row[23]).to eq(age_max) }
-    it { expect(subject.csv_row[24]).to eq(hypoallergenic) }
+    it { expect(subject.csv_row[36]).to eq(hypoallergenic) }
     it { expect(subject.csv_row[25]).to eq("{#{part_type.join(',')}}") }
     it { expect(subject.csv_row[26]).to eq("{#{skin_type.join(',')}}") }
     it { expect(subject.csv_row[27]).to eq("{#{condition.join(',')}}") }
     it { expect(subject.csv_row[28]).to eq(volume) }
-    it { expect(subject.csv_row[29]).to eq(periodic) }
+    it { expect(subject.csv_row[43]).to eq(periodic) }
     it { expect(subject.csv_row[30]).to eq(barcode) }
     it { expect(subject.csv_row[31]).to eq("{#{category_ids.join(',')}}") }
     it { expect(subject.csv_row[32]).to eq("{#{location_ids.join(',')}}") }

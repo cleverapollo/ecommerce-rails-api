@@ -32,7 +32,7 @@ module Recommender
       def inject_promotions(result)
         if categories.try(:any?)
           # Промо только в категориях товара выдачи
-          @categories_for_promo = Item.where(id: result).pluck(:categories).flatten.compact.uniq
+          @categories_for_promo = Item.where(id: result).pluck(:category_ids).flatten.compact.uniq
           super(result)
         else
           result
@@ -49,7 +49,7 @@ module Recommender
                    end
 
         # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :categories)
+        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :category_ids)
 
 
         result.to_a.map { |value| [value[0], { sales_rate: value[1], categories: value[2] }] }.to_h

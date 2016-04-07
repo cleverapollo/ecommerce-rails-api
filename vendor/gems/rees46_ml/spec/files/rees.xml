@@ -155,8 +155,7 @@
             <max>1</max>
           </age>
           <gender>u</gender>
-          <type>hygiene</type>
-          <brand>Clementoni</brand>
+          <type>toy</type>
           <hypoallergenic>t</hypoallergenic>
           <periodic>f</periodic>
           <sizes>
@@ -185,7 +184,6 @@
         <fashion>
           <gender>f</gender>
           <type>shirt</type>
-          <brand>Gucci</brand>
           <sizes>
             <size>XL</size>
             <size>S</size>
@@ -198,22 +196,35 @@
           <gender>f</gender>
           <hypoallergenic>0</hypoallergenic>
           <periodic>1</periodic>
-          <brand>Nivea</brand>
 
-          <part_types>
-            <part_type>hair</part_type>
-            <part_type>body</part_type>
-          </part_types>
+          <skin>
+            <type>face</type>
+            <type>body</type>
+            <condition>sensitive</condition>
+            <condition>fading</condition>
+          </skin>
 
-          <skin_types>
-            <skin_type>normal</skin_type>
-            <skin_type>oily</skin_type>
-          </skin_types>
-
-          <conditions>
+          <hair>
+            <type>normal</type>
+            <type>oily</type>
             <condition>colored</condition>
             <condition>damaged</condition>
-          </conditions>
+          </hair>
+
+          <!--<part_types>-->
+            <!--<part_type>hair</part_type>-->
+            <!--<part_type>body</part_type>-->
+          <!--</part_types>-->
+
+          <!--<skin_types>-->
+            <!--<skin_type>normal</skin_type>-->
+            <!--<skin_type>oily</skin_type>-->
+          <!--</skin_types>-->
+
+          <!--<conditions>-->
+            <!--<condition>colored</condition>-->
+            <!--<condition>damaged</condition>-->
+          <!--</conditions>-->
 
           <volumes>
             <volume>
@@ -226,6 +237,8 @@
             </volume>
           </volumes>
         </cosmetic>
+
+
       </offer>
     </offers>
   </shop>
