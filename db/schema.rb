@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407120910) do
+ActiveRecord::Schema.define(version: 20160408145714) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -263,7 +263,7 @@ ActiveRecord::Schema.define(version: 20160407120910) do
     t.string  "fashion_sizes",                                                     array: true
     t.string  "cosmetic_gender",         limit: 1
     t.boolean "cosmetic_hypoallergenic"
-    t.string  "cosmetic_part_type",                                                array: true
+    t.string  "cosmetic_skin_part",                                                array: true
     t.string  "cosmetic_skin_type",                                                array: true
     t.string  "cosmetic_skin_condition",                                           array: true
     t.string  "cosmetic_hair_type",                                                array: true

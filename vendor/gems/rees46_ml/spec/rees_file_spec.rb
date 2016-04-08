@@ -112,25 +112,14 @@ describe "check rees.xml" do
     expect(offer.child.age.max).to eq("1")
     expect(offer.child.type).to eq("toy")
 
-    # expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "hair"))
-    # expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "body"))
-    #
-    # expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "normal"))
-    # expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "oily"))
-    #
-    # expect(offer.child.conditions).to include("colored")
-    # expect(offer.child.conditions).to include("damaged")
-
-
-
     expect(offer.cosmetic.gender.value).to eq("f")
     expect(offer.cosmetic.hypoallergenic).to eq(true)
     expect(offer.cosmetic.periodic).to eq(true)
-    # skin_parts
-    # skin_types
-    # skin_conditions
-    # hair_types
-    # hair_conditions
+    expect(offer.cosmetic.skin.part).to include("body")
+    expect(offer.cosmetic.skin.type).to include("oily")
+    expect(offer.cosmetic.skin.condition).to include("fading")
+    expect(offer.cosmetic.hair.type).to include("normal")
+    expect(offer.cosmetic.hair.condition).to include("colored")
     # volumes
 
     expect(offer.fmcg.hypoallergenic).to eq(true)

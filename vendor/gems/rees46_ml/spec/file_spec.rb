@@ -21,8 +21,6 @@ describe Rees46ML::File do
         file.lazy.select{ |element| element.is_a?(Rees46ML::Offer) }.each_with_index do |offer, index|
           category_ids = yml_shop.categories.path_to(offer.category_id)
           location_ids = offer.locations.flat_map{ |l| yml_shop.locations.path_to(l.id) }
-
-          puts offer.locations.inspect if offer.locations.any?
         end
       end
     end

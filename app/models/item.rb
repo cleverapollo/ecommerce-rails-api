@@ -74,7 +74,7 @@ class Item < ActiveRecord::Base
       locations
       cosmetic_gender
       cosmetic_hypoallergenic
-      cosmetic_part_type
+      cosmetic_skin_part
       cosmetic_skin_type
       cosmetic_skin_condition
       cosmetic_hair_type
@@ -255,7 +255,7 @@ class Item < ActiveRecord::Base
         item.is_fashion = true
         item.fashion_feature = offer.fashion.feature
         item.fashion_wear_type = offer.fashion.type
-        item.fashion_gender = offer.fashion.gender.value if offer.fashion.gender
+        item.fashion_gender = offer.fashion.gender.value if offer.fashion.gender && offer.fashion.gender.valid?
 
         if offer.fashion.gender && offer.fashion.type
           size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
@@ -287,9 +287,24 @@ class Item < ActiveRecord::Base
 
       if offer.cosmetic?
         item.is_cosmetic = true
-        item.cosmetic_gender = offer.cosmetic.gender.value if offer.cosmetic.gender
+        item.cosmetic_gender = offer.cosmetic.gender.value if offer.cosmetic.gender && offer.cosmetic.gender.valid?
         item.cosmetic_hypoallergenic = offer.cosmetic.hypoallergenic
         item.cosmetic_periodic = offer.cosmetic.periodic
+        if offer.cosmetic.skin.part.present? && offer.cosmetic.skin.part.to_a.any?
+          item.cosmetic_skin_part = offer.cosmetic.skin.part.to_a
+        end
+        if offer.cosmetic.skin.type.present? && offer.cosmetic.skin.type.to_a.any?
+          item.cosmetic_skin_type = offer.cosmetic.skin.type.to_a
+        end
+        if offer.cosmetic.skin.condition.present? && offer.cosmetic.skin.condition.to_a.any?
+          item.cosmetic_skin_condition = offer.cosmetic.skin.condition.to_a
+        end
+        if offer.cosmetic.hair.type.present? && offer.cosmetic.hair.type.to_a.any?
+          item.cosmetic_hair_type = offer.cosmetic.hair.type.to_a
+        end
+        if offer.cosmetic.hair.condition.present? && offer.cosmetic.hair.condition.to_a.any?
+          item.cosmetic_hair_condition = offer.cosmetic.hair.condition.to_a
+        end
         # item.part_type = offer.cosmetic.part_types.map(&:value) if offer.cosmetic.part_types
         # item.skin_type = offer.cosmetic.skin_types.map(&:value) if offer.cosmetic.skin_types
         # item.condition = offer.cosmetic.conditions.map.to_a if offer.cosmetic.conditions

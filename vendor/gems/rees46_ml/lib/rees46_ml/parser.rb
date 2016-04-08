@@ -60,7 +60,6 @@ module Rees46ML
       state :hypoallergenic
       state :age
       state :gender
-      state :type
       state :sizes
       state :size
       state :min
@@ -516,58 +515,31 @@ module Rees46ML
         transitions from: :hypoallergenic, to: :fmcg,    guard: :in_fmcg?
       end
 
-      event :start_part_types do
-        transitions from: :cosmetic, to: :part_types
-        transitions from: :child,    to: :part_types
+
+      event :start_skin do
+        transitions from: :cosmetic, to: :skin
       end
 
-      event :end_part_types do
-        transitions from: :part_types, to: :cosmetic, guard: :in_cosmetic?
-        transitions from: :part_types, to: :child,    guard: :in_child?
+      event :end_skin do
+        transitions from: :skin, to: :cosmetic
       end
 
-      event :start_part_type do
-        transitions from: :part_types, to: :part_type
+      event :start_hair do
+        transitions from: :cosmetic, to: :hair
       end
 
-      event :end_part_type do
-        transitions from: :part_type, to: :part_types
-      end
-
-      event :start_skin_types do
-        transitions from: :cosmetic, to: :skin_types
-        transitions from: :child,    to: :skin_types
-      end
-
-      event :end_skin_types do
-        transitions from: :skin_types, to: :cosmetic, guard: :in_cosmetic?
-        transitions from: :skin_types, to: :child,    guard: :in_child?
-      end
-
-      event :start_skin_type do
-        transitions from: :skin_types, to: :skin_type
-      end
-
-      event :end_skin_type do
-        transitions from: :skin_type, to: :skin_types
-      end
-
-      event :start_conditions do
-        transitions from: :cosmetic, to: :conditions
-        transitions from: :child,    to: :conditions
-      end
-
-      event :end_conditions do
-        transitions from: :conditions, to: :cosmetic, guard: :in_cosmetic?
-        transitions from: :conditions, to: :child,    guard: :in_child?
+      event :end_hair do
+        transitions from: :hair, to: :cosmetic
       end
 
       event :start_condition do
-        transitions from: :conditions, to: :condition
+        transitions from: :skin, to: :condition
+        transitions from: :hair, to: :condition
       end
 
       event :end_condition do
-        transitions from: :condition, to: :conditions
+        transitions from: :condition, to: :skin, guard: :in_skin?
+        transitions from: :condition, to: :hair, guard: :in_hair?
       end
 
       event :start_gender do
@@ -585,11 +557,15 @@ module Rees46ML
       event :start_type do
         transitions from: :child,   to: :type
         transitions from: :fashion, to: :type
+        transitions from: :skin, to: :type
+        transitions from: :hair, to: :type
       end
 
       event :end_type do
         transitions from: :type, to: :child,   guard: :in_child?
         transitions from: :type, to: :fashion, guard: :in_fashion?
+        transitions from: :type, to: :skin, guard: :in_skin?
+        transitions from: :type, to: :hair, guard: :in_hair?
       end
 
       event :start_age do
@@ -796,10 +772,12 @@ module Rees46ML
 
       event :start_part do
         transitions from: :offer, to: :part
+        transitions from: :skin, to: :part
       end
 
       event :end_part do
-        transitions from: :part, to: :offer
+        transitions from: :part, to: :offer, guard: :in_offer?
+        transitions from: :part, to: :skin, guard: :in_skin?
       end
 
       event :start_language do
@@ -1109,10 +1087,10 @@ module Rees46ML
           self.current_element = Rees46ML::Gender.new
         when "size"
           self.current_element = Rees46ML::Size.new
-        when "part_type"
-          self.current_element = Rees46ML::PartType.new
-        when "skin_type"
-          self.current_element = Rees46ML::SkinType.new
+        when "skin"
+          self.current_element = Rees46ML::Skin.new
+        when "hair"
+          self.current_element = Rees46ML::Hair.new
         when "offer"
           self.current_element = Rees46ML::Offer.new
         when "param"
@@ -1148,8 +1126,20 @@ module Rees46ML
             self.current_element.barcodes << safe_buffer
           when "picture"
             self.current_element.pictures << safe_buffer
+          when "part"
+            if in_skin?
+              self.current_element.part << safe_buffer
+            else
+              self.current_element.part = safe_buffer
+            end
+          when "type"
+            self.current_element.type = safe_buffer if in_child?
+            self.current_element.type = safe_buffer if in_fashion?
+            self.current_element.type << safe_buffer if in_skin?
+            self.current_element.type << safe_buffer if in_hair?
           when "condition"
-            self.current_element.conditions << safe_buffer
+            self.current_element.condition << safe_buffer if in_skin?
+            self.current_element.condition << safe_buffer if in_hair?
           when "data_tour"
             self.current_element.data_tours << safe_buffer
           when "currencies"
@@ -1196,6 +1186,12 @@ module Rees46ML
         when "cosmetic"
           self.parent_element.cosmetic = self.current_element
           stack.pop
+        when "skin"
+          self.parent_element.skin = self.current_element
+          stack.pop
+        when "hair"
+          self.parent_element.hair = self.current_element
+          stack.pop
         when "age"
           self.parent_element.age = self.current_element   if self.parent_element.respond_to?(:age)
           self.parent_element.ages << self.current_element if self.parent_element.respond_to?(:ages)
@@ -1210,12 +1206,6 @@ module Rees46ML
           end
         when "size"
           self.parent_element.sizes << self.current_element
-          stack.pop
-        when "part_type"
-          self.parent_element.part_types << self.current_element
-          stack.pop
-        when "skin_type"
-          self.parent_element.skin_types << self.current_element
           stack.pop
         when "offer"
           @consumer.call self.current_element

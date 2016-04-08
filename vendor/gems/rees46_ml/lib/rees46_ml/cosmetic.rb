@@ -1,8 +1,6 @@
 module Rees46ML
   class Cosmetic < Rees46ML::Element
 
-
-
     attribute :gender, Rees46ML::Gender, lazy: true
     attribute :hypoallergenic, Rees46ML::Boolean, lazy: true
     attribute :periodic, Rees46ML::Boolean, lazy: true

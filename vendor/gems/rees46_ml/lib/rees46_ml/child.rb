@@ -9,5 +9,9 @@ module Rees46ML
     def empty?
       type.nil? || type.empty?
     end
+
+    def type_valid?
+      TYPES.include? type
+    end
   end
 end
