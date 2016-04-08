@@ -50,18 +50,17 @@ module Rees46ML
       state :child
       state :fashion
       state :cosmetic
+      state :fmcg
       state :periodic
-      state :part_types
-      state :part_type
-      state :skin_types
-      state :skin_type
-      state :conditions
+      state :skin
+      state :hair
+      state :part
+      state :type
       state :condition
       state :hypoallergenic
       state :age
       state :gender
       state :type
-      state :brand
       state :sizes
       state :size
       state :min
@@ -431,6 +430,14 @@ module Rees46ML
         transitions from: :child, to: :offer
       end
 
+      event :start_fmcg do
+        transitions from: :offer, to: :fmcg
+      end
+
+      event :end_fmcg do
+        transitions from: :fmcg, to: :offer
+      end
+
       event :start_cosmetic do
         transitions from: :offer, to: :cosmetic
       end
@@ -441,12 +448,12 @@ module Rees46ML
 
       event :start_periodic do
         transitions from: :cosmetic, to: :periodic
-        transitions from: :child,    to: :periodic
+        transitions from: :fmcg,     to: :periodic
       end
 
       event :end_periodic do
         transitions from: :periodic, to: :cosmetic, guard: :in_cosmetic?
-        transitions from: :periodic, to: :child,    guard: :in_child?
+        transitions from: :periodic, to: :fmcg,    guard: :in_fmcg?
       end
 
       event :start_fashion do
@@ -501,12 +508,12 @@ module Rees46ML
 
       event :start_hypoallergenic do
         transitions from: :cosmetic, to: :hypoallergenic
-        transitions from: :child,    to: :hypoallergenic
+        transitions from: :fmcg,    to: :hypoallergenic
       end
 
       event :end_hypoallergenic do
         transitions from: :hypoallergenic, to: :cosmetic, guard: :in_cosmetic?
-        transitions from: :hypoallergenic, to: :child,    guard: :in_child?
+        transitions from: :hypoallergenic, to: :fmcg,    guard: :in_fmcg?
       end
 
       event :start_part_types do
@@ -575,18 +582,6 @@ module Rees46ML
         transitions from: :gender, to: :cosmetic, guard: :in_cosmetic?
       end
 
-      event :start_brand do
-        transitions from: :child,    to: :brand
-        transitions from: :fashion,  to: :brand
-        transitions from: :cosmetic, to: :brand
-      end
-
-      event :end_brand do
-        transitions from: :brand, to: :child,    guard: :in_child?
-        transitions from: :brand, to: :fashion,  guard: :in_fashion?
-        transitions from: :brand, to: :cosmetic, guard: :in_cosmetic?
-      end
-
       event :start_type do
         transitions from: :child,   to: :type
         transitions from: :fashion, to: :type
@@ -600,13 +595,11 @@ module Rees46ML
       event :start_age do
         transitions from: :offer,   to: :age
         transitions from: :child,   to: :age
-        transitions from: :fashion, to: :age
       end
 
       event :end_age do
         transitions from: :age, to: :offer,   guard: :in_offer?
         transitions from: :age, to: :child,   guard: :in_child?
-        transitions from: :age, to: :fashion, guard: :in_child?
       end
 
       event :start_min do
@@ -626,12 +619,10 @@ module Rees46ML
       end
 
       event :start_sizes do
-        transitions from: :child,   to: :sizes
         transitions from: :fashion, to: :sizes
       end
 
       event :end_sizes do
-        transitions from: :sizes, to: :child,   guard: :in_child?
         transitions from: :sizes, to: :fashion, guard: :in_fashion?
       end
 
@@ -777,10 +768,12 @@ module Rees46ML
 
       event :start_volumes do
         transitions from: :cosmetic, to: :volumes
+        transitions from: :fmcg, to: :volumes
       end
 
       event :end_volumes do
-        transitions from: :volumes, to: :cosmetic
+        transitions from: :volumes, to: :cosmetic,  guard: :in_cosmetic?
+        transitions from: :volumes, to: :fmcg,      guard: :in_fmcg?
       end
 
       event :start_volume do
@@ -1104,8 +1097,11 @@ module Rees46ML
           self.current_element = Rees46ML::Fashion.new
         when "cosmetic"
           self.current_element = Rees46ML::Cosmetic.new
+        when "fmcg"
+          self.current_element = Rees46ML::Fmcg.new
         when "volume"
-          self.current_element = Rees46ML::CosmeticVolume.new unless in_offer?
+          self.current_element = Rees46ML::CosmeticVolume.new if in_cosmetic?
+          self.current_element = Rees46ML::FmcgVolume.new if in_fmcg?
         when "age"
           self.current_element = Rees46ML::Age.new if in_offer?
           self.current_element = Rees46ML::ChildAge.new if in_child?
@@ -1194,6 +1190,9 @@ module Rees46ML
         when "fashion"
           self.parent_element.fashion = self.current_element
           stack.pop
+        when "fmcg"
+          self.parent_element.fmcg = self.current_element
+          stack.pop
         when "cosmetic"
           self.parent_element.cosmetic = self.current_element
           stack.pop
@@ -1205,7 +1204,7 @@ module Rees46ML
           self.parent_element.gender = self.current_element
           stack.pop
         when "volume"
-          unless in_offer?
+          if in_cosmetic? || in_fmcg?
             self.parent_element.volumes << self.current_element
             stack.pop
           end

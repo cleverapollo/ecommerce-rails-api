@@ -110,31 +110,38 @@ describe "check rees.xml" do
 
     expect(offer.child.age.min).to eq("0.25")
     expect(offer.child.age.max).to eq("1")
-    expect(offer.child.gender.value).to eq("u")
-    expect(offer.child.type).to eq("hygiene")
-    expect(offer.child.gender.value).to eq("u")
-    expect(offer.child.hypoallergenic).to eq(true)
-    expect(offer.child.periodic).to eq(false)
+    expect(offer.child.type).to eq("toy")
 
-    expect(offer.child.sizes).to include(Rees46ML::Size.new(value: "XL"))
-    expect(offer.child.sizes).to include(Rees46ML::Size.new(value: "S"))
-    expect(offer.child.sizes).to include(Rees46ML::Size.new(value: "M"))
-    expect(offer.child.sizes).to include(Rees46ML::Size.new(value: "48"))
+    # expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "hair"))
+    # expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "body"))
+    #
+    # expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "normal"))
+    # expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "oily"))
+    #
+    # expect(offer.child.conditions).to include("colored")
+    # expect(offer.child.conditions).to include("damaged")
 
-    expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "hair"))
-    expect(offer.child.part_types).to include(Rees46ML::PartType.new(value: "body"))
 
-    expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "normal"))
-    expect(offer.child.skin_types).to include(Rees46ML::SkinType.new(value: "oily"))
 
-    expect(offer.child.conditions).to include("colored")
-    expect(offer.child.conditions).to include("damaged")
+    expect(offer.cosmetic.gender.value).to eq("f")
+    expect(offer.cosmetic.hypoallergenic).to eq(true)
+    expect(offer.cosmetic.periodic).to eq(true)
+    # skin_parts
+    # skin_types
+    # skin_conditions
+    # hair_types
+    # hair_conditions
+    # volumes
+
+    expect(offer.fmcg.hypoallergenic).to eq(true)
+    expect(offer.fmcg.periodic).to eq(true)
+    # volumes
+
 
     expect(offer.fashion.type).to eq("shirt")
     expect(offer.fashion.feature).to eq("adult")
     expect(offer.fashion.gender.value).to eq("f")
     expect(offer.fashion.sizes.count).to eq(4)
-
     expect(offer.fashion.sizes).to include(Rees46ML::Size.new(value: "XL"))
     expect(offer.fashion.sizes).to include(Rees46ML::Size.new(value: "S"))
     expect(offer.fashion.sizes).to include(Rees46ML::Size.new(value: "M"))

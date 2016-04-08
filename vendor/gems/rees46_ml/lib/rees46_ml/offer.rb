@@ -79,6 +79,7 @@ module Rees46ML
     attribute :child, Rees46ML::Child, lazy: true
     attribute :fashion, Rees46ML::Fashion, lazy: true
     attribute :cosmetic, Rees46ML::Cosmetic, lazy: true
+    attribute :fmcg, Rees46ML::Fmcg, lazy: true
     attribute :pictures, Set[URL], lazy: true # Почему-то не срабатывает тут url.rb с очисткой левых символов
 
     attribute :locations, Set, lazy: true
@@ -90,6 +91,12 @@ module Rees46ML
       if cosmetic? && cosmetic.invalid?
         cosmetic.errors.full_messages.each do |msg|
           errors.add(:base, "Cosmetic Error: #{ msg }")
+        end
+      end
+
+      if fmcg? && fmcg.invalid?
+        fmcg.errors.full_messages.each do |msg|
+          errors.add(:base, "FMCG Error: #{ msg }")
         end
       end
 
@@ -120,6 +127,10 @@ module Rees46ML
 
     def cosmetic?
       cosmetic.present?
+    end
+
+    def fmcg?
+      fmcg.present?
     end
 
     def to_xml
