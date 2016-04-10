@@ -1,6 +1,7 @@
 ##
 # Корзины и покупки. Используются в коллаборативке
-#
+# @deprecated
+##
 class MahoutAction
 
   MAHOUT_QUEUE_RELINK_USER = 'rees46.cf.relink_user'
