@@ -305,9 +305,6 @@ class Item < ActiveRecord::Base
         if offer.cosmetic.hair.condition.present? && offer.cosmetic.hair.condition.to_a.any?
           item.cosmetic_hair_condition = offer.cosmetic.hair.condition.to_a
         end
-        # item.part_type = offer.cosmetic.part_types.map(&:value) if offer.cosmetic.part_types
-        # item.skin_type = offer.cosmetic.skin_types.map(&:value) if offer.cosmetic.skin_types
-        # item.condition = offer.cosmetic.conditions.map.to_a if offer.cosmetic.conditions
       else
         item.is_cosmetic = nil
       end

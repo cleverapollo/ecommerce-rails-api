@@ -120,22 +120,22 @@ class Shop < MasterTable
   end
 
   def import
-    # begin
+    begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
-    # rescue Yml::NoXMLFileInArchiveError => e
-    #   Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
-    #   ErrorsMailer.yml_url_not_respond(self).deliver_now
-    #   increment!(:yml_errors)
-    # rescue ActiveRecord::RecordNotUnique => e
-    #   Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
-    #   ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
-    #   increment!(:yml_errors)
-    # rescue Exception => e
-    #   ErrorsMailer.yml_import_error(self, e).deliver_now
-    #   Rollbar.warning(e, "YML process error", shop_id: id)
-    #   increment!(:yml_errors)
-    # end
+    rescue Yml::NoXMLFileInArchiveError => e
+      Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
+      ErrorsMailer.yml_url_not_respond(self).deliver_now
+      increment!(:yml_errors)
+    rescue ActiveRecord::RecordNotUnique => e
+      Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
+      ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
+      increment!(:yml_errors)
+    rescue Exception => e
+      ErrorsMailer.yml_import_error(self, e).deliver_now
+      Rollbar.warning(e, "YML process error", shop_id: id)
+      increment!(:yml_errors)
+    end
   end
 
   def first_event?
