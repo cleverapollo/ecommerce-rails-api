@@ -12,7 +12,7 @@ class OrdersImportWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
-  # attr_accessor :mahout_service
+  attr_accessor :mahout_service
   attr_accessor :import_status_messages
 
   def perform(opts)
@@ -35,7 +35,7 @@ class OrdersImportWorker
       end
 
       # Connect to BRB
-      # @mahout_service = MahoutService.new(@current_shop.brb_address)
+      @mahout_service = MahoutService.new(@current_shop.brb_address)
 
       opts['orders'].each do |order|
 
@@ -157,8 +157,7 @@ class OrdersImportWorker
         action.update(rating: 5.0, purchase_count: 1)
 
         # Send rate to BRB
-        action.save_to_mahout
-        # mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
+        mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
 
       end
     rescue PG::UniqueViolation => e
