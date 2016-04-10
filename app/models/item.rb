@@ -20,7 +20,7 @@ class Item < ActiveRecord::Base
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = { any: false }) {
     if categories && categories.any?
-      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } category_ids", categories)
+      where("category_ids IS NOT NULL AND ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } category_ids", categories)
     else
       all
     end
@@ -50,27 +50,41 @@ class Item < ActiveRecord::Base
       image_url
       widgetable
       brand
-      categories
       ignored
       type_prefix
       vendor_code
       model
-      gender
-      wear_type
-      feature
-      sizes
-      age_min
-      age_max
-      hypoallergenic
+      fashion_gender
+      child_gender
+      child_type
+      child_age_min
+      child_age_max
+      fashion_wear_type
+      fashion_feature
+      fashion_sizes
+      fmcg_hypoallergenic
       part_type
       skin_type
       condition
-      volume
-      periodic
+      fmcg_volume
+      fmcg_periodic
       barcode
       category_ids
       location_ids
       locations
+      cosmetic_gender
+      cosmetic_hypoallergenic
+      cosmetic_part_type
+      cosmetic_skin_type
+      cosmetic_skin_condition
+      cosmetic_hair_type
+      cosmetic_hair_condition
+      cosmetic_volume
+      cosmetic_periodic
+      is_cosmetic
+      is_child
+      is_fashion
+      is_fmcg
     ].sort
   end
 
@@ -105,7 +119,7 @@ class Item < ActiveRecord::Base
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
         price_margin: ValuesHelper.present_one(new_item, self, :price_margin),
-        categories: ValuesHelper.with_contents(new_item, self, :categories),
+        category_ids: ValuesHelper.with_contents(new_item, self, :category_ids),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
         description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
         url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
@@ -116,18 +130,18 @@ class Item < ActiveRecord::Base
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
         model: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :model)),
-        gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :gender)),
-        wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :wear_type)),
-        feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :feature)),
-        sizes: ValuesHelper.present_one(new_item, self, :sizes),
-        age_min: ValuesHelper.present_one(new_item, self, :age_min),
-        age_max: ValuesHelper.present_one(new_item, self, :age_max),
-        hypoallergenic: ValuesHelper.present_one(new_item, self, :hypoallergenic),
-        periodic: ValuesHelper.present_one(new_item, self, :periodic),
+        fashion_gender: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :fashion_gender)),
+        fashion_wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :fashion_wear_type)),
+        fashion_feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :fashion_feature)),
+        fashion_sizes: ValuesHelper.present_one(new_item, self, :fashion_sizes),
+        child_age_min: ValuesHelper.present_one(new_item, self, :child_age_min),
+        child_age_max: ValuesHelper.present_one(new_item, self, :child_age_max),
+        cosmetic_hypoallergenic: ValuesHelper.present_one(new_item, self, :cosmetic_hypoallergenic),
+        cosmetic_periodic: ValuesHelper.present_one(new_item, self, :cosmetic_periodic),
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
         condition: ValuesHelper.present_one(new_item, self, :condition),
-        volume: ValuesHelper.present_one(new_item, self, :volume),
+        fmcg_volume: ValuesHelper.present_one(new_item, self, :fmcg_volume),
         barcode: ValuesHelper.present_one(new_item, self, :barcode)
     }
 
@@ -145,6 +159,16 @@ class Item < ActiveRecord::Base
   # Доступен для отображения?
   def widgetable?
     !!widgetable || (price.present? && name.present? && url.present? && image_url.present?)
+  end
+
+  # Периодичный ли товар?
+  def periodic?
+    (is_fmcg && fmcg_periodic == true) || (is_cosmetic && cosmetic_periodic == true)
+  end
+
+  # Гипоаллергенный ли товар?
+  def hypoallergenic?
+    (is_fmcg && fmcg_hypoallergenic == true) || (is_cosmetic && cosmetic_hypoallergenic == true)
   end
 
   # Выключает товар
@@ -228,9 +252,10 @@ class Item < ActiveRecord::Base
       item.barcode = offer.barcodes.first
 
       if offer.fashion?
-        item.feature = offer.fashion.feature
-        item.wear_type = offer.fashion.type
-        item.gender = offer.fashion.gender.value if offer.fashion.gender
+        item.is_fashion = true
+        item.fashion_feature = offer.fashion.feature
+        item.fashion_wear_type = offer.fashion.type
+        item.fashion_gender = offer.fashion.gender.value if offer.fashion.gender
 
         if offer.fashion.gender && offer.fashion.type
           size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
@@ -240,26 +265,36 @@ class Item < ActiveRecord::Base
             _sizes = offer.fashion.sizes.map { |size|
               size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
             }.compact
-            item.sizes = _sizes && _sizes.any? ? _sizes : nil
+            item.fashion_sizes = _sizes && _sizes.any? ? _sizes : nil
           end
         end
+      else
+        item.is_fashion = nil
+      end
 
-      elsif offer.child?
-        item.hypoallergenic = offer.child.hypoallergenic
-        item.gender = offer.child.gender.value if offer.child.gender
-        item.periodic = offer.child.periodic
-        item.age_min = offer.child.age.min
-        item.age_max = offer.child.age.max
-        item.part_type = offer.child.part_types.map(&:value) if offer.child.part_types
-        item.skin_type = offer.child.skin_types.map(&:value) if offer.child.skin_types
-        item.condition = offer.child.conditions.map(&:value) if offer.child.conditions
-      elsif offer.cosmetic?
-        item.gender = offer.cosmetic.gender.value if offer.cosmetic.gender
-        item.hypoallergenic = offer.cosmetic.hypoallergenic
-        item.periodic = offer.cosmetic.periodic
-        item.part_type = offer.cosmetic.part_types.map(&:value) if offer.cosmetic.part_types
-        item.skin_type = offer.cosmetic.skin_types.map(&:value) if offer.cosmetic.skin_types
-        item.condition = offer.cosmetic.conditions.map.to_a if offer.cosmetic.conditions
+      if offer.child?
+        item.is_child = true
+        item.child_type = offer.child.type if offer.child.type && offer.child.type_valid?
+        item.child_gender = offer.child.gender.value if offer.child.gender && offer.child.gender.valid?
+        item.child_age_min = offer.child.age.min
+        item.child_age_max = offer.child.age.max
+        # item.part_type = offer.child.part_types.map(&:value) if offer.child.part_types
+        # item.skin_type = offer.child.skin_types.map(&:value) if offer.child.skin_types
+        # item.condition = offer.child.conditions.map(&:value) if offer.child.conditions
+      else
+        item.is_child = nil
+      end
+
+      if offer.cosmetic?
+        item.is_cosmetic = true
+        item.cosmetic_gender = offer.cosmetic.gender.value if offer.cosmetic.gender
+        item.cosmetic_hypoallergenic = offer.cosmetic.hypoallergenic
+        item.cosmetic_periodic = offer.cosmetic.periodic
+        # item.part_type = offer.cosmetic.part_types.map(&:value) if offer.cosmetic.part_types
+        # item.skin_type = offer.cosmetic.skin_types.map(&:value) if offer.cosmetic.skin_types
+        # item.condition = offer.cosmetic.conditions.map.to_a if offer.cosmetic.conditions
+      else
+        item.is_cosmetic = nil
       end
 
       item.brand = offer.vendor

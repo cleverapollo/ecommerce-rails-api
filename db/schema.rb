@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160401112726) do
+ActiveRecord::Schema.define(version: 20160407120910) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -237,7 +237,7 @@ ActiveRecord::Schema.define(version: 20160401112726) do
     t.text    "image_url"
     t.boolean "widgetable",                           default: false, null: false
     t.string  "brand",                   limit: 255
-    t.string  "categories",                           default: [],                 array: true
+    t.string  "old_fucking_categories",               default: [],                 array: true
     t.boolean "ignored",                              default: false, null: false
     t.jsonb   "locations",                            default: {},    null: false
     t.float   "sr"
@@ -245,22 +245,22 @@ ActiveRecord::Schema.define(version: 20160401112726) do
     t.string  "type_prefix"
     t.string  "vendor_code"
     t.string  "model"
-    t.string  "gender",                  limit: 1
-    t.string  "wear_type",               limit: 20
-    t.string  "feature",                 limit: 20
-    t.float   "age_min"
-    t.float   "age_max"
-    t.boolean "hypoallergenic"
+    t.string  "fashion_gender",          limit: 1
+    t.string  "fashion_wear_type",       limit: 20
+    t.string  "fashion_feature",         limit: 20
+    t.float   "child_age_min"
+    t.float   "child_age_max"
+    t.boolean "fmcg_hypoallergenic"
     t.string  "part_type",                                                         array: true
     t.string  "skin_type",                                                         array: true
     t.string  "condition",                                                         array: true
-    t.jsonb   "volume"
-    t.boolean "periodic"
+    t.jsonb   "fmcg_volume"
+    t.boolean "fmcg_periodic"
     t.string  "barcode",                 limit: 1914
     t.string  "category_ids",                                                      array: true
     t.string  "location_ids",                                                      array: true
     t.integer "price_margin"
-    t.string  "sizes",                                                             array: true
+    t.string  "fashion_sizes",                                                     array: true
     t.string  "cosmetic_gender",         limit: 1
     t.boolean "cosmetic_hypoallergenic"
     t.string  "cosmetic_part_type",                                                array: true
@@ -270,22 +270,33 @@ ActiveRecord::Schema.define(version: 20160401112726) do
     t.string  "cosmetic_hair_condition",                                           array: true
     t.jsonb   "cosmetic_volume"
     t.boolean "cosmetic_periodic"
+    t.boolean "is_cosmetic"
+    t.boolean "is_child"
+    t.boolean "is_fashion"
+    t.string  "child_gender",            limit: 1
+    t.string  "child_type"
+    t.boolean "is_fmcg"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
-  add_index "items", ["categories"], name: "index_items_on_categories", using: :gin
-  add_index "items", ["categories"], name: "index_items_on_categories_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["category_ids"], name: "index_items_on_category_ids", using: :gin
+  add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
+  add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["is_cosmetic"], name: "index_items_on_is_cosmetic", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["old_fucking_categories"], name: "index_items_on_categories_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["old_fucking_categories"], name: "index_items_on_old_fucking_categories", using: :gin
   add_index "items", ["price"], name: "index_items_on_price", where: "(((is_available = true) AND (ignored = false)) AND (price IS NOT NULL))", using: :btree
-  add_index "items", ["shop_id", "gender"], name: "index_items_on_shop_id_and_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "(((price_margin IS NOT NULL) AND (is_available IS TRUE)) AND (ignored IS FALSE))", using: :btree
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id"], name: "widgetable_shop", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
-  add_index "items", ["sizes", "wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((sizes IS NOT NULL) AND (wear_type IS NOT NULL)))", using: :gin
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false

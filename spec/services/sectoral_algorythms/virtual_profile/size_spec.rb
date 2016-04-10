@@ -7,7 +7,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
     let!(:size_user) { create(:user) }
 
     context 'when cold' do
-      let(:item) { create(:item, shop: shop, sizes: ['e42', 'r44']) }
+      let(:item) { create(:item, shop: shop, fashion_sizes: ['e42', 'r44']) }
 
       subject { SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value }
 
@@ -19,10 +19,10 @@ describe SectoralAlgorythms::VirtualProfile::Size do
     context 'when have views ' do
       subject { SectoralAlgorythms::VirtualProfile::Size.new(user.profile).value }
 
-      let(:male_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, sizes: ['r42', 'e44', 'M', 'b5'], wear_type: size_type) } }
-      let(:male_small_items_size) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, gender: 'm', sizes: ['42', '44'], wear_type: size_type) } }
-      let!(:male_small_items_size_50) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, gender: 'm', sizes: ['50', '52'], wear_type: size_type) } }
-      let(:female_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, gender: 'f', sizes: ['r38', 'e36', 'M', 'b4'], wear_type: size_type) } }
+      let(:male_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, fashion_sizes: ['r42', 'e44', 'M', 'b5'], fashion_wear_type: size_type) } }
+      let(:male_small_items_size) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, fashion_gender: 'm', fashion_sizes: ['42', '44'], fashion_wear_type: size_type) } }
+      let!(:male_small_items_size_50) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, fashion_gender: 'm', fashion_sizes: ['50', '52'], fashion_wear_type: size_type) } }
+      let(:female_small_items) { SizeHelper::SIZE_TYPES.map { |size_type| create(:item, shop: shop, fashion_gender: 'f', fashion_sizes: ['r38', 'e36', 'M', 'b4'], fashion_wear_type: size_type) } }
 
       context 'when user small view' do
         subject {
@@ -50,7 +50,7 @@ describe SectoralAlgorythms::VirtualProfile::Size do
         it 'correctly modify by type_size' do
           subject
           algo = SectoralAlgorythms::VirtualProfile::Size.new(size_user.profile)
-          expect(algo.modify_relation_with_rollback(Item.where(gender:'m')).pluck(:sizes).flatten.uniq).not_to include('50', '52')
+          expect(algo.modify_relation_with_rollback(Item.where(fashion_gender:'m')).pluck(:fashion_sizes).flatten.uniq).not_to include('50', '52')
         end
       end
 

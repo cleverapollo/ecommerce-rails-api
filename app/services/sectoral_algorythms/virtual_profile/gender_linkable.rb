@@ -2,7 +2,7 @@ module SectoralAlgorythms
   module VirtualProfile
     module GenderLinkable
       def link_create_gender(item)
-        item_gender = item.try(:gender)
+        item_gender = item.try(:fashion_gender)
         profile_gender = current_gender
         if item_gender && profile_gender && item_gender!=profile_gender
           linked_profile = @profile.linked_gender_profile
@@ -13,7 +13,8 @@ module SectoralAlgorythms
 
 
       def link_gender(item)
-        item_gender = item.try(:gender)
+        # TODO: тут полов может быть много в разных секциях, поэтому пересмотреть алгоритм
+        item_gender = item.try(:fashion_gender)
         profile_gender = current_gender
         if item_gender && profile_gender && item_gender!=profile_gender
           linked_profile = @profile.linked_gender_profile

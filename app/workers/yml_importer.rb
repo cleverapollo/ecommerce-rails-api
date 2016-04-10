@@ -33,9 +33,8 @@ class YmlImporter
             new_item.category_ids = category_ids
             new_item.location_ids = location_ids.uniq
             new_item.locations = locations
-            new_item.categories = category_ids
-            (new_item.wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
-            (new_item.wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
+            (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
+            (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
             (new_item.brand ||= brands.detect{ |brand| brand.match? new_item.name }.try(:name)) if new_item.name.present?
 
             csv << new_item.csv_row

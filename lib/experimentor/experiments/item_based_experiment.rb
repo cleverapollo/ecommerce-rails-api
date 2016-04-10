@@ -13,11 +13,11 @@ module Experimentor
         end
 
         100.times do |i|
-          create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{1}", brand: 'datakam', gender:'f')
+          create(:item, shop: local_shop, sales_rate: rand(100..200), category_ids: "{1}", brand: 'datakam', gender:'f')
         end
 
         100.times do |i|
-          create(:item, shop: local_shop, sales_rate: rand(100..200), categories: "{2}", brand: 'datakam')
+          create(:item, shop: local_shop, sales_rate: rand(100..200), category_ids: "{2}", brand: 'datakam')
         end
 
         ItemCategory.create!(shop_id: local_shop.id, name: "Видеорегисраторы", external_id: '1')

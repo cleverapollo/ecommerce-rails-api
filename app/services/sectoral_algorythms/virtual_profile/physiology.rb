@@ -32,7 +32,7 @@ module SectoralAlgorythms
       def increment_history(item, history_key)
 
         part_types = item.try(:part_type)
-        gender = item.try(:gender)
+        gender = item.try(:cosmetic_gender)
 
         if part_types && gender
           @physiology['history'] ||= {}
@@ -58,7 +58,7 @@ module SectoralAlgorythms
                 end
               end
 
-              hypoallergenic=item.try(:hypoallergenic)
+              hypoallergenic = item.hypoallergenic?
 
               if hypoallergenic.present?
                 @physiology['history'][gender][part_type]['hypoallergenic']||={}

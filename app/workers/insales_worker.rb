@@ -78,7 +78,7 @@ class InsalesWorker
           {
             'id' => order_line['product_id'],
             'price' => order_line['sale_price'],
-            'categories' => [@categories_cache[order_line['product_id'].to_i]],
+            'category_ids' => [@categories_cache[order_line['product_id'].to_i]],
             'is_available' => true,
             'amount' => order_line['quantity']
           }

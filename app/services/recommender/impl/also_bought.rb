@@ -10,7 +10,7 @@ module Recommender
         if params.modification.present?
           result = super
           if params.fashion? || params.cosmetic?
-            if ['m', 'f'].include?(item.gender)
+            if ['m', 'f'].include?(item.fashion_gender)
              gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
              result = gender_algo.modify_relation_with_rollback(result)
              # Если fashion - дополнительно фильтруем по размеру
@@ -42,10 +42,11 @@ module Recommender
 
         # Исключаем товары, которые находятся ровно в том же наборе категорий
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
-        if ids.any? && item && item.categories
+        if ids.any? && item && item.category_ids
           _ids = []
-          Item.recommendable.where(id: ids).pluck(:id, :categories).each do |_element|
-            unless (item.categories - _element[1]).empty?
+          Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
+            if _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
+            # unless (item.category_ids - _element[1]).empty?
               _ids << _element[0]
             end
           end
@@ -80,7 +81,7 @@ module Recommender
 
       def inject_promotions(result)
          #Промо только в категориях товара выдачи
-         @categories_for_promo = Item.where(id:result).pluck(:categories).flatten.compact.uniq
+         @categories_for_promo = Item.where(id:result).pluck(:category_ids).flatten.compact.uniq
          super(result, true)
       end
 

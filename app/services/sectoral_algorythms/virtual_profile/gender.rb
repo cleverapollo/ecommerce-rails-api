@@ -23,20 +23,20 @@ module SectoralAlgorythms
       def trigger_view(item)
         link_gender(item)
         increment_history(item, 'views')
-        ProfileEvent.track item, 'views'
+        ProfileEvent.track item, 'views', 'gender'
       end
 
       def trigger_purchase(item)
         # Ищем связанный профиль противоположного пола
         link_create_gender(item)
         increment_history(item, 'purchase')
-        ProfileEvent.track item, 'purchases'
+        ProfileEvent.track item, 'purchases', 'gender'
       end
 
       def increment_history(item, history_key)
-        if item.try(:gender)
+        if item.try(:fashion_gender)
           @gender['history'] ||= default_history
-          @gender['history'][item.gender][history_key] += 1 if @gender['history'][item.gender].present?
+          @gender['history'][item.fashion_gender][history_key] += 1 if @gender['history'][item.fashion_gender].present?
         end
       end
 
@@ -73,7 +73,8 @@ module SectoralAlgorythms
       end
 
       def filter_by_opposite_gender(gender, relation)
-        return relation.where('gender!=? or gender IS NULL', gender) if gender
+        # TODO: учитывать, что пол бывает разный у товара
+        return relation.where('fashion_gender!=? or fashion_gender IS NULL', gender) if gender
         relation
       end
 

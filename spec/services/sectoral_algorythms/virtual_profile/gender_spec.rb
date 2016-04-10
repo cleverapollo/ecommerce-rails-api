@@ -6,7 +6,7 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
      let!(:user) { create(:user) }
 
     context 'when cold' do
-      let(:item) { create(:item, shop: shop, gender:'m') }
+      let(:item) { create(:item, shop: shop, fashion_gender:'m') }
 
       subject { SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value }
 
@@ -22,8 +22,8 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
       subject { SectoralAlgorythms::VirtualProfile::Gender.new(user.profile).value }
 
       context 'when user male view' do
-        let(:male_item) { create(:item, shop: shop, gender: 'm') }
-        let(:female_item) { create(:item, shop: shop, gender: 'f') }
+        let(:male_item) { create(:item, shop: shop, fashion_gender: 'm') }
+        let(:female_item) { create(:item, shop: shop, fashion_gender: 'f') }
 
 
         subject {
@@ -40,8 +40,8 @@ describe SectoralAlgorythms::VirtualProfile::Gender do
       end
 
       context 'when user female purchase' do
-        let(:male_item) { create(:item, shop: shop, gender: 'm') }
-        let(:female_item) { create(:item, shop: shop, gender: 'f') }
+        let(:male_item) { create(:item, shop: shop, fashion_gender: 'm') }
+        let(:female_item) { create(:item, shop: shop, fashion_gender: 'f') }
 
 
         before {

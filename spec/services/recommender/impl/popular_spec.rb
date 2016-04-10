@@ -10,7 +10,7 @@ describe Recommender::Impl::Popular do
 
   10.times do |i|
     let!("user#{i}".to_sym) { create(:user) }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), categories: "{1}") }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), category_ids: "{1}") }
   end
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'experiment') }

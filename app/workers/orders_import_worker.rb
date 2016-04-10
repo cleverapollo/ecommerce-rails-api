@@ -125,7 +125,7 @@ class OrdersImportWorker
     item_raw['price'] = 0.0 if item_raw['price'].blank?
 
     # Вытаскиваем массив категорий, как бы их не назвал тот, кто вызвал импорт
-    item_raw['categories'] = ([item_raw['category']] +
+    item_raw['category_ids'] = ([item_raw['category']] +
         [item_raw['category_id']] +
         [item_raw['category_uniqid']] +
         [item_raw['categories']] +

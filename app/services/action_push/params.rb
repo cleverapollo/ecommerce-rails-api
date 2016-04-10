@@ -184,9 +184,9 @@ module ActionPush
 
           item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
           item_attributes.price = raw_price
-          item_attributes.category = raw[:category][i].to_s if raw[:category][i].present?
-          item_attributes.categories = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
-          item_attributes.categories = (item_attributes.categories + [item_attributes.category]).uniq.compact
+          item_attributes.category_id = raw[:category][i].to_s if raw[:category][i].present?
+          item_attributes.category_ids = raw[:categories][i].present? ? raw[:categories][i].split(',') : []
+          item_attributes.category_ids = (item_attributes.category_ids + [item_attributes.category_id]).uniq.compact
 
           item_attributes.name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
           item_attributes.description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''

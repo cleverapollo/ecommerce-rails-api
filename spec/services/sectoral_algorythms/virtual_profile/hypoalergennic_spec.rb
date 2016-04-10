@@ -6,7 +6,7 @@ describe SectoralAlgorythms::VirtualProfile::Physiology do
     let!(:user) { create(:user) }
 
     context 'when cold' do
-      let(:item) { create(:item, shop: shop, part_type: ['hair', 'face'], hypoallergenic:1) }
+      let(:item) { create(:item, shop: shop, part_type: ['hair', 'face'], is_cosmetic: true, cosmetic_hypoallergenic: 1) }
 
       subject { SectoralAlgorythms::VirtualProfile::Physiology.new(user.profile).value }
 
@@ -16,8 +16,8 @@ describe SectoralAlgorythms::VirtualProfile::Physiology do
     end
 
     context 'when have views hypo' do
-      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender:'m', skin_type: ['dry', 'normal'], part_type: [part_type], hypoallergenic:1) } }
-      let(:female_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, gender: 'f', skin_type: ['oily', 'comby'], part_type: [part_type], hypoallergenic:1) } }
+      let(:male_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, cosmetic_gender:'m', skin_type: ['dry', 'normal'], part_type: [part_type], is_cosmetic: true, cosmetic_hypoallergenic:1) } }
+      let(:female_items) { SectoralAlgorythms::VirtualProfile::Physiology::PART_TYPES.map { |part_type| create(:item, shop: shop, cosmetic_gender: 'f', skin_type: ['oily', 'comby'], part_type: [part_type], is_cosmetic: true, cosmetic_hypoallergenic:1) } }
 
       context 'when user view hypo' do
         subject {
