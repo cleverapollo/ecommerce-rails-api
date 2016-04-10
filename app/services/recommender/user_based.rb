@@ -63,7 +63,7 @@ module Recommender
       # Не лезем к BRB, если магазину запрещено его использовать
       return [] unless params.shop.use_brb?
 
-      if ms.tunnel && ms.tunnel.active?
+      if ms.socket && ms.socket_active?
         # Коллаборативка в контексте текущего товара - как будто пользователь этот товар уже купил
         r = ms.user_based(params.user.id,
                           params.shop.id,
