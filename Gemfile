@@ -40,7 +40,6 @@ gem 'httparty', '~> 0.12.0'
 gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
-gem 'jimson'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false

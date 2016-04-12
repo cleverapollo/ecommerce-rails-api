@@ -35,7 +35,7 @@ module TriggerMailings
                 shop.clients.ready_for_second_abandoned_cart(shop).find_each do |client|
                   begin
                     if trigger = trigger_detector.detect(client)
-                      if mailings_settings.external_getresponse?
+                      if shop.mailings_settings.external_getresponse?
                         TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                       else
                         TriggerMailings::Letter.new(client, trigger).send
@@ -53,7 +53,7 @@ module TriggerMailings
               shop.clients.ready_for_trigger_mailings(shop).find_each do |client|
                 begin
                   if trigger = trigger_detector.detect(client)
-                    if mailings_settings.external_getresponse?
+                    if shop.mailings_settings.external_getresponse?
                       TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                     else
                       TriggerMailings::Letter.new(client, trigger).send
