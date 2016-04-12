@@ -20,13 +20,10 @@ module TriggerMailings
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
               # Настройки рассылки для тех, кто использует внешний транспорт
-              mailings_settings = shop.mailings_settings
-              if mailings_settings.external_getresponse?
-                get_response_client = Mailings::GetResponseClient.new shop
+              if shop.mailings_settings.external_getresponse?
                 begin
-                  get_response_client.prepare
+                  get_response_client = Mailings::GetResponseClient.new(shop).prepare
                 rescue StandardError => e
-                  # Get Response не работает - либо не пингуется либо нет нужной нам кампании, так что пропускаем рассылку
                   # TODO уведомлять клиента по почте
                   Rollbar.error(e)
                   next
