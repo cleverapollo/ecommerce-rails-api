@@ -12,9 +12,6 @@ Rees46Api::Application.routes.draw do
   # Запрос рекомендаций
   get 'recommend', to: 'recommendations#get'
 
-  # Временное отслеживание эффективности ЦУМа
-  post 'track_tsum', to: 'events#track_tsum'
-
   # Отправка событий
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'

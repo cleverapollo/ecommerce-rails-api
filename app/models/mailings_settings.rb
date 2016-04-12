@@ -3,6 +3,10 @@
 #
 class MailingsSettings < ActiveRecord::Base
 
+  MAILING_SERVICES = [['REES46', 0], ['GetResponse', 1]]
+  MAILING_SERVICE_REES46 = 0
+  MAILING_SERVICE_GETRESPONSE = 1
+
   belongs_to :shop
 
   validates :shop, presence: true
@@ -14,6 +18,11 @@ class MailingsSettings < ActiveRecord::Base
 
   def enabled?
     !shop.restricted?
+  end
+
+  # Проверяет, настроен ли внешний сервис рассылок GetResponse
+  def external_getresponse?
+    mailing_service == MAILING_SERVICE_GETRESPONSE && getresponse_api_key.present? && getresponse_api_url.present?
   end
 
   def fetch_logo_url

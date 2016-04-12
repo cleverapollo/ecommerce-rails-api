@@ -19,12 +19,30 @@ module TriggerMailings
 
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
+              # Настройки рассылки для тех, кто использует внешний транспорт
+              mailings_settings = shop.mailings_settings
+              if mailings_settings.external_getresponse?
+                get_response_client = Mailings::GetResponseClient.new shop
+                begin
+                  get_response_client.prepare
+                rescue StandardError => e
+                  # Get Response не работает - либо не пингуется либо нет нужной нам кампании, так что пропускаем рассылку
+                  # TODO уведомлять клиента по почте
+                  Rollbar.error(e)
+                  next
+                end
+              end
+
               # Сначала перебираем вторые брошенные корзины
               if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
                 shop.clients.ready_for_second_abandoned_cart(shop).find_each do |client|
                   begin
                     if trigger = trigger_detector.detect(client)
-                      TriggerMailings::Letter.new(client, trigger).send
+                      if mailings_settings.external_getresponse?
+                        TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                      else
+                        TriggerMailings::Letter.new(client, trigger).send
+                      end
                       client.update_columns(last_trigger_mail_sent_at: Time.now)
                       client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
                     end
@@ -38,7 +56,11 @@ module TriggerMailings
               shop.clients.ready_for_trigger_mailings(shop).find_each do |client|
                 begin
                   if trigger = trigger_detector.detect(client)
-                    TriggerMailings::Letter.new(client, trigger).send
+                    if mailings_settings.external_getresponse?
+                      TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                    else
+                      TriggerMailings::Letter.new(client, trigger).send
+                    end
                     client.update_columns(last_trigger_mail_sent_at: Time.now)
                     client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
                   end
@@ -46,29 +68,6 @@ module TriggerMailings
                   Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
                 end
               end
-
-              # delete 01.04.2016
-              # clients =
-              #   if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
-              #     ( shop.clients.ready_for_trigger_mailings(shop) + shop.clients.ready_for_second_abandoned_cart(shop) ).uniq
-              #   else
-              #     shop.clients.ready_for_trigger_mailings(shop)
-              #   end
-              #
-              # clients.each do |client|
-              #
-              #   begin
-              #     if trigger = trigger_detector.detect(client)
-              #       TriggerMailings::Letter.new(client, trigger).send
-              #       client.update_columns(last_trigger_mail_sent_at: Time.now)
-              #       client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
-              #     end
-              #   rescue StandardError => e
-              #     Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
-              #   end
-              #
-              # end
-
 
             end
           end

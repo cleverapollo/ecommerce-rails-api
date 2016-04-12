@@ -39,10 +39,6 @@ class InitController < ApplicationController
       client = Client.find_by!(user_id: session.user_id, shop_id: shop.id)
     end
 
-    if shop.id == 992 && params[:tsum_segment].present?
-      TsumSegment.track session_id, params[:tsum_segment]
-    end
-
     render js: InitServerString.make(shop: shop, session: session, client: client)
   end
 
