@@ -2,9 +2,7 @@ class MahoutService
   BRB_ADDRESS = 'localhost:5555'
   SOCKET_PATH = Rails.env.development? ? '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock' : '/home/rails/rees46_recommendations/socket_file.sock'
 
-  attr_reader :tunnel
   attr_reader :socket
-
 
   def initialize(brb_adress = nil)
     # @brb_address = brb_adress
@@ -33,7 +31,7 @@ class MahoutService
   def close
     unless Rails.env.test?
       # EM.stop if EM.reactor_running?
-      @socket.close if socket.present? && !socket.closed?
+      socket.close if socket.present? && !socket.closed?
     end
   end
 
@@ -66,7 +64,7 @@ class MahoutService
           return []
         end
 
-        res = JSON.parse(res).values
+        res = JSON.parse(res).values if res.present?
       elsif preferences.none?
         res = []
       else
@@ -125,37 +123,28 @@ class MahoutService
           close
         rescue Errno::EPIPE => e
           return false
+        rescue error
+          Rollbar.error(error)
+          return false
         end
       end
     end
   end
 
-  # TODO
   def relink_user(from, to, use_socket = true)
     unless Rails.env.test?
       if use_socket && socket_active?
-        socket.puts({ function: 'relink_user', from: from, to: to }.to_json)
-        close
-      end
-    end
-  end
-
-
-
-  def tunnel_active?
-    unless Rails.env.test?
-      if tunnel && tunnel.active?
-        return true
-      else
-        if open
-          return tunnel && tunnel.active?
-        else
-          false
+        begin
+          socket.puts({ function: 'relink_user', from: from, to: to }.to_json)
+          close
+        rescue Errno::EPIPE => e
+          return false
+        rescue error
+          Rollbar.error(error)
+          return false
         end
       end
-     else
-       false
-     end
+    end
   end
 
   def socket_active?
@@ -169,8 +158,8 @@ class MahoutService
           false
         end
       end
-     else
-       false
-     end
+    else
+      false
+    end
   end
 end
