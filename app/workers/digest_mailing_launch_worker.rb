@@ -38,7 +38,7 @@ class DigestMailingLaunchWorker
       if digest_mailing.batches.incomplete.none?
         # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
         audience_relation.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
-          digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
+          digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id, activity_segment: digest_mailing.activity_segment)
         end
       end
 

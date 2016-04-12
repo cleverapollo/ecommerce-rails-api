@@ -4,8 +4,10 @@ describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
   let!(:settigns) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
-  let!(:client) { create(:client, shop: shop, email: 'test@example.com') }
+  let!(:client) { create(:client, shop: shop, email: 'test@example.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
+  let!(:batch_without_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
+  let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop, activity_segment: 1) }
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do
@@ -53,6 +55,23 @@ describe DigestMailingBatchWorker do
       expect(letter_body.to_s).to include(DigestMail.first.tracking_url)
     end
   end
+
+  describe '#perform with activity segment' do
+
+    it 'sends an email' do
+      subject.perform(batch_without_segment.id)
+      expect(batch_without_segment.reload.digest_mails.count).to eq(1)
+    end
+
+    it 'does not send an email for client from another segment' do
+      client.update activity_segment: nil
+      subject.perform(batch_with_segment.id)
+      expect(batch_with_segment.reload.digest_mails.count).to eq(0)
+    end
+
+  end
+
+
 
   describe '#letter_body' do
     let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }

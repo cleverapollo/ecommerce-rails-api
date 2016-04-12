@@ -21,7 +21,7 @@ module TriggerMailings
 
     # Уведомляем API GetResponse о том, что сработал новый триггер
     def send
-      get_response_client.add_contact(client.email, trigger.mailing.trigger_type, trigger_mail.code)
+      api.add_contact(client.email, trigger.mailing.trigger_type, trigger_mail.code)
     end
 
 
