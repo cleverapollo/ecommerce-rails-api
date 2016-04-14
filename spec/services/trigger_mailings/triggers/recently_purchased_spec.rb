@@ -46,7 +46,8 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
         trigger = subject
         expect( trigger.triggered? ).to be_truthy
         letter = TriggerMailings::Letter.new(client, trigger)
-        expect( letter.body.scan(/(feedback|opinion)\.php/).any? ).to be_truthy
+        raise letter.body.inspect
+        expect( letter.body.scan(/(feedback|opinion|kundenmeinung)\.php/).any? ).to be_truthy
       }
     end
 
