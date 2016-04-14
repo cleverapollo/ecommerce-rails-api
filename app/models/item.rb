@@ -290,23 +290,33 @@ class Item < ActiveRecord::Base
         item.cosmetic_gender = offer.cosmetic.gender.value if offer.cosmetic.gender && offer.cosmetic.gender.valid?
         item.cosmetic_hypoallergenic = offer.cosmetic.hypoallergenic
         item.cosmetic_periodic = offer.cosmetic.periodic
-        if offer.cosmetic.skin.part.present? && offer.cosmetic.skin.part.to_a.any?
-          item.cosmetic_skin_part = offer.cosmetic.skin.part.to_a
+        if offer.cosmetic.skin.present?
+          if offer.cosmetic.skin.part.present? && offer.cosmetic.skin.part.to_a.any?
+            item.cosmetic_skin_part = offer.cosmetic.skin.part.to_a
+          end
+          if offer.cosmetic.skin.type.present? && offer.cosmetic.skin.type.to_a.any?
+            item.cosmetic_skin_type = offer.cosmetic.skin.type.to_a
+          end
+          if offer.cosmetic.skin.condition.present? && offer.cosmetic.skin.condition.to_a.any?
+            item.cosmetic_skin_condition = offer.cosmetic.skin.condition.to_a
+          end
         end
-        if offer.cosmetic.skin.type.present? && offer.cosmetic.skin.type.to_a.any?
-          item.cosmetic_skin_type = offer.cosmetic.skin.type.to_a
-        end
-        if offer.cosmetic.skin.condition.present? && offer.cosmetic.skin.condition.to_a.any?
-          item.cosmetic_skin_condition = offer.cosmetic.skin.condition.to_a
-        end
-        if offer.cosmetic.hair.type.present? && offer.cosmetic.hair.type.to_a.any?
-          item.cosmetic_hair_type = offer.cosmetic.hair.type.to_a
-        end
-        if offer.cosmetic.hair.condition.present? && offer.cosmetic.hair.condition.to_a.any?
-          item.cosmetic_hair_condition = offer.cosmetic.hair.condition.to_a
+        if offer.cosmetic.hair.present?
+          if offer.cosmetic.hair.type.present? && offer.cosmetic.hair.type.to_a.any?
+            item.cosmetic_hair_type = offer.cosmetic.hair.type.to_a
+          end
+          if offer.cosmetic.hair.condition.present? && offer.cosmetic.hair.condition.to_a.any?
+            item.cosmetic_hair_condition = offer.cosmetic.hair.condition.to_a
+          end
         end
       else
         item.is_cosmetic = nil
+      end
+
+      if offer.fmcg?
+        item.is_fmcg = true
+        item.fmcg_hypoallergenic = offer.fmcg.hypoallergenic
+        item.fmcg_periodic = offer.fmcg.periodic
       end
 
       item.brand = offer.vendor

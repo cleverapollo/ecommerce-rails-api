@@ -188,6 +188,7 @@ GEM
       addressable (~> 2.3)
     letter_opener (1.2.0)
       launchy (~> 2.2)
+    liquid (3.0.6)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -413,6 +414,7 @@ DEPENDENCIES
   httparty (~> 0.12.0)
   jazz_hands!
   letter_opener (~> 1.2.0)
+  liquid
   mongoid (~> 5.0.0)
   newrelic_moped
   newrelic_rpm (~> 3.12.0)
