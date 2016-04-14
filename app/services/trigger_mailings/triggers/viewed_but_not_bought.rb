@@ -10,12 +10,12 @@ module TriggerMailings
         end
 
         # Находим товар, который был вчера просмотрен самое большее число раз, но не был куплен
-        user.actions.where(shop: shop).views.where(view_date: time_range).where('view_count > 0').order(view_count: :desc).each do |action|
-          @happened_at = action.view_date
-          @source_item = action.item
-          @additional_info = action.view_count
-
-          if @source_item.widgetable?
+        actions = user.actions.where(shop: shop).views.where(view_date: time_range).where('view_count > 0').order(view_count: :desc).limit(10)
+        if actions.exists?
+          @happened_at = actions.first.view_date
+          @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
+          @source_item = @source_items.first
+          if @source_item
             return true
           end
         end

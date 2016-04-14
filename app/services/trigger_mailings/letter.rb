@@ -49,7 +49,7 @@ module TriggerMailings
       recommendations_count = trigger.settings[:template].scan(/{{ recommended_item }}/).count
 
       # Вставляем в шаблон параметры "исходного" товара или "исходных, если их больше"
-      if trigger.source_items.present? && trigger.source_items.any?
+      if trigger.source_items.present? && trigger.source_items.any? && result['{{ source_item }}'].present?
 
         source_items_count = trigger.settings[:template].scan(/{{ source_item }}/).count
 

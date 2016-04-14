@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160414114431) do
+ActiveRecord::Schema.define(version: 20160414130315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -151,22 +151,24 @@ ActiveRecord::Schema.define(version: 20160414114431) do
   add_index "digest_mailing_settings", ["shop_id"], name: "index_digest_mailing_settings_on_shop_id", using: :btree
 
   create_table "digest_mailings", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                          null: false
-    t.string   "name",              limit: 255,                    null: false
-    t.string   "subject",           limit: 255,                    null: false
-    t.text     "template",                                         null: false
-    t.string   "items",             limit: 255
-    t.string   "state",             limit: 255, default: "draft",  null: false
+    t.integer  "shop_id",                                                    null: false
+    t.string   "name",                        limit: 255,                    null: false
+    t.string   "subject",                     limit: 255,                    null: false
+    t.text     "template",                                                   null: false
+    t.string   "items",                       limit: 255
+    t.string   "state",                       limit: 255, default: "draft",  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "item_template",                                    null: false
+    t.text     "item_template",                                              null: false
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
     t.text     "header"
     t.text     "text"
-    t.string   "edit_mode",         limit: 255, default: "simple", null: false
+    t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.integer  "activity_segment"
+    t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,        null: false
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -422,15 +424,17 @@ ActiveRecord::Schema.define(version: 20160414114431) do
   end
 
   create_table "trigger_mailings", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                          null: false
-    t.string   "trigger_type",         limit: 255,                 null: false
-    t.string   "subject",              limit: 255,                 null: false
-    t.text     "template",                                         null: false
-    t.text     "item_template",                                    null: false
-    t.boolean  "enabled",                          default: false, null: false
+    t.integer  "shop_id",                                                 null: false
+    t.string   "trigger_type",                limit: 255,                 null: false
+    t.string   "subject",                     limit: 255,                 null: false
+    t.text     "template",                                                null: false
+    t.text     "item_template",                                           null: false
+    t.boolean  "enabled",                                 default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "source_item_template"
+    t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree

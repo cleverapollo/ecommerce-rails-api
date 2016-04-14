@@ -13,7 +13,8 @@ module TriggerMailings
           if order
             @additional_info[:order] = order
             @happened_at = order.date
-            @bought_item = order.order_items.map(&:item).sort { |i1, i2| (i1.price || 0) <=> (i2.price || 0) }.last
+            @source_items = order.order_items.map { |a| a.item if a.item.widgetable? }.compact.sort { |i1, i2| (i1.price || 0) <=> (i2.price || 0) }.reverse
+            @source_item = @source_items.first
             return true
           end
         end
@@ -29,9 +30,9 @@ module TriggerMailings
         )
 
         # Сначала сопутку
-        if @bought_item
-          params.item = @bought_item
-          params.locations = @bought_item.locations
+        if @source_items && @source_items.any?
+          params.item = @source_items.first
+          params.locations = @source_items.first.locations
           result = Recommender::Impl::AlsoBought.new(params).recommended_ids
         end
 

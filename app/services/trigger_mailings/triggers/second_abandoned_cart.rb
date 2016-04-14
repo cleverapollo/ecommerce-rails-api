@@ -18,25 +18,26 @@ module TriggerMailings
       end
 
       def condition_happened?
+
         # Проверка что последное письмо отправили киленту 1 дня назад
         return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
-
-        #return false # Выключить вторую брошенную корзину ------------!!!!
 
         # Находим вчерашную не открытую брошеную корзину
         trigger_mailing = TriggerMailing.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
         unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: trigger_mailing.id).where(client_id: client.id)
         return false if !unopened_abandoned_cart
 
-        # Находим товар, который был положен в корзину в нужном периоде, но не был из нее удален или куплен
-        user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).each do |action|
-          @happened_at = action.cart_date
-          @source_item = action.item
-
-          if @source_item.present? && @source_item.widgetable?
+        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
+        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
+        if actions.exists?
+          @happened_at = actions.first.cart_date
+          @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
+          @source_item = @source_items.first
+          if @source_item
             return true
           end
         end
+
         false
       end
 

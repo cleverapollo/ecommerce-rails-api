@@ -18,15 +18,18 @@ module TriggerMailings
       end
 
       def condition_happened?
-        # Находим товар, который был положен в корзину в нужном периоде, но не был из нее удален или куплен
-        user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).each do |action|
-          @happened_at = action.cart_date
-          @source_item = action.item
 
-          if @source_item.present? && @source_item.widgetable?
+        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
+        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
+        if actions.exists?
+          @happened_at = actions.first.cart_date
+          @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
+          @source_item = @source_items.first
+          if @source_item
             return true
           end
         end
+
         false
       end
 
