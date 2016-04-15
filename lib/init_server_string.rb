@@ -16,7 +16,7 @@ module InitServerString
       result += "  currency: '#{shop.currency}',"
       result += "  showPromotion: false,"
       result += "  segments: [],"
-      result += "  sync: #{get_sync_pixels(session).to_json},"
+      result += "  sync: #{get_sync_pixels(session, shop).to_json},"
 
       # Настройки сбора e-mail
       result += "  subscriptions: {"
