@@ -37,11 +37,22 @@ module InitServerString
 
 
 
-    def get_sync_pixels(session)
+    def get_sync_pixels(session, shop)
       pixels = []
-      pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}" if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < 2.days.ago
-      pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}" if session.synced_with_dca_at.nil? || session.synced_with_dca_at < 2.days.ago
-      pixels << "//sync.audtd.com/match/rs?pid=#{session.code}" if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < 2.days.ago
+      if shop && shop.remarketing_enabled?
+        if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < Date.current
+          pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}"
+          session.update synced_with_aidata_at: Date.current
+        end
+        if session.synced_with_dca_at.nil? || session.synced_with_dca_at < Date.current
+          pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}"
+          session.update synced_with_dca_at: Date.current
+        end
+        if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < Date.current
+          pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
+          session.update synced_with_auditorius_at: Date.current
+        end
+      end
       pixels
     end
 
