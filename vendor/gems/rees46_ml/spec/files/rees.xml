@@ -43,6 +43,7 @@
     <local_delivery_cost>200</local_delivery_cost>
 
     <offers>
+
       <offer available="true" id="1" type="vendor.model" group_id="10" bid="21" cbid="43">
         <name>Наручные часы Casio A1234567B</name>
         <description>Cупер дупер оберег для вашей собаки</description>

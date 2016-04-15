@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160311191954) do
+ActiveRecord::Schema.define(version: 20160415102038) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -311,10 +311,22 @@ ActiveRecord::Schema.define(version: 20160311191954) do
     t.string   "juridical_person"
     t.integer  "currency_id",                        default: 1,     null: false
     t.string   "language",                           default: "ru",  null: false
+    t.boolean  "notify_about_finances",              default: true,  null: false
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "e_komi_requests", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "country"
+    t.string   "city"
+    t.string   "postal_code"
+    t.string   "address"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.boolean  "confirmed",   default: false
+  end
 
   create_table "faqs", force: :cascade do |t|
     t.text     "question",                null: false
@@ -475,16 +487,20 @@ ActiveRecord::Schema.define(version: 20160311191954) do
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
   create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
-    t.string  "code"
-    t.string  "bid_id",              null: false
-    t.string  "ad_id",               null: false
-    t.float   "price",               null: false
-    t.string  "currency",            null: false
-    t.integer "shop_id",             null: false
-    t.integer "item_id",   limit: 8, null: false
-    t.integer "user_id",   limit: 8, null: false
-    t.boolean "clicked"
-    t.boolean "purchased"
+    t.string   "code"
+    t.string   "bid_id",              null: false
+    t.string   "ad_id",               null: false
+    t.float    "price",               null: false
+    t.string   "currency",            null: false
+    t.integer  "shop_id",             null: false
+    t.integer  "item_id",   limit: 8, null: false
+    t.integer  "user_id",   limit: 8, null: false
+    t.boolean  "clicked"
+    t.boolean  "purchased"
+    t.datetime "date"
+    t.string   "domain"
+    t.string   "page"
+    t.string   "banner"
   end
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
@@ -542,12 +558,16 @@ ActiveRecord::Schema.define(version: 20160311191954) do
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",   limit: 8,   null: false
-    t.string  "code",      limit: 255, null: false
-    t.string  "useragent", limit: 255
-    t.string  "city",      limit: 255
-    t.string  "country",   limit: 255
-    t.string  "language",  limit: 255
+    t.integer "user_id",                   limit: 8,   null: false
+    t.string  "code",                      limit: 255, null: false
+    t.string  "useragent",                 limit: 255
+    t.string  "city",                      limit: 255
+    t.string  "country",                   limit: 255
+    t.string  "language",                  limit: 255
+    t.date    "synced_with_amber_at"
+    t.date    "synced_with_dca_at"
+    t.date    "synced_with_aidata_at"
+    t.date    "synced_with_auditorius_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
