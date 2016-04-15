@@ -16,6 +16,7 @@ module InitServerString
       result += "  currency: '#{shop.currency}',"
       result += "  showPromotion: false,"
       result += "  segments: [],"
+      result += "  sync: #{get_sync_pixels(session).to_json},"
 
       # Настройки сбора e-mail
       result += "  subscriptions: {"
@@ -33,5 +34,18 @@ module InitServerString
       result += "});"
       result
     end
+
+
+
+    def get_sync_pixels(session)
+      pixels = []
+      pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}" if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < 2.days.ago
+      pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}" if session.synced_with_dca_at.nil? || session.synced_with_dca_at < 2.days.ago
+      pixels << "//sync.audtd.com/match/rs?pid=#{session.code}" if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < 2.days.ago
+      pixels
+    end
+
+
+
   end
 end
