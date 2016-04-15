@@ -6,5 +6,9 @@ module Rees46ML
     attribute :type, String, lazy: true
     attribute :gender, Rees46ML::Gender, lazy: true
 
+    def type_valid?
+      type.nil? || TYPES.include?(type)
+    end
+
   end
 end
