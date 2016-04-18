@@ -52,9 +52,9 @@ module InitServerString
           pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
           session.update synced_with_auditorius_at: Date.current
         end
-        if session.synced_with_amberdata_at.nil? || session.synced_with_amberdata_at < Date.current
+        if session.synced_with_amber_at.nil? || session.synced_with_amber_at < Date.current
           pixels << "//dmg.digitaltarget.ru/1/2026/i/i?a=26&e=#{session.code}&i=#{rand}"
-          session.update synced_with_amberdata_at: Date.current
+          session.update synced_with_amber_at: Date.current
         end
       end
       pixels
