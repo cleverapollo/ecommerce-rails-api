@@ -42,9 +42,9 @@ class Client < ActiveRecord::Base
           # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
           if master_client.shop_id == slave_client.shop_id
             master_client.bought_something = true if slave_client.bought_something?
-            master_client.digests_enabled = true if slave_client.digests_enabled?
+            master_client.digests_enabled = false if !slave_client.digests_enabled? || !master_client.digests_enabled?
             master_client.subscription_popup_showed = true if slave_client.subscription_popup_showed?
-            master_client.triggers_enabled = true if slave_client.triggers_enabled?
+            master_client.triggers_enabled = false if !slave_client.triggers_enabled? || !master_client.triggers_enabled?
             master_client.accepted_subscription = true if slave_client.accepted_subscription?
             master_client.ab_testing_group = slave_client.ab_testing_group if master_client.ab_testing_group != slave_client.ab_testing_group && !slave_client.ab_testing_group.nil?
             master_client.external_id = slave_client.external_id if !slave_client.external_id.blank? && master_client.external_id.blank?
