@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
-  let!(:settigns) { create(:mailings_settings, shop: shop) }
+  let!(:settings) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@example.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
@@ -31,8 +31,8 @@ describe DigestMailingBatchWorker do
       expect(letter.to).to include(client.email)
     end
 
-    it 'sent from sender from settigns' do
-      expect(letter.from).to include(settigns.send_from)
+    it 'sent from sender from settings' do
+      expect(letter.from).to include(settings.send_from)
     end
 
     it 'contains item name' do
@@ -72,7 +72,6 @@ describe DigestMailingBatchWorker do
   end
 
 
-
   describe '#letter_body' do
     let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
     let!(:item) { create(:item, :widgetable, shop: shop) }
@@ -89,6 +88,34 @@ describe DigestMailingBatchWorker do
       expect(subject).to be_a(String)
     end
   end
+
+  describe '#liquid_letter_body' do
+    let!(:liquid_shop) { create(:shop) }
+    let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}{{item.url}}{% endfor%}') }
+    let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@example.com', activity_segment: 1) }
+    let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_client.id, end_id: liquid_client.id, shop: liquid_shop) }
+    let!(:liquid_digest_mail) { create(:digest_mail, client: liquid_client, shop: liquid_shop, mailing: liquid_mailing, batch: liquid_batch).reload }
+    let!(:liquid_item) { create(:item, :widgetable, shop: liquid_shop) }
+    subject do
+      s = DigestMailingBatchWorker.new
+      s.current_client = liquid_client
+      s.current_digest_mail = liquid_digest_mail
+      s.mailing = liquid_mailing
+      s.perform(liquid_batch.id)
+      s.liquid_letter_body([liquid_item], 'test@example.com', nil)
+    end
+
+    it 'returns string' do
+      content = subject
+      expect(content).to be_a(String)
+      expect(content.length).to_not eq(0)
+    end
+  end
+
+
+
+
 
   describe '#item_for_letter' do
     context 'when item is widgetable' do
