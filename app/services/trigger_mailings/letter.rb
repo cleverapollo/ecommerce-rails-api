@@ -14,6 +14,7 @@ module TriggerMailings
       @client = client
       @shop = @client.shop
       @trigger = trigger
+      @mailings_settings = @shop.mailings_settings
       @trigger_mail = client.trigger_mails.create!(
         mailing: trigger.mailing,
         shop: client.shop,
@@ -21,7 +22,7 @@ module TriggerMailings
           trigger: trigger.to_json
         }
       ).reload
-      @body = generate_letter_body
+      @body = @mailings_settings.template_liquid? ? generate_liquid_letter_body : generate_letter_body
     end
 
     # Отправить сформированное письмо
@@ -144,9 +145,72 @@ module TriggerMailings
         result.gsub!('{{ feedback_button_link }}', feedback_button_link)
       end
 
-
       result
     end
+
+
+    def generate_liquid_letter_body
+
+      data = {
+          shop_url: @shop.url,
+          feedback_button_link: nil,
+          utm_params: '',
+          source_items: [],
+          recommended_items: [],
+          logo_url: nil,
+          footer: nil
+      }
+
+      liquid_template = trigger.settings[:liquid_template].dup
+      recommendations_count = trigger.settings[:amount_of_recommended_items]
+      data[:source_items] = if trigger.source_items.present? && trigger.source_items.any?
+                       trigger.source_items.map { |item| item_for_letter(item, client.location) }
+                     else
+                       []
+                     end
+      RecommendationsRequest.report do |r|
+        recommendations = trigger.recommendations(recommendations_count)
+        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location) }
+        r.shop = @shop
+        r.recommender_type = 'trigger_mail'
+        r.recommendations = recommendations.map(&:uniqid)
+        r.user_id = client.user.present? ? client.user.id : 0
+      end
+
+      mailings_settings = MailingsSettings.find_by(shop_id: @shop.id)
+      if mailings_settings && mailings_settings.fetch_logo_url.present?
+        data[:logo_url] = mailings_settings.fetch_logo_url
+      end
+
+      data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)
+      data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: client.trigger_unsubscribe_url)
+
+      if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
+        if @shop.ekomi?
+          product_ids = []
+          trigger.additional_info[:order].order_items.each do |order_item|
+            item = order_item.item
+            if item && item.name.present? && item.uniqid.present?
+              item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
+              item_additional_params[:image_url] = item.image_url if item.image_url.present?
+              begin
+                Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
+                product_ids << item.uniqid
+              rescue
+              end
+            end
+          end
+          data[:feedback_button_link] = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+        else
+          data[:feedback_button_link] = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
+        end
+      end
+
+      template = Liquid::Template.parse liquid_template
+      template.render data.deep_stringify_keys
+
+    end
+
 
     # Обертка над товаром для отображения в письме
     # @param [Item] товар

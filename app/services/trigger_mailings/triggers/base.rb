@@ -25,7 +25,9 @@ module TriggerMailings
             subject: mailing.subject,
             template: mailing.template,
             item_template: mailing.item_template,
-            source_item_template: mailing.source_item_template
+            source_item_template: mailing.source_item_template,
+            liquid_template: mailing.liquid_template,
+            amount_of_recommended_items: mailing.amount_of_recommended_items
           }
         end
 
@@ -65,7 +67,9 @@ module TriggerMailings
       #
       # @return [Boolean] можно ли отправлять письмо
       def appropriate_time_to_send?
-        (Time.now.hour >= 10) && (Time.now.hour < 22)
+        # Не учитывает часовой пояс покупателя, поэтому пока отключил.
+        # (Time.now.hour >= 10) && (Time.now.hour < 22)
+        true
       end
 
       # Возвращает массив рекомендованных товаров для данного триггера.

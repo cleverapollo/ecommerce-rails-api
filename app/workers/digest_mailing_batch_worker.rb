@@ -15,7 +15,6 @@ class DigestMailingBatchWorker
     @mailing = @batch.mailing
     @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
-
     unless @settings.enabled?
       raise DigestMailing::DisabledError, "Рассылки отключены для магазина #{@shop.id}"
     end
@@ -27,7 +26,11 @@ class DigestMailingBatchWorker
 
 
 
-    recommendations_count = @mailing.template.scan('{{ recommended_item }}').count
+    recommendations_count = if @settings.template_liquid?
+                              @mailing.amount_of_recommended_items
+                            else
+                              @mailing.template.scan('{{ recommended_item }}').count
+                            end
 
     DigestMailingRecommendationsCalculator.open(@shop, recommendations_count) do |calculator|
       if @batch.test_mode?
@@ -48,6 +51,7 @@ class DigestMailingBatchWorker
         relation = @shop.clients.suitable_for_digest_mailings.includes(:user).where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id)
         relation = relation.where('activity_segment is not null and activity_segment = ?', @batch.activity_segment) unless @batch.activity_segment.nil?
         relation.each do |client|
+
 
           # Каждый раз запоминаем текущий обрабатываемый ID
           @current_client = client
@@ -79,6 +83,7 @@ class DigestMailingBatchWorker
         @mailing.finish! if @mailing.batches.incomplete.none?
       end
     end
+
   rescue => e
     @mailing.fail! if @mailing
     raise e
@@ -92,7 +97,7 @@ class DigestMailingBatchWorker
     Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
                                   from: @settings.send_from,
-                                  body: letter_body(recommendations, email, location),
+                                  body: @settings.template_liquid? ? liquid_letter_body(recommendations, email, location) : letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code)).deliver_now
   end
@@ -147,6 +152,32 @@ class DigestMailingBatchWorker
 
     result
   end
+
+  # Сформировать тело письма из ликвидного шаблона.
+  #
+  # @param items [Array] массив товаров.
+  # @param email [String] E-mail покупателя
+  # @param location [String] Код локации получателя письма для локальной цены
+  def liquid_letter_body(items, email, location)
+
+    # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
+    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s )
+
+    template = @mailing.liquid_template.dup
+    data = {
+      recommended_items: items.map { |item| item_for_letter(item, location, track_email) },
+      utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
+      logo_url: (@settings.fetch_logo_url.blank? ? @settings.fetch_logo_url : ''),
+      footer: Mailings::Composer.footer(email: @current_client.try(:email) || email, tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url, unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url)
+    }
+
+    template = Liquid::Template.parse template
+    template.render data.deep_stringify_keys
+
+  end
+
+
+
 
   # Обертка над товаром для отображения в письме.
   #
