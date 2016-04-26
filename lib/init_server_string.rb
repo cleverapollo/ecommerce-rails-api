@@ -48,10 +48,10 @@ module InitServerString
           pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}"
           session.update synced_with_dca_at: Date.current
         end
-        if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < Date.current
-          pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
-          session.update synced_with_auditorius_at: Date.current
-        end
+        # if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < Date.current
+        #   pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
+        #   session.update synced_with_auditorius_at: Date.current
+        # end
         if session.synced_with_amber_at.nil? || session.synced_with_amber_at < Date.current
           pixels << "//dmg.digitaltarget.ru/1/2026/i/i?a=26&e=#{session.code}&i=#{rand}"
           session.update synced_with_amber_at: Date.current
