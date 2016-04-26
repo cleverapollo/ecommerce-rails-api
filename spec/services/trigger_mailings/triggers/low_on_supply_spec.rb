@@ -92,7 +92,7 @@ describe TriggerMailings::Triggers::LowOnSupply do
     let!(:order_item_8) { create(:order_item, order: order_4, shop: shop, action: action, item: item_4 )}
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'low_on_supply', subject: 'haha', template: '{{ source_item }}{{ source_item }}{{ source_item }}{{ recommended_item }}{{ recommended_item }}{{ recommended_item }}', item_template: '{{ url }}{{ image_url }}{{ description }}{{ currency }}{{ price }}', enabled: true, source_item_template: '{{ url }}{{ name }}{{ image_url }}{{ price }}') }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_DEFAULT) }
 
     subject { TriggerMailings::Triggers::LowOnSupply.new client  }
 

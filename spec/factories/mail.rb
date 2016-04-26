@@ -44,6 +44,7 @@ FactoryGirl.define do
     subject 'test'
     template 'Test {{ recommended_item }} {{ footer }}'
     item_template '{{ name }}{{ url }}'
+    liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{footer}}'
   end
 
   factory :trigger_mail do

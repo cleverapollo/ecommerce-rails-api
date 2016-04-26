@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
-  let!(:settings) { create(:mailings_settings, shop: shop) }
+  let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_DEFAULT) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@example.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
