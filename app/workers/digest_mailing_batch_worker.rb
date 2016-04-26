@@ -190,7 +190,7 @@ class DigestMailingBatchWorker
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
-      description: item.description,
+      description: item.description.truncate(200),
       price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
       url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_medium: 'digest_mail',
