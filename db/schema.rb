@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160414130315) do
+ActiveRecord::Schema.define(version: 20160426204638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -313,7 +313,7 @@ ActiveRecord::Schema.define(version: 20160414130315) do
     t.integer  "mailing_service",                 default: 0
     t.string   "getresponse_api_key"
     t.string   "getresponse_api_url"
-    t.integer  "template_type",                   default: 0
+    t.integer  "template_type",                   default: 1
   end
 
   create_table "order_items", id: :bigserial, force: :cascade do |t|
