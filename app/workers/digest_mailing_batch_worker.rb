@@ -120,8 +120,10 @@ class DigestMailingBatchWorker
       decorated_item = item_for_letter(item, location, track_email)
 
       decorated_item.each do |key, value|
-        item_template.gsub!("{{ #{key} }}", value)
-        item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+        if value
+          item_template.gsub!("{{ #{key} }}", value)
+          item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+        end
       end
 
       result['{{ recommended_item }}'] = item_template
@@ -192,6 +194,7 @@ class DigestMailingBatchWorker
       name: item.name,
       description: item.description.truncate(200),
       price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+      oldprice: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
       url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_medium: 'digest_mail',
                                              utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",

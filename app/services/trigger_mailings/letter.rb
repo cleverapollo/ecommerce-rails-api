@@ -60,8 +60,10 @@ module TriggerMailings
           source_item_template = trigger.settings[:source_item_template].dup
           decorated_source_item = item_for_letter(item, client.location)
           decorated_source_item.each do |key, value|
-            source_item_template.gsub!("{{ #{key} }}", value)
-            source_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+            if value
+              source_item_template.gsub!("{{ #{key} }}", value)
+              source_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+            end
           end
           result['{{ source_item }}'] = source_item_template
 
@@ -76,8 +78,10 @@ module TriggerMailings
 
         decorated_source_item = item_for_letter(trigger.source_item, client.location)
         decorated_source_item.each do |key, value|
-          result.gsub!("{{ source_item.#{key} }}", value)
-          result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+          if value
+            result.gsub!("{{ source_item.#{key} }}", value)
+            result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+          end
         end
       end
 
@@ -90,8 +94,10 @@ module TriggerMailings
 
           recommended_item_template = trigger.settings[:item_template].dup
           decorated_recommended_item.each do |key, value|
-            recommended_item_template.gsub!("{{ #{key} }}", value)
-            recommended_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+            if value
+              recommended_item_template.gsub!("{{ #{key} }}", value)
+              recommended_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
+            end
           end
 
           result['{{ recommended_item }}'] = recommended_item_template
@@ -223,6 +229,7 @@ module TriggerMailings
         name: item.name.truncate(40),
         description: item.description.to_s.truncate(130),
         price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+        oldprice: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
         image_url: item.image_url,
         currency: item.shop.currency

@@ -64,6 +64,7 @@ describe Item do
     let(:category_ids)   { (1..4).map{ rand 10 } }
     let(:location_ids)   { (1..4).map{ rand 10 } }
     let(:price_margin)   { rand 10 }
+    let(:oldprice)       { rand 1000 }
 
     subject do
       build(:item, {
@@ -99,7 +100,8 @@ describe Item do
         category_ids: category_ids,
         location_ids: location_ids,
         fashion_sizes: sizes,
-        price_margin: price_margin
+        price_margin: price_margin,
+        oldprice: oldprice
       })
     end
 
@@ -113,29 +115,30 @@ describe Item do
     it { expect(subject.csv_row[8]).to eq(image_url) }
     it { expect(subject.csv_row[9]).to eq(widgetable) }
     it { expect(subject.csv_row[10]).to eq(brand) }
-    it { expect(subject.csv_row[12]).to eq(ignored) }
-    it { expect(subject.csv_row[13]).to eq("[#{locations.join(',')}]") }
-    it { expect(subject.csv_row[14]).to eq(sr) }
-    it { expect(subject.csv_row[15]).to eq(sales_rate) }
-    it { expect(subject.csv_row[16]).to eq(type_prefix) }
-    it { expect(subject.csv_row[17]).to eq(vendor_code) }
-    it { expect(subject.csv_row[18]).to eq(model) }
-    it { expect(subject.csv_row[19]).to eq(gender) }
-    it { expect(subject.csv_row[20]).to eq(wear_type) }
-    it { expect(subject.csv_row[21]).to eq(feature) }
-    it { expect(subject.csv_row[22]).to eq(age_min) }
-    it { expect(subject.csv_row[23]).to eq(age_max) }
-    it { expect(subject.csv_row[36]).to eq(hypoallergenic) }
-    it { expect(subject.csv_row[25]).to eq("{#{part_type.join(',')}}") }
-    it { expect(subject.csv_row[26]).to eq("{#{skin_type.join(',')}}") }
-    it { expect(subject.csv_row[27]).to eq("{#{condition.join(',')}}") }
-    it { expect(subject.csv_row[28]).to eq(volume) }
-    it { expect(subject.csv_row[43]).to eq(periodic) }
-    it { expect(subject.csv_row[30]).to eq(barcode) }
-    it { expect(subject.csv_row[31]).to eq("{#{category_ids.join(',')}}") }
-    it { expect(subject.csv_row[32]).to eq("{#{location_ids.join(',')}}") }
-    it { expect(subject.csv_row[33]).to eq(price_margin) }
-    it { expect(subject.csv_row[34]).to eq("{#{sizes.join(',')}}") }
+    it { expect(subject.csv_row[11]).to eq(ignored) }
+    it { expect(subject.csv_row[12]).to eq("[#{locations.join(',')}]") }
+    it { expect(subject.csv_row[13]).to eq(sr) }
+    it { expect(subject.csv_row[14]).to eq(sales_rate) }
+    it { expect(subject.csv_row[15]).to eq(type_prefix) }
+    it { expect(subject.csv_row[16]).to eq(vendor_code) }
+    it { expect(subject.csv_row[17]).to eq(model) }
+    it { expect(subject.csv_row[18]).to eq(gender) }
+    it { expect(subject.csv_row[19]).to eq(wear_type) }
+    it { expect(subject.csv_row[20]).to eq(feature) }
+    it { expect(subject.csv_row[21]).to eq(age_min) }
+    it { expect(subject.csv_row[22]).to eq(age_max) }
+    it { expect(subject.csv_row[35]).to eq(hypoallergenic) }
+    it { expect(subject.csv_row[24]).to eq("{#{part_type.join(',')}}") }
+    it { expect(subject.csv_row[25]).to eq("{#{skin_type.join(',')}}") }
+    it { expect(subject.csv_row[26]).to eq("{#{condition.join(',')}}") }
+    it { expect(subject.csv_row[27]).to eq(volume) }
+    it { expect(subject.csv_row[42]).to eq(periodic) }
+    it { expect(subject.csv_row[29]).to eq(barcode) }
+    it { expect(subject.csv_row[30]).to eq("{#{category_ids.join(',')}}") }
+    it { expect(subject.csv_row[31]).to eq("{#{location_ids.join(',')}}") }
+    it { expect(subject.csv_row[32]).to eq(price_margin) }
+    it { expect(subject.csv_row[33]).to eq("{#{sizes.join(',')}}") }
+    it { expect(subject.csv_row[49]).to eq(oldprice) }
   end
 
   describe '.fetch' do

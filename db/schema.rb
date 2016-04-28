@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160426204638) do
+ActiveRecord::Schema.define(version: 20160428121244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -240,7 +240,6 @@ ActiveRecord::Schema.define(version: 20160426204638) do
     t.text    "image_url"
     t.boolean "widgetable",                           default: false, null: false
     t.string  "brand",                   limit: 255
-    t.string  "old_fucking_categories",               default: [],                 array: true
     t.boolean "ignored",                              default: false, null: false
     t.jsonb   "locations",                            default: {},    null: false
     t.float   "sr"
@@ -279,6 +278,7 @@ ActiveRecord::Schema.define(version: 20160426204638) do
     t.string  "child_gender",            limit: 1
     t.string  "child_type"
     t.boolean "is_fmcg"
+    t.decimal "oldprice"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
@@ -290,8 +290,6 @@ ActiveRecord::Schema.define(version: 20160426204638) do
   add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["old_fucking_categories"], name: "index_items_on_categories_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["old_fucking_categories"], name: "index_items_on_old_fucking_categories", using: :gin
   add_index "items", ["price"], name: "index_items_on_price", where: "(((is_available = true) AND (ignored = false)) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "(((price_margin IS NOT NULL) AND (is_available IS TRUE)) AND (ignored IS FALSE))", using: :btree

@@ -84,7 +84,8 @@ class Item < ActiveRecord::Base
       is_cosmetic
       is_child
       is_fashion
-      is_fmcg
+      is_fmcg,
+      oldprice
     ].sort
   end
 
@@ -245,6 +246,7 @@ class Item < ActiveRecord::Base
       item.model = offer.model
       item.price = offer.price
       item.price_margin = offer.price_margin
+      item.oldprice = offer.oldprice.present? ? offer.oldprice : nil
       item.url = offer.url
       item.image_url = offer.pictures.first
       item.type_prefix = offer.type_prefix
