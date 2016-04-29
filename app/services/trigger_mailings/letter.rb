@@ -61,7 +61,7 @@ module TriggerMailings
           decorated_source_item = item_for_letter(item, client.location)
           decorated_source_item.each do |key, value|
             if value
-              source_item_template.gsub!("{{ #{key} }}", value)
+              source_item_template.gsub!("{{ #{key} }}", value.to_s)
               source_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
             end
           end
@@ -79,7 +79,7 @@ module TriggerMailings
         decorated_source_item = item_for_letter(trigger.source_item, client.location)
         decorated_source_item.each do |key, value|
           if value
-            result.gsub!("{{ source_item.#{key} }}", value)
+            result.gsub!("{{ source_item.#{key} }}", value.to_s)
             result.gsub!(/\{\{\s+source_item.name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
           end
         end
@@ -95,7 +95,7 @@ module TriggerMailings
           recommended_item_template = trigger.settings[:item_template].dup
           decorated_recommended_item.each do |key, value|
             if value
-              recommended_item_template.gsub!("{{ #{key} }}", value)
+              recommended_item_template.gsub!("{{ #{key} }}", value.to_s)
               recommended_item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
             end
           end
@@ -228,8 +228,10 @@ module TriggerMailings
       {
         name: item.name.truncate(40),
         description: item.description.to_s.truncate(130),
-        price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
-        oldprice: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
+        price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+        oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
+        price: item.price_at_location(location).to_i,
+        oldprice: item.oldprice.to_i,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
         image_url: item.image_url,
         currency: item.shop.currency
