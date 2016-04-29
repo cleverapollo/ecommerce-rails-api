@@ -84,7 +84,7 @@ class Item < ActiveRecord::Base
       is_cosmetic
       is_child
       is_fashion
-      is_fmcg,
+      is_fmcg
       oldprice
     ].sort
   end
