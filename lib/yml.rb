@@ -39,6 +39,8 @@ class Yml < Struct.new(:path)
       end
     rescue OpenURI::HTTPError
       raise NotRespondingError.new("YML файл недоступен.")
+    rescue OpenSSL::SSL::SSLError => e
+      raise NotRespondingError.new("SSL error: #{e}")
     rescue SocketError
       raise NotRespondingError.new("Некоректный адрес YML файла.")
     end
