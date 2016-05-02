@@ -227,7 +227,7 @@ module TriggerMailings
       raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
       {
         name: item.name.truncate(40),
-        description: item.description.to_s.truncate(130),
+        description: item.description.to_s,
         price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
         oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         price: item.price_at_location(location).to_i,
