@@ -9,7 +9,7 @@ describe ShopKPI do
 
   let!(:shop) { create(:shop) }
 
-  let!(:client) {create(:client, user: user, shop: shop)}
+  let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true)}
 
   let!(:item_1) { create(:item, shop: shop, price: 100) }
   let!(:item_2) { create(:item, shop: shop, price: 200) }
@@ -80,6 +80,9 @@ describe ShopKPI do
       expect(shop_metric.digests_revenue).to eq(200)
       expect(shop_metric.digests_orders_real).to eq(1)
       expect(shop_metric.digests_revenue_real).to eq(200)
+
+      expect(shop_metric.subscription_popup_showed).to eq(1)
+      expect(shop_metric.subscription_accepted).to eq(1)
     end
 
 

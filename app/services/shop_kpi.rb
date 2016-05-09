@@ -87,6 +87,10 @@ class ShopKPI
       end
     end
 
+    # Subscriptions
+    @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where(subscription_popup_showed: true).count
+    @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where(subscription_popup_showed: true).where(accepted_subscription: true).count
+
     @shop_metric.save!
 
   end

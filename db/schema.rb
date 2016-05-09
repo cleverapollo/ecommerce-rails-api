@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160509135103) do
+ActiveRecord::Schema.define(version: 20160509141657) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,18 +114,18 @@ ActiveRecord::Schema.define(version: 20160509135103) do
     t.boolean  "supply_trigger_sent"
   end
 
-  add_index "clients", ["accepted_subscription", "shop_id"], name: "index_clients_on_accepted_subscription_and_shop_id", where: "(subscription_popup_showed = true)", using: :btree
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["shop_id", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((accepted_subscription IS TRUE) AND (subscription_popup_showed IS TRUE))", using: :btree
   add_index "clients", ["shop_id", "activity_segment"], name: "index_clients_on_shop_id_and_activity_segment", where: "(activity_segment IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "(((email IS NOT NULL) AND (triggers_enabled IS TRUE)) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed IS TRUE)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
-  add_index "clients", ["subscription_popup_showed", "shop_id"], name: "index_clients_on_subscription_popup_showed_and_shop_id", using: :btree
   add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
@@ -380,28 +380,30 @@ ActiveRecord::Schema.define(version: 20160509135103) do
 
   create_table "shop_metrics", force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "orders",                 default: 0,   null: false
-    t.integer "real_orders",            default: 0,   null: false
-    t.decimal "revenue",                default: 0.0, null: false
-    t.decimal "real_revenue",           default: 0.0, null: false
-    t.integer "visitors",               default: 0,   null: false
-    t.integer "products_viewed",        default: 0,   null: false
-    t.integer "triggers_enabled_count", default: 0,   null: false
-    t.integer "triggers_orders",        default: 0,   null: false
-    t.decimal "triggers_revenue",       default: 0.0, null: false
-    t.integer "digests_orders",         default: 0,   null: false
-    t.decimal "digests_revenue",        default: 0.0, null: false
-    t.integer "abandoned_products",     default: 0,   null: false
-    t.decimal "abandoned_money",        default: 0.0, null: false
-    t.date    "date",                                 null: false
-    t.integer "triggers_sent",          default: 0,   null: false
-    t.integer "triggers_clicked",       default: 0,   null: false
-    t.decimal "triggers_revenue_real",  default: 0.0, null: false
-    t.integer "triggers_orders_real",   default: 0,   null: false
-    t.integer "digests_sent",           default: 0,   null: false
-    t.integer "digests_clicked",        default: 0,   null: false
-    t.decimal "digests_revenue_real",   default: 0.0, null: false
-    t.integer "digests_orders_real",    default: 0,   null: false
+    t.integer "orders",                    default: 0,   null: false
+    t.integer "real_orders",               default: 0,   null: false
+    t.decimal "revenue",                   default: 0.0, null: false
+    t.decimal "real_revenue",              default: 0.0, null: false
+    t.integer "visitors",                  default: 0,   null: false
+    t.integer "products_viewed",           default: 0,   null: false
+    t.integer "triggers_enabled_count",    default: 0,   null: false
+    t.integer "triggers_orders",           default: 0,   null: false
+    t.decimal "triggers_revenue",          default: 0.0, null: false
+    t.integer "digests_orders",            default: 0,   null: false
+    t.decimal "digests_revenue",           default: 0.0, null: false
+    t.integer "abandoned_products",        default: 0,   null: false
+    t.decimal "abandoned_money",           default: 0.0, null: false
+    t.date    "date",                                    null: false
+    t.integer "triggers_sent",             default: 0,   null: false
+    t.integer "triggers_clicked",          default: 0,   null: false
+    t.decimal "triggers_revenue_real",     default: 0.0, null: false
+    t.integer "triggers_orders_real",      default: 0,   null: false
+    t.integer "digests_sent",              default: 0,   null: false
+    t.integer "digests_clicked",           default: 0,   null: false
+    t.decimal "digests_revenue_real",      default: 0.0, null: false
+    t.integer "digests_orders_real",       default: 0,   null: false
+    t.integer "subscription_popup_showed", default: 0
+    t.integer "subscription_accepted",     default: 0
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
