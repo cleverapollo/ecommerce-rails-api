@@ -12,7 +12,7 @@ class SubscriptionsSettings < ActiveRecord::Base
   belongs_to :shop
 
   def to_json
-    super(only: [:enabled, :overlay, :header, :text])
+    super(only: [:enabled, :overlay, :header, :text, :button, :agreement])
   end
 
   def has_picture?
