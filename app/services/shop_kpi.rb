@@ -40,6 +40,11 @@ class ShopKPI
     @shop_metric.products_viewed = products_viewed
     @shop_metric.triggers_enabled_count = triggers_enabled_count
 
+    @shop_metric.orders_original_count = orders_count(false, 'original')
+    @shop_metric.orders_recommended_count = orders_count(false, 'recommended')
+    @shop_metric.orders_original_revenue = revenue(false, 'original')
+    @shop_metric.orders_recommended_revenue = revenue(false, 'recommended')
+
     if @shop_metric.triggers_enabled_count > 0
 
       # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.
@@ -95,20 +100,41 @@ class ShopKPI
 
   end
 
-  def orders_count(only_real = false)
+  # Count of shop orders
+  # @param only_real [Boolean] Count only real orders (with synced statuses)
+  # @param filter [original|recommended] Filter only original or recommended orders
+  # @return Integer
+  def orders_count(only_real = false, filter = nil)
     result = Order.where(shop_id: @shop.id).where(date: @datetime_interval)
     if only_real
       result = result.successful
     end
+    case filter
+      when 'original'
+        result = result.where(recommended: false)
+      when 'recommended'
+        result = result.where(recommended: true)
+    end
     result.count
   end
 
-  def revenue(only_real = false)
+  # Calculate shop's revenue
+  # @param only_real [Boolean] Use only real orders (with synced statuses)
+  # @param filter [original|recommended] Filter only original or recommended orders
+  # @return Numeric
+  def revenue(only_real = false, filter = nil)
     result = Order.where(shop_id: @shop.id).where(date: @datetime_interval)
     if only_real
       result = result.where(status: 1)
     end
-    result.sum(:value)
+    case filter
+      when 'original'
+        result.sum(:common_value)
+      when 'recommended'
+        result.sum(:recommended_value)
+      else
+        result.sum(:value)
+    end
   end
 
   def visitors_count

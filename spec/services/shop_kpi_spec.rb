@@ -36,8 +36,8 @@ describe ShopKPI do
   let!(:digest_mail_3) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours)) }
   let!(:digest_mail_4) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: digest_mailing_batch, created_at: (Date.yesterday + 2.hours), clicked: true) }
 
-  let!(:order_1) { create(:order, user: user, uniqid: '1', shop: shop, value: 100, date: (Date.yesterday + 2.hours), source_id: trigger_mail_1.id, source_type: 'TriggerMail') }
-  let!(:order_2) { create(:order, user: user, uniqid: '2', shop: shop, status: 1, value: 200, date: (Date.yesterday + 2.hours), source_id: digest_mail_1.id, source_type: 'DigestMail') }
+  let!(:order_1) { create(:order, user: user, uniqid: '1', shop: shop, value: 100, date: (Date.yesterday + 2.hours), source_id: trigger_mail_1.id, source_type: 'TriggerMail', recommended: true, common_value: 17, recommended_value: 24) }
+  let!(:order_2) { create(:order, user: user, uniqid: '2', shop: shop, status: 1, value: 200, date: (Date.yesterday + 2.hours), source_id: digest_mail_1.id, source_type: 'DigestMail', recommended: false, common_value: 133, recommended_value: 13) }
   let!(:order_item_1) { create(:order_item, order: order_1, action: action_1, item: item_1, shop: shop, recommended_by: 'trigger_mail') }
   let!(:order_item_2) { create(:order_item, order: order_2, action: action_2, item: item_1, shop: shop, recommended_by: 'digest_mail') }
 
@@ -61,6 +61,11 @@ describe ShopKPI do
       expect(shop_metric.real_revenue).to eq(200)
       expect(shop_metric.visitors).to eq(3)
       expect(shop_metric.products_viewed).to eq(4)
+
+      expect(shop_metric.orders_original_count).to eq(1)
+      expect(shop_metric.orders_recommended_count).to eq(1)
+      expect(shop_metric.orders_original_revenue).to eq(150)
+      expect(shop_metric.orders_recommended_revenue).to eq(37)
 
       expect(shop_metric.abandoned_products).to eq(2)
       expect(shop_metric.abandoned_money).to eq(300)
