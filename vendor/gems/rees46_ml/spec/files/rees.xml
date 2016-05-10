@@ -44,7 +44,7 @@
 
     <offers>
 
-      <offer available="true" id="1" type="vendor.model" group_id="10" bid="21" cbid="43">
+      <offer available="true" id="abc1" type="vendor.model" group_id="10" bid="21" cbid="43">
         <name>Наручные часы Casio A1234567B</name>
         <description>Cупер дупер оберег для вашей собаки</description>
         <url>http://www.example.com/catalog/show/KID/1</url>

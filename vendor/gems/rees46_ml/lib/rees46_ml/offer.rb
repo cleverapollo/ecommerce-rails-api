@@ -2,7 +2,7 @@ module Rees46ML
   class Offer < Rees46ML::Element
     TYPES = %w[vendor.model book audiobook artist.title tour ticket event-ticket]
 
-    attribute :id, Integer, lazy: true
+    attribute :id, String, lazy: true
     attribute :name, String, default: "", lazy: true
     attribute :adult, Rees46ML::Boolean, lazy: true
     attribute :artist, String, default: "", lazy: true
