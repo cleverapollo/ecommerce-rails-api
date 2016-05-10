@@ -41,6 +41,11 @@ describe ShopKPI do
   let!(:order_item_1) { create(:order_item, order: order_1, action: action_1, item: item_1, shop: shop, recommended_by: 'trigger_mail') }
   let!(:order_item_2) { create(:order_item, order: order_2, action: action_2, item: item_1, shop: shop, recommended_by: 'digest_mail') }
 
+  let!(:interaction_1) { create(:interaction, item: item_1, shop: shop, user: user, code: 1, recommender_code: 2, created_at: (Date.yesterday + 2.hours)) }
+  let!(:interaction_2) { create(:interaction, item: item_2, shop: shop, user: user, code: 1, created_at: (Date.yesterday + 2.hours)) }
+  let!(:interaction_3) { create(:interaction, item: item_2, shop: shop, user: user, created_at: (Date.yesterday + 2.hours)) }
+  let!(:interaction_4) { create(:interaction, item: item_1, shop: shop, user: user, code: 1, recommender_code: 2, created_at: 7.days.ago) }
+
 
   describe '.calculate' do
 
@@ -88,6 +93,10 @@ describe ShopKPI do
 
       expect(shop_metric.subscription_popup_showed).to eq(1)
       expect(shop_metric.subscription_accepted).to eq(1)
+
+      expect(shop_metric.product_views_total).to eq(3)
+      expect(shop_metric.product_views_recommended).to eq(1)
+
     end
 
 

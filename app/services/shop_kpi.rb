@@ -45,6 +45,9 @@ class ShopKPI
     @shop_metric.orders_original_revenue = revenue(false, 'original')
     @shop_metric.orders_recommended_revenue = revenue(false, 'recommended')
 
+    @shop_metric.product_views_total = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.count
+    @shop_metric.product_views_recommended = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.from_recommender.count
+
     if @shop_metric.triggers_enabled_count > 0
 
       # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.

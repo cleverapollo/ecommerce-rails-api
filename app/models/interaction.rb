@@ -38,6 +38,9 @@ class Interaction < ActiveRecord::Base
   validates :item_id, presence: true
   validates :code, presence: true
 
+  scope :views, -> { where(code: CODES['view']) }
+  scope :from_recommender, -> { where('recommender_code IS NOT NULL') }
+
   class << self
     def push(opts = {})
       create!(

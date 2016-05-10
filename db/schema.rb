@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510072459) do
+ActiveRecord::Schema.define(version: 20160510104658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -408,6 +408,8 @@ ActiveRecord::Schema.define(version: 20160510072459) do
     t.decimal "orders_original_revenue",    default: 0.0
     t.integer "orders_recommended_count",   default: 0
     t.decimal "orders_recommended_revenue", default: 0.0
+    t.integer "product_views_total",        default: 0
+    t.integer "product_views_recommended",  default: 0
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
