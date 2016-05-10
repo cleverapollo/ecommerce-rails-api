@@ -205,7 +205,7 @@ GEM
       origin (~> 2.1)
       tzinfo (>= 0.3.37)
     moped (1.5.3)
-    multi_json (1.11.2)
+    multi_json (1.12.0)
     multi_xml (0.5.5)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -295,7 +295,7 @@ GEM
       concurrent-ruby (~> 1.0)
     responders (2.1.1)
       railties (>= 4.2.0, < 5.1)
-    rollbar (2.8.3)
+    rollbar (2.11.3)
       multi_json
     rspec (3.1.0)
       rspec-core (~> 3.1.0)
@@ -429,7 +429,7 @@ DEPENDENCIES
   redis-objects
   rees46_ml!
   request_store_rails
-  rollbar (~> 2.8.1)
+  rollbar
   rspec-rails (~> 3.1.0)
   rspec-sidekiq
   sidekiq (~> 3.3.3)
