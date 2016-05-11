@@ -60,7 +60,7 @@ class Shop < MasterTable
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
     end
-    connected_events_last_track[event] = Date.current.to_time.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Date.current.to_time.to_i)
+    connected_events_last_track[event] = Time.current.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Time.current.to_i)
     check_connection!
     save
   end
@@ -70,7 +70,7 @@ class Shop < MasterTable
     if connected_recommenders_last_track[recommender].blank?
       Event.recommendation_given(self) if first_recommender?
     end
-    connected_recommenders_last_track[recommender] = Date.current.to_time.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Date.current.to_time.to_i)
+    connected_recommenders_last_track[recommender] = Time.current.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Time.current.to_i)
     check_connection!
     save
   end
