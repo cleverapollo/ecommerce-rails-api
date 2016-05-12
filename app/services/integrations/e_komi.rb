@@ -37,6 +37,14 @@ module Integrations
       true
     end
 
+    # Get latest feedback
+    # @param options [Hash] - {range: ['1m', '6m', '1y'], fields: [date,feedback,rating] }
+    # @return Array
+    def get_feedback(options = {})
+      options[:version] = 'cust-1.0.0'
+      request('/getFeedback', options )
+    end
+
     private
 
     def request(method, params = {})
