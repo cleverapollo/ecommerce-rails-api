@@ -11,7 +11,7 @@ FactoryGirl.define do
   sequence(:vendor_code)         { |n| SecureRandom.hex }
   sequence(:wear_type)           { Rees46ML::Fashion::TYPES[rand(Rees46ML::Fashion::TYPES.size)] }
   sequence(:feature)             { Rees46ML::Fashion::FEATURES[rand(Rees46ML::Fashion::FEATURES.size)] }
-  sequence(:email)               { |n| "person#{n}@example.com" }
+  sequence(:email)               { |n| "person#{n}@rees46demo.com" }
   sequence(:uniqid)              { |n| SecureRandom.hex }
   sequence(:secret)              { |n| SecureRandom.hex }
   sequence(:url)                 { |n| "http://example_#{n}.com" }

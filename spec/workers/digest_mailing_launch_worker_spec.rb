@@ -9,7 +9,7 @@ describe DigestMailingLaunchWorker do
     before { allow(DigestMailingBatchWorker).to receive(:perform_async) }
 
     context 'test mode' do
-      let(:test_email) { 'test@example.com' }
+      let(:test_email) { 'test@rees46demo.com' }
       let(:params) { base_params.merge({ 'test_email' => test_email }) }
 
       it 'creates test batch' do

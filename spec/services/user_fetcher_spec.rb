@@ -66,7 +66,7 @@ describe UserFetcher do
     context 'when external_id is passed' do
       let!(:external_id) { '256' }
       let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
-      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id, email: 'test@example.com', location: '256' } }
+      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id, email: 'test@rees46demo.com', location: '256' } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -89,7 +89,7 @@ describe UserFetcher do
         subject
         client.reload
         expect(client.external_id).to eq(external_id)
-        expect(client.email).to eq('test@example.com')
+        expect(client.email).to eq('test@rees46demo.com')
         expect(client.location).to eq('256')
       end
     end
@@ -117,29 +117,29 @@ describe UserFetcher do
 
     context 'when had mail' do
 
-      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@example.com' } }
+      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
 
       let!(:first_mail_user) { create(:user) }
       let!(:second_mail_user) { create(:user) }
       let!(:third_mail_user) { create(:user) }
 
-      let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@example.com') }
+      let!(:client) { create(:client, shop: shop, user: session.user, email: 'old@rees46demo.com') }
 
 
       it 're-links by mail' do
         subject
-        expect(Client.where(email: 'old@example.com').count).to eq(1)
+        expect(Client.where(email: 'old@rees46demo.com').count).to eq(1)
       end
 
     end
 
     context 'when mail not in base' do
 
-      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@example.com' } }
+      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
 
       it 're-links by mail' do
         subject
-        expect(Client.where(email: 'old@example.com').count).to eq(1)
+        expect(Client.where(email: 'old@rees46demo.com').count).to eq(1)
       end
 
     end

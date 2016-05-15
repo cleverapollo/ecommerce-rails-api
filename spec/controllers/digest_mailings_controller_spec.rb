@@ -9,7 +9,7 @@ describe DigestMailingsController do
 
     context 'params validation' do
       it 'responds with 400 when shop not found' do
-        post :launch, shop_id: 'potato', shop_secret: 'potato', email: 'test@example.com', id: 123
+        post :launch, shop_id: 'potato', shop_secret: 'potato', email: 'test@rees46demo.com', id: 123
         expect(response.code).to eq('400')
       end
     end

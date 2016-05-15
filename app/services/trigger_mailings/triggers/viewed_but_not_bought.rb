@@ -56,7 +56,7 @@ module TriggerMailings
       end
 
       def priority
-        5
+        15
       end
     end
   end

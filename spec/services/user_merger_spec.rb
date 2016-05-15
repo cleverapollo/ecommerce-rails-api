@@ -184,7 +184,7 @@ describe UserMerger do
 
       context 'client merging' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@example.com', last_activity_at: Date.current) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current) }
 
         it 'destroys new_client' do
           subject
@@ -215,8 +215,8 @@ describe UserMerger do
       end
 
       context 'client merging of the same user' do
-        let!(:master_client) { create(:client, shop: shop, user: master, email: 'old@example.com') }
-        let!(:slave_client) { create(:client, shop: shop, user: master, email: 'old@example.com') }
+        let!(:master_client) { create(:client, shop: shop, user: master, email: 'old@rees46demo.com') }
+        let!(:slave_client) { create(:client, shop: shop, user: master, email: 'old@rees46demo.com') }
 
         it 'merges two clients of same user and dont lose user' do
           UserMerger.merge(master, master)
@@ -230,7 +230,7 @@ describe UserMerger do
 
       context 'mailings re-linking' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@example.com') }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com') }
 
         context 'digest mailings' do
           let!(:digest_mailing) { create(:digest_mailing, shop: shop) }

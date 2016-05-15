@@ -59,11 +59,11 @@ describe 'Pushing an event' do
     expect(@action.recommended_by).to eq('similar')
 
     @params[:event] = 'view'
-    @params[:user_email]='test@example.com'
+    @params[:user_email]='test@rees46demo.com'
     post '/push', @params
 
     expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
-    expect { @user.clients.first.email = 'test@example.com' }
+    expect { @user.clients.first.email = 'test@rees46demo.com' }
 
     @params[:event] = 'remove_from_cart'
     post '/push', @params

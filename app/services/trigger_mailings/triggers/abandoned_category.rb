@@ -1,35 +1,30 @@
 module TriggerMailings
   module Triggers
     ##
-    # Базовый класс для триггеров "брошенная корзина"
+    # Триггер "Брошенный просмотр категории"
     #
-    class AbandonedCart < Base
+    class AbandonedCategory < Base
       # Отправляем, если товар был положен в корзину больше часа, но меньше четырех часов назад.
       def trigger_time_range
-        (240.minutes.ago..60.minutes.ago)
+        (240.minutes.ago.to_i..60.minutes.ago.to_i)
       end
 
       def priority
-        20
+        13
       end
 
       def appropriate_time_to_send?
         true
       end
 
+      # Есть ли хотя бы одно действие месяц назад?
+      # @return Boolean
       def condition_happened?
-
-        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-        if actions.exists?
-          @happened_at = actions.first.cart_date
-          @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
-          @source_item = @source_items.first
-          if @source_item
-            return true
-          end
+        return false # TODO доделать триггер
+        if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists?
+          @source_items = []
+          return true
         end
-
         false
       end
 
