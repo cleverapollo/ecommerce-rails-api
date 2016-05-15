@@ -4,7 +4,7 @@ describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
   let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_DEFAULT) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
-  let!(:client) { create(:client, shop: shop, email: 'test@example.com', activity_segment: 1) }
+  let!(:client) { create(:client, shop: shop, email: 'test@rees46demo.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
   let!(:batch_without_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
   let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop, activity_segment: 1) }
@@ -81,7 +81,7 @@ describe DigestMailingBatchWorker do
       s.current_digest_mail = digest_mail
       s.mailing = mailing
       s.perform(batch.id)
-      s.letter_body([item], 'test@example.com', nil)
+      s.letter_body([item], 'test@rees46demo.com', nil)
     end
 
     it 'returns string' do
@@ -93,7 +93,7 @@ describe DigestMailingBatchWorker do
     let!(:liquid_shop) { create(:shop) }
     let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
     let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}{{item.url}}{% endfor%}') }
-    let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@example.com', activity_segment: 1) }
+    let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@rees46demo.com', activity_segment: 1) }
     let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_client.id, end_id: liquid_client.id, shop: liquid_shop) }
     let!(:liquid_digest_mail) { create(:digest_mail, client: liquid_client, shop: liquid_shop, mailing: liquid_mailing, batch: liquid_batch).reload }
     let!(:liquid_item) { create(:item, :widgetable, shop: liquid_shop) }
@@ -103,7 +103,7 @@ describe DigestMailingBatchWorker do
       s.current_digest_mail = liquid_digest_mail
       s.mailing = liquid_mailing
       s.perform(liquid_batch.id)
-      s.liquid_letter_body([liquid_item], 'test@example.com', nil)
+      s.liquid_letter_body([liquid_item], 'test@rees46demo.com', nil)
     end
 
     it 'returns string' do

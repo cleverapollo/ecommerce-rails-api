@@ -7,7 +7,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
 
     let!(:user) { create(:user) }
     let!(:shop) { create(:shop, ekomi_enabled: true, ekomi_id: '665', ekomi_key: 'FMJuyuC8uEbo3WxRa5aG') }
-    let!(:client) { create(:client, user: user, shop: shop, email: 'test@example.com') }
+    let!(:client) { create(:client, user: user, shop: shop, email: 'test@rees46demo.com') }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
     let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }

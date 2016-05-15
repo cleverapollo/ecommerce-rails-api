@@ -19,7 +19,7 @@ describe AudienceImportWorker do
 
     context 'works with audience' do
       context 'when client does not exists' do
-        let(:audience_raw) { { 'id' => '123', 'email' => 'test@example.com' } }
+        let(:audience_raw) { { 'id' => '123', 'email' => 'test@rees46demo.com' } }
         before { params['audience'] << audience_raw }
 
         it 'creates new client' do
@@ -38,7 +38,7 @@ describe AudienceImportWorker do
       end
 
       context 'when client exists by external_id' do
-        let(:audience_raw) { { 'id' => '123', 'email' => 'test@example.com', 'name' => 'Test' } }
+        let(:audience_raw) { { 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' } }
         let!(:user) { create(:user) }
         let!(:client) { create(:client, shop: shop, external_id: audience_raw['id'], user: user) }
         before { params['audience'] << audience_raw }
@@ -60,7 +60,7 @@ describe AudienceImportWorker do
         end
 
         context 'when id is blank' do
-          let(:audience_raw) { { 'id' => '', 'email' => 'test@example.com', 'name' => 'Test' } }
+          let(:audience_raw) { { 'id' => '', 'email' => 'test@rees46demo.com', 'name' => 'Test' } }
           before { params['audience'] << audience_raw }
 
           it 'does nothing' do

@@ -4,7 +4,7 @@ module TriggerMailings
     # Базовый класс, от которого наследуются реализации триггеров
     #
     class Base
-      attr_accessor :shop, :user, :client, :happened_at, :source_item, :source_items, :additional_info
+      attr_accessor :shop, :user, :client, :happened_at, :source_item, :source_items, :additional_info, :search_query
 
       class << self
         # Код триггера
@@ -86,6 +86,8 @@ module TriggerMailings
       end
 
       # Возвращает массив ID рекомендованных товаров для данного триггера.
+      # Применяется в методе recommendations. В нем содержится вся логика товарных рекомендаций в конкретных реализациях
+      # триггеров.
       # @param count [Integer] необходимое количество рекомендаций
       #
       # @return [Array[Integer]] массив ID рекомендованных товаров

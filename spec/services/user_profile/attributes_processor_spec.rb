@@ -9,17 +9,17 @@ describe UserProfile::AttributesProcessor do
     let!(:second_mail_user) { create(:user)}
     let!(:third_mail_user) { create(:user)}
 
-    let!(:attributes) { { 'gender' => 'f', 'type' => 'shoe', 'size' => 'e44', 'email' => 'old@example.com' } }
+    let!(:attributes) { { 'gender' => 'f', 'type' => 'shoe', 'size' => 'e44', 'email' => 'old@rees46demo.com' } }
 
-    let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@example.com') }
-    let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@example.com') }
-    let!(:third_client) { create(:client, shop: shop, user: third_mail_user, email: 'old@example.com') }
+    let!(:first_client) { create(:client, shop: shop, user: first_mail_user, email: 'old@rees46demo.com') }
+    let!(:second_client) { create(:client, shop: shop, user: second_mail_user, email: 'old@rees46demo.com') }
+    let!(:third_client) { create(:client, shop: shop, user: third_mail_user, email: 'old@rees46demo.com') }
 
     subject { UserProfile::AttributesProcessor.process(shop, user, attributes) }
 
     it 'set correct email' do
       subject
-      expect { user.reload.clients.first.email = 'test@example.com' }
+      expect { user.reload.clients.first.email = 'test@rees46demo.com' }
     end
 
     context 'when profile attribute is new' do

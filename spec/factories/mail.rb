@@ -55,7 +55,7 @@ FactoryGirl.define do
 
   factory :mailings_settings do
     shop
-    send_from 'test@example.com'
+    send_from 'test@rees46demo.com'
   end
 
   factory :mailers_digest_params, class: HashWithIndifferentAccess do

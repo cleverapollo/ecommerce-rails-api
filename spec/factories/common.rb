@@ -53,7 +53,7 @@ FactoryGirl.define do
     user
 
     trait :with_email do
-      email { 'test@example.com' }
+      email { 'test@rees46demo.com' }
     end
   end
 

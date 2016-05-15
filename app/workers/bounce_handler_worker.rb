@@ -29,7 +29,9 @@ class BounceHandlerWorker
           end
 
           # Если письмо bounced?
-          if bounced_message.is_bounce?
+          # @mk: добавил условие на тип, потому что mail.ru почему-то возвращал боунсы без кода боунса, в итоге тип был
+          # "permanent failure", а is_bounce? был false и письма не обрабатывались.
+          if bounced_message.is_bounce? || bounced_message.type == 'Permanent Failure'
 
             # Если Permanent Failure
             if bounced_message.type == 'Permanent Failure'

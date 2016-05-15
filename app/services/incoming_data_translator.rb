@@ -3,6 +3,10 @@
 # Т.к. данные приходят из множества модулей и SDK, иногда формат входящих данных различается.
 #
 class IncomingDataTranslator
+
+  BAD_EMAILS = %w(test@mail.ru anonymous@somedomain.com)
+  BAD_EMAIL_DOMAINS = %w(example.com)
+
   class << self
     # Обработка входящего параметра "доступен ли товар". По умолчанию true.
     # @param value [Object] входящий параметр
@@ -32,7 +36,7 @@ class IncomingDataTranslator
     # @param value [String] входящий e-mail
     # @return [String] обработанный e-mail
     def email(email)
-      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i && email != 'anonymous@somedomain.com'  # && !email.downcase.scan('example.com').any?
+      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i && !BAD_EMAILS.include?(email.downcase) && !BAD_EMAIL_DOMAINS.map{|x| email.downcase.scan(x) }.flatten.compact.any?
         email.downcase.strip
       end
     end
