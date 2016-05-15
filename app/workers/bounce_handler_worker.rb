@@ -32,10 +32,10 @@ class BounceHandlerWorker
           # @mk: добавил условие на тип, потому что mail.ru почему-то возвращал боунсы без кода боунса, в итоге тип был
           # "permanent failure", а is_bounce? был false и письма не обрабатывались.
           if bounced_message.is_bounce? || bounced_message.type == 'Permanent Failure'
-            puts "bounced!"
+
             # Если Permanent Failure
             if bounced_message.type == 'Permanent Failure'
-              puts "failure!"
+
               type = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
               code = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
 
@@ -45,7 +45,7 @@ class BounceHandlerWorker
                          elsif type == 'trigger'
                            TriggerMail.find_by(code: code)
                          end
-puts "E: #{entity}"
+
                 entity.mark_as_bounced! if entity.present?
               end
 
@@ -53,9 +53,9 @@ puts "E: #{entity}"
 
             # Если Persistent Transient Failure, то в следующий раз повезет, просто удаляем
             # nope
-puts "DELETE mail"
+
             email.delete!
-puts "DELETED!"
+
           end
 
         end
