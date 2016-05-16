@@ -29,7 +29,7 @@ module TriggerMailings
         if (search_queries = user.search_queries.where(date: Date.current).where(shop: shop).order(id: :desc)).any?
           @search_query = search_queries.first.query
           # Не было покупок за сутки?
-          if !user.orders.where(shop: shop).where('date > ? ', 1.day.ago).exists?
+          if !user.orders.where(shop: shop).where('date > ? ', 2.days.ago).exists?
             # Были действия за указанный указанный промежуток времени?
             if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists?
               @source_items = []
