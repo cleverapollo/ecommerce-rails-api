@@ -8,7 +8,7 @@ module TriggerMailings
       # Интервал целочисленных значений (timestamp), в котором должно произойти ожидаемое событие для триггера.
       # @return Range
       def trigger_time_range
-        (240.minutes.ago.to_i..60.minutes.ago.to_i)
+        (48.hours.ago.to_i..60.minutes.ago.to_i)
       end
 
       def priority
