@@ -135,7 +135,7 @@ module SectoralAlgorythms
       end
 
       def type_size_condition(type, sizes)
-        "(fashion_wear_type='#{type}' AND  '{#{sizes.map { |size| "\"#{size}\"" }.join(',')}}' && fashion_sizes )"
+        "( (fashion_wear_type='#{type}' AND '{#{sizes.map { |size| "\"#{size}\"" }.join(',')}}' && fashion_sizes) OR fashion_wear_type IS NULL OR fashion_sizes IS NULL )"
       end
 
       def filter_by_sizes_with_rollback(relation, type, sizes)
