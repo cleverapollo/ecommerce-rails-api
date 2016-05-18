@@ -38,7 +38,7 @@ describe TriggerMailings::Triggers::AbandonedSearch do
 
     context 'not happened there was no action in time range' do
       it {
-        action.update! timestamp: 24.hours.ago.to_i
+        action.update! timestamp: 72.hours.ago.to_i
         expect( subject.condition_happened? ).to be_falsey
       }
     end

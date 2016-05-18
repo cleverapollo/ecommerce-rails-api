@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510104658) do
+ActiveRecord::Schema.define(version: 20160517093833) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -413,6 +413,17 @@ ActiveRecord::Schema.define(version: 20160510104658) do
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
+
+  create_table "subscribe_for_categories", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "user_id",          limit: 8
+    t.integer  "item_category_id", limit: 8
+    t.datetime "subscribed_at"
+  end
+
+  add_index "subscribe_for_categories", ["shop_id", "subscribed_at"], name: "index_category_subscription_for_cleanup", using: :btree
+  add_index "subscribe_for_categories", ["shop_id", "user_id", "item_category_id"], name: "index_category_subscription_uniq", unique: true, using: :btree
+  add_index "subscribe_for_categories", ["shop_id", "user_id"], name: "index_category_subscription_for_triggers", using: :btree
 
   create_table "subscriptions_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                          null: false

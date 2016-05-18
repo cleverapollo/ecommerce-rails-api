@@ -23,6 +23,11 @@ every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
 end
 
+# Удаляем просроченные подписки на брошенные категории для триггеров
+every '55 23 * * *' do
+  runner "RunnerWrapper.run('SubscriptionForCategory::TriggerMailings.cleanup')"
+end
+
 every 20.minutes do
   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
 end

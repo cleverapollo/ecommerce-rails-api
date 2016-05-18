@@ -36,6 +36,7 @@ class Shop < MasterTable
   has_many :beacon_offers
   has_many :shop_metrics
   has_many :search_queries
+  has_many :subscribe_for_categories
 
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
