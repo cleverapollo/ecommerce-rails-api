@@ -1,22 +1,25 @@
 class MahoutService
   BRB_ADDRESS = 'localhost:5555'
-  SOCKET_PATH = Rails.env.development? ? '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock' : '/home/rails/rees46_recommendations/socket_file.sock'
+  SOCKET_PATH = Rails.env.development? ? File.expand_path(File.join(File.dirname(__FILE__),'../../../rees46_cf/socket_file.sock')) : '/home/rails/rees46_recommendations/socket_file.sock'
+  # '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock'
 
   attr_reader :socket
 
   def initialize(brb_adress = nil)
-    # @brb_address = brb_adress
-    # @brb_address = BRB_ADDRESS if brb_adress.nil? || brb_adress.empty?
-    # @brb_address = 'brb://'+@brb_address
+    unless Pathname.new(SOCKET_PATH).exist?
+      dirname = File.dirname(SOCKET_PATH)
+      unless File.directory?(dirname)
+        FileUtils.mkdir_p(dirname)
+      end
+      File.new(SOCKET_PATH, "w").chmod(0666)
+    end
   end
 
   def open
     unless Rails.env.test?
-
       begin
         Timeout::timeout(0.2) {
           @socket = UNIXSocket.new(SOCKET_PATH)
-          # @tunnel = BrB::Tunnel.create(nil, @brb_address)
         }
       rescue Timeout::Error => e
         return false
