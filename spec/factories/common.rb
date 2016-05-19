@@ -69,6 +69,7 @@ FactoryGirl.define do
   end
 
   factory :item_category do
+    external_id { SecureRandom.uuid }
   end
 
   factory :wear_type_dictionary do

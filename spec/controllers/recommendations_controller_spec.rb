@@ -1,8 +1,11 @@
 require 'rails_helper'
 
 describe RecommendationsController do
-  let!(:shop) { create(:shop) }
-  let!(:extracted_params) { { recommender_type: 'interesting' } }
+  let!(:shop) { create(:shop, uniqid: rand.to_s) }
+  let!(:user) { create(:user) }
+  let!(:session) { create(:session, code: rand.to_s, user: user) }
+  # let!(:extracted_params) { {recommender_type: 'interesting' } }
+  let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' }) }
   let!(:sample_recommendations) { [1, 2, 3] }
   before { allow(Recommendations::Params).to receive(:extract).and_return(extracted_params) }
   before { allow(Recommendations::Processor).to receive(:process).and_return(sample_recommendations) }
@@ -37,4 +40,26 @@ describe RecommendationsController do
       expect(response.status).to eq(400)
     end
   end
+
+
+  # @mk: выше тесты не позволяют выполнять эту проверку, т.к. перезаписывают поведение классов Recommendations::Params
+  # context 'saves category subscription' do
+  #
+  #   let!(:item_category) { create(:item_category, shop: shop) }
+  #   let!(:popular_params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'popular', categories: [item_category.external_id] } }
+  #
+  #   it 'increases amount of subscriptions' do
+  #     get :get, popular_params
+  #     expect(SubscribeForCategory.count).to eq(1)
+  #   end
+  #
+  #   it 'does not increase amount of subscriptions' do
+  #     popular_params.delete(:categories)
+  #     get :get, popular_params
+  #     expect(SubscribeForCategory.count).to eq(1)
+  #   end
+  #
+  # end
+
+
 end
