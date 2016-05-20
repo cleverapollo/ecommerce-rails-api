@@ -1,7 +1,6 @@
 class MahoutService
   BRB_ADDRESS = 'localhost:5555'
-  SOCKET_PATH = Rails.env.development? ? File.expand_path(File.join(File.dirname(__FILE__),'../../../rees46_cf/socket_file.sock')) : '/home/rails/rees46_recommendations/socket_file.sock'
-  # '/home/maroki/IdeaProjects/rees46_recommender/socket_file.sock'
+  SOCKET_PATH = Rails.env.production? ? '/home/rails/rees46_recommendations/socket_file.sock' : Rails.root.to_s + '/tmp/socket/socket_file.sock'
 
   attr_reader :socket
 
