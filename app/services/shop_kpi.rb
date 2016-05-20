@@ -85,6 +85,7 @@ class ShopKPI
 
     actions = Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).pluck(:item_id, :rating).delete_if { |x| x[1] != 4.2 }
     @shop_metric.abandoned_products = actions.count
+    @shop_metric.abandoned_money = 0
     if @shop_metric.abandoned_products > 0
       item_ids = actions.map { |x| x[0] }.uniq
       prices = Item.where(id: item_ids.uniq).where.not(price: nil).pluck(:id, :price)

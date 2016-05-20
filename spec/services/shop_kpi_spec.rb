@@ -99,7 +99,26 @@ describe ShopKPI do
 
     end
 
+    # Была проблема в том, что каждый раз, когда делали перерасчет за предыдущие дни исходная сумма не обнулялась,
+    # а просто суммировалась со значением, рассчитанным в прошлый раз. Поэтому были безумные суммы.
+    it 'does not break abandoned carts statistics with summarizing money and nullifying count' do
+      expect{subject}.to change(ShopMetric, :count).from(0).to(1)
+      action_3.update timestamp: 2.hours.ago.to_i
+      ShopKPI.new(shop).calculate_and_write_statistics_at(Date.yesterday)
+      ShopKPI.new(shop).calculate_and_write_statistics_at(Date.today)
+      expect(ShopMetric.count).to eq(2)
+      expect(ShopMetric.order(:id).first.abandoned_products).to eq(1)
+      expect(ShopMetric.order(:id).first.abandoned_money).to eq(100)
+      expect(ShopMetric.order(:id).last.abandoned_products).to eq(1)
+      expect(ShopMetric.order(:id).last.abandoned_money).to eq(200)
+
+    end
+
 
 
   end
+
+
+
+
 end
