@@ -25,7 +25,7 @@ end
 
 # Удаляем просроченные подписки на брошенные категории для триггеров
 every '55 23 * * *' do
-  runner "RunnerWrapper.run('SubscriptionForCategory::TriggerMailings.cleanup')"
+  runner "RunnerWrapper.run('TriggerMailings::SubscriptionForCategory.cleanup')"
 end
 
 every 20.minutes do
