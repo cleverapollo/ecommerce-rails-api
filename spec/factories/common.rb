@@ -69,6 +69,8 @@ FactoryGirl.define do
   end
 
   factory :item_category do
+    external_id { SecureRandom.uuid }
+    shop
   end
 
   factory :wear_type_dictionary do
@@ -77,4 +79,5 @@ FactoryGirl.define do
   factory :brand do
     name { 'Apple' }
   end
+
 end
