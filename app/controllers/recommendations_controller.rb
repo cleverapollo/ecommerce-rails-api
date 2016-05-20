@@ -14,12 +14,15 @@ class RecommendationsController < ApplicationController
     recommendations = Recommendations::Processor.process(extracted_params)
 
     # Для триггера "Брошенная категория" отмечаем подписку на категории
-    # if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0
-    #   TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
-    # end
+    if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0
+      TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
+    end
 
     render json: recommendations
   rescue Recommendations::Error => e
+    log_client_error(e)
+    respond_with_client_error(e)
+  rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
     log_client_error(e)
     respond_with_client_error(e)
   end
