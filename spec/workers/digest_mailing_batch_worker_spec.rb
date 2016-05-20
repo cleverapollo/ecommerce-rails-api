@@ -58,6 +58,9 @@ describe DigestMailingBatchWorker do
 
   describe '#perform with activity segment' do
 
+    # Если вдруг на локале здесь не проходит и непонятно почему, то скорее всего это из-за current_processed_client_id
+    # который исторически сохранился у вас в Redis и не удалился.
+    # Нахера вообще такое надо было хранить в Redis?
     it 'sends an email' do
       subject.perform(batch_without_segment.id)
       expect(batch_without_segment.reload.digest_mails.count).to eq(1)
