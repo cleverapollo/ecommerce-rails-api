@@ -3,9 +3,10 @@
 #
 class MailingsSettings < ActiveRecord::Base
 
-  MAILING_SERVICES = [['REES46', 0], ['GetResponse', 1]]
+  MAILING_SERVICES = [['REES46', 0], ['GetResponse', 1], ['Optivo for MyToys', 2]]
   MAILING_SERVICE_REES46 = 0
   MAILING_SERVICE_GETRESPONSE = 1
+  MAILING_SERVICE_OPTIVO_MYTOYS = 2
 
   TEMPLATE_DEFAULT = 0
   TEMPLATE_LIQUID = 1
