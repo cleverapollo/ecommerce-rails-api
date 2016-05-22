@@ -7,7 +7,10 @@ module TriggerMailings
 
       # Выгружает триггеры в Optivo и удаляет устаревшие данные
       def sync
-
+        mails = TriggerMailingQueue.where('triggered_at <= ?', Time.current)
+        # ... transfer it to FTP
+        mails.delete_all
+        raise NotImplementedError.new('This should be implemented before production')
         true
       end
 

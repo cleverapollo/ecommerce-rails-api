@@ -57,6 +57,17 @@ describe TriggerMailings::OptivoMytoysLetter do
   end
 
   describe '.sync' do
+    # let!(:user) { create(:user) }
+    # let!(:shop) { create(:shop) }
+    # let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:trigger_mailing_queue_1) { create(:trigger_mailing_queue, recommended_items: [1,2,3], triggered_at: 1.minute.ago, trigger_mail_code: '123')}
+    let!(:trigger_mailing_queue_2) { create(:trigger_mailing_queue, recommended_items: [1,2,3], triggered_at: 2.minutes.ago, trigger_mail_code: '123')}
+    let!(:trigger_mailing_queue_3) { create(:trigger_mailing_queue, recommended_items: [1,2,3], triggered_at: 3.minutes.ago, trigger_mail_code: '123')}
+    let!(:trigger_mailing_queue_4) { create(:trigger_mailing_queue, recommended_items: [1,2,3], triggered_at: 4.minutes.ago, trigger_mail_code: '123')}
+    subject { TriggerMailings::OptivoMytoysLetter.sync }
+    it {
+      expect{subject}.to change(TriggerMailingQueue, :count).to(0)
+    }
   end
 
 end
