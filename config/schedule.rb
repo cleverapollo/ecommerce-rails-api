@@ -15,6 +15,11 @@ every '0 4 * * *' do
   runner "RunnerWrapper.run('CartsExpirer.perform')"
 end
 
+# Выгружаем триггерные рассылки в Optivo для MyToys
+every '0 0 * * *' do
+  runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
+end
+
 every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end

@@ -37,6 +37,8 @@ module TriggerMailings
                     if trigger = trigger_detector.detect(client)
                       if shop.mailings_settings.external_getresponse?
                         TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                      elsif shop.mailings_settings.is_optivo_for_mytoys?
+                        TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                       else
                         TriggerMailings::Letter.new(client, trigger).send
                       end
@@ -55,6 +57,8 @@ module TriggerMailings
                   if trigger = trigger_detector.detect(client)
                     if shop.mailings_settings.external_getresponse?
                       TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                    elsif shop.mailings_settings.is_optivo_for_mytoys?
+                      TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                     else
                       TriggerMailings::Letter.new(client, trigger).send
                     end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160517093833) do
+ActiveRecord::Schema.define(version: 20160521182332) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -441,6 +441,20 @@ ActiveRecord::Schema.define(version: 20160517093833) do
     t.string   "button"
     t.text     "agreement"
   end
+
+  create_table "trigger_mailing_queues", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "user_id",           limit: 8
+    t.string   "email"
+    t.string   "trigger_type"
+    t.datetime "triggered_at"
+    t.string   "recommended_items",           array: true
+    t.string   "source_items",                array: true
+    t.string   "trigger_mail_code"
+  end
+
+  add_index "trigger_mailing_queues", ["shop_id"], name: "index_trigger_mailing_queues_on_shop_id", using: :btree
+  add_index "trigger_mailing_queues", ["triggered_at"], name: "index_trigger_mailing_queues_on_triggered_at", using: :btree
 
   create_table "trigger_mailings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                                 null: false
