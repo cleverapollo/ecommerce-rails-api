@@ -16,14 +16,13 @@ module Recommender
 
       def items_in_shop
         result = super
-        if params.fashion? || params.cosmetic?
+        if params.fashion?
+          result = result.where('is_fashion IS TRUE')
           gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
           result = gender_algo.modify_relation_with_rollback(result)
-          # Если fashion - дополнительно фильтруем по размеру
-          if params.fashion?
-            # size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
-            # result = size_algo.modify_relation_with_rollback(result)
-          end
+        end
+        if params.cosmetic?
+          result = result.where('is_cosmetic IS TRUE')
         end
         result
       end
