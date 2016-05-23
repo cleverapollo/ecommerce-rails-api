@@ -128,6 +128,8 @@ module SectoralAlgorythms
               addition_relations << type_size_condition(type, sizes)
             end
           end if type_sizes
+          # Эта штука работает неправильно. Оставляет только те товары, у которых есть размеры.
+          # А должно быть: оставляет товары, у которых нет размера или товары, у которых есть размер и он подходит клиенту.
           relation =  relation.where(addition_relations.join(" OR ")).where.not(fashion_sizes:nil)
         end
 

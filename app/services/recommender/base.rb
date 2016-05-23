@@ -154,7 +154,7 @@ module Recommender
       additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).limit(RANDOM_LIMIT_MULTIPLY * limit).pluck(:id)
 
 
-      given_ids + additional_ids.sample(limit - given_ids.count)
+      given_ids + additional_ids.shuffle.sample(limit - given_ids.count)
     end
 
     # Товары, доступные к рекомендациям - переопределяется в реализациях
