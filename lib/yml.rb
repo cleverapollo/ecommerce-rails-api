@@ -27,6 +27,7 @@ class Yml < Struct.new(:path)
     begin
       open path, "rb", {
         allow_redirections: :safe,
+        ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE,
         progress_proc: ->(bytes) { STDOUT.write "\rDownloaded : #{ number_to_human_size(bytes) }" },
         read_timeout: 10.minutes,
         redirect: true
