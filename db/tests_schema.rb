@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160415102038) do
+ActiveRecord::Schema.define(version: 20160527131659) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -602,11 +602,11 @@ ActiveRecord::Schema.define(version: 20160415102038) do
   end
 
   create_table "shops", id: :bigserial, force: :cascade do |t|
-    t.string   "uniqid",                        limit: 255,                                         null: false
-    t.string   "name",                          limit: 255,                                         null: false
-    t.boolean  "active",                                                            default: true,  null: false
+    t.string   "uniqid",                        limit: 255,                 null: false
+    t.string   "name",                          limit: 255,                 null: false
+    t.boolean  "active",                                    default: true,  null: false
     t.integer  "customer_id"
-    t.boolean  "connected",                                                         default: false
+    t.boolean  "connected",                                 default: false
     t.string   "url",                           limit: 255
     t.boolean  "ab_testing"
     t.datetime "ab_testing_started_at"
@@ -616,62 +616,56 @@ ActiveRecord::Schema.define(version: 20160415102038) do
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count",     limit: 255
     t.integer  "category_id"
-    t.boolean  "paid",                                                              default: false, null: false
+    t.boolean  "paid",                                      default: false, null: false
     t.integer  "cms_id"
-    t.string   "currency",                      limit: 255,                         default: "р."
+    t.string   "currency",                      limit: 255, default: "р."
     t.integer  "plan_id"
-    t.boolean  "needs_to_pay",                                                      default: false, null: false
+    t.boolean  "needs_to_pay",                              default: false, null: false
     t.datetime "paid_till"
-    t.boolean  "manual",                                                            default: false, null: false
-    t.boolean  "requested_ab_testing",                                              default: false, null: false
-    t.decimal  "efficiency",                                precision: 5, scale: 2, default: 0.0,   null: false
+    t.boolean  "manual",                                    default: false, null: false
+    t.boolean  "requested_ab_testing",                      default: false, null: false
     t.string   "yml_file_url",                  limit: 255
-    t.boolean  "yml_loaded",                                                        default: false, null: false
+    t.boolean  "yml_loaded",                                default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tracked_monthly_orders_count",                                      default: 0,     null: false
-    t.string   "rivals",                        limit: 255,                         default: [],                 array: true
-    t.boolean  "has_orders_last_week",                                              default: false, null: false
-    t.boolean  "strict_recommendations",                                            default: false, null: false
-    t.decimal  "recommended_items_view_rate",                                       default: 0.0,   null: false
-    t.boolean  "export_to_ct",                                                      default: false
+    t.boolean  "strict_recommendations",                    default: false, null: false
+    t.boolean  "export_to_ct",                              default: false
     t.integer  "manager_id"
-    t.boolean  "enable_nda",                                                        default: false
-    t.boolean  "available_ibeacon",                                                 default: false
-    t.boolean  "gives_rewards",                                                     default: true,  null: false
-    t.boolean  "hopeless",                                                          default: false, null: false
-    t.boolean  "restricted",                                                        default: false, null: false
-    t.decimal  "revenue_per_visit",                                                 default: 0.0,   null: false
+    t.boolean  "enable_nda",                                default: false
+    t.boolean  "available_ibeacon",                         default: false
+    t.boolean  "gives_rewards",                             default: true,  null: false
+    t.boolean  "hopeless",                                  default: false, null: false
+    t.boolean  "restricted",                                default: false, null: false
     t.datetime "last_valid_yml_file_loaded_at"
     t.text     "connection_status_last_track"
     t.integer  "plan_value"
-    t.boolean  "dont_disconnect",                                                   default: false, null: false
+    t.boolean  "dont_disconnect",                           default: false, null: false
     t.string   "brb_address"
-    t.integer  "shard",                                                             default: 0,     null: false
+    t.integer  "shard",                                     default: 0,     null: false
     t.datetime "manager_remind_date"
-    t.integer  "yml_errors",                                                        default: 0,     null: false
-    t.boolean  "track_order_status",                                                default: false, null: false
-    t.integer  "trigger_pause",                                                     default: 14
-    t.integer  "yml_load_period",                                                   default: 24,    null: false
+    t.integer  "yml_errors",                                default: 0,     null: false
+    t.boolean  "track_order_status",                        default: false, null: false
+    t.integer  "trigger_pause",                             default: 14
+    t.integer  "yml_load_period",                           default: 24,    null: false
     t.datetime "last_try_to_load_yml_at"
-    t.boolean  "supply_available",                                                  default: false, null: false
-    t.boolean  "use_brb",                                                           default: false
-    t.boolean  "merchandising_enabled",                                             default: true,  null: false
-    t.integer  "scoring",                                                           default: 0,     null: false
-    t.decimal  "triggers_cpa",                                                      default: 4.6,   null: false
-    t.decimal  "digests_cpa",                                                       default: 2.0,   null: false
-    t.integer  "triggers_cpa_cap",                                                  default: 250,   null: false
-    t.integer  "digests_cpa_cap",                                                   default: 200,   null: false
-    t.boolean  "enabled_fashion",                                                   default: false, null: false
-    t.boolean  "enabled_child",                                                     default: false, null: false
-    t.boolean  "enabled_cosmetic",                                                  default: false, null: false
-    t.boolean  "enabled_pets",                                                      default: false, null: false
-    t.boolean  "enabled_construction",                                              default: false, null: false
-    t.boolean  "enabled_appliances",                                                default: false, null: false
-    t.boolean  "enabled_fmcg",                                                      default: false, null: false
-    t.boolean  "remarketing_enabled",                                               default: false
-    t.decimal  "remarketing_cpa",                                                   default: 4.6,   null: false
-    t.decimal  "remarketing_cpa_cap",                                               default: 250.0, null: false
+    t.boolean  "supply_available",                          default: false, null: false
+    t.boolean  "use_brb",                                   default: false
+    t.boolean  "merchandising_enabled",                     default: true,  null: false
+    t.integer  "scoring",                                   default: 0,     null: false
+    t.decimal  "triggers_cpa",                              default: 4.6,   null: false
+    t.decimal  "digests_cpa",                               default: 2.0,   null: false
+    t.integer  "triggers_cpa_cap",                          default: 250,   null: false
+    t.integer  "digests_cpa_cap",                           default: 200,   null: false
+    t.boolean  "enabled_fashion",                           default: false, null: false
+    t.boolean  "enabled_child",                             default: false, null: false
+    t.boolean  "enabled_cosmetic",                          default: false, null: false
+    t.boolean  "enabled_pets",                              default: false, null: false
+    t.boolean  "enabled_construction",                      default: false, null: false
+    t.boolean  "enabled_appliances",                        default: false, null: false
+    t.boolean  "enabled_fmcg",                              default: false, null: false
+    t.boolean  "remarketing_enabled",                       default: false
+    t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
+    t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
     t.boolean  "ekomi_enabled"
     t.string   "ekomi_id"
     t.string   "ekomi_key"

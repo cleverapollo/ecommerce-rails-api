@@ -2,21 +2,17 @@ class ShopKPI
 
   class << self
 
-    # Неактуален, так как работает только со вчерашним днем, а это неполные данные для рассылок
-    # и синхронизации статусов заказов
-    # def process_all
-    #   Shop.on_current_shard.connected.active.unrestricted.each do |shop|
-    #     new(shop).calculate_and_write_statistics_at(Date.yesterday)
-    #   end
-    # end
-
-    # Так как статусы заказов синхроинизируются часто намного позже, чем заказы создаются,
+    # Так как статусы заказов синхронизируются часто намного позже, чем заказы создаются,
     # А также заказы с рассылок приходят значительно позже после их отправки,
     # нужно пересчитывать старые данные за 14 дней.
     def recalculate_all_for_last_period
       Shop.on_current_shard.connected.active.unrestricted.each do |shop|
-        (1..14).each do |x|
-          new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+        if shop.track_order_status?
+          (1..14).each do |x|
+            new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+          end
+        else
+          new(shop).calculate_and_write_statistics_at(Date.yesterday)
         end
       end
     end
@@ -99,6 +95,17 @@ class ShopKPI
     # Subscriptions
     @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
     @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
+
+    # Считаем товары
+    products = Retailer::Products::OverviewStatistic.new @shop
+    @shop_metric.products_statistics = {
+        total: products.total,
+        recommendable: products.recommendable,
+        widgetable: products.widgetable,
+        ignored: products.ignored,
+        industrial: products.industrial
+    }
+    @shop_metric.top_products = OrderItem.where(shop_id: @shop.id).where(order_id: Order.where(shop_id: @shop.id).where('date >= ?', 1.month.ago)).group(:item_id).count.to_a.sort_by { |x| x[1] }.reverse[0..4].map { |x| item = Item.find(x[0]); {id: item.id, name: item.name, url: item.url, amount: x[1]} }
 
     @shop_metric.save!
 

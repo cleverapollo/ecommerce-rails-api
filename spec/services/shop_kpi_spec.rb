@@ -11,8 +11,8 @@ describe ShopKPI do
 
   let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true)}
 
-  let!(:item_1) { create(:item, shop: shop, price: 100) }
-  let!(:item_2) { create(:item, shop: shop, price: 200) }
+  let!(:item_1) { create(:item, shop: shop, price: 100, is_available: 1) }
+  let!(:item_2) { create(:item, shop: shop, price: 200, is_fashion: 1, widgetable: true, is_available: 1) }
 
   let!(:action_1) { create(:action, shop: shop, item: item_1, user: user, rating: 4.2, timestamp: (Date.yesterday + 2.hours).to_i) }
   let!(:action_2) { create(:action, shop: shop, item: item_2, user: user, timestamp: (Date.yesterday + 2.hours).to_i, recommended_by: 'digest_mail') }
@@ -96,6 +96,9 @@ describe ShopKPI do
 
       expect(shop_metric.product_views_total).to eq(3)
       expect(shop_metric.product_views_recommended).to eq(1)
+
+      expect(shop_metric.top_products).to eq([{id: item_1.id, name: item_1.name, url: item_1.url, amount: 2}.stringify_keys])
+      expect(shop_metric.products_statistics).to eq({ total: 2, recommendable: 2, widgetable: 1, ignored: 0,  industrial: 1}.stringify_keys)
 
     end
 
