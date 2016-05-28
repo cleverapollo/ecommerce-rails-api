@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527135231) do
+ActiveRecord::Schema.define(version: 20160528073519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -426,6 +426,26 @@ ActiveRecord::Schema.define(version: 20160527135231) do
   add_index "subscribe_for_categories", ["shop_id", "subscribed_at"], name: "index_category_subscription_for_cleanup", using: :btree
   add_index "subscribe_for_categories", ["shop_id", "user_id", "item_category_id"], name: "index_category_subscription_uniq", unique: true, using: :btree
   add_index "subscribe_for_categories", ["shop_id", "user_id"], name: "index_category_subscription_for_triggers", using: :btree
+
+  create_table "subscribe_for_product_availables", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "user_id",       limit: 8
+    t.integer  "item_id",       limit: 8
+    t.datetime "subscribed_at"
+  end
+
+  add_index "subscribe_for_product_availables", ["shop_id", "user_id", "item_id"], name: "index_subscribe_for_product_available_uniq", unique: true, using: :btree
+  add_index "subscribe_for_product_availables", ["shop_id", "user_id"], name: "index_subscribe_for_product_available_for_user", using: :btree
+
+  create_table "subscribe_for_product_prices", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "user_id",       limit: 8
+    t.integer  "item_id",       limit: 8
+    t.datetime "subscribed_at"
+  end
+
+  add_index "subscribe_for_product_prices", ["shop_id", "user_id", "item_id"], name: "index_subscribe_for_product_price_uniq", unique: true, using: :btree
+  add_index "subscribe_for_product_prices", ["shop_id", "user_id"], name: "index_subscribe_for_product_price_for_user", using: :btree
 
   create_table "subscriptions_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                          null: false

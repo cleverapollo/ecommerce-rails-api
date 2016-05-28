@@ -105,6 +105,15 @@ class Client < ActiveRecord::Base
     update last_activity_at: Date.current if last_activity_at != Date.current
   end
 
+  # Подписывает клиента на триггерные рассылки
+  # @return nil
+  def subscribe_for_triggers!
+    unless triggers_enabled?
+      update triggers_enabled: true
+    end
+    nil
+  end
+
   protected
   def assign_ab_testing_group
     return if self.ab_testing_group.present?
