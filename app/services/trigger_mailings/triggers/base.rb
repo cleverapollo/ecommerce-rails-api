@@ -12,6 +12,11 @@ module TriggerMailings
         def code
           self.name.split('::').last
         end
+
+        def print_order
+          TriggerMailings::Triggers::NAMES.map { |x| "TriggerMailings::Triggers::#{x}".constantize.new(Client.first) }.map { |x| [x.class.to_s, x.priority] }.sort_by { |x| x[1] }.reverse
+        end
+
       end
 
       def mailing

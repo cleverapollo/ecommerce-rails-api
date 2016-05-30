@@ -33,6 +33,11 @@ every '55 23 * * *' do
   runner "RunnerWrapper.run('TriggerMailings::SubscriptionForCategory.cleanup')"
 end
 
+# Удаляем просроченные подписки на товары для триггеров
+1.month do
+  runner "RunnerWrapper.run('TriggerMailings::SubscriptionForProduct.cleanup')"
+end
+
 every 20.minutes do
   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
 end

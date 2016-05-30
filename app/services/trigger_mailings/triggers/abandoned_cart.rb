@@ -10,7 +10,7 @@ module TriggerMailings
       end
 
       def priority
-        20
+        40
       end
 
       def appropriate_time_to_send?
