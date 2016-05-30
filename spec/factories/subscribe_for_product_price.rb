@@ -3,5 +3,6 @@ FactoryGirl.define do
     shop
     user
     item
+    price { SecureRandom.random_number(100) }
   end
 end

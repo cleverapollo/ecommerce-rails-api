@@ -13,16 +13,17 @@ module TriggerMailings
       # @return SubscribeForProductPrice
       # @throws IncorrectMailingSettingsError
       #
-      def subscribe_for_price(shop, user, item)
+      def subscribe_for_price(shop, user, item, location = nil)
 
         raise IncorrectMailingSettingsError if shop.nil?
         raise IncorrectMailingSettingsError if user.nil?
         raise IncorrectMailingSettingsError if item.nil?
+        raise IncorrectMailingSettingsError if item.price.nil?
 
-        if element = SubscribeForProductPrice.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id)
+        if element = SubscribeForProductPrice.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id, price: item.price_at_location(location))
           element.update subscribed_at: DateTime.current
         else
-          element = SubscribeForProductPrice.create shop_id: shop.id, user_id: user.id, item_id: item.id, subscribed_at: DateTime.current
+          element = SubscribeForProductPrice.create shop_id: shop.id, user_id: user.id, item_id: item.id, price: item.price_at_location(location), subscribed_at: DateTime.current
         end
 
         element

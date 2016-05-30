@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160528073519) do
+ActiveRecord::Schema.define(version: 20160529090238) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -442,6 +442,7 @@ ActiveRecord::Schema.define(version: 20160528073519) do
     t.integer  "user_id",       limit: 8
     t.integer  "item_id",       limit: 8
     t.datetime "subscribed_at"
+    t.decimal  "price",                   null: false
   end
 
   add_index "subscribe_for_product_prices", ["shop_id", "user_id", "item_id"], name: "index_subscribe_for_product_price_uniq", unique: true, using: :btree

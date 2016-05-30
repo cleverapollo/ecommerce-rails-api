@@ -13,6 +13,8 @@ class User < MasterTable
   has_many :user_taxonomies
   has_many :profile_events
   has_many :subscribe_for_categories
+  has_many :subscribe_for_product_prices
+  has_many :subscribe_for_product_availables
 
   # Редисовая блокировка. Используется при слиянии пользователей
   lock :merging, expiration: 60, timeout: 1
