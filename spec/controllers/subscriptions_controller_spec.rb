@@ -109,7 +109,7 @@ describe SubscriptionsController do
     let!(:session) { create(:session_with_user) }
     let!(:client) { create(:client, user: session.user, shop: shop, email: nil, triggers_enabled: false) }
     let!(:item) { create(:item, shop: shop, uniqid: '123') }
-    subject { post :subscribe_for_product_price, shop_id: shop.uniqid, ssid: session.code, email: email, item: item.uniqid }
+    subject { post :subscribe_for_product_price, shop_id: shop.uniqid, ssid: session.code, email: email, item_id: item.uniqid }
 
     context 'all correct' do
       let!(:email) { 'some@email.com' }
@@ -196,7 +196,7 @@ describe SubscriptionsController do
     let!(:session) { create(:session_with_user) }
     let!(:client) { create(:client, user: session.user, shop: shop, email: nil, triggers_enabled: false) }
     let!(:item) { create(:item, shop: shop, uniqid: '123', is_available: false) }
-    subject { post :subscribe_for_product_available, shop_id: shop.uniqid, ssid: session.code, email: email, item: item.uniqid }
+    subject { post :subscribe_for_product_available, shop_id: shop.uniqid, ssid: session.code, email: email, item_id: item.uniqid }
 
     context 'all correct' do
 

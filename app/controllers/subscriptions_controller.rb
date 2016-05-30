@@ -53,7 +53,7 @@ class SubscriptionsController < ApplicationController
     if email = IncomingDataTranslator.email(params[:email])
 
       # Если найден требуемый товар
-      if params[:item].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item]))
+      if params[:item_id].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item_id]))
 
         # Находим клиента
         client = shop.clients.find_or_create_by!(user_id: @user.id)
@@ -92,7 +92,7 @@ class SubscriptionsController < ApplicationController
     if email = IncomingDataTranslator.email(params[:email])
 
       # Если найден требуемый товар
-      if params[:item].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item]))
+      if params[:item_id].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item_id]))
 
         # Если товар не в наличии
         unless item.is_available?
