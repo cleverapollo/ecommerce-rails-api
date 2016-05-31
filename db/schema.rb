@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160531085528) do
+ActiveRecord::Schema.define(version: 20160531085839) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -188,6 +188,7 @@ ActiveRecord::Schema.define(version: 20160531085528) do
 
   add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
+  add_index "digest_mails", ["digest_mailing_id"], name: "index_digest_mails_on_digest_mailing_id", using: :btree
 
   create_table "events", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false
