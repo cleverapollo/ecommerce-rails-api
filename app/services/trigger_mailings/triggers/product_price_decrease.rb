@@ -31,6 +31,7 @@ module TriggerMailings
           }.uniq.compact
           if @source_items.any?
             @happened_at = Time.current
+            @source_item = @source_items.first
             user.subscribe_for_product_prices.where(shop: shop, item_id: @source_items.map(&:id) ).destroy_all
             return true
           end
