@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160531085839) do
+ActiveRecord::Schema.define(version: 20160531103434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -417,6 +417,7 @@ ActiveRecord::Schema.define(version: 20160531085839) do
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
+  add_index "shop_metrics", ["shop_id"], name: "index_shop_metrics_on_shop_id", using: :btree
 
   create_table "subscribe_for_categories", force: :cascade do |t|
     t.integer  "shop_id"
