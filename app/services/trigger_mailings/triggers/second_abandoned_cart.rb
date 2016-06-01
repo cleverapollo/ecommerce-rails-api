@@ -31,7 +31,7 @@ module TriggerMailings
         actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
         if actions.exists?
           @happened_at = actions.first.cart_date
-          @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
+          @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
           @source_item = @source_items.first
           if @source_item
             return true

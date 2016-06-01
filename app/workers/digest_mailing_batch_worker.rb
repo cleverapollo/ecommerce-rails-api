@@ -183,7 +183,7 @@ class DigestMailingBatchWorker
 
   # Обертка над товаром для отображения в письме.
   #
-  # @param [Item] товар.
+  # @param item [Item] товар.
   # @param location [String] Код локации для локальной цены
   # @param track_email [String] Зашифрованный емейл для склеивания юзера после перехода
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
@@ -206,6 +206,10 @@ class DigestMailingBatchWorker
                                         ),
       image_url: item.image_url,
       currency: item.shop.currency,
+      id: item.uniqid.to_s,
+      barcode: item.barcode.to_s,
+      brand: item.brand.to_s,
+      amount: 1
     }
   end
 end
