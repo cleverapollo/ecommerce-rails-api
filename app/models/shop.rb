@@ -15,7 +15,6 @@ class Shop < MasterTable
   store :connection_status_last_track, accessors: [:connected_events_last_track, :connected_recommenders_last_track], coder: JSON
 
   has_and_belongs_to_many :users
-  belongs_to :plan
   belongs_to :customer
   belongs_to :category
   belongs_to :manager, -> { admins }, class_name: 'Customer'
@@ -167,10 +166,6 @@ class Shop < MasterTable
     ekomi_enabled? && ekomi_id.present? && ekomi_key.present?
   end
 
-  def show_promotion?
-    self.manual == false && self.plan_id.present? && (self.paid == false || self.plan.try(:free?))
-  end
-
   def subscriptions_enabled?
     subscriptions_settings.present? && subscriptions_settings.enabled?
   end
@@ -185,10 +180,6 @@ class Shop < MasterTable
 
   def restricted?
     super || deactivated?
-  end
-
-  def payment_ended?
-    connected && active && !manual && !plan_id.nil? && !paid_till.nil? && paid_till <= DateTime.current
   end
 
   def allow_industrial?

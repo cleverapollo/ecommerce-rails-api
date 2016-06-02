@@ -619,9 +619,6 @@ ActiveRecord::Schema.define(version: 20160527131659) do
     t.boolean  "paid",                                      default: false, null: false
     t.integer  "cms_id"
     t.string   "currency",                      limit: 255, default: "р."
-    t.integer  "plan_id"
-    t.boolean  "needs_to_pay",                              default: false, null: false
-    t.datetime "paid_till"
     t.boolean  "manual",                                    default: false, null: false
     t.boolean  "requested_ab_testing",                      default: false, null: false
     t.string   "yml_file_url",                  limit: 255
