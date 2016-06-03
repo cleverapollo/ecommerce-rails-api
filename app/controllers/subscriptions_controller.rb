@@ -79,7 +79,7 @@ class SubscriptionsController < ApplicationController
 
     end
 
-    render nothing: true
+    render json: {}
   end
 
 
@@ -123,7 +123,7 @@ class SubscriptionsController < ApplicationController
 
     end
 
-    render nothing: true
+    render json: {}
 
   end
 
