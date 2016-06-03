@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527131659) do
+ActiveRecord::Schema.define(version: 20160602085811) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -306,8 +306,6 @@ ActiveRecord::Schema.define(version: 20160527131659) do
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
-    t.string   "industry_code"
-    t.string   "suggested_plan"
     t.string   "juridical_person"
     t.integer  "currency_id",                        default: 1,     null: false
     t.string   "language",                           default: "ru",  null: false
@@ -406,17 +404,6 @@ ActiveRecord::Schema.define(version: 20160527131659) do
     t.string   "paypal_payer_id",   limit: 255
     t.string   "paypal_profile_id", limit: 255
     t.string   "state",             limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "plans", force: :cascade do |t|
-    t.string   "name",       limit: 255, null: false
-    t.integer  "orders_min",             null: false
-    t.integer  "orders_max",             null: false
-    t.integer  "price"
-    t.string   "plan_type",  limit: 255, null: false
-    t.text     "mailing"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -616,13 +603,8 @@ ActiveRecord::Schema.define(version: 20160527131659) do
     t.datetime "connected_at"
     t.string   "mean_monthly_orders_count",     limit: 255
     t.integer  "category_id"
-    t.boolean  "paid",                                      default: false, null: false
     t.integer  "cms_id"
     t.string   "currency",                      limit: 255, default: "р."
-    t.integer  "plan_id"
-    t.boolean  "needs_to_pay",                              default: false, null: false
-    t.datetime "paid_till"
-    t.boolean  "manual",                                    default: false, null: false
     t.boolean  "requested_ab_testing",                      default: false, null: false
     t.string   "yml_file_url",                  limit: 255
     t.boolean  "yml_loaded",                                default: false, null: false
@@ -638,8 +620,6 @@ ActiveRecord::Schema.define(version: 20160527131659) do
     t.boolean  "restricted",                                default: false, null: false
     t.datetime "last_valid_yml_file_loaded_at"
     t.text     "connection_status_last_track"
-    t.integer  "plan_value"
-    t.boolean  "dont_disconnect",                           default: false, null: false
     t.string   "brb_address"
     t.integer  "shard",                                     default: 0,     null: false
     t.datetime "manager_remind_date"
