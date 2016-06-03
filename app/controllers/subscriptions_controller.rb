@@ -72,7 +72,7 @@ class SubscriptionsController < ApplicationController
         begin
           TriggerMailings::SubscriptionForProduct.subscribe_for_price shop, @user, item, client.location
         rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
-          render nothing: true, code: 400
+          render json: {}, code: 400
         end
 
       end
@@ -114,7 +114,7 @@ class SubscriptionsController < ApplicationController
           begin
             TriggerMailings::SubscriptionForProduct.subscribe_for_available shop, @user, item
           rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
-            render nothing: true, code: 400
+            render json: {}, code: 400
           end
 
         end
