@@ -10,9 +10,8 @@ module Mailings
         unsubscribe_url = options.fetch(:unsubscribe_url)
 
         <<-HTML
-          Письмо было отправлено на <a href="mailto:#{email}">#{email}</a>.
-          <br>
-          Если вы не хотите получать подобные письма, вы можете <a href="#{unsubscribe_url}">отписаться</a> от рассылок.
+          This letter was sent to <a href="mailto:#{email}">#{email}</a>.<br>
+          If you does not want to receive similar letters, you can <a href="#{unsubscribe_url}">unsubscribe</a> from these offers.
           <img src="#{tracking_url}" alt=""></img>
         HTML
       end
