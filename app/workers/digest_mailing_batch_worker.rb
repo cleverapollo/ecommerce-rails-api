@@ -84,6 +84,10 @@ class DigestMailingBatchWorker
       end
     end
 
+  rescue Sidekiq::Shutdown => e
+    Rollbar.error e
+    sleep 5
+    retry
   rescue => e
     @mailing.fail! if @mailing
     raise e
