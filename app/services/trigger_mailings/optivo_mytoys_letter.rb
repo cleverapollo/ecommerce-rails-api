@@ -21,16 +21,17 @@ module TriggerMailings
 
         # Формируем файлы для отправки
 
-        # Осталось: ProductPriceDecrease SecondAbandonedCart
         trigger_types_matching = {
-            abandoned_cart:           { code: 'Abadonded_busket',    file_source: 'rees46_abbusket.csv',     file_recommendations_1: 'rees46_abbusket_reco.csv',    file_recommendations_2: 'rees46_abbusket_reco_2.csv' },
-            viewed_but_not_bought:    { code: 'Article_view',        file_source: 'rees46_articleview.csv',  file_recommendations_1: 'rees46_articleview_reco.csv', file_recommendations_2: 'rees46_articleview_reco_2.csv' },
-            recently_purchased:       { code: 'Recently_purchase',   file_source: 'rees46_recpurchase.csv',  file_recommendations_1: 'rees46_recpurchase_reco.csv', file_recommendations_2: 'rees46_recpurchase_reco_2.csv' },
-            low_on_supply:            { code: 'Will_end',            file_source: 'rees46_wiilend.csv',      file_recommendations_1: 'rees46_wiilend_reco.csv',     file_recommendations_2: 'rees46_wiilend_reco_2.csv' },
-            product_available:        { code: 'In_stock',            file_source: 'rees46_instock.csv',      file_recommendations_1: 'rees46_instock_reco.csv',     file_recommendations_2: 'rees46_instock_reco_2.csv' },
-            abandoned_search:         { code: 'Abadonded_search',    file_source: 'rees46_absearch.csv',     file_recommendations_1: 'rees46_absearch_reco.csv',    file_recommendations_2: 'rees46_absearch_reco_2.csv' },
-            abandoned_category:       { code: 'Abadonded_cat',       file_source: 'rees46_catview.csv',      file_recommendations_1: 'rees46_catview_reco.csv',     file_recommendations_2: 'rees46_catview_reco_2.csv' },
-            retention:                { code: 'Monthly_mail',        file_source: 'rees46_monthly.csv',      file_recommendations_1: 'rees46_monthly_reco.csv',     file_recommendations_2: 'rees46_monthly_reco_2.csv' },
+            abandoned_cart:           { code: 'Abadonded_busket',           file_source: 'rees46_abbusket.csv',         file_recommendations_1: 'rees46_abbusket_reco.csv',       file_recommendations_2: 'rees46_abbusket_reco_2.csv' },
+            second_abandoned_cart:    { code: 'Abadonded_busket_second',    file_source: 'rees46_secabbusket.csv',      file_recommendations_1: 'rees46_secabbusket_reco.csv',    file_recommendations_2: 'rees46_secabbusket_reco_2.csv' },
+            viewed_but_not_bought:    { code: 'Article_view',               file_source: 'rees46_articleview.csv',      file_recommendations_1: 'rees46_articleview_reco.csv',    file_recommendations_2: 'rees46_articleview_reco_2.csv' },
+            recently_purchased:       { code: 'Recently_purchase',          file_source: 'rees46_recpurchase.csv',      file_recommendations_1: 'rees46_recpurchase_reco.csv',    file_recommendations_2: 'rees46_recpurchase_reco_2.csv' },
+            low_on_supply:            { code: 'Will_end',                   file_source: 'rees46_wiilend.csv',          file_recommendations_1: 'rees46_wiilend_reco.csv',        file_recommendations_2: 'rees46_wiilend_reco_2.csv' },
+            product_available:        { code: 'In_stock',                   file_source: 'rees46_instock.csv',          file_recommendations_1: 'rees46_instock_reco.csv',        file_recommendations_2: 'rees46_instock_reco_2.csv' },
+            abandoned_search:         { code: 'Abadonded_search',           file_source: 'rees46_absearch.csv',         file_recommendations_1: 'rees46_absearch_reco.csv',       file_recommendations_2: 'rees46_absearch_reco_2.csv' },
+            abandoned_category:       { code: 'Abadonded_cat',              file_source: 'rees46_catview.csv',          file_recommendations_1: 'rees46_catview_reco.csv',        file_recommendations_2: 'rees46_catview_reco_2.csv' },
+            retention:                { code: 'Monthly_mail',               file_source: 'rees46_monthly.csv',          file_recommendations_1: 'rees46_monthly_reco.csv',        file_recommendations_2: 'rees46_monthly_reco_2.csv' },
+            product_price_decrease:   { code: 'PriceDropped',               file_source: 'rees_pricedroped.csv',        file_recommendations_1: 'rees46_pricedroped_reco.csv',    file_recommendations_2: 'rees46_pricedroped_reco_2.csv' },
         }
 
         if emails.any?
