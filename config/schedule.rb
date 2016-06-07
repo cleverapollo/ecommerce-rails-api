@@ -42,6 +42,11 @@ every 20.minutes do
   runner "RunnerWrapper.run('TriggerMailings::ClientsProcessor.process_all')"
 end
 
+# Каждую ночь в 00:00 отправляем триггеры MyToys Optivo
+every '0 0 * * *' do
+  runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
+end
+
 # Каждую ночь в 3 часа пересчитываем SalesRate
 every '0 3 * * *' do
   runner "RunnerWrapper.run('SalesRateCalculator.perform')"

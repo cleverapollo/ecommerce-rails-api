@@ -210,6 +210,8 @@ GEM
     multi_xml (0.5.5)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
+    net-sftp (2.1.2)
+      net-ssh (>= 2.6.5)
     net-ssh (3.0.2)
     newrelic_moped (1.0.1)
       moped
@@ -418,6 +420,7 @@ DEPENDENCIES
   letter_opener (~> 1.2.0)
   liquid
   mongoid (~> 5.0.0)
+  net-sftp
   newrelic_moped
   newrelic_rpm (~> 3.12.0)
   open_uri_redirections
@@ -447,6 +450,9 @@ DEPENDENCIES
   timecop (~> 0.7.1)
   unicorn (~> 4.9.0)
   whenever (~> 0.9.2)
+
+RUBY VERSION
+   ruby 2.2.3p173
 
 BUNDLED WITH
    1.12.3

@@ -37,6 +37,7 @@ gem 'god'
 gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
 gem 'httparty', '~> 0.12.0'
+gem 'net-sftp'
 gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'

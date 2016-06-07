@@ -78,9 +78,38 @@ module TriggerMailings
             rees46triggeremails_csv.puts row
           end
 
-        end
+          # Отправляем на sFTP (только в production mode)
 
-        # ... transfer it to FTP
+          if Rails.env.production?
+
+            require 'net/ssh'
+            require 'net/ftp'
+            require 'net/sftp'
+
+            begin
+              session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner')
+              sftp = Net::SFTP::Session.new(session).connect!
+              trigger_types_matching.each do |key, trigger|
+                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_source]}", trigger[:file_source])                         if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
+                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}", trigger[:file_recommendations_1])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
+                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}", trigger[:file_recommendations_2])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
+              end
+              sftp.upload!("tmp/optivo_mytoys/rees46triggeremails.csv", "rees46triggeremails.csv")
+            rescue Exception => e
+              Rollbar.error(e)
+            end
+
+          end
+
+          # Удаляем ненужные файлы
+          trigger_types_matching.each do |key, trigger|
+            File.delete "tmp/optivo_mytoys/#{trigger[:file_source]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
+            File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
+            File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
+          end
+          File.delete "tmp/optivo_mytoys/rees46triggeremails.csv" if File.exists? "tmp/optivo_mytoys/rees46triggeremails.csv"
+
+        end
 
         mails.delete_all
         true
