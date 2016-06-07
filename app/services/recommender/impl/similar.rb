@@ -26,7 +26,9 @@ module Recommender
       end
 
       def items_to_recommend
-        result = super.in_categories(categories_for_query).where.not(id: excluded_items_ids)
+        # Если в запросе указаны категории, то выбираем товары, входящие хотя бы в одну категорию.
+        # Если же не указаны, то точное соответствие категорий.
+        result = super.in_categories(categories_for_query, any: (params.categories.try(:any?) ? true : false) ).where.not(id: excluded_items_ids)
         if params.modification.present?
           if params.fashion? || params.cosmetic?
             gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
@@ -50,9 +52,6 @@ module Recommender
       def items_to_weight
 
         result = []
-
-        # @noff Временно заблокировал similar, т.к. он убивает все нахрен
-        # return result #if shop.id != 356
 
         if categories_for_query.empty?
           return result
