@@ -7,9 +7,17 @@ class RecommendationsController < ApplicationController
   before_action :fetch_non_restricted_shop
 
   def get
+
+    # Проверяем подписки. Если есть фиксированные и не оплачены, то отдаем ошибку
+    # Важно: если подписка деактивирована, то рекомендации работать будут.
+    # Непонятно, плохо это или хорошо.
+    if shop.subscription_plans.rees46_recommendations.active.overdue.exists?
+      raise Exception('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
+    end
+
     # Извлекаем данные из входящих параметров
-    # params[:recommender_type] = 'interesting' if params[:shop_id] == '716c1aada866ad40ce4a893ff9a280' # Для ЦУМа костыль, потому что сами они по две недели косяки чинят
     extracted_params = Recommendations::Params.extract(params)
+
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)
 
@@ -23,6 +31,12 @@ class RecommendationsController < ApplicationController
     end
 
     render json: recommendations
+
+
+  rescue Exception => e
+    # Костыль
+    log_client_error(e)
+    respond_with_client_error(e)
   rescue Recommendations::Error => e
     log_client_error(e)
     respond_with_client_error(e)
