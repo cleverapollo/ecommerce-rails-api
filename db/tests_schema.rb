@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160602085811) do
+ActiveRecord::Schema.define(version: 20160604072646) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -358,23 +358,6 @@ ActiveRecord::Schema.define(version: 20160602085811) do
     t.datetime "updated_at"
   end
 
-  create_table "media", force: :cascade do |t|
-    t.string   "uniqid",                                                                  null: false
-    t.string   "name",                                                                    null: false
-    t.string   "url",                 limit: 255
-    t.integer  "customer_id"
-    t.boolean  "restricted",                                              default: false, null: false
-    t.string   "secret",              limit: 255
-    t.decimal  "efficiency",                      precision: 5, scale: 2, default: 0.0,   null: false
-    t.integer  "manager_id"
-    t.integer  "shard",                                                   default: 0,     null: false
-    t.datetime "manager_remind_date"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "media", ["uniqid"], name: "index_media_on_uniqid", unique: true, using: :btree
-
   create_table "monthly_statistic_items", force: :cascade do |t|
     t.integer  "monthly_statistic_id",                         null: false
     t.string   "type_item",            limit: 255,             null: false
@@ -667,6 +650,30 @@ ActiveRecord::Schema.define(version: 20160602085811) do
 
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
+
+  create_table "subscription_invoices", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.date     "date"
+    t.float    "amount"
+    t.integer  "subscription_plan_id"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "subscription_invoices", ["shop_id"], name: "index_subscription_invoices_on_shop_id", using: :btree
+  add_index "subscription_invoices", ["subscription_plan_id"], name: "index_subscription_invoices_on_subscription_plan_id", using: :btree
+
+  create_table "subscription_plans", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.datetime "paid_till"
+    t.decimal  "price"
+    t.string   "product"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.boolean  "active",     default: true
+  end
+
+  add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
     t.integer  "amount",                       default: 500, null: false

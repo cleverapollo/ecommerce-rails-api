@@ -16,6 +16,7 @@ class Shop < MasterTable
 
   has_and_belongs_to_many :users
   belongs_to :customer
+  has_many :subscription_plans
   belongs_to :category
   belongs_to :manager, -> { admins }, class_name: 'Customer'
   has_many :clients
