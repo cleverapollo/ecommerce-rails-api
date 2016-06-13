@@ -86,6 +86,7 @@ class Item < ActiveRecord::Base
       is_fashion
       is_fmcg
       oldprice
+      brand_downcase
     ].sort
   end
 
@@ -145,6 +146,9 @@ class Item < ActiveRecord::Base
         fmcg_volume: ValuesHelper.present_one(new_item, self, :fmcg_volume),
         barcode: ValuesHelper.present_one(new_item, self, :barcode)
     }
+
+    # Downcased brand for brand campaign manage
+    attrs[:brand_downcase] = (attrs[:brand].present? ? attrs[:brand].mb_chars.downcase : nil)
 
     assign_attributes(attrs)
 
@@ -325,6 +329,7 @@ class Item < ActiveRecord::Base
 
       item.brand = offer.vendor
       item.brand = item.brand.mb_chars.downcase.strip.normalize.to_s if item.brand.present?
+      item.brand_downcase = item.brand.mb_chars.downcase if item.brand.present?
 
       # TODO : item.volume = offer.volume
 

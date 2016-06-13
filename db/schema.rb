@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160531103434) do
+ActiveRecord::Schema.define(version: 20160613214405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -280,9 +280,11 @@ ActiveRecord::Schema.define(version: 20160531103434) do
     t.string  "child_type"
     t.boolean "is_fmcg"
     t.decimal "oldprice"
+    t.string  "brand_downcase"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
+  add_index "items", ["brand_downcase"], name: "index_items_on_brand_for_brand_campaign", where: "((brand_downcase IS NOT NULL) AND (category_ids IS NOT NULL))", using: :btree
   add_index "items", ["category_ids"], name: "index_items_on_category_ids", using: :gin
   add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
   add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
