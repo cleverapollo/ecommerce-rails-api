@@ -11,7 +11,7 @@ every 3.hour do
 end
 
 # Update shards mapping
-every 10.minutes, roles: :production_cron do
+every 10.minutes do
   runner "RunnerWrapper.run('Sharding::Shard.generate_nginx_mapping')"
 end
 
