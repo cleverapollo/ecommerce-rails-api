@@ -28,8 +28,8 @@ set :rvm_ruby_string, "2.2.3"
 
 # Whenever
 set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
-set :whenever_command, '~/.rvm/bin/rvm default do bundle exec whenever'
-require 'whenever/capistrano'
+# set :whenever_command, '~/.rvm/bin/rvm default do bundle exec whenever'
+# require 'whenever/capistrano'
 
 
 # Sidekiq
