@@ -9,7 +9,7 @@ module Promoting
       def find_by_item(item, expansion_only)
 
         # Если бренд не определен, то ничего нет
-        brand = item.brand
+        brand = item.brand_downcase
         return [] if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
@@ -19,11 +19,11 @@ module Promoting
       def brand_campaign_for_item(item, expansion_only)
 
         # Если бренд не определен, то ничего нет
-        brand = item.brand
+        brand = item.brand_downcase
         return nil if brand.blank?
 
         # Если категории не в списке площадок для продвижения, то ничего нет
-        brand_campaigns_for_categories(item.shop_id, item.category_ids, expansion_only).where(downcase_brand:brand.downcase).limit(1)[0]
+        brand_campaigns_for_categories(item.shop_id, item.category_ids, expansion_only).where(downcase_brand: brand).limit(1)[0]
       end
 
       def brand_campaigns_for_categories(shop_id, categories, expansion_only)

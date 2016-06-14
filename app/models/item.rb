@@ -36,7 +36,7 @@ class Item < ActiveRecord::Base
   }
 
   scope :by_brands, ->(*brands) {
-    brands.flatten.any? ? where("brand in (?)", brands.flatten) : all
+    brands.flatten.any? ? where("brand_downcase in (?) and brand_downcase is not null", brands.flatten) : all
   }
 
   def self.yml_update_columns
@@ -329,6 +329,7 @@ class Item < ActiveRecord::Base
 
       item.brand = offer.vendor
       item.brand = item.brand.mb_chars.downcase.strip.normalize.to_s if item.brand.present?
+      # item.brand = item.vendor_code.mb_chars.downcase.strip.normalize.to_s if !item.brand.present? && !item.vendor_code.nil? && item.vendor_code.present? && item.vendor_code.scan(/^[a-z]+$/).any? # Костыль для KotoFoto, которые бренд передают в vendorCode
       item.brand_downcase = item.brand.mb_chars.downcase if item.brand.present?
 
       # TODO : item.volume = offer.volume

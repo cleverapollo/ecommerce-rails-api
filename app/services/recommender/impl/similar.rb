@@ -60,7 +60,7 @@ module Recommender
         # Подмешивание брендов, заполняем по полной, если товар брендовый.
         brand_campaign = Promoting::Brand.brand_campaign_for_item(item, false)
         if brand_campaign
-          @only_one_promo = item.brand
+          @only_one_promo = item.brand_downcase
         end
 
         if result.size <limit
@@ -119,7 +119,7 @@ module Recommender
       def items_relation
         relation = items_to_recommend.by_sales_rate
         if @only_one_promo
-          relation = relation.where(brand: @only_one_promo).where.not(brand: nil)
+          relation = relation.where(brand_downcase: @only_one_promo).where.not(brand_downcase: nil)
         end
         relation
       end

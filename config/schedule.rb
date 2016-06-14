@@ -10,6 +10,11 @@ every 3.hour do
   runner "RunnerWrapper.run('Shop.import_yml_files')"
 end
 
+# Update shards mapping
+every 10.minutes, roles: :production_cron do
+  runner "RunnerWrapper.run('Sharding::Shard.generate_nginx_mapping')"
+end
+
 # Каждую ночь в 4 часа выключаем корзины
 every '0 4 * * *' do
   runner "RunnerWrapper.run('CartsExpirer.perform')"
