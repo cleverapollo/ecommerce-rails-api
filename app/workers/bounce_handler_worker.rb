@@ -14,6 +14,12 @@ class BounceHandlerWorker
           bounced_message = BounceEmail::Mail.new(email.message)
           bounced_message.charset = 'UTF-8'
 
+          # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
+          unless message.to.present?
+            email.delete!
+            next
+          end
+
           # Получатель
           to = message.to.first
 
