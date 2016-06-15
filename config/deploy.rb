@@ -62,20 +62,6 @@ namespace :deploy do
   end
 end
 
-namespace :yml do
-  task :import do
-    on roles(:app) do
-      within current_path do
-        with rails_env: :production do
-          execute :rake, "yml:process_all"
-        end
-      end
-    end
-  end
-end
-
-
-
 SSHKit.config.command_map[:god] = "~/.rvm/bin/rvm 2.2.3 do god"
 
 namespace :god do
@@ -97,45 +83,17 @@ namespace :god do
     end
   end
 
-  task :brb_start do
+  task :cf_start do
     on roles(:app) do
-      execute :god, 'start brb'
+      execute :god, 'start cf'
     end
   end
 
-  task :brb_stop do
+  task :cf_stop do
     on roles(:app) do
-      #execute :ruby,'-v'
-      execute :god,'stop brb'
+      execute :god,'stop cf'
     end
   end
-
-  task :saver_start do
-    on roles(:app) do
-      execute :god, 'start cf_events_saver'
-    end
-  end
-
-  task :saver_stop do
-    on roles(:app) do
-      #execute :ruby,'-v'
-      execute :god,'stop cf_events_saver'
-    end
-  end
-
-  task :relink_start do
-    on roles(:app) do
-      execute :god, 'start cf_user_relink'
-    end
-  end
-
-  task :relink_stop do
-    on roles(:app) do
-      #execute :ruby,'-v'
-      execute :god,'stop cf_user_relink'
-    end
-  end
-
 
 end
 

@@ -1,6 +1,6 @@
-role :app, %w{5.101.121.169}
-role :web, %w{5.101.121.169}
-role :db,  %w{5.101.121.169}
+role :app, %w{148.251.76.233}
+role :web, %w{148.251.76.233}
+role :db,  %w{148.251.76.233}
 
 set :stage, :api_02
 set :shard, :api_02
