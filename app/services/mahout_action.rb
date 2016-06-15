@@ -28,12 +28,13 @@ class MahoutAction
 
     def relink_user(options = {})
 
-      MahoutAction.publish_to_mahout [options.fetch(:from).id, options.fetch(:to).id].join(',')
+      # Goko сделал релинк через Java-сервис, поэтому Rabbit тут уже не нужен.
+      # MahoutAction.publish_to_mahout [options.fetch(:from).id, options.fetch(:to).id].join(',')
 
-      # mahout_service = MahoutService.new
-      # mahout_service.open
-      # mahout_service.relink_user(options.fetch(:from).id, options.fetch(:to).id)
-      # mahout_service.close
+      mahout_service = MahoutService.new
+      mahout_service.open
+      mahout_service.relink_user(options.fetch(:from).id, options.fetch(:to).id)
+      mahout_service.close
     end
   end
 
