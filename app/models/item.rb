@@ -329,7 +329,7 @@ class Item < ActiveRecord::Base
 
       item.brand = offer.vendor
       item.brand = item.brand.mb_chars.downcase.strip.normalize.to_s if item.brand.present?
-      # item.brand = item.vendor_code.mb_chars.downcase.strip.normalize.to_s if !item.brand.present? && !item.vendor_code.nil? && item.vendor_code.present? && item.vendor_code.scan(/^[a-z]+$/).any? # Костыль для KotoFoto, которые бренд передают в vendorCode
+      # item.brand = offer.vendor_code.mb_chars.downcase.strip.normalize.to_s if !item.brand.present? && offer.vendor_code.present? && offer.vendor_code.present? && offer.vendor_code.scan(/^[a-zA-Z0-9 ]+$/).any? # Костыль для KotoFoto, которые бренд передают в vendorCode
       item.brand_downcase = item.brand.mb_chars.downcase if item.brand.present?
 
       # TODO : item.volume = offer.volume

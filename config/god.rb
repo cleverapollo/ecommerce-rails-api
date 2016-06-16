@@ -78,7 +78,7 @@ God.watch do |w|
   w.keepalive interval: 10.seconds
   w.log = "/home/rails/rees46_recommendations/log/god.log"
   w.env = {}
-  w.pid_file = "#{ROOT}/tmp/pids/relink.pid"
+  w.pid_file = "#{ROOT}rees46_recommend.pid"
   w.behavior(:clean_pid_file)
 end
 
