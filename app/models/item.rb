@@ -16,6 +16,7 @@ class Item < ActiveRecord::Base
   scope :widgetable,    -> { where(widgetable:true) }
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
   scope :available,     -> { where(is_available: true) }
+  scope :discount,     -> { where('discount IS TRUE AND discount IS NOT NULL') }
 
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = { any: false }) {
@@ -87,6 +88,7 @@ class Item < ActiveRecord::Base
       is_fmcg
       oldprice
       brand_downcase
+      discount
     ].sort
   end
 
@@ -253,6 +255,7 @@ class Item < ActiveRecord::Base
       item.price = offer.price
       item.price_margin = offer.price_margin
       item.oldprice = offer.oldprice.present? ? offer.oldprice : nil
+      item.discount = item.price.present? && item.oldprice.present? && item.price < item.oldprice
       item.url = offer.url
       item.image_url = offer.pictures.first
       item.type_prefix = offer.type_prefix

@@ -65,6 +65,7 @@ describe Item do
     let(:location_ids)   { (1..4).map{ rand 10 } }
     let(:price_margin)   { rand 10 }
     let(:oldprice)       { rand 1000 }
+    let(:discount)       { true }
 
     subject do
       build(:item, {
@@ -101,7 +102,8 @@ describe Item do
         location_ids: location_ids,
         fashion_sizes: sizes,
         price_margin: price_margin,
-        oldprice: oldprice
+        oldprice: oldprice,
+        discount: discount
       })
     end
 
@@ -139,6 +141,7 @@ describe Item do
     it { expect(subject.csv_row[32]).to eq(price_margin) }
     it { expect(subject.csv_row[33]).to eq("{#{sizes.join(',')}}") }
     it { expect(subject.csv_row[49]).to eq(oldprice) }
+    it { expect(subject.csv_row[51]).to eq(true) }
   end
 
   describe '.fetch' do

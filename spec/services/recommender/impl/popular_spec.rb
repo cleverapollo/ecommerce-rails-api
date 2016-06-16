@@ -4,7 +4,7 @@ describe Recommender::Impl::Popular do
   let!(:shop) { create(:shop, enabled_fashion: true) }
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let!(:test_item) { create(:item, shop: shop, sales_rate: 10000) }
+  let!(:test_item) { create(:item, shop: shop, sales_rate: 10000, discount: true) }
   let!(:test_item_small_sr) { create(:item, shop: shop, sales_rate: 100) }
 
   10.times do |i|
@@ -86,6 +86,18 @@ describe Recommender::Impl::Popular do
           end
         end
 
+      end
+    end
+
+
+    context 'when discount provided' do
+
+      before { params[:discount] = true }
+
+      it 'returns only discount item' do
+        recommender = Recommender::Impl::Popular.new(params)
+        expect(recommender.recommendations).to include(test_item.uniqid)
+        expect(recommender.recommendations.count).to eq 1
       end
     end
 

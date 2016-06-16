@@ -35,7 +35,7 @@ module Recommender
     end
 
     # Методы-сокращалки
-    [:shop, :item, :user, :categories, :locations, :brands, :cart_item_ids, :limit, :search_query].each do |accessor|
+    [:shop, :item, :user, :categories, :locations, :brands, :cart_item_ids, :limit, :search_query, :discount].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
@@ -110,6 +110,9 @@ module Recommender
     def items_in_shop
       # Получаем все товары, которые можно рекомендовать, с учетом локаций, если локации указаны.
       relation = shop.items.recommendable.in_locations(locations)
+
+      # Получаем акционные товары, если был запрос на акции
+      relation = relation.discount if discount == true
 
       # Оставляем только те, которые содержат полные данные о товаре
       # для отображения карточки на клиенте без дополнительных запросов к БД

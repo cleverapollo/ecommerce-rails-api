@@ -47,6 +47,8 @@ module Recommendations
     attr_accessor :modification
     # Поисковый запрос для поисковых рекомендаций
     attr_accessor :search_query
+    # В рекомендациях участвуют только акционные товары со скидкой
+    attr_accessor :discount
 
     # Проверяет и обрабатывает параметры
     #
@@ -131,6 +133,7 @@ module Recommendations
       @limit = 500 if @limit > 500 # Ограничиваем 500 рекомендаций максимум. В будущем разрешить больше для особых клиентов
       @limit = 1 if @limit < 1
       @extended = raw[:extended].present?
+      @discount = raw[:discount].present?
     end
 
     # Извлекает магазин

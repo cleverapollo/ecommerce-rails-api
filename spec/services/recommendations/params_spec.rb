@@ -103,4 +103,27 @@ describe Recommendations::Params do
   end
 
 
+  describe '.extract discount recommender' do
+
+    let!(:params) do
+      {
+          ssid: session.code,
+          shop_id: shop.uniqid,
+          recommender_type: 'search',
+          discount: true
+      }
+    end
+
+    it 'with discount' do
+      expect(subject.discount).to be_truthy
+    end
+
+    it 'without discount' do
+      params.delete :discount
+      expect(subject.discount).to be_falsey
+    end
+
+  end
+
+
 end
