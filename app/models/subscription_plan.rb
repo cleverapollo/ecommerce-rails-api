@@ -11,6 +11,7 @@ class SubscriptionPlan < MasterTable
   scope :active, -> { where(active: true) }
   scope :inactive, -> { where(active: false) }
   scope :overdue, -> { where(active: true).where('paid_till < ?', Time.current) }
+  scope :paid, -> { where(active: true).where('paid_till >= ?', Time.current) }
 
   AVAILABLE_PRODUCTS.each do |product|
     scope product.to_sym, -> { where(product: product) }
