@@ -173,7 +173,7 @@ class DigestMailingBatchWorker
     data = {
       recommended_items: items.map { |item| item_for_letter(item, location, track_email) },
       utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
-      logo_url: (@settings.fetch_logo_url.blank? ? @settings.fetch_logo_url : ''),
+      logo_url: (@settings.fetch_logo_url.blank? ? '' : @settings.fetch_logo_url),
       footer: Mailings::Composer.footer(email: @current_client.try(:email) || email, tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url, unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url)
     }
 
