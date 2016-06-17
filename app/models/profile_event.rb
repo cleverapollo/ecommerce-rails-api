@@ -98,17 +98,37 @@ class ProfileEvent < MasterTable
 
           # ** Товары не для детей
 
-          # Пол одежды для взрослых
-          if item.fashion_gender.present?
-            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: 'gender', value: item.fashion_gender
-            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          # Косметика
+          if item.is_cosmetic?
+
+            # Пол косметики
+            if item.cosmetic_gender.present?
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'gender', value: item.cosmetic_gender
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            end
+
           end
 
-          # Пол косметики
-          if item.cosmetic_gender.present?
-            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'gender', value: item.cosmetic_gender
-            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+
+          # Одежда
+          if item.is_fashion?
+
+            # Пол одежды для взрослых
+            if item.fashion_gender.present?
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: 'gender', value: item.fashion_gender
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            end
+
+            # Размеры одежды
+            if item.fashion_wear_type.present? && item.fashion_sizes.present? && item.fashion_sizes.any?
+              item.fashion_sizes.each do |size|
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+
           end
+
 
         end
 

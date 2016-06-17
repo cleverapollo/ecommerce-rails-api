@@ -12,14 +12,11 @@ describe ProfileEvent do
     let!(:item_2) { create(:item, shop: shop, is_fashion: true, fashion_gender: 'f' ) }
     let!(:item_3) { create(:item, shop: shop, is_cosmetic: true, cosmetic_gender: 'm' ) }
     let!(:item_4) { create(:item, shop: shop, is_child: true, child_gender: 'm' ) }
-    let!(:item_5) { create(:item, shop: shop ) }
+    let!(:item_5) { create(:item, shop: shop, is_fashion: true, fashion_wear_type: 'shoe', fashion_sizes: [38, 39, 40] ) }
     let!(:item_6) { create(:item, shop: shop ) }
     let!(:item_7) { create(:item, shop: shop ) }
 
-    let!(:items) { [] }
     let!(:action) { 'view' }
-
-    subject { ProfileEvent.track_items user, shop, action, items }
 
     context 'common calculations' do
 
@@ -63,6 +60,13 @@ describe ProfileEvent do
         expect(profile_event.industry).to eq 'fashion'
         expect(profile_event.property).to eq 'gender'
         expect(profile_event.value).to eq 'm'
+      end
+
+      it 'saves fashion size' do
+        expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5]) }.to change(ProfileEvent, :count).by 3
+        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '38', carts: 1).count ).to eq 1
+        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '39', carts: 1).count ).to eq 1
+        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '40', carts: 1).count ).to eq 1
       end
 
     end
