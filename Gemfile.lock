@@ -77,7 +77,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     addressable (2.4.0)
-    amq-protocol (2.0.1)
     arel (6.0.3)
     awesome_print (1.6.1)
     axiom-types (0.1.1)
@@ -92,8 +91,6 @@ GEM
       eventmachine (> 0.12)
     bson (4.0.3)
     builder (3.2.2)
-    bunny (2.3.0)
-      amq-protocol (>= 2.0.1)
     capistrano (3.4.0)
       i18n
       rake (>= 10.0.0)
@@ -398,7 +395,6 @@ DEPENDENCIES
   addressable (~> 2.3, >= 2.3.8)
   bounce_email (~> 0.2.6)
   brb (~> 0.3.1)
-  bunny (>= 2.2.2)
   capistrano
   capistrano-bundler
   capistrano-rails

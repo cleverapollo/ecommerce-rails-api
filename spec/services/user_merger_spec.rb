@@ -168,18 +168,6 @@ describe UserMerger do
           end
         end
 
-        context 'profile_events' do
-          let!(:profile_event_1) { create(:profile_event, user_id: master.id, shop_id: 1, industry: 0, category: 0, property: 0, value: 3, views: 1, carts: 2, purchases: 3) }
-          let!(:profile_event_2) { create(:profile_event, user_id: slave.id, shop_id: 1, industry: 0, category: 0, property: 0, value: 3, views: 1, carts: 2, purchases: 3) }
-          it 're-links profile_events' do
-            subject
-            expect(ProfileEvent.where(id: profile_event_2.id).exists?).to be_falsey
-            expect(profile_event_1.reload.views).to eq(2)
-            expect(profile_event_1.reload.carts).to eq(4)
-            expect(profile_event_1.reload.purchases).to eq(6)
-          end
-        end
-
       end
 
       context 'client merging' do

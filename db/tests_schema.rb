@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160604072646) do
+ActiveRecord::Schema.define(version: 20160617091259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -394,18 +394,16 @@ ActiveRecord::Schema.define(version: 20160604072646) do
   create_table "profile_events", force: :cascade do |t|
     t.integer "user_id",   limit: 8, null: false
     t.integer "shop_id",             null: false
-    t.integer "industry",            null: false
-    t.integer "category",            null: false
-    t.integer "property",            null: false
-    t.integer "value",               null: false
+    t.string  "industry",            null: false
+    t.string  "property",            null: false
+    t.string  "value",               null: false
     t.integer "views"
     t.integer "carts"
     t.integer "purchases"
   end
 
-  add_index "profile_events", ["user_id", "industry", "category", "property"], name: "index_profile_all_without_value", using: :btree
-  add_index "profile_events", ["user_id", "shop_id", "industry", "category", "property", "value"], name: "index_profile_all_fields", unique: true, using: :btree
-  add_index "profile_events", ["user_id", "shop_id", "industry", "category", "property"], name: "index_profile_all_without_value_for_shop", using: :btree
+  add_index "profile_events", ["user_id", "shop_id", "industry", "property"], name: "index_profile_events_all_columns", using: :btree
+  add_index "profile_events", ["user_id", "shop_id", "industry"], name: "index_profile_events_on_user_id_and_shop_id_and_industry", using: :btree
   add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
   add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
 

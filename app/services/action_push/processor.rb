@@ -11,17 +11,20 @@ module ActionPush
       @concrete_action_class = Action.get_implementation_for params.action
     end
 
+
+
+
+    # Обрабатывает действие, запоминает источники и т.д.
+    # Основная точка входа.
     def process
 
       # Обработка триггерных писем
-      if params.trigger_mail_code.present? && params.trigger_mail_code != 'test' &&
-          trigger_mail = TriggerMail.find_by(code: params.trigger_mail_code)
+      if params.trigger_mail_code.present? && params.trigger_mail_code != 'test' && trigger_mail = TriggerMail.find_by(code: params.trigger_mail_code)
         trigger_mail.mark_as_clicked!
       end
 
       # Обработка дайджестных писем
-      if params.digest_mail_code.present? && params.digest_mail_code != 'test' &&
-          digest_mail = DigestMail.find_by(code: params.digest_mail_code)
+      if params.digest_mail_code.present? && params.digest_mail_code != 'test' && digest_mail = DigestMail.find_by(code: params.digest_mail_code)
         digest_mail.mark_as_clicked!
       end
 
@@ -32,32 +35,32 @@ module ActionPush
 
       # Для каждого переданного товара запускаем процессинг действия
       params.items.each do |item|
+
+        # Находим действие по отношению к товару.
         action = fetch_action_for item
+
+        # Запускаем обработку действия
         action.process params
 
         # Логгируем событие
-        Interaction.push(user_id: params.user.id,
-                         shop_id: params.shop.id,
-                         item_id: item.id,
-                         type: action.name_code,
-                         recommended_by: params.recommended_by)
+        Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by)
 
       end
 
       # Это используется в покупках
       concrete_action_class.mass_process(params)
 
-      # Активируем триггеры отраслевых алгоритмов
+      # @deprecated: Активируем триггеры отраслевых алгоритмов
       SectoralAlgorythms::Service.new(params.user, SectoralAlgorythms::Service.all_virtual_profile_fields).trigger_action(params.action, params.items)
+
+      # @new: Корректируем характеристики профиля покупателя для отраслевых товаров
+      ProfileEvent.track_items params.user, params.shop, params.action, params.items
 
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
 
       # Отмечаем, что пользователь был активен
-      client = Client.find_by(user_id: params.user.id, shop_id: params.shop.id)
-      if client
-        client.track_last_activity
-      end
+      Client.find_by(user_id: params.user.id, shop_id: params.shop.id).try(&:track_last_activity)
 
       # Сообщаем брокеру брошенных корзин RTB
       case params.action.to_sym
@@ -74,13 +77,18 @@ module ActionPush
 
     end
 
-    def fetch_action_for(item)
-      a = concrete_action_class.find_or_initialize_by(user_id: params.user.id,
-                                                      shop_id: params.shop.id,
-                                                      item_id: item.id)
-      a.assign_attributes(timestamp: (params.date || Date.current.to_time.to_i))
 
+
+
+
+    # Находит или создает действие пользователя по отношению к товару.
+    # @param item [Item] Объект товара
+    # @return Action
+    def fetch_action_for(item)
+      a = concrete_action_class.find_or_initialize_by(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id)
+      a.assign_attributes(timestamp: (params.date || Date.current.to_time.to_i))
       a
     end
+
   end
 end

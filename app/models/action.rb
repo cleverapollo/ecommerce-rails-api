@@ -4,8 +4,6 @@
 #
 class Action < ActiveRecord::Base
 
-  MAHOUT_QUEUE_SCORE_SAVER = 'rees46.cf.score_saver'
-
   belongs_to :user
   belongs_to :item
   belongs_to :shop
@@ -19,26 +17,8 @@ class Action < ActiveRecord::Base
 
   class << self
 
-    def publish_to_mahout(message)
-      q  = channel_to_mahout.queue MAHOUT_QUEUE_SCORE_SAVER
-      x  = channel_to_mahout.default_exchange
-      x.publish message, :routing_key => q.name
-    end
-
-    def connection_to_mahout
-      @connection_to_mahout ||= Bunny.new.tap do |c|
-        c.start
-      end
-    end
-
-    def channel_to_mahout
-      @channel_to_mahout ||= connection_to_mahout.create_channel
-    end
-
-
-
-
-
+    # Переносит данные от одного пользователя к другому при склеивании пользователей
+    # @param options [Hash] {from: [Integer], to: [Integer]}
     def relink_user(options = {})
       master = options.fetch(:to)
       slave = options.fetch(:from)
