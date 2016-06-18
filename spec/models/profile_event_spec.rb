@@ -24,7 +24,6 @@ describe ProfileEvent do
         expect{ ProfileEvent.track_items(user, shop, action, [item_1]) }.to change(ProfileEvent, :count).by 1
         profile_event = ProfileEvent.first
         expect(profile_event.views).to eq 1
-
       end
 
       it 'saves 2 events' do
@@ -48,6 +47,7 @@ describe ProfileEvent do
         expect(profile_event.industry).to eq 'cosmetic'
         expect(profile_event.property).to eq 'gender'
         expect(profile_event.value).to eq 'm'
+        expect(user.reload.gender).to eq 'm'
       end
 
     end
@@ -60,6 +60,7 @@ describe ProfileEvent do
         expect(profile_event.industry).to eq 'fashion'
         expect(profile_event.property).to eq 'gender'
         expect(profile_event.value).to eq 'm'
+        expect(user.reload.gender).to eq 'm'
       end
 
       it 'saves fashion size' do

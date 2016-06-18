@@ -15,6 +15,7 @@
 
 class ProfileEvent < MasterTable
   belongs_to :user
+  belongs_to :shop
 
   class << self
 
@@ -46,23 +47,6 @@ class ProfileEvent < MasterTable
 
 
 
-    def track(item, event, property)
-
-      # Работаем только с поддерживаемыми событиями
-      return if !%w(views carts purchases).include?(event)
-
-      # update_params = {
-      #     shop_id: item.shop_id,
-      #     user_id:
-      # }
-
-      # TODO: доделать трекинг
-      # Не хватает данных об отрасли и пользователе.
-
-    end
-
-
-
     # Записывает пользователю для каждого товара отраслевые характеристики в историю действий
     # для последующего изменения свойств профиля.
     # @param user [User]
@@ -78,7 +62,11 @@ class ProfileEvent < MasterTable
       raise Exception.new('Items collection is empty') unless items.any?
       raise Exception.new('User is not provided') if user.class != User
 
+      # Определяем имя количественного поля по типу события (views, carts, purchases)
       counter_field_name = action.pluralize.to_sym
+
+      # Хеш обновлений свойств пользователя
+      properties_to_update = {}
 
       # Для каждого товара записываем событие, если товар отраслевой
       items.each do |item|
@@ -105,6 +93,7 @@ class ProfileEvent < MasterTable
             if item.cosmetic_gender.present?
               profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'gender', value: item.cosmetic_gender
               profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user
             end
 
           end
@@ -117,6 +106,7 @@ class ProfileEvent < MasterTable
             if item.fashion_gender.present?
               profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: 'gender', value: item.fashion_gender
               profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user
             end
 
             # Размеры одежды
@@ -124,16 +114,18 @@ class ProfileEvent < MasterTable
               item.fashion_sizes.each do |size|
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                # TODO: запоминать размер одежды для пользователя
               end
             end
 
           end
 
-
         end
 
       end
 
+      # Если есть поля для обновления пользователя – обновляем
+      user.update properties_to_update if properties_to_update.keys.any?
 
       true
     end
