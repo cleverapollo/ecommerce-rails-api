@@ -29,7 +29,10 @@ module InitServerString
         result += "    declined: #{client.subscription_popup_showed == true && client.accepted_subscription == false}"
         result += "  }"
       end
-      result += "  }"
+      result += "  },"
+
+      # Profile
+      result += "profile: #{session.user.profile_to_json}"
 
       result += "});"
       result

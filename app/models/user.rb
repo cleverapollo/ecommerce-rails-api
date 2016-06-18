@@ -31,4 +31,10 @@ class User < MasterTable
   def profile
     Profile.find_or_create_by!(user_id:self.id)
   end
+
+  # Готовит данные профиля в JSON для передачи в JS SDK
+  def profile_to_json
+    {gender: gender}.to_json
+  end
+
 end
