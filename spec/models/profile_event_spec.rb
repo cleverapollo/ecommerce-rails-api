@@ -68,6 +68,7 @@ describe ProfileEvent do
         expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '38', carts: 1).count ).to eq 1
         expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '39', carts: 1).count ).to eq 1
         expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '40', carts: 1).count ).to eq 1
+        expect(user.reload.fashion_sizes['shoe']).to eq [38, 39, 40]
       end
 
     end

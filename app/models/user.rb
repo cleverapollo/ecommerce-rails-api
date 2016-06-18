@@ -34,7 +34,12 @@ class User < MasterTable
 
   # Готовит данные профиля в JSON для передачи в JS SDK
   def profile_to_json
-    {gender: gender}.to_json
+    {
+        gender: gender,
+        fashion: {
+            sizes: fashion_sizes
+        }
+    }.to_json
   end
 
 end

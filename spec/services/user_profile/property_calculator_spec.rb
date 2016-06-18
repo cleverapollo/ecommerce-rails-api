@@ -7,7 +7,6 @@ describe UserProfile::PropertyCalculator do
     let!(:user) { create(:user) }
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
 
-
     subject { UserProfile::PropertyCalculator.new.calculate_gender(user) }
 
     context 'gender undefined' do
@@ -17,7 +16,6 @@ describe UserProfile::PropertyCalculator do
       it 'returns undefined gender when both genders history is equal' do
         expect(subject).to be_nil
       end
-
     end
 
 
@@ -28,7 +26,6 @@ describe UserProfile::PropertyCalculator do
       it 'returns female' do
         expect(subject).to eq 'f'
       end
-
     end
 
     context 'purchases more important' do
@@ -38,9 +35,41 @@ describe UserProfile::PropertyCalculator do
       it 'returns male because purchase more important' do
         expect(subject).to eq 'm'
       end
+    end
+  end
+
+  describe '.calculate_fashion_sizes' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+
+    subject { UserProfile::PropertyCalculator.new.calculate_fashion_sizes(user) }
+
+    context 'no events' do
+
+      it 'returns nil' do
+        expect(subject).to eq nil
+      end
+
+    end
+
+    context 'with valid events' do
+
+      let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '38', purchases: 3) }
+      let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '39', views: 1, carts: 2, purchases: 2) }
+      let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '40', views: 1, carts: 1) }
+      let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_coat', value: '33', views: 1) }
+
+      it 'calculates two sizes' do
+        expect(subject['shoe']).to eq [38, 39]
+        expect(subject['coat']).to eq [33]
+      end
 
     end
 
 
   end
+
+
 end

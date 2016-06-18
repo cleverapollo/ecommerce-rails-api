@@ -35,9 +35,7 @@ class ProfileEvent < MasterTable
           hash_for_update[:purchases] = (slave_row.purchases + master_row.purchases) if slave_row.purchases.present? && master_row.purchases.present?
           hash_for_update[:purchases] = slave_row.purchases if slave_row.purchases.present? && !master_row.purchases.present?
           hash_for_update[:purchases] = master_row.purchases if !slave_row.purchases.present? && master_row.purchases.present?
-          if hash_for_update.keys.any?
-            master_row.update hash_for_update
-          end
+          master_row.update hash_for_update unless hash_for_update.empty?
           slave_row.delete
         else
           slave_row.update user_id: master_user.id
@@ -114,7 +112,7 @@ class ProfileEvent < MasterTable
               item.fashion_sizes.each do |size|
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
-                # TODO: запоминать размер одежды для пользователя
+                properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
               end
             end
 
@@ -125,7 +123,7 @@ class ProfileEvent < MasterTable
       end
 
       # Если есть поля для обновления пользователя – обновляем
-      user.update properties_to_update if properties_to_update.keys.any?
+      user.update properties_to_update unless properties_to_update.empty?
 
       true
     end
