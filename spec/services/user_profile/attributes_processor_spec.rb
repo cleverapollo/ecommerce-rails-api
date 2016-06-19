@@ -23,11 +23,7 @@ describe UserProfile::AttributesProcessor do
     end
 
     context 'when profile attribute is new' do
-
-      it 'fix gender attribute' do
-        subject
-        expect(first_mail_user.profile.gender).to(eq( {'f'=>100, 'm'=>0, 'fixed'=>true} ))
-      end
+      pending "Add gender check"
     end
 
   end

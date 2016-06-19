@@ -3,20 +3,6 @@ require "rails_helper"
 describe Shop do
   it { expect(build(:shop)).to be_valid }
 
-  describe "#allow_industrial?" do
-    context "with enabled modification" do
-      let(:shop) { create(:shop, enabled_child: true) }
-      it { expect(shop.allow_industrial?).to be true }
-    end
-    context "without enabled modification" do
-      let(:shop) { create(:shop) }
-      it { expect(shop.allow_industrial?).to be false }
-    end
-  end
-
-
-
-
   describe "#has_imported_yml?" do
     it { expect(build(:shop, :with_imported_yml).has_imported_yml?).to be true }
     it { expect(build(:shop, yml_file_url: nil).has_imported_yml?).to be false }

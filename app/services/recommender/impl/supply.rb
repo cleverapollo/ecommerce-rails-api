@@ -7,30 +7,30 @@ module Recommender
 
 
       def items_to_recommend
-        raise Recommendations::IncorrectParams.new('Need sectoral algorythms for this recommender') unless params.modification.present?
-
-        # Дополнительные отраслевые модификации не требуются
-        super
+        super.where('cosmetic_periodic IS TRUE OR fmcg_periodic IS TRUE')
       end
 
+      # TODO: не работает. Переделать.
       def items_to_weight
 
-        supply_ids = []
+        return []
 
-
-        # найдем товары, которые пора бы прикупить
-        supply_ids = Item.widgetable.recommendable.where(id: SectoralAlgorythms::VirtualProfile::Periodicly.new(params.user.profile).items_need_to_buy)
-
-        return [] if supply_ids.none?
-
-        result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 100)', supply_ids)
-        result = result.where.not(item_id: excluded_items_ids)
-        result = result.joins(:item).merge(items_to_recommend) # Эта конструкция подгружает фильтрацию relation для того, чтобы оставить только те товары, которые можно рекомендовать. То есть item_to_recommend тут не добавляет массив товаров
-        result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
-        result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
-        ids = result.pluck(:item_id)
-
-        sr_weight(ids)
+        # supply_ids = []
+        #
+        #
+        # # найдем товары, которые пора бы прикупить
+        # supply_ids = Item.widgetable.recommendable.where(id: SectoralAlgorythms::VirtualProfile::Periodicly.new(params.user.profile).items_need_to_buy)
+        #
+        # return [] if supply_ids.none?
+        #
+        # result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 100)', supply_ids)
+        # result = result.where.not(item_id: excluded_items_ids)
+        # result = result.joins(:item).merge(items_to_recommend) # Эта конструкция подгружает фильтрацию relation для того, чтобы оставить только те товары, которые можно рекомендовать. То есть item_to_recommend тут не добавляет массив товаров
+        # result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
+        # result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
+        # ids = result.pluck(:item_id)
+        #
+        # sr_weight(ids)
       end
 
       # @return Int[]

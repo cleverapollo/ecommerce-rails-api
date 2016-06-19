@@ -19,31 +19,13 @@ module Recommender
       ms = MahoutService.new(shop.brb_address)
       ms.open
 
-      opposite_gender = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile).opposite_gender
       # ограничим количество итераций во избежании зацикливания
       iterations = 0
       while result.size<params.limit && iterations<3
         new_result = fetch_user_based(excluded_items, ms)
         break if new_result.empty?
-        # По отраслевым отсеивать тут
-        if params.modification.present?
-          if params.fashion? || params.cosmetic?
-            # уберем товары, которые не актуальные или не соответствуют полу
-            new_result = Item.widgetable.recommendable.where(id: new_result)
-
-            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-            new_result = gender_algo.modify_relation_with_rollback(new_result)
-            # Если fashion - дополнительно фильтруем по размеру
-            if params.fashion?
-              size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
-              new_result = size_algo.modify_relation_with_rollback(new_result)
-            end
-            new_result = new_result.pluck(:id)
-          end
-        else
-          # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
-          new_result = Item.widgetable.recommendable.where(id: new_result).pluck(:id)
-        end
+        # Отфильтруем, чтобы не попали товары, недоступные к показу, если есть
+        new_result = items_to_recommend.where(id: new_result).pluck(:id)
         result = result+new_result
         excluded_items = (excluded_items+new_result).compact.uniq
         iterations+=1

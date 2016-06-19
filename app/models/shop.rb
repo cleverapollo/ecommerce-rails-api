@@ -184,13 +184,6 @@ class Shop < MasterTable
     super || deactivated?
   end
 
-  def allow_industrial?
-    Recommender::Base::MODIFICATIONS.each do |modification|
-      return true if public_send("enabled_#{modification}?")
-    end
-    false
-  end
-
   def has_imported_yml?
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
   end

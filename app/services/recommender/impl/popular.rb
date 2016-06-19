@@ -6,21 +6,7 @@ module Recommender
       K_CF = 1.0
 
       def items_to_recommend
-        if params.modification.present?
-          result = super
-          if params.fashion? || params.cosmetic?
-            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-            result = gender_algo.modify_relation_with_rollback(result)
-            # Если fashion - дополнительно фильтруем по размеру
-            if params.fashion?
-              size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
-              result = size_algo.modify_relation_with_rollback(result)
-            end
-          end
-          result
-        else
-          super
-        end
+        super
       end
 
 

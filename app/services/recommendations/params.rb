@@ -44,8 +44,6 @@ module Recommendations
     # Расширенный режим ответа (передавать аттрибуты товаров)
     attr_accessor :extended
     # Маркет отраслевого алгоритма
-    attr_accessor :modification
-    # Поисковый запрос для поисковых рекомендаций
     attr_accessor :search_query
     # В рекомендациях участвуют только акционные товары со скидкой
     attr_accessor :discount
@@ -73,7 +71,6 @@ module Recommendations
       extract_locations
       extract_brands
       extract_exclude
-      extract_modification
       extract_search_query
       self
     end
@@ -83,12 +80,6 @@ module Recommendations
     # @return [Integer] ID текущего товара (если есть)
     def item_id
       item.try(:id)
-    end
-
-    Recommender::Base::MODIFICATIONS.each do |n|
-      define_method "#{ n }?" do
-        modification == n
-      end
     end
 
     private
@@ -109,7 +100,6 @@ module Recommendations
         @recommend_only_widgetable = true
       end
       @exclude                   = []
-      @modification              = nil
       check
     end
 
@@ -251,13 +241,6 @@ module Recommendations
       end
     end
 
-
-    # Извлекает модификацию отраслевого алгоритма
-    def extract_modification
-      if raw[:modification].present? && Recommender::Base.valid_modification?(@shop, raw[:modification]) && @shop.public_send("enabled_#{raw[:modification]}?")
-        @modification = raw[:modification]
-      end
-    end
 
     def extract_search_query
       if raw[:search_query].present?

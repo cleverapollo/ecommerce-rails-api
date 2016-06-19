@@ -22,7 +22,10 @@ class UserMerger
             end
 
             # Сливаем виртуальный профиль
-            SectoralAlgorythms::Service.new(master, SectoralAlgorythms::Service.all_virtual_profile_fields).merge(slave)
+            properties_to_update = {}
+            properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
+            properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
+            master.update properties_to_update
 
             # Удаляем дочерний элемент
             slave.delete

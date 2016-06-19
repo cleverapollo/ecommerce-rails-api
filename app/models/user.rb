@@ -28,10 +28,6 @@ class User < MasterTable
     shop.clients.find_or_create_by(user_id: self.id).ab_testing_group
   end
 
-  def profile
-    Profile.find_or_create_by!(user_id:self.id)
-  end
-
   # Готовит данные профиля в JSON для передачи в JS SDK
   def profile_to_json
     {

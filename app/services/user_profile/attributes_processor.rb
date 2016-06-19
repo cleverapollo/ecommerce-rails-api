@@ -21,10 +21,8 @@ module UserProfile
       # Проверяем на наличие пола
       if attributes['gender'].present?
         gender = attributes['gender']
-        if ['m','f'].include?(gender)
-          # И сохраняем
-          algo = SectoralAlgorythms::VirtualProfile::Gender.new(user.profile)
-          algo.fix_value(gender)
+        if UserProfile::Gender.valid_gender? gender
+          # TODO: сохранять установленный пол
         end
       end
 

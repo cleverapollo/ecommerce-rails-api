@@ -5,7 +5,6 @@ module Recommender
   class Base
 
     # Доступные модификации отраслевых алгоритмов
-    MODIFICATIONS = %w(fashion child fmcg cosmetic pets appliances construction)
     RANDOM_LIMIT_MULTIPLY = 3
 
     # Массив реализаций рекомендеров
@@ -23,13 +22,6 @@ module Recommender
 
       def recommender_implementation_class_name(recommender_type)
         "Recommender::Impl::#{recommender_type.camelize}"
-      end
-
-
-      # Проверяет, допустимая ли модификация
-      # @return Boolean
-      def valid_modification?(shop, modification_name)
-        return MODIFICATIONS.include?(modification_name) && shop.allow_industrial?
       end
 
     end
@@ -114,6 +106,20 @@ module Recommender
       # Получаем акционные товары, если был запрос на акции
       relation = relation.discount if discount == true
 
+      # Если известен пол покупателя и у магазина включен решим отраслевого
+      if shop.subscription_plans.rees46_recommendations.paid.exists?
+
+        # Фильтрация по полу
+        if user.gender.present?
+          opposite_gender = UserProfile::Gender.opposite_gender(user.gender)
+          # Пропускаем товары без пола или с полом, не равным противоположному или детские.
+          relation = relation.where("(fashion_gender IS NULL AND cosmetic_gender IS NULL) OR is_child IS TRUE OR (fashion_gender != ? AND cosmetic_gender != ?)", opposite_gender, opposite_gender )
+        end
+
+
+
+      end
+
       # Оставляем только те, которые содержат полные данные о товаре
       # для отображения карточки на клиенте без дополнительных запросов к БД
       relation = relation.widgetable if recommend_only_widgetable?
@@ -142,16 +148,6 @@ module Recommender
       relation = items_in_shop
       if categories.present?
         relation = items_in_shop.in_categories(categories, any:true)
-      end
-
-      # фильтруем по отраслевым
-      if params.modification.present?
-        if params.fashion?
-          relation = relation.where('is_fashion IS TRUE')
-          # уберем товары, которые не актуальные или не соответствуют полу
-          gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-          relation = gender_algo.modify_relation(relation)
-        end
       end
 
       # Не использовать order RANDOM()

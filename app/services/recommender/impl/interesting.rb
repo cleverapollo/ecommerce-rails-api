@@ -15,16 +15,7 @@ module Recommender
       # end
 
       def items_in_shop
-        result = super
-        if params.fashion?
-          result = result.where('is_fashion IS TRUE')
-          gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-          result = gender_algo.modify_relation_with_rollback(result)
-        end
-        if params.cosmetic?
-          result = result.where('is_cosmetic IS TRUE')
-        end
-        result
+        super
       end
 
       def recommended_ids

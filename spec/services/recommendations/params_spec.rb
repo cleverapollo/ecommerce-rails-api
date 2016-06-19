@@ -49,40 +49,6 @@ describe Recommendations::Params do
   end
 
 
-  describe '.extract modification when enabled' do
-    let!(:shop_with_child)    { create(:shop, enabled_child: true) }
-
-    let!(:params) do
-      {
-          ssid: session.code,
-          shop_id: shop_with_child.uniqid,
-          recommender_type: 'interesting',
-          modification: 'child'
-      }
-    end
-
-    it { expect(subject.modification).to eq('child') }
-
-  end
-
-  describe '.extract empty modification when disabled' do
-
-    let!(:shop_without_child) { create(:shop, enabled_child: false) }
-
-    let!(:params) do
-      {
-          ssid: session.code,
-          shop_id: shop_without_child.uniqid,
-          recommender_type: 'interesting',
-          modification: 'child'
-      }
-    end
-
-    it { expect(subject.modification).to eq(nil) }
-
-  end
-
-
   describe '.extract search query' do
 
     let!(:params) do

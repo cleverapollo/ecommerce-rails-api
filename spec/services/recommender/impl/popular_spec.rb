@@ -60,33 +60,6 @@ describe Recommender::Impl::Popular do
         end
       end
 
-      context 'when modification=fashion' do
-        before { params[:modification]='fashion' }
-        it 'allowed industrial' do
-          expect(shop.allow_industrial?).to eq(true)
-        end
-        it 'no filter by gender when no gender items provided' do
-          recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.recommendations).to include(test_item.uniqid)
-        end
-        context 'when items with gender provided' do
-
-
-
-          it 'filter by gender' do
-
-          end
-          it 'no filter by size when no size items provided' do
-
-          end
-          context 'when items with size provided' do
-            it 'filter by size' do
-
-            end
-          end
-        end
-
-      end
     end
 
 

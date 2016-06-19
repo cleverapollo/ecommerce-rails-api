@@ -29,23 +29,6 @@ module Recommender
         # Если в запросе указаны категории, то выбираем товары, входящие хотя бы в одну категорию.
         # Если же не указаны, то точное соответствие категорий.
         result = super.in_categories(categories_for_query, any: (params.categories.try(:any?) ? true : false) ).where.not(id: excluded_items_ids)
-        if params.modification.present?
-          if params.fashion? || params.cosmetic?
-            gender_algo = SectoralAlgorythms::VirtualProfile::Gender.new(params.user.profile)
-            if item_gender = item.try(:fashion_gender)
-              if item_gender!=gender_algo.current_gender
-                result = gender_algo.filter_by_gender(item_gender, result)
-              else
-                result = gender_algo.modify_relation_with_rollback(result)
-                # Если fashion - дополнительно фильтруем по размеру
-                if params.fashion?
-                  size_algo = SectoralAlgorythms::VirtualProfile::Size.new(params.user.profile)
-                  result = size_algo.modify_relation_with_rollback(result)
-                end
-              end
-            end
-          end
-        end
         result
       end
 

@@ -50,10 +50,7 @@ module ActionPush
       # Это используется в покупках
       concrete_action_class.mass_process(params)
 
-      # @deprecated: Активируем триггеры отраслевых алгоритмов
-      SectoralAlgorythms::Service.new(params.user, SectoralAlgorythms::Service.all_virtual_profile_fields).trigger_action(params.action, params.items)
-
-      # @new: Корректируем характеристики профиля покупателя для отраслевых товаров
+      # Корректируем характеристики профиля покупателя для отраслевых товаров
       ProfileEvent.track_items params.user, params.shop, params.action, params.items
 
       # Сообщаем, что от магазина пришло событие

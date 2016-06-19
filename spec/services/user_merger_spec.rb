@@ -2,50 +2,9 @@ require 'rails_helper'
 
 describe UserMerger do
   let!(:shop) { create(:shop) }
-  let(:master) { user = create(:user)
-  user.profile.update({ gender: { 'f' => 1, 'm' => 98,
-                                  'history' =>
-                                      { 'f' => { 'views' => 1, 'purchase' => 2 },
-                                        'm' => { 'views' => 3, 'purchase' => 4 } } },
-                        size: { 'f' => { 'tshirt' => { 'adult' => { 'size' => "38", 'probability' => 100 } } },
-                                'history' => { 'f' => { 'tshirt' => { 'adult' => { "38" => { 'views' => 1, 'purchase' => 0 } } },
-                                                      'shoe' => { 'adult' => { "40" => { 'views' => 1, 'purchase' => 0 } } } } } },
-                        physiology: { 'history' =>
-                                          { 'f' =>
-                                                { 'hair' =>
-                                                      { 'skin_type' =>
-                                                            { 'dry' => { 'views' => 1, 'purchase' => 1 } },
-                                                        'condition' => { "colored" => { 'views' => 2, 'purchase' => 2 } } } } } },
-                        # periodicly: {"history"=> {
-                        #     '1'=>[ 40, 20],
-                        #     '2'=>[ 50, 30]
-                        # }},
-                        children: [] })
-  user.profile.reload
-  user
-  }
+  let(:master) { create(:user) }
 
-  let(:slave) { user = create(:user)
-  user.profile.update({ gender: { 'f' => 1, 'm' => 98,
-                                    'history' =>
-                                        { 'f' => { 'views' => 5, 'purchase' => 6 },
-                                          'm' => { 'views' => 7, 'purchase' => 8 } } },
-                          size: { 'f' => { 'tshirt' => { 'adult' => { 'size' => "38", 'probability' => 100 } } },
-                                  'history' => { 'f' => { 'tshirt' => { 'adult' => { "38" => { 'views' => 1, 'purchase' => 0 },
-                                                                                  "40" => { 'views' => 1, 'purchase' => 1 } } } } } },
-                          physiology: { 'history' =>
-                                            { 'f' =>
-                                                  { 'hair' =>
-                                                        { 'skin_type' => { "dry" => { 'views' => 1, 'purchase' => 1 } },
-                                                          'condition' => { "damaged" => { 'views' => 2, 'purchase' => 2 } } } } } },
-                          # periodicly: {"history"=> {
-                          #     '2'=>[ 40, 30],
-                          #     '3'=>[ 30, 10]
-                          # }},
-                          children: [] })
-  user.profile.reload
-  user
-  }
+  let(:slave) { create(:user) }
 
 
   describe '.merge' do
@@ -87,50 +46,6 @@ describe UserMerger do
 
     context 'when user signs in' do
       context 'user dependencies re-linking' do
-
-        context 'virtual profile' do
-          let!(:session) { create(:session, user: slave) }
-          it 'merge virtual profile gender correctly' do
-            subject
-            expect(master.profile.gender['history']).to eq({ "f" => {
-                                                               "views" => 6,
-                                                               "purchase" => 8
-                                                           },
-                                                             "m" => {
-                                                                 "views" => 10,
-                                                                 "purchase" => 12
-                                                             }
-                                                           })
-          end
-
-          it 'merge virtual profile sizes correctly' do
-            subject
-            expect(master.profile.size['history']).to eq({ "f" =>
-                                                               { "tshirt" =>
-                                                                     { "adult" =>
-                                                                           { "38" => { "views" => 2, "purchase" => 0 },
-                                                                             "40" => { "views" => 1, "purchase" => 1 } } },
-                                                                 "shoe" =>
-                                                                     { "adult" => { "40" => { "views" => 1, "purchase" => 0 } } } } })
-          end
-
-          # it 'merge virtual profile physiology correctly' do
-          #   subject
-          #   expect(master.physiology['history']).to eq({"f"=>
-          #                                                   {"hair"=>
-          #                                                        {"skin_type"=>
-          #                                                             {"dry"=>{"views"=>2, "purchase"=>2}},
-          #                                                         "condition"=>{"damaged"=>{"views"=>2, "purchase"=>2},
-          #                                                                       "colored"=>{"views"=>2, "purchase"=>2}}}}})
-          # end
-
-
-          # it 'merge virtual profile periodicly correctly' do
-          #   subject
-          #   expect(master.periodicly['history']).to eq({"2"=>[30, 40, 50], "3"=>[30, 10], "1"=>[40, 20]})
-          # end
-
-        end
 
         context 'sessions' do
           let!(:session) { create(:session, user: slave) }
