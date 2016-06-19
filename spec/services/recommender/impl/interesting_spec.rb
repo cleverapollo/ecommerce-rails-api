@@ -11,7 +11,7 @@ describe Recommender::Impl::Interesting do
     let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), category_ids: "{1}") }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'interesting') }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 12, type: 'interesting') }
 
   def create_action(user_data, item, is_buy = false)
     a = item.actions.new(user: user_data,
