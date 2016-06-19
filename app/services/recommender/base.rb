@@ -116,8 +116,6 @@ module Recommender
           relation = relation.where("(fashion_gender IS NULL AND cosmetic_gender IS NULL) OR is_child IS TRUE OR (fashion_gender != ? AND cosmetic_gender != ?)", opposite_gender, opposite_gender )
         end
 
-
-
       end
 
       # Оставляем только те, которые содержат полные данные о товаре
