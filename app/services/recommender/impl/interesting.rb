@@ -14,10 +14,6 @@ module Recommender
       #    super(result, true)
       # end
 
-      def items_in_shop
-        super
-      end
-
       def recommended_ids
         result = super
 

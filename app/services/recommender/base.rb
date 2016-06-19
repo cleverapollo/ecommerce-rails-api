@@ -111,9 +111,8 @@ module Recommender
 
         # Фильтрация по полу
         if user.gender.present?
-          opposite_gender = UserProfile::Gender.opposite_gender(user.gender)
-          # Пропускаем товары без пола или с полом, не равным противоположному или детские.
-          relation = relation.where("(fashion_gender IS NULL AND cosmetic_gender IS NULL) OR is_child IS TRUE OR (fashion_gender != ? AND cosmetic_gender != ?)", opposite_gender, opposite_gender )
+          # Пропускаем товары с противоположным полом, но не детские.
+          relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
         end
 
       end
