@@ -10,6 +10,8 @@ module Recommender
       params.categories.try(:any?) ? params.categories : nil
     end
 
+
+    # Вставляет продвигаемые товары
     def inject_promotions(result_ids, expansion_only=false)
       return result_ids if result_ids.empty?
 

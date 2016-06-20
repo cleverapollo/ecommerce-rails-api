@@ -25,6 +25,10 @@ module Recommender
         raise Recommendations::IncorrectParams.new('That item has no price') if params.item.price.blank?
       end
 
+
+      # Товары, из которых выполняются рекомендации.
+      # Это те товары, которые принадлежат тем же категориям, что и текущий товар (либо которые указаны в запросе).
+      # @return ActiveRecord::Relation
       def items_to_recommend
         # Если в запросе указаны категории, то выбираем товары, входящие хотя бы в одну категорию.
         # Если же не указаны, то точное соответствие категорий.
@@ -32,6 +36,9 @@ module Recommender
         result
       end
 
+
+      # Выборка товаров, которые необходимо взвесить (отсортировать по CF).
+      # @return ActiveRecord::Relation
       def items_to_weight
 
         result = []
@@ -46,7 +53,7 @@ module Recommender
           @only_one_promo = item.brand_downcase
         end
 
-        if result.size <limit
+        if result.size < limit
 
           result += items_relation_with_price_condition.order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id).uniq
 
@@ -76,6 +83,9 @@ module Recommender
         end
         result
       end
+
+
+
 
       def inject_random_items(result)
         # Не подмешивать случайные товары
