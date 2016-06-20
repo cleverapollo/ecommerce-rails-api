@@ -47,10 +47,14 @@ module Promoting
         relation.where('in_all_categories IS TRUE OR id IN (?)', ids_by_categories)
       end
 
+      # Рекламные кампании брендов, действующие в магазине.
+      # @param shop [Shop]
+      # @param expansion_only [Boolean]
+      # @return BrandCampaign::ActiveRecord_Relation
       def brand_campaigns_for_shop(shop, expansion_only)
         relation = BrandCampaign.active.prioritized
         relation = relation.expansion if expansion_only
-        relation.where(id: BrandCampaignShop.where(shop_id: shop).select('brand_campaign_id'))
+        relation.where(id: BrandCampaignShop.where(shop_id: shop.id).select('brand_campaign_id'))
       end
 
     end

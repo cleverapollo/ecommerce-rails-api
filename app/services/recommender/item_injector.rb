@@ -21,7 +21,7 @@ module Recommender
       if in_categories
         brand_campaigns_list = Promoting::Brand.brand_campaigns_for_categories(shop.id, categories_for_promo, expansion_only)
       else
-        brand_campaigns_list = Promoting::Brand.brand_campaigns_for_shop(shop.id, expansion_only)
+        brand_campaigns_list = Promoting::Brand.brand_campaigns_for_shop(shop, expansion_only)
       end
 
       brand_campaigns_list.each do |brand_campaign|
