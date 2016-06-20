@@ -158,6 +158,43 @@ describe UserMerger do
       end
 
 
+      context 'merge profile events and recalculate profile' do
+
+        let!(:profile_event_1) { create(:profile_event, shop: shop, user: master, industry: 'fashion', property: 'gender', value: 'm', views: 1 ) }
+        let!(:profile_event_2) { create(:profile_event, shop: shop, user: master, industry: 'fashion', property: 'gender', value: 'f', views: 1 ) }
+        let!(:profile_event_3) { create(:profile_event, shop: shop, user: slave, industry: 'fashion', property: 'gender', value: 'f', views: 1, carts: 2 ) }
+
+        let!(:profile_event_4) { create(:profile_event, shop: shop, user: master, industry: 'fashion', property: 'size_shoe', value: '38', views: 1, carts: 2 ) }
+        let!(:profile_event_5) { create(:profile_event, shop: shop, user: slave, industry: 'fashion', property: 'size_shoe', value: '38', views: 1, purchases: 3 ) }
+        let!(:profile_event_6) { create(:profile_event, shop: shop, user: slave, industry: 'fashion', property: 'size_shoe', value: '39', views: 1) }
+        let!(:profile_event_7) { create(:profile_event, shop: shop, user: slave, industry: 'fashion', property: 'size_coat', value: '39', views: 1 ) }
+
+        it 'merges profile events and recalculates profile' do
+          subject
+          master.reload
+          expect(master.profile_events.where(industry: 'fashion', property: 'gender').count).to eq 2
+          expect(master.profile_events.where(industry: 'fashion', property: 'gender', value: 'm').first.views).to eq 1
+          expect(master.profile_events.where(industry: 'fashion', property: 'gender', value: 'f').first.views).to eq 2
+          expect(master.profile_events.where(industry: 'fashion', property: 'gender', value: 'f').first.carts).to eq 2
+          expect(master.gender).to eq 'f'
+
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe').count).to eq 2
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_coat').count).to eq 1
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe', value: '38').first.views).to eq 2
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe', value: '38').first.carts).to eq 2
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe', value: '38').first.purchases).to eq 3
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe', value: '39').first.views).to eq 1
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_shoe', value: '39').first.carts).to be_nil
+          expect(master.profile_events.where(industry: 'fashion', property: 'size_coat', value: '39').first.views).to eq 1
+
+          expect(master.fashion_sizes['shoe']).to eq [38]
+          expect(master.fashion_sizes['coat']).to eq [39]
+
+        end
+
+      end
+
+
     end
   end
 end
