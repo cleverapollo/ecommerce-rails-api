@@ -100,7 +100,11 @@ class MahoutService
         rescue
           return options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
         end
-        res = JSON.parse(res).values[0].sort.to_h.first(options[:limit]).map { |i| { item: i[0].to_i, rating: i[1] } }
+        res = if JSON.parse(res).values[0].present?
+            JSON.parse(res).values[0].sort.to_h.first(options[:limit]).map { |i| { item: i[0].to_i, rating: i[1] } }
+          else
+            res = []
+          end
       else
         res = options[:weight].slice(0, options[:limit]).map{|item| {item:item, rating:0.0}}
       end
