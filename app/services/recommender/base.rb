@@ -106,16 +106,6 @@ module Recommender
       # Получаем акционные товары, если был запрос на акции
       relation = relation.discount if discount == true
 
-      # Если известен пол покупателя и у магазина включен решим отраслевого
-      if shop.subscription_plans.rees46_recommendations.paid.exists?
-
-        # Фильтрация по полу
-        if user.gender.present?
-          # Пропускаем товары с противоположным полом, но не детские.
-          relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
-        end
-
-      end
 
       # Оставляем только те, которые содержат полные данные о товаре
       # для отображения карточки на клиенте без дополнительных запросов к БД
@@ -124,6 +114,31 @@ module Recommender
 
       relation
     end
+
+
+    # Применить отраслевую фильтрацию к товарной выборке
+    # @param relation [ActiveRecord::Relation]
+    # @return ActiveRecord::Relation
+    def apply_industrial_filter(relation)
+
+      # Если известен пол покупателя и у магазина включен решим отраслевого
+      if shop.subscription_plans.rees46_recommendations.paid.exists?
+
+        # Фильтрация по полу
+        if user.gender.present?
+          # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
+          # Сброс не работает, т.к. дополнительные фильтры отдельных рекомендеров (например, популярные в категориях) еще не применены.
+          # if relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender ).exists?
+          relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
+          # end
+        end
+
+      end
+
+      relation
+
+    end
+
 
     # Исключает ID-товаров из рекомендаций:
     # - текущий товар, если есть
@@ -142,9 +157,9 @@ module Recommender
     def inject_random_items(given_ids)
       return given_ids if given_ids.size >= limit
 
-      relation = items_in_shop
+      relation = items_to_recommend
       if categories.present?
-        relation = items_in_shop.in_categories(categories, any:true)
+        relation = relation.in_categories(categories, any:true)
       end
 
       # Не использовать order RANDOM()

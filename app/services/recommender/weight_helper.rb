@@ -45,7 +45,7 @@ module Recommender
     end
 
     def sr_weight(items)
-      shop.items.where(id: items).pluck(:id, :sales_rate).to_h
+      items_to_recommend.where(id: items).pluck(:id, :sales_rate).to_h
     end
 
   end

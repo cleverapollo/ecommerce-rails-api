@@ -9,7 +9,7 @@ module Recommender
       end
 
       def items_to_weight
-        params.shop.items.where(uniqid: params.items).pluck(:id)
+        items_to_recommend.where(uniqid: params.items).pluck(:id)
       end
     end
   end

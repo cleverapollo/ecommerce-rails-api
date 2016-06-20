@@ -5,8 +5,10 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
+      # Для interesting применяем отраслевую фильрацию, если поиск не в категориях
+      # @return ActiveRecord::Relation
       def items_to_recommend
-        super
+        categories.try(:any?)? super : apply_industrial_filter(super)
       end
 
 

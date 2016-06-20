@@ -16,9 +16,18 @@ module Recommender
 
       def recommended_ids
         result = super
-
         inject_items(result)
       end
+
+
+
+
+      # Для interesting применяем отраслевую фильрацию
+      # @return ActiveRecord::Relation
+      def items_to_recommend
+        apply_industrial_filter super
+      end
+
     end
   end
 end
