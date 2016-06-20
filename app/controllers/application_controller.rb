@@ -23,6 +23,7 @@ class ApplicationController < ActionController::API
 
   # Залоггировать клиентскую ошибку
   def log_client_error(exception)
+    Rollbar.error exception
     client_error = ClientError.create(shop: Shop.find_by(uniqid: params[:shop_id]),
                                       exception_class: exception.class.to_s,
                                       exception_message: exception.to_s,
