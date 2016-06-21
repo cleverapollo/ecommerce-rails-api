@@ -34,7 +34,12 @@ class User < MasterTable
         gender: gender,
         fashion: {
             sizes: fashion_sizes
-        }
+        },
+        cosmetic: {
+            hair: cosmetic_hair
+        },
+        allergy: allergy
+
     }.to_json
   end
 
