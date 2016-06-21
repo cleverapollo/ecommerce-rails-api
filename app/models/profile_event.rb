@@ -94,8 +94,51 @@ class ProfileEvent < MasterTable
               properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user
             end
 
+            # Волосы
+            if item.cosmetic_hair_type.present? || item.cosmetic_hair_condition.present?
+
+              # Тип волос
+              if item.cosmetic_hair_type.present? && item.cosmetic_hair_type.try(:any?)
+                item.cosmetic_hair_type.each do |value|
+                  profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'hair_type', value: value
+                  profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                end
+              end
+
+              # Состояние волос
+              if item.cosmetic_hair_condition.present? && item.cosmetic_hair_condition.try(:any?)
+                item.cosmetic_hair_condition.each do |value|
+                  profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'hair_condition', value: value
+                  profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                end
+              end
+
+              # Рассчитываем волосы для обновления пользователя
+              properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair user
+
+            end
+
+            # Гипоаллергенность
+            if item.cosmetic_hypoallergenic?
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'hypoallergenic', value: '1'
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+            end
+
           end
 
+
+          # FMCG
+          if item.is_fmcg?
+
+            # Гипоаллергенность
+            if item.fmcg_hypoallergenic?
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fmcg', property: 'hypoallergenic', value: '1'
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+            end
+
+          end
 
           # Одежда
           if item.is_fashion?

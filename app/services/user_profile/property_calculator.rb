@@ -33,8 +33,8 @@ class UserProfile::PropertyCalculator
       wear_type = event.property.gsub('size_', '')
       size = event.value
       score[wear_type] = {} unless score.key?(wear_type)
-      score[wear_type][size] = 0 if score[wear_type].key?(size)
-      score[wear_type][size] = event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
+      score[wear_type][size] = 0 unless score[wear_type].key?(size)
+      score[wear_type][size] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
     end
 
     return nil if score.empty?
@@ -49,6 +49,43 @@ class UserProfile::PropertyCalculator
     end
 
     wear_sizes.empty? ? nil : wear_sizes
+  end
+
+
+
+
+  # Рассчитывает тип и состояние волос покупателя
+  # @param user User
+  # @return Hash | nil
+  def calculate_hair(user)
+    score = {hair_type: {}, hair_condition: {}}
+
+    # Заполняем хеш сырыми данными
+    # Не забываем, что поле value строковое и его нужно приводить к целым числам
+    ProfileEvent.where(user_id: user.id, industry: 'cosmetic').where(property: ['hair_type', 'hair_condition']).each do |event|
+      score[event.property.to_sym][event.value] = 0 unless score[event.property.to_sym].key?(event.value)
+      score[event.property.to_sym][event.value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
+    end
+
+    hair = {}
+    hair[:type] = score[:hair_type].sort_by{ |k, v| v }.reverse.first[0] if score[:hair_type].any?
+    hair[:condition] = score[:hair_condition].sort_by{ |k, v| v }.reverse.first[0] if score[:hair_condition].any?
+
+    hair.empty? ? nil : hair
+  end
+
+
+  # Подсчитывает вероятность аллергии для косметики и FMCG
+  # @param user [User]
+  # @return Boolean | nil
+  def calculate_allergy(user)
+    sum = 0
+    ProfileEvent.where(user_id: user.id, industry: ['cosmetic', 'fmcg']).where(property: 'hypoallergenic').each do |event|
+      # Учитываем только корзины и покупки
+      sum += event.carts.to_i * 2 + event.purchases.to_i * 5
+    end
+    # Абстрактный порог в 10 – тогда считаем, что аллергия есть
+    sum >= 10 ? true : nil
   end
 
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160620122315) do
+ActiveRecord::Schema.define(version: 20160621051330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -311,6 +311,9 @@ ActiveRecord::Schema.define(version: 20160620122315) do
     t.integer  "currency_id",                        default: 1,     null: false
     t.string   "language",                           default: "ru",  null: false
     t.boolean  "notify_about_finances",              default: true,  null: false
+    t.integer  "partner_balance",                    default: 0,     null: false
+    t.integer  "my_partner_visits",                  default: 0
+    t.integer  "my_partner_signups",                 default: 0
   end
 
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
@@ -380,6 +383,15 @@ ActiveRecord::Schema.define(version: 20160620122315) do
   end
 
   add_index "monthly_statistics", ["month", "year"], name: "index_monthly_statistics_on_month_and_year", unique: true, using: :btree
+
+  create_table "partner_rewards", force: :cascade do |t|
+    t.integer  "customer_id"
+    t.integer  "invited_customer_id"
+    t.integer  "fee"
+    t.integer  "transaction_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
 
   create_table "payments", force: :cascade do |t|
     t.integer  "shop_id",                       null: false
@@ -703,8 +715,10 @@ ActiveRecord::Schema.define(version: 20160620122315) do
   add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
-    t.string "gender",        limit: 1
-    t.jsonb  "fashion_sizes"
+    t.string  "gender",        limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

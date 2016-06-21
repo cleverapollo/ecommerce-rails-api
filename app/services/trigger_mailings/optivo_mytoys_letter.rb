@@ -54,13 +54,16 @@ module TriggerMailings
 
               # Сохраняем файл с исходными товарами триггера
               if trigger_data.source_items && trigger_data.source_items.is_a?(Array) && trigger_data.source_items.any?
-                file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}"
+                # file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}"
+                file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')}"
               end
 
               # Сохраняем файлы с рекомендованными товарами триггера
               if trigger_data.recommended_items && trigger_data.recommended_items.is_a?(Array) && trigger_data.recommended_items.any?
-                file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[0..3]
-                file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[4..7]
+                # file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[0..3]
+                # file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[4..7]
+                file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')}" if trigger_data.recommended_items[0..3]
+                file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')}" if trigger_data.recommended_items[4..7]
               end
             end
 

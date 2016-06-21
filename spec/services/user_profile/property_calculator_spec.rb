@@ -72,4 +72,41 @@ describe UserProfile::PropertyCalculator do
   end
 
 
+  describe 'calculate hair' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_type', value: 'long', carts: 2) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_type', value: 'short', purchases: 2) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_condition', value: 'oily', purchases: 1, views: 2) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_condition', value: 'damage', purchases: 1, carts: 1, views: 1) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_hair(user) }
+
+    it 'calculates hair' do
+      expect(subject[:type]).to eq 'short'
+      expect(subject[:condition]).to eq 'damage'
+    end
+
+  end
+
+
+  describe 'calculate allergy' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fmcg', property: 'hypoallergenic', value: '1', carts: 2) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hypoallergenic', value: '1', purchases: 1, carts: 1) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_allergy(user) }
+
+    it 'calculates allergy' do
+      expect(subject).to be_truthy
+    end
+
+  end
+
+
 end
