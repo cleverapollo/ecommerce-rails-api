@@ -91,6 +91,28 @@ describe UserProfile::PropertyCalculator do
 
   end
 
+  describe 'calculate skin' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_type_body', value: 'dry', purchases: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_type_body', value: 'normal', views: 1, carts: 2 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_type_hand', value: 'normal', carts: 1 ) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage', carts: 2 ) }
+    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_condition_body', value: 'soft', carts: 2 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_skin(user) }
+
+    it 'calculates skin' do
+      expect(subject['hand']['type']).to eq ['normal']
+      expect(subject['hand']['condition']).to eq ['damage']
+      expect(subject['body']['type']).to eq ['dry', 'normal']
+      expect(subject['body']['condition']).to eq ['soft']
+    end
+
+  end
+
 
   describe 'calculate allergy' do
 

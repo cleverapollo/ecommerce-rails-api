@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160621051330) do
+ActiveRecord::Schema.define(version: 20160621152802) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -719,6 +719,7 @@ ActiveRecord::Schema.define(version: 20160621051330) do
     t.jsonb   "fashion_sizes"
     t.boolean "allergy"
     t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

@@ -118,6 +118,34 @@ class ProfileEvent < MasterTable
 
             end
 
+            # Кожа - работает обязательно с частями тела. Без частей тела остальное не имеет значения. Но по-умолчанию сделать часть тела - все тело.
+            if !item.cosmetic_skin_part.nil? && item.cosmetic_skin_part.any? && ( (!item.cosmetic_skin_type.nil? && item.cosmetic_skin_type.any?) || (!item.cosmetic_skin_condition.nil? && item.cosmetic_skin_condition.any?) )
+
+              # Тип кожи
+              if !item.cosmetic_skin_part.nil? && item.cosmetic_skin_part.any? && !item.cosmetic_skin_type.nil? && item.cosmetic_skin_type.any?
+                item.cosmetic_skin_part.each do |part|
+                  item.cosmetic_skin_type.each do |type|
+                    profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: "skin_type_#{part}", value: type
+                    profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                  end
+                end
+              end
+
+              # Состояние кожи
+              if !item.cosmetic_skin_part.nil? && item.cosmetic_skin_part.any? && !item.cosmetic_skin_condition.nil? && item.cosmetic_skin_condition.any?
+                item.cosmetic_skin_part.each do |part|
+                  item.cosmetic_skin_condition.each do |condition|
+                    profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: "skin_condition_#{part}", value: condition
+                    profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                  end
+                end
+              end
+
+              # Рассчитываем кожу для обновления пользователя
+              properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin user
+
+            end
+
             # Гипоаллергенность
             if item.cosmetic_hypoallergenic?
               profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'hypoallergenic', value: '1'

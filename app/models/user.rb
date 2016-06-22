@@ -36,7 +36,8 @@ class User < MasterTable
             sizes: fashion_sizes
         },
         cosmetic: {
-            hair: cosmetic_hair
+            hair: cosmetic_hair,
+            skin: cosmetic_skin
         },
         allergy: allergy
 

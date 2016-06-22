@@ -177,6 +177,14 @@ describe UserMerger do
         let!(:profile_event_12) { create(:profile_event, shop: shop, user: master, industry: 'cosmetic', property: 'hair_condition', value: 'damage', views: 3 ) }
         let!(:profile_event_13) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'hair_condition', value: 'normal', purchases: 3 ) }
 
+        let!(:profile_event_14) { create(:profile_event, shop: shop, user: master, industry: 'cosmetic', property: 'skin_type_body', value: 'dry', purchases: 2 ) }
+        let!(:profile_event_15) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_type_body', value: 'normal', views: 1, carts: 2 ) }
+        let!(:profile_event_16) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_type_hand', value: 'normal', carts: 1 ) }
+        let!(:profile_event_17) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage', carts: 2 ) }
+        let!(:profile_event_18) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_condition_body', value: 'soft', carts: 2 ) }
+
+
+
         it 'merges profile events and recalculates profile' do
           subject
           master.reload
@@ -203,6 +211,17 @@ describe UserMerger do
 
           expect(master.cosmetic_hair['type']).to eq 'short'
           expect(master.cosmetic_hair['condition']).to eq 'normal'
+
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'dry').first.purchases).to eq 2
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'normal').first.views).to eq 1
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'normal').first.carts).to eq 2
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_hand', value: 'normal').first.carts).to eq 1
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage').first.carts).to eq 2
+          expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_body', value: 'soft').first.carts).to eq 2
+          expect(master.cosmetic_skin['hand']['type']).to eq ['normal']
+          expect(master.cosmetic_skin['hand']['condition']).to eq ['damage']
+          expect(master.cosmetic_skin['body']['type']).to eq ['dry', 'normal']
+          expect(master.cosmetic_skin['body']['condition']).to eq ['soft']
 
         end
 

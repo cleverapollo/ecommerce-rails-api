@@ -18,6 +18,11 @@ describe ProfileEvent do
     let!(:item_8) { create(:item, shop: shop, is_cosmetic: true, cosmetic_hair_type: ['long'], cosmetic_hair_condition: ['oily'] ) }
     let!(:item_9) { create(:item, shop: shop, is_cosmetic: true, cosmetic_hair_type: ['long'], cosmetic_hair_condition: ['damage'] ) }
 
+    let!(:item_10) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['body'], cosmetic_skin_type: ['oily'], cosmetic_skin_condition: ['damage'] ) }
+    let!(:item_11) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['hand'], cosmetic_skin_type: ['normal'], cosmetic_skin_condition: ['tattoo'] ) }
+    let!(:item_12) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['leg'], cosmetic_skin_condition: ['tattoo'] ) }
+    let!(:item_13) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['hand'], cosmetic_skin_type: ['soft'] ) }
+
 
     let!(:item_simple) { create(:item, shop: shop ) }
 
@@ -84,7 +89,23 @@ describe ProfileEvent do
         expect(user.reload.allergy).to be_truthy
       end
 
+      it 'saves skin for cosmetic' do
+        ProfileEvent.track_items(user, shop, 'purchase', [item_10, item_simple])
+        ProfileEvent.track_items(user, shop, 'cart', [item_11, item_simple])
+        ProfileEvent.track_items(user, shop, 'view', [item_12, item_simple])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_13, item_simple])
+        expect(ProfileEvent.count).to eq 6
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_body', value: 'oily').purchases).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_body', value: 'damage').purchases).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_hand', value: 'normal').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_hand', value: 'tattoo').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_leg', value: 'tattoo').views).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_hand', value: 'soft').purchases).to eq 1
+      end
+
     end
+
+
 
     context 'tracks fmcg' do
 
