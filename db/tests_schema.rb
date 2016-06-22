@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160621152802) do
+ActiveRecord::Schema.define(version: 20160622110038) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -550,6 +550,7 @@ ActiveRecord::Schema.define(version: 20160621152802) do
     t.date    "synced_with_dca_at"
     t.date    "synced_with_aidata_at"
     t.date    "synced_with_auditorius_at"
+    t.date    "synced_with_mailru_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
