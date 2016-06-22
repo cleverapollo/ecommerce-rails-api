@@ -42,7 +42,7 @@ module InitServerString
 
     def get_sync_pixels(session, shop)
       pixels = []
-      if shop && shop.remarketing_enabled?
+      if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
         if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < Date.current
           pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}"
           session.update synced_with_aidata_at: Date.current

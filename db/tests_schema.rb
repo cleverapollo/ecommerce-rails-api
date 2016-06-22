@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160622110038) do
+ActiveRecord::Schema.define(version: 20160622154758) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -645,6 +645,7 @@ ActiveRecord::Schema.define(version: 20160622110038) do
     t.boolean  "ekomi_enabled"
     t.string   "ekomi_id"
     t.string   "ekomi_key"
+    t.boolean  "match_users_with_dmp",                      default: true
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
