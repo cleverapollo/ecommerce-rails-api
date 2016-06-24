@@ -80,6 +80,12 @@ class ProfileEvent < MasterTable
             profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
           end
 
+
+          # Детский возраст (минимум, максимум)
+          # Детская косметика (кожа, волосы, аллергия)
+          # Детская одежда (размеры)
+
+
         else
 
           # ** Товары не для детей
