@@ -9,19 +9,26 @@ module Rees46ML
     alias_method :size=, :value=
 
     def region
-      ALLOWS_PREFIX.include?(prefix) ? prefix : DEFAULT_PREFIX
+      return 'r' if value.match(/^[0-9]+$/)
+      return ALLOWS_PREFIX.include?(prefix) ? prefix : DEFAULT_PREFIX
     end
 
+    # Возвращает числовое значение размера, убирая все префиксы
+    # @return String
     def num
-      value.match(/[0-9]/) ? value[1..-1] : value
+      value.gsub(/[^0-9]/, '')
     end
 
+    # Русский размер? Только в случае, если префикс r или вообще без префикса
+    # @return Boolean
     def ru?
-      prefix == "r"
+      prefix == "r" || value.match(/^[0-9]+$/)
     end
 
+    # Префикс размера. Если не указан, считается русским и возвращает "r"
+    # @return String
     def prefix
-      @prefix ||= value.to_s[0]
+      @prefix ||= ( value.to_s[0].match(/a-z/) ? value.to_s[0] : 'r' )
     end
   end
 end

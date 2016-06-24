@@ -262,6 +262,7 @@ class Item < ActiveRecord::Base
       item.vendor_code = offer.vendor_code
       item.barcode = offer.barcodes.first
 
+
       if offer.fashion?
         item.is_fashion = true
         item.fashion_feature = offer.fashion.feature
@@ -270,6 +271,7 @@ class Item < ActiveRecord::Base
 
         if offer.fashion.gender && offer.fashion.type
           size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
+
           # TODO: тут не работает unisex
           if size_table && offer.fashion.gender.value
             table = size_table.new
