@@ -1,6 +1,39 @@
 require 'rails_helper'
 
 describe InitController do
+
+  describe 'GET check' do
+    let!(:shop) { create(:shop) }
+
+    context 'do not check secret' do
+      it 'generates key and secret' do
+        expect(shop.uniqid.present?).to be_truthy
+        expect(shop.secret.present?).to be_truthy
+      end
+      it 'checks shop key' do
+        get :check, shop_id: shop.uniqid
+        expect(JSON.parse(response.body)).to eq({'key' => 'correct', 'secret' => 'skip'})
+      end
+      it 'raise error when shop not found' do
+        get :check, shop_id: '333'
+        expect(response.code).to eq '400'
+      end
+    end
+
+    context 'check secret' do
+      it 'checks wrong secret' do
+        get :check, shop_id: shop.uniqid, secret: '333'
+        expect(JSON.parse(response.body)).to eq({'key' => 'correct', 'secret' => 'invalid'})
+      end
+      it 'checks correct secret' do
+        get :check, shop_id: shop.uniqid, secret: shop.secret
+        expect(JSON.parse(response.body)).to eq({'key' => 'correct', 'secret' => 'correct'})
+      end
+    end
+
+  end
+
+
   describe 'GET generate_ssid' do
     let!(:shop) { create(:shop) }
 

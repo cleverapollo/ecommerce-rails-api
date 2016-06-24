@@ -9,6 +9,9 @@ Rees46Api::Application.routes.draw do
   # Генерация кода сессии - используется мобильными приложениями
   get 'generate_ssid', to: 'init#generate_ssid'
 
+  # Проверка валидности shop_id и shop_secret
+  get 'check', to: 'init#check'
+
   # Запрос рекомендаций
   get 'recommend', to: 'recommendations#get'
 

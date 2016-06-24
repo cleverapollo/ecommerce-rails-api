@@ -9,7 +9,8 @@ FactoryGirl.define do
     use_brb false
     connected_events_last_track       {{}}
     connected_recommenders_last_track {{}}
-    uniqid
+    uniqid { SecureRandom.uuid }
+    secret { SecureRandom.uuid }
     name
 
     connection_status_last_track do

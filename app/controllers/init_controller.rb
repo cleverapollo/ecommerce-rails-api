@@ -45,4 +45,18 @@ class InitController < ApplicationController
   def init_experiment
     render json: cookies[Rees46::COOKIE_NAME]
   end
+
+  # Проверяет валидность shop_id и secret
+  def check
+    response = { key: 'correct', secret: 'skip' }
+    if params[:secret].present?
+      if shop.secret != params[:secret]
+        response[:secret] = 'invalid'
+      else
+        response[:secret] = 'correct'
+      end
+    end
+    render json: response
+  end
+
 end
