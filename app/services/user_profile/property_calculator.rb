@@ -232,8 +232,8 @@ class UserProfile::PropertyCalculator
         kid = { gender: gender }
         if element.any?
           if element.length == 1
-            kid[:age_min] = element[0].to_f / 4.0
-            kid[:age_max] = element[0].to_f / 4.0
+            kid[:age_min] = element.first[0].to_f / 4.0
+            kid[:age_max] = element.first[0].to_f / 4.0
           else
             kid[:age_min] = element.sort.first[0] / 4.0
             kid[:age_max] = element.sort.reverse.first[0].to_f / 4.0
