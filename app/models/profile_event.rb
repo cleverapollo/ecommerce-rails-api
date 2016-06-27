@@ -37,8 +37,24 @@ class ProfileEvent < MasterTable
           hash_for_update[:purchases] = master_row.purchases if !slave_row.purchases.present? && master_row.purchases.present?
 
           # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
-          hash_for_update[:created_at] = ( master_row.created_at > slave_row.created_at ? slave_row.created_at : master_row.created_at )
-          hash_for_update[:updated_at] = ( master_row.updated_at > slave_row.updated_at ? master_row.updated_at : slave_row.updated_at )
+          if master_row.created_at.nil? && slave_row.created_at.nil?
+            hash_for_update[:created_at] = DateTime.current
+          elsif !master_row.created_at.nil? && slave_row.created_at.nil?
+            hash_for_update[:created_at] = master_row.created_at
+          elsif master_row.created_at.nil? && !slave_row.created_at.nil?
+            hash_for_update[:created_at] = slave_row.created_at
+          else
+            hash_for_update[:created_at] = ( master_row.created_at > slave_row.created_at ? slave_row.created_at : master_row.created_at )
+          end
+          if master_row.updated_at.nil? && slave_row.updated_at.nil?
+            hash_for_update[:updated_at] = DateTime.current
+          elsif !master_row.updated_at.nil? && slave_row.updated_at.nil?
+            hash_for_update[:updated_at] = master_row.updated_at
+          elsif master_row.updated_at.nil? && !slave_row.updated_at.nil?
+            hash_for_update[:updated_at] = slave_row.updated_at
+          else
+            hash_for_update[:updated_at] = ( master_row.updated_at > slave_row.updated_at ? master_row.updated_at : slave_row.updated_at )
+          end
 
           master_row.update hash_for_update unless hash_for_update.empty?
           slave_row.delete
