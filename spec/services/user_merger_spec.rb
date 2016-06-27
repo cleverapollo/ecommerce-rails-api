@@ -183,6 +183,11 @@ describe UserMerger do
         let!(:profile_event_17) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage', carts: 2 ) }
         let!(:profile_event_18) { create(:profile_event, shop: shop, user: slave, industry: 'cosmetic', property: 'skin_condition_body', value: 'soft', carts: 2 ) }
 
+        let!(:profile_event_19) { create(:profile_event, shop: shop, user: master, industry: 'child', property: 'age', value: '0.25_2.0_m', purchases: 2 ) }
+        let!(:profile_event_20) { create(:profile_event, shop: shop, user: master, industry: 'child', property: 'age', value: '_3.0_f', views: 1, carts: 2 ) }
+        let!(:profile_event_21) { create(:profile_event, shop: shop, user: slave, industry: 'child', property: 'age', value: '3_5_f', carts: 1 ) }
+        let!(:profile_event_22) { create(:profile_event, shop: shop, user: slave, industry: 'child', property: 'age', value: '3_5_', carts: 2 ) }
+        let!(:profile_event_23) { create(:profile_event, shop: shop, user: slave, industry: 'child', property: 'age', value: '0.5__m', carts: 2 ) }
 
 
         it 'merges profile events and recalculates profile' do
@@ -222,6 +227,8 @@ describe UserMerger do
           expect(master.cosmetic_skin['hand']['condition']).to eq ['damage']
           expect(master.cosmetic_skin['body']['type']).to eq ['dry', 'normal']
           expect(master.cosmetic_skin['body']['condition']).to eq ['soft']
+
+          expect(master.children).to eq ([{"gender"=>"m", "age_max"=>1.0, "age_min"=>0.5}, {"gender"=>"f", "age_max"=>3.0, "age_min"=>1.5}])
 
         end
 

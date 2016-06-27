@@ -23,6 +23,11 @@ describe ProfileEvent do
     let!(:item_12) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['leg'], cosmetic_skin_condition: ['tattoo'] ) }
     let!(:item_13) { create(:item, shop: shop, is_cosmetic: true, cosmetic_skin_part: ['hand'], cosmetic_skin_type: ['soft'] ) }
 
+    let!(:item_14) { create(:item, shop: shop, is_child: true, child_age_min: 0.25, child_age_max: 2 ) }
+    let!(:item_15) { create(:item, shop: shop, is_child: true, child_age_min: 0.25 ) }
+    let!(:item_16) { create(:item, shop: shop, is_child: true, child_age_max: 2 ) }
+    let!(:item_17) { create(:item, shop: shop, is_child: true, child_gender: 'm', child_age_max: 2 ) }
+
 
     let!(:item_simple) { create(:item, shop: shop ) }
 
@@ -154,6 +159,19 @@ describe ProfileEvent do
         expect(profile_event.property).to eq 'gender'
         expect(profile_event.value).to eq 'm'
       end
+
+      it 'saves child age' do
+        ProfileEvent.track_items(user, shop, 'view', [item_simple, item_14])
+        ProfileEvent.track_items(user, shop, 'cart', [item_15])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_16])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_17]) # Создает две записи - с возрастом и отдельно с полом
+        expect(ProfileEvent.count).to eq 5
+        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '0.25_2.0_').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '0.25__').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '_2.0_').purchases ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '_2.0_m').purchases ).to eq 1
+      end
+
 
     end
 

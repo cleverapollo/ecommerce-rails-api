@@ -35,6 +35,11 @@ class ProfileEvent < MasterTable
           hash_for_update[:purchases] = (slave_row.purchases + master_row.purchases) if slave_row.purchases.present? && master_row.purchases.present?
           hash_for_update[:purchases] = slave_row.purchases if slave_row.purchases.present? && !master_row.purchases.present?
           hash_for_update[:purchases] = master_row.purchases if !slave_row.purchases.present? && master_row.purchases.present?
+
+          # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
+          hash_for_update[:created_at] = ( master_row.created_at > slave_row.created_at ? slave_row.created_at : master_row.created_at )
+          hash_for_update[:updated_at] = ( master_row.updated_at > slave_row.updated_at ? master_row.updated_at : slave_row.updated_at )
+
           master_row.update hash_for_update unless hash_for_update.empty?
           slave_row.delete
         else
@@ -80,11 +85,12 @@ class ProfileEvent < MasterTable
             profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
           end
 
-
           # Детский возраст (минимум, максимум)
-          # Детская косметика (кожа, волосы, аллергия)
-          # Детская одежда (размеры)
-
+          if item.child_age_min.present? || item.child_age_max.present?
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'child', property: 'age', value: "#{item.child_age_min}_#{item.child_age_max}_#{item.child_gender}"
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children user
+          end
 
         else
 

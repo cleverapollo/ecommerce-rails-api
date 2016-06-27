@@ -131,4 +131,26 @@ describe UserProfile::PropertyCalculator do
   end
 
 
+
+  describe 'calculate children' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '0.25_2.0_m', purchases: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '_3.0_f', views: 1, carts: 2 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '3_5_f', carts: 1 ) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '3_5_', carts: 2 ) }
+    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '0.5__m', carts: 2 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
+
+    it 'calculates children' do
+      expect(subject.count).to eq 2
+      expect(subject.first).to eq ({gender: "m", age_min: 0.5, age_max: 1.0})
+      expect(subject.last).to eq ({gender: "f", age_min: 1.5, age_max: 3.0})
+    end
+
+  end
+
 end

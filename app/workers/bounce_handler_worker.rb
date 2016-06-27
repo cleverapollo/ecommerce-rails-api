@@ -7,6 +7,13 @@ class BounceHandlerWorker
       require 'gmail'
       require 'bounce_email'
 
+      # http://y.mkechinov.ru/issue/REES-2541
+      begin
+        OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ssl_version] = 'TLSv1'
+      rescue => e
+        Rollar.error e
+      end
+
       Gmail.connect!('bounced@rees46.com', Rails.application.secrets.gmail_bounced_password) do |gmail|
         gmail.inbox.emails.each do |email|
           # Достаем "само" письмо

@@ -28,6 +28,7 @@ class UserMerger
             properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair master
             properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
             properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin master
+            properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
             master.update properties_to_update
 
             # Удаляем дочерний элемент

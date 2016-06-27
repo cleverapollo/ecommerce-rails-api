@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160622154758) do
+ActiveRecord::Schema.define(version: 20160627103242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -405,14 +405,16 @@ ActiveRecord::Schema.define(version: 20160622154758) do
   end
 
   create_table "profile_events", force: :cascade do |t|
-    t.integer "user_id",   limit: 8, null: false
-    t.integer "shop_id",             null: false
-    t.string  "industry",            null: false
-    t.string  "property",            null: false
-    t.string  "value",               null: false
-    t.integer "views"
-    t.integer "carts"
-    t.integer "purchases"
+    t.integer  "user_id",    limit: 8, null: false
+    t.integer  "shop_id",              null: false
+    t.string   "industry",             null: false
+    t.string   "property",             null: false
+    t.string   "value",                null: false
+    t.integer  "views"
+    t.integer  "carts"
+    t.integer  "purchases"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "profile_events", ["user_id", "industry", "property"], name: "index_profile_events_on_user_id_and_industry_and_property", using: :btree
@@ -722,6 +724,7 @@ ActiveRecord::Schema.define(version: 20160622154758) do
     t.boolean "allergy"
     t.jsonb   "cosmetic_hair"
     t.jsonb   "cosmetic_skin"
+    t.jsonb   "children",                array: true
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
