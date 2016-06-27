@@ -90,6 +90,15 @@ module TriggerMailings
         items_list
       end
 
+      # Генерирует фейковые данные для отправки тестового триггера
+      def generate_test_data!
+        @happened_at = DateTime.current
+        @source_items = shop.items.widgetable.limit 3
+        @source_item = shop.items.widgetable.limit(1)[0]
+        true
+      end
+
+
       # Возвращает массив ID рекомендованных товаров для данного триггера.
       # Применяется в методе recommendations. В нем содержится вся логика товарных рекомендаций в конкретных реализациях
       # триггеров.

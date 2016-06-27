@@ -53,6 +53,12 @@ Rees46Api::Application.routes.draw do
     end
   end
 
+  resources :trigger_mailings, only: [] do
+    collection do
+      post :send_test
+    end
+  end
+
   # Окно сбора e-mail
   # create - прием данных о подписке (или отказе)
   resources :subscriptions, only: [:create] do

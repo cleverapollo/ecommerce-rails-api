@@ -18,7 +18,7 @@ module Mailings
 
       def utm_params(mail, options = {})
         result = nil
-        if mail.class == TriggerMail
+        if mail.class.name == 'TriggerMail'
           result = {
             utm_source: 'rees46',
             utm_medium: 'trigger_mail',
