@@ -369,7 +369,7 @@ class Item < ActiveRecord::Base
   # @param height [Integer]
   # @return String
   def resized_image(width, height)
-    "//rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
+    "http://rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
   end
 
 end
