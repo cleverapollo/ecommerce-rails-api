@@ -170,13 +170,13 @@ module TriggerMailings
       liquid_template = trigger.settings[:liquid_template].dup
       recommendations_count = trigger.settings[:amount_of_recommended_items]
       data[:source_items] = if trigger.source_items.present? && trigger.source_items.any?
-                       trigger.source_items.map { |item| item_for_letter(item, client.location) }
+                       trigger.source_items.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
                      else
                        []
                      end
       RecommendationsRequest.report do |r|
         recommendations = trigger.recommendations(recommendations_count)
-        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location) }
+        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
         r.shop = @shop
         r.recommender_type = 'trigger_mail'
         r.recommendations = recommendations.map(&:uniqid)
@@ -221,10 +221,11 @@ module TriggerMailings
     # Обертка над товаром для отображения в письме
     # @param [Item] товар
     # @param location [String] Идентификатор локации, в которой находится клиент
-    # @param amount [Integer] Количество товаров в корзине или другом триггере, если было
+    # @param width [Integer] Ширина картинки для ресайза
+    # @param height [Integer] Высота картинки для ресайза
     # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
-    def item_for_letter(item, location)
+    def item_for_letter(item, location, width = nil, height = nil)
       raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
       {
         name: item.name.truncate(40),
@@ -234,7 +235,7 @@ module TriggerMailings
         price: item.price_at_location(location).to_i,
         oldprice: item.oldprice.to_i,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
-        image_url: item.image_url,
+        image_url: (width && height ? item.resized_image(width, height) : item.image_url),
         currency: item.shop.currency,
         id: item.uniqid.to_s,
         barcode: item.barcode.to_s,

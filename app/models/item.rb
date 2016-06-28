@@ -362,4 +362,14 @@ class Item < ActiveRecord::Base
       end
     end
   end
+
+
+  # Ссылка на отресайзенную картинку товара
+  # @param width [Integer]
+  # @param height [Integer]
+  # @return String
+  def resized_image(width, height)
+    "//rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
+  end
+
 end
