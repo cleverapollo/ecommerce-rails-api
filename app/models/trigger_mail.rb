@@ -12,9 +12,12 @@ class TriggerMail < ActiveRecord::Base
   validates :trigger_mailing_id, presence: true
   validates :trigger_data, presence: true
 
+  before_create :set_date
+
   scope :clicked, -> { where(clicked: true) }
 
   store :trigger_data, coder: JSON
+
 
   # Отметить факт открытия письма
   def mark_as_opened!
@@ -35,4 +38,12 @@ class TriggerMail < ActiveRecord::Base
 
     self.client.try(:purge_email!)
   end
+
+  private
+
+  def set_date
+    self.date = Date.current
+  end
+
+
 end

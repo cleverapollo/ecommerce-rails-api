@@ -13,6 +13,8 @@ class DigestMail < ActiveRecord::Base
   validates :mailing, presence: true
   validates :batch, presence: true
 
+  before_create :set_date
+
   scope :clicked, -> { where(clicked: true) }
 
   # Отметить факт открытия письма
@@ -34,4 +36,12 @@ class DigestMail < ActiveRecord::Base
 
     self.client.try(:purge_email!)
   end
+
+
+  private
+
+  def set_date
+    self.date = Date.current
+  end
+
 end
