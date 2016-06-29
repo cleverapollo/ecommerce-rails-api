@@ -140,11 +140,16 @@ module TriggerMailings
               begin
                 Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
                 product_ids << item.uniqid
-              rescue
+              rescue => e
+                Rollbar.error e
               end
             end
           end
-          feedback_button_link = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+          begin
+            feedback_button_link = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+          rescue => e
+            Rollbar.error e
+          end
         else
           feedback_button_link = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
         end
