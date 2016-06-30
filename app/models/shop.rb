@@ -158,10 +158,15 @@ class Shop < MasterTable
     end
   end
 
+  # Проверяет, считается ли магазин подключенным.
+  # Подключенным считаем магазины, у которых были события просмотра и покупки не позднее 7 и 14 дней соответственно.
+  # Раньше считали еще 3 разных рекомендера, но сейчас это не требуется.
+  # IDEA: возможно, стоит добавить проверку YML. Но это отрицательно скажется на иностранных клиентах.
+  # @return Boolean
   def connected_now?
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
-    connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i &&
-    (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
+    connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i # &&
+    # (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
   end
 
   def ekomi?
