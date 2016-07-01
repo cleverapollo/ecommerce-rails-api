@@ -195,7 +195,7 @@ class UserProfile::PropertyCalculator
         age_min = 0 if age_min < 0
         age_max = 0 if age_max < 0
         age_min = 0 if age_min  > 20
-        age_max = 16 if age_min > 20
+        age_max = 16 if age_max > 20
 
         # Приводим возраст к целочисленным индексам. Так как возраст кратен 0.25, умножаем его на 4, чтобы получить
         # целый индекс для будущих массивов
