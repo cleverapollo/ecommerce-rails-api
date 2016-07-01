@@ -182,12 +182,20 @@ class UserProfile::PropertyCalculator
 
       if age_min.present? || age_max.present?
 
+
         # Если не указана одна из границ, определяем ее как вдвое больше/меньше от присутствующей
         age_min = age_min.to_f if age_min.present?
         age_max = age_max.to_f if age_max.present?
 
         age_min = age_max / 2.0 unless age_min.present?
         age_max = age_min * 2.0 unless age_max.present?
+
+        # Костыль: У MyToys бывает максимальный возраст в 178956970, поэтому делаем дополнительную проверку
+        # И бывают еще отрицательные возрасты.
+        age_min = 0 if age_min < 0
+        age_max = 0 if age_max < 0
+        age_min = 0 if age_min  > 20
+        age_max = 16 if age_min > 20
 
         # Приводим возраст к целочисленным индексам. Так как возраст кратен 0.25, умножаем его на 4, чтобы получить
         # целый индекс для будущих массивов
