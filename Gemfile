@@ -17,25 +17,26 @@ gem 'rack-utf8_sanitizer', '~> 1.2.3'
 # Database
 gem 'pg', '~> 0.18.1'
 gem 'redis-objects'
+gem 'redis-namespace'
 gem 'postgres-copy'
 gem 'mongoid', '~> 5.0.0'
 gem 'connection_pool'
 
 # Workers
-gem 'sidekiq', '~> 3.3.3'
-gem 'sidekiq-limit_fetch', '~> 2.4.1'
+gem 'sidekiq'
+gem 'sidekiq-limit_fetch'
 gem 'sidekiq-failures'
 
 # Services
 gem 'rollbar'
-gem 'newrelic_rpm', '~> 3.12.0'
+gem 'newrelic_rpm'
 gem 'newrelic_moped'
 gem 'god'
 
 # Tools
 gem 'foreman', '~> 0.63.0'
 gem 'subcontractor', '~> 0.8.0' # ?
-gem 'httparty', '~> 0.12.0'
+gem 'httparty'
 gem 'net-sftp'
 gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
