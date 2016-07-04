@@ -89,7 +89,6 @@ GEM
       mail
     brb (0.3.1)
       eventmachine (> 0.12)
-    bson (4.0.3)
     builder (3.2.2)
     capistrano (3.4.0)
       i18n
@@ -177,13 +176,6 @@ GEM
     mimemagic (0.3.0)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
-    mongo (2.2.4)
-      bson (~> 4.0)
-    mongoid (5.0.2)
-      activemodel (~> 4.0)
-      mongo (~> 2.1)
-      origin (~> 2.1)
-      tzinfo (>= 0.3.37)
     moped (1.5.3)
     multi_json (1.12.1)
     multi_xml (0.5.5)
@@ -200,7 +192,6 @@ GEM
       mini_portile2 (~> 2.0.0.rc2)
     oauth (0.5.1)
     open_uri_redirections (0.2.1)
-    origin (2.2.0)
     paperclip (4.3.6)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -394,7 +385,6 @@ DEPENDENCIES
   jazz_hands!
   letter_opener (~> 1.2.0)
   liquid
-  mongoid (~> 5.0.0)
   net-sftp
   newrelic_moped
   newrelic_rpm

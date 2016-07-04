@@ -21,7 +21,7 @@ every '0 4 * * *' do
 end
 
 # Выгружаем триггерные рассылки в Optivo для MyToys
-every '0 0 * * *' do
+every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
 end
 

@@ -19,7 +19,6 @@ gem 'pg', '~> 0.18.1'
 gem 'redis-objects'
 gem 'redis-namespace'
 gem 'postgres-copy'
-gem 'mongoid', '~> 5.0.0'
 gem 'connection_pool'
 
 # Workers
