@@ -58,7 +58,7 @@ YmlImporter.new.perform(Shop.last.id)
 
 Запуск на сервере:
 ```
-RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 46.36.221.62
+RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 5.9.48.142
 ```
 
 ### Принцип работы Rees46ML
