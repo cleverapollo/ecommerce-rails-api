@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160629140012) do
+ActiveRecord::Schema.define(version: 20160706130748) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -526,5 +526,22 @@ ActiveRecord::Schema.define(version: 20160629140012) do
   add_index "trigger_mails", ["date"], name: "index_trigger_mails_on_date", using: :btree
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
+
+  create_table "web_push_subscriptions_settings", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                          null: false
+    t.boolean  "enabled",                          default: false, null: false
+    t.boolean  "overlay",                          default: true,  null: false
+    t.text     "header",                                           null: false
+    t.text     "text",                                             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "picture_file_name",    limit: 255
+    t.string   "picture_content_type", limit: 255
+    t.integer  "picture_file_size"
+    t.datetime "picture_updated_at"
+    t.text     "css"
+    t.string   "button"
+    t.text     "agreement"
+  end
 
 end
