@@ -40,5 +40,13 @@ class IncomingDataTranslator
         email.downcase.strip
       end
     end
+
+    # Проверяет, валидна ли строка символов?
+    # @param str [String]
+    # @return Boolean
+    def alphanum?(str)
+      !str.nil? && str.present? && str.match(/\A[a-zA-Z0-9]+\z/i)
+    end
+
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160706130748) do
+ActiveRecord::Schema.define(version: 20160707100659) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -112,6 +112,10 @@ ActiveRecord::Schema.define(version: 20160706130748) do
     t.date     "last_activity_at"
     t.integer  "activity_segment"
     t.boolean  "supply_trigger_sent"
+    t.string   "web_push_token"
+    t.string   "web_push_browser"
+    t.boolean  "web_push_enabled"
+    t.datetime "last_web_push_sent_at"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
@@ -125,6 +129,8 @@ ActiveRecord::Schema.define(version: 20160706130748) do
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed IS TRUE)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
+  add_index "clients", ["shop_id", "web_push_enabled", "last_web_push_sent_at"], name: "index_clients_last_web_push_sent_at", where: "((web_push_enabled IS TRUE) AND (last_web_push_sent_at IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled IS TRUE)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree

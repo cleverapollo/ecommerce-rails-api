@@ -52,6 +52,14 @@ class Client < ActiveRecord::Base
             master_client.location = slave_client.location if !slave_client.location.nil?
             master_client.last_activity_at = slave_client.last_activity_at if master_client.last_activity_at.nil? || (!slave_client.last_activity_at.nil? && master_client.last_activity_at < slave_client.last_activity_at)
             master_client.supply_trigger_sent = slave_client.supply_trigger_sent if slave_client.supply_trigger_sent
+
+            if slave_client.web_push_enabled?
+              master_client.web_push_token = slave_client.web_push_token unless slave_client.web_push_token.nil?
+              master_client.web_push_browser = slave_client.web_push_browser unless slave_client.web_push_browser.nil?
+              master_client.last_web_push_sent_at = slave_client.last_web_push_sent_at unless slave_client.last_web_push_sent_at.nil?
+              master_client.web_push_enabled = true
+            end
+
             master_client.save if master_client.changed?
           end
 

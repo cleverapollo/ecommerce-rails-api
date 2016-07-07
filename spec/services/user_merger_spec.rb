@@ -87,7 +87,7 @@ describe UserMerger do
 
       context 'client merging' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true, web_push_token: '123', web_push_browser: 'firefox' ) }
 
         it 'destroys new_client' do
           subject
@@ -102,6 +102,15 @@ describe UserMerger do
         it 'saves new_client email in old_client' do
           subject
           expect(old_client.reload.email).to eq(new_client.email)
+        end
+
+        it 'saves web push settings to old client' do
+          subject
+          old_client.reload
+          expect(old_client.web_push_enabled).to eq(new_client.web_push_enabled)
+          expect(old_client.web_push_token).to eq(new_client.web_push_token)
+          expect(old_client.web_push_browser).to eq(new_client.web_push_browser)
+          expect(old_client.last_web_push_sent_at).to eq(new_client.last_web_push_sent_at)
         end
 
         it 'merges two clients into one by email' do

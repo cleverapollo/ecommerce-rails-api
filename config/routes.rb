@@ -70,6 +70,15 @@ Rees46Api::Application.routes.draw do
     end
   end
 
+  # Окно подписок на нотификации
+  # create - прием данных о подписке
+  resources :web_push_subscriptions, only: [:create] do
+    collection do
+      # Отписаться
+      patch :unsubscribe
+    end
+  end
+
   # Картинка трекинга писем
   get 'track/:type/:code.png', to: 'subscriptions#track', as: 'track_mail'
 
