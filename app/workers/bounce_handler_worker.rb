@@ -76,6 +76,58 @@ class BounceHandlerWorker
 
     end
 
+
+    # Обрабатывает письма FBL
+    def perform_feedback_loop
+
+      require 'gmail'
+
+      # http://y.mkechinov.ru/issue/REES-2541
+      begin
+        OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ssl_version] = 'TLSv1'
+      rescue => e
+        Rollar.error e
+      end
+
+      Gmail.connect!('fbl@rees46.com', Rails.application.secrets.mailru_fbl_password) do |gmail|
+        gmail.inbox.emails.each do |email|
+
+          # Достаем "само" письмо
+          message = email.message
+
+          # Ищем в теле наши адреса для боунсов
+          if bounced_address = message.body.match(/bounced\+shard.+@rees46.com/)
+            bounced_address = bounced_address[0]
+
+            # Не текущий шард, поэтому пропускаем
+            if bounced_address.match(/shard(\d{2})/)[1] != SHARD_ID
+              next
+            end
+
+            type = bounced_address.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
+            code = bounced_address.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
+
+            if code != 'test'
+              entity = if type == 'digest'
+                         DigestMail.find_by(code: code)
+                       elsif type == 'trigger'
+                         TriggerMail.find_by(code: code)
+                       end
+
+              entity.mark_as_bounced! if entity.present?
+            end
+
+            # Удаляем письмо
+            email.delete!
+
+          end
+        end
+      end
+
+    end
+
+
+
     # Чистит письма, не относящиеся к боунсам (спам, ответы и прочий мусор), чтобы ящик не засорялся
     # В будущем имеет смысл вынести как отдельную службу, чтобы не запускать одинаковые задачи на нескольких шардах.
     def cleanup

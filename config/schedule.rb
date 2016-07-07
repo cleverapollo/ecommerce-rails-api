@@ -29,6 +29,10 @@ every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
 
+every 40.minutes do
+  runner "RunnerWrapper.run('BounceHandlerWorker.perform_feedback_loop')"
+end
+
 every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
 end
