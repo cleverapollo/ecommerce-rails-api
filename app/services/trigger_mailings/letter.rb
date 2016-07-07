@@ -34,7 +34,8 @@ module TriggerMailings
                                     from: trigger.settings[:send_from],
                                     body: @body,
                                     type: 'trigger',
-                                    code: trigger_mail.code).deliver_now
+                                    code: trigger_mail.code,
+                                    list_id: "<trigger>-<shop #{@shop.id}>-<trigger_type #{trigger.mailing.trigger_type}>-<#{Date.current.strftime('%Y-%m-%d')}>" ).deliver_now
     end
 
     private

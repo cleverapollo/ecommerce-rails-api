@@ -19,8 +19,10 @@ module Mailings
       type = @options.fetch(:type)
       code = @options[:code] || 'test'
       unsubscribe_email = "unsubscribe+#{type}=#{code}@rees46.com"
-      unsubscribe_url = Routes.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46::HOST)
+      unsubscribe_url = Routes.unsubscribe_subscriptions_url(type: type, code: code, host: Rees46::HOST, shop_id: shop.uniqid)
       m.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
+
+      m.header['List-Id'] = @options.fetch(:list_id)
 
       if @options.fetch(:type) == 'digest'
         m.header['Precedence'] = 'bulk'

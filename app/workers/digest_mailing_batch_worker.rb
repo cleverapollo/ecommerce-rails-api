@@ -103,7 +103,8 @@ class DigestMailingBatchWorker
                                   from: @settings.send_from,
                                   body: @settings.template_liquid? ? liquid_letter_body(recommendations, email, location) : letter_body(recommendations, email, location),
                                   type: 'digest',
-                                  code: @current_digest_mail.try(:code)).deliver_now
+                                  code: @current_digest_mail.try(:code),
+                                  list_id: "<digest>-<shop #{@shop.id}>-<digest #{@mailing.id}>-<#{Date.current.strftime('%Y-%m-%d')}>").deliver_now
   end
 
   # Сформировать тело письма.
