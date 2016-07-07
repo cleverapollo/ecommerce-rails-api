@@ -23,7 +23,7 @@ module InitServerString
       if shop.subscriptions_enabled? && client.email.blank?
         result += "  settings: #{shop.subscriptions_settings.to_json}, "
         if shop.subscriptions_settings.has_picture?
-          result += "  picture_url: '#{Rees46.site_url}#{shop.subscriptions_settings.picture.url(:original)}'"
+          result += "  picture_url: '#{Rees46.site_url}#{shop.subscriptions_settings.picture.url(:original)}', "
         end
         result += "  user: {"
         result += "    declined: #{client.subscription_popup_showed == true && client.accepted_subscription == false}"
