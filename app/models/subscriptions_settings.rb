@@ -9,6 +9,8 @@ class SubscriptionsSettings < ActiveRecord::Base
   #
   # validates :css, presence: true
 
+  has_attached_file :picture, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
+
   belongs_to :shop
 
   def to_json
@@ -19,9 +21,9 @@ class SubscriptionsSettings < ActiveRecord::Base
     picture_file_name.present?
   end
 
-  def picture_url
-    "#{Rees46.site_url}/subscription_picture/#{shop.uniqid}"
-  end
+  # def picture_url
+  #   "#{Rees46.site_url}/subscription_picture/#{shop.uniqid}"
+  # end
 
   # def assign_default_css
   #   self.css = DEFAULT_POPUP_CSS unless self.css.present?

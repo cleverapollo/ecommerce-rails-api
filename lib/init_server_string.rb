@@ -23,13 +23,25 @@ module InitServerString
       if shop.subscriptions_enabled? && client.email.blank?
         result += "  settings: #{shop.subscriptions_settings.to_json}, "
         if shop.subscriptions_settings.has_picture?
-           result += "  picture_url: '#{shop.subscriptions_settings.picture_url}',"
+          result += "  picture_url: '#{Rees46.site_url}#{shop.subscriptions_settings.picture.url(:original)}'"
         end
         result += "  user: {"
         result += "    declined: #{client.subscription_popup_showed == true && client.accepted_subscription == false}"
         result += "  }"
       end
       result += "  },"
+
+      # Настройки подписок на web push
+      result += "  web_push_subscriptions: {"
+      # Подписку только если включена и при этом пользователь уже не подписался
+      if client.web_push_enabled != true && shop.web_push_subscriptions_enabled?
+        result += "  settings: #{shop.web_push_subscriptions_settings.to_json}, "
+        if shop.web_push_subscriptions_settings.has_picture?
+          result += "  picture_url: '#{Rees46.site_url}#{shop.web_push_subscriptions_settings.picture.url(:original)}'"
+        end
+      end
+      result += "  },"
+
 
       # Profile
       result += "profile: #{session.user.profile_to_json}"
@@ -40,6 +52,10 @@ module InitServerString
 
 
 
+    # Get array of syncronization pixels for DMP.
+    # @param session [Session]
+    # @param shop [Shop]
+    # @return Array
     def get_sync_pixels(session, shop)
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)

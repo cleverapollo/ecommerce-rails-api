@@ -33,6 +33,7 @@ class Shop < MasterTable
   has_one :insales_shop
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
+  has_one :web_push_subscriptions_settings
   has_one :mailings_settings
   has_many :beacon_offers
   has_many :shop_metrics
@@ -175,6 +176,12 @@ class Shop < MasterTable
 
   def subscriptions_enabled?
     subscriptions_settings.present? && subscriptions_settings.enabled?
+  end
+
+  # Check if shop has enabled web push subscriptions
+  # @return Boolean
+  def web_push_subscriptions_enabled?
+    web_push_subscriptions_settings.present? && web_push_subscriptions_settings.enabled?
   end
 
   def domain
