@@ -23,6 +23,7 @@ module Mailings
       m.header['List-Unsubscribe'] = "<#{unsubscribe_url}>,<mailto:#{unsubscribe_email}>"
 
       m.header['List-Id'] = @options.fetch(:list_id)
+      m.header['Feedback-ID'] = @options.fetch(:feedback_id)
 
       if @options.fetch(:type) == 'digest'
         m.header['Precedence'] = 'bulk'
