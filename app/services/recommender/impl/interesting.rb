@@ -16,7 +16,7 @@ module Recommender
 
       def recommended_ids
         result = super
-        inject_items(result, strict_categories = false)
+        inject_items(result)
       end
 
 

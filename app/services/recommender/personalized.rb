@@ -42,7 +42,7 @@ module Recommender
       # оставим только id товаров
       result = result.to_h.keys
 
-      inject_items(result, strict_categories = false)
+      inject_items(result)
     end
 
     def rescore(i_w, cf_weighted)
