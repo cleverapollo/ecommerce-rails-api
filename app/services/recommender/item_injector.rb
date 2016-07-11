@@ -12,7 +12,7 @@ module Recommender
 
 
     # Вставляет продвигаемые товары
-    def inject_promotions(result_ids, expansion_only=false)
+    def inject_promotions(result_ids, expansion_only = false, strict_categories = false)
       return result_ids if result_ids.empty?
 
       promotions_placed = 0
@@ -43,7 +43,7 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if in_categories
-            promoted_item_id = brand_campaign.first_in_categories(shop, categories_for_promo, excluded_items_ids, params.discount)
+            promoted_item_id = brand_campaign.first_in_categories(shop, categories_for_promo, excluded_items_ids, params.discount, strict_categories)
           else
             promoted_item_id = brand_campaign.first_in_shop(shop, excluded_items_ids, params.discount)
           end
@@ -65,14 +65,14 @@ module Recommender
       result_ids
     end
 
-    def inject_items(result)
+    def inject_items(result, strict_categories = false)
       if result.size < params.limit && !shop.strict_recommendations?
         # Если товаров недостаточно - рандом
         result = inject_random_items(result)
       end
 
       # Добавляем продвижение брендов
-      inject_promotions(result)
+      inject_promotions(result, false, strict_categories)
     end
   end
 end

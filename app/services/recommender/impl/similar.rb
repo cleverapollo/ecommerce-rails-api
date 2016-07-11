@@ -15,6 +15,11 @@ module Recommender
       K_SR = 1.0
       K_CF = 1.0
 
+      def initialize(params)
+        super(params)
+        @strict_categories = true
+      end
+
       # Выбираем правильные категории для рекоммендера
       def categories_for_promo
         categories_for_query

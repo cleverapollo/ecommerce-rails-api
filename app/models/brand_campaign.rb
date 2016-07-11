@@ -22,19 +22,24 @@ class BrandCampaign < MasterTable
 
 
 
+  # Ищет продвигаемый товар среди предоставленных и, если такой есть,
+  # возвращает его идентификатор для последующей постановки на первое место.
+  # @param item_ids [Array]
+  # @param discount [Boolean] Искать только по скидочным товарам
+  # @return Integer
   def first_in_selection(item_ids, discount = false)
     relation = Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
     relation.discount if discount
     relation.limit(1)[0].try(:id)
   end
 
-  def first_in_categories(shop_id, categories, excluded_ids=[], discount = false)
-    relation = Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
+  def first_in_categories(shop_id, categories, excluded_ids=[], discount = false, strict_categories = false)
+    relation = Item.in_categories(categories, any: !strict_categories ).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
     relation.discount if discount
     relation.limit(1)[0].try(:id)
   end
 
-  # @deprecated? 
+  # @deprecated?
   # def get_from_categories(relation, shop_id, categories, excluded_ids=[], limit=8, discount = false)
   #   relation = relation.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate.order(price: :desc)
   #   relation.discount if discount

@@ -10,7 +10,7 @@ module Recommender
     # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
-    attr_accessor :params
+    attr_accessor :params, :strict_categories
 
     class << self
       # Получить класс рекомендера по названию
@@ -83,6 +83,7 @@ module Recommender
 
     def initialize(params)
       @params = params
+      @strict_categories = false
     end
 
     # Перевести во внешние ID, сохраняя сортировку

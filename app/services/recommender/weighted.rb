@@ -18,7 +18,7 @@ module Recommender
         i_w
       end
 
-      inject_items(result)
+      inject_items(result, strict_categories = false)
     end
 
     def items_to_weight

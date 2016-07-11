@@ -10,7 +10,7 @@ module Recommender
             #.first(3)
       end
 
-      def inject_promotions(result)
+      def inject_promotions(result, expansion_only = false, strict_categories = false)
         # Не надо включать промо
         result
       end

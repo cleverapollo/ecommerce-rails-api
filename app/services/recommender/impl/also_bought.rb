@@ -63,10 +63,10 @@ module Recommender
         @categories_for_promo
       end
 
-      def inject_promotions(result)
+      def inject_promotions(result, expansion_only = false, strict_categories = false)
          #Промо только в категориях товара выдачи
          @categories_for_promo = Item.where(id:result).pluck(:category_ids).flatten.compact.uniq
-         super(result, true)
+         super(result, true, strict_categories)
       end
 
       def inject_random_items(result)
