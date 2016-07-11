@@ -22,24 +22,29 @@ class BrandCampaign < MasterTable
 
 
 
-  def first_in_selection(item_ids)
-    Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).where('price >= ?', product_minimum_price).by_sales_rate.limit(1)[0].try(:id)
+  def first_in_selection(item_ids, discount = false)
+    relation = Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
+    relation.discount if discount
+    relation.limit(1)[0].try(:id)
   end
 
-  def first_in_categories(shop_id, categories, excluded_ids=[])
-    Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price)
-        .by_sales_rate.limit(1)[0].try(:id)
+  def first_in_categories(shop_id, categories, excluded_ids=[], discount = false)
+    relation = Item.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
+    relation.discount if discount
+    relation.limit(1)[0].try(:id)
   end
 
-  def get_from_categories(relation, shop_id, categories, excluded_ids=[], limit=8)
-    relation.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price)
-        .by_sales_rate.order(price: :desc).limit(limit).pluck(:id)
-  end
+  # @deprecated? 
+  # def get_from_categories(relation, shop_id, categories, excluded_ids=[], limit=8, discount = false)
+  #   relation = relation.in_categories(categories, any:true).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate.order(price: :desc)
+  #   relation.discount if discount
+  #   relation.limit(limit).pluck(:id)
+  # end
 
-  def first_in_shop(shop_id, excluded_ids=[])
-    Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil).where('price >= ?', product_minimum_price)
-        .by_sales_rate.limit(1)[0].try(:id)
-
+  def first_in_shop(shop_id, excluded_ids=[], discount = false)
+    relation = Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
+    relation.discount if discount
+    relation.limit(1)[0].try(:id)
   end
 
 

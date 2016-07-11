@@ -31,7 +31,7 @@ module Recommender
         # Выбрали рекламодателя
         # @todo: Приоритет выбора рекламодателя
 
-        promoted_item_id = brand_campaign.first_in_selection(result_ids)
+        promoted_item_id = brand_campaign.first_in_selection(result_ids, params.discount)
 
         if promoted_item_id.present?
           # нашли, вставляем на одно из первых мест
@@ -43,9 +43,9 @@ module Recommender
         else
           # не нашли, получаем из полной выборки
           if in_categories
-            promoted_item_id = brand_campaign.first_in_categories(shop, categories_for_promo, excluded_items_ids)
+            promoted_item_id = brand_campaign.first_in_categories(shop, categories_for_promo, excluded_items_ids, params.discount)
           else
-            promoted_item_id = brand_campaign.first_in_shop(shop, excluded_items_ids)
+            promoted_item_id = brand_campaign.first_in_shop(shop, excluded_items_ids, params.discount)
           end
 
           if promoted_item_id.present?
