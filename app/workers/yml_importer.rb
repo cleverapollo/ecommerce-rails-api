@@ -35,7 +35,10 @@ class YmlImporter
             new_item.locations = locations
             (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
             (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
-            (new_item.brand ||= brands.detect{ |brand| brand.match? new_item.name }.try(:name)) if new_item.name.present?
+            if new_item.name.present? && (new_item.brand.nil? || !new_item.brand.present?)
+              new_item.brand = brands.detect{ |brand| brand.match? new_item.name }.try(:name)
+            end
+            new_item.brand_downcase = new_item.brand.downcase if new_item.brand.present? && new_item.brand_downcase.nil?
 
             csv << new_item.csv_row
           end
