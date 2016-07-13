@@ -67,6 +67,10 @@ module TriggerMailings
               end
             end
 
+            file_source.close
+            file_recommendations_1.close
+            file_recommendations_2.close
+
           end
 
           # Формируем файлы оглавления rees46triggeremails.csv
@@ -80,6 +84,7 @@ module TriggerMailings
             end
             rees46triggeremails_csv.puts row
           end
+          rees46triggeremails_csv.close
 
           # Отправляем на sFTP (только в production mode)
 
