@@ -167,6 +167,34 @@ describe UserMerger do
       end
 
 
+      context 'merge subscriptions for triggers' do
+
+        let!(:subscribe_for_category_1) { create(:subscribe_for_category, shop: shop, user: master, item_category_id: 1, subscribed_at: Time.current ) }
+        let!(:subscribe_for_category_2) { create(:subscribe_for_category, shop: shop, user: master, item_category_id: 2, subscribed_at: Time.current ) }
+        let!(:subscribe_for_category_3) { create(:subscribe_for_category, shop: shop, user: slave, item_category_id: 2, subscribed_at: Time.current ) }
+        let!(:subscribe_for_category_4) { create(:subscribe_for_category, shop: shop, user: slave, item_category_id: 3, subscribed_at: Time.current ) }
+
+        let!(:subscribe_for_product_available_1) { create(:subscribe_for_product_available, shop: shop, user: master, item_id: 1, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_available_2) { create(:subscribe_for_product_available, shop: shop, user: master, item_id: 2, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_available_3) { create(:subscribe_for_product_available, shop: shop, user: slave, item_id: 2, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_available_4) { create(:subscribe_for_product_available, shop: shop, user: slave, item_id: 3, subscribed_at: Time.current ) }
+
+        let!(:subscribe_for_product_price_1) { create(:subscribe_for_product_price, shop: shop, user: master, item_id: 1, price: 100, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_price_2) { create(:subscribe_for_product_price, shop: shop, user: master, item_id: 2, price: 100, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_price_3) { create(:subscribe_for_product_price, shop: shop, user: slave, item_id: 2, price: 100, subscribed_at: Time.current ) }
+        let!(:subscribe_for_product_price_4) { create(:subscribe_for_product_price, shop: shop, user: slave, item_id: 3, price: 100, subscribed_at: Time.current ) }
+
+        it 'relinks subscriptions' do
+          subject
+          master.reload
+          expect(master.subscribe_for_categories.count).to eq 3
+          expect(master.subscribe_for_product_availables.count).to eq 3
+          expect(master.subscribe_for_product_prices.count).to eq 3
+        end
+
+      end
+
+
       context 'merge profile events and recalculate profile' do
 
         let!(:profile_event_1) { create(:profile_event, shop: shop, user: master, industry: 'fashion', property: 'gender', value: 'm', views: 1 ) }
