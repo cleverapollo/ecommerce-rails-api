@@ -40,6 +40,8 @@ class Shop < MasterTable
   has_many :shop_metrics
   has_many :search_queries
   has_many :subscribe_for_categories
+  has_many :subscribe_for_product_prices
+  has_many :subscribe_for_product_availables
 
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
