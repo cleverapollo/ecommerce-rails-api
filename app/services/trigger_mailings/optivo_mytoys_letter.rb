@@ -84,9 +84,9 @@ module TriggerMailings
         end
         rees46triggeremails_csv.close
 
-        # Отправляем на sFTP (только в production mode)
+        # Отправляем на sFTP (только в production mode и только для 828 магазина)
 
-        if Rails.env.production?
+        if Rails.env.production? && @shop.id == 828
 
           require 'net/ssh'
           require 'net/ftp'
