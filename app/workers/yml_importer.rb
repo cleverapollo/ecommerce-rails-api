@@ -4,13 +4,15 @@ class YmlImporter
   include Sidekiq::Worker
   include TempFiles
 
-  sidekiq_options retry: 2, queue: "long", failures: true, backtrace: true
+  sidekiq_options retry: 2, queue: 'long', failures: true, backtrace: true
 
   # Точка входа обработки YML
   # @param shop_id [Integer]
   def perform(shop_id)
 
-    Shop.find(shop_id).import do |yml|
+    current_shop = Shop.find(shop_id)
+
+    current_shop.import do |yml|
 
       shop = yml.shop
       wear_types = WearTypeDictionary.index
@@ -58,7 +60,13 @@ class YmlImporter
           attempt += 1
           retry if attempt < 10
         end
+
       end
+
     end
+
+    # Записываем в лог число обработанных товаров
+    CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
+
   end
 end

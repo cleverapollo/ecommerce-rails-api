@@ -131,17 +131,21 @@ class Shop < MasterTable
       Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
       ErrorsMailer.yml_url_not_respond(self).deliver_now
       increment!(:yml_errors)
+      CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
     rescue ActiveRecord::RecordNotUnique => e
       Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
       ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
       increment!(:yml_errors)
+      CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
     rescue Interrupt => e
       Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
       increment!(:yml_errors)
+      CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
     end
+
   end
 
   def first_event?

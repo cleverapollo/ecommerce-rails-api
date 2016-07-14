@@ -97,7 +97,7 @@ module TriggerMailings
         @happened_at = DateTime.current
         @source_items = shop.items.widgetable.limit 3
         @source_item = shop.items.widgetable.limit(1)[0]
-        @additional_info[:categories] = ItemCategory.where(shop_id: 828, external_id: shop.items.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
+        @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
         true
       end
 
