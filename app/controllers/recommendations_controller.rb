@@ -24,7 +24,7 @@ class RecommendationsController < ApplicationController
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
     begin
-      if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0
+      if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0 && TriggerMailing.where(shop_id: @shop.id, trigger_type: 'abandoned_category', enabled: true).exists?
         TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
       end
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
