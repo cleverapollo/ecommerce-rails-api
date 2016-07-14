@@ -12,7 +12,7 @@ class RecommendationsController < ApplicationController
     # Важно: если подписка деактивирована, то рекомендации работать будут.
     # Непонятно, плохо это или хорошо.
     if shop.subscription_plans.rees46_recommendations.active.overdue.exists?
-      raise Exception('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
+      raise Exception.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
     end
 
     # Извлекаем данные из входящих параметров
