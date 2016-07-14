@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160707100659) do
+ActiveRecord::Schema.define(version: 20160714102510) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -78,6 +78,19 @@ ActiveRecord::Schema.define(version: 20160707100659) do
     t.string   "deal_id",         limit: 255
     t.boolean  "tracked",                     default: false, null: false
     t.integer  "beacon_offer_id"
+  end
+
+  create_table "catalog_import_logs", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "filesize",   default: 0,     null: false
+    t.integer  "total",      default: 0,     null: false
+    t.integer  "available",  default: 0,     null: false
+    t.integer  "widgetable", default: 0,     null: false
+    t.integer  "categories", default: 0,     null: false
+    t.string   "message"
+    t.boolean  "success",    default: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
   create_table "client_errors", id: :bigserial, force: :cascade do |t|
