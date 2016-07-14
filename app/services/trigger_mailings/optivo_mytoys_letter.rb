@@ -156,6 +156,10 @@ module TriggerMailings
         data[:source_items] = @trigger.source_items.map(&:uniqid)
       end
 
+      # Может случиться так, что сработает триггер для категории, в которой уже нет товаров.
+      # Так что пропускаем триггеры без рекомендованных товаров
+      return false unless data[:recommended_items].any?
+
       TriggerMailingQueue.create! data
     end
 
