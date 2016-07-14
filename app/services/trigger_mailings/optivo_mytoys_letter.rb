@@ -34,90 +34,87 @@ module TriggerMailings
             product_price_decrease:   { code: 'PriceDropped',               file_source: 'rees_pricedroped.csv',        file_recommendations_1: 'rees46_pricedroped_reco.csv',    file_recommendations_2: 'rees46_pricedroped_reco_2.csv' },
         }
 
-        if emails.any?
+        # Перебираем все типы триггеров и формируем файлы для рекоменадций, удаляя файлы с предыдущего экспорта
+        trigger_types_matching.each do |trigger_type, trigger_config|
 
-          # Перебираем все типы триггеров и формируем файлы для рекоменадций, удаляя файлы с предыдущего экспорта
-          trigger_types_matching.each do |trigger_type, trigger_config|
+          # Удаляем старые файлы, если были
+          File.delete("tmp/optivo_mytoys/#{trigger_config[:file_source]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_source]}")
+          File.delete("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}")
+          File.delete("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}")
 
-            # Удаляем старые файлы, если были
-            File.delete("tmp/optivo_mytoys/#{trigger_config[:file_source]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_source]}")
-            File.delete("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}")
-            File.delete("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}") if File.exists?("tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}")
+          # Создаем новые файлы для текущего триггера
+          file_source = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_source]}"), 'w+')
+          file_recommendations_1 = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}"), 'w+')
+          file_recommendations_2 = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}"), 'w+')
 
-            # Создаем новые файлы для текущего триггера
-            file_source = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_source]}"), 'w+')
-            file_recommendations_1 = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_recommendations_1]}"), 'w+')
-            file_recommendations_2 = File.open(File.join(Rails.root, "tmp/optivo_mytoys/#{trigger_config[:file_recommendations_2]}"), 'w+')
+          # Перебираем все письма для этого триггера
+          mails.where(trigger_type: trigger_type.to_s).each do |trigger_data|
 
-            # Перебираем все письма для этого триггера
-            mails.where(trigger_type: trigger_type.to_s).each do |trigger_data|
-
-              # Сохраняем файл с исходными товарами триггера
-              if trigger_data.source_items && trigger_data.source_items.is_a?(Array) && trigger_data.source_items.any?
-                # file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}"
-                file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')}"
-              end
-
-              # Сохраняем файлы с рекомендованными товарами триггера
-              if trigger_data.recommended_items && trigger_data.recommended_items.is_a?(Array) && trigger_data.recommended_items.any?
-                # file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[0..3]
-                # file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[4..7]
-                file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')}" if trigger_data.recommended_items[0..3]
-                file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')}" if trigger_data.recommended_items[4..7]
-              end
+            # Сохраняем файл с исходными товарами триггера
+            if trigger_data.source_items && trigger_data.source_items.is_a?(Array) && trigger_data.source_items.any?
+              # file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}"
+              file_source.puts "#{trigger_data.email};#{trigger_data.source_items[0..3].join(',')}"
             end
 
-            file_source.close
-            file_recommendations_1.close
-            file_recommendations_2.close
-
-          end
-
-          # Формируем файлы оглавления rees46triggeremails.csv
-          File.delete("tmp/optivo_mytoys/rees46triggeremails.csv") if File.exists?("tmp/optivo_mytoys/rees46triggeremails.csv")
-          rees46triggeremails_csv = File.open(File.join(Rails.root, "tmp/optivo_mytoys/rees46triggeremails.csv"), 'w+')
-          rees46triggeremails_csv.puts "Email;#{trigger_types_matching.map{|k,v| v[:code]}.join(';')};Reco_Mapping_List\n"
-          emails.each do |email|
-            row = "#{email};"
-            trigger_types_matching.each do |trigger_type, trigger_name|
-              row += (mails.where(email: email, trigger_type: trigger_type.to_s).exists? ? 'Y' : 'N' ) + ";"
+            # Сохраняем файлы с рекомендованными товарами триггера
+            if trigger_data.recommended_items && trigger_data.recommended_items.is_a?(Array) && trigger_data.recommended_items.any?
+              # file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[0..3]
+              # file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')};recommended_by=trigger_mail&rees46_trigger_mail_code=#{trigger_data.trigger_mail_code}" if trigger_data.recommended_items[4..7]
+              file_recommendations_1.puts "#{trigger_data.email};#{trigger_data.recommended_items[0..3].join(',')}" if trigger_data.recommended_items[0..3]
+              file_recommendations_2.puts "#{trigger_data.email};#{trigger_data.recommended_items[4..7].join(',')}" if trigger_data.recommended_items[4..7]
             end
-            rees46triggeremails_csv.puts row
-          end
-          rees46triggeremails_csv.close
-
-          # Отправляем на sFTP (только в production mode)
-
-          if Rails.env.production?
-
-            require 'net/ssh'
-            require 'net/ftp'
-            require 'net/sftp'
-
-            begin
-              session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner')
-              sftp = Net::SFTP::Session.new(session).connect!
-              trigger_types_matching.each do |key, trigger|
-                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_source]}", trigger[:file_source])                         if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
-                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}", trigger[:file_recommendations_1])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
-                sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}", trigger[:file_recommendations_2])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
-              end
-              sftp.upload!("tmp/optivo_mytoys/rees46triggeremails.csv", "rees46triggeremails.csv")
-            rescue Exception => e
-              Rollbar.error(e)
-            end
-
           end
 
-          # Удаляем ненужные файлы
-          trigger_types_matching.each do |key, trigger|
-            File.delete "tmp/optivo_mytoys/#{trigger[:file_source]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
-            File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
-            File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
-          end
-          File.delete "tmp/optivo_mytoys/rees46triggeremails.csv" if File.exists? "tmp/optivo_mytoys/rees46triggeremails.csv"
+          file_source.close
+          file_recommendations_1.close
+          file_recommendations_2.close
 
         end
+
+        # Формируем файлы оглавления rees46triggeremails.csv
+        File.delete("tmp/optivo_mytoys/rees46triggeremails.csv") if File.exists?("tmp/optivo_mytoys/rees46triggeremails.csv")
+        rees46triggeremails_csv = File.open(File.join(Rails.root, "tmp/optivo_mytoys/rees46triggeremails.csv"), 'w+')
+        rees46triggeremails_csv.puts "Email;#{trigger_types_matching.map{|k,v| v[:code]}.join(';')};Reco_Mapping_List\n"
+        emails.each do |email|
+          row = "#{email};"
+          trigger_types_matching.each do |trigger_type, trigger_name|
+            row += (mails.where(email: email, trigger_type: trigger_type.to_s).exists? ? 'Y' : 'N' ) + ";"
+          end
+          rees46triggeremails_csv.puts row
+        end
+        rees46triggeremails_csv.close
+
+        # Отправляем на sFTP (только в production mode)
+
+        if Rails.env.production?
+
+          require 'net/ssh'
+          require 'net/ftp'
+          require 'net/sftp'
+
+          begin
+            session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner')
+            sftp = Net::SFTP::Session.new(session).connect!
+            trigger_types_matching.each do |key, trigger|
+              sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_source]}", trigger[:file_source])                         if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
+              sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}", trigger[:file_recommendations_1])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
+              sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}", trigger[:file_recommendations_2])   if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
+            end
+            sftp.upload!("tmp/optivo_mytoys/rees46triggeremails.csv", "rees46triggeremails.csv")
+          rescue Exception => e
+            Rollbar.error(e)
+          end
+
+        end
+
+        # Удаляем ненужные файлы
+        trigger_types_matching.each do |key, trigger|
+          File.delete "tmp/optivo_mytoys/#{trigger[:file_source]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"
+          File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_1]}"
+          File.delete "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}" if File.exists? "tmp/optivo_mytoys/#{trigger[:file_recommendations_2]}"
+        end
+        File.delete "tmp/optivo_mytoys/rees46triggeremails.csv" if File.exists? "tmp/optivo_mytoys/rees46triggeremails.csv"
+
 
         mails.delete_all
         true
