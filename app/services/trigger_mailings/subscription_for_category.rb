@@ -22,7 +22,11 @@ module TriggerMailings
         if element = SubscribeForCategory.find_by(shop_id: shop.id, user_id: user.id, item_category_id: category.id)
           element.update subscribed_at: DateTime.current
         else
-          element = SubscribeForCategory.create shop_id: shop.id, user_id: user.id, item_category_id: category.id, subscribed_at: DateTime.current
+          begin
+            element = SubscribeForCategory.create shop_id: shop.id, user_id: user.id, item_category_id: category.id, subscribed_at: DateTime.current
+          rescue => e
+            # Concurrency
+          end
         end
 
         element
