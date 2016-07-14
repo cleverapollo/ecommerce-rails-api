@@ -16,6 +16,7 @@ class Shop < MasterTable
 
   has_and_belongs_to_many :users
   belongs_to :customer
+  has_many :catalog_import_logs
   has_many :subscription_plans
   has_many :profile_events
   belongs_to :category

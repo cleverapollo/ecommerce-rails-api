@@ -6,8 +6,12 @@ class YmlImporter
 
   sidekiq_options retry: 2, queue: "long", failures: true, backtrace: true
 
+  # Точка входа обработки YML
+  # @param shop_id [Integer]
   def perform(shop_id)
+
     Shop.find(shop_id).import do |yml|
+
       shop = yml.shop
       wear_types = WearTypeDictionary.index
       brands = Brand.all
