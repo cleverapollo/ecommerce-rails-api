@@ -59,6 +59,7 @@ module TriggerMailings
               user: user,
               limit: count,
               recommend_only_widgetable: true,
+              categories: [category.external_id],
               locations: client.location.present? ? [client.location] : nil
           )
 

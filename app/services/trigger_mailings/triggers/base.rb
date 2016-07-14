@@ -97,6 +97,7 @@ module TriggerMailings
         @happened_at = DateTime.current
         @source_items = shop.items.widgetable.limit 3
         @source_item = shop.items.widgetable.limit(1)[0]
+        @additional_info[:categories] = shop.item_categories.limit 5
         true
       end
 
