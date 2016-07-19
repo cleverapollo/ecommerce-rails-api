@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160714102510) do
+ActiveRecord::Schema.define(version: 20160719093658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -561,6 +561,15 @@ ActiveRecord::Schema.define(version: 20160714102510) do
     t.text     "css"
     t.string   "button"
     t.text     "agreement"
+  end
+
+  create_table "web_push_triggers", force: :cascade do |t|
+    t.integer  "shop_id",                                  null: false
+    t.string   "trigger_type", limit: 255,                 null: false
+    t.string   "message",      limit: 255,                 null: false
+    t.boolean  "enabled",                  default: false, null: false
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
   end
 
 end
