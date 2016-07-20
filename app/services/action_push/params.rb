@@ -128,12 +128,17 @@ module ActionPush
     # Склеивает триггерные письма MyToys до тех пор, пока они не научатся ставить наши атрибуты.
     # @private
     def track_mytoys_trigger
+      return if @shop.id != 828 # Только для MyToys
       client = Client.find_by(user_id: @user.id, shop_id: @shop.id)
       if client && client.email.present?
         trigger_mail = TriggerMail.where(shop_id: @shop.id).where(client_id: client.id).where('date >= ?', 14.days.ago).first
         if trigger_mail
           @recommended_by = 'trigger_mail'
           @trigger_mail_code = trigger_mail.code
+          @source = {
+              'from' => 'trigger_mail',
+              'code' => @trigger_mail_code
+          }
         end
       end
     end
