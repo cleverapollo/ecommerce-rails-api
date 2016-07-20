@@ -18,12 +18,12 @@ class Yml < Struct.new(:path)
       file = gzip_archive?(file) ? Zlib::GzipReader.new(file.tap(&:rewind)) : file
       fail NoXMLFileInArchiveError unless is_xml?(file)
 
-      # @DEBUG 828
-      begin
-        FileUtils.cp file.path, "#{Rails.root}/tmp/ymls/#{Time.current.to_s}.xml"
-      rescue
-        Rollbar.error 'Cant save temporary YML file'
-      end
+      # # @DEBUG 828
+      # begin
+      #   FileUtils.cp file.path, "#{Rails.root}/tmp/ymls/#{Time.current.to_s}.xml"
+      # rescue
+      #   Rollbar.error 'Cant save temporary YML file'
+      # end
 
       file
     end

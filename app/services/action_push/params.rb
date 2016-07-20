@@ -58,6 +58,7 @@ module ActionPush
       extract_static_attributes
       extract_shop
       extract_user
+      track_mytoys_trigger
       normalize_item_arrays and extract_items
       self
     end
@@ -122,6 +123,21 @@ module ActionPush
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
     end
+
+
+    # Склеивает триггерные письма MyToys до тех пор, пока они не научатся ставить наши атрибуты.
+    # @private
+    def track_mytoys_trigger
+      client = Client.find_by(user_id: @user.id, shop_id: @shop.id)
+      if client && client.email.present?
+        trigger_mail = TriggerMail.where(shop_id: @shop.id).where(client_id: client.id).where('date >= ?', 14.days.ago).first
+        if trigger_mail
+          @recommended_by = 'trigger_mail'
+          @trigger_mail_code = trigger_mail.code
+        end
+      end
+    end
+
 
     # Нормализует входящие массивы
     #
