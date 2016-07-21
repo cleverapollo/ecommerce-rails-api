@@ -20,7 +20,7 @@ describe Shop do
   end
 
   describe ".import_yml_files" do
-    let!(:shop) { create(:shop, :active, :connected, :with_imported_yml) }
+    let!(:shop) { create(:shop, :active, :connected, :with_imported_yml, last_valid_yml_file_loaded_at: Time.current) }
 
     context "any yml allow import" do
       before { allow_any_instance_of(Shop).to receive(:yml_allow_import?).and_return(true) }
