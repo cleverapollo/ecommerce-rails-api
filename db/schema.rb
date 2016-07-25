@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160719093658) do
+ActiveRecord::Schema.define(version: 20160725145943) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,7 +47,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
   add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
 
-  create_table "audience_segment_statistics", force: :cascade do |t|
+  create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
     t.integer "overall",             default: 0, null: false
     t.integer "activity_a",          default: 0, null: false
@@ -80,7 +80,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
     t.integer  "beacon_offer_id"
   end
 
-  create_table "catalog_import_logs", force: :cascade do |t|
+  create_table "catalog_import_logs", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "filesize",   default: 0,     null: false
     t.integer  "total",      default: 0,     null: false
@@ -406,7 +406,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
 
   add_index "search_queries", ["shop_id", "query"], name: "index_search_queries_on_shop_id_and_query", using: :btree
 
-  create_table "shop_metrics", force: :cascade do |t|
+  create_table "shop_metrics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
     t.integer "orders",                     default: 0,   null: false
     t.integer "real_orders",                default: 0,   null: false
@@ -445,7 +445,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
   add_index "shop_metrics", ["shop_id"], name: "index_shop_metrics_on_shop_id", using: :btree
 
-  create_table "subscribe_for_categories", force: :cascade do |t|
+  create_table "subscribe_for_categories", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "user_id",          limit: 8
     t.integer  "item_category_id", limit: 8
@@ -456,7 +456,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
   add_index "subscribe_for_categories", ["shop_id", "user_id", "item_category_id"], name: "index_category_subscription_uniq", unique: true, using: :btree
   add_index "subscribe_for_categories", ["shop_id", "user_id"], name: "index_category_subscription_for_triggers", using: :btree
 
-  create_table "subscribe_for_product_availables", force: :cascade do |t|
+  create_table "subscribe_for_product_availables", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "user_id",       limit: 8
     t.integer  "item_id",       limit: 8
@@ -466,7 +466,7 @@ ActiveRecord::Schema.define(version: 20160719093658) do
   add_index "subscribe_for_product_availables", ["shop_id", "user_id", "item_id"], name: "index_subscribe_for_product_available_uniq", unique: true, using: :btree
   add_index "subscribe_for_product_availables", ["shop_id", "user_id"], name: "index_subscribe_for_product_available_for_user", using: :btree
 
-  create_table "subscribe_for_product_prices", force: :cascade do |t|
+  create_table "subscribe_for_product_prices", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "user_id",       limit: 8
     t.integer  "item_id",       limit: 8
@@ -546,6 +546,37 @@ ActiveRecord::Schema.define(version: 20160719093658) do
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
+  create_table "web_push_digest_messages", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                                     null: false
+    t.uuid     "code",                         default: "uuid_generate_v4()"
+    t.boolean  "clicked",                      default: false,                null: false
+    t.integer  "web_push_digest_id", limit: 8,                                null: false
+    t.boolean  "unsubscribed",                 default: false,                null: false
+    t.integer  "client_id",          limit: 8,                                null: false
+    t.date     "date"
+    t.datetime "created_at",                                                  null: false
+    t.datetime "updated_at",                                                  null: false
+  end
+
+  add_index "web_push_digest_messages", ["code"], name: "index_web_push_digest_messages_on_code", unique: true, using: :btree
+  add_index "web_push_digest_messages", ["date", "shop_id"], name: "index_web_push_digest_messages_on_date_and_shop_id", using: :btree
+  add_index "web_push_digest_messages", ["date"], name: "index_web_push_digest_messages_on_date", using: :btree
+  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
+  add_index "web_push_digest_messages", ["web_push_digest_id"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
+
+  create_table "web_push_digests", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                         null: false
+    t.string   "subject",           limit: 255,                   null: false
+    t.string   "state",             limit: 255, default: "draft", null: false
+    t.integer  "total_mails_count"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+  end
+
+  add_index "web_push_digests", ["shop_id"], name: "index_web_push_digests_on_shop_id", using: :btree
+
   create_table "web_push_subscriptions_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                          null: false
     t.boolean  "enabled",                          default: false, null: false
@@ -563,10 +594,29 @@ ActiveRecord::Schema.define(version: 20160719093658) do
     t.text     "agreement"
   end
 
-  create_table "web_push_triggers", force: :cascade do |t|
+  create_table "web_push_trigger_messages", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                                                      null: false
+    t.text     "trigger_data",                                                 null: false
+    t.uuid     "code",                          default: "uuid_generate_v4()"
+    t.boolean  "clicked",                       default: false,                null: false
+    t.integer  "web_push_trigger_id", limit: 8,                                null: false
+    t.boolean  "unsubscribed",                  default: false,                null: false
+    t.integer  "client_id",           limit: 8,                                null: false
+    t.date     "date"
+    t.datetime "created_at",                                                   null: false
+    t.datetime "updated_at",                                                   null: false
+  end
+
+  add_index "web_push_trigger_messages", ["code"], name: "index_web_push_trigger_messages_on_code", unique: true, using: :btree
+  add_index "web_push_trigger_messages", ["date", "shop_id"], name: "index_web_push_trigger_messages_on_date_and_shop_id", using: :btree
+  add_index "web_push_trigger_messages", ["date"], name: "index_web_push_trigger_messages_on_date", using: :btree
+  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
+  add_index "web_push_trigger_messages", ["web_push_trigger_id"], name: "index_web_push_trigger_messages_on_web_push_trigger_id", using: :btree
+
+  create_table "web_push_triggers", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                  null: false
     t.string   "trigger_type", limit: 255,                 null: false
-    t.string   "message",      limit: 255,                 null: false
+    t.string   "subject",      limit: 255,                 null: false
     t.boolean  "enabled",                  default: false, null: false
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false

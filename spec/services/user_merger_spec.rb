@@ -167,6 +167,29 @@ describe UserMerger do
       end
 
 
+      context 'web push re-linking' do
+        let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com') }
+
+        context 'web push triggers' do
+          let!(:web_push_trigger_message) { create(:web_push_trigger_message, client: new_client, shop: shop, trigger_data: {sample: true}) }
+          it 're-links web push trigger message' do
+            subject
+            expect(web_push_trigger_message.reload.client_id).to eq(old_client.id)
+          end
+        end
+
+        context 'web push digests' do
+          let!(:web_push_digest_message) { create(:web_push_digest_message, client: new_client, shop: shop) }
+          it 're-links web push digest message' do
+            subject
+            expect(web_push_digest_message.reload.client_id).to eq(old_client.id)
+          end
+        end
+
+      end
+
+
       context 'merge subscriptions for triggers' do
 
         let!(:subscribe_for_category_1) { create(:subscribe_for_category, shop: shop, user: master, item_category_id: 1, subscribed_at: Time.current ) }

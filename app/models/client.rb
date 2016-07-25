@@ -9,6 +9,8 @@ class Client < ActiveRecord::Base
   belongs_to :user
   has_many :trigger_mails
   has_many :digest_mails
+  has_many :web_push_trigger_messages
+  has_many :web_push_digest_messages
 
   before_create :assign_ab_testing_group
 
@@ -65,6 +67,8 @@ class Client < ActiveRecord::Base
 
           slave_client.digest_mails.update_all(client_id: master_client.id)
           slave_client.trigger_mails.update_all(client_id: master_client.id)
+          slave_client.web_push_trigger_messages.update_all(client_id: master_client.id)
+          slave_client.web_push_digest_messages.update_all(client_id: master_client.id)
 
           slave_client.delete
         else

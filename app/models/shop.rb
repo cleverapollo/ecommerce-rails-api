@@ -18,7 +18,10 @@ class Shop < MasterTable
   belongs_to :customer
   has_many :catalog_import_logs
   has_many :web_push_triggers
+  has_many :web_push_digests
   has_many :subscription_plans
+  has_many :web_push_digest_messages
+  has_many :web_push_trigger_messages
   has_many :profile_events
   belongs_to :category
   belongs_to :manager, -> { admins }, class_name: 'Customer'

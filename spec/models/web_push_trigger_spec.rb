@@ -1,5 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe WebPushTrigger, :type => :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  let!(:shop) { create(:shop) }
+  let!(:web_push_trigger) { create(:web_push_trigger, shop: shop, subject: 'Hello') }
+
+  it 'has a valid factory' do
+    expect(web_push_trigger).to be_valid
+  end
+
 end
