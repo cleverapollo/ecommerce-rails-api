@@ -15,7 +15,7 @@ class CreateWebPushTriggerMessages < ActiveRecord::Migration
     add_index "web_push_trigger_messages", ["code"], unique: true
     add_index "web_push_trigger_messages", ["date", "shop_id"]
     add_index "web_push_trigger_messages", ["date"]
-    add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], where: "(clicked is true)", name: w
+    add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], where: "(clicked is true)", name: :index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id
     add_index "web_push_trigger_messages", ["web_push_trigger_id"]
 
 
