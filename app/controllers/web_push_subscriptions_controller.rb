@@ -9,20 +9,16 @@ class WebPushSubscriptionsController < ApplicationController
   # Подписка на пуш-уведомления
   # @method POST
   # @param token [String]
-  # @param browser [String]
   # @param shop_id [String]
   # @param ssid [String]
   def create
     client = shop.clients.find_or_create_by!(user_id: @user.id)
     token = params[:token]
-    browser = params[:browser]
-    if IncomingDataTranslator.alphanum?(token) && IncomingDataTranslator.alphanum?(browser)
+    if token.present?
       client.web_push_token = token
-      client.web_push_browser = browser
       client.web_push_enabled = true
       client.save
     end
-
     render json: {}
   end
 
