@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160725145943) do
+ActiveRecord::Schema.define(version: 20160726075113) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -565,14 +565,18 @@ ActiveRecord::Schema.define(version: 20160725145943) do
   add_index "web_push_digest_messages", ["web_push_digest_id"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
 
   create_table "web_push_digests", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                         null: false
-    t.string   "subject",           limit: 255,                   null: false
-    t.string   "state",             limit: 255, default: "draft", null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "subject",              limit: 255,                   null: false
+    t.string   "state",                limit: 255, default: "draft", null: false
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+    t.string   "picture_file_name"
+    t.string   "picture_content_type"
+    t.integer  "picture_file_size"
+    t.datetime "picture_updated_at"
   end
 
   add_index "web_push_digests", ["shop_id"], name: "index_web_push_digests_on_shop_id", using: :btree
