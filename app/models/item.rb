@@ -249,6 +249,7 @@ class Item < ActiveRecord::Base
       item.name = offer.name
       item.name = offer.model if !item.name.present? && offer.model.present?
       item.name = item.name.gsub("\u00A0", "") unless item.name.nil? # Убираем неразрывные пробелы, если есть
+      item.name = item.name.truncate(250) if item.name.length > 250
       item.description = offer.description
       item.description = item.description.gsub("\u00A0", "") unless item.description.nil? # Убираем неразрывные пробелы, если есть
       item.model = offer.model
