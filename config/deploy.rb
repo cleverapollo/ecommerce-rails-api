@@ -39,27 +39,72 @@ set :sidekiq_timeout, 300
 
 after 'deploy:publishing', 'deploy:restart'
 
+
+namespace :sidekiq do
+  task :start do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute "sudo /bin/systemctl start sidekiq.rees46.service"
+    end
+  end
+  task :stop do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute "sudo /bin/systemctl stop sidekiq.rees46.service"
+    end
+  end
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute "sudo /bin/systemctl restart sidekiq.rees46.service"
+    end
+  end
+end
+
+
 namespace :deploy do
+
   desc 'Start unicorn'
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "cd #{current_path}; ~/.rvm/bin/rvm default do bundle exec unicorn -c config/unicorn.rb -E #{fetch :rails_env} -D"
+      execute "sudo /bin/systemctl start unicorn.rees46.service"
     end
   end
 
   desc 'Stop unicorn'
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      execute "sudo /bin/systemctl stop unicorn.rees46.service"
     end
   end
 
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+      execute "sudo /bin/systemctl restart unicorn.rees46.service"
     end
   end
+
+
+  # desc 'Start unicorn'
+  # task :start do
+  #   on roles(:app), in: :sequence, wait: 5 do
+  #     execute "cd #{current_path}; ~/.rvm/bin/rvm default do bundle exec unicorn -c config/unicorn.rb -E #{fetch :rails_env} -D"
+  #   end
+  # end
+  #
+  # desc 'Stop unicorn'
+  # task :stop do
+  #   on roles(:app), in: :sequence, wait: 5 do
+  #     execute "kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
+  #   end
+  # end
+  #
+  # desc 'Restart application'
+  # task :restart do
+  #   on roles(:app), in: :sequence, wait: 5 do
+  #     execute "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+  #   end
+  # end
+
+
 end
 
 SSHKit.config.command_map[:god] = "~/.rvm/bin/rvm 2.2.3 do god"
