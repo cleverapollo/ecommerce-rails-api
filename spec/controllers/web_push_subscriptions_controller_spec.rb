@@ -25,13 +25,12 @@ describe WebPushSubscriptionsController do
     let!(:session) { create(:session, user: user, code: rand(111111111).to_s) }
     let!(:client) { create(:client, user: session.user, shop: shop, email: nil) }
 
-    subject { post :create, shop_id: shop.uniqid, ssid: session.code, token: '123', browser: 'safari' }
+    subject { post :create, shop_id: shop.uniqid, ssid: session.code, token: '123' }
 
     context 'with valid data' do
       it 'saves subscription' do
         subject
         expect(client.reload.web_push_token).to eq('123')
-        expect(client.reload.web_push_browser).to eq('safari')
         expect(client.reload.web_push_enabled).to be_truthy
       end
     end
@@ -39,14 +38,10 @@ describe WebPushSubscriptionsController do
     context 'with invalid data' do
 
       it 'doesnt have token' do
-        post :create, shop_id: shop.uniqid, ssid: session.code, browser: 'safari'
+        post :create, shop_id: shop.uniqid, ssid: session.code
         expect(client.reload.web_push_enabled).to eq(nil)
       end
 
-      it 'doesnt have browser' do
-        post :create, shop_id: shop.uniqid, ssid: session.code, token: '123'
-        expect(client.reload.web_push_enabled).to eq(nil)
-      end
     end
 
   end
