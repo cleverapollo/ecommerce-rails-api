@@ -10,6 +10,8 @@ class WebPushDigest < ActiveRecord::Base
   validates_attachment_content_type :picture, content_type: /\Aimage/
   validates_attachment_file_name :picture, matches: [/png\Z/i, /jpe?g\Z/i]
 
+  validates :subject, :message, :url, presence: true
+
   def fail!
     update(state: 'failed')
   end

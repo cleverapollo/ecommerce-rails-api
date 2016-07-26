@@ -5,7 +5,7 @@ RSpec.describe WebPushDigestMessage, :type => :model do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:client) { create(:client, :with_email, shop: shop, user: user) }
-  let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'Hello') }
+  let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'Hello', message: 'Sale out', url: 'http://...') }
   let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client, web_push_digest: web_push_digest) }
 
   it 'has a valid factory' do

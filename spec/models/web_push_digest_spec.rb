@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe WebPushDigest, :type => :model do
 
   let!(:shop) { create(:shop) }
-  let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'Hello') }
+  let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'Hello', message: 'Sale out', url: 'http://...') }
 
   it 'has a valid factory' do
     expect(web_push_digest).to be_valid

@@ -5,7 +5,7 @@ RSpec.describe WebPushTriggerMessage, :type => :model do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:client) { create(:client, :with_email, shop: shop, user: user) }
-  let!(:web_push_trigger) { create(:web_push_trigger, shop: shop, subject: 'Hello') }
+  let!(:web_push_trigger) { create(:web_push_trigger, shop: shop, subject: 'Hello', message: 'Sale out') }
   let!(:web_push_trigger_message) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger, trigger_data: {sample: true}) }
 
   it 'has a valid factory' do
