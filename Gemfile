@@ -31,6 +31,7 @@ gem 'rollbar'
 gem 'newrelic_rpm'
 gem 'newrelic_moped'
 gem 'god'
+gem 'webpush'
 
 # Tools
 gem 'foreman', '~> 0.63.0'
