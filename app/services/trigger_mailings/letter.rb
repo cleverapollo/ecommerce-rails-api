@@ -197,6 +197,10 @@ module TriggerMailings
 
       data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)
       data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: client.trigger_unsubscribe_url)
+      data[:email] = client.email
+      data[:tracking_url] = trigger_mail.tracking_url
+      data[:unsubscribe_url] = client.trigger_unsubscribe_url
+      data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
       if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
         if @shop.ekomi?
