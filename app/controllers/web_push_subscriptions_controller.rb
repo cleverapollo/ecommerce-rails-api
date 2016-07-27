@@ -24,6 +24,9 @@ class WebPushSubscriptionsController < ApplicationController
       if token[:endpoint] =~ /google.com/
         client.web_push_browser = 'chrome'
       end
+      if token[:endpoint] =~ /mozilla.com/
+        client.web_push_browser = 'firefox'
+      end
       client.web_push_enabled = true
       client.save
     else
