@@ -13,11 +13,22 @@ class WebPushSubscriptionsController < ApplicationController
   # @param ssid [String]
   def create
     client = shop.clients.find_or_create_by!(user_id: @user.id)
-    token = params[:token]
-    if token.present?
+    begin
+      token = JSON.parse(params[:token]).deep_symbolize_keys
+    rescue
+      render text: 'Invalid JSON data', code: 400
+      return
+    end
+    if token.present? && token[:endpoint].present? && token[:keys].present?
       client.web_push_token = token
+      if token[:endpoint] =~ /google.com/
+        client.web_push_browser = 'chrome'
+      end
       client.web_push_enabled = true
       client.save
+    else
+      render text: 'Token does not contain endpoint or keys', code: 400
+      return
     end
     render json: {}
   end
@@ -46,12 +57,17 @@ class WebPushSubscriptionsController < ApplicationController
   def send_test
     client = shop.clients.find_by!(user_id: @user.id)
     if client && client.web_push_token.present?
-      token = JSON.parse(client.web_push_token)
+      token = JSON.parse(client.web_push_token).deep_symbolize_keys
       Webpush.payload_send(
-          message: "Here is a test message",
+          message: JSON.generate({
+                                title: 'Here is a test message',
+                                body: 'Только сегодня супер распродажа всякой хрени',
+                                icon: 'https://p.fast.ulmart.ru/p/gen/350/35077/3507709.jpg',
+                                url: 'https://rees46.com/?recommended_by=web_push_trigger'
+                            }),
           endpoint: token[:endpoint],
-          auth: token[:auth],
-          p256dh: token[:p256dh],
+          auth: token[:keys][:auth],
+          p256dh: token[:keys][:p256dh],
           api_key: Rails.application.secrets.google_cloud_messaging_key
       )
     else

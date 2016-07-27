@@ -126,6 +126,11 @@ class Client < ActiveRecord::Base
     nil
   end
 
+  # Сбрасывает историю подписок на веб пуши, чтобы пользователь мог опять получить окно подписки.
+  def clear_web_push_subscription!
+    update web_push_enabled: false, web_push_token: nil, web_push_browser: nil
+  end
+
   protected
   def assign_ab_testing_group
     return if self.ab_testing_group.present?
