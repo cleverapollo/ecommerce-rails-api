@@ -28,11 +28,25 @@ class WebPushSubscriptionsController < ApplicationController
         client.web_push_browser = 'firefox'
       end
       client.web_push_enabled = true
+      client.web_push_subscription_popup_showed = true
+      client.accepted_web_push_subscription = true
       client.save
     else
       render text: 'Token does not contain endpoint or keys', code: 400
       return
     end
+    render json: {}
+  end
+
+
+  # Пользователь отказался от подписки после просмотра окна подписки.
+  # @param shop_id [String]
+  # @param ssid [String]
+  def decline
+    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    client.web_push_subscription_popup_showed = true
+    client.accepted_web_push_subscription = nil
+    client.save
     render json: {}
   end
 
@@ -47,6 +61,9 @@ class WebPushSubscriptionsController < ApplicationController
       client.web_push_browser = nil
       client.web_push_enabled = nil
       client.last_web_push_sent_at = nil
+      # Делаем так, чтобы потом можно было опять показать окно подписки
+      client.web_push_subscription_popup_showed = nil
+      client.accepted_web_push_subscription = nil
       client.save
     end
 

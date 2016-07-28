@@ -37,8 +37,11 @@ module InitServerString
       if client.web_push_enabled != true && shop.web_push_subscriptions_enabled?
         result += "  settings: #{shop.web_push_subscriptions_settings.to_json}, "
         if shop.web_push_subscriptions_settings.has_picture?
-          result += "  picture_url: '#{Rees46.site_url.gsub('http:', '')}#{shop.web_push_subscriptions_settings.picture.url(:original)}'"
+          result += "  picture_url: '#{Rees46.site_url.gsub('http:', '')}#{shop.web_push_subscriptions_settings.picture.url(:original)}', "
         end
+        result += "  user: {"
+        result += "    declined: #{client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true}"
+        result += "  }"
       end
       result += "  },"
 

@@ -76,6 +76,8 @@ Rees46Api::Application.routes.draw do
     collection do
       # Отписаться
       patch :unsubscribe
+      # Отказался от подписки
+      patch :decline
       # Отправить тестовое сообщение
       get :send_test
     end

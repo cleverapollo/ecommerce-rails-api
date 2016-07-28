@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160726080324) do
+ActiveRecord::Schema.define(version: 20160728114359) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -107,20 +107,20 @@ ActiveRecord::Schema.define(version: 20160726080324) do
   add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
 
   create_table "clients", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                                              null: false
-    t.integer  "user_id",                   limit: 8,                                  null: false
-    t.boolean  "bought_something",                      default: false,                null: false
+    t.integer  "shop_id",                                                                       null: false
+    t.integer  "user_id",                            limit: 8,                                  null: false
+    t.boolean  "bought_something",                               default: false,                null: false
     t.integer  "ab_testing_group"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "external_id",               limit: 255
-    t.string   "email",                     limit: 255
-    t.boolean  "digests_enabled",                       default: true,                 null: false
-    t.uuid     "code",                                  default: "uuid_generate_v4()"
-    t.boolean  "subscription_popup_showed",             default: false,                null: false
-    t.boolean  "triggers_enabled",                      default: true,                 null: false
+    t.string   "external_id",                        limit: 255
+    t.string   "email",                              limit: 255
+    t.boolean  "digests_enabled",                                default: true,                 null: false
+    t.uuid     "code",                                           default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed",                      default: false,                null: false
+    t.boolean  "triggers_enabled",                               default: true,                 null: false
     t.datetime "last_trigger_mail_sent_at"
-    t.boolean  "accepted_subscription",                 default: false,                null: false
+    t.boolean  "accepted_subscription",                          default: false,                null: false
     t.string   "location"
     t.date     "last_activity_at"
     t.integer  "activity_segment"
@@ -129,12 +129,15 @@ ActiveRecord::Schema.define(version: 20160726080324) do
     t.string   "web_push_browser"
     t.boolean  "web_push_enabled"
     t.datetime "last_web_push_sent_at"
+    t.boolean  "web_push_subscription_popup_showed"
+    t.boolean  "accepted_web_push_subscription"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["digests_enabled", "shop_id"], name: "index_clients_on_digests_enabled_and_shop_id", using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
   add_index "clients", ["shop_id", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((accepted_subscription IS TRUE) AND (subscription_popup_showed IS TRUE))", using: :btree
+  add_index "clients", ["shop_id", "accepted_web_push_subscription"], name: "index_clients_on_shop_id_and_accepted_web_push_subscription", where: "((accepted_web_push_subscription IS TRUE) AND (web_push_subscription_popup_showed IS TRUE))", using: :btree
   add_index "clients", ["shop_id", "activity_segment"], name: "index_clients_on_shop_id_and_activity_segment", where: "(activity_segment IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
@@ -144,6 +147,7 @@ ActiveRecord::Schema.define(version: 20160726080324) do
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
   add_index "clients", ["shop_id", "web_push_enabled", "last_web_push_sent_at"], name: "index_clients_last_web_push_sent_at", where: "((web_push_enabled IS TRUE) AND (last_web_push_sent_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled IS TRUE)", using: :btree
+  add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed IS TRUE)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["triggers_enabled", "shop_id"], name: "index_clients_on_triggers_enabled_and_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
@@ -408,38 +412,40 @@ ActiveRecord::Schema.define(version: 20160726080324) do
 
   create_table "shop_metrics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "orders",                     default: 0,   null: false
-    t.integer "real_orders",                default: 0,   null: false
-    t.decimal "revenue",                    default: 0.0, null: false
-    t.decimal "real_revenue",               default: 0.0, null: false
-    t.integer "visitors",                   default: 0,   null: false
-    t.integer "products_viewed",            default: 0,   null: false
-    t.integer "triggers_enabled_count",     default: 0,   null: false
-    t.integer "triggers_orders",            default: 0,   null: false
-    t.decimal "triggers_revenue",           default: 0.0, null: false
-    t.integer "digests_orders",             default: 0,   null: false
-    t.decimal "digests_revenue",            default: 0.0, null: false
-    t.integer "abandoned_products",         default: 0,   null: false
-    t.decimal "abandoned_money",            default: 0.0, null: false
-    t.date    "date",                                     null: false
-    t.integer "triggers_sent",              default: 0,   null: false
-    t.integer "triggers_clicked",           default: 0,   null: false
-    t.decimal "triggers_revenue_real",      default: 0.0, null: false
-    t.integer "triggers_orders_real",       default: 0,   null: false
-    t.integer "digests_sent",               default: 0,   null: false
-    t.integer "digests_clicked",            default: 0,   null: false
-    t.decimal "digests_revenue_real",       default: 0.0, null: false
-    t.integer "digests_orders_real",        default: 0,   null: false
-    t.integer "subscription_popup_showed",  default: 0
-    t.integer "subscription_accepted",      default: 0
-    t.integer "orders_original_count",      default: 0
-    t.decimal "orders_original_revenue",    default: 0.0
-    t.integer "orders_recommended_count",   default: 0
-    t.decimal "orders_recommended_revenue", default: 0.0
-    t.integer "product_views_total",        default: 0
-    t.integer "product_views_recommended",  default: 0
-    t.jsonb   "top_products",                                          array: true
+    t.integer "orders",                             default: 0,   null: false
+    t.integer "real_orders",                        default: 0,   null: false
+    t.decimal "revenue",                            default: 0.0, null: false
+    t.decimal "real_revenue",                       default: 0.0, null: false
+    t.integer "visitors",                           default: 0,   null: false
+    t.integer "products_viewed",                    default: 0,   null: false
+    t.integer "triggers_enabled_count",             default: 0,   null: false
+    t.integer "triggers_orders",                    default: 0,   null: false
+    t.decimal "triggers_revenue",                   default: 0.0, null: false
+    t.integer "digests_orders",                     default: 0,   null: false
+    t.decimal "digests_revenue",                    default: 0.0, null: false
+    t.integer "abandoned_products",                 default: 0,   null: false
+    t.decimal "abandoned_money",                    default: 0.0, null: false
+    t.date    "date",                                             null: false
+    t.integer "triggers_sent",                      default: 0,   null: false
+    t.integer "triggers_clicked",                   default: 0,   null: false
+    t.decimal "triggers_revenue_real",              default: 0.0, null: false
+    t.integer "triggers_orders_real",               default: 0,   null: false
+    t.integer "digests_sent",                       default: 0,   null: false
+    t.integer "digests_clicked",                    default: 0,   null: false
+    t.decimal "digests_revenue_real",               default: 0.0, null: false
+    t.integer "digests_orders_real",                default: 0,   null: false
+    t.integer "subscription_popup_showed",          default: 0
+    t.integer "subscription_accepted",              default: 0
+    t.integer "orders_original_count",              default: 0
+    t.decimal "orders_original_revenue",            default: 0.0
+    t.integer "orders_recommended_count",           default: 0
+    t.decimal "orders_recommended_revenue",         default: 0.0
+    t.integer "product_views_total",                default: 0
+    t.integer "product_views_recommended",          default: 0
+    t.jsonb   "top_products",                                                  array: true
     t.jsonb   "products_statistics"
+    t.integer "web_push_subscription_popup_showed", default: 0
+    t.integer "web_push_subscription_accepted",     default: 0
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree

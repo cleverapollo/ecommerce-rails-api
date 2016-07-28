@@ -16,7 +16,7 @@ class Client < ActiveRecord::Base
 
   validates :shop, presence: true
 
-  scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
+  scope :who_saw_subscription_popup, -> { where('subscription_popup_showed IS TRUE') }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) { with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date) }
@@ -54,6 +54,9 @@ class Client < ActiveRecord::Base
             master_client.location = slave_client.location if !slave_client.location.nil?
             master_client.last_activity_at = slave_client.last_activity_at if master_client.last_activity_at.nil? || (!slave_client.last_activity_at.nil? && master_client.last_activity_at < slave_client.last_activity_at)
             master_client.supply_trigger_sent = slave_client.supply_trigger_sent if slave_client.supply_trigger_sent
+            master_client.web_push_subscription_popup_showed = true if slave_client.web_push_subscription_popup_showed?
+            master_client.accepted_web_push_subscription = true if slave_client.accepted_web_push_subscription?
+
 
             if slave_client.web_push_enabled?
               master_client.web_push_token = slave_client.web_push_token unless slave_client.web_push_token.nil?

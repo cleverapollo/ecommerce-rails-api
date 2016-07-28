@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160627103242) do
+ActiveRecord::Schema.define(version: 20160728090043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -314,10 +314,28 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.integer  "partner_balance",                    default: 0,     null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
+    t.string   "api_key",                limit: 255
+    t.string   "api_secret",             limit: 255
   end
 
+  add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "digest_mail_statistics", force: :cascade do |t|
+    t.date     "date",                   null: false
+    t.integer  "shop_id",                null: false
+    t.integer  "opened",     default: 0, null: false
+    t.integer  "clicked",    default: 0, null: false
+    t.integer  "bounced",    default: 0, null: false
+    t.integer  "sent",       default: 0, null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
+  add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
+  add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
 
   create_table "e_komi_requests", force: :cascade do |t|
     t.integer  "shop_id"
@@ -361,6 +379,13 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "mail_ru_audience_pools", force: :cascade do |t|
+    t.string "list"
+    t.string "session"
+  end
+
+  add_index "mail_ru_audience_pools", ["list"], name: "index_mail_ru_audience_pools_on_list", using: :btree
 
   create_table "monthly_statistic_items", force: :cascade do |t|
     t.integer  "monthly_statistic_id",                         null: false
@@ -602,7 +627,7 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.string   "mean_monthly_orders_count",     limit: 255
     t.integer  "category_id"
     t.integer  "cms_id"
-    t.string   "currency",                      limit: 255, default: "р."
+    t.string   "currency",                      limit: 255, default: "₽"
     t.boolean  "requested_ab_testing",                      default: false, null: false
     t.string   "yml_file_url",                  limit: 255
     t.boolean  "yml_loaded",                                default: false, null: false
@@ -623,7 +648,7 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.datetime "manager_remind_date"
     t.integer  "yml_errors",                                default: 0,     null: false
     t.boolean  "track_order_status",                        default: false, null: false
-    t.integer  "trigger_pause",                             default: 14
+    t.integer  "trigger_pause",                             default: 1
     t.integer  "yml_load_period",                           default: 24,    null: false
     t.datetime "last_try_to_load_yml_at"
     t.boolean  "supply_available",                          default: false, null: false
@@ -648,6 +673,7 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.string   "ekomi_id"
     t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
+    t.integer  "web_push_balance",                          default: 0,     null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -705,6 +731,21 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.integer  "currency_id",                  default: 1,   null: false
   end
 
+  create_table "trigger_mail_statistics", force: :cascade do |t|
+    t.date     "date",                   null: false
+    t.integer  "shop_id",                null: false
+    t.integer  "opened",     default: 0, null: false
+    t.integer  "clicked",    default: 0, null: false
+    t.integer  "bounced",    default: 0, null: false
+    t.integer  "sent",       default: 0, null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "trigger_mail_statistics", ["date"], name: "index_trigger_mail_statistics_on_date", using: :btree
+  add_index "trigger_mail_statistics", ["shop_id", "date"], name: "index_trigger_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
+  add_index "trigger_mail_statistics", ["shop_id"], name: "index_trigger_mail_statistics_on_shop_id", using: :btree
+
   create_table "user_taxonomies", force: :cascade do |t|
     t.integer "user_id"
     t.date    "date"
@@ -731,5 +772,45 @@ ActiveRecord::Schema.define(version: 20160627103242) do
     t.string "type_name"
     t.string "word"
   end
+
+  create_table "web_push_customer_requests", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "web_push_packet_purchases", force: :cascade do |t|
+    t.integer  "customer_id"
+    t.integer  "shop_id"
+    t.integer  "amount",      null: false
+    t.integer  "price",       null: false
+    t.integer  "currency_id", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  create_table "wizard_configurations", force: :cascade do |t|
+    t.integer  "shop_id",                                    null: false
+    t.boolean  "multi_locations",            default: false
+    t.jsonb    "industrials",                default: {}
+    t.boolean  "orders_history",             default: false
+    t.boolean  "orders_sync",                default: false
+    t.boolean  "use_recommendations",        default: false
+    t.jsonb    "triggers",                   default: {}
+    t.boolean  "use_subscriptions",          default: false
+    t.boolean  "use_digests",                default: false
+    t.integer  "mailing_engine"
+    t.string   "other_mailing_engine"
+    t.boolean  "have_audience_to_upload",    default: false
+    t.boolean  "use_remarketing",            default: false
+    t.boolean  "use_web_push_subscriptions", default: false
+    t.jsonb    "web_push_triggers",          default: {}
+    t.boolean  "use_web_push_digests",       default: false
+    t.boolean  "completed",                  default: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+  end
+
+  add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree
 
 end

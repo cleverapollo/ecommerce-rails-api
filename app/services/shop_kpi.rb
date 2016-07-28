@@ -95,6 +95,8 @@ class ShopKPI
     # Subscriptions
     @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
     @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
+    @shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').count
+    @shop_metric.web_push_subscription_accepted = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').where('accepted_web_push_subscription IS TRUE').count
 
     # Считаем товары
     products = Retailer::Products::OverviewStatistic.new @shop
