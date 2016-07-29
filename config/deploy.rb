@@ -24,7 +24,7 @@ set :rollbar_role, Proc.new { :app }
 
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
-set :rvm_ruby_string, "2.2.3"
+set :rvm_ruby_string, '2.3.0'
 
 # Whenever
 set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
@@ -33,9 +33,9 @@ set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
 
 
 # Sidekiq
-set :sidekiq_env, 'production'
-set :sidekiq_options, '-C config/sidekiq.yml'
-set :sidekiq_timeout, 300
+# set :sidekiq_env, 'production'
+# set :sidekiq_options, '-C config/sidekiq.yml'
+# set :sidekiq_timeout, 300
 
 after 'deploy:publishing', 'deploy:restart'
 
@@ -107,7 +107,13 @@ namespace :deploy do
 
 end
 
-SSHKit.config.command_map[:god] = "~/.rvm/bin/rvm 2.2.3 do god"
+
+# before 'deploy:stop', 'sidekiq:stop'
+# after 'deploy:start', 'sidekiq:start'
+after 'deploy:restart', 'sidekiq:restart'
+
+
+SSHKit.config.command_map[:god] = "~/.rvm/bin/rvm 2.3.0 do god"
 
 namespace :god do
   task :start do

@@ -40,6 +40,7 @@ class WebPushSubscriptionsController < ApplicationController
 
 
   # Пользователь отказался от подписки после просмотра окна подписки.
+  # @method PATCH
   # @param shop_id [String]
   # @param ssid [String]
   def decline

@@ -2,7 +2,7 @@ LANG="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
 
 source 'https://rubygems.org'
-ruby '2.2.3'
+ruby '2.3.0'
 
 # Rails
 gem 'rails', '4.2.5'
