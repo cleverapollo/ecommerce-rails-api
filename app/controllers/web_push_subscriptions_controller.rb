@@ -78,7 +78,7 @@ class WebPushSubscriptionsController < ApplicationController
   def send_test
     client = shop.clients.find_by!(user_id: @user.id)
     if client && client.web_push_token.present?
-      token = JSON.parse(client.web_push_token).deep_symbolize_keys
+      token = eval(client.web_push_token)
       Webpush.payload_send(
           message: JSON.generate({
                                 title: 'Here is a test message',
