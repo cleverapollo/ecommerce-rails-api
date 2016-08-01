@@ -75,9 +75,9 @@ Rees46Api::Application.routes.draw do
   resources :web_push_subscriptions, only: [:create] do
     collection do
       # Отписаться
-      patch :unsubscribe
+      post :unsubscribe
       # Отказался от подписки
-      patch :decline
+      post :decline
       # Отправить тестовое сообщение
       get :send_test
     end

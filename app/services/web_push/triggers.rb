@@ -1,5 +1,5 @@
 module WebPush
-  class Triggers
+  module Triggers
     NAMES = %w(AbandonedCart SecondAbandonedCart LowOnSupply Retention ProductAvailable ProductPriceDecrease)
   end
 end
