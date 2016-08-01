@@ -212,4 +212,12 @@ class Shop < MasterTable
   def has_imported_yml?
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
   end
+
+  # Уменьшает количество веб пушей на балансе на 1 после отправки
+  def reduce_web_push_balance!
+    if web_push_balance > 0
+      update! web_push_balance: (web_push_balance - 1)
+    end
+  end
+
 end

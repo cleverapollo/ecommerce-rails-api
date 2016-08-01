@@ -77,22 +77,16 @@ class WebPushSubscriptionsController < ApplicationController
   # @param ssid [String]
   def send_test
     client = shop.clients.find_by!(user_id: @user.id)
-    if client && client.web_push_token.present?
-      token = eval(client.web_push_token)
-      Webpush.payload_send(
-          message: JSON.generate({
-                                title: 'Here is a test message',
-                                body: 'Только сегодня супер распродажа всякой хрени',
-                                icon: 'https://p.fast.ulmart.ru/p/gen/350/35077/3507709.jpg',
-                                url: 'https://rees46.com/?recommended_by=web_push_trigger'
-                            }),
-          endpoint: token[:endpoint],
-          auth: token[:keys][:auth],
-          p256dh: token[:keys][:p256dh],
-          api_key: Rails.application.secrets.google_cloud_messaging_key
-      )
+    message = {
+        title: 'Here is a test message',
+        body: 'Только сегодня супер распродажа всякой хрени',
+        icon: 'https://p.fast.ulmart.ru/p/gen/350/35077/3507709.jpg',
+        url: 'https://rees46.com/?recommended_by=web_push_trigger'
+    }
+    if WebPush::Sender.send client, shop, JSON.generate(message)
+      render text: 'Sent.'
     else
-      render text: 'No token available'
+      render text: 'Error. See Rollbar'
     end
   end
 

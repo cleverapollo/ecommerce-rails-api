@@ -39,6 +39,10 @@ module ActionPush
     attr_accessor :digest_mail_code
     # Код показа в RTB
     attr_accessor :r46_returner_code
+    # Код триггерной web push рассылки
+    attr_accessor :web_push_trigger_code
+    # Код дайджестной web push рассылки
+    attr_accessor :web_push_digest_code
     # Источник
     attr_accessor :source
 
@@ -109,6 +113,8 @@ module ActionPush
       @trigger_mail_code = raw[:trigger_mail_code]
       @digest_mail_code = raw[:digest_mail_code]
       @r46_returner_code = raw[:returner_code]
+      @web_push_trigger_code = raw[:web_push_trigger_code]
+      @web_push_digest_code = raw[:web_push_digest_code]
       @source = raw[:source].present? ? JSON.parse(raw[:source]) : nil
     end
 

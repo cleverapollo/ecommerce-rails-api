@@ -3,7 +3,7 @@ module Recommender
     ##
     # Псевдокласс-рекомендер. Нужен для трекинга покупок с триггерных писем.
     #
-    class TriggerMail < Recommender::Raw
+    class WebPushTrigger < Recommender::Raw
       def recommended_ids
         raise NotImplementedError
       end
