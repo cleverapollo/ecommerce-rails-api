@@ -3,8 +3,8 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test]
-  before_action :fetch_user, only: [:create, :unsubscribe, :send_test]
+  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test, :decline]
+  before_action :fetch_user, only: [:create, :unsubscribe, :send_test, :decline]
 
   # Подписка на пуш-уведомления
   # @method POST
