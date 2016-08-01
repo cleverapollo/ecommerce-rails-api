@@ -75,9 +75,9 @@ module WebPush
 
         end
 
-        @source_items = Item.where(shop_id: shop.id).widgetable.recommendable.where(id: final_ids)
+        @items = Item.where(shop_id: shop.id).widgetable.recommendable.where(id: final_ids).limit 1
 
-        @source_items.pluck(:id)
+        @items.limit(1).pluck(:id)
       end
 
     end

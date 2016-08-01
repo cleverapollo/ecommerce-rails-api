@@ -20,12 +20,12 @@ module WebPush
         subscriptions = user.subscribe_for_product_availables.where(shop: shop).where(subscribed_at: trigger_time_range)
         if subscriptions.any?
           # Находим подходящие товары и сразу устанавливаем oldprice в цену, по которой клиент подписывался
-          @source_items = subscriptions.map { |subscription|
+          @items = subscriptions.map { |subscription|
             subscription.item if subscription.item.present? && subscription.item.is_available? && !OrderItem.where(item_id: subscription.item_id, order_id: Order.where(shop_id: shop.id, user_id: user.id).select(:id) ).exists?
           }.uniq.compact
-          if @source_items.any?
+          if @items.any?
             @happened_at = Time.current
-            user.subscribe_for_product_availables.where(shop: shop, item_id: @source_items.map(&:id) ).destroy_all
+            user.subscribe_for_product_availables.where(shop: shop, item_id: @items.map(&:id) ).destroy_all
             return true
           end
         end

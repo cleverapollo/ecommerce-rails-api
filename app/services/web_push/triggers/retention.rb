@@ -19,7 +19,7 @@ module WebPush
       def condition_happened?
         if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
           @happened_at = 1.month.ago
-          @source_items = Item.where(id: recommended_ids(1))
+          @items = Item.where(id: recommended_ids(1))
           return true
         end
         false

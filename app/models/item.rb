@@ -247,7 +247,9 @@ class Item < ActiveRecord::Base
     new do |item|
       item.uniqid = offer.id
       item.name = offer.name
-      item.name = offer.model if !item.name.present? && offer.model.present?
+      if !item.name.present? && (offer.model.present? || offer.type_prefix.present? || offer.vendor.present?)
+        item.name = "#{offer.type_prefix.to_s} #{offer.vendor.to_s} #{offer.model.to_s}".strip
+      end
       item.name = item.name.gsub("\u00A0", "") unless item.name.nil? # Убираем неразрывные пробелы, если есть
       item.name = item.name.truncate(250) if item.name.length > 250
       item.description = offer.description

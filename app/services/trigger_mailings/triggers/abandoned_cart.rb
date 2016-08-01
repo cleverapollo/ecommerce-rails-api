@@ -19,6 +19,9 @@ module TriggerMailings
 
       def condition_happened?
 
+        # Если в это время был заказ, то не отправлять письмо
+        return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
+
         # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
         actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
         if actions.exists?

@@ -19,6 +19,9 @@ module TriggerMailings
 
       def condition_happened?
 
+        # Если в это время был заказ, то не отправлять письмо
+        return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
+
         # Проверка что последное письмо отправили киленту 1 дня назад
         return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
 
