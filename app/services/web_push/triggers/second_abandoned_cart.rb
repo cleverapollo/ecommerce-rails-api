@@ -23,8 +23,7 @@ module WebPush
 
         # Находим вчерашную не открытую брошеную корзину
         trigger_mailing = WebPushTrigger.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
-        unopened_abandoned_cart =  WebPushTriggerMessage.where(shop: shop).where(created_at: trigger_time_range).where(clicked: false).where(trigger_mailing_id: trigger_mailing.id).where(client_id: client.id)
-        return false if !unopened_abandoned_cart
+        return false unless WebPushTriggerMessage.where(shop: shop).where(created_at: trigger_time_range).where(clicked: false).where(web_push_trigger_id: trigger_mailing.id).where(client_id: client.id).exists?
 
         actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
         if actions.exists?
