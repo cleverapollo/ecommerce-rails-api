@@ -51,14 +51,14 @@ module People
         @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
         Rails.logger.warn "Done"
 
-        result[:digests_overall] = @shop.clients.suitable_for_digest_mailings.count
-        result[:digests_activity_a] = @shop.clients.suitable_for_digest_mailings.where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:digests_activity_b] = @shop.clients.suitable_for_digest_mailings.where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:digests_activity_c] = @shop.clients.suitable_for_digest_mailings.where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
-        result[:triggers_overall] = @shop.clients.ready_for_trigger_mailings(@shop).count
-        result[:triggers_activity_a] = @shop.clients.ready_for_trigger_mailings(@shop).where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:triggers_activity_b] = @shop.clients.ready_for_trigger_mailings(@shop).where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:triggers_activity_c] = @shop.clients.ready_for_trigger_mailings(@shop).where('activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
+        result[:digests_overall] = @shop.clients.with_email.where('digests_enabled IS TRUE').count
+        result[:digests_activity_a] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
+        result[:digests_activity_b] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
+        result[:digests_activity_c] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
+        result[:triggers_overall] = @shop.clients.with_email.where('triggers_enabled IS TRUE').count
+        result[:triggers_activity_a] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
+        result[:triggers_activity_b] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
+        result[:triggers_activity_c] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
         result[:with_email] = @shop.clients.with_email.count
 
         update_params = {
