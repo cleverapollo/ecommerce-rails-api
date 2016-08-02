@@ -60,6 +60,7 @@ module People
         result[:triggers_activity_b] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
         result[:triggers_activity_c] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
         result[:with_email] = @shop.clients.with_email.count
+        result[:web_push_overall] = @shop.clients.where('web_push_enabled IS TRUE').count
 
         update_params = {
             overall: shop.clients.count,
@@ -75,7 +76,8 @@ module People
             triggers_activity_a: result[:triggers_activity_a],
             triggers_activity_b: result[:triggers_activity_b],
             triggers_activity_c: result[:triggers_activity_c],
-            with_email: result[:with_email]
+            with_email: result[:with_email],
+            web_push_overall: result[:web_push_overall]
         }
 
         AudienceSegmentStatistic.fetch(@shop).update! update_params

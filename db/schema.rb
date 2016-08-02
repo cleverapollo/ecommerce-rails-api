@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728114359) do
+ActiveRecord::Schema.define(version: 20160802141858) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -63,6 +63,7 @@ ActiveRecord::Schema.define(version: 20160728114359) do
     t.integer "digests_activity_b",  default: 0, null: false
     t.integer "digests_activity_c",  default: 0, null: false
     t.integer "with_email",          default: 0, null: false
+    t.integer "web_push_overall",    default: 0, null: false
   end
 
   add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
