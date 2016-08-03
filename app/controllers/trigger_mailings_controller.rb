@@ -7,6 +7,7 @@ class TriggerMailingsController < ApplicationController
   # Запустить тестовую
   def send_test
     mailings_settings = MailingsSettings.find_by shop_id: @shop.id
+
     trigger_mailing = @shop.trigger_mailings.find_by trigger_type: params[:trigger_type]
     email = IncomingDataTranslator.email(params[:email])
     if email && mailings_settings && trigger_mailing && params[:trigger_type].present? && mailings_settings.template_liquid?

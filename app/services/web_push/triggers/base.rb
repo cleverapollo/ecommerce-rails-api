@@ -20,7 +20,7 @@ module WebPush
       end
 
       def mailing
-        @mailing ||= shop.web_push_triggers.enabled.where(trigger_type: code.underscore).first!
+        @mailing ||= shop.web_push_triggers.where(trigger_type: code.underscore).first!
       end
 
       def settings

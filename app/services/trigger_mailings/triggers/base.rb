@@ -20,7 +20,7 @@ module TriggerMailings
       end
 
       def mailing
-        @mailing ||= shop.trigger_mailings.enabled.where(trigger_type: code.underscore).first!
+        @mailing ||= shop.trigger_mailings.where(trigger_type: code.underscore).first!
       end
 
       def settings

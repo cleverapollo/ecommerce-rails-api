@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160802141858) do
+ActiveRecord::Schema.define(version: 20160803043000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -553,16 +553,28 @@ ActiveRecord::Schema.define(version: 20160802141858) do
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
+  create_table "web_push_digest_batches", id: :bigserial, force: :cascade do |t|
+    t.integer "web_push_digest_id", limit: 8,                 null: false
+    t.integer "end_id",             limit: 8
+    t.boolean "completed",                    default: false, null: false
+    t.integer "start_id",           limit: 8
+    t.integer "shop_id"
+  end
+
+  add_index "web_push_digest_batches", ["shop_id"], name: "index_web_push_digest_batches_on_shop_id", using: :btree
+  add_index "web_push_digest_batches", ["web_push_digest_id"], name: "index_web_push_digest_batches_on_web_push_digest_id", using: :btree
+
   create_table "web_push_digest_messages", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                                     null: false
-    t.uuid     "code",                         default: "uuid_generate_v4()"
-    t.boolean  "clicked",                      default: false,                null: false
-    t.integer  "web_push_digest_id", limit: 8,                                null: false
-    t.boolean  "unsubscribed",                 default: false,                null: false
-    t.integer  "client_id",          limit: 8,                                null: false
+    t.integer  "shop_id",                                                           null: false
+    t.uuid     "code",                               default: "uuid_generate_v4()"
+    t.boolean  "clicked",                            default: false,                null: false
+    t.integer  "web_push_digest_id",       limit: 8,                                null: false
+    t.boolean  "unsubscribed",                       default: false,                null: false
+    t.integer  "client_id",                limit: 8,                                null: false
     t.date     "date"
-    t.datetime "created_at",                                                  null: false
-    t.datetime "updated_at",                                                  null: false
+    t.datetime "created_at",                                                        null: false
+    t.datetime "updated_at",                                                        null: false
+    t.integer  "web_push_digest_batch_id", limit: 8,                                null: false
   end
 
   add_index "web_push_digest_messages", ["code"], name: "index_web_push_digest_messages_on_code", unique: true, using: :btree

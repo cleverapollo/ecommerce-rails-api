@@ -5,6 +5,8 @@ class WebPushDigest < ActiveRecord::Base
   include Redis::Objects
   counter :sent_messages_count
   belongs_to :shop
+  has_many :web_push_digest_batches
+  has_many :web_push_digest_messages
 
   has_attached_file :picture, styles: { original: '500x500>', main: '192>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :picture, content_type: /\Aimage/
@@ -38,6 +40,12 @@ class WebPushDigest < ActiveRecord::Base
   def start!
     update(state: 'started')
     raise NotImpementedError.new 'Not implemented'
+  end
+
+
+  # Возвращает полный URL к картинке дайджеста
+  def fetch_picture_url
+    self.picture.present? ? URI.join("#{Rees46.site_url}", self.picture.url).to_s : ''
   end
 
 

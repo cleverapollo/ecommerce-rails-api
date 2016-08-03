@@ -4,10 +4,12 @@ class WebPushDigestMessage < ActiveRecord::Base
   belongs_to :shop
   belongs_to :client
   belongs_to :web_push_digest
+  belongs_to :web_push_digest_batch
 
   validates :shop_id, presence: true
   validates :client_id, presence: true
   validates :web_push_digest_id, presence: true
+  validates :web_push_digest_batch_id, presence: true
 
   before_create :set_date
 

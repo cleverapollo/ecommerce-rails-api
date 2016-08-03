@@ -59,6 +59,21 @@ Rees46Api::Application.routes.draw do
     end
   end
 
+
+  # Дайджестные веб пуши
+  resources :web_push_digests, only: [] do
+    member do
+      post :launch
+    end
+  end
+
+  resources :web_push_triggers, only: [] do
+    member do
+      post :send_test
+    end
+  end
+
+
   # Окно сбора e-mail
   # create - прием данных о подписке (или отказе)
   resources :subscriptions, only: [:create] do
