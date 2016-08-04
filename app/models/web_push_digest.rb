@@ -43,7 +43,7 @@ class WebPushDigest < ActiveRecord::Base
   end
 
 
-  # Возвращает полный URL к картинке дайджеста
+  # Возвращает полный URL  к
   def fetch_picture_url
     self.picture.present? ? URI.join("#{Rees46.site_url}", self.picture.url).to_s : ''
   end

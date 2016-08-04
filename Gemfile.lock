@@ -174,9 +174,9 @@ GEM
       mime-types (>= 1.16, < 3)
     method_source (0.8.2)
     mime-types (1.25.1)
-    mimemagic (0.3.0)
+    mimemagic (0.3.2)
     mini_portile2 (2.0.0)
-    minitest (5.8.4)
+    minitest (5.9.0)
     moped (1.5.3)
     multi_json (1.12.1)
     multi_xml (0.5.5)
@@ -193,12 +193,12 @@ GEM
       mini_portile2 (~> 2.0.0.rc2)
     oauth (0.5.1)
     open_uri_redirections (0.2.1)
-    paperclip (4.3.6)
-      activemodel (>= 3.2.0)
-      activesupport (>= 3.2.0)
+    paperclip (5.0.0)
+      activemodel (>= 4.2.0)
+      activesupport (>= 4.2.0)
       cocaine (~> 0.5.5)
       mime-types
-      mimemagic (= 0.3.0)
+      mimemagic (~> 0.3.0)
     pg (0.18.4)
     posix-spawn (0.3.11)
     postgres-copy (1.0.0)
@@ -392,7 +392,7 @@ DEPENDENCIES
   newrelic_moped
   newrelic_rpm
   open_uri_redirections
-  paperclip (~> 4.3.6)
+  paperclip
   pg (~> 0.18.1)
   postgres-copy
   pry
@@ -425,4 +425,4 @@ RUBY VERSION
    ruby 2.2.3p173
 
 BUNDLED WITH
-   1.12.3
+   1.12.5

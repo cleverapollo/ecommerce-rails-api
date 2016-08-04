@@ -53,7 +53,7 @@ gem 'bounce_email', '~> 0.2.6', require: false # Определяет тип б�
 gem 'slim-rails'
 
 # Upload files
-gem 'paperclip', '~> 4.3.6'
+gem 'paperclip'#, '~> 4.3.7'
 
 # Internal
 gem 'brb', '~> 0.3.1'

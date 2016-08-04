@@ -104,5 +104,9 @@ module Rees46Api
     config.middleware.insert 0, ::SetUnicornProcline
     config.middleware.insert 0, ::HandleInvalidPercentEncoding
     config.middleware.insert 0, Rack::UTF8Sanitizer
+
+
+    config.active_record.raise_in_transactional_callbacks = true
+
   end
 end
