@@ -78,10 +78,13 @@ class BrandLogger
     # @param date [Date]
     # @return BrandCampaignStatistic
     def get_statistics_row(brand_campaign_id, date)
-      begin
-        row = BrandCampaignStatistic.find_or_create_by! brand_campaign_id: brand_campaign_id, date: date
-      rescue
-        row = BrandCampaignStatistic.find_by brand_campaign_id: brand_campaign_id, date: date
+      row = BrandCampaignStatistic.find_by brand_campaign_id: brand_campaign_id, date: date
+      unless row
+        begin
+          row = BrandCampaignStatistic.create! brand_campaign_id: brand_campaign_id, date: date
+        rescue
+          row = BrandCampaignStatistic.find_by brand_campaign_id: brand_campaign_id, date: date
+        end
       end
       row
     end
