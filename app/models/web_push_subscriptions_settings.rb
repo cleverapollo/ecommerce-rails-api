@@ -5,7 +5,7 @@ class WebPushSubscriptionsSettings < ActiveRecord::Base
   has_attached_file :picture, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
 
   def to_json
-    super(only: [:enabled, :overlay, :header, :text, :button, :agreement])
+    super(only: [:enabled, :overlay, :header, :text, :button, :agreement, :manual_mode])
   end
 
   def has_picture?
