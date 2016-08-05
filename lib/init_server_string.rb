@@ -33,15 +33,26 @@ module InitServerString
 
       # Настройки подписок на web push
       result += "  web_push_subscriptions: {"
-      # Подписку только если включена и при этом пользователь уже не подписался
-      if client.web_push_enabled != true && shop.web_push_subscriptions_enabled?
+      if shop.web_push_subscriptions_enabled?
         result += "  settings: #{shop.web_push_subscriptions_settings.to_json}, "
         if shop.web_push_subscriptions_settings.has_picture?
           result += "  picture_url: '#{Rees46.site_url.gsub('http:', '')}#{shop.web_push_subscriptions_settings.picture.url(:original)}', "
         end
-        result += "  user: {"
-        result += "    declined: #{client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true}"
-        result += "  }"
+
+      # Подписку только если включена и при этом пользователь уже не подписался
+        if client.web_push_enabled == true
+          result += "  user: {"
+          result += "    status: 'accepted'"
+          result += "  }"
+        elsif client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true # Отказался
+          result += "  user: {"
+          result += "    status: 'declined'"
+          result += "  }"
+        else # Не предлагали
+          result += "  user: {"
+          result += "    status: null"
+          result += "  }"
+        end
       end
       result += "  },"
 
