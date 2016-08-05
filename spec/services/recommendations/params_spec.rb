@@ -76,6 +76,7 @@ describe Recommendations::Params do
           ssid: session.code,
           shop_id: shop.uniqid,
           recommender_type: 'search',
+          search_query: 'apple',
           discount: true
       }
     end
