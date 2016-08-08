@@ -28,7 +28,7 @@ class WebPush::Sender
             endpoint: token[:endpoint],
             auth: token[:keys][:auth],
             p256dh: token[:keys][:p256dh],
-            api_key: ( token[:endpoint].match(/google.com\//) ? Rails.application.secrets.google_cloud_messaging_key : '')
+            api_key: ( token[:endpoint].match(/google/) ? Rails.application.secrets.google_cloud_messaging_key : '')
         )
         shop.reduce_web_push_balance!
       rescue Exception => e
