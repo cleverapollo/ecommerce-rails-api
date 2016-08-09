@@ -96,7 +96,7 @@ class InsalesWorker
           'shop_id'     => @shop.uniqid,
           'shop_secret' => @shop.secret,
           'orders' => batch,
-          'errors_to' => 'av@rees46.ru'
+          'errors_to' => 'av@rees46.com'
         };
 
         resp = HTTParty.post("http://#{Rees46::HOST}/import/orders",
