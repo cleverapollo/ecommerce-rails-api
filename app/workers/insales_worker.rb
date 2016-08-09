@@ -69,7 +69,7 @@ class InsalesWorker
   def process_orders
     @processed_orders += (@orders.map do |order|
       {
-        'id' => order['id'],
+        'id' => order['number'],
         'date' => Time.parse(order['created_at']['__content__']).to_i,
         'user_id' => order['client']['id'],
         'user_email' => order['client']['email'],
@@ -96,7 +96,7 @@ class InsalesWorker
           'shop_id'     => @shop.uniqid,
           'shop_secret' => @shop.secret,
           'orders' => batch,
-          'errors_to' => 'anton.zhavoronkov@mkechinov.ru'
+          'errors_to' => 'av@rees46.ru'
         };
 
         resp = HTTParty.post("http://#{Rees46::HOST}/import/orders",
