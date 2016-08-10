@@ -25,7 +25,12 @@ class YmlImporter
 
           yml.offers.each_with_index do |offer, index|
             next unless offer.id.present?
-            category_ids = shop.categories.path_to offer.category_id
+            if offer.category_id.class == Set
+              category_ids = offer.category_id.map { |id| shop.categories.path_to id }.flatten.uniq.compact
+              # category_ids = offer.category_id.map { |id| shop.categories.path_to(id).join('.') }.uniq.compact
+            else
+              category_ids = shop.categories.path_to offer.category_id
+            end
             category = shop.categories[offer.category_id].try(:name)
             location_ids = offer.locations.flat_map{ |location| shop.locations.path_to location.id }
             locations = {}

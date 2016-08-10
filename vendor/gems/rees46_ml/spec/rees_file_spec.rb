@@ -54,7 +54,7 @@ describe "check rees.xml" do
     expect(offer.price).to eq("100")
     expect(offer.oldprice).to eq("500")
     expect(offer.currency_id).to eq("RUR")
-    expect(offer.category_id).to eq("1")
+    expect(offer.category_id).to eq(Set.new %w(1 2))
     expect(offer.ignored).to eq(false)
     expect(offer.pickup).to eq(false)
     expect(offer.store).to eq(false)

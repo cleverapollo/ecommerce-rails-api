@@ -10,7 +10,7 @@ module Rees46ML
     attribute :available, Rees46ML::Boolean, lazy: true
     attribute :bid, Integer, lazy: true
     attribute :binding, String, default: "", lazy: true
-    attribute :category_id, String, default: "", lazy: true
+    attribute :category_id, Set[String], lazy: true
     attribute :cbid, Integer, lazy: true
     attribute :country, String, default: "", lazy: true
     attribute :country_of_origin, String, default: "", lazy: true

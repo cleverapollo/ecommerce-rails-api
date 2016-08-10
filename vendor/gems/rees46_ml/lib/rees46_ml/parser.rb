@@ -1122,6 +1122,8 @@ module Rees46ML
           attibute = underscore(path.last)
 
           case attibute
+          when "category_id"
+            self.current_element.category_id << safe_buffer
           when "barcode"
             self.current_element.barcodes << safe_buffer
           when "picture"

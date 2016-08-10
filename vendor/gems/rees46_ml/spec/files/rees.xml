@@ -52,6 +52,7 @@
         <oldprice>500</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>1</categoryId>
+        <categoryId>2</categoryId>
         <store>false</store>
         <pickup>false</pickup>
         <delivery>1</delivery>
