@@ -26,22 +26,19 @@ class WebPushDigest < ActiveRecord::Base
     self.state == 'started'
   end
 
+  def start!
+    update(state: 'started')
+  end
+
   def finish!
-    update(state: 'finished', finished_at: Time.current)
+    update!(state: 'finished', finished_at: Time.current)
   end
 
   # Возобновить сломавшуюся рассылку
   def resume!
     update(state: 'started')
-    raise NotImpementedError.new 'Not implemented'
+    web_push_digest_batches.incomplete.each{|batch| WebPushDigestBatchWorker.perform_async(batch.id) }
   end
-
-  # Запустить рассылку
-  def start!
-    update(state: 'started')
-    raise NotImpementedError.new 'Not implemented'
-  end
-
 
   # Возвращает полный URL  к
   def fetch_picture_url

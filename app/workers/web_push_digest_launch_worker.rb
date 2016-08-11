@@ -22,6 +22,7 @@ class WebPushDigestLaunchWorker
     shop = Shop.find_by!(uniqid: params.fetch('shop_id'), secret: params.fetch('shop_secret'))
     web_push_digest = shop.web_push_digests.find(params.fetch('id'))
     audience_relation = shop.clients.ready_for_web_push_digest
+    web_push_digest.start!
 
     # Если недостаточно аудитории, отмечаем рассылку проваленной и прекращаем работу
     if audience_relation.count > shop.web_push_balance
@@ -29,9 +30,9 @@ class WebPushDigestLaunchWorker
       return
     end
 
-    if web_push_digest.batches.incomplete.none?
+    if web_push_digest.web_push_digest_batches.incomplete.none?
       audience_relation.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
-        web_push_digest.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
+        web_push_digest.web_push_digest_batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
       end
     end
 
@@ -40,8 +41,8 @@ class WebPushDigestLaunchWorker
     web_push_digest.update(total_mails_count: audience_relation.count, started_at: Time.current)
 
     # Запускаем обработчики на все пачки
-    web_push_digest.batches.incomplete.each do |batch|
-      DigestMailingBatchWorker.perform_async(batch.id)
+    web_push_digest.web_push_digest_batches.incomplete.each do |batch|
+      WebPushDigestBatchWorker.perform_async(batch.id)
     end
   end
 end

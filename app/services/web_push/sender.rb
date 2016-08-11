@@ -18,7 +18,7 @@ class WebPush::Sender
       begin
         token = eval(client.web_push_token)
       rescue
-        Rollbar.e "Wrong web push token for client", client: client, token: client.web_push_token
+        Rollbar.error "Wrong web push token for client", client: client, token: client.web_push_token
         return false
       end
 

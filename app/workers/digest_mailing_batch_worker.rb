@@ -88,7 +88,7 @@ class DigestMailingBatchWorker
     Rollbar.error e
     sleep 5
     retry
-  rescue => e
+  rescue Exception => e
     @mailing.fail! if @mailing
     raise e
   end
