@@ -11,7 +11,7 @@ class WebPushDigestBatchWorker
   #
   # @param id [Integer] ID пачки рассылки.
   def perform(id)
-    @batch = DigestMailingBatch.find(id)
+    @batch = WebPushDigestBatch.find(id)
     @mailing = @batch.mailing
     @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
@@ -39,7 +39,7 @@ class WebPushDigestBatchWorker
       WebPush::DigestMessage.new(client, @mailing, @batch).send
 
       # Увеличиваем счетчик отправленных сообщений для прогресса
-      @mailing.sent_mails_count.increment
+      @mailing.sent_messages_count.increment
 
     end
   
@@ -47,13 +47,13 @@ class WebPushDigestBatchWorker
     @batch.complete!
   
     # Завершаем рассылку, если все пачки завершены.
-    @mailing.finish! if @mailing.batches.incomplete.none?
-          
+    @mailing.finish! if @mailing.web_push_digest_batches.incomplete.none?
+
   rescue Sidekiq::Shutdown => e
     Rollbar.error e
     sleep 5
     retry
-  rescue => e
+  rescue Exception => e
     @mailing.fail! if @mailing
     raise e
   end
