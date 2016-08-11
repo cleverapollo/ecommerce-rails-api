@@ -7,9 +7,9 @@ class ApplicationController < ActionController::API
   def set_headers
     headers['Access-Control-Allow-Origin'] = request.headers["HTTP_ORIGIN"]
     headers['Access-Control-Allow-Credentials'] = 'true'
-    headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
-    headers['Access-Control-Allow-Headers'] = 'Origin'
-    headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    # headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+    # headers['Access-Control-Allow-Headers'] = 'Origin'
+    # headers['Access-Control-Allow-Headers'] = 'Content-Type'
   end
 
   before_action :store_request_params!
