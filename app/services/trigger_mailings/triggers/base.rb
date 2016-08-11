@@ -98,6 +98,9 @@ module TriggerMailings
         @source_items = shop.items.widgetable.limit 3
         @source_item = shop.items.widgetable.limit(1)[0]
         @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
+        if self.kind_of? RecentlyPurchased
+          @additional_info[:order] = shop.orders.first
+        end
         true
       end
 
