@@ -14,6 +14,7 @@ Rees46Api::Application.routes.draw do
 
   # Запрос рекомендаций
   get 'recommend', to: 'recommendations#get'
+  post 'recommendations/batch'
 
   # Отправка событий
   post 'push', to: 'events#push'
