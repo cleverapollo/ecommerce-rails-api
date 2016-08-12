@@ -41,4 +41,15 @@ class RecommendationsController < ApplicationController
     log_client_error(e)
     respond_with_client_error(e)
   end
+
+
+  # Массовые рекомендации для пачки полутелей.
+  # После расчета рекомендаций делает обратный запрос на указанный Callback URL
+  # @param shop_id
+  # @param users [Array[Email]]
+  def batch
+
+  end
+
+
 end

@@ -31,6 +31,9 @@ class WebPush::Sender
             api_key: ( token[:endpoint].match(/google/) ? Rails.application.secrets.google_cloud_messaging_key : '')
         )
         shop.reduce_web_push_balance!
+      rescue Webpush::InvalidSubscription => e
+        client.clear_web_push_subscription!
+        Rollbar.warn e
       rescue Exception => e
         Rollbar.error e
         return false
