@@ -12,6 +12,9 @@ Rees46Api::Application.routes.draw do
   # Проверка валидности shop_id и shop_secret
   get 'check', to: 'init#check'
 
+  # Получение shop_secret
+  get 'shop/secret', to: 'init#secret'
+
   # Запрос рекомендаций
   get 'recommend', to: 'recommendations#get'
   post 'recommendations/batch'

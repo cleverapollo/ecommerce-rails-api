@@ -59,4 +59,15 @@ class InitController < ApplicationController
     render json: response
   end
 
+  # Возвращает секретного ключа магазина которого позволит использовать синхронизацию заказов в облачных CMS.
+  # Ключ будет использоваться только нами и не предназначен для передачи магазинам.
+  # http://y.mkechinov.ru/issue/REES-2751
+  def secret
+    unless params[:admin_key] == 'y0Gs9P542vZb9h4gTNeQ16cATjXq07DyEz1itaiV4QJ2t4MKkoqJeVTGqDeTXS3i'
+      render(nothing: true, status: 400) and return false
+    end
+
+    render json: response = { shop_secret: @shop.secret }
+  end
+
 end
