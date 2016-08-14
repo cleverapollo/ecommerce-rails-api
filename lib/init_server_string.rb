@@ -71,6 +71,7 @@ module InitServerString
     # @param shop [Shop]
     # @return Array
     def get_sync_pixels(session, shop)
+      return [] # Отключено, потому что смущают магазины. А массивных продаж данных пока нет.
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
         if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < Date.current
