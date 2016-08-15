@@ -43,7 +43,19 @@ class OrdersSyncWorker
 
         end
 
+        # Отмечаем дату последней синхронизации заказов и сообщаем об этом в Slack
+        if @current_shop.last_orders_sync.nil?
+          begin
+            notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Shop #{shop.id}", http_options: { open_timeout: 1 }
+            notifier.ping("Just got first orders statuses sync. https://rees46.com/shops/#{@current_shop.id}")
+          rescue
+          end
+        end
+        @current_shop.update last_orders_sync: Time.current
+
       end
+
+
 
     rescue OrdersSyncError => e
       email = opts['errors_to'] || @current_shop.customer.email

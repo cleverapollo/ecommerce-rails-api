@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728090043) do
+ActiveRecord::Schema.define(version: 20160815142552) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -200,7 +200,7 @@ ActiveRecord::Schema.define(version: 20160728090043) do
     t.integer  "brand_campaign_id"
   end
 
-  add_index "brand_campaign_statistics", ["brand_campaign_id", "date"], name: "index_brand_campaign_statistics_on_brand_campaign_id_and_date", using: :btree
+  add_index "brand_campaign_statistics", ["brand_campaign_id", "date"], name: "index_brand_campaign_statistics_on_brand_campaign_id_and_date", unique: true, using: :btree
 
   create_table "brand_campaign_statistics_events", force: :cascade do |t|
     t.integer  "brand_campaign_statistic_id",                 null: false
@@ -514,6 +514,20 @@ ActiveRecord::Schema.define(version: 20160728090043) do
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
 
+  create_table "rtb_internal_impressions", force: :cascade do |t|
+    t.string   "code"
+    t.string   "bid_id",              null: false
+    t.string   "banner"
+    t.float    "price",               null: false
+    t.string   "currency",            null: false
+    t.integer  "user_id",   limit: 8, null: false
+    t.boolean  "clicked"
+    t.boolean  "purchased"
+    t.datetime "date"
+    t.string   "domain"
+    t.string   "page"
+  end
+
   create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",                        null: false
     t.integer "user_id",  limit: 8,             null: false
@@ -674,6 +688,7 @@ ActiveRecord::Schema.define(version: 20160728090043) do
     t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
     t.integer  "web_push_balance",                          default: 0,     null: false
+    t.datetime "last_orders_sync"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -771,12 +786,6 @@ ActiveRecord::Schema.define(version: 20160728090043) do
   create_table "wear_type_dictionaries", force: :cascade do |t|
     t.string "type_name"
     t.string "word"
-  end
-
-  create_table "web_push_customer_requests", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "web_push_packet_purchases", force: :cascade do |t|
