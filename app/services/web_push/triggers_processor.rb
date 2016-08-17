@@ -21,7 +21,7 @@ class WebPush::TriggersProcessor
               shop.clients.ready_for_second_abandoned_cart_web_push(shop).find_each do |client|
                 begin
                   if trigger = trigger_detector.detect(client)
-                    WebPush::TriggerMessage.new(client, trigger).send
+                    WebPush::TriggerMessage.new(trigger, client).send
                     client.update_columns(last_web_push_sent_at: Time.now)
                     client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply
                   end
@@ -36,7 +36,7 @@ class WebPush::TriggersProcessor
             shop.clients.ready_for_web_push_trigger(shop).find_each do |client|
               begin
                 if trigger = trigger_detector.detect(client)
-                  WebPush::TriggerMessage.new(client, trigger).send
+                  WebPush::TriggerMessage.new(trigger, client).send
                   client.update_columns(last_web_push_sent_at: Time.now)
                   client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply
                 end
