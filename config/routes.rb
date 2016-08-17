@@ -99,6 +99,9 @@ Rees46Api::Application.routes.draw do
       post :decline
       # Отправить тестовое сообщение
       get :send_test
+
+      get :safari_webpush
+      post :create_safari_zip
     end
   end
 

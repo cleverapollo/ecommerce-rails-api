@@ -175,6 +175,7 @@ GEM
     method_source (0.8.2)
     mime-types (1.25.1)
     mimemagic (0.3.2)
+    mini_magick (4.5.1)
     mini_portile2 (2.0.0)
     minitest (5.9.0)
     moped (1.5.3)
@@ -225,6 +226,8 @@ GEM
     pry-stack_explorer (0.4.9.2)
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
+    push_package (0.5.1)
+      rubyzip (~> 1.1, >= 1.1.0)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -295,6 +298,7 @@ GEM
       rspec (~> 3.0, >= 3.0.0)
       sidekiq (>= 2.4.0)
     rspec-support (3.1.2)
+    rubyzip (1.2.0)
     sidekiq (4.1.4)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
@@ -388,6 +392,7 @@ DEPENDENCIES
   jazz_hands!
   letter_opener (~> 1.2.0)
   liquid
+  mini_magick (~> 4.5.1)
   net-sftp
   newrelic_moped
   newrelic_rpm
@@ -396,6 +401,7 @@ DEPENDENCIES
   pg (~> 0.18.1)
   postgres-copy
   pry
+  push_package (~> 0.5.1)
   rack-utf8_sanitizer (~> 1.2.3)
   rails (= 4.2.5)
   rails-api (= 0.4.0)

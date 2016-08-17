@@ -22,6 +22,7 @@ config/unicorn.rb
 
 # Ignore coverage reports
 /coverage
+/public/webpush_safari_files
 
 # Ignore NGINX sharding configs
 /nginx_mapping
