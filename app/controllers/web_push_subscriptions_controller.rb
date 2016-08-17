@@ -3,7 +3,7 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test, :decline, :create_safari_zip, :safari_webpush]
+  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test, :decline, :safari_webpush, :delete_safari_webpush]
   before_action :fetch_user, only: [:create, :unsubscribe, :send_test, :decline]
 
   # Подписка на пуш-уведомления
@@ -91,16 +91,16 @@ class WebPushSubscriptionsController < ApplicationController
   end
 
   def safari_webpush
-    if params[:type] == '/v1/pushPackages/web.rees46.com'
-      path = "#{Rails.root}/public/webpush_safari_files/#{@shop.uniqid}.zip"
-      send_data open(path).read, filename: @shop.uniqid, type: 'application/zip' if File.exist?(path)
+    if params[:type] == "/v1/log"
+      render text: 'Log error'
+    else
+      render text: params[:type]
     end
   end
 
-  def create_safari_zip
-    WebPushSafariSettings.perform_async(@shop.id)
+  def delete_safari_webpush
+    render text: params[:type]
   end
-
 
   protected
 

@@ -43,7 +43,6 @@ gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
 gem 'liquid'
-gem 'mini_magick', '~> 4.5.1'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -61,9 +60,6 @@ gem 'paperclip'#, '~> 4.3.7'
 gem 'brb', '~> 0.3.1'
 gem "rees46_ml", path: "vendor/gems/rees46_ml"
 gem "size_tables", path: "vendor/gems/size_tables"
-
-# Web-push notifications for safari
-gem 'push_package', '~>0.5.1'
 
 group :development do
   gem 'stackprof'

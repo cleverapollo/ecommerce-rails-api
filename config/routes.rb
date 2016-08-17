@@ -100,8 +100,8 @@ Rees46Api::Application.routes.draw do
       # Отправить тестовое сообщение
       get :send_test
 
-      get :safari_webpush
-      post :create_safari_zip
+      post :safari_webpush
+      delete :safari_webpush, to: 'web_push_subscriptions#delete_safari_webpush'
     end
   end
 

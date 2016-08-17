@@ -11,7 +11,7 @@ set :ssh_options,     {forward_agent: true}
 set :use_sudo,        false
 set :keep_releases, 20
 set :linked_files, %w(config/database.yml config/secrets.yml config/unicorn.rb config/application.yml)
-set :linked_dirs, %w(tmp/sockets tmp/ymls log tmp/pids tmp/cache vendor/bundle tmp/optivo_mytoys nginx_mapping public/webpush_safari_files)
+set :linked_dirs, %w(tmp/sockets tmp/ymls log tmp/pids tmp/cache vendor/bundle tmp/optivo_mytoys nginx_mapping)
 
 set :normalize_asset_timestamps, false
 
