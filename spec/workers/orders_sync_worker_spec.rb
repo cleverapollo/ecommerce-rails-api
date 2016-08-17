@@ -65,4 +65,10 @@ describe OrdersSyncWorker do
     expect(customer.balance).to eq( 100 )
   end
 
+  it 'saves last orders sync date' do
+    expect(shop.last_orders_sync).to eq nil
+    OrdersSyncWorker.new.perform(params)
+    expect(shop.reload.last_orders_sync).to_not eq nil
+  end
+
 end

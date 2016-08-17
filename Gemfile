@@ -32,6 +32,7 @@ gem 'newrelic_rpm'
 gem 'newrelic_moped'
 gem 'god'
 gem 'webpush'
+gem 'slack-notifier'
 
 # Tools
 gem 'foreman', '~> 0.63.0'

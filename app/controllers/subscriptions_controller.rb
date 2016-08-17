@@ -70,7 +70,10 @@ class SubscriptionsController < ApplicationController
 
         # Подписываем пользователя на триггер
         begin
+          # notifier = nil
+          # notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Shop #{shop.id}", http_options: { open_timeout: 1 } unless SubscribeForProductPrice.where(shop_id: shop.id).exists?
           TriggerMailings::SubscriptionForProduct.subscribe_for_price shop, @user, item, client.location
+          # notifier.ping("Just got first subscription for product price. https://rees46.com/shops/#{shop.id}") if !notifier.nil? && Rails.env == 'production'
         rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
           render json: {}, code: 400
         end
@@ -112,7 +115,10 @@ class SubscriptionsController < ApplicationController
 
           # Подписываем пользователя на триггер
           begin
+            # notifier = nil
+            # notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Shop #{shop.id}", http_options: { open_timeout: 1 } unless SubscribeForProductAvailable.where(shop_id: shop.id).exists?
             TriggerMailings::SubscriptionForProduct.subscribe_for_available shop, @user, item
+            # notifier.ping("Just got first subscription for product available. https://rees46.com/shops/#{shop.id}") if !notifier.nil? && Rails.env == 'production'
           rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
             render json: {}, code: 400
           end
