@@ -3,7 +3,7 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test, :decline]
+  before_action :fetch_shop, only: [:create, :unsubscribe, :send_test, :decline, :safari_webpush, :delete_safari_webpush]
   before_action :fetch_user, only: [:create, :unsubscribe, :send_test, :decline]
 
   # Подписка на пуш-уведомления
@@ -90,7 +90,17 @@ class WebPushSubscriptionsController < ApplicationController
     end
   end
 
+  def safari_webpush
+    if params[:type] == "/v1/log"
+      render text: 'Log error'
+    else
+      render text: params[:type]
+    end
+  end
 
+  def delete_safari_webpush
+    render text: params[:type]
+  end
 
   protected
 
