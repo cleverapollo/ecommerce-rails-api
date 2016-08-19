@@ -33,8 +33,6 @@ class WebPushDigestBatchWorker
       @current_client = client
       @batch.update current_processed_client_id: @current_client.id
 
-      @current_web_push_digest_message = @batch.web_push_digest_messages.create!(shop: @shop, client: @current_client, web_push_digest: @mailing).reload
-
       # Отправляем сообщение
       WebPush::DigestMessage.new(client, @mailing, @batch).send
 
