@@ -91,15 +91,21 @@ class WebPushSubscriptionsController < ApplicationController
   end
 
   def safari_webpush
+    logger.info(params)
     if params[:type] == "/v1/log"
-      render text: 'Log error'
+      render nothing: true, status: 200
     else
-      render text: params[:type]
+      render nothing: true, status: 200
     end
   end
 
   def delete_safari_webpush
+    logger.info(params)
     render text: params[:type]
+  end
+
+  def logger
+    @@logger ||= Logger.new("#{Rails.root}/log/safari.log")
   end
 
   protected
