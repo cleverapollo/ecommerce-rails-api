@@ -54,7 +54,7 @@ describe 'Pushing an event for rtb' do
     }
     post '/push', params2
     expect(response.body).to eq({ status: 'success' }.to_json)
-    rtb_jobs = RtbJob.all
+    rtb_jobs = RtbJob.active
     expect(rtb_jobs.count).to eq(1)
 
   end
@@ -65,7 +65,7 @@ describe 'Pushing an event for rtb' do
     params2[:is_available] = [1,1,1,1]
     post '/push', @params
     expect(response.body).to eq({ status: 'success' }.to_json)
-    rtb_jobs = RtbJob.all
+    rtb_jobs = RtbJob.active
     expect(rtb_jobs.count).to eq(2)
 
     params2 = {
@@ -79,7 +79,7 @@ describe 'Pushing an event for rtb' do
     }
     post '/push', params2
     expect(response.body).to eq({ status: 'success' }.to_json)
-    rtb_jobs = RtbJob.all
+    rtb_jobs = RtbJob.active
     expect(rtb_jobs.count).to eq(0)
   end
 

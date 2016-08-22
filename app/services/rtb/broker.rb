@@ -32,9 +32,9 @@ module Rtb
     def clear(user, items = nil)
       return false unless feature_available?
       if items.is_a? Array
-        RtbJob.where(shop_id: shop.id, user_id: user.id, item_id: items.map(&:id)).delete_all
+        RtbJob.where(shop_id: shop.id, user_id: user.id, item_id: items.map(&:id)).where('active IS TRUE').update_all active: false
       else
-        RtbJob.where(shop_id: shop.id, user_id: user.id).delete_all
+        RtbJob.where(shop_id: shop.id, user_id: user.id).where('active IS TRUE').update_all active: false
       end
       nil
     end

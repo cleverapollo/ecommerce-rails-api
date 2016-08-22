@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160815142552) do
+ActiveRecord::Schema.define(version: 20160822082139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -529,18 +529,22 @@ ActiveRecord::Schema.define(version: 20160815142552) do
   end
 
   create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",                        null: false
-    t.integer "user_id",  limit: 8,             null: false
-    t.integer "item_id",  limit: 8,             null: false
-    t.integer "counter",            default: 0, null: false
+    t.integer "shop_id",                           null: false
+    t.integer "user_id",  limit: 8,                null: false
+    t.integer "item_id",  limit: 8,                null: false
+    t.integer "counter",            default: 0,    null: false
     t.date    "date"
     t.string  "image"
     t.float   "price"
     t.string  "url"
     t.string  "currency"
     t.string  "name"
+    t.boolean "active",             default: true, null: false
   end
 
+  add_index "rtb_jobs", ["active", "date", "user_id"], name: "index_rtb_jobs_on_active_and_date_and_user_id", where: "(active IS TRUE)", using: :btree
+  add_index "rtb_jobs", ["date", "counter"], name: "index_rtb_jobs_on_date_and_counter", where: "(counter = 0)", using: :btree
+  add_index "rtb_jobs", ["shop_id", "date"], name: "index_rtb_jobs_on_shop_id_and_date", using: :btree
   add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
   add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
   add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
