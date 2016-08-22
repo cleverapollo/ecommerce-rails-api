@@ -50,7 +50,7 @@ class Shop < MasterTable
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
 
-  scope :with_valid_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''").where("yml_errors < 5" ).where('last_valid_yml_file_loaded_at IS NOT NULL') }
+  scope :with_valid_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''").where("yml_errors < 5" ) }
   scope :with_yml_processed_recently, -> { where('last_valid_yml_file_loaded_at IS NOT NULL') }
   scope :with_enabled_triggers, -> { where(id: TriggerMailing.where(enabled: true).pluck(:shop_id).uniq ) }
   scope :with_enabled_web_push_triggers, -> { where(id: WebPushTrigger.where(enabled: true).pluck(:shop_id).uniq ) }
