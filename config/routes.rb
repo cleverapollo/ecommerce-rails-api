@@ -102,6 +102,8 @@ Rees46Api::Application.routes.draw do
 
       post :safari_webpush
       post 'safari_webpush/:type', to: 'web_push_subscriptions#safari_webpush'
+      get 'safari_webpush/*type', to: 'web_push_subscriptions#safari_webpush'
+
       delete :safari_webpush, to: 'web_push_subscriptions#delete_safari_webpush'
     end
   end
