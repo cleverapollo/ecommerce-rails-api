@@ -28,9 +28,7 @@ class WebPush::Sender
             url_args: ['']
           )
 
-
-          # Отправка веб-пушей
-          # pusher_config.push(notification)
+          pusher_config.push(notification)
 =end
         rescue Webpush::InvalidSubscription => e
           client.clear_web_push_subscription!
