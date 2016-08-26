@@ -33,6 +33,7 @@ gem 'newrelic_moped'
 gem 'god'
 gem 'webpush'
 gem 'slack-notifier'
+gem 'grocer' # webpush safari
 
 # Tools
 gem 'foreman', '~> 0.63.0'

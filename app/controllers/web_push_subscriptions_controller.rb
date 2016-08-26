@@ -19,20 +19,29 @@ class WebPushSubscriptionsController < ApplicationController
       render text: 'Invalid JSON data', code: 400
       return
     end
-    if token.present? && token[:endpoint].present? && token[:keys].present?
-      client.web_push_token = token
-      if token[:endpoint] =~ /google.com/
-        client.web_push_browser = 'chrome'
-      end
-      if token[:endpoint] =~ /mozilla.com/
-        client.web_push_browser = 'firefox'
+    if token.present?
+      if token[:endpoint].present? && token[:keys].present?
+        client.web_push_token = token
+        if token[:endpoint] =~ /google.com/
+          client.web_push_browser = 'chrome'
+        end
+        if token[:endpoint] =~ /mozilla.com/
+          client.web_push_browser = 'firefox'
+        end
+      elsif token[:browser] == 'safari'
+        client.web_push_token = token
+        client.web_push_browser = token[:browser]
+      else
+        render text: 'Token does not have right format', code: 400
+        return
       end
       client.web_push_enabled = true
       client.web_push_subscription_popup_showed = true
       client.accepted_web_push_subscription = true
+
       client.save
     else
-      render text: 'Token does not contain endpoint or keys', code: 400
+      render text: 'Token does not exsist', code: 400
       return
     end
     render json: {}
@@ -94,8 +103,8 @@ class WebPushSubscriptionsController < ApplicationController
     logger.info(params)
     logger.info(request.raw_post)
 
-    if params[:type] == '/v1/pushPackages/web.com.rees46'
-      redirect_to "https://rees46.com/webpush_safari_files/#{params[:shop_id]}.zip" and return
+    if params[:type].include?('/v1/devices/') && params[:type].include?('/registrations/web.com.rees46')
+      render json: { token:  params[:type].gsub(/(^.+devices\/)(.+)(\/registrations.+)/, '\2')} , status: 200
     elsif params[:type] == '/v1/log'
       render nothing: true, status: 200
     else
