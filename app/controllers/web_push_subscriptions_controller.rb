@@ -92,7 +92,11 @@ class WebPushSubscriptionsController < ApplicationController
 
   def safari_webpush
     logger.info(params)
-    if params[:type] == "/v1/log"
+    logger.info(request.raw_post)
+
+    if params[:type] == '/v1/pushPackages/web.com.rees46'
+      redirect_to "https://rees46.com/webpush_safari_files/#{params[:shop_id]}.zip" and return
+    elsif params[:type] == '/v1/log'
       render nothing: true, status: 200
     else
       render nothing: true, status: 200
