@@ -39,7 +39,11 @@ class InitController < ApplicationController
       client = Client.find_by!(user_id: session.user_id, shop_id: shop.id)
     end
 
-    render js: InitServerString.make(shop: shop, session: session, client: client)
+    if params[:v] == '3'
+      render js: InitServerString.make_v3(shop: shop, session: session, client: client)
+    else
+      render js: InitServerString.make(shop: shop, session: session, client: client)
+    end
   end
 
   def init_experiment

@@ -173,7 +173,7 @@ class DigestMailingBatchWorker
 
     template = @mailing.liquid_template.dup
     data = {
-      recommended_items: items.map { |item| item_for_letter(item, location, track_email) },
+      recommended_items: items.map { |item| item_for_letter(item, location, track_email, @mailing.image_width, @mailing.image_height) },
       utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
       logo_url: (@settings.fetch_logo_url.blank? ? '' : @settings.fetch_logo_url),
       footer: Mailings::Composer.footer(email: @current_client.try(:email) || email, tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url, unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url),
@@ -196,9 +196,10 @@ class DigestMailingBatchWorker
   # @param item [Item] товар.
   # @param location [String] Код локации для локальной цены
   # @param track_email [String] Зашифрованный емейл для склеивания юзера после перехода
+  # @param width [Image] Зашифрованный емейл для склеивания юзера после перехода
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
   # @return [Hash] обертка.
-  def item_for_letter(item, location, track_email = "")
+  def item_for_letter(item, location, track_email = "", width = nil, height = nil)
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
@@ -214,7 +215,7 @@ class DigestMailingBatchWorker
                                              rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test',
                                              r46_merger: track_email
                                         ),
-      image_url: item.image_url,
+      image_url: (width && height ? item.resized_image(width, height) : item.image_url),
       currency: item.shop.currency,
       id: item.uniqid.to_s,
       barcode: item.barcode.to_s,

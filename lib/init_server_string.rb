@@ -65,6 +65,18 @@ module InitServerString
     end
 
 
+    # Строка инициализации для API v3
+    def make_v3(options = {})
+      shop = options.fetch(:shop)
+      session = options.fetch(:session)
+      client = options.fetch(:client)
+      result = ''
+      result += "r46('store', 'primary', )"
+
+      result
+    end
+
+
 
     # Get array of syncronization pixels for DMP.
     # @param session [Session]

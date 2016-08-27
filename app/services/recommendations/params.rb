@@ -231,7 +231,7 @@ module Recommendations
     def extract_cart
       [:cart_item_id].each do |key|
         unless raw[key].is_a?(Array)
-          raw[key] = raw[key].to_a.map(&:last)
+          raw[key] = [raw[key]]
         end
       end
 

@@ -32,6 +32,35 @@ describe Recommendations::Params do
   end
 
 
+  describe '.extract cart_item_id' do
+    let(:params) do
+      {
+          ssid: session.code,
+          shop_id: shop.uniqid,
+          recommender_type: 'interesting',
+          cart_item_id: ['1','2']
+      }
+    end
+    let!(:item_1) { create(:item, shop: shop, uniqid: '1' )}
+    let!(:item_2) { create(:item, shop: shop, uniqid: '2' )}
+
+    it 'extracts cart_item_id when it is array' do
+      expect(subject.cart_item_ids.sort).to eq([item_1.id, item_2.id])
+    end
+
+    it 'extracts cart_item_id when it is single value' do
+      params[:cart_item_id] = item_1.uniqid
+      expect(subject.cart_item_ids.sort).to eq([item_1.id])
+    end
+
+    it 'extracts empty cart without error' do
+      params[:cart_item_id] = ''
+      expect(subject.cart_item_ids.sort).to eq([])
+    end
+
+  end
+
+
   describe '.extract by email' do
     let(:client) { create(:client, user: user, email: 'kechinoff@gmail.com', shop: shop) }
 

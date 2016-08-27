@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160803165113) do
+ActiveRecord::Schema.define(version: 20160826130627) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,6 +193,8 @@ ActiveRecord::Schema.define(version: 20160803165113) do
     t.integer  "activity_segment"
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
+    t.integer  "image_width",                             default: 180
+    t.integer  "image_height",                            default: 180
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
