@@ -154,6 +154,7 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
+    grocer (0.7.0)
     hirb (0.7.3)
     hkdf (0.2.0)
     httparty (0.13.7)
@@ -385,6 +386,7 @@ DEPENDENCIES
   foreman (~> 0.63.0)
   gmail!
   god
+  grocer
   httparty
   jazz_hands!
   letter_opener (~> 1.2.0)
