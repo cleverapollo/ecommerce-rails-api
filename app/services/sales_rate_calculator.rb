@@ -55,8 +55,8 @@ class SalesRateCalculator
       # Магазины без данных пропускаем – векторы без значений не могут быть нормализованы, поэтому далее просто обнулятся текущие оценки и все
       if items.length > 0
 
-        # Нормализуем цены
-        v_price = Vector.elements(items.map { |t| t[:price].to_i })
+        # Нормализуем цены (умножаем на 100, потому что бывают товары дешевле рубля)
+        v_price = Vector.elements(items.map { |t| (t[:price] * 100.0).to_i })
         v_price_norm = v_price.normalize
 
         # Нормализуем покупки
