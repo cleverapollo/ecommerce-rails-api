@@ -70,9 +70,56 @@ module InitServerString
       shop = options.fetch(:shop)
       session = options.fetch(:session)
       client = options.fetch(:client)
-      result = ''
-      result += "r46('store', 'primary', )"
-
+      result = {
+          ssid: session.code,
+          currency: shop.currency,
+          profile: session.user.profile_to_json,
+          emailSubscription: {
+            settings: if shop.subscriptions_enabled? && client.email.blank?
+                        {
+                            enabled: shop.subscriptions_settings.enabled,
+                            overlay: shop.subscriptions_settings.overlay,
+                            header: shop.subscriptions_settings.header,
+                            text: shop.subscriptions_settings.text,
+                            button: shop.subscriptions_settings.button,
+                            agreement: shop.subscriptions_settings.agreement,
+                            remote_picture_url: shop.subscriptions_settings.remote_picture_url
+                        }
+                      else
+                        nil
+                      end,
+            status: if client.accepted_subscription == true
+                      'accepted'
+                    elsif client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true
+                      'declined'
+                    else
+                      nil
+                    end
+          },
+          webPushSubscription: {
+              settings: if shop.web_push_subscriptions_enabled?
+                          {
+                              enabled: shop.web_push_subscriptions_settings.enabled,
+                              overlay: shop.web_push_subscriptions_settings.overlay,
+                              header: shop.web_push_subscriptions_settings.header,
+                              text: shop.web_push_subscriptions_settings.text,
+                              button: shop.web_push_subscriptions_settings.button,
+                              agreement: shop.web_push_subscriptions_settings.agreement,
+                              manual_mode: shop.web_push_subscriptions_settings.manual_mode,
+                              remote_picture_url: shop.web_push_subscriptions_settings.remote_picture_url
+                          }
+                          else
+                            nil
+                        end,
+              status: if client.web_push_enabled
+                        'accepted'
+                      elsif client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true
+                        'declined'
+                      else
+                        nil
+                      end
+          }
+      }
       result
     end
 

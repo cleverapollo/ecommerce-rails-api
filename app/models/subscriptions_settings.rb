@@ -21,6 +21,14 @@ class SubscriptionsSettings < ActiveRecord::Base
     picture_file_name.present?
   end
 
+  # Returns URL to subscription image or nil
+  # @return String|nil
+  def remote_picture_url
+    picture_file_name.present? ? "#{Rees46.site_url.gsub('http:', '')}#{picture.url(:original)}" : nil
+  end
+
+
+
   # def picture_url
   #   "#{Rees46.site_url}/subscription_picture/#{shop.uniqid}"
   # end

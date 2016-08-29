@@ -40,7 +40,7 @@ class InitController < ApplicationController
     end
 
     if params[:v] == '3'
-      render js: InitServerString.make_v3(shop: shop, session: session, client: client)
+      render json: InitServerString.make_v3(shop: shop, session: session, client: client)
     else
       render js: InitServerString.make(shop: shop, session: session, client: client)
     end
