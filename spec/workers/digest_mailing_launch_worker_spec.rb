@@ -28,9 +28,19 @@ describe DigestMailingLaunchWorker do
     end
 
     context 'common mode' do
+      let(:test_email) { 'test@rees46demo.com' }
+      let(:params_test_email) { base_params.merge({ 'test_email' => test_email }) }
       let(:params) { base_params }
       let!(:client1) { create(:client, :with_email, shop: shop) }
       let!(:client2) { create(:client, :with_email, shop: shop) }
+
+      it 'creates test batch and common batch at once' do
+        described_class.new.perform(params_test_email)
+        described_class.new.perform(params)
+
+        batch_counter = mailing.batches.count
+        expect(batch_counter).to eq(2)
+      end
 
       it 'creates common batch' do
         subject
