@@ -11,6 +11,7 @@ class DigestMailingBatch < ActiveRecord::Base
   has_many :digest_mails
 
   scope :incomplete, -> { where(completed: false) }
+  scope :not_test, -> { where(test_email: nil) }
 
   validates :mailing, presence: true
   validates :shop_id, presence: true
