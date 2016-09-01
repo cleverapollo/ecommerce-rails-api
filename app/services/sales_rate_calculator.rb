@@ -36,7 +36,9 @@ class SalesRateCalculator
       # Находим экшны проданных за 3 месяца товаров и группируем продажи по этим товарам
       # Слабое место в суммировании рейтинга, т.к. бывают товары очень дорогие (1.5М рублей), на которые много кто смотрит, но никто не покупает. И у них рейтинг выше среднего.
       # sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count, 0) + COALESCE(rating, 0)')
-      sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum('COALESCE(purchase_count, 0)')
+      # sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum('COALESCE(purchase_count, 0)')
+      # Работаем с историей заказов, а не actions, т.к. actions не учитывает историю заказов.
+      sales_data = OrderItem.where(order_id: Order.select(:id).where(shop_id: shop.id).where('date >= ?', 3.months.ago)).group(:item_id).sum('COALESCE(amount, 0)')
 
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
