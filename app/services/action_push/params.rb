@@ -221,9 +221,6 @@ module ActionPush
           end
         end
 
-
-        attributes = raw[:attributes][i].present? ? JSON.parse(raw[:attributes][i]) : {}
-
         @items << Item.fetch(shop.id, item_attributes)
       end
     rescue JSON::ParserError => e
