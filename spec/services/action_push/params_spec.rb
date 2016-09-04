@@ -75,6 +75,64 @@ describe ActionPush::Params do
     end
 
 
+    context 'process source' do
+
+      let(:session)            { create(:session_with_user, code: rand(1000)) }
+      let(:user)               { session.user }
+      let(:shop)               { create(:shop, url:'http://example.com/') }
+      let(:action)             { 'view' }
+      let(:rating)             { 3 }
+      let(:item_with_slash)    { create(:item, shop: shop, url:'/item_01', image_url:'/image_01', price: 500) }
+      let(:item_without_slash) { create(:item, shop: shop, url:'item_02', image_url:'image_02', price: 700) }
+
+      let(:params) do
+        {
+            ssid: session.code,
+            event: action,
+            shop_id: shop.uniqid,
+            rating: rating,
+            item_id: [item_with_slash.id, item_without_slash.id],
+            url: [item_with_slash.url, item_without_slash.url],
+            price: [300, 499],
+            image_url: [item_with_slash.image_url, item_without_slash.image_url],
+        }
+      end
+
+      subject { ActionPush::Params.extract(params) }
+
+      it 'extracts trigger mail code' do
+        code = SecureRandom.uuid
+        params[:source] = {from: 'trigger_mail', code: code}.to_json
+        expect(subject.trigger_mail_code).to eq code
+      end
+
+      it 'extracts digest mail code' do
+        code = SecureRandom.uuid
+        params[:source] = {from: 'digest_mail', code: code}.to_json
+        expect(subject.digest_mail_code).to eq code
+      end
+
+      it 'extracts web push trigger code' do
+        code = SecureRandom.uuid
+        params[:source] = {from: 'web_push_trigger', code: code}.to_json
+        expect(subject.web_push_trigger_code).to eq code
+      end
+
+      it 'extracts web push digest code' do
+        code = SecureRandom.uuid
+        params[:source] = {from: 'web_push_digest', code: code}.to_json
+        expect(subject.web_push_digest_code).to eq code
+      end
+
+      it 'extracts remarketing code' do
+        code = SecureRandom.uuid
+        params[:source] = {from: 'r46_returner', code: code}.to_json
+        expect(subject.r46_returner_code).to eq code
+      end
+
+    end
+
+
     # TODO: решить эту проблему http://y.mkechinov.ru/issue/REES-2336
     # context 'parameters validation when shop have valid and processed YML' do
     #

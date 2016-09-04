@@ -115,7 +115,26 @@ module ActionPush
       @r46_returner_code = raw[:returner_code]
       @web_push_trigger_code = raw[:web_push_trigger_code]
       @web_push_digest_code = raw[:web_push_digest_code]
+
       @source = raw[:source].present? ? JSON.parse(raw[:source]) : nil
+
+      # Переход к нормальному трекингу источников, если пользователь изначально пришел не на товар, а на лендинг
+      # http://y.mkechinov.ru/issue/REES-2919
+      if @source
+        case @source['from']
+          when 'trigger_mail'
+            @trigger_mail_code = @source['code']
+          when 'digest_mail'
+            @digest_mail_code = @source['code']
+          when 'r46_returner'
+            @r46_returner_code = @source['code']
+          when 'web_push_trigger'
+            @web_push_trigger_code = @source['code']
+          when 'web_push_digest'
+            @web_push_digest_code = @source['code']
+        end
+      end
+
     end
 
     # Извлекает пользователя
