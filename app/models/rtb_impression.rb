@@ -5,4 +5,8 @@ class RtbImpression < MasterTable
     update_columns(clicked: true, purchased: true) unless purchased?
   end
 
+  def mark_as_clicked!
+    update_columns(clicked: true) unless clicked?
+  end
+
 end

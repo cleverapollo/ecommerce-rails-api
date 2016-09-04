@@ -37,6 +37,9 @@ FactoryGirl.define do
   end
 
   factory :digest_mail do
+    code { SecureRandom.uuid }
+    shop
+    client
   end
 
   factory :trigger_mailing do
@@ -51,6 +54,9 @@ FactoryGirl.define do
     trigger_data do
       { test: 123 }
     end
+    code { SecureRandom.uuid }
+    shop
+    client
   end
 
   factory :mailings_settings do

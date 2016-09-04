@@ -29,8 +29,21 @@ module ActionPush
       end
 
       # Обработка RTB-заказов
-      if params.action.to_sym == :purchase && params.r46_returner_code.present? && params.r46_returner_code != 'test' && rtb_impression = RtbImpression.find_by(code: params.r46_returner_code)
-        rtb_impression.mark_as_purchased!
+      if params.r46_returner_code.present? && params.r46_returner_code != 'test' && rtb_impression = RtbImpression.find_by(code: params.r46_returner_code)
+        rtb_impression.mark_as_clicked!
+        if params.action.to_sym == :purchase
+          rtb_impression.mark_as_purchased!
+        end
+      end
+
+      # Обработка веб пуш триггеров
+      if params.web_push_trigger_code.present? && params.web_push_trigger_code != 'test' && message = WebPushTriggerMessage.find_by(code: params.web_push_trigger_code)
+        message.mark_as_clicked!
+      end
+
+      # Обработка веб пуш дайджестов
+      if params.web_push_digest_code.present? && params.web_push_digest_code != 'test' && message = WebPushDigestMessage.find_by(code: params.web_push_digest_code)
+        message.mark_as_clicked!
       end
 
       # Для каждого переданного товара запускаем процессинг действия
