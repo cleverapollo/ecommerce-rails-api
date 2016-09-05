@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160826130627) do
+ActiveRecord::Schema.define(version: 20160904122123) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -178,12 +178,10 @@ ActiveRecord::Schema.define(version: 20160826130627) do
     t.integer  "shop_id",                                                    null: false
     t.string   "name",                        limit: 255,                    null: false
     t.string   "subject",                     limit: 255,                    null: false
-    t.text     "template",                                                   null: false
     t.string   "items",                       limit: 255
     t.string   "state",                       limit: 255, default: "draft",  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "item_template",                                              null: false
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
@@ -521,12 +519,9 @@ ActiveRecord::Schema.define(version: 20160826130627) do
     t.integer  "shop_id",                                                 null: false
     t.string   "trigger_type",                limit: 255,                 null: false
     t.string   "subject",                     limit: 255,                 null: false
-    t.text     "template",                                                null: false
-    t.text     "item_template",                                           null: false
     t.boolean  "enabled",                                 default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "source_item_template"
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.integer  "image_width",                             default: 180

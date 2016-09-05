@@ -28,9 +28,6 @@ module TriggerMailings
           @settings = {
             send_from: shop.mailings_settings.send_from,
             subject: mailing.subject,
-            template: mailing.template,
-            item_template: mailing.item_template,
-            source_item_template: mailing.source_item_template,
             liquid_template: mailing.liquid_template,
             amount_of_recommended_items: mailing.amount_of_recommended_items,
             image_width: mailing.image_width,

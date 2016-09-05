@@ -101,65 +101,14 @@ class DigestMailingBatchWorker
     Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
                                   from: @settings.send_from,
-                                  body: @settings.template_liquid? ? liquid_letter_body(recommendations, email, location) : letter_body(recommendations, email, location),
+                                  body: liquid_letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code),
                                   list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                   feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
   end
 
-  # Сформировать тело письма.
-  #
-  # @param items [Array] массив товаров.
-  # @param email [String] E-mail покупателя
-  # @param location [String] Код локации получателя письма для локальной цены
-  def letter_body(items, email, location)
 
-    # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
-    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s )
-
-    result = @mailing.template.dup
-
-    # Вставляем в письмо товары
-    items.each do |item|
-      item_template = @mailing.item_template.dup
-      decorated_item = item_for_letter(item, location, track_email)
-
-      decorated_item.each do |key, value|
-        if value
-          item_template.gsub!("{{ #{key} }}", value.to_s)
-          item_template.gsub!(/\{\{\s+name\s+limit=([0-9]+)\s+\}\}/) { limit = "#{$1}".to_i; (value[0,limit] + '...') } if key.to_s == 'name'
-        end
-      end
-
-      result['{{ recommended_item }}'] = item_template
-    end
-
-    # Убираем оставшиеся метки, если рекомендаций вернулось меньше, чем нужно
-    result.gsub!('{{ recommended_item }}', '')
-
-    # Убираем лишнее.
-    result.gsub!(/\{\{ user.\w+ }}/, '')
-
-    # UTM
-    utm = "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}"
-    result.gsub!('{{ utm_params }}', utm)
-
-    # Cтавим логотип
-    if MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url.blank?
-      result.sub!(/<img(.*?)<\/tr>/m," ")
-    else
-      result.gsub!('{{ logo_url }}', MailingsSettings.where(shop_id: @shop.id).first.fetch_logo_url)
-    end
-
-    # Добавляем футер
-    footer = Mailings::Composer.footer(email: @current_client.try(:email) || email,
-                                       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
-                                       unsubscribe_url: @current_client.try(:digest_unsubscribe_url) || Client.new(shop_id: @shop.id).digest_unsubscribe_url)
-    result['{{ footer }}'] = footer
-
-    result
-  end
 
   # Сформировать тело письма из ликвидного шаблона.
   #
