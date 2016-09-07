@@ -12,6 +12,8 @@ module Actions
     end
 
     def update_concrete_action_attrs
+      # Убираем товар из корзины
+      self.cart_count = 0
     end
 
     def needs_to_update_rating?

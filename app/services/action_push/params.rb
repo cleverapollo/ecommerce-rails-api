@@ -21,6 +21,8 @@ module ActionPush
     attr_accessor :shop
     # Пользователь
     attr_accessor :user
+    # Клиент
+    attr_accessor :client
     # Название действия
     attr_accessor :action
     # Рейтинг (только для действия rate)
@@ -147,6 +149,7 @@ module ActionPush
                                      shop: shop,
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
+      @client = @user.clients.find_by(shop_id: shop.id)
     end
 
 
