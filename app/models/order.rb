@@ -22,7 +22,7 @@ class Order < ActiveRecord::Base
 
   class << self
     # Сохранить заказ
-    def persist(shop, user, uniqid, items, source = {})
+    def persist(shop, user, uniqid, items, source = {}, order_price = nil)
 
       # Иногда событие заказа приходит несколько раз
       return nil if duplicate?(shop, user, uniqid, items)
@@ -46,7 +46,7 @@ class Order < ActiveRecord::Base
       end
 
       # Расчитываем суммы по заказу
-      values = order_values(shop, user, items, source.present?)
+      values = order_values(shop, user, items, source.present?, order_price)
 
       # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
       return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
@@ -71,7 +71,7 @@ class Order < ActiveRecord::Base
     end
 
     # Расчет сумм по заказу
-    def order_values(shop, user, items, force_recommended = false)
+    def order_values(shop, user, items, force_recommended = false, remote_order_price = nil)
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
@@ -82,7 +82,11 @@ class Order < ActiveRecord::Base
         end
       end
 
-      result[:value] = result[:common_value] + result[:recommended_value]
+      if remote_order_price && remote_order_price > 0
+        result[:value] = remote_order_price
+      else
+        result[:value] = result[:common_value] + result[:recommended_value]
+      end
 
       result
     end

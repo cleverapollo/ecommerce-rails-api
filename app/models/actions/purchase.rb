@@ -9,7 +9,7 @@ module Actions
     class << self
       # Сохранение объекта заказа
       def mass_process(params)
-        Order.persist(params.shop, params.user, params.order_id, params.items, params.source)
+        Order.persist(params.shop, params.user, params.order_id, params.items, params.source, params.order_price)
       end
     end
 

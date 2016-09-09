@@ -10,10 +10,11 @@ describe Order do
       allow(OrderItem).to receive(:persist)
     end
 
-    subject { Order.persist(shop, user, '123', [sample_item] ) }
+    subject { Order.persist(shop, user, '123', [sample_item], nil, 18000 ) }
 
     it 'creates order' do
       expect{ subject }.to change(Order, :count).from(0).to(1)
+      expect( Order.first.value ).to eq 18000
     end
 
     it 'creates order items' do

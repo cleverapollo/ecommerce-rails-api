@@ -20,7 +20,9 @@ describe ActionPush::Params do
           item_id: [item_with_slash.id, item_without_slash.id],
           url: [item_with_slash.url, item_without_slash.url],
           price: [300, 499],
-          image_url: [item_with_slash.image_url, item_without_slash.image_url]
+          image_url: [item_with_slash.image_url, item_without_slash.image_url],
+          order_id: 111,
+          order_price: 333
         }
       end
 
@@ -41,6 +43,8 @@ describe ActionPush::Params do
       it { expect(subject.items[1].image_url).to eq('http://example.com/image_02') }
       it { expect(subject.items[0].price).to eq(300) }
       it { expect(subject.items[1].price).to eq(499) }
+      it { expect(subject.order_id).to eq(111) }
+      it { expect(subject.order_price).to eq(333) }
 
       context 'without ssid' do
         subject { ActionPush::Params.extract(params.except(:ssid)) }
