@@ -114,7 +114,7 @@ module ActionPush
       @rating = raw[:rating].present? ? raw[:rating].to_i : nil
       @recommended_by = raw[:recommended_by]
       @order_id = raw[:order_id]
-      @order_price = raw[:order_price]
+      @order_price = raw[:order_price].to_f
       @trigger_mail_code = raw[:trigger_mail_code]
       @digest_mail_code = raw[:digest_mail_code]
       @r46_returner_code = raw[:returner_code]
