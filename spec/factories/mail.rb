@@ -21,8 +21,7 @@ FactoryGirl.define do
   factory :digest_mailing do
     name 'Test'
     subject 'Test'
-    template 'Test {{ recommended_item }} {{ footer }}'
-    item_template '{{ name }}{{ url }}'
+    liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{footer}}'
     state 'started'
   end
 
@@ -45,8 +44,6 @@ FactoryGirl.define do
   factory :trigger_mailing do
     trigger_type 'abandoned_cart'
     subject 'test'
-    template 'Test {{ recommended_item }} {{ footer }}'
-    item_template '{{ name }}{{ url }}'
     liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{footer}}'
   end
 

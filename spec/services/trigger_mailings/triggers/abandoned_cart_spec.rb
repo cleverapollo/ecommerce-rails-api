@@ -18,8 +18,8 @@ describe TriggerMailings::Triggers::AbandonedCart do
 
     let!(:action) { create(:action, shop: shop, user: user, item: item_1, rating: Actions::Cart::RATING, cart_date: 2.hours.ago, cart_count: 2) }
 
-    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', template: '{{ source_item }}{{ source_item }}{{ source_item }}{{ recommended_item }}{{ recommended_item }}{{ recommended_item }}{{ feedback_button_link }}', item_template: '{{ url }}{{ image_url }}{{ description }}{{ currency }}{{ price }}', enabled: true, source_item_template: '{{ url }}{{ name }}{{ image_url }}{{ price }}') }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_DEFAULT) }
+    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', enabled: true) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
 
     subject { TriggerMailings::Triggers::AbandonedCart.new(client) }
 
@@ -52,8 +52,8 @@ describe TriggerMailings::Triggers::AbandonedCart do
 
     let!(:action) { create(:action, shop: shop, user: user, item: item_1, rating: Actions::Cart::RATING, cart_date: 2.hours.ago, cart_count: 2) }
 
-    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', template: '{{ source_item }}{{ source_item }}{{ source_item }}{{ recommended_item }}{{ recommended_item }}{{ recommended_item }}{{ feedback_button_link }}', item_template: '{{ url }}{{ image_url }}{{ description }}{{ currency }}{{ price }}', enabled: true, source_item_template: '{{ url }}{{ name }}{{ image_url }}{{ price }}') }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_DEFAULT) }
+    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', enabled: true) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
 
     subject { TriggerMailings::Triggers::AbandonedCart.new client  }
 

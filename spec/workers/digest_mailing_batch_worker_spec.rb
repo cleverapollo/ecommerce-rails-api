@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop) }
-  let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_DEFAULT) }
+  let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@rees46demo.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
@@ -85,7 +85,7 @@ describe DigestMailingBatchWorker do
       s.current_digest_mail = digest_mail
       s.mailing = mailing
       s.perform(batch.id)
-      s.letter_body([item], 'test@rees46demo.com', nil)
+      s.liquid_letter_body([item], 'test@rees46demo.com', nil)
     end
 
     it 'returns string' do

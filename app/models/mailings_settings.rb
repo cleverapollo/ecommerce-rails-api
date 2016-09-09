@@ -8,7 +8,6 @@ class MailingsSettings < ActiveRecord::Base
   MAILING_SERVICE_GETRESPONSE = 1
   MAILING_SERVICE_OPTIVO_MYTOYS = 2
 
-  TEMPLATE_DEFAULT = 0
   TEMPLATE_LIQUID = 1
 
   belongs_to :shop
