@@ -3,10 +3,11 @@
 #
 class MailingsSettings < ActiveRecord::Base
 
-  MAILING_SERVICES = [['REES46', 0], ['GetResponse', 1], ['Optivo for MyToys', 2]]
+  MAILING_SERVICES = [['REES46', 0], ['GetResponse', 1], ['Optivo for MyToys', 2], ['MailChimp', 3]]
   MAILING_SERVICE_REES46 = 0
   MAILING_SERVICE_GETRESPONSE = 1
   MAILING_SERVICE_OPTIVO_MYTOYS = 2
+  MAILING_SERVICE_MAILCHIMP = 3
 
   TEMPLATE_LIQUID = 1
 
@@ -34,6 +35,11 @@ class MailingsSettings < ActiveRecord::Base
   # @return Boolean
   def is_optivo_for_mytoys?
     mailing_service == MAILING_SERVICE_OPTIVO_MYTOYS
+  end
+
+  # Проверяет, настроен ли внешний сервис рассылок MailChimp
+  def external_mailchimp?
+    mailing_service == MAILING_SERVICE_MAILCHIMP && mailchimp_api_key.present?
   end
 
   def template_liquid?

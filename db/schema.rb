@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160904122123) do
+ActiveRecord::Schema.define(version: 20160909095844) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -344,6 +344,7 @@ ActiveRecord::Schema.define(version: 20160904122123) do
     t.string   "getresponse_api_key"
     t.string   "getresponse_api_url"
     t.integer  "template_type",                   default: 1
+    t.string   "mailchimp_api_key"
   end
 
   create_table "order_items", id: :bigserial, force: :cascade do |t|
