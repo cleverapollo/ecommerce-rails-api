@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160909130529) do
+ActiveRecord::Schema.define(version: 20160912122709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -529,6 +529,7 @@ ActiveRecord::Schema.define(version: 20160909130529) do
     t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.integer  "image_width",                             default: 180
     t.integer  "image_height",                            default: 180
+    t.string   "mailchimp_campaign_id"
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree
