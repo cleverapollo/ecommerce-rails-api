@@ -64,7 +64,9 @@ module ActionPush
       concrete_action_class.mass_process(params)
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров
-      ProfileEvent.track_items params.user, params.shop, params.action, params.items
+      if params.items.any?
+        ProfileEvent.track_items params.user, params.shop, params.action, params.items
+      end
 
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)

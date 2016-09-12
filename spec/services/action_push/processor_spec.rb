@@ -45,6 +45,20 @@ describe ActionPush::Processor do
       expect(UserTaxonomy.where(user_id: @user.id).count).to eq(2)
     end
 
+
+    it 'disables cart if items array is empty' do
+      params = OpenStruct.new(action: 'cart', items: @items, user: @user, shop: @shop)
+      instance = ActionPush::Processor.new(params)
+      instance.process
+      expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::Cart::RATING
+      params = OpenStruct.new(action: 'cart', items: [], user: @user, shop: @shop)
+      instance = ActionPush::Processor.new(params)
+      instance.process
+      expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::RemoveFromCart::RATING
+    end
+
+
+
   end
 
 
