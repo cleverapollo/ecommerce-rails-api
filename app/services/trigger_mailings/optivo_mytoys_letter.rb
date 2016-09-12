@@ -146,7 +146,7 @@ module TriggerMailings
         user_id: @client.user_id,
         shop_id: @shop.id,
         trigger_type: @trigger.code.underscore,
-        recommended_items: @trigger.recommended_ids(8),
+        recommended_items: @trigger.recommendations(8),
         source_items: [],
         email: client.email,
         trigger_mail_code: @trigger_mail.code
