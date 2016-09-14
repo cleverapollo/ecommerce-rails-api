@@ -30,6 +30,8 @@ module TriggerMailings
                 end
               end
 
+              trigers_to_send = {} if shop.mailings_settings.external_mailchimp?
+
               # Сначала перебираем вторые брошенные корзины
               if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
                 shop.clients.ready_for_second_abandoned_cart(shop).find_each do |client|
@@ -39,6 +41,8 @@ module TriggerMailings
                         TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                       elsif shop.mailings_settings.is_optivo_for_mytoys?
                         TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
+                      elsif shop.mailings_settings.external_mailchimp?
+                        trigers_to_send[:second_abandoned_cart].present? ? trigers_to_send[:second_abandoned_cart] << trigger :  trigers_to_send[:second_abandoned_cart] = [trigger]
                       else
                         TriggerMailings::Letter.new(client, trigger).send
                       end
@@ -59,17 +63,22 @@ module TriggerMailings
                       TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                     elsif shop.mailings_settings.is_optivo_for_mytoys?
                       TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
+                    elsif shop.mailings_settings.external_mailchimp?
+                      trigger_type = trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym
+                      trigers_to_send[trigger_type].present? ? trigers_to_send[trigger_type] << trigger :  trigers_to_send[trigger_type] = [trigger]
                     else
                       TriggerMailings::Letter.new(client, trigger).send
                     end
-                    client.update_columns(last_trigger_mail_sent_at: Time.now)
-                    client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
+                    unless mailings_settings.external_mailchimp?
+                      client.update_columns(last_trigger_mail_sent_at: Time.now)
+                      client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
+                    end
                   end
                 rescue StandardError => e
                   Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
                 end
               end
-
+              Mailings::Mailchimp::TriggersSender.new(trigers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && trigers_to_send.present?
             end
           end
 
