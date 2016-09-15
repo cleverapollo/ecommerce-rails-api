@@ -6,6 +6,7 @@ class User < MasterTable
   include Redis::Objects
 
   has_many :clients
+  has_many :visits
   has_many :sessions
   has_many :actions
   has_many :orders

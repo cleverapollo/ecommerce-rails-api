@@ -16,6 +16,7 @@ class Shop < MasterTable
 
   has_and_belongs_to_many :users
   belongs_to :customer
+  has_many :visits
   has_many :catalog_import_logs
   has_many :web_push_triggers
   has_many :web_push_digests

@@ -151,7 +151,7 @@ class ShopKPI
   end
 
   def visitors_count
-    Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).count('DISTINCT actions.user_id')
+    Visit.where(shop_id: @shop.id, date: @datetime_interval.first.to_date).count
   end
 
   def products_viewed

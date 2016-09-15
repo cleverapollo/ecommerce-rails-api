@@ -46,6 +46,10 @@ describe ShopKPI do
   let!(:interaction_3) { create(:interaction, item: item_2, shop: shop, user: user, created_at: (Date.yesterday + 2.hours)) }
   let!(:interaction_4) { create(:interaction, item: item_1, shop: shop, user: user, code: 1, recommender_code: 2, created_at: 7.days.ago) }
 
+  let!(:visit_1) { create(:visit, shop: shop, user: user, date:  (Date.yesterday + 2.hours)) }
+  let!(:visit_2) { create(:visit, shop: shop, user: user_2, date:  (Date.yesterday + 2.hours)) }
+  let!(:visit_3) { create(:visit, shop: shop, user: user_3, date:  (Date.yesterday + 2.hours)) }
+
 
   describe '.calculate' do
 
