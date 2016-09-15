@@ -17,7 +17,7 @@ class VisitTracker
       # Может быть дубликат при параллельных запросах, но в этом случае количество визитов уже установлено в 1, поэтому повторный запрос не делаем
       begin
         Visit.create user_id: user.id, shop_id: shop.id, date: date
-      rescue PG::UniqueViolation => e
+      rescue
       end
     end
   end
