@@ -71,8 +71,8 @@ module ActionPush
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
 
-      # Если пришла корзина и она пуста, сообщаем о событии "удалено из корзины"
-      if params.action.to_sym == :cart && params.items.count == 0
+      # Если пришла корзина и она пуста или товаров больше одного (используется массовая корзина), сообщаем о событии "удалено из корзины"
+      if params.action.to_sym == :cart && params.items.count != 1
         params.shop.report_event(:remove_from_cart)
       end
 
