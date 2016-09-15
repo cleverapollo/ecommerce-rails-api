@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160904122123) do
+ActiveRecord::Schema.define(version: 20160914135400) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -549,6 +549,16 @@ ActiveRecord::Schema.define(version: 20160904122123) do
   add_index "trigger_mails", ["date"], name: "index_trigger_mails_on_date", using: :btree
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", where: "(opened = false)", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
+
+  create_table "visits", force: :cascade do |t|
+    t.date    "date",                          null: false
+    t.integer "user_id", limit: 8,             null: false
+    t.integer "shop_id",                       null: false
+    t.integer "pages",             default: 1, null: false
+  end
+
+  add_index "visits", ["date", "user_id", "shop_id"], name: "index_visits_on_date_and_user_id_and_shop_id", unique: true, using: :btree
+  add_index "visits", ["shop_id", "date"], name: "index_visits_on_shop_id_and_date", using: :btree
 
   create_table "web_push_digest_batches", id: :bigserial, force: :cascade do |t|
     t.integer "web_push_digest_id", limit: 8,                 null: false

@@ -39,6 +39,9 @@ class InitController < ApplicationController
       client = Client.find_by!(user_id: session.user_id, shop_id: shop.id)
     end
 
+    # Сохраняем визит
+    VisitTracker.new(shop).track(session.user)
+
     if params[:v] == '3'
       render json: InitServerString.make_v3(shop: shop, session: session, client: client)
     else
