@@ -71,6 +71,11 @@ module ActionPush
       # Сообщаем, что от магазина пришло событие
       params.shop.report_event(params.action.to_sym)
 
+      # Если пришла корзина и она пуста, сообщаем о событии "удалено из корзины"
+      if params.action.to_sym == :cart && params.items.count == 0
+        params.shop.report_event(:remove_from_cart)
+      end
+
       # Отмечаем, что пользователь был активен
       Client.find_by(user_id: params.user.id, shop_id: params.shop.id).try(&:track_last_activity)
 
