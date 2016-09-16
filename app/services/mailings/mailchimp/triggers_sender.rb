@@ -21,9 +21,12 @@ module Mailings
           merge_fields_batch = api.create_batch(prepare_merge_fields_batch(list['id'], trigger_settings.amount_of_recommended_items, one_type_triggers[0].source_item.present?)) # Добавление переменных в список
 
           # Ждем пока добавление не пройдет
+          waiting_imes = 0
           while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
+            raise if waiting_imes > 6
             puts 'Merge fields batch pending...'
             sleep 5
+            waiting_imes += 1
           end
 
           # Заготовка добавление клиентов в список с рекомендациями
@@ -31,13 +34,21 @@ module Mailings
           one_type_triggers.each do |trigger|
             trigger.source_items = trigger.recommendations(trigger_settings.amount_of_recommended_items)
 
+            trigger_mail = trigger.client.trigger_mails.create!(
+              mailing: trigger.mailing,
+              shop_id: shop_id,
+              trigger_data: {
+                trigger: trigger.to_json
+              }
+            ).reload
+
             member = {
               method: "PUT",
               path: "lists/#{list['id']}/members/#{Digest::MD5.hexdigest(trigger.client.email)}",
               body: {
                 email_address: trigger.client.email,
                 status_if_new: "subscribed",
-                merge_fields: recommendations_in_hash(trigger, trigger_settings.image_width, trigger_settings.image_height)
+                merge_fields: recommendations_in_hash(trigger.source_items, trigger.source_item, trigger.client.location, trigger.shop.currency, ,Mailings::Composer.utm_params(trigger_mail), trigger_settings.image_width, trigger_settings.image_height)
               }.to_json
             }
 
@@ -48,9 +59,12 @@ module Mailings
           members_to_list_batch = api.create_batch(members_arry)
 
           # Ждем пока добавление клиентов в список не пройдет
+          waiting_imes = 0
           while api.get_batch(members_to_list_batch['id'],'status')['status'] != 'finished'
+            raise if waiting_imes > 6
             puts 'Clients adding to list batch pending...'
-            sleep 5
+            sleep 10
+            waiting_imes += 1
           end
 
           # Темплейту триггера указиваем созданый список как список по умолчанию
@@ -65,9 +79,12 @@ module Mailings
           api.send_campaign(campaign['id'])
 
           # Ждем пока не отправили всем письма
+          waiting_imes = 0
           while (api.get_campaign(campaign['id'],'status')['status'] != 'sent')
+            raise if waiting_imes > 6
             puts 'Sending...'
-            sleep 5
+            sleep 10
+            waiting_imes += 1
           end
 
           # Удаление продублированого темплейта и временного списка
@@ -81,9 +98,6 @@ module Mailings
           end
         end
       end
-
-      private
-
     end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160912122709) do
+ActiveRecord::Schema.define(version: 20160915154312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -161,6 +161,8 @@ ActiveRecord::Schema.define(version: 20160912122709) do
     t.string  "test_email",        limit: 255
     t.integer "shop_id"
     t.integer "activity_segment"
+    t.integer "mailchimp_count"
+    t.integer "mailchimp_offset"
   end
 
   add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree

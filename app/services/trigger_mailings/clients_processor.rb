@@ -78,7 +78,12 @@ module TriggerMailings
                   Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
                 end
               end
-              Mailings::Mailchimp::TriggersSender.new(trigers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && trigers_to_send.present?
+
+              begin
+                Mailings::Mailchimp::TriggersSender.new(trigers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && trigers_to_send.present?
+              rescue StandardError => e
+                Rollbar.error(e, mailchimp_trigger: shop.id)
+              end
             end
           end
 

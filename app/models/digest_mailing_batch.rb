@@ -15,11 +15,20 @@ class DigestMailingBatch < ActiveRecord::Base
 
   validates :mailing, presence: true
   validates :shop_id, presence: true
-  validates :start_id, presence: true, unless: :test_mode?
-  validates :end_id, presence: true, unless: :test_mode?
+  validates :start_id, presence: true, unless: :test_mode_or_mailchimp_external?
+  validates :end_id, presence: true, unless: :test_mode_or_mailchimp_external?
+
+
+  def test_mode_or_mailchimp_external?
+    test_mode? || have_mailchimp_data?
+  end
 
   def test_mode?
     self.test_email.present?
+  end
+
+  def have_mailchimp_data?
+    self.mailchimp_count.present? && self.mailchimp_offset.present?
   end
 
   def complete!

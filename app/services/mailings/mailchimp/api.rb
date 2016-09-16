@@ -89,6 +89,13 @@ module Mailings
         )
       end
 
+      def get_list(list_id, fields = '')
+        self.class.get("#{base_url}/lists/#{list_id}?fields=#{fields}",
+          headers: {'content-type' => 'application/json'},
+          basic_auth: auth,
+        )
+      end
+
       def delete_list(list_id)
         self.class.delete("#{base_url}/lists/#{list_id}",
           headers: {'content-type' => 'application/json'},
@@ -96,6 +103,7 @@ module Mailings
         )
       end
 
+      # MEMBERS ---------------------------
       def add_member_to_list(list_id, email, merge_fields)
         self.class.put("#{base_url}/lists/#{list_id}/members/#{Digest::MD5.hexdigest(email)}",
           headers: {'content-type' => 'application/json'},
@@ -108,6 +116,14 @@ module Mailings
         )
       end
 
+      def get_members(list_id, count = 10, offset = 0, status = '', fields = '')
+        self.class.get("#{base_url}/lists/#{list_id}/members?count=#{count}&offset=#{offset}&status=#{status}&fields=#{fields}",
+          headers: {'content-type' => 'application/json'},
+          basic_auth: auth,
+        )
+      end
+
+      # MERGE FIELD ---------------------------
       def add_merge_field(list, name, tag = nil)
         self.class.post("#{base_url}/lists/#{list}/merge-fields",
           headers: {'content-type' => 'application/json'},
@@ -122,6 +138,21 @@ module Mailings
           }.to_json
         )
       end
+
+      # Get ALL merge-fields from list
+      def get_merge_fields(list, count = 10, fields = '')
+        self.class.get("#{base_url}/lists/#{list}/merge-fields?count=#{count}&fields=#{fields}",
+          headers: {'content-type' => 'application/json'},
+          basic_auth: auth,
+        )
+      end
+
+    def delete_merge_field(list, merge_field_id)
+      self.class.delete("#{base_url}/lists/#{list}/merge-fields/#{merge_field_id}",
+        headers: {'content-type' => 'application/json'},
+        basic_auth: auth,
+      )
+    end
 
       # BATCHES ---------------------------------------------------------
 
