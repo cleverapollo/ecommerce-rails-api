@@ -53,7 +53,7 @@ class OrdersSyncWorker
         if current_shop.last_orders_sync.nil?
           begin
             notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Shop #{current_shop.id}", http_options: { open_timeout: 1 }
-            notifier.ping("Just got first orders statuses sync. SHARD: #{SHARD_ID}. https://rees46.com/shops/#{current_shop.id} SHOP_DATA: #{current_shop.inspect}". )
+            notifier.ping("Just got first orders statuses sync. SHARD: #{SHARD_ID}. https://rees46.com/shops/#{current_shop.id} SHOP_DATA: #{current_shop.inspect}." )
           rescue Exception => e
             Rollbar.error e
           end
