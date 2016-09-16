@@ -42,6 +42,12 @@ class InitController < ApplicationController
     # Сохраняем визит
     VisitTracker.new(shop).track(session.user)
 
+    # Отмечаем источник перехода, если есть
+    source = params[:source].present? ? JSON.parse(params[:source]) : nil
+    if source
+      LeadSourceProcessor.new(source['from'], source['code']).process
+    end
+
     if params[:v] == '3'
       render json: InitServerString.make_v3(shop: shop, session: session, client: client)
     else

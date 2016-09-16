@@ -141,8 +141,6 @@ describe InitController do
       end
     end
 
-
-
     context 'with cookie' do
       before { request.cookies[Rees46::COOKIE_NAME] = '12345' }
 
@@ -166,8 +164,61 @@ describe InitController do
       it_behaves_like 'an api initializer'
     end
 
+    context 'mark sources as clicked' do
+
+      let!(:shop) { create(:shop) }
+      let!(:init_params) { { shop_id: shop.uniqid } }
+
+      let!(:client) { create(:client, shop: shop) }
+      let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
+      let!(:batch) { create(:digest_mailing_batch, shop: shop, mailing: digest_mailing) }
+      let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', liquid_template: '123') }
+
+      let!(:digest_mail) { create(:digest_mail, shop_id: shop.id, mailing: digest_mailing, batch: batch, client: client) }
+      let!(:trigger_mail) { create(:trigger_mail, shop_id: shop.id, mailing: trigger_mailing, trigger_data: {a: 1}, client: client) }
+      let!(:rtb_impression) { create(:rtb_impression, shop: shop) }
+
+      let!(:web_push_trigger_message) { create(:web_push_trigger_message, shop: shop, client: client, trigger_data: {a: 1}, web_push_trigger_id: 1) }
+      let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client, web_push_digest_id: 1) }
+
+      it 'clicks digest mail' do
+        init_params.merge!(source: {from: 'digest_mail', code: digest_mail.code}.to_json)
+        get :init_script, init_params
+        expect(DigestMail.first.clicked).to be_truthy
+      end
+
+      it 'clicks incorrect digest mail' do
+        init_params.merge!(source: {from: 'digest_mail', code: '33313'}.to_json)
+        get :init_script, init_params
+        expect(DigestMail.first.clicked).to be_falsey
+      end
+
+      it 'clicks trigger mail' do
+        init_params.merge!(source: {from: 'trigger_mail', code: trigger_mail.code}.to_json)
+        get :init_script, init_params
+        expect(TriggerMail.first.clicked).to be_truthy
+      end
+
+      it 'clicks rtb impression' do
+        init_params.merge!(source: {from: 'r46_returner', code: rtb_impression.code}.to_json)
+        get :init_script, init_params
+        expect(RtbImpression.first.clicked).to be_truthy
+      end
+
+      it 'clicks web push trigger' do
+        init_params.merge!(source: {from: 'web_push_trigger', code: web_push_trigger_message.code}.to_json)
+        get :init_script, init_params
+        expect(WebPushTriggerMessage.first.clicked).to be_truthy
+      end
+
+      it 'clicks web push digest' do
+        init_params.merge!(source: {from: 'web_push_digest', code: web_push_digest_message.code}.to_json)
+        get :init_script, init_params
+        expect(WebPushDigestMessage.first.clicked).to be_truthy
+      end
 
 
+    end
 
 
 
