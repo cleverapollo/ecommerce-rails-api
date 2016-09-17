@@ -90,7 +90,7 @@ module InitServerString
                       end,
             status: if client.accepted_subscription == true
                       'accepted'
-                    elsif client.web_push_subscription_popup_showed == true && client.accepted_web_push_subscription != true
+                    elsif client.subscription_popup_showed == true && client.accepted_subscription != true
                       'declined'
                     else
                       nil
