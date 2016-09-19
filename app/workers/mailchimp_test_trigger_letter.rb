@@ -1,9 +1,11 @@
-class MailchimpTestLetter
+class MailchimpTestTriggerLetter
   include Sidekiq::Worker
   include Mailings::Mailchimp::Common
   sidekiq_options retry: 5, queue: 'mailing'
 
   def perform(params)
+    binding.pry
+
     params = JSON.parse(params)
     api = Mailings::Mailchimp::Api.new(params['api_key'])
 
@@ -20,17 +22,25 @@ class MailchimpTestLetter
       puts 'Merge fields batch pending...'
     end
 
-    test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(trigger))
+    trigger_mailing = TriggerMailing.find_by(shop_id: trigger.shop.id, trigger_type: trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym)
+
+    test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(trigger.source_items, trigger.source_item, client.location, trigger.shop.currency, {}, trigger_mailing.image_width, trigger_mailing.image_height))
     api.update_campaign(native_campaign, test_list['id'])
+
+    # items, source_item, location, currency, utm_params = {}, width = nil, height = nil
 
     test_campaign = api.duplicate_campaign(params['campaign_id'])
 
+    binding.pry
 
     api.send_campaign(test_campaign['id'])
 
+    waiting_times = 0
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
+      raise if waiting_times > 6
       sleep 5
       puts 'Sending...'
+      waiting_times += 1
     end
 
     api.delete_campaign(test_campaign['id'])

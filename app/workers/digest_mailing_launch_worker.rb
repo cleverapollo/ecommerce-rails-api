@@ -25,18 +25,24 @@ class DigestMailingLaunchWorker
   def perform(params)
     shop = Shop.find_by!(uniqid: params.fetch('shop_id'), secret: params.fetch('shop_secret'))
     digest_mailing = shop.digest_mailings.find(params.fetch('id'))
+    settings = shop.mailings_settings
 
     if params['test_email'].present?
-      # Режим тестового письма.
-      # Создаем одну тестовую пачку.
-      digest_mailing.batches.create(test_email: params['test_email'], shop_id: shop.id)
+      if settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
+
+        MailchimpTestDigestLetter.perform_async({digest_mailing_id: digest_mailing.id, api_key: settings.mailchimp_api_key, test_email: params['test_email']});
+      else
+        # Режим тестового письма.
+        # Создаем одну тестовую пачку.
+        digest_mailing.batches.create(test_email: params['test_email'], shop_id: shop.id)
+      end
     else
 
       # Режим полноценной рассылки.
-      if shop.mailings_settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
+      if settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
 
         # Для Mailchimp
-        all_audience = Mailings::Mailchimp::DigestMailerHelper.all_audience(shop.mailings_settings.mailchimp_api_key, digest_mailing.mailchimp_list_id)
+        all_audience = Mailings::Mailchimp::DigestMailerHelper.all_audience(settings.mailchimp_api_key, digest_mailing.mailchimp_list_id)
 
         if digest_mailing.batches.incomplete.not_test.none?
           # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
@@ -72,14 +78,14 @@ class DigestMailingLaunchWorker
 
     # Запускаем обработчики на все пачки
     digest_mailing.batches.incomplete.each do |batch|
-      if shop.mailings_settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
-        Mailings::Mailchimp::DigestMailingMailchimpBatch.new(batch, shop.mailings_settings.mailchimp_api_key).btach_execute
+      if settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
+        Mailings::Mailchimp::DigestMailingMailchimpBatch.new(batch, settings.mailchimp_api_key).btach_execute
       else
         DigestMailingBatchWorker.perform_async(batch.id)
       end
     end
 
-    Mailings::Mailchimp::DigestSender.new(digest_mailing, shop.mailings_settings.mailchimp_api_key).send if shop.mailings_settings.external_mailchimp?
+    Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank?
 
   end
 end

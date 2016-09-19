@@ -27,14 +27,15 @@ class TriggerMailingsController < ApplicationController
 
       if mailings_settings.external_mailchimp?
         trigger.generate_test_data!
-        # Mailings::Mailchimp::TestLetter.send_trigger(mailings_settings.mailchimp_api_key, trigger_mailing.mailchimp_campaign_id, email, trigger)
+
         var = {
           'api_key' => mailings_settings.mailchimp_api_key,
           'campaign_id' => trigger_mailing.mailchimp_campaign_id,
           'client_id' => client.id,
           'trigger_mailing_class' => trigger_mailing_class.to_s
         }.to_json
-        MailchimpTestLetter.perform_async(var)
+
+        MailchimpTestTriggerLetter.perform_async(var)
       else
         trigger.generate_test_data!
         TriggerMailings::Letter.new(client, trigger).send

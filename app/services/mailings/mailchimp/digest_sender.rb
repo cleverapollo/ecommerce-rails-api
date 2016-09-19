@@ -14,12 +14,12 @@ module Mailings
         api.send_campaign(digest_mailing.mailchimp_campaign_id)
 
         # Ждем пока не отправили всем письма
-        waiting_imes = 0
+        waiting_times = 0
         while (api.get_campaign(digest_mailing.mailchimp_campaign_id,'status')['status'] != 'sent')
-          raise if waiting_imes > 6
+          raise if waiting_times > 6
           puts 'Sending...'
           sleep 10
-          waiting_imes += 1
+          waiting_times += 1
         end
 
         member_fields_counter = api.get_list(digest_mailing.mailchimp_list_id, 'stats.merge_field_count')['stats']['merge_field_count']
