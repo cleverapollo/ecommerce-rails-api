@@ -6,7 +6,7 @@ class DigestMailingsController < ApplicationController
 
   # Запустить рассылку.
   def launch
-    DigestMailingLaunchWorker.new.perform(params)
+    DigestMailingLaunchWorker.perform_async(params)
     render nothing: true, status: :ok
   end
 end

@@ -75,7 +75,7 @@ class DigestMailingLaunchWorker
       if shop.mailings_settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
         Mailings::Mailchimp::DigestMailingMailchimpBatch.new(batch, shop.mailings_settings.mailchimp_api_key).btach_execute
       else
-        DigestMailingBatchWorker.new.perform(batch.id)
+        DigestMailingBatchWorker.perform_async(batch.id)
       end
     end
 
