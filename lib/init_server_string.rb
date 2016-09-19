@@ -74,6 +74,7 @@ module InitServerString
           ssid: session.code,
           currency: shop.currency,
           profile: session.user.profile_to_json,
+          has_email: client.email.present?,
           emailSubscription: {
             settings: if shop.subscriptions_enabled? && client.email.blank?
                         {
