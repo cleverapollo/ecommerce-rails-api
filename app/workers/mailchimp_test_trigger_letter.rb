@@ -4,8 +4,6 @@ class MailchimpTestTriggerLetter
   sidekiq_options retry: 5, queue: 'mailing'
 
   def perform(params)
-    binding.pry
-
     params = JSON.parse(params)
     api = Mailings::Mailchimp::Api.new(params['api_key'])
 
@@ -17,9 +15,12 @@ class MailchimpTestTriggerLetter
     native_campaign = api.get_campaign(params['campaign_id'])
     test_list = api.create_temp_list(native_campaign)
     merge_fields_batch = api.create_batch(prepare_merge_fields_batch(test_list['id'], trigger.source_items.count, trigger.source_item.present?))
+    waiting_times = 0
     while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
-      sleep 5
+      raise if waiting_times > 6
+      sleep 10
       puts 'Merge fields batch pending...'
+      waiting_times += 1
     end
 
     trigger_mailing = TriggerMailing.find_by(shop_id: trigger.shop.id, trigger_type: trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym)
@@ -31,20 +32,19 @@ class MailchimpTestTriggerLetter
 
     test_campaign = api.duplicate_campaign(params['campaign_id'])
 
-    binding.pry
-
     api.send_campaign(test_campaign['id'])
 
     waiting_times = 0
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
-      raise if waiting_times > 6
-      sleep 5
+      if waiting_times > 6
+        delete_camping_and_list(api, test_campaign['id'], test_list['id'])
+        raise
+      end
+      sleep 10
       puts 'Sending...'
       waiting_times += 1
     end
 
-    api.delete_campaign(test_campaign['id'])
-    api.delete_list(test_list['id'])
+    delete_camping_and_list(api, test_campaign['id'], test_list['id'])
   end
-
 end

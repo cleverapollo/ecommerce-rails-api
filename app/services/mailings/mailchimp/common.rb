@@ -65,6 +65,11 @@ module Mailings
         merge_fields
       end
 
+      def delete_camping_and_list(api, campaign_id, list_id)
+        api.delete_campaign(campaign_id)
+        api.delete_list(list_id)
+      end
+
     end
   end
 end

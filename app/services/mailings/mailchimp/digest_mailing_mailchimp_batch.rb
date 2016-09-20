@@ -69,7 +69,7 @@ module Mailings
         while api.get_batch(members_to_list_batch['id'],'status')['status'] != 'finished'
           raise if waiting_imes > 6
           puts 'Clients adding to list batch pending...'
-          sleep 10
+          sleep 20
           waiting_imes += 1
         end
 

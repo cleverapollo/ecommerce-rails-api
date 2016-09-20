@@ -22,9 +22,12 @@ class MailchimpTestDigestLetter
     DigestMailingRecommendationsCalculator.open(digest_mailing.shop, digest_mailing.amount_of_recommended_items) do |calculator|
       merge_fields_batch = api.create_batch(prepare_merge_fields_batch(test_list['id'], digest_mailing.amount_of_recommended_items))
 
+      waiting_times = 0
       while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
+        raise if waiting_times > 6
         sleep 5
         puts 'Merge fields batch pending...'
+        waiting_times += 1
       end
 
       test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, digest_mailing.shop.currency, {}, digest_mailing.image_width, digest_mailing.image_height)) #####
@@ -38,14 +41,16 @@ class MailchimpTestDigestLetter
 
     waiting_times = 0
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
-      raise if waiting_times > 6
-      sleep 5
+      if waiting_times > 6
+        delete_camping_and_list(api, test_campaign['id'], test_list['id'])
+        raise
+      end
+      sleep 10
       puts 'Sending...'
       waiting_times += 1
     end
 
-    api.delete_campaign(test_campaign['id'])
-    api.delete_list(test_list['id'])
+    delete_camping_and_list(api, test_campaign['id'], test_list['id'])
 
     api.update_campaign(native_campaign, digest_mailing.mailchimp_list_id)
   end

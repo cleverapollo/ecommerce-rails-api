@@ -21,6 +21,7 @@ module Mailings
           sleep 10
           waiting_times += 1
         end
+        digest_mailing.finish!
 
         member_fields_counter = api.get_list(digest_mailing.mailchimp_list_id, 'stats.merge_field_count')['stats']['merge_field_count']
         merge_fields = api.get_merge_fields(digest_mailing.mailchimp_list_id, 14, 'merge_fields.merge_id,merge_fields.tag')['merge_fields']

@@ -79,17 +79,19 @@ module Mailings
           api.send_campaign(campaign['id'])
 
           # Ждем пока не отправили всем письма
-          waiting_imes = 0
-          while (api.get_campaign(campaign['id'],'status')['status'] != 'sent')
-            raise if waiting_imes > 6
-            puts 'Sending...'
+          waiting_times = 0
+          while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
+            if waiting_times > 6
+              delete_camping_and_list(api, test_campaign['id'], test_list['id'])
+              raise
+            end
             sleep 10
-            waiting_imes += 1
+            puts 'Sending...'
+            waiting_times += 1
           end
 
           # Удаление продублированого темплейта и временного списка
-          api.delete_campaign(campaign['id'])
-          api.delete_list(list['id'])
+          delete_camping_and_list(api, test_campaign['id'], test_list['id'])
 
           # Обновление пользователей что им было отправлено триггер
           one_type_triggers.each do |trigger|
@@ -98,6 +100,7 @@ module Mailings
           end
         end
       end
+
     end
   end
 end
