@@ -46,7 +46,7 @@ module TriggerMailings
                       else
                         TriggerMailings::Letter.new(client, trigger).send
                       end
-                      unless mailings_settings.external_mailchimp?
+                      unless shop.mailings_settings.external_mailchimp?
                         client.update_columns(last_trigger_mail_sent_at: Time.now)
                         client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
                       end
@@ -71,7 +71,7 @@ module TriggerMailings
                     else
                       TriggerMailings::Letter.new(client, trigger).send
                     end
-                    unless mailings_settings.external_mailchimp?
+                    unless shop.mailings_settings.external_mailchimp?
                       client.update_columns(last_trigger_mail_sent_at: Time.now)
                       client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
                     end
