@@ -20,7 +20,7 @@ class WebPush::Sender
 
         begin
           notification = Grocer::SafariNotification.new(
-            device_token: JSON.parse client.web_push_token[:safari_token],
+            device_token: JSON.parse(client.web_push_token[:safari_token]),
             title: body[:title],
             body: body[:body],
             action: 'Read',
