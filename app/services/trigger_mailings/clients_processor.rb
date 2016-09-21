@@ -46,8 +46,10 @@ module TriggerMailings
                       else
                         TriggerMailings::Letter.new(client, trigger).send
                       end
-                      client.update_columns(last_trigger_mail_sent_at: Time.now)
-                      client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
+                      unless mailings_settings.external_mailchimp?
+                        client.update_columns(last_trigger_mail_sent_at: Time.now)
+                        client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
+                      end
                     end
                   rescue StandardError => e
                     Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
