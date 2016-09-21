@@ -19,7 +19,6 @@ class WebPush::Sender
         pusher_config = safari_config
 
         begin
-=begin
           notification = Grocer::SafariNotification.new(
             device_token: JSON.parse client.web_push_token[:safari_token],
             title: body[:title],
@@ -29,7 +28,7 @@ class WebPush::Sender
           )
 
           pusher_config.push(notification)
-=end
+          shop.reduce_web_push_balance!
         rescue Webpush::InvalidSubscription => e
           client.clear_web_push_subscription!
           Rollbar.warn e
@@ -37,6 +36,7 @@ class WebPush::Sender
           Rollbar.error e
           return false
         end
+
         true
       else
         begin
