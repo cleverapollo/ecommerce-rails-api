@@ -107,7 +107,8 @@ module InitServerString
                               button: shop.web_push_subscriptions_settings.button,
                               agreement: shop.web_push_subscriptions_settings.agreement,
                               manual_mode: shop.web_push_subscriptions_settings.manual_mode,
-                              remote_picture_url: shop.web_push_subscriptions_settings.remote_picture_url
+                              remote_picture_url: shop.web_push_subscriptions_settings.remote_picture_url,
+                              safari_enabled: shop.web_push_subscriptions_settings.safari_enabled?
                           }
                           else
                             nil
