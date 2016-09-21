@@ -146,7 +146,7 @@ class OrdersImportWorker
     item
   end
 
-  def fetch_actions(item, shop_id, user_id)\
+  def fetch_actions(item, shop_id, user_id)
 
     begin
       action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)

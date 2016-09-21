@@ -122,6 +122,7 @@ class Client < ActiveRecord::Base
 
   def purge_email!
     if self.email.present?
+      InvalidEmail.create(email: self.email, reason: 'mark_as_bounced')
       update email: nil
       # Client.where(email: self.email).update_all(email: nil)
     end
