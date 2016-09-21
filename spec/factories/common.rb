@@ -23,6 +23,9 @@ FactoryGirl.define do
     end
   end
 
+  factory :invalid_email do
+  end
+
   factory :brand_campaign do
     brand             { Faker::Lorem.word }
     downcase_brand    { brand.downcase }

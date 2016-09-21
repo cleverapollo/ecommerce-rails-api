@@ -8,7 +8,8 @@ module UserProfile
 
       # Проверяем на наличие email
       if attributes['email'].present?
-        if email = IncomingDataTranslator.email(attributes['email'])
+        email = IncomingDataTranslator.email(attributes['email'])
+        if email.present?
           # И сохраняем
           client = shop.clients.find_or_create_by!(user_id: user.id)
           if client.email != email

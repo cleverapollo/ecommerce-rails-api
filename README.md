@@ -40,11 +40,16 @@ $ foreman start
 /config/database.yml – прописать доступ к мастер-базе (базе, где содержатся клиенты сервиса, магазины и т.д.
 
 ### Тесты
-```
-$ RAILS_ENV=test bundle exec rake db:test:load_schema
-$ bin/rspec
-```
 
+```sh
+RAILS_ENV=test bundle exec rake db:reset
+RAILS_ENV=test bundle exec rake db:test:load_schema
+rspec
+```
+or
+```sh
+bin/testing
+```
 ### Ручное импортирование YML файла
 
 ```
