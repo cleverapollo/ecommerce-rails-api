@@ -11,36 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160921101526) do
+ActiveRecord::Schema.define(version: 20160922092526) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "actions", id: :bigserial, force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                                             null: false
-    t.integer  "item_id",          limit: 8,                                             null: false
-    t.integer  "view_count",                 default: 0,                                 null: false
-    t.datetime "view_date"
-    t.integer  "cart_count",                 default: 0,                                 null: false
-    t.datetime "cart_date"
-    t.integer  "purchase_count",             default: 0,                                 null: false
-    t.datetime "purchase_date"
-    t.float    "rating",                     default: 0.0
-    t.integer  "shop_id",          limit: 8,                                             null: false
-    t.integer  "timestamp",                  default: "date_part('epoch'::text, now())", null: false
-    t.string   "recommended_by"
-    t.integer  "last_action",      limit: 2, default: 1,                                 null: false
-    t.integer  "rate_count",                 default: 0,                                 null: false
-    t.datetime "rate_date"
-    t.integer  "last_user_rating"
-  end
-
-  add_index "actions", ["cart_date"], name: "index_actions_on_cart_date", using: :btree
-  add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["purchase_date"], name: "index_actions_on_purchase_date", using: :btree
-  add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
-  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", using: :btree
-  add_index "actions", ["view_date"], name: "index_actions_on_view_date", using: :btree
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -175,13 +149,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.text     "description",                  null: false
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
-  end
-
-  create_table "branches", force: :cascade do |t|
-    t.string   "name"
-    t.boolean  "deletable",  default: true, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "brand_campaign_item_categories", force: :cascade do |t|
@@ -349,10 +316,13 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
     t.string   "api_secret",             limit: 255
+    t.string   "quick_sign_in_token"
+    t.datetime "confirmed_at"
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
+  add_index "customers", ["quick_sign_in_token"], name: "index_customers_on_quick_sign_in_token", using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
 
   create_table "digest_mail_statistics", force: :cascade do |t|
@@ -380,18 +350,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.datetime "updated_at",                  null: false
     t.boolean  "confirmed",   default: false
   end
-
-  create_table "events", force: :cascade do |t|
-    t.integer  "shop_id",         null: false
-    t.string   "name",            null: false
-    t.text     "additional_info"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "events", ["created_at"], name: "index_events_on_created_at", using: :btree
-  add_index "events", ["name"], name: "index_events_on_name", using: :btree
-  add_index "events", ["shop_id"], name: "index_events_on_shop_id", using: :btree
 
   create_table "faqs", force: :cascade do |t|
     t.text     "question",                null: false
@@ -434,15 +392,14 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.datetime "updated_at"
   end
 
-  create_table "items", id: :bigserial, force: :cascade do |t|
-    t.integer "shop_id",         limit: 8, null: false
-    t.string  "uniqid",                    null: false
-    t.decimal "price"
-    t.string  "category_uniqid"
-    t.boolean "is_available"
+  create_table "lead_shops", force: :cascade do |t|
+    t.string   "url"
+    t.integer  "tryouts",    default: 0
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
-  add_index "items", ["uniqid", "shop_id"], name: "items_uniqid_shop_id_key", unique: true, using: :btree
+  add_index "lead_shops", ["url"], name: "index_lead_shops_on_url", using: :btree
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
     t.string "list"
@@ -473,26 +430,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
 
   add_index "monthly_statistics", ["month", "year"], name: "index_monthly_statistics_on_month_and_year", unique: true, using: :btree
 
-  create_table "order_items", id: :bigserial, force: :cascade do |t|
-    t.integer "order_id",       limit: 8,             null: false
-    t.integer "item_id",        limit: 8,             null: false
-    t.integer "action_id",      limit: 8,             null: false
-    t.integer "amount",                   default: 1, null: false
-    t.string  "recommended_by"
-  end
-
-  create_table "orders", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                   null: false
-    t.integer  "user_id",                   null: false
-    t.string   "uniqid",                    null: false
-    t.datetime "date",    default: "now()", null: false
-    t.integer  "items",   default: [],      null: false, array: true
-    t.integer  "amounts", default: [],      null: false, array: true
-  end
-
-  add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
-  add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
-
   create_table "partner_rewards", force: :cascade do |t|
     t.integer  "customer_id"
     t.integer  "invited_customer_id"
@@ -502,30 +439,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.datetime "updated_at",          null: false
   end
 
-  create_table "partners", force: :cascade do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.string   "name"
-    t.string   "phone"
-    t.string   "city"
-    t.string   "company"
-    t.integer  "role",                   default: 1
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "token",                               null: false
-  end
-
-  add_index "partners", ["email"], name: "index_partners_on_email", unique: true, using: :btree
-  add_index "partners", ["reset_password_token"], name: "index_partners_on_reset_password_token", unique: true, using: :btree
-
   create_table "payments", force: :cascade do |t|
     t.integer  "shop_id",                       null: false
     t.integer  "plan_id",                       null: false
@@ -533,16 +446,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
     t.string   "paypal_payer_id",   limit: 255
     t.string   "paypal_profile_id", limit: 255
     t.string   "state",             limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "potential_customers", force: :cascade do |t|
-    t.string   "name"
-    t.string   "email"
-    t.string   "phone"
-    t.text     "comment"
-    t.boolean  "subscribe",  default: true, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -689,17 +592,17 @@ ActiveRecord::Schema.define(version: 20160921101526) do
   end
 
   create_table "schema_version", id: false, force: :cascade do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2016-08-17 12:50:27', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
@@ -882,14 +785,6 @@ ActiveRecord::Schema.define(version: 20160921101526) do
   add_index "trigger_mail_statistics", ["date"], name: "index_trigger_mail_statistics_on_date", using: :btree
   add_index "trigger_mail_statistics", ["shop_id", "date"], name: "index_trigger_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "trigger_mail_statistics", ["shop_id"], name: "index_trigger_mail_statistics_on_shop_id", using: :btree
-
-  create_table "user_shop_relations", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id", limit: 8, null: false
-    t.integer "shop_id", limit: 8, null: false
-    t.string  "uniqid"
-  end
-
-  add_index "user_shop_relations", ["uniqid", "shop_id"], name: "user_shop_relations_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "user_taxonomies", force: :cascade do |t|
     t.integer "user_id"
