@@ -2,7 +2,8 @@ require 'rails_helper'
 
 describe DigestMailingLaunchWorker do
   let(:shop) { create(:shop) }
-  let(:mailing) { create(:digest_mailing, shop: shop) }
+  let!(:mailings_settings) { create(:mailings_settings, shop: shop)}
+  let(:mailing) { create(:digest_mailing, shop: shop, ) }
   let(:base_params) { { 'shop_id' => shop.uniqid, 'shop_secret' => shop.secret, 'id' => mailing.id } }
   describe '#perform' do
     subject { described_class.new.perform(params) }

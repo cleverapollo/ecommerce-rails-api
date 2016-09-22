@@ -25,4 +25,7 @@ class WebPushSubscriptionsSettings < ActiveRecord::Base
   #   "#{Rees46.site_url}/web_push_subscription_picture/#{shop.uniqid}"
   # end
 
+  def safari_enabled?
+    self.safari_website_push_id.present? && self.certificate_password.present? && self.certificate_updated_at.present?
+  end
 end

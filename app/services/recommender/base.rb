@@ -126,7 +126,7 @@ module Recommender
       if shop.subscription_plans.rees46_recommendations.paid.exists?
 
         # Фильтрация по полу
-        if user.gender.present?
+        if user.try(:gender).present?
           # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
           # Сброс не работает, т.к. дополнительные фильтры отдельных рекомендеров (например, популярные в категориях) еще не применены.
           # if relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender ).exists?

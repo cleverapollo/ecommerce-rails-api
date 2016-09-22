@@ -80,6 +80,16 @@ describe SubscriptionsController do
       end
     end
 
+    context 'with bounced email (invalid)' do
+      let(:email) { 'some@email.com' }
+      let!(:invalid_email) { create(:invalid_email, email: email) }
+
+      it 'skip exist' do
+        subject
+        expect(client.reload.email).to eq(nil)
+      end
+    end
+
     context 'declining' do
       let(:email) { nil }
       let(:declined) { true }

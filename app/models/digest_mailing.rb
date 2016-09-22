@@ -33,4 +33,8 @@ class DigestMailing < ActiveRecord::Base
     update(state: 'started')
     batches.incomplete.each{|batch| DigestMailingBatchWorker.perform_async(batch.id) }
   end
+
+  def mailchimp_attr_present?
+    self.mailchimp_campaign_id.present? && self.mailchimp_list_id.present?
+  end
 end

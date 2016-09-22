@@ -40,5 +40,10 @@ describe DigestMail do
     it 'purges client email' do
       expect{ subject }.to change{ client.reload.email }.to(nil)
     end
+
+    it 'insert invalid email' do
+      subject
+      expect(InvalidEmail.count).to eq(1)
+    end
   end
 end

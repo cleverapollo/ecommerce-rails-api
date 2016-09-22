@@ -26,17 +26,17 @@ class IncomingDataTranslator
     end
 
     # Проверка входящего email на валидность.
-    # @param value [String] входящий e-mail
+    # @param email [String] входящий e-mail
     # @return [Boolean] валиден ли e-mail
     def email_valid?(email)
       IncomingDataTranslator.email(email).present?
     end
 
     # Обработка входящего email - даункейс + обрезка пробелов.
-    # @param value [String] входящий e-mail
+    # @param email [String] входящий e-mail
     # @return [String] обработанный e-mail
     def email(email)
-      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i && !BAD_EMAILS.include?(email.downcase) && !BAD_EMAIL_DOMAINS.map{|x| email.downcase.scan(x) }.flatten.compact.any?
+      if email.present? && email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i && !BAD_EMAILS.include?(email.downcase) && !BAD_EMAIL_DOMAINS.map{|x| email.downcase.scan(x) }.flatten.compact.any? && !InvalidEmail.exists?(email: email.downcase.strip)
         email.downcase.strip
       end
     end
