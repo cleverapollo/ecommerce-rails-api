@@ -22,7 +22,7 @@ class WebPushSubscriptionsController < ApplicationController
     if token.present?
       if token[:endpoint].present? && token[:keys].present?
         client.web_push_token = token
-        if token[:endpoint] =~ /google.com/
+        if token[:endpoint] =~ /google/
           client.web_push_browser = 'chrome'
         end
         if token[:endpoint] =~ /mozilla.com/
