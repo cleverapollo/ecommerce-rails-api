@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Recommender::Impl::Interesting do
-  let!(:shop) { create(:shop, enabled_fashion: true) }
+  let!(:shop) { create(:shop) }
   let!(:user) { create(:user, gender: 'm') }
   let!(:test_item) { create(:item, shop: shop, sales_rate: 10000, discount: true) }
   let!(:test_item_small_sr) { create(:item, shop: shop, sales_rate: 100) }
