@@ -228,6 +228,41 @@ describe UserMerger do
       end
 
 
+      context 'merge visits' do
+
+        context 'have two visits' do
+          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop) }
+          let!(:visit_2) { create(:visit, user: slave, pages: 1, shop: shop) }
+          it 'summarizes pages and removes slave' do
+            subject
+            master.reload
+            expect(master.visits.count).to eq 1
+            expect(Visit.all.count).to eq 1
+            expect(visit_1.reload.pages).to eq 2
+          end
+        end
+
+        context 'master have not visits' do
+          let!(:visit_1) { create(:visit, user: slave, pages: 1, shop: shop) }
+          subject
+          master.reload
+          expect(master.visits.count).to eq 1
+          expect(Visit.all.count).to eq 1
+          expect(visit_1.reload.pages).to eq 1
+        end
+
+        context 'slave have not visits' do
+          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop) }
+          subject
+          master.reload
+          expect(master.visits.count).to eq 1
+          expect(Visit.all.count).to eq 1
+          expect(visit_1.reload.pages).to eq 1
+        end
+
+      end
+
+
       context 'merge profile events and recalculate profile' do
 
         let!(:profile_event_1) { create(:profile_event, shop: shop, user: master, industry: 'fashion', property: 'gender', value: 'm', views: 1 ) }

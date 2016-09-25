@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160922092526) do
+ActiveRecord::Schema.define(version: 20160922151805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -698,13 +698,6 @@ ActiveRecord::Schema.define(version: 20160922092526) do
     t.decimal  "digests_cpa",                               default: 2.0,   null: false
     t.integer  "triggers_cpa_cap",                          default: 250,   null: false
     t.integer  "digests_cpa_cap",                           default: 200,   null: false
-    t.boolean  "enabled_fashion",                           default: false, null: false
-    t.boolean  "enabled_child",                             default: false, null: false
-    t.boolean  "enabled_cosmetic",                          default: false, null: false
-    t.boolean  "enabled_pets",                              default: false, null: false
-    t.boolean  "enabled_construction",                      default: false, null: false
-    t.boolean  "enabled_appliances",                        default: false, null: false
-    t.boolean  "enabled_fmcg",                              default: false, null: false
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
     t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
@@ -714,6 +707,7 @@ ActiveRecord::Schema.define(version: 20160922092526) do
     t.boolean  "match_users_with_dmp",                      default: true
     t.integer  "web_push_balance",                          default: 0,     null: false
     t.datetime "last_orders_sync"
+    t.boolean  "have_industry_products",                    default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
