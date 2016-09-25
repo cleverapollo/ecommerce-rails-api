@@ -231,8 +231,8 @@ describe UserMerger do
       context 'merge visits' do
 
         context 'have two visits' do
-          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop) }
-          let!(:visit_2) { create(:visit, user: slave, pages: 1, shop: shop) }
+          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop, date: Date.current) }
+          let!(:visit_2) { create(:visit, user: slave, pages: 1, shop: shop, date: Date.current) }
           it 'summarizes pages and removes slave' do
             subject
             master.reload
@@ -243,21 +243,27 @@ describe UserMerger do
         end
 
         context 'master have not visits' do
-          let!(:visit_1) { create(:visit, user: slave, pages: 1, shop: shop) }
-          subject
-          master.reload
-          expect(master.visits.count).to eq 1
-          expect(Visit.all.count).to eq 1
-          expect(visit_1.reload.pages).to eq 1
+          let!(:visit_1) { create(:visit, user: slave, pages: 1, shop: shop, date: Date.current) }
+          let!(:visit_2) { create(:visit, user: slave, pages: 1, shop: shop, date: Date.yesterday) }
+          it 'merges' do
+            subject
+            master.reload
+            expect(master.visits.count).to eq 2
+            expect(Visit.all.count).to eq 2
+            expect(visit_1.reload.pages).to eq 1
+          end
         end
 
         context 'slave have not visits' do
-          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop) }
-          subject
-          master.reload
-          expect(master.visits.count).to eq 1
-          expect(Visit.all.count).to eq 1
-          expect(visit_1.reload.pages).to eq 1
+          let!(:visit_1) { create(:visit, user: master, pages: 1, shop: shop, date: Date.current) }
+          let!(:visit_2) { create(:visit, user: master, pages: 1, shop: shop, date: Date.yesterday) }
+          it 'merges' do
+            subject
+            master.reload
+            expect(master.visits.count).to eq 2
+            expect(Visit.all.count).to eq 2
+            expect(visit_1.reload.pages).to eq 1
+          end
         end
 
       end
