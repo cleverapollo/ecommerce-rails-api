@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160921092315) do
+ActiveRecord::Schema.define(version: 20160926142018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -637,6 +637,7 @@ ActiveRecord::Schema.define(version: 20160921092315) do
     t.string   "certificate_content_type"
     t.integer  "certificate_file_size"
     t.datetime "certificate_updated_at"
+    t.text     "pem_content"
   end
 
   create_table "web_push_trigger_messages", id: :bigserial, force: :cascade do |t|
