@@ -2,13 +2,19 @@ class WebPush::DigestMessage
 
   class IncorrectSettingsError < StandardError; end
 
-  attr_accessor :client, :shop, :digest, :batch, :message, :settings, :body
+  attr_accessor :client, :shop, :digest, :batch, :message, :settings, :body, :safari_pusher
 
-  def initialize(client, digest, batch)
+  # Инициализиация сообщения
+  # @param client [Client]
+  # @param digest [WebPushDigest]
+  # @param batch [WebPushDigestBatch]
+  # @param safari_pusher [Grocer]
+  def initialize(client, digest, batch, safari_pusher = nil)
     @client = client
     @shop = @client.shop
     @digest = digest
     @batch = batch
+    @safari_pusher = safari_pusher
 
     @message = client.web_push_digest_messages.create!(
         web_push_digest: digest,
@@ -21,7 +27,7 @@ class WebPush::DigestMessage
 
   # Отправляет уведомление
   def send
-    WebPush::Sender.send client, shop, body
+    WebPush::Sender.send(client, shop, body, safari_pusher)
   end
 
   private

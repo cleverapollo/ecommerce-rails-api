@@ -6,8 +6,10 @@ class ApplicationController < ActionController::API
   # Заголовки для AJAX-запросов
   # перенесено в nginx
   def set_headers
-    # headers['Access-Control-Allow-Origin'] = request.headers["HTTP_ORIGIN"]
-    # headers['Access-Control-Allow-Credentials'] = 'true'
+    if Rails.env.development?
+      headers['Access-Control-Allow-Origin'] = request.headers["HTTP_ORIGIN"]
+      headers['Access-Control-Allow-Credentials'] = 'true'
+    end
     # headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
     # headers['Access-Control-Allow-Headers'] = 'Origin'
     # headers['Access-Control-Allow-Headers'] = 'Content-Type'

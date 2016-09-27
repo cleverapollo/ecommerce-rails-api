@@ -4,7 +4,11 @@ class WebPush::TriggerMessage
 
   attr_accessor :client, :shop, :trigger, :message, :settings, :body
 
-  def initialize(trigger, client)
+  # Инициализация сообщения
+  # @param trigger
+  # @param client [Client]
+  # @param safari_pusher [Grocer]
+  def initialize(trigger, client, safari_pusher = nil)
     @client = client
     @shop = @client.shop
     @trigger = trigger

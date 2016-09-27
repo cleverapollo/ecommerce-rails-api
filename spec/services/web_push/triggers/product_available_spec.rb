@@ -4,7 +4,8 @@ describe WebPush::Triggers::ProductAvailable do
 
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop, web_push_token: {a: true}, web_push_browser: 'chrome' ) }
+  let!(:client) { create(:client, user: user, shop: shop ) }
+  let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:item) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1']) }
   let!(:subscribe_for_product_available) { create(:subscribe_for_product_available, user: user, shop: shop, item: item, subscribed_at: 10.hours.ago) }

@@ -8,76 +8,37 @@ class WebPush::Sender
     # Отправляет уведомление
     # @param client [Client]
     # @param shop [Shop]
-    # @param body [JSON]
+    # @param message [Hash{title, body, icon, url}]
+    # @param safari_pusher [Grocer] Настройки подключения к сафари серверу. Могут использоваться только для отправки сообщений одного магазина.
     # @return Boolean
-    def send(client, shop, body)
+    def send(client, shop, message, safari_pusher: shop.web_push_subscriptions_settings.safari_config)
       return false if client.nil?
       return false if shop.nil? || shop.web_push_balance < 1
-      return false if !client.web_push_enabled?
+      return false unless client.web_push_enabled?
 
-      if client.web_push_browser == 'safari'
-        pusher_config = safari_config
-
+      # send message for all tokens
+      client.web_push_tokens.each do |web_push_token|
         begin
-          notification = Grocer::SafariNotification.new(
-            device_token: JSON.parse(client.web_push_token[:safari_token]),
-            title: body[:title],
-            body: body[:body],
-            action: 'Read',
-            url_args: ['']
-          )
 
-          pusher_config.push(notification)
-          shop.reduce_web_push_balance!
+          # send message
+          web_push_token.send_web_push(message, safari_pusher: safari_pusher)
+
         rescue Webpush::InvalidSubscription => e
-          client.clear_web_push_subscription!
           Rollbar.warn e
-        rescue Exception => e
-          Rollbar.error e
-          return false
+          # remove token
+          web_push_token.destroy
         end
-
-        true
-      else
-        begin
-          token = eval(client.web_push_token)
-        rescue
-          Rollbar.error "Wrong web push token for client", client: client, token: client.web_push_token
-          return false
-        end
-
-        begin
-          Webpush.payload_send(
-              message: body,
-              endpoint: token[:endpoint],
-              auth: token[:keys][:auth],
-              p256dh: token[:keys][:p256dh],
-              api_key: ( token[:endpoint].match(/google/) ? Rails.application.secrets.google_cloud_messaging_key : '')
-          )
-          shop.reduce_web_push_balance!
-        rescue Webpush::InvalidSubscription => e
-          client.clear_web_push_subscription!
-          Rollbar.warn e
-        rescue Exception => e
-          Rollbar.error e
-          return false
-        end
-
-        true
       end
+
+      if client.web_push_tokens.count > 0
+        # снимаем с баланса, если остался хотябы один токен -> значит сообщение отправлено успешно
+        shop.reduce_web_push_balance!
+      else
+        # update user subscription when removed all tokens
+        client.clear_web_push_subscription!
+      end
+
+      true
     end
-
-    private
-
-    def safari_config
-    pusher = Grocer.pusher(
-        certificate: "webpush_safari_cert/website_aps_production.pem",
-        passphrase:  "",
-        gateway:     "gateway.push.apple.com",
-        port:        2195,
-        retries:     3
-      )
-    end
-
   end
 end

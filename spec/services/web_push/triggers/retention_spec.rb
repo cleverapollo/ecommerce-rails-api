@@ -4,7 +4,8 @@ describe WebPush::Triggers::Retention do
 
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop, web_push_token: {a: true}, web_push_browser: 'chrome' ) }
+  let!(:client) { create(:client, user: user, shop: shop) }
+  let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
   let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }

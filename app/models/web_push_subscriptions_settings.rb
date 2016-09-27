@@ -26,6 +26,25 @@ class WebPushSubscriptionsSettings < ActiveRecord::Base
   # end
 
   def safari_enabled?
-    self.safari_website_push_id.present? && self.certificate_password.present? && self.certificate_updated_at.present?
+    self.safari_website_push_id.present? && self.certificate_password.present? && self.certificate_updated_at.present? && self.pem_content.present?
+  end
+
+  # Configure safari web pusher for shop
+  def safari_config
+
+    # extract certificate
+    file = "#{Rails.root}/tmp/safari_keys/#{shop_id}.pem"
+    File.open(file, 'w') do |f|
+      f.write pem_content
+    end
+
+    # initialize connection
+    Grocer.pusher(
+        certificate: file,
+        passphrase: '',
+        gateway: 'gateway.push.apple.com',
+        port: 2195,
+        retries: 3
+    )
   end
 end
