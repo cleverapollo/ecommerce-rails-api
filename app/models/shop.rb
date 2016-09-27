@@ -115,8 +115,8 @@ class Shop < MasterTable
     active.connected.with_valid_yml.where(shard: SHARD_ID).each do |shop|
       if shop.yml_allow_import?
         YmlImporter.perform_async(shop.id)
-      elsif shop.yml_errors >= 5 
-        ErrorsMailer.yml_off(shop).deliver_now 
+      elsif shop.yml_errors >= 5
+        ErrorsMailer.yml_off(shop).deliver_now
       end
     end
   end

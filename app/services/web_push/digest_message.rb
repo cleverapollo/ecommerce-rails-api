@@ -42,7 +42,4 @@ class WebPush::DigestMessage
         })
     })
   end
-
-
-
 end
