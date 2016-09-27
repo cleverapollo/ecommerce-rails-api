@@ -1,8 +1,8 @@
 class CreateWebPushTokens < ActiveRecord::Migration
   def up
     create_table :web_push_tokens, id: :bigserial do |t|
-      t.integer :client_id, index: true, null: false
-      t.integer :shop_id, index: true, null: false
+      t.integer :client_id, limit: 8, index: true, null: false
+      t.integer :shop_id, limit: 8, index: true, null: false
       t.jsonb :token
       t.string :browser
 
