@@ -49,7 +49,8 @@ class UserMerger
     # Склеиваем пользователя по мылу
     def merge_by_mail(shop, client, user_email)
       # Найдем пользователя с тем же мылом в данном магазине
-      if client_with_current_mail = shop.clients.where.not(id: client.id).where(email: user_email).order(id: :asc).limit(1)[0]
+      client_with_current_mail = shop.clients.where.not(id: client.id).where(email: user_email).order(id: :asc).limit(1)[0]
+      if client_with_current_mail
         old_user = client_with_current_mail.user
         UserMerger.merge(old_user, client.user)
       else

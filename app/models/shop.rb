@@ -218,7 +218,7 @@ class Shop < MasterTable
   # Уменьшает количество веб пушей на балансе на 1 после отправки
   def reduce_web_push_balance!
     if web_push_balance > 0
-      update! web_push_balance: (web_push_balance - 1)
+      decrement! :web_push_balance, 1
     end
   end
 

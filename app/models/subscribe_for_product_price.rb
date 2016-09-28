@@ -13,7 +13,8 @@ class SubscribeForProductPrice < ActiveRecord::Base
       master = options.fetch(:to)
       slave = options.fetch(:from)
       slave.subscribe_for_product_prices.each do |slave_row|
-        if master_row = SubscribeForProductPrice.find_by(user_id: master.id, item_id: slave_row.item_id)
+        master_row = SubscribeForProductPrice.find_by(user_id: master.id, item_id: slave_row.item_id)
+        if master_row
           slave_row.delete
         else
           slave_row.update_columns(user_id: master.id)

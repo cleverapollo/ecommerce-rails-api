@@ -25,6 +25,9 @@ class WebPushDigestBatchWorker
       @batch.current_processed_client_id = @batch.start_id
     end
 
+    # Получаем настройки коннекта к Apple (для отправки сообщений с одним подключением к сокету)
+    safari_pusher = @shop.web_push_subscriptions_settings.safari_config
+
     # Проходим по всей доступной аудитории
     relation = @shop.clients.ready_for_web_push_digest.where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id)
     relation.each do |client|
@@ -34,7 +37,7 @@ class WebPushDigestBatchWorker
       @batch.update current_processed_client_id: @current_client.id
 
       # Отправляем сообщение
-      WebPush::DigestMessage.new(client, @mailing, @batch).send
+      WebPush::DigestMessage.new(client, @mailing, @batch, safari_pusher).send
 
       # Увеличиваем счетчик отправленных сообщений для прогресса
       @mailing.sent_messages_count.increment

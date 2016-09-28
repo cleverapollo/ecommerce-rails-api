@@ -4,7 +4,8 @@ describe WebPush::TriggerDetector do
 
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop, web_push_token: {a: true}, web_push_browser: 'chrome', last_web_push_sent_at: 26.hours.ago ) }
+  let!(:client) { create(:client, user: user, shop: shop, last_web_push_sent_at: 26.hours.ago ) }
+  let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
 

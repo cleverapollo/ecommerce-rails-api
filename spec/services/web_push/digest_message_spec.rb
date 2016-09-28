@@ -4,7 +4,8 @@ describe WebPush::DigestMessage do
 
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop, web_push_token: {a: true}, web_push_browser: 'chrome' ) }
+  let!(:client) { create(:client, user: user, shop: shop ) }
+  let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
   let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'test test test', message: 'test message for trigger', url: 'http://rees46.com',  ) }

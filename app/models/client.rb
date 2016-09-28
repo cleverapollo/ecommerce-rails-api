@@ -11,6 +11,7 @@ class Client < ActiveRecord::Base
   has_many :digest_mails
   has_many :web_push_trigger_messages
   has_many :web_push_digest_messages
+  has_many :web_push_tokens
 
   before_create :assign_ab_testing_group
 
@@ -43,8 +44,13 @@ class Client < ActiveRecord::Base
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
 
-      where(user_id: slave_user.id).order(id: :desc).each do |slave_client|
-        if master_client = where(shop_id: slave_client.shop_id, user_id: master_user.id).where.not(id: slave_client.id).order(:id).limit(1)[0]
+      where(user_id: slave_user.id).order(id: :desc).each do
+        # @type slave_client [Client]
+        |slave_client|
+
+        # @type master_client [Client]
+        master_client = where(shop_id: slave_client.shop_id, user_id: master_user.id).where.not(id: slave_client.id).order(:id).limit(1)[0]
+        if master_client
 
           # Может возникнуть ситуация, что два client принадлежат одному user, поэтому master_user == slave_user
           # В связи с этим master_client может быть равен slave_client. В этой ситуации просто пропускаем обработку такого client
@@ -71,13 +77,22 @@ class Client < ActiveRecord::Base
 
 
             if slave_client.web_push_enabled?
-              master_client.web_push_token = slave_client.web_push_token unless slave_client.web_push_token.nil?
-              master_client.web_push_browser = slave_client.web_push_browser unless slave_client.web_push_browser.nil?
               master_client.last_web_push_sent_at = slave_client.last_web_push_sent_at unless slave_client.last_web_push_sent_at.nil?
               master_client.web_push_enabled = true
             end
 
             master_client.save if master_client.changed?
+          end
+
+          # Перебрасываем токены веб пушей
+          slave_client.web_push_tokens.each do
+            # @type web_push_token [WebPushToken]
+            |web_push_token|
+
+            token = master_client.append_web_push_token(web_push_token.token.to_json)
+            if token.client_id != master_client.id
+              token.update(client_id: master_client.id)
+            end
           end
 
           slave_client.digest_mails.update_all(client_id: master_client.id)
@@ -144,7 +159,49 @@ class Client < ActiveRecord::Base
 
   # Сбрасывает историю подписок на веб пуши, чтобы пользователь мог опять получить окно подписки.
   def clear_web_push_subscription!
-    update web_push_enabled: false, web_push_token: nil, web_push_browser: nil, web_push_subscription_popup_showed: nil, accepted_web_push_subscription: nil
+    update web_push_enabled: false, web_push_subscription_popup_showed: nil, accepted_web_push_subscription: nil
+  end
+
+  # Append a new token
+  # @param token [String]
+  # @return [WebPushToken]
+  # @raise
+  def append_web_push_token(token)
+    begin
+      token = JSON.parse(token).deep_symbolize_keys
+    rescue
+      raise 'Invalid JSON data'
+    end
+
+    if token.present?
+
+      # token already exist -> skip
+      web_push_token = self.web_push_tokens.where(web_push_tokens: {shop_id: self.shop_id, token: token})
+      return web_push_token if web_push_token.present?
+
+      # detect browser
+      browser = nil
+      if token[:endpoint].present? && token[:keys].present?
+        if token[:endpoint] =~ /google/
+          browser = 'chrome'
+        end
+        if token[:endpoint] =~ /mozilla.com/
+          browser = 'firefox'
+        end
+      elsif token[:browser] == 'safari'
+        browser = token[:browser]
+      else
+        raise 'Token does not have right format'
+      end
+
+      # create a new token
+      web_push_token = self.web_push_tokens.create!(shop_id: self.shop_id, token: token, browser: browser)
+      self.update(web_push_enabled: true)
+
+      return web_push_token
+    end
+
+    raise 'Token is not valid'
   end
 
   protected

@@ -4,7 +4,7 @@ describe WebPush::Triggers::SecondAbandonedCart do
 
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop, web_push_token: {a: true}, web_push_browser: 'chrome', last_web_push_sent_at: 26.hours.ago ) }
+  let!(:client) { create(:client, user: user, shop: shop, last_web_push_sent_at: 26.hours.ago ) }
 
   let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
   let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
