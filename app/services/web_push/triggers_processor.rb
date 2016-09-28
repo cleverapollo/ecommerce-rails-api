@@ -23,34 +23,15 @@ class WebPush::TriggersProcessor
             # Сначала перебираем вторые брошенные корзины
             if trigger_detector.triggers_classes.include?(WebPush::Triggers::SecondAbandonedCart)
               shop.clients.ready_for_second_abandoned_cart_web_push(shop).find_each do |client|
-                begin
-                  trigger = trigger_detector.detect(client)
-                  if trigger
-                    WebPush::TriggerMessage.new(trigger, client, safari_pusher).send
-                    client.update_columns(last_web_push_sent_at: Time.now)
-                    client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply
-                  end
-                rescue StandardError => e
-                  Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
-                end
+                detect_trigger(trigger_detector, client, safari_pusher)
               end
             end
 
 
             # Затем перебираем обычные триггеры
             shop.clients.ready_for_web_push_trigger(shop).find_each do |client|
-              begin
-                trigger = trigger_detector.detect(client)
-                if trigger
-                  WebPush::TriggerMessage.new(trigger, client, safari_pusher).send
-                  client.update_columns(last_web_push_sent_at: Time.now)
-                  client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply
-                end
-              rescue StandardError => e
-                Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
-              end
+              detect_trigger(trigger_detector, client, safari_pusher)
             end
-
 
           end
 
@@ -61,7 +42,22 @@ class WebPush::TriggersProcessor
 
       end
 
+    end
 
+    # @param trigger_detector [WebPush::TriggerDetector]
+    # @param client [Client]
+    # @param safari_pusher [Grocer]
+    def detect_trigger(trigger_detector, client, safari_pusher)
+      begin
+        trigger = trigger_detector.detect(client)
+        if trigger
+          WebPush::TriggerMessage.new(trigger, client, safari_pusher).send
+          client.update_columns(last_web_push_sent_at: Time.now)
+          client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply
+        end
+      rescue StandardError => e
+        Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
+      end
     end
 
 

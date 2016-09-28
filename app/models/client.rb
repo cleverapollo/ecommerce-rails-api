@@ -176,7 +176,7 @@ class Client < ActiveRecord::Base
     if token.present?
 
       # token already exist -> skip
-      web_push_token = self.web_push_tokens.where(web_push_tokens: {shop_id: self.shop_id, token: token})
+      web_push_token = self.web_push_tokens.find_by(web_push_tokens: {shop_id: self.shop_id, token: token})
       return web_push_token if web_push_token.present?
 
       # detect browser
