@@ -22,6 +22,8 @@ describe WebPush::TriggerMessage do
       expect(message.trigger).to eq trigger
       expect(message.message.web_push_trigger_id).to eq web_push_trigger.id
       expect(message.message.code).to eq WebPushTriggerMessage.first.code
+      expect(message.body[:title]).to eq trigger.settings[:subject]
+      expect(message.body[:body]).to eq trigger.settings[:message]
     end
 
   end

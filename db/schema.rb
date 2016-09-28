@@ -639,12 +639,12 @@ ActiveRecord::Schema.define(version: 20160926142018) do
   end
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|
-    t.integer  "client_id",  null: false
-    t.integer  "shop_id",    null: false
+    t.integer  "client_id",  limit: 8, null: false
+    t.integer  "shop_id",    limit: 8, null: false
     t.jsonb    "token"
     t.string   "browser"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
   add_index "web_push_tokens", ["client_id", "token"], name: "index_web_push_tokens_on_client_id_and_token", unique: true, using: :btree

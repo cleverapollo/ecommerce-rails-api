@@ -25,15 +25,15 @@ class WebPush::TriggerMessage
 
   # Отправляет уведомление
   def send
-    WebPush::Sender.send client, shop, body
+    WebPush::Sender.send(client, shop, body)
   end
 
   private
 
-  # Создает JSON-объект для отправки web push сообщения
-  # @return JSON
+  # Создает объект для отправки web push сообщения
+  # @return [Hash]
   def generate_body
-    JSON.generate({
+    {
         title:  trigger.settings[:subject],
         body:   trigger.settings[:message],
         icon:   trigger.items.first.image_url,
@@ -44,7 +44,7 @@ class WebPush::TriggerMessage
             recommended_by: 'web_push_trigger',
             rees46_web_push_trigger_code: message.code
         })
-    })
+    }
   end
 
 
