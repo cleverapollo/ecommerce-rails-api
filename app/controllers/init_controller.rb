@@ -43,9 +43,8 @@ class InitController < ApplicationController
     VisitTracker.new(shop).track(session.user)
 
     # Отмечаем источник перехода, если есть
-    source = params[:source].present? ? JSON.parse(params[:source]) : nil
-    if source
-      LeadSourceProcessor.new(source['from'], source['code']).process
+    if params[:from].present? && params[:code].present?
+      LeadSourceProcessor.new(params[:from], params[:code]).process
     end
 
     if params[:v] == '3'
