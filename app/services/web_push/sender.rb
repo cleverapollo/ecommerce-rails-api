@@ -11,7 +11,7 @@ class WebPush::Sender
     # @param message [Hash{title, body, icon, url}]
     # @param safari_pusher [Grocer] Настройки подключения к сафари серверу. Могут использоваться только для отправки сообщений одного магазина.
     # @return Boolean
-    def send(client, shop, message, safari_pusher: shop.web_push_subscriptions_settings.safari_config)
+    def send(client, shop, message, safari_pusher = shop.web_push_subscriptions_settings.safari_config)
       return false if client.nil?
       return false if shop.nil? || shop.web_push_balance < 1
       return false unless client.web_push_enabled?
