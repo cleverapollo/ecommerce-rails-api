@@ -84,4 +84,60 @@ describe EventsController do
       end
     end
   end
+
+  describe 'POST push purchase' do
+    let!(:shop) { create(:shop) }
+    let!(:session) { create(:session, user: create(:user)) }
+    let!(:client) { create(:client, user: create(:user), shop: shop) }
+    let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'purchase', order_id: '1', order_price: '1000', item_id: ['20'], amount: ['1'], price: ['1000'] } }
+
+    it 'default' do
+      post :push, params
+
+      expect(Order.count).to eq 1
+    end
+
+    context 'purchase with source type' do
+      let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
+      let!(:batch) { create(:digest_mailing_batch, shop: shop, mailing: digest_mailing) }
+      let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', liquid_template: '123') }
+
+      let!(:digest_mail) { create(:digest_mail, shop_id: shop.id, mailing: digest_mailing, batch: batch, client: client) }
+      let!(:trigger_mail) { create(:trigger_mail, shop_id: shop.id, mailing: trigger_mailing, trigger_data: {a: 1}, client: client) }
+      let!(:rtb_impression) { create(:rtb_impression, shop: shop) }
+
+      let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client) }
+      let!(:web_push_trigger_message) { create(:web_push_trigger_message, shop: shop, client: client, trigger_data: {a: 1}, web_push_trigger_id: 1) }
+
+      it 'digest_mail' do
+        post :push, params.merge({source: "{\"from\":\"digest_mail\",\"code\":\"#{digest_mail.code}\"}"})
+
+        expect(Order.where(source_type: 'DigestMail').count).to eq 1
+      end
+
+      it 'trigger_mail' do
+        post :push, params.merge({source: "{\"from\":\"trigger_mail\",\"code\":\"#{trigger_mail.code}\"}"})
+
+        expect(Order.where(source_type: 'TriggerMail').count).to eq 1
+      end
+
+      it 'r46_returner' do
+        post :push, params.merge({source: "{\"from\":\"r46_returner\",\"code\":\"#{rtb_impression.code}\"}"})
+
+        expect(Order.where(source_type: 'RtbImpression').count).to eq 1
+      end
+
+      it 'web_push_digest' do
+        post :push, params.merge({source: "{\"from\":\"web_push_digest\",\"code\":\"#{web_push_digest_message.code}\"}"})
+
+        expect(Order.where(source_type: 'WebPushDigestMessage').count).to eq 1
+      end
+
+      it 'web_push_trigger' do
+        post :push, params.merge({source: "{\"from\":\"web_push_trigger\",\"code\":\"#{web_push_trigger_message.code}\"}"})
+
+        expect(Order.where(source_type: 'WebPushTriggerMessage').count).to eq 1
+      end
+    end
+  end
 end
