@@ -35,7 +35,7 @@ class WebPush::DigestMessage
   # Создает JSON-объект для отправки web push сообщения
   # @return JSON
   def generate_body
-    JSON.generate({
+    {
         title:  digest.subject,
         body:   digest.message,
         icon:   digest.fetch_picture_url,
@@ -46,6 +46,6 @@ class WebPush::DigestMessage
             recommended_by: 'web_push_digest',
             rees46_web_push_digest_code: message.code
         })
-    })
+    }
   end
 end
