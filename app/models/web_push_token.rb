@@ -27,6 +27,10 @@ class WebPushToken < ActiveRecord::Base
 
       true
     else
+
+      # attach shop id to message
+      message[:shop_id] = shop.uniqid
+
       Webpush.payload_send(
           message: JSON.generate(message),
           endpoint: token[:endpoint],

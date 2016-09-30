@@ -3,7 +3,7 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush]
+  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush, :received]
   before_action :fetch_user, only: [:create, :send_test, :decline]
 
   # Подписка на пуш-уведомления
@@ -34,6 +34,34 @@ class WebPushSubscriptionsController < ApplicationController
     client.accepted_web_push_subscription = nil
     client.save
     render json: {}
+  end
+
+  # Отметка о получении сообщения
+  # @method POST
+  # Params:
+  #   shop_id [String]
+  #   url [String]
+  def received
+    if params[:url].present?
+      uri = URI::parse(params[:url])
+      if uri
+        url_params = URI::decode_www_form(uri.query).to_h
+        if url_params
+          case url_params['recommended_by']
+
+            when 'web_push_trigger'
+              message = WebPushTriggerMessage.find_by code: url_params['rees46_web_push_trigger_code']
+              message.update(showed: true) if message && !message.showed?
+
+            when 'web_push_digest'
+              message = WebPushDigestMessage.find_by code: url_params['rees46_web_push_digest_code']
+              message.update(showed: true) if message && !message.showed?
+
+          end
+        end
+      end
+    end
+    render nothing: true
   end
 
   # Отправка тестового пуша для отладки разработки
