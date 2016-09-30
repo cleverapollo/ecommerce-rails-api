@@ -1,5 +1,7 @@
 class WebPushSubscriptionsSettings < ActiveRecord::Base
 
+  DEFAULT_SERVICE_WORKER_PATH = '/push_sw.js'
+
   belongs_to :shop
 
   has_attached_file :picture, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
@@ -27,6 +29,10 @@ class WebPushSubscriptionsSettings < ActiveRecord::Base
 
   def safari_enabled?
     self.safari_website_push_id.present? && self.certificate_password.present? && self.certificate_updated_at.present? && self.pem_content.present?
+  end
+
+  def service_worker
+    self.service_worker_path || DEFAULT_SERVICE_WORKER_PATH
   end
 
   # Configure safari web pusher for shop

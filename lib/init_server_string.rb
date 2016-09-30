@@ -110,6 +110,7 @@ module InitServerString
                               remote_picture_url: shop.web_push_subscriptions_settings.remote_picture_url,
                               safari_enabled: shop.web_push_subscriptions_settings.safari_enabled?,
                               safari_id: shop.web_push_subscriptions_settings.safari_website_push_id,
+                              service_worker: shop.web_push_subscriptions_settings.service_worker,
                           }
                           else
                             nil
