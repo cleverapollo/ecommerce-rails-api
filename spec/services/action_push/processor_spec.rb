@@ -8,7 +8,8 @@ describe ActionPush::Processor do
 
     @user = create(:user_with_session)
     @session = @user.sessions.first
-    @shop = create(:shop)
+    @customer = create(:customer)
+    @shop = create(:shop, customer: @customer)
     @client = create(:client, shop: @shop, user: @user)
 
     create(:item_category, shop: @shop, external_id: '123', taxonomy: 'apparel.shoe')

@@ -16,23 +16,25 @@ class WebPush::TriggersProcessor
           # @type shop [Shop]
           |shop|
 
-          safari_pusher = shop.web_push_subscriptions_settings.safari_config
+          Time.use_zone(shop.customer.time_zone) do
+            safari_pusher = shop.web_push_subscriptions_settings.safari_config
 
-          WebPush::TriggerDetector.for(shop) do |trigger_detector|
+            WebPush::TriggerDetector.for(shop) do |trigger_detector|
 
-            # Сначала перебираем вторые брошенные корзины
-            if trigger_detector.triggers_classes.include?(WebPush::Triggers::SecondAbandonedCart)
-              shop.clients.ready_for_second_abandoned_cart_web_push(shop).find_each do |client|
+              # Сначала перебираем вторые брошенные корзины
+              if trigger_detector.triggers_classes.include?(WebPush::Triggers::SecondAbandonedCart)
+                shop.clients.ready_for_second_abandoned_cart_web_push(shop).find_each do |client|
+                  detect_trigger(trigger_detector, client, safari_pusher)
+                end
+              end
+
+
+              # Затем перебираем обычные триггеры
+              shop.clients.ready_for_web_push_trigger(shop).find_each do |client|
                 detect_trigger(trigger_detector, client, safari_pusher)
               end
+
             end
-
-
-            # Затем перебираем обычные триггеры
-            shop.clients.ready_for_web_push_trigger(shop).find_each do |client|
-              detect_trigger(trigger_detector, client, safari_pusher)
-            end
-
           end
 
         end

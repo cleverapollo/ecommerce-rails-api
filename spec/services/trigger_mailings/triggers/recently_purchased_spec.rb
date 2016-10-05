@@ -6,7 +6,8 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop, ekomi_enabled: true, ekomi_id: '665', ekomi_key: 'FMJuyuC8uEbo3WxRa5aG') }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer, ekomi_enabled: true, ekomi_id: '665', ekomi_key: 'FMJuyuC8uEbo3WxRa5aG') }
     let!(:client) { create(:client, user: user, shop: shop, email: 'test@rees46demo.com') }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
@@ -61,7 +62,8 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop, supply_available: true) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }

@@ -6,7 +6,8 @@ describe TriggerMailings::Triggers::ProductAvailable do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1']) }
@@ -52,7 +53,8 @@ describe TriggerMailings::Triggers::ProductAvailable do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1'], url: '', widgetable: true) }

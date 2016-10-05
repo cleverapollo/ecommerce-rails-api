@@ -7,13 +7,17 @@ class ShopKPI
     # нужно пересчитывать старые данные за 14 дней.
     def recalculate_all_for_last_period
       Shop.on_current_shard.connected.active.unrestricted.each do |shop|
-        if shop.track_order_status?
-          (1..14).each do |x|
-            new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+
+        Time.use_zone(shop.customer.time_zone) do
+          if shop.track_order_status?
+            (1..14).each do |x|
+              new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+            end
+          else
+            new(shop).calculate_and_write_statistics_at(Date.yesterday)
           end
-        else
-          new(shop).calculate_and_write_statistics_at(Date.yesterday)
         end
+
       end
     end
 

@@ -3,7 +3,8 @@ require 'rails_helper'
 describe InitController do
 
   describe 'GET check' do
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
 
     context 'do not check secret' do
       it 'generates key and secret' do
@@ -35,7 +36,8 @@ describe InitController do
 
 
   describe 'GET generate_ssid' do
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
 
     context 'when shop_id is correct' do
       it 'creates new session' do
@@ -60,7 +62,8 @@ describe InitController do
   end
 
   describe 'GET init_script' do
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:init_params) { { shop_id: shop.uniqid } }
 
     shared_examples 'an api initializer' do
@@ -114,7 +117,8 @@ describe InitController do
 
   describe 'GET init_script V3' do
 
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:init_params) { { shop_id: shop.uniqid, v: 3 } }
 
     shared_examples 'an api initializer' do
@@ -166,7 +170,8 @@ describe InitController do
 
     context 'mark sources as clicked' do
 
-      let!(:shop) { create(:shop) }
+      let!(:customer) { create(:customer) }
+      let!(:shop) { create(:shop, customer: customer) }
       let!(:init_params) { { shop_id: shop.uniqid } }
 
       let!(:client) { create(:client, shop: shop) }
