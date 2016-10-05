@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160922151805) do
+ActiveRecord::Schema.define(version: 20161005134148) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -561,6 +561,7 @@ ActiveRecord::Schema.define(version: 20160922151805) do
     t.string  "currency"
     t.string  "name"
     t.boolean "active",             default: true, null: false
+    t.string  "logo"
   end
 
   add_index "rtb_jobs", ["active", "date", "user_id"], name: "index_rtb_jobs_on_active_and_date_and_user_id", where: "(active IS TRUE)", using: :btree
