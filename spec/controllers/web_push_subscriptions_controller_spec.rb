@@ -35,6 +35,28 @@ describe WebPushSubscriptionsController do
 
   end
 
+  describe 'POST received' do
+    let!(:shop) { create(:shop) }
+    let!(:client) { create(:client, shop: shop) }
+
+    let!(:web_push_trigger) { create(:web_push_trigger, shop: shop, subject: 'Hello', message: 'Sale out') }
+    let!(:web_push_trigger_message) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger, trigger_data: {sample: true}) }
+
+    let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client, web_push_digest_id: 1) }
+
+    it 'trigger message showed' do
+      post :received, shop_id: shop.uniqid, url: "http://test.com/?recommended_by=web_push_trigger&rees46_web_push_trigger_code=#{web_push_trigger_message.code}"
+
+      expect(web_push_trigger_message.reload.showed).to eq true
+    end
+
+    it 'digest message showed' do
+      post :received, shop_id: shop.uniqid, url: "http://test.com/?recommended_by=web_push_digest&rees46_web_push_digest_code=#{web_push_digest_message.code}"
+
+      expect(web_push_digest_message.reload.showed).to eq true
+    end
+  end
+
   describe 'POST safari_webpush' do
     let!(:shop) { create(:shop) }
     let!(:web_push_subscriptions_settings) { create(:web_push_subscriptions_settings, shop: shop) }

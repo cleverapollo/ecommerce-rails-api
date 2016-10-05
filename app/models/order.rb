@@ -38,6 +38,10 @@ class Order < ActiveRecord::Base
           DigestMail
         elsif source['from'] == 'r46_returner'
           RtbImpression
+        elsif source['from'] == 'web_push_digest'
+          WebPushDigestMessage
+        elsif source['from'] == 'web_push_trigger'
+          WebPushTriggerMessage
         end
 
         source = klass.find_by(code: source['code'])

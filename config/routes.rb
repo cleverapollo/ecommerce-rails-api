@@ -93,8 +93,8 @@ Rees46Api::Application.routes.draw do
   # create - прием данных о подписке
   resources :web_push_subscriptions, only: [:create] do
     collection do
-      # Отписаться
-      post :unsubscribe
+      # Отметка о получении сообщения
+      post :received
       # Отказался от подписки
       post :decline
       # Отправить тестовое сообщение

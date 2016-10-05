@@ -182,37 +182,37 @@ describe InitController do
       let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client, web_push_digest_id: 1) }
 
       it 'clicks digest mail' do
-        init_params.merge!(source: {from: 'digest_mail', code: digest_mail.code}.to_json)
+        init_params.merge!(from: 'digest_mail', code: digest_mail.code)
         get :init_script, init_params
         expect(DigestMail.first.clicked).to be_truthy
       end
 
       it 'clicks incorrect digest mail' do
-        init_params.merge!(source: {from: 'digest_mail', code: '33313'}.to_json)
+        init_params.merge!(from: 'digest_mail', code: '33313')
         get :init_script, init_params
         expect(DigestMail.first.clicked).to be_falsey
       end
 
       it 'clicks trigger mail' do
-        init_params.merge!(source: {from: 'trigger_mail', code: trigger_mail.code}.to_json)
+        init_params.merge!(from: 'trigger_mail', code: trigger_mail.code)
         get :init_script, init_params
         expect(TriggerMail.first.clicked).to be_truthy
       end
 
       it 'clicks rtb impression' do
-        init_params.merge!(source: {from: 'r46_returner', code: rtb_impression.code}.to_json)
+        init_params.merge!(from: 'r46_returner', code: rtb_impression.code)
         get :init_script, init_params
         expect(RtbImpression.first.clicked).to be_truthy
       end
 
       it 'clicks web push trigger' do
-        init_params.merge!(source: {from: 'web_push_trigger', code: web_push_trigger_message.code}.to_json)
+        init_params.merge!(from: 'web_push_trigger', code: web_push_trigger_message.code)
         get :init_script, init_params
         expect(WebPushTriggerMessage.first.clicked).to be_truthy
       end
 
       it 'clicks web push digest' do
-        init_params.merge!(source: {from: 'web_push_digest', code: web_push_digest_message.code}.to_json)
+        init_params.merge!(from: 'web_push_digest', code: web_push_digest_message.code)
         get :init_script, init_params
         expect(WebPushDigestMessage.first.clicked).to be_truthy
       end

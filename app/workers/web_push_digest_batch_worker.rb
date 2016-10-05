@@ -1,5 +1,5 @@
 ##
-# Обработчик пачки дайджейстной веб-пущ рассылки.
+# Обработчик пачки дайджейстной веб-пуш рассылки.
 #
 class WebPushDigestBatchWorker
   include Sidekiq::Worker

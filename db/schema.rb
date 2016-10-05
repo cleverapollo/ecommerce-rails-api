@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160926142018) do
+ActiveRecord::Schema.define(version: 20160930124621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -586,11 +586,13 @@ ActiveRecord::Schema.define(version: 20160926142018) do
     t.datetime "created_at",                                                        null: false
     t.datetime "updated_at",                                                        null: false
     t.integer  "web_push_digest_batch_id", limit: 8,                                null: false
+    t.boolean  "showed",                             default: false,                null: false
   end
 
   add_index "web_push_digest_messages", ["code"], name: "index_web_push_digest_messages_on_code", unique: true, using: :btree
   add_index "web_push_digest_messages", ["date", "shop_id"], name: "index_web_push_digest_messages_on_date_and_shop_id", using: :btree
   add_index "web_push_digest_messages", ["date"], name: "index_web_push_digest_messages_on_date", using: :btree
+  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_and_showed", where: "(showed IS TRUE)", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
   add_index "web_push_digest_messages", ["web_push_digest_id"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
 
@@ -636,6 +638,7 @@ ActiveRecord::Schema.define(version: 20160926142018) do
     t.integer  "certificate_file_size"
     t.datetime "certificate_updated_at"
     t.text     "pem_content"
+    t.string   "service_worker_path"
   end
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|
@@ -662,11 +665,13 @@ ActiveRecord::Schema.define(version: 20160926142018) do
     t.date     "date"
     t.datetime "created_at",                                                   null: false
     t.datetime "updated_at",                                                   null: false
+    t.boolean  "showed",                        default: false,                null: false
   end
 
   add_index "web_push_trigger_messages", ["code"], name: "index_web_push_trigger_messages_on_code", unique: true, using: :btree
   add_index "web_push_trigger_messages", ["date", "shop_id"], name: "index_web_push_trigger_messages_on_date_and_shop_id", using: :btree
   add_index "web_push_trigger_messages", ["date"], name: "index_web_push_trigger_messages_on_date", using: :btree
+  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_trigger_id_and_showed", where: "(showed IS TRUE)", using: :btree
   add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
   add_index "web_push_trigger_messages", ["web_push_trigger_id"], name: "index_web_push_trigger_messages_on_web_push_trigger_id", using: :btree
 
