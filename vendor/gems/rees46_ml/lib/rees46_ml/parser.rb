@@ -51,6 +51,9 @@ module Rees46ML
       state :fashion
       state :cosmetic
       state :fmcg
+      state :auto
+      state :compatibility
+      state :vds
       state :periodic
       state :skin
       state :hair
@@ -437,6 +440,14 @@ module Rees46ML
         transitions from: :fmcg, to: :offer
       end
 
+      event :start_auto do
+        transitions from: :offer, to: :auto
+      end
+
+      event :end_auto do
+        transitions from: :auto, to: :offer
+      end
+
       event :start_cosmetic do
         transitions from: :offer, to: :cosmetic
       end
@@ -448,11 +459,29 @@ module Rees46ML
       event :start_periodic do
         transitions from: :cosmetic, to: :periodic
         transitions from: :fmcg,     to: :periodic
+        transitions from: :auto,     to: :periodic
       end
 
       event :end_periodic do
         transitions from: :periodic, to: :cosmetic, guard: :in_cosmetic?
         transitions from: :periodic, to: :fmcg,    guard: :in_fmcg?
+        transitions from: :periodic, to: :auto,    guard: :in_auto?
+      end
+
+      event :start_compatibility do
+        transitions from: :auto, to: :compatibility
+      end
+
+      event :end_compatibility do
+        transitions from: :compatibility, to: :auto, guard: :in_auto?
+      end
+
+      event :start_vds do
+        transitions from: :auto, to: :vds
+      end
+
+      event :end_vds do
+        transitions from: :vds, to: :auto, guard: :in_auto?
       end
 
       event :start_fashion do
@@ -1091,10 +1120,14 @@ module Rees46ML
           self.current_element = Rees46ML::Skin.new
         when "hair"
           self.current_element = Rees46ML::Hair.new
+        when "auto"
+          self.current_element = Rees46ML::Auto.new
         when "offer"
           self.current_element = Rees46ML::Offer.new
         when "param"
           self.current_element = Rees46ML::Param.new
+        when "compatibility"
+          self.current_element = Rees46ML::Compatibility.new if in_auto?
         end
 
         send event_name
@@ -1128,6 +1161,8 @@ module Rees46ML
             self.current_element.barcodes << safe_buffer
           when "picture"
             self.current_element.pictures << safe_buffer
+          when "vds"
+            self.current_element.vds << safe_buffer
           when "part"
             if in_skin?
               self.current_element.part << safe_buffer
@@ -1184,6 +1219,12 @@ module Rees46ML
           stack.pop
         when "fmcg"
           self.parent_element.fmcg = self.current_element
+          stack.pop
+        when "auto"
+          self.parent_element.auto = self.current_element
+          stack.pop
+        when "compatibility"
+          self.parent_element.compatibility << self.current_element if in_auto?
           stack.pop
         when "cosmetic"
           self.parent_element.cosmetic = self.current_element
