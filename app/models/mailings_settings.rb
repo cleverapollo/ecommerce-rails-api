@@ -8,6 +8,7 @@ class MailingsSettings < ActiveRecord::Base
   MAILING_SERVICE_GETRESPONSE = 1
   MAILING_SERVICE_OPTIVO_MYTOYS = 2
   MAILING_SERVICE_MAILCHIMP = 3
+  MAILING_SERVICE_OFSYS = 4
 
   TEMPLATE_LIQUID = 1
 
@@ -30,16 +31,21 @@ class MailingsSettings < ActiveRecord::Base
     mailing_service == MAILING_SERVICE_GETRESPONSE && getresponse_api_key.present? && getresponse_api_url.present?
   end
 
+  # Проверяет, настроен ли внешний сервис рассылок MailChimp
+  def external_mailchimp?
+    mailing_service == MAILING_SERVICE_MAILCHIMP && mailchimp_api_key.present?
+  end
+
+  # Проверяет, настроен ли внешний сервис рассылок Ofsys
+  def external_ofsys?
+    mailing_service == MAILING_SERVICE_OFSYS
+  end
+
   # Проверяет, используется ли Optivo для MyToys как сервис рассылок
   # Как бы костыль
   # @return Boolean
   def is_optivo_for_mytoys?
     mailing_service == MAILING_SERVICE_OPTIVO_MYTOYS
-  end
-
-  # Проверяет, настроен ли внешний сервис рассылок MailChimp
-  def external_mailchimp?
-    mailing_service == MAILING_SERVICE_MAILCHIMP && mailchimp_api_key.present?
   end
 
   def template_liquid?
