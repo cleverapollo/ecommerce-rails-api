@@ -24,10 +24,9 @@ class TriggerMailingsController < ApplicationController
       end
 
       trigger = trigger_mailing_class.new client
+      trigger.generate_test_data!
 
       if mailings_settings.external_mailchimp?
-        trigger.generate_test_data!
-
         var = {
           'api_key' => mailings_settings.mailchimp_api_key,
           'campaign_id' => trigger_mailing.mailchimp_campaign_id,
@@ -37,15 +36,9 @@ class TriggerMailingsController < ApplicationController
 
         MailchimpTestTriggerLetter.perform_async(var)
       else
-        trigger.generate_test_data!
         if mailings_settings.external_ofsys?
-          begin
-            Timeout::timeout(2) {
-              TriggerMailings::OfsysLetter.new(client, trigger).send
-            }
-          rescue Timeout::Error => e
-            Rollbar.warning(e, "Timeout Ofsys Test Trigger", shop_id: @shop.id, client_id: client.id)
-          end
+          result = TriggerMailings::OfsysLetter.new(client, trigger).send
+          render nothing: true, status: 400 and return unless result
         else
           TriggerMailings::Letter.new(client, trigger).send
         end
