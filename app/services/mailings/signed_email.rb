@@ -25,6 +25,9 @@ module Mailings
       m.header['List-Id'] = @options.fetch(:list_id)
       m.header['Feedback-ID'] = @options.fetch(:feedback_id)
 
+      # Bounced ID for Get-N-Post API
+      m.header['X-R46-ID'] = "shard#{SHARD_ID}+#{type}=#{code}"
+
       if @options.fetch(:type) == 'digest'
         m.header['Precedence'] = 'bulk'
       end
