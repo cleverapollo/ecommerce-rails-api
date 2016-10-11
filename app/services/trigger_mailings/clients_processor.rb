@@ -40,14 +40,8 @@ module TriggerMailings
                       if shop.mailings_settings.external_getresponse?
                         TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                       elsif shop.mailings_settings.external_ofsys?
-                       begin
-                          Timeout::timeout(2) {
-                            TriggerMailings::OfsysLetter.new(client, trigger).send
-                          }
-                        rescue Timeout::Error => e
-                          Rollbar.warning(e, "Timeout Ofsys", shop_id: shop.id, client_id: client.id)
-                          next
-                        end
+                        result = TriggerMailings::OfsysLetter.new(client, trigger).send
+                        next unless result
                       elsif shop.mailings_settings.is_optivo_for_mytoys?
                         TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                       elsif shop.mailings_settings.external_mailchimp?
@@ -73,14 +67,8 @@ module TriggerMailings
                     if shop.mailings_settings.external_getresponse?
                       TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
                     elsif shop.mailings_settings.external_ofsys?
-                      begin
-                        Timeout::timeout(2) {
-                          TriggerMailings::OfsysLetter.new(client, trigger).send
-                        }
-                      rescue Timeout::Error => e
-                        Rollbar.warning(e, "Timeout Ofsys", shop_id: shop.id, client_id: client.id)
-                        next
-                      end
+                      result = TriggerMailings::OfsysLetter.new(client, trigger).send
+                      next unless result
                     elsif shop.mailings_settings.is_optivo_for_mytoys?
                       TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                     elsif shop.mailings_settings.external_mailchimp?

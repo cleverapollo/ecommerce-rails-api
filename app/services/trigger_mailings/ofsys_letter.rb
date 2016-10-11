@@ -22,10 +22,16 @@ module TriggerMailings
     end
 
     def send
-      self.class.get("#{HOOK_URL}",
-        headers: {'content-type' => 'application/json'},
-        body: generate_letter_body
-      )
+      Timeout::timeout(2) {
+        response = self.class.post("#{HOOK_URL}",
+          headers: {'content-type' => 'application/json'},
+          body: generate_letter_body
+        )
+        true
+      }
+    rescue Timeout::Error => e
+      Rollbar.warning(e, "Timeout Ofsys Test Trigger", shop_id: @shop.id, client_id: client.id)
+      false
     end
 
     private
