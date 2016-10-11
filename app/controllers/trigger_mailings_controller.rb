@@ -38,7 +38,17 @@ class TriggerMailingsController < ApplicationController
         MailchimpTestTriggerLetter.perform_async(var)
       else
         trigger.generate_test_data!
-        TriggerMailings::Letter.new(client, trigger).send
+        if mailings_settings.external_ofsys?
+          begin
+            Timeout::timeout(2) {
+              TriggerMailings::OfsysLetter.new(client, trigger).send
+            }
+          rescue Timeout::Error => e
+            Rollbar.warning(e, "Timeout Ofsys Test Trigger", shop_id: @shop.id, client_id: client.id)
+          end
+        else
+          TriggerMailings::Letter.new(client, trigger).send
+        end
       end
 
     end
