@@ -135,6 +135,7 @@ class OrdersImportWorker
 
     if item.new_record?
       item_proxy = OpenStruct.new(item_raw)
+      item_proxy[:is_available] = true if item_proxy[:is_available].blank?
       item.merge_attributes(item_proxy)
       begin
         item.save!
