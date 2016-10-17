@@ -70,8 +70,8 @@ module TriggerMailings
       end
 
       mailings_settings = MailingsSettings.find_by(shop_id: @shop.id)
-      if mailings_settings && mailings_settings.fetch_logo_url.present?
-        data[:logo_url] = mailings_settings.fetch_logo_url
+      if @shop.fetch_logo_url.present?
+        data[:logo_url] = @shop.fetch_logo_url
       end
 
       data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)

@@ -48,6 +48,10 @@ class Shop < MasterTable
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
 
+  has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
+  validates_attachment_content_type :logo, content_type: /\Aimage/
+  validates_attachment_file_name :logo, matches: [/png\Z/i, /jpe?g\Z/i]
+
   # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
   default_scope { where(shard: SHARD_ID) }
 
@@ -220,6 +224,10 @@ class Shop < MasterTable
     if web_push_balance > 0
       decrement! :web_push_balance, 1
     end
+  end
+
+  def fetch_logo_url
+    self.logo.present? ? URI.join("#{Rees46.site_url}", self.logo.url).to_s : ''
   end
 
 end

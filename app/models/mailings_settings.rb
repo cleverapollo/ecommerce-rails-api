@@ -52,7 +52,7 @@ class MailingsSettings < ActiveRecord::Base
     template_type == TEMPLATE_LIQUID
   end
 
-  def fetch_logo_url
-    self.logo.present? ? URI.join("#{Rees46.site_url}", self.logo.url).to_s : ''
-  end
+  # def fetch_logo_url
+  #   self.logo.present? ? URI.join("#{Rees46.site_url}", self.logo.url).to_s : ''
+  # end
 end
