@@ -69,7 +69,6 @@ module TriggerMailings
         r.user_id = client.user.present? ? client.user.id : 0
       end
 
-      mailings_settings = MailingsSettings.find_by(shop_id: @shop.id)
       if @shop.fetch_logo_url.present?
         data[:logo_url] = @shop.fetch_logo_url
       end
