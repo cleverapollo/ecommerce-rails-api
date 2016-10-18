@@ -89,6 +89,10 @@ class Item < ActiveRecord::Base
       oldprice
       brand_downcase
       discount
+      is_auto
+      auto_compatibility
+      auto_periodic
+      auto_vds
     ].sort
   end
 
@@ -243,6 +247,7 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # @param offer [Rees46ML::Offer]
   def self.build_by_offer(offer)
     new do |item|
       item.uniqid = offer.id
@@ -333,6 +338,13 @@ class Item < ActiveRecord::Base
         item.is_fmcg = true
         item.fmcg_hypoallergenic = offer.fmcg.hypoallergenic
         item.fmcg_periodic = offer.fmcg.periodic
+      end
+
+      if offer.auto?
+        item.is_auto = true
+        item.auto_compatibility = offer.auto.compatibility.to_a
+        item.auto_periodic = !!offer.auto.periodic
+        item.auto_vds = offer.auto.vds.to_a
       end
 
       item.brand = offer.vendor

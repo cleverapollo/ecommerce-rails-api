@@ -66,6 +66,8 @@ describe Item do
     let(:price_margin)   { rand 10 }
     let(:oldprice)       { rand 1000 }
     let(:discount)       { true }
+    let(:is_auto)        { true }
+    let(:auto_periodic)  { false }
 
     subject do
       build(:item, {
@@ -103,7 +105,9 @@ describe Item do
         fashion_sizes: sizes,
         price_margin: price_margin,
         oldprice: oldprice,
-        discount: discount
+        discount: discount,
+        is_auto: is_auto,
+        auto_periodic: auto_periodic,
       })
     end
 
@@ -142,6 +146,8 @@ describe Item do
     it { expect(subject.csv_row[33]).to eq("{#{sizes.join(',')}}") }
     it { expect(subject.csv_row[49]).to eq(oldprice) }
     it { expect(subject.csv_row[51]).to eq(true) }
+    it { expect(subject.csv_row[52]).to eq(is_auto) }
+    it { expect(subject.csv_row[54]).to eq(false) }
   end
 
   describe '.fetch' do
