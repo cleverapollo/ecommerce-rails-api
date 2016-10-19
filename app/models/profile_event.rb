@@ -69,7 +69,7 @@ class ProfileEvent < MasterTable
     # @param user [User]
     # @param shop [Shop]
     # @param action [Action]
-    # @param items [Item[]] Array of items
+    # @param items [Array<Item>] Array of items
     # @return Boolean
     # @throws Exception
     def track_items(user, shop, action, items)
@@ -209,10 +209,42 @@ class ProfileEvent < MasterTable
               item.fashion_sizes.each do |size|
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
-                properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
               end
+              properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
             end
 
+          end
+
+        end
+
+        # Авто
+        if item.is_auto?
+
+          # Марка и модель авто
+          if item.auto_compatibility.present?
+            item.auto_compatibility.each do |compatibility|
+
+              # Марка
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: compatibility['brand']
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+
+              # Модель
+              if compatibility['model'].present?
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: compatibility['model']
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+            properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility user
+          end
+
+          # VIN
+          if item.auto_vds.present?
+            item.auto_vds.each do |vds|
+              # Марка
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'vds', value: vds
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            end
+            properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds user
           end
 
         end

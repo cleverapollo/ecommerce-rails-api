@@ -1,10 +1,9 @@
 require 'rails_helper'
-
 describe 'Pushing an event for rtb' do
 
   before do
     @customer = create(:customer, balance: 300)
-    @shop = create(:shop, customer: @customer, remarketing_enabled: true)
+    @shop = create(:shop, customer: @customer, remarketing_enabled: true, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
     @user = create(:user)
     @session = create(:session, user: @user)
     @client = create(:client, shop: @shop, user: @user, supply_trigger_sent: true)
@@ -32,6 +31,7 @@ describe 'Pushing an event for rtb' do
     expect(rtb_jobs.first.item_id).to eq(@item1.id)
     expect(rtb_jobs.first.shop_id).to eq(@shop.id)
     expect(rtb_jobs.first.user_id).to eq(@user.id)
+    expect(rtb_jobs.first.logo).to eq(@shop.fetch_logo_url)
   end
 
 

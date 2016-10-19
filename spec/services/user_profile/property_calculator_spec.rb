@@ -153,4 +153,43 @@ describe UserProfile::PropertyCalculator do
 
   end
 
+  describe 'calculate compatibility' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Audi', purchases: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'BMW', views: 1, carts: 2 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Toyota', carts: 1 ) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'A4', carts: 2 ) }
+    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'W300', carts: 2 ) }
+    let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
+    let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
+    let!(:profile_event_8) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_compatibility(user) }
+
+    it 'calculates compatibility' do
+      expect(subject.count).to eq 2
+      expect(subject.symbolize_keys).to eq ({brand: %w(Audi BMW), model: %w(A4 W300)})
+    end
+  end
+
+  describe 'calculate vds' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_vds(user) }
+
+    it 'calculates vds' do
+      expect(subject.count).to eq 2
+      expect(subject).to eq (%w(A4345G AFR3))
+    end
+  end
+
 end
