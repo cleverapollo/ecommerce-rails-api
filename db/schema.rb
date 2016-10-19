@@ -17,7 +17,6 @@ ActiveRecord::Schema.define(version: 20161018083844) do
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "pg_buffercache"
   enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
