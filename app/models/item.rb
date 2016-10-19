@@ -342,9 +342,9 @@ class Item < ActiveRecord::Base
 
       if offer.auto?
         item.is_auto = true
-        item.auto_compatibility = offer.auto.compatibility.to_a
+        item.auto_compatibility = offer.auto.compatibility.map {|c| c.to_h.reject { |k,v| v.nil? || v.empty? } }
         item.auto_periodic = !!offer.auto.periodic
-        item.auto_vds = offer.auto.vds.to_a
+        item.auto_vds = offer.auto.vds.map {|c| c.to_h.reject { |k,v| v.nil? || v.empty? } }
       end
 
       item.brand = offer.vendor
