@@ -224,16 +224,20 @@ class ProfileEvent < MasterTable
           if item.auto_compatibility.present?
 
             # Марка
-            item.auto_compatibility['brands'].each do |brand|
-              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: brand
-              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            if item.auto_compatibility['brands'].present?
+              item.auto_compatibility['brands'].each do |brand|
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: brand
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
             end
 
             # Модель
-            item.auto_compatibility['models'].each do |model|
-              if model.present?
-                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: model
-                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            if item.auto_compatibility['models'].present?
+              item.auto_compatibility['models'].each do |model|
+                if model.present?
+                  profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: model
+                  profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                end
               end
             end
             properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility user
