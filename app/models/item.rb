@@ -342,9 +342,12 @@ class Item < ActiveRecord::Base
 
       if offer.auto?
         item.is_auto = true
-        item.auto_compatibility = offer.auto.compatibility.map {|c| c.to_h.reject { |k,v| v.nil? || v.empty? } }
+        item.auto_compatibility = {
+            brands: offer.auto.compatibility.map {|c| c[:brand].downcase }.reject { |v| v.nil? || v.empty? },
+            models: offer.auto.compatibility.map {|c| c[:model].downcase }.reject { |v| v.nil? || v.empty? }
+        }.reject { |k,v| v.nil? || v.empty? }
         item.auto_periodic = !!offer.auto.periodic
-        item.auto_vds = offer.auto.vds.map {|c| c.to_h.reject { |k,v| v.nil? || v.empty? } }
+        item.auto_vds = offer.auto.vds.map(&:downcase)
       end
 
       item.brand = offer.vendor

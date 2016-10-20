@@ -134,6 +134,21 @@ module Recommender
           # end
         end
 
+        # Фильтрация по маркам авто
+        if user.try(:compatibility).present?
+          relation = relation.where("
+              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
+              OR
+              (is_auto = true AND auto_compatibility IS NULL)
+              OR is_auto IS NULL
+          ", brand: user.compatibility['brand'], model: user.compatibility['model'])
+        end
+
+        # Фильтрация по VIN авто
+        if user.try(:vds).present?
+          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+        end
+
       end
 
       relation

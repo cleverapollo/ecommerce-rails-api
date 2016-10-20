@@ -41,10 +41,11 @@ module Recommender
 
         # Если товар для авто
         if item.is_auto?
+          result = result.where(is_auto: true)
 
           # (auto_compatibility @> '[{"brand": "BMW"}]' OR auto_compatibility IS NULL)
           if item.auto_compatibility.present?
-            result = result.where(item.auto_compatibility.map {|c| "auto_compatibility @> '[#{c.to_json}]'"}.push('auto_compatibility IS NULL').join(' OR '))
+            result = result.where("(auto_compatibility->'brands' ?| ARRAY[:brand] #{item.auto_compatibility['models'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''})", brand: user.compatibility['brand'], model: user.compatibility['model'])
           end
 
           if item.auto_vds.present?

@@ -222,15 +222,17 @@ class ProfileEvent < MasterTable
 
           # Марка и модель авто
           if item.auto_compatibility.present?
-            item.auto_compatibility.each do |compatibility|
 
-              # Марка
-              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: compatibility['brand']
+            # Марка
+            item.auto_compatibility['brands'].each do |brand|
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: brand
               profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            end
 
-              # Модель
-              if compatibility['model'].present?
-                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: compatibility['model']
+            # Модель
+            item.auto_compatibility['models'].each do |model|
+              if model.present?
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: model
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
               end
             end
