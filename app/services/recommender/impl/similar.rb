@@ -45,7 +45,7 @@ module Recommender
 
           # (auto_compatibility @> '[{"brand": "BMW"}]' OR auto_compatibility IS NULL)
           if item.auto_compatibility.present?
-            result = result.where("(auto_compatibility->'brands' ?| ARRAY[:brand] #{item.auto_compatibility['models'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''})", brand: user.compatibility['brand'], model: user.compatibility['model'])
+            result = result.where("(auto_compatibility->'brands' ?| ARRAY[:brand] #{item.auto_compatibility['models'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''})", brand: item.auto_compatibility['brand'], model: item.auto_compatibility['model'])
           end
 
           if item.auto_vds.present?
