@@ -38,6 +38,20 @@ module Recommender
         # Если в запросе указаны категории, то выбираем товары, входящие хотя бы в одну категорию.
         # Если же не указаны, то точное соответствие категорий.
         result = super.in_categories(categories_for_query, any: (params.categories.try(:any?) ? true : false) ).where.not(id: excluded_items_ids)
+
+        # Если товар для авто
+        if item.is_auto?
+
+          # (auto_compatibility @> '[{"brand": "BMW"}]' OR auto_compatibility IS NULL)
+          if item.auto_compatibility.present?
+            result = result.where(item.auto_compatibility.map {|c| "auto_compatibility @> '[#{c.to_json}]'"}.push('auto_compatibility IS NULL').join(' OR '))
+          end
+
+          if item.auto_vds.present?
+            result = result.where('auto_vds && ARRAY[?] OR array_length(auto_vds, 1) IS NULL', item.auto_vds)
+          end
+        end
+
         result
       end
 
