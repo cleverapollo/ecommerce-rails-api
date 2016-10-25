@@ -21,11 +21,9 @@ class SalesRateCalculator
 
     # Рассчитывает sales rate для новых магазинов – чаще, чем основной sales rate
     def perform_newbies
-      CustomLogger.logger.info("START: SalesRateCalculator.perform_newbies")
       Shop.newbies.each do |shop|
         self.recalculate_for_shop shop
       end
-      CustomLogger.logger.info("END: SalesRateCalculator.perform_newbies")
       nil
     end
 

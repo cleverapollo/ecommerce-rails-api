@@ -14,6 +14,7 @@ module TriggerMailings
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
 
           Shop.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
+            CustomLogger.logger.info("- start shop: #{shop.id}")
 
             # Не даем рассылать триггеры тем магазинам, у кого нет денег и при этом нет оплаченных подписок
             next if shop.customer.balance < 0 && !shop.subscription_plans.rees46_triggers.paid.exists?
@@ -94,6 +95,8 @@ module TriggerMailings
                 Rollbar.error(e, mailchimp_trigger: shop.id)
               end
             end
+
+            CustomLogger.logger.info("- end shop: #{shop.id}\n")
           end
 
           TriggerMailings::TriggerMailingTimeLock.new.stop_sending!

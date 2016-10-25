@@ -6,7 +6,6 @@ module Sharding
       # Генерирует таблицу соответствия магазинов шардам.
       # По файлу на магазин.
       def generate_nginx_mapping
-        CustomLogger.logger.info("START: Sharding::Shard.generate_nginx_mapping")
         Dir.mkdir(File.expand_path('nginx_mapping')) unless Dir.exists?(File.expand_path('nginx_mapping'))
         Shop.unscoped.active.select(:id, :uniqid, :shard).each do |project|
           File.open(File.expand_path(project.uniqid, 'nginx_mapping'), 'w') { |file| file.write(project.shard) }
@@ -22,7 +21,6 @@ module Sharding
             end
           end
         end
-        CustomLogger.logger.info("END: Sharding::Shard.generate_nginx_mapping")
       end
 
     end

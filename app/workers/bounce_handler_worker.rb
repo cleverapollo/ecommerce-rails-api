@@ -4,7 +4,6 @@
 class BounceHandlerWorker
   class << self
     def perform
-      CustomLogger.logger.info("START: BounceHandlerWorker.perform")
       require 'gmail'
       require 'bounce_email'
 
@@ -74,14 +73,11 @@ class BounceHandlerWorker
 
         end
       end
-      CustomLogger.logger.info("END: BounceHandlerWorker.perform")
     end
 
 
     # Обрабатывает письма FBL
     def perform_feedback_loop
-      CustomLogger.logger.info("START: BounceHandlerWorker.perform_feedback_loop")
-
       require 'gmail'
 
       # http://y.mkechinov.ru/issue/REES-2541
@@ -125,7 +121,6 @@ class BounceHandlerWorker
           end
         end
       end
-      CustomLogger.logger.info("END: BounceHandlerWorker.perform_feedback_loop")
     end
 
 
