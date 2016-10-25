@@ -7,6 +7,7 @@ module TriggerMailings
     class << self
       # Обработать всех пользователей: искать для каждого триггеры, если есть - отправить письмо.
       def process_all
+        CustomLogger.logger.info("START: TriggerMailings::ClientsProcessor.process_all")
 
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
 
@@ -97,7 +98,7 @@ module TriggerMailings
 
           TriggerMailings::TriggerMailingTimeLock.new.stop_sending!
         end
-
+        CustomLogger.logger.info("END: TriggerMailings::ClientsProcessor.process_all")
       end
     end
 
