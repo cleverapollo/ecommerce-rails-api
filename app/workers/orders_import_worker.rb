@@ -141,6 +141,8 @@ class OrdersImportWorker
         item.save!
       rescue PG::UniqueViolation => e
         item = Item.find_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
+      rescue ActiveRecord::RecordNotUnique => e
+        item = Item.find_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
       end
     end
 
