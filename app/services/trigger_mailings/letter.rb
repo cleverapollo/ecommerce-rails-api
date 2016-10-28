@@ -80,26 +80,26 @@ module TriggerMailings
       data[:unsubscribe_url] = client.trigger_unsubscribe_url
       data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
-      if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
-        if @shop.ekomi?
-          product_ids = []
-          trigger.additional_info[:order].order_items.each do |order_item|
-            item = order_item.item
-            if item && item.name.present? && item.uniqid.present?
-              item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
-              item_additional_params[:image_url] = item.image_url if item.image_url.present?
-              begin
-                Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
-                product_ids << item.uniqid
-              rescue
-              end
-            end
-          end
-          data[:feedback_button_link] = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
-        else
-          data[:feedback_button_link] = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
-        end
-      end
+      # if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
+      #   if @shop.ekomi?
+      #     product_ids = []
+      #     trigger.additional_info[:order].order_items.each do |order_item|
+      #       item = order_item.item
+      #       if item && item.name.present? && item.uniqid.present?
+      #         item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
+      #         item_additional_params[:image_url] = item.image_url if item.image_url.present?
+      #         begin
+      #           Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
+      #           product_ids << item.uniqid
+      #         rescue
+      #         end
+      #       end
+      #     end
+      #     data[:feedback_button_link] = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+      #   else
+      #     data[:feedback_button_link] = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
+      #   end
+      # end
 
       template = Liquid::Template.parse liquid_template
       template.render data.deep_stringify_keys

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019085204) do
+ActiveRecord::Schema.define(version: 20161028090556) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -280,12 +280,12 @@ ActiveRecord::Schema.define(version: 20161019085204) do
   end
 
   create_table "customers", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",       null: false
-    t.string   "encrypted_password",     limit: 255, default: "",       null: false
+    t.string   "email",                  limit: 255, default: "",    null: false
+    t.string   "encrypted_password",     limit: 255, default: "",    null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,        null: false
+    t.integer  "sign_in_count",                      default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -296,22 +296,22 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.string   "phone",                  limit: 255
     t.string   "city",                   limit: 255
     t.string   "company",                limit: 255
-    t.boolean  "subscribed",                         default: true,     null: false
+    t.boolean  "subscribed",                         default: true,  null: false
     t.string   "unsubscribe_token",      limit: 255
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.float    "balance",                            default: 0.0,      null: false
+    t.float    "balance",                            default: 0.0,   null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
     t.string   "juridical_person"
-    t.integer  "currency_id",                        default: 1,        null: false
-    t.string   "language",                           default: "ru",     null: false
-    t.boolean  "notify_about_finances",              default: true,     null: false
-    t.integer  "partner_balance",                    default: 0,        null: false
+    t.integer  "currency_id",                        default: 1,     null: false
+    t.string   "language",                           default: "ru",  null: false
+    t.boolean  "notify_about_finances",              default: true,  null: false
+    t.integer  "partner_balance",                    default: 0,     null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
@@ -339,17 +339,6 @@ ActiveRecord::Schema.define(version: 20161019085204) do
   add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
-
-  create_table "e_komi_requests", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.string   "country"
-    t.string   "city"
-    t.string   "postal_code"
-    t.string   "address"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.boolean  "confirmed",   default: false
-  end
 
   create_table "faqs", force: :cascade do |t|
     t.text     "question",                null: false
@@ -391,15 +380,6 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "lead_shops", force: :cascade do |t|
-    t.string   "url"
-    t.integer  "tryouts",    default: 0
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "lead_shops", ["url"], name: "index_lead_shops_on_url", using: :btree
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
     t.string "list"
@@ -593,17 +573,17 @@ ActiveRecord::Schema.define(version: 20161019085204) do
   end
 
   create_table "schema_version", id: false, force: :cascade do |t|
-    t.integer  "version_rank",                                  null: false
-    t.integer  "installed_rank",                                null: false
-    t.string   "version",        limit: 50,                     null: false
-    t.string   "description",    limit: 200,                    null: false
-    t.string   "type",           limit: 20,                     null: false
-    t.string   "script",         limit: 1000,                   null: false
+    t.integer  "version_rank",                                                null: false
+    t.integer  "installed_rank",                                              null: false
+    t.string   "version",        limit: 50,                                   null: false
+    t.string   "description",    limit: 200,                                  null: false
+    t.string   "type",           limit: 20,                                   null: false
+    t.string   "script",         limit: 1000,                                 null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                    null: false
-    t.datetime "installed_on",                default: "now()", null: false
-    t.integer  "execution_time",                                null: false
-    t.boolean  "success",                                       null: false
+    t.string   "installed_by",   limit: 100,                                  null: false
+    t.datetime "installed_on",                default: '2016-10-10 11:53:12', null: false
+    t.integer  "execution_time",                                              null: false
+    t.boolean  "success",                                                     null: false
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
@@ -702,9 +682,6 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
     t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
-    t.boolean  "ekomi_enabled"
-    t.string   "ekomi_id"
-    t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
     t.integer  "web_push_balance",                          default: 0,     null: false
     t.datetime "last_orders_sync"
@@ -784,6 +761,14 @@ ActiveRecord::Schema.define(version: 20161019085204) do
   add_index "trigger_mail_statistics", ["date"], name: "index_trigger_mail_statistics_on_date", using: :btree
   add_index "trigger_mail_statistics", ["shop_id", "date"], name: "index_trigger_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "trigger_mail_statistics", ["shop_id"], name: "index_trigger_mail_statistics_on_shop_id", using: :btree
+
+  create_table "user_shop_relations", id: :bigserial, force: :cascade do |t|
+    t.integer "user_id", limit: 8, null: false
+    t.integer "shop_id", limit: 8, null: false
+    t.string  "uniqid"
+  end
+
+  add_index "user_shop_relations", ["uniqid", "shop_id"], name: "user_shop_relations_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "user_taxonomies", force: :cascade do |t|
     t.integer "user_id"
