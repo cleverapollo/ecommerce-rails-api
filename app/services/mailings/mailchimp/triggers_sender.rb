@@ -16,7 +16,11 @@ module Mailings
           one_type_triggers = triggers[trigger_name]
           trigger_settings = TriggerMailing.find_by(shop_id: shop_id, trigger_type: trigger_name.to_s)
 
+          next if trigger_settings.mailchimp_campaign_id.blank? # TODO уведомлять клиента по почте
+
           native_campaign = api.get_campaign(trigger_settings.mailchimp_campaign_id) # Темплейт трггера
+          next if native_campaign.blank? # TODO уведомлять клиента по почте
+
           list = api.create_temp_list(native_campaign) # Создание временный список
           merge_fields_batch = api.create_batch(prepare_merge_fields_batch(list['id'], trigger_settings.amount_of_recommended_items, one_type_triggers[0].source_item.present?)) # Добавление переменных в список
 
