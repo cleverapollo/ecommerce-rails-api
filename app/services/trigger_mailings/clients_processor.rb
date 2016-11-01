@@ -7,12 +7,14 @@ module TriggerMailings
     class << self
       # Обработать всех пользователей: искать для каждого триггеры, если есть - отправить письмо.
       def process_all
+        CustomLogger.logger.info("START: TriggerMailings::ClientsProcessor.process_all")
 
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
 
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
 
           Shop.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
+            CustomLogger.logger.info("- start shop: #{shop.id}")
 
             # Не даем рассылать триггеры тем магазинам, у кого нет денег и при этом нет оплаченных подписок
             next if shop.customer.balance < 0 && !shop.subscription_plans.rees46_triggers.paid.exists?
@@ -93,11 +95,13 @@ module TriggerMailings
                 Rollbar.error(e, mailchimp_trigger: shop.id)
               end
             end
+
+            CustomLogger.logger.info("- end shop: #{shop.id}\n")
           end
 
           TriggerMailings::TriggerMailingTimeLock.new.stop_sending!
         end
-
+        CustomLogger.logger.info("END: TriggerMailings::ClientsProcessor.process_all")
       end
     end
 

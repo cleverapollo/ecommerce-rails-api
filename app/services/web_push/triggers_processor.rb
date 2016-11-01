@@ -4,7 +4,6 @@ class WebPush::TriggersProcessor
   class << self
 
     def process_all
-
       # Не рассылается сейчас?
       if WebPush::TriggerTimeLock.new.sending_available?
 
@@ -41,7 +40,6 @@ class WebPush::TriggersProcessor
         WebPush::TriggerTimeLock.new.stop_sending!
 
       end
-
     end
 
     # @param trigger_detector [WebPush::TriggerDetector]

@@ -73,13 +73,11 @@ class BounceHandlerWorker
 
         end
       end
-
     end
 
 
     # Обрабатывает письма FBL
     def perform_feedback_loop
-
       require 'gmail'
 
       # http://y.mkechinov.ru/issue/REES-2541
@@ -123,7 +121,6 @@ class BounceHandlerWorker
           end
         end
       end
-
     end
 
 
