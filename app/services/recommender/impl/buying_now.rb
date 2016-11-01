@@ -23,7 +23,7 @@ module Recommender
         result = shop.order_items.where(item: items_to_recommend.where.not(id: excluded_items_ids))
         result = result.where(order: shop.orders.where('date >= ?', 1.day.ago))
         # Сортируем по количеству покупок в порядке убывания
-        result = result.group(:item_id).count(:item_id).sort{ |a,b| a[1] <=> b[1] }.reverse.map {|x| x[0]}.limit(params.limit)
+        result = result.group(:item_id).count(:item_id).sort{ |a,b| a[1] <=> b[1] }.reverse.map {|x| x[0]}[0..params.limit]
 
         # Если результатов нет, то показываем затронутые сегодня товары, покупавшиеся ранее
         unless result.any?
