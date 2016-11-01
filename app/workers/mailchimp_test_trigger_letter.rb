@@ -10,9 +10,14 @@ class MailchimpTestTriggerLetter
     client = Client.find(params['client_id'])
     trigger = params['trigger_mailing_class'].constantize.new client
     trigger.generate_test_data!
+    trigger_mailing = TriggerMailing.find_by(shop_id: trigger.shop.id, trigger_type: trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym)
 
+    return if trigger_mailing.mailchimp_campaign_id.blank?
 
     native_campaign = api.get_campaign(params['campaign_id'])
+    return if native_campaign.blank? # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
+
+
     test_list = api.create_temp_list(native_campaign)
     merge_fields_batch = api.create_batch(prepare_merge_fields_batch(test_list['id'], trigger.source_items.count, trigger.source_item.present?))
     waiting_times = 0
@@ -23,7 +28,6 @@ class MailchimpTestTriggerLetter
       waiting_times += 1
     end
 
-    trigger_mailing = TriggerMailing.find_by(shop_id: trigger.shop.id, trigger_type: trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym)
 
     test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(trigger.source_items, trigger.source_item, client.location, trigger.shop.currency, {}, trigger_mailing.image_width, trigger_mailing.image_height))
     api.update_campaign(native_campaign, test_list['id'])
