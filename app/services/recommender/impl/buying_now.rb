@@ -27,7 +27,7 @@ module Recommender
 
         # Если результатов нет, то показываем затронутые сегодня товары, покупавшиеся ранее
         unless result.any?
-          result = shop.actions.where('timestamp >= ?', 1.day.ago.to_i)
+          result = shop.actions.where('timestamp >= ?', 1.day.ago.to_i).select(:item_id)
           result = result.where(item_id: items_to_recommend.where.not(id: excluded_items_ids))
           result = result.group(:item_id)
           result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
