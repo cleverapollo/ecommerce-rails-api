@@ -30,6 +30,7 @@ class Shop < MasterTable
   has_many :actions
   has_many :items
   has_many :orders
+  has_many :order_items
   has_many :subscriptions
   has_many :digest_mailings
   has_many :beacon_messages
