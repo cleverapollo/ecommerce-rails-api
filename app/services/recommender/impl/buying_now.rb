@@ -31,7 +31,7 @@ module Recommender
           result = result.where(item_id: items_to_recommend.where.not(id: excluded_items_ids))
           result = result.group(:item_id)
           result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
-          result.limit(params.limit).pluck(:item_id)
+          result = result.limit(params.limit).pluck(:item_id)
         end
 
         result
