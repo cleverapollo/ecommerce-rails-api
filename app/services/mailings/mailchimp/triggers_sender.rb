@@ -105,9 +105,6 @@ module Mailings
             trigger.client.update_columns(last_trigger_mail_sent_at: Time.now)
             trigger.client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
           end
-        rescue
-         api.delete_list(list['id']) if list.present?
-         api.api.delete_campaign(campaign['id']) if campaign.present?
         end
       end
 

@@ -50,8 +50,5 @@ class MailchimpTestTriggerLetter
     end
 
     delete_camping_and_list(api, test_campaign['id'], test_list['id'])
-  rescue
-     api.delete_list(test_list['id']) if test_list.present?
-     api.api.delete_campaign(test_campaign['id']) if test_campaign.present?
   end
 end
