@@ -22,6 +22,7 @@ module Mailings
           next if native_campaign.is_a?(String) # TODO уведомлять клиента по почте
 
           list = api.create_temp_list(native_campaign) # Создание временный список
+          sleep 5
           merge_fields_batch = api.create_batch(prepare_merge_fields_batch(list['id'], trigger_settings.amount_of_recommended_items, one_type_triggers[0].source_item.present?)) # Добавление переменных в список
 
           # Ждем пока добавление не пройдет
@@ -76,17 +77,19 @@ module Mailings
           # принимать созданый список как список по умолчанию (косяк MailCimp)
           api.update_campaign(native_campaign, list['id'])
 
+          sleep 5
           # Дублируем темплейт триггера
           campaign = api.duplicate_campaign(trigger_settings.mailchimp_campaign_id)
 
+          sleep 5
           # Отправление данного триггера сразу всем пользователям которые должны получить триггер
           api.send_campaign(campaign['id'])
 
           # Ждем пока не отправили всем письма
           waiting_times = 0
-          while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
+          while (api.get_campaign(campaign['id'],'status')['status'] != 'sent')
             if waiting_times > 6
-              delete_camping_and_list(api, test_campaign['id'], test_list['id'])
+              delete_camping_and_list(api, campaign['id'], list['id'])
               raise
             end
             sleep 10
@@ -95,13 +98,16 @@ module Mailings
           end
 
           # Удаление продублированого темплейта и временного списка
-          delete_camping_and_list(api, test_campaign['id'], test_list['id'])
+          delete_camping_and_list(api, campaign['id'], list['id'])
 
           # Обновление пользователей что им было отправлено триггер
           one_type_triggers.each do |trigger|
             trigger.client.update_columns(last_trigger_mail_sent_at: Time.now)
             trigger.client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
           end
+        rescue
+         api.delete_list(list['id']) if list.present?
+         api.api.delete_campaign(campaign['id']) if campaign.present?
         end
       end
 
