@@ -15,7 +15,7 @@ class MailchimpTestTriggerLetter
     return if trigger_mailing.mailchimp_campaign_id.blank?
 
     native_campaign = api.get_campaign(params['campaign_id'])
-    return if native_campaign.blank? # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
+    return if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
 
 
     test_list = api.create_temp_list(native_campaign)
