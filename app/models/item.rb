@@ -11,6 +11,7 @@ class Item < ActiveRecord::Base
   has_many :actions
   has_many :order_items
   has_many :brand_campaign_purchases
+  has_many :reputations, as: :entity
 
   scope :recommendable, -> { available.where(ignored: false) }
   scope :widgetable,    -> { where(widgetable:true) }
@@ -217,7 +218,7 @@ class Item < ActiveRecord::Base
 
             table.connection.execute <<-SQL
               UPDATE items
-                 SET (#{ yml_update_columns.join(', ') }) = 
+                 SET (#{ yml_update_columns.join(', ') }) =
                      (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
                 FROM temp_#{ shop_id }_items AS temp
                WHERE temp.shop_id = items.shop_id

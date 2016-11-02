@@ -9,6 +9,7 @@ class Order < ActiveRecord::Base
 
   has_many :order_items, dependent: :destroy
   has_many :brand_campaign_purchases
+  has_one :reputation, as: :entity
   belongs_to :source, polymorphic: true
   belongs_to :shop
 
