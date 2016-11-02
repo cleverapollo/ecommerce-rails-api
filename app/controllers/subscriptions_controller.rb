@@ -75,7 +75,7 @@ class SubscriptionsController < ApplicationController
           TriggerMailings::SubscriptionForProduct.subscribe_for_price shop, @user, item, client.location
           # notifier.ping("Just got first subscription for product price. https://rees46.com/shops/#{shop.id}") if !notifier.nil? && Rails.env == 'production'
         rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
-          render json: {}, code: 400
+          render(json: {}, status: 400) and return
         end
 
       end
@@ -120,7 +120,7 @@ class SubscriptionsController < ApplicationController
             TriggerMailings::SubscriptionForProduct.subscribe_for_available shop, @user, item
             # notifier.ping("Just got first subscription for product available. https://rees46.com/shops/#{shop.id}") if !notifier.nil? && Rails.env == 'production'
           rescue TriggerMailings::SubscriptionForProduct::IncorrectMailingSettingsError => e
-            render json: {}, code: 400
+            render(json: {}, status: 400) and return
           end
 
         end
