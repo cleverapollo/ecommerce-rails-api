@@ -29,10 +29,14 @@ class MailchimpTestTriggerLetter
       waiting_times += 1
     end
 
-
-    test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(trigger.source_items, trigger.source_item, client.location, trigger.shop.currency, {}, trigger_mailing.image_width, trigger_mailing.image_height))
-
-    sleep 5
+    test_member = api.add_member_to_list(test_list['id'],
+                                         client.email,
+                                         recommendations_in_hash(trigger.source_items,
+                                                                 trigger.source_item,
+                                                                 client.location,
+                                                                 trigger.shop.currency, {},
+                                                                 trigger_mailing.image_width,
+                                                                 trigger_mailing.image_height))
     api.update_campaign(native_campaign, test_list['id'])
 
     test_campaign = api.duplicate_campaign(params['campaign_id'])
@@ -42,10 +46,7 @@ class MailchimpTestTriggerLetter
 
     waiting_times = 0
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
-      if waiting_times > 6
-        delete_camping_and_list(api, test_campaign['id'], test_list['id'])
-        raise NotImplementedError.new('Too long sending test letter')
-      end
+      raise NotImplementedError.new('Too long sending test letter') if waiting_times > 6
       sleep 10
       puts 'Sending...'
       waiting_times += 1

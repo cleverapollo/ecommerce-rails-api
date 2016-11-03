@@ -76,13 +76,12 @@ module Mailings
             # Темплейту триггера указиваем созданый список как список по умолчанию
             # потому что продублированый темплейт отказывается
             # принимать созданый список как список по умолчанию (косяк MailCimp)
-            api.update_campaign(native_campaign, list['id'])
+            result = api.update_campaign(native_campaign, list['id'])
+            raise if result.is_a?(String)
 
-            sleep 5
             # Дублируем темплейт триггера
             campaign = api.duplicate_campaign(trigger_settings.mailchimp_campaign_id)
 
-            sleep 5
             # Отправление данного триггера сразу всем пользователям которые должны получить триггер
             api.send_campaign(campaign['id'])
 
@@ -107,7 +106,6 @@ module Mailings
               trigger.client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
             end
           rescue
-
             api.delete_campaign(campaign['id']) if campaign.present?
             api.delete_list(list['id']) if list.present?
             sleep 5
