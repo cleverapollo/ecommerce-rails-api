@@ -37,9 +37,9 @@ module Mailings
               list_id: list_id
             },
             settings: {
-              subject_line: campaign['subject_line'],
-              reply_to: campaign['reply_to'],
-              from_name: campaign['from_name']
+              subject_line: campaign['settings']['subject_line'],
+              reply_to: campaign['settings']['reply_to'],
+              from_name: campaign['settings']['from_name']
             }
           }.to_json
         )
@@ -76,16 +76,15 @@ module Mailings
               zip: "30308",
               country: "UK"
             },
-            "permission_reminder":"You'\''re receiving this email because you signed up for updates about Freddie'\''s newest hats.",
+            permission_reminder: "Trigger mail.",
             campaign_defaults: {
               from_name: default_camping['settings']['from_name'],
               from_email: default_camping['settings']['reply_to'],
               subject: default_camping['settings']['subject_line'],
               language: 'en'
               },
-            email_type_option: true
+            email_type_option: false
           }.to_json
-
         )
       end
 
@@ -103,14 +102,13 @@ module Mailings
         )
       end
 
-      # MEMBERS ---------------------------
       def add_member_to_list(list_id, email, merge_fields)
-        self.class.put("#{base_url}/lists/#{list_id}/members/#{Digest::MD5.hexdigest(email)}",
+        self.class.post("#{base_url}/lists/#{list_id}/members",
           headers: {'content-type' => 'application/json'},
           basic_auth: auth,
           body: {
-            email_address: email,
-            status_if_new: 'subscribed',
+            email_address: email.strip.downcase,
+            status: "subscribed",
             merge_fields: merge_fields
           }.to_json
         )
