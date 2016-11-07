@@ -75,6 +75,7 @@ module InitServerString
           currency: shop.currency,
           profile: session.user.profile_to_json,
           has_email: client.email.present?,
+          sync: get_sync_pixels(session, shop),
           emailSubscription: {
             settings: if shop.subscriptions_enabled? && client.email.blank?
                         {
