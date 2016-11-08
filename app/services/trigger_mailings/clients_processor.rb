@@ -17,7 +17,7 @@ module TriggerMailings
             CustomLogger.logger.info("- start shop: #{shop.id}")
 
             # Не даем рассылать триггеры тем магазинам, у кого нет денег и при этом нет оплаченных подписок
-            next if shop.customer.balance < 0 && !shop.subscription_plans.rees46_triggers.paid.exists?
+            next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.paid.exists?
 
             TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 

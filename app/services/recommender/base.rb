@@ -123,7 +123,7 @@ module Recommender
     def apply_industrial_filter(relation)
 
       # Если известен пол покупателя и у магазина включен решим отраслевого
-      if shop.subscription_plans.rees46_recommendations.paid.exists?
+      if shop.subscription_plans.product_recommendations.paid.exists?
 
         # Фильтрация по полу
         if user.try(:gender).present?

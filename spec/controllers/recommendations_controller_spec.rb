@@ -43,7 +43,7 @@ describe RecommendationsController do
 
   context 'when shop have outstanding plans' do
 
-    let!(:subscription_plan) { create(:subscription_plan, shop: shop, active: true, paid_till: 2.days.ago, price: 100, product: 'rees46_recommendations') }
+    let!(:subscription_plan) { create(:subscription_plan, shop: shop, active: true, paid_till: 2.days.ago, price: 100, product: 'product.recommendations') }
 
     it 'responds with client error' do
       get :get, params
@@ -51,7 +51,7 @@ describe RecommendationsController do
     end
 
     it 'response with success if plan is not about recommendations' do
-      subscription_plan.update product: 'rees46_triggers'
+      subscription_plan.update product: 'trigger.emails'
       get :get, params
       expect(response.body).to eq(sample_recommendations.to_json)
     end
