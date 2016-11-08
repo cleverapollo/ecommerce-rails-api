@@ -29,6 +29,14 @@ describe ShopKPI do
   let!(:trigger_mail_3) { create(:trigger_mail, shop: shop, mailing: trigger_mailing_2, client: client, created_at: (Date.yesterday + 2.hours)) }
   let!(:trigger_mail_4) { create(:trigger_mail, shop: shop, mailing: trigger_mailing_2, client: client, created_at: (Date.yesterday + 2.hours)) }
 
+  let!(:web_push_trigger_1) { create(:web_push_trigger, trigger_type: 'type_1', shop: shop, subject: 'Subject', message: 'message', enabled: true) }
+  let!(:web_push_trigger_2) { create(:web_push_trigger, trigger_type: 'type_2', shop: shop, subject: 'Subject', message: 'message', enabled: true) }
+  let!(:web_push_trigger_3) { create(:web_push_trigger, trigger_type: 'type_3', shop: shop, subject: 'Subject', message: 'message', enabled: false) }
+  let!(:web_push_trigger_message_1) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger_1, trigger_data: {test: ''}, client: client, created_at: (Date.yesterday + 2.hours), clicked: true) }
+  let!(:web_push_trigger_message_2) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger_1, trigger_data: {test: ''}, client: client, created_at: (Date.yesterday + 2.hours)) }
+  let!(:web_push_trigger_message_3) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger_2, trigger_data: {test: ''}, client: client, created_at: (Date.yesterday + 2.hours)) }
+  let!(:web_push_trigger_message_4) { create(:web_push_trigger_message, shop: shop, web_push_trigger: web_push_trigger_2, trigger_data: {test: ''}, client: client, created_at: (Date.yesterday + 2.hours)) }
+
   let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
   let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing, shop: shop) }
 
@@ -39,8 +47,10 @@ describe ShopKPI do
 
   let!(:order_1) { create(:order, user: user, uniqid: '1', shop: shop, value: 100, date: (Date.yesterday + 2.hours), source_id: trigger_mail_1.id, source_type: 'TriggerMail', recommended: true, common_value: 17, recommended_value: 24) }
   let!(:order_2) { create(:order, user: user, uniqid: '2', shop: shop, status: 1, value: 200, date: (Date.yesterday + 2.hours), source_id: digest_mail_1.id, source_type: 'DigestMail', recommended: false, common_value: 133, recommended_value: 13) }
+  let!(:order_3) { create(:order, user: user, uniqid: '3', shop: shop, value: 100, date: (Date.yesterday + 2.hours), source_id: web_push_trigger_message_1.id, source_type: 'WebPushTriggerMessage', recommended: true, common_value: 17, recommended_value: 24) }
   let!(:order_item_1) { create(:order_item, order: order_1, action: action_1, item: item_1, shop: shop, recommended_by: 'trigger_mail') }
   let!(:order_item_2) { create(:order_item, order: order_2, action: action_2, item: item_1, shop: shop, recommended_by: 'digest_mail') }
+  let!(:order_item_3) { create(:order_item, order: order_3, action: action_1, item: item_1, shop: shop, recommended_by: 'web_push_trigger') }
 
   let!(:interaction_1) { create(:interaction, item: item_1, shop: shop, user: user, code: 1, recommender_code: 2, created_at: (Date.yesterday + 2.hours)) }
   let!(:interaction_2) { create(:interaction, item: item_2, shop: shop, user: user, code: 1, created_at: (Date.yesterday + 2.hours)) }
@@ -65,17 +75,17 @@ describe ShopKPI do
     it 'calculates correct without tracking orders status' do
       subject
       shop_metric = ShopMetric.first
-      expect(shop_metric.orders).to eq(2)
+      expect(shop_metric.orders).to eq(3)
       expect(shop_metric.real_orders).to eq(1)
-      expect(shop_metric.revenue).to eq(300)
+      expect(shop_metric.revenue).to eq(400)
       expect(shop_metric.real_revenue).to eq(200)
       expect(shop_metric.visitors).to eq(3)
       expect(shop_metric.products_viewed).to eq(4)
 
       expect(shop_metric.orders_original_count).to eq(1)
-      expect(shop_metric.orders_recommended_count).to eq(1)
-      expect(shop_metric.orders_original_revenue).to eq(150)
-      expect(shop_metric.orders_recommended_revenue).to eq(37)
+      expect(shop_metric.orders_recommended_count).to eq(2)
+      expect(shop_metric.orders_original_revenue).to eq(167)
+      expect(shop_metric.orders_recommended_revenue).to eq(61)
 
       expect(shop_metric.abandoned_products).to eq(2)
       expect(shop_metric.abandoned_money).to eq(300)
@@ -88,6 +98,13 @@ describe ShopKPI do
       expect(shop_metric.triggers_revenue).to eq(100)
       expect(shop_metric.triggers_orders_real).to eq(0)
       expect(shop_metric.triggers_revenue_real).to eq(0)
+
+      expect(shop_metric.web_push_triggers_sent).to eq(4)
+      expect(shop_metric.web_push_triggers_clicked).to eq(1)
+      expect(shop_metric.web_push_triggers_orders).to eq(1)
+      expect(shop_metric.web_push_triggers_revenue).to eq(100)
+      expect(shop_metric.web_push_triggers_orders_real).to eq(0)
+      expect(shop_metric.web_push_triggers_revenue_real).to eq(0)
 
       expect(shop_metric.digests_sent).to eq(4)
       expect(shop_metric.digests_clicked).to eq(3)
@@ -105,7 +122,7 @@ describe ShopKPI do
       expect(shop_metric.product_views_total).to eq(3)
       expect(shop_metric.product_views_recommended).to eq(1)
 
-      expect(shop_metric.top_products).to eq([{id: item_1.id, name: item_1.name, url: item_1.url, amount: 2}.stringify_keys])
+      expect(shop_metric.top_products).to eq([{id: item_1.id, name: item_1.name, url: item_1.url, amount: 3}.stringify_keys])
       expect(shop_metric.products_statistics).to eq({ total: 3, recommendable: 3, widgetable: 2, ignored: 0,  industrial: 2}.stringify_keys)
 
     end

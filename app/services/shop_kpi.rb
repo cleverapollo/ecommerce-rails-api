@@ -65,6 +65,23 @@ class ShopKPI
       end
     end
 
+    # Web-push triggers
+    web_push_trigger_ids = WebPushTrigger.where(shop_id: @shop.id).pluck(:id)
+    if web_push_trigger_ids.count > 0
+      relation = WebPushTriggerMessage.where(web_push_trigger_id: web_push_trigger_ids, shop_id: @shop.id).where(created_at: @datetime_interval)
+      @shop_metric.web_push_triggers_sent = relation.count
+      @shop_metric.web_push_triggers_clicked = relation.clicked.count
+      if relation.count > 0
+        relation = Order.where(source_type: 'WebPushTriggerMessage', shop_id: @shop.id, source_id: relation.pluck(:id))
+        # All orders
+        @shop_metric.web_push_triggers_orders = relation.count
+        @shop_metric.web_push_triggers_revenue = relation.where.not(value: nil).sum(:value)
+        # Only paid orders
+        @shop_metric.web_push_triggers_orders_real = relation.successful.count
+        @shop_metric.web_push_triggers_revenue_real = relation.successful.where.not(value: nil).sum(:value)
+      end
+    end
+
     relation = DigestMail.where(shop_id: @shop.id).where(created_at: @datetime_interval)
     @shop_metric.digests_sent = relation.count
     @shop_metric.digests_clicked = relation.clicked.count
