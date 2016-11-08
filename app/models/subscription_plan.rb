@@ -1,6 +1,6 @@
 class SubscriptionPlan < MasterTable
 
-  AVAILABLE_PRODUCTS = %w(product.recommendations trigger.emails digest.emails)
+  AVAILABLE_PRODUCTS = %w(product.recommendations trigger.emails digest.emails subscriptions)
 
   validates :paid_till, :product, :shop_id, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
