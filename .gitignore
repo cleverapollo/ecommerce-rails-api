@@ -39,3 +39,6 @@ shards.yml
 # Ignore application configuration
 /config/application.yml
 master_db.yml
+
+# Ignore items images
+resized_images/
