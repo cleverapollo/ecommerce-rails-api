@@ -158,6 +158,11 @@ module InitServerString
           pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
           session.update synced_with_mailru_at: Date.current
         end
+        if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
+          pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
+          session.update synced_with_relapio_at: Date.current
+        end
+
       end
       pixels
     end
