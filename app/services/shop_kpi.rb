@@ -44,6 +44,10 @@ class ShopKPI
     @shop_metric.product_views_total = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.count
     @shop_metric.product_views_recommended = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.from_recommender.count
 
+    # Ищем id товаров в заказах из товарных рекомендаций
+    order_ids = Order.where(shop_id: @shop.id, date: @datetime_interval).pluck(:id)
+    @shop_metric.orders_with_recommender_count = OrderItem.where(order_id: order_ids, recommended_by: Interaction::RECOMMENDER_CODES.keys).distinct(:order_id).count(:order_id)
+
     if @shop_metric.triggers_enabled_count > 0
 
       # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.
