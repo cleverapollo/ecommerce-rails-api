@@ -162,6 +162,10 @@ module InitServerString
           pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
           session.update synced_with_relapio_at: Date.current
         end
+        if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}"
+          session.update synced_with_republer_at: Date.current
+        end
 
       end
       pixels
