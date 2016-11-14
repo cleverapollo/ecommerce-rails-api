@@ -13,7 +13,12 @@ class EventsController < ApplicationController
     # Запускаем процессор с извлеченными данными
     ActionPush::Processor.new(extracted_params).process
 
-    respond_with_success
+    # Popunder
+    if %w(cart remove_from_cart purchase).include?(extracted_params.action) && extracted_params.shop.popunder_enabled?
+      render json: { status: 'success', url: '' }
+    else
+      respond_with_success
+    end
 
   rescue ActionPush::Error => e
     log_client_error(e)

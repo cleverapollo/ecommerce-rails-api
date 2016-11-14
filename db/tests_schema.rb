@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161112181154) do
+ActiveRecord::Schema.define(version: 20161114084054) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -280,12 +280,12 @@ ActiveRecord::Schema.define(version: 20161112181154) do
   end
 
   create_table "customers", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",    null: false
-    t.string   "encrypted_password",     limit: 255, default: "",    null: false
+    t.string   "email",                  limit: 255, default: "",       null: false
+    t.string   "encrypted_password",     limit: 255, default: "",       null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,     null: false
+    t.integer  "sign_in_count",                      default: 0,        null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -296,28 +296,29 @@ ActiveRecord::Schema.define(version: 20161112181154) do
     t.string   "phone",                  limit: 255
     t.string   "city",                   limit: 255
     t.string   "company",                limit: 255
-    t.boolean  "subscribed",                         default: true,  null: false
+    t.boolean  "subscribed",                         default: true,     null: false
     t.string   "unsubscribe_token",      limit: 255
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.float    "balance",                            default: 0.0,   null: false
+    t.float    "balance",                            default: 0.0,      null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
     t.string   "juridical_person"
-    t.integer  "currency_id",                        default: 1,     null: false
-    t.string   "language",                           default: "ru",  null: false
-    t.boolean  "notify_about_finances",              default: true,  null: false
-    t.integer  "partner_balance",                    default: 0,     null: false
+    t.integer  "currency_id",                        default: 1,        null: false
+    t.string   "language",                           default: "ru",     null: false
+    t.boolean  "notify_about_finances",              default: true,     null: false
+    t.integer  "partner_balance",                    default: 0,        null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
@@ -708,6 +709,7 @@ ActiveRecord::Schema.define(version: 20161112181154) do
     t.datetime "logo_updated_at"
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
+    t.boolean  "popunder_enabled",                          default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
