@@ -50,7 +50,8 @@ module Recommender
                   name: item.name,
                   url: item.url,
                   image_url: item.image_url,
-                  price: item.price.to_s
+                  price: item.price.to_s,
+                  currency: shop.currency
               }
         end
 
