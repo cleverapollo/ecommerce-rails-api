@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161102112405) do
+ActiveRecord::Schema.define(version: 20161114113123) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -418,8 +418,10 @@ ActiveRecord::Schema.define(version: 20161102112405) do
     t.integer  "entity_id",    limit: 8
     t.string   "entity_type"
     t.integer  "parent_id",    limit: 8
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",                 default: 0, null: false
+    t.integer  "client_id",    limit: 8
   end
 
   add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
