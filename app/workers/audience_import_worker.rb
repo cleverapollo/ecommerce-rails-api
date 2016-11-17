@@ -10,6 +10,7 @@ class AudienceImportWorker
 
   def perform(params)
     @shop = Shop.find_by!(uniqid: params.fetch('shop_id'), secret: params.fetch('shop_secret'))
+    @audiance_count = 0
 
     params.fetch('audience').each do |a|
       id = a.fetch('id').to_s.strip
@@ -59,6 +60,8 @@ class AudienceImportWorker
       client.email = email || client.email
 
       client.save!
+      @audiance_count += 1
     end
+    CompletesMailer.audiance_import_completed(@shop, @audiance_count).deliver_now if @audiance_count > 0
   end
 end

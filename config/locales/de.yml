@@ -1,8 +1,14 @@
 de:
   complete_mailers:
     orders_import:
-      subject: 'Orders history imported succesfuly.'
-      body_text: 'Orders history completed'
-      body_count: 'You imported %{orders_count} orders.'
-      tail: 'Best regards.'
+      subject: 'Successful import of orders list'
+      body_text: 'Import of your orders has been completed.'
+      body_count: 'Number of imported orders: %{orders_count}'
+      tail: 'Best regards,'
+      team: 'REES46 team.'
+    audiance_import:
+      subject: 'Successful import of subscriber list'
+      body_text: 'Import of your subscribers has been completed.'
+      body_count: 'Number of imported subscribers: %{audiance_count}'
+      tail: 'Best regards,'
       team: 'REES46 team.'

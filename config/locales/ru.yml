@@ -17,3 +17,9 @@ ru:
       body_count: 'Импортировано заказов: %{orders_count}'
       tail: 'С уважением.'
       team: 'Команда REES46.'
+    audiance_import:
+      subject: 'Список подписчиков импортирован.'
+      body_text: 'Импорт списка подписчиков завершен.'
+      body_count: 'Импортировано пользователей: %{audiance_count}'
+      tail: 'С уважением.'
+      team: 'Команда REES46.'
