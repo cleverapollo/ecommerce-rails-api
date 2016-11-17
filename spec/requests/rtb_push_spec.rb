@@ -2,7 +2,8 @@ require 'rails_helper'
 describe 'Pushing an event for rtb' do
 
   before do
-    @customer = create(:customer, balance: 300)
+    @currency = create(:currency)
+    @customer = create(:customer, balance: 300, currency: @currency)
     @shop = create(:shop, customer: @customer, remarketing_enabled: true, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
     @user = create(:user)
     @session = create(:session, user: @user)

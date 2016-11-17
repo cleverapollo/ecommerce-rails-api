@@ -4,6 +4,7 @@
 class Customer < MasterTable
 
   has_many :shops
+  belongs_to :currency
 
   scope :admins, -> { where(role: 0) }
 
