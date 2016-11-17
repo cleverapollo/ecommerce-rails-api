@@ -1,0 +1,8 @@
+de:
+  complete_mailers:
+    orders_import:
+      subject: 'Orders history imported succesfuly.'
+      body_text: 'Orders history completed'
+      body_count: 'You imported %{orders_count} orders.'
+      tail: 'Best regards.'
+      team: 'REES46 team.'
