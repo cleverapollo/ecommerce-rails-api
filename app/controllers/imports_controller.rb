@@ -8,10 +8,10 @@ class ImportsController < ApplicationController
   end
 
   def sync_orders
-    if %w(e143c34a52e7463665fb89296faa75 c770dac644324b27131424e1ba3d16).include(@shop.uniqid)
-      render 'Disabled', status: 400
-      return
-    end
+    # if %w(e143c34a52e7463665fb89296faa75 c770dac644324b27131424e1ba3d16).include(@shop.uniqid)
+    #   render 'Disabled', status: 400
+    #   return
+    # end
     OrdersSyncWorker.perform_async(params)
     render text: 'OK'
   end
