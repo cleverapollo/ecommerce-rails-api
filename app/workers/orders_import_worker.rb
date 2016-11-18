@@ -16,7 +16,6 @@ class OrdersImportWorker
   attr_accessor :import_status_messages
 
   def perform(opts)
-
     @import_status_messages = {
         order_without_id: [],       # put here order row
         order_without_user_id: [],  # put here order row
@@ -26,6 +25,7 @@ class OrdersImportWorker
 
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
         raise OrdersImportError.new('Не передан массив заказов')
       end
@@ -86,7 +86,7 @@ class OrdersImportWorker
       ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
 
       # Report complited imported resoults
-      CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now
+      CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now if @orders_count > 0
     rescue OrdersImportError => e
       email = opts['errors_to'] || @current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
