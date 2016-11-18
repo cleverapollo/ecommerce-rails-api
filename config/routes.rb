@@ -89,6 +89,7 @@ Rees46Api::Application.routes.draw do
       get :unsubscribe
       post :subscribe_for_product_price
       post :subscribe_for_product_available
+      post :showed
     end
   end
 

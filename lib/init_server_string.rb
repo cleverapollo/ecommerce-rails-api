@@ -70,6 +70,40 @@ module InitServerString
       shop = options.fetch(:shop)
       session = options.fetch(:session)
       client = options.fetch(:client)
+      subscriptions_plan = shop.subscription_plans.subscriptions.first
+      products = nil
+      if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
+        recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
+        if recommender_ids.count > 0
+          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url)
+        end
+      end
+
+      email_settings = nil
+      if shop.subscriptions_enabled? && client.email.blank?
+        email_settings = {
+            enabled: shop.subscriptions_settings.enabled,
+            overlay: shop.subscriptions_settings.overlay,
+            header: shop.subscriptions_settings.header,
+            text: shop.subscriptions_settings.text,
+            button: shop.subscriptions_settings.button,
+            agreement: shop.subscriptions_settings.agreement,
+            remote_picture_url: shop.subscriptions_settings.remote_picture_url,
+            type: 0,
+            timer: 90,
+        }
+
+        if subscriptions_plan.present? && subscriptions_plan.paid?
+          email_settings = email_settings.merge({
+            type: shop.subscriptions_settings.popup_type,
+            timer: shop.subscriptions_settings.timer_enabled? ? shop.subscriptions_settings.timer : 0,
+            pager: shop.subscriptions_settings.pager_enabled? ? shop.subscriptions_settings.pager : 0,
+            cursor: shop.subscriptions_settings.cursor_enabled? ? shop.subscriptions_settings.cursor : 0,
+            products: products,
+          })
+        end
+      end
+
       result = {
           ssid: session.code,
           currency: shop.currency,
@@ -77,19 +111,7 @@ module InitServerString
           has_email: client.email.present?,
           sync: get_sync_pixels(session, shop),
           emailSubscription: {
-            settings: if shop.subscriptions_enabled? && client.email.blank?
-                        {
-                            enabled: shop.subscriptions_settings.enabled,
-                            overlay: shop.subscriptions_settings.overlay,
-                            header: shop.subscriptions_settings.header,
-                            text: shop.subscriptions_settings.text,
-                            button: shop.subscriptions_settings.button,
-                            agreement: shop.subscriptions_settings.agreement,
-                            remote_picture_url: shop.subscriptions_settings.remote_picture_url
-                        }
-                      else
-                        nil
-                      end,
+            settings: email_settings,
             status: if client.accepted_subscription == true
                       'accepted'
                     elsif client.subscription_popup_showed == true && client.accepted_subscription != true
