@@ -3,8 +3,8 @@
 #
 class SubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price]
-  before_action :fetch_user, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price]
+  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
+  before_action :fetch_user, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
 
   # Взаимодействие с окном сбора email
   def create
@@ -29,6 +29,13 @@ class SubscriptionsController < ApplicationController
     end
 
     render text: 'Вы успешно отписаны от рассылок.'
+  end
+
+  def showed
+    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    client.subscription_popup_showed = true
+    client.save
+    render json: {}
   end
 
   # Трекинг открытого письма

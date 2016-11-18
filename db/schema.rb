@@ -516,6 +516,14 @@ ActiveRecord::Schema.define(version: 20161117063956) do
     t.text     "css"
     t.string   "button"
     t.text     "agreement"
+    t.integer  "popup_type",                       default: 0,     null: false
+    t.integer  "timer",                            default: 90,    null: false
+    t.boolean  "timer_enabled",                    default: true,  null: false
+    t.integer  "pager",                            default: 5,     null: false
+    t.boolean  "pager_enabled",                    default: false, null: false
+    t.integer  "cursor",                           default: 50,    null: false
+    t.boolean  "cursor_enabled",                   default: false, null: false
+    t.boolean  "products",                         default: false, null: false
   end
 
   create_table "trigger_mailing_queues", id: :bigserial, force: :cascade do |t|
