@@ -26,7 +26,6 @@ class OrdersImportWorker
 
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
-
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
         raise OrdersImportError.new('Не передан массив заказов')
       end
@@ -36,6 +35,7 @@ class OrdersImportWorker
 
       # Connect to BRB
       @mahout_service = MahoutService.new(@current_shop.brb_address)
+      @orders_count = 0
 
       opts['orders'].each do |order|
 
@@ -79,16 +79,18 @@ class OrdersImportWorker
         end
 
         persist_order(@current_order, items, @current_shop.id, @current_user.id)
+        @orders_count += 1
       end
 
-      # Report import results
+      # Report import results errors
       ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
 
+      # Report complited imported resoults
+      CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now
     rescue OrdersImportError => e
       email = opts['errors_to'] || @current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
     end
-
   end
 
   # Упрощенный поиск пользователя для импорта
