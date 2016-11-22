@@ -22,6 +22,13 @@ class WebPushSubscriptionsController < ApplicationController
     end
   end
 
+  # Пользователю было показано окно подписки
+  def showed
+    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    client.web_push_subscription_popup_showed = true
+    client.save
+    render json: {}
+  end
 
   # Пользователь отказался от подписки после просмотра окна подписки.
   # @method POST

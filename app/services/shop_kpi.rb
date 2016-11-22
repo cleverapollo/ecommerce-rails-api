@@ -128,7 +128,7 @@ class ShopKPI
         ignored: products.ignored,
         industrial: products.industrial
     }
-    @shop_metric.top_products = OrderItem.where(shop_id: @shop.id).where(order_id: Order.where(shop_id: @shop.id).where('date >= ?', 1.month.ago)).group(:item_id).count.to_a.sort_by { |x| x[1] }.reverse[0..4].map { |x| item = Item.find(x[0]); {id: item.id, name: item.name, url: item.url, amount: x[1]} }
+    @shop_metric.top_products = OrderItem.where(shop_id: @shop.id, order_id: Order.where(shop_id: @shop.id).where('date >= ?', 1.month.ago)).group(:item_id).count.to_a.sort_by { |x| x[1] }.reverse[0..2].map { |x| item = Item.find(x[0]); {id: item.id, name: item.name.present? ? item.name : item.uniqid, url: item.url, amount: x[1]} }
 
     @shop_metric.save!
 
