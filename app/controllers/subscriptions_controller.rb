@@ -31,6 +31,7 @@ class SubscriptionsController < ApplicationController
     render text: 'Вы успешно отписаны от рассылок.'
   end
 
+  # Пользователю было показано окно подписки
   def showed
     client = shop.clients.find_or_create_by!(user_id: @user.id)
     client.subscription_popup_showed = true
