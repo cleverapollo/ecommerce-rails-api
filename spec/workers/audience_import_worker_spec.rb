@@ -43,9 +43,9 @@ describe AudienceImportWorker do
         let!(:client) { create(:client, shop: shop, external_id: audience_raw['id'], user: user) }
         before { params['audience'] << audience_raw }
 
-        it 'updates email' do
+        it 'create new client email' do
           subject.perform(params)
-          expect(client.reload.email).to eq(audience_raw['email'])
+          expect(Client.count).to eq(2)
         end
       end
 
@@ -63,8 +63,8 @@ describe AudienceImportWorker do
           let(:audience_raw) { { 'id' => '', 'email' => 'test@rees46demo.com', 'name' => 'Test' } }
           before { params['audience'] << audience_raw }
 
-          it 'does nothing' do
-            expect{ subject.perform(params) }.to_not change(Client, :count)
+          it 'save new user if user not exists' do
+            expect{ subject.perform(params) }.to change(Client, :count)
           end
         end
 
@@ -74,6 +74,32 @@ describe AudienceImportWorker do
 
           it 'does nothing' do
             expect{ subject.perform(params) }.to_not change(Client, :count)
+          end
+        end
+
+        context 'when two clients with same email with different external_id' do
+          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw_next) {{ 'id' => '321', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
+          before :each do
+            params['audience'] << audience_raw
+            params['audience'] << audience_raw_next
+          end
+          it 'create one user' do
+            subject.perform(params)
+            expect(Client.count).to eq(1)
+          end
+        end
+
+        context 'can not create two users with same email with different external_id' do
+          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw_next) {{ 'id' => '123', 'email' => 'test2@rees46demo.com', 'name' => 'Test' }}
+          before :each do
+            params['audience'] << audience_raw
+            params['audience'] << audience_raw_next
+          end
+          it 'create two users' do
+            subject.perform(params)
+            expect(Client.count).to eq(2)
           end
         end
       end
