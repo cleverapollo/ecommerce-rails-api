@@ -228,6 +228,8 @@ class Shop < MasterTable
   def reduce_web_push_balance!
     if web_push_balance > 0
       decrement! :web_push_balance, 1
+    else
+      Rollbar.warning(shop: id, message: 'reduce_web_push_balance when web_push_balance = 0')
     end
   end
 
