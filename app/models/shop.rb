@@ -158,6 +158,8 @@ class Shop < MasterTable
       CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
     rescue Interrupt => e
       Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+    rescue Sidekiq::Shutdown => e
+      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, "YML process error", shop_id: id)
