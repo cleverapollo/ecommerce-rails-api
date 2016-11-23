@@ -1,6 +1,4 @@
-en:
-  hello: "Hello world"
-
+de:
   complete_mailers:
     orders_import:
       subject: 'Successful import of orders list'

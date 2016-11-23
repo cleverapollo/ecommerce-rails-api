@@ -24,7 +24,7 @@ module Recommender
         result = result.where(order: shop.orders.where('date >= ?', 1.day.ago))
         result = result.group(:item_id).count(:item_id)
         # Вытаскиваем маржинальность
-        margins = items_to_recommend.where(id: result.map { |k,v| k }).pluck(:id, :price_margin)
+        margins = items_to_recommend.where(id: result.map { |k,v| k }).pluck(:id, :price_margin, :category_ids)
         # Накладываем маржинальность на продаваемость
         result = result.map do |id, count|
           margin_row = margins.select { |x| x[0] == id }.first
@@ -35,8 +35,19 @@ module Recommender
           end
           [id, count.to_f * margin ]
         end
-        # Сортируем, оставляем только идентификаторы и берем столько, сколько нужно
-        result = result.sort{ |a,b| a[1] <=> b[1] }.reverse.map {|x| x[0]}.take(params.limit)
+        # Сортируем, оставляем только идентификаторы и
+        result = result.sort{ |a,b| a[1] <=> b[1] }.reverse.map {|x| x[0]}
+
+        # Убираем товары из дублирующихся категорий
+        result_filtered = result.uniq { |x| x[1] }
+
+        # Если после фильтрации результатов оказалось столько, сколько запрошено, используем их
+        if result_filtered.count >= params.limit
+          result = result_filtered
+        end
+
+        # Берем столько, сколько нужно
+        result = result.take(params.limit)
 
         # Если результатов нет, то показываем затронутые сегодня товары, покупавшиеся ранее
         unless result.any?
