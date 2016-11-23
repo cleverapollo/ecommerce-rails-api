@@ -91,7 +91,7 @@ class InsalesWorker
 
   def send_orders
     if @processed_orders.any?
-      @processed_orders.each_slice(100) do |batch|
+      @processed_orders.each_slice(5000) do |batch|
         body = {
           'shop_id'     => @shop.uniqid,
           'shop_secret' => @shop.secret,
