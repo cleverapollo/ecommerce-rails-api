@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161028090556) do
+ActiveRecord::Schema.define(version: 20161114084054) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -598,6 +598,8 @@ ActiveRecord::Schema.define(version: 20161028090556) do
     t.date    "synced_with_aidata_at"
     t.date    "synced_with_auditorius_at"
     t.date    "synced_with_mailru_at"
+    t.date    "synced_with_relapio_at"
+    t.date    "synced_with_republer_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -677,11 +679,11 @@ ActiveRecord::Schema.define(version: 20161028090556) do
     t.integer  "scoring",                                   default: 0,     null: false
     t.decimal  "triggers_cpa",                              default: 4.6,   null: false
     t.decimal  "digests_cpa",                               default: 2.0,   null: false
-    t.integer  "triggers_cpa_cap",                          default: 250,   null: false
-    t.integer  "digests_cpa_cap",                           default: 200,   null: false
+    t.decimal  "triggers_cpa_cap",                          default: 300.0, null: false
+    t.decimal  "digests_cpa_cap",                           default: 300.0, null: false
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
-    t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
+    t.decimal  "remarketing_cpa_cap",                       default: 300.0, null: false
     t.boolean  "match_users_with_dmp",                      default: true
     t.integer  "web_push_balance",                          default: 0,     null: false
     t.datetime "last_orders_sync"
@@ -690,6 +692,10 @@ ActiveRecord::Schema.define(version: 20161028090556) do
     t.string   "logo_content_type"
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
+    t.boolean  "reputations_enabled",                       default: false, null: false
+    t.string   "plan",                                      default: "s"
+    t.boolean  "plan_fixed",                                default: false
+    t.boolean  "popunder_enabled",                          default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

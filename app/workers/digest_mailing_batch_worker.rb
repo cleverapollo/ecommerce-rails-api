@@ -118,7 +118,7 @@ class DigestMailingBatchWorker
   def liquid_letter_body(items, email, location)
 
     # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
-    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s )
+    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s ).strip
 
     template = @mailing.liquid_template.dup
     data = {

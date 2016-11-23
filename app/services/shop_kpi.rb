@@ -44,6 +44,10 @@ class ShopKPI
     @shop_metric.product_views_total = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.count
     @shop_metric.product_views_recommended = Interaction.where(shop_id: @shop.id).where(created_at: @datetime_interval).views.from_recommender.count
 
+    # Ищем id товаров в заказах из товарных рекомендаций
+    order_ids = Order.where(shop_id: @shop.id, date: @datetime_interval).pluck(:id)
+    @shop_metric.orders_with_recommender_count = OrderItem.where(order_id: order_ids, recommended_by: Interaction::RECOMMENDER_CODES.keys).distinct(:order_id).count(:order_id)
+
     if @shop_metric.triggers_enabled_count > 0
 
       # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.
@@ -62,6 +66,23 @@ class ShopKPI
           @shop_metric.triggers_orders_real = relation.successful.count
           @shop_metric.triggers_revenue_real = relation.successful.where.not(value: nil).sum(:value)
         end
+      end
+    end
+
+    # Web-push triggers
+    web_push_trigger_ids = WebPushTrigger.where(shop_id: @shop.id).pluck(:id)
+    if web_push_trigger_ids.count > 0
+      relation = WebPushTriggerMessage.where(web_push_trigger_id: web_push_trigger_ids, shop_id: @shop.id).where(created_at: @datetime_interval)
+      @shop_metric.web_push_triggers_sent = relation.count
+      @shop_metric.web_push_triggers_clicked = relation.clicked.count
+      if relation.count > 0
+        relation = Order.where(source_type: 'WebPushTriggerMessage', shop_id: @shop.id, source_id: relation.pluck(:id))
+        # All orders
+        @shop_metric.web_push_triggers_orders = relation.count
+        @shop_metric.web_push_triggers_revenue = relation.where.not(value: nil).sum(:value)
+        # Only paid orders
+        @shop_metric.web_push_triggers_orders_real = relation.successful.count
+        @shop_metric.web_push_triggers_revenue_real = relation.successful.where.not(value: nil).sum(:value)
       end
     end
 
@@ -96,7 +117,7 @@ class ShopKPI
     @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
     @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
     @shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').count
-    @shop_metric.web_push_subscription_accepted = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').where('accepted_web_push_subscription IS TRUE').count
+    @shop_metric.web_push_subscription_accepted = Client.where(shop_id: @shop.id).where('accepted_web_push_subscription IS TRUE OR web_push_enabled IS TRUE').count
 
     # Считаем товары
     products = Retailer::Products::OverviewStatistic.new @shop

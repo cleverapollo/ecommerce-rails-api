@@ -49,21 +49,27 @@ ActiveRecord::Schema.define(version: 20161114113123) do
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "overall",             default: 0, null: false
-    t.integer "activity_a",          default: 0, null: false
-    t.integer "activity_b",          default: 0, null: false
-    t.integer "activity_c",          default: 0, null: false
-    t.date    "recalculated_at",                 null: false
-    t.integer "triggers_overall",    default: 0, null: false
-    t.integer "triggers_activity_a", default: 0, null: false
-    t.integer "triggers_activity_b", default: 0, null: false
-    t.integer "triggers_activity_c", default: 0, null: false
-    t.integer "digests_overall",     default: 0, null: false
-    t.integer "digests_activity_a",  default: 0, null: false
-    t.integer "digests_activity_b",  default: 0, null: false
-    t.integer "digests_activity_c",  default: 0, null: false
-    t.integer "with_email",          default: 0, null: false
-    t.integer "web_push_overall",    default: 0, null: false
+    t.integer "overall",               default: 0, null: false
+    t.integer "activity_a",            default: 0, null: false
+    t.integer "activity_b",            default: 0, null: false
+    t.integer "activity_c",            default: 0, null: false
+    t.date    "recalculated_at",                   null: false
+    t.integer "triggers_overall",      default: 0, null: false
+    t.integer "triggers_activity_a",   default: 0, null: false
+    t.integer "triggers_activity_b",   default: 0, null: false
+    t.integer "triggers_activity_c",   default: 0, null: false
+    t.integer "digests_overall",       default: 0, null: false
+    t.integer "digests_activity_a",    default: 0, null: false
+    t.integer "digests_activity_b",    default: 0, null: false
+    t.integer "digests_activity_c",    default: 0, null: false
+    t.integer "with_email",            default: 0, null: false
+    t.integer "web_push_overall",      default: 0, null: false
+    t.integer "with_email_activity_a", default: 0, null: false
+    t.integer "with_email_activity_b", default: 0, null: false
+    t.integer "with_email_activity_c", default: 0, null: false
+    t.integer "web_push_activity_a",   default: 0, null: false
+    t.integer "web_push_activity_b",   default: 0, null: false
+    t.integer "web_push_activity_c",   default: 0, null: false
   end
 
   add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
@@ -473,6 +479,13 @@ ActiveRecord::Schema.define(version: 20161114113123) do
     t.jsonb   "products_statistics"
     t.integer "web_push_subscription_popup_showed", default: 0
     t.integer "web_push_subscription_accepted",     default: 0
+    t.integer "web_push_triggers_sent",             default: 0,   null: false
+    t.integer "web_push_triggers_clicked",          default: 0,   null: false
+    t.integer "web_push_triggers_orders",           default: 0,   null: false
+    t.integer "web_push_triggers_revenue",          default: 0,   null: false
+    t.integer "web_push_triggers_orders_real",      default: 0,   null: false
+    t.integer "web_push_triggers_revenue_real",     default: 0,   null: false
+    t.integer "orders_with_recommender_count",      default: 0,   null: false
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree

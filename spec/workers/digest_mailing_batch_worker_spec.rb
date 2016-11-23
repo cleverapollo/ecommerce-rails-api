@@ -48,7 +48,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'contains encoded email' do
-      expect(letter_body.to_s).to include("r46_merger=#{CGI.escape(Base64.encode64(client.email))}")
+      expect(letter_body.to_s).to include("r46_merger=#{CGI.escape(Base64.encode64(client.email).strip)}")
     end
 
     it 'contains tracking pixel' do

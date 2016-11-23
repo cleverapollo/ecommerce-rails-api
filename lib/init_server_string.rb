@@ -75,6 +75,7 @@ module InitServerString
           currency: shop.currency,
           profile: session.user.profile_to_json,
           has_email: client.email.present?,
+          sync: get_sync_pixels(session, shop),
           emailSubscription: {
             settings: if shop.subscriptions_enabled? && client.email.blank?
                         {
@@ -157,6 +158,15 @@ module InitServerString
           pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
           session.update synced_with_mailru_at: Date.current
         end
+        if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
+          pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
+          session.update synced_with_relapio_at: Date.current
+        end
+        if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}"
+          session.update synced_with_republer_at: Date.current
+        end
+
       end
       pixels
     end

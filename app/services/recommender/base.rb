@@ -50,7 +50,8 @@ module Recommender
                   name: item.name,
                   url: item.url,
                   image_url: item.image_url,
-                  price: item.price.to_s
+                  price: item.price.to_s,
+                  currency: shop.currency
               }
         end
 
@@ -123,7 +124,7 @@ module Recommender
     def apply_industrial_filter(relation)
 
       # Если известен пол покупателя и у магазина включен решим отраслевого
-      if shop.subscription_plans.rees46_recommendations.paid.exists?
+      if shop.subscription_plans.product_recommendations.paid.exists?
 
         # Фильтрация по полу
         if user.try(:gender).present?
