@@ -1,6 +1,7 @@
 class WebPush::DigestMessage
 
   class IncorrectSettingsError < StandardError; end
+  class NotEnoughMoney < StandardError; end
 
   attr_accessor :client, :shop, :digest, :batch, :message, :settings, :body, :safari_pusher
 
@@ -15,6 +16,11 @@ class WebPush::DigestMessage
     @digest = digest
     @batch = batch
     @safari_pusher = safari_pusher
+
+    # Проверяем наличие баланса у магазина
+    if @shop.web_push_balance < 1
+      raise NotEnoughMoney
+    end
 
     @message = client.web_push_digest_messages.create!(
         web_push_digest: digest,

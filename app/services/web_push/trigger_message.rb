@@ -1,6 +1,7 @@
 class WebPush::TriggerMessage
 
   class IncorrectSettingsError < StandardError; end
+  class NotEnoughMoney < StandardError; end
 
   attr_accessor :client, :shop, :trigger, :message, :settings, :body
 
@@ -12,6 +13,12 @@ class WebPush::TriggerMessage
     @client = client
     @shop = @client.shop
     @trigger = trigger
+
+    # Проверяем наличие баланса у магазина
+    if @shop.web_push_balance < 1
+      raise NotEnoughMoney
+    end
+
     @message = client.web_push_trigger_messages.create!(
         web_push_trigger: trigger.mailing,
         shop: client.shop,

@@ -3,13 +3,15 @@ require 'rails_helper'
 describe WebPush::DigestMessage do
 
   let!(:user) { create(:user) }
-  let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop ) }
+  let!(:shop) { create(:shop, web_push_balance: 1) }
+  let!(:client) { create(:client, user: user, shop: shop, web_push_enabled: true) }
   let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
   let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'test test test', message: 'test message for trigger', url: 'http://rees46.com',  ) }
   let!(:web_push_digest_batch) { create(:web_push_digest_batch, shop: shop, mailing: web_push_digest, start_id: client.id, end_id: client.id + 1 ) }
+
+  before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
 
   describe 'body generation' do
 
@@ -28,6 +30,12 @@ describe WebPush::DigestMessage do
       expect(message.body[:url].scan('recommended_by=web_push_digest').any?).to be_truthy
       expect(message.body[:url].scan("rees46_web_push_digest_code=#{WebPushDigestMessage.first.code}").any?).to be_truthy
       expect(message.body[:url].scan(web_push_digest.url).any?).to be_truthy
+    end
+
+    it 'send message and reduce balance' do
+      message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
+      message.send
+      expect(shop.reload.web_push_balance).to eq(0)
     end
 
   end
