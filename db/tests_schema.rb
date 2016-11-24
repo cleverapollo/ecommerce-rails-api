@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161114084054) do
+ActiveRecord::Schema.define(version: 20161124120520) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -277,7 +277,10 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.integer  "min_payment",   default: 500,   null: false
     t.float    "exchange_rate", default: 1.0,   null: false
     t.boolean  "payable",       default: false
+    t.boolean  "stripe_paid",   default: false, null: false
   end
+
+  add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",       null: false
@@ -319,12 +322,17 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
     t.string   "time_zone",                          default: "Moscow", null: false
+    t.string   "stripe_customer_id"
+    t.string   "stripe_card_last4"
+    t.string   "stripe_card_id"
+    t.string   "country_code"
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["quick_sign_in_token"], name: "index_customers_on_quick_sign_in_token", using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+  add_index "customers", ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id", using: :btree
 
   create_table "digest_mail_statistics", force: :cascade do |t|
     t.date     "date",                   null: false
@@ -709,7 +717,8 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.datetime "logo_updated_at"
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
-    t.boolean  "popunder_enabled",                          default: false, null: false
+    t.boolean  "popunder_enabled",                          default: true,  null: false
+    t.boolean  "debug_order",                               default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
