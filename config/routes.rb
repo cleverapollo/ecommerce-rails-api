@@ -33,6 +33,10 @@ Rees46Api::Application.routes.draw do
   get 'triggers/trigger_content'
   get 'triggers/additional_content'
 
+  # Запрос отзывов
+  get 'reputation/shop', to: 'reputations#shop_reputation'
+  get 'reputation/product', to: 'reputations#item_reputation'
+
   # Импорты
   resource :import, only: :none do
     # Заказы
