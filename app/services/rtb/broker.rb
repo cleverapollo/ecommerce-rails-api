@@ -24,7 +24,7 @@ module Rtb
           else
             begin
               rtb_item = RtbJob.create! shop_id: shop.id, user_id: user.id, item_id: item.id, date: Date.current, counter: 0, price: item.price, image: item.image_url, name: item.name, currency: shop.currency, url: item.url, logo: shop.fetch_logo_url
-            rescue PG::UniqueViolation
+            rescue ActiveRecord::RecordNotUnique
               # Concurrency
               rtb_item = RtbJob.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id)
             end
