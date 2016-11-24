@@ -41,18 +41,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
 
     end
 
-    # context 'ekomi integration' do
-    #   it {
-    #     trigger = subject
-    #     expect( trigger.triggered? ).to be_truthy
-    #     letter = TriggerMailings::Letter.new(client, trigger)
-    #     expect( letter.body.scan(/(feedback|opinion|kundenmeinung|klantenmening)\.php/).any? ).to be_truthy
-    #   }
-    # end
-
-
     context 'when trigger disabled for shop' do
-
     end
 
   end

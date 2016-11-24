@@ -10,7 +10,7 @@ class ReputationsController < ApplicationController
   def shop_reputation
     @shop.subscription_plans.reputation
 
-    if @plan.present? && @plan.paid_till > Time.now
+    if @plan.present? && @plan.paid?
       render json: @shop.reputations.for_shop.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(30)
     else
       render json: nil
@@ -22,7 +22,7 @@ class ReputationsController < ApplicationController
   # get param product_id - (uniqid - товара)
   # route: /reputation/product
   def item_reputation
-    if @plan.present? && @plan.paid_till > Time.now
+    if @plan.present? && @plan.paid?
       render json: @item.reputations.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(30)
     else
       render json: nil
@@ -31,7 +31,7 @@ class ReputationsController < ApplicationController
 
   # Может поставить на сайт виджет с общей оценкой.
   def reputation_widget
-    if @plan.present? && @plan.paid_till > Time.now
+    if @plan.present? && @plan.paid?
       # TODO
       render json: nil
     else
@@ -57,13 +57,9 @@ end
 
 # TODO list:
 # Продавец
-# Может добавить виджет оценки в шаблон триггерного письма “Спасибо за заказ”.
-# Может выключить систему сбора отзывов без редактирования шаблона триггерного письма.
 # Может поставить на сайт виджет с общей оценкой.
 # Может оплатить тариф на отзывы.
 # Может получить уведомление по почте о новой оценке.
 
 # Система
-# Не вставляет виджет оценки в триггерное письмо, если тариф не оплачен.
 # Выводит предупреждение на дашборде и в редакторе триггера о недоступности системы отзывов, если тариф не оплачен.
-# Автоматически публикует отзыв через неделю после последнего его изменения (меняется в ходе переписки магазина и клиента).
