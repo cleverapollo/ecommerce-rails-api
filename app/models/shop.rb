@@ -138,6 +138,19 @@ class Shop < MasterTable
     yml_expired? && ((yml_errors || 0) < 5)
   end
 
+
+  # Попытка загрузить YML позднее, чем последняя успешная обработка YML
+  # При этом, во избежание ситуации "начали, но не удалось загрузить" ошибок обработки YML не было
+  # # Если не было успешной обработки и не было ошибок
+  # def yml_not_processing_now?
+  #   # 1. Если не было попытки начать загрузку YML.
+  #   return false if last_try_to_load_yml_at.nil?
+  #   # Если загрузка была, а обработки не было. Значит сейчас обрабатыватся. Либо сломалось и тогда будет ошибка. Но ошибка уже могла быть и до этого.  успешной обработки не было, но загрузка файла была
+  #   # 3. Если загрузка файла раньше, чем успешная обработка.
+  #   return false if !last_valid_yml_file_loaded_at.nil? && last_try_to_load_yml_at <= last_valid_yml_file_loaded_at
+  #   true
+  # end
+
   def yml_allow_import!
     update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
