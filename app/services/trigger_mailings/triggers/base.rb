@@ -97,6 +97,7 @@ module TriggerMailings
         @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
         if self.kind_of? RecentlyPurchased
           @additional_info[:order] = shop.orders.first
+          @additional_info[:test] = true
         end
         true
       end

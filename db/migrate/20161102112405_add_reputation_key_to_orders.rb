@@ -8,8 +8,6 @@ class AddReputationKeyToOrders < ActiveRecord::Migration
   end
 
   def down
-    drop_column :orders, :reputation_key
+    remove_column :orders, :reputation_key
   end
-
-
 end
