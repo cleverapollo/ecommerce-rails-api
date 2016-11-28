@@ -41,7 +41,8 @@ class Yml < Struct.new(:path)
         redirect: true
       }
     rescue Errno::ETIMEDOUT, Net::ReadTimeout, EOFError, Errno::ECONNRESET
-      if attempts -= 1
+      attempts -= 1
+      if attempts > 0
         retry
       else
         raise NotRespondingError.new("Не удаётся выгрузить YML файл в течение 30 минут.")

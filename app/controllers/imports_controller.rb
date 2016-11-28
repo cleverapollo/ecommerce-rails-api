@@ -43,7 +43,7 @@ class ImportsController < ApplicationController
 
   def disable
     if params[:item_ids].present?
-      params[:item_ids].split(',').each do |item_id|
+      params[:item_ids].to_s.split(',').each do |item_id|
         @shop.items.find_by(uniqid: item_id).try(:disable!)
       end
     end
