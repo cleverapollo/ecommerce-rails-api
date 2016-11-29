@@ -23,7 +23,7 @@ module Mailings
       rescue
         raise GetResponseApiUnavailableError
       end
-      if response.present? && response['result'].any? && response['result'].keys.first.present?
+      if response.present? && response['result'].present? &&  response['result'].any? && response['result'].keys.first.present?
         @campaign = response['result'].keys.first
         return self
       else
