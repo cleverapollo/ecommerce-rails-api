@@ -12,8 +12,6 @@ describe WebPush::TriggerMessage do
   let!(:item) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
   let!(:action) { create(:action, shop: shop, user: user, item: item, rating: Actions::Cart::RATING, cart_date: 2.hours.ago, cart_count: 2) }
 
-  before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
-
   describe 'body generation' do
 
     it 'generates correct body' do
@@ -28,13 +26,45 @@ describe WebPush::TriggerMessage do
       expect(message.body[:body]).to eq trigger.settings[:message]
     end
 
-    it 'send message and reduce balance' do
+  end
+
+  describe 'reduce balance' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
+
+    it 'send message' do
       trigger = WebPush::TriggerDetector.new(shop).detect(client)
       message = WebPush::TriggerMessage.new trigger, client
       message.send
       expect(shop.reload.web_push_balance).to eq(0)
     end
-
   end
 
+  describe 'invalid tokens' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_raise(Webpush::InvalidSubscription) }
+
+    it 'send message' do
+      trigger = WebPush::TriggerDetector.new(shop).detect(client)
+      message = WebPush::TriggerMessage.new trigger, client
+      message.send
+      expect(shop.reload.web_push_balance).to eq(1)
+      expect(shop.web_push_trigger_messages.count).to eq(0)
+      expect(client.reload.web_push_enabled).to eq(false)
+    end
+
+    context 'multiple client tokens' do
+      let!(:web_push_token_1) { create(:web_push_token, client: client, token: {token: '1234', browser: 'firefox'}) }
+
+      it 'send message' do
+        expect(client.web_push_tokens.count).to eq(2)
+
+        trigger = WebPush::TriggerDetector.new(shop).detect(client)
+        message = WebPush::TriggerMessage.new trigger, client
+        message.send
+        expect(shop.reload.web_push_balance).to eq(1)
+        expect(shop.web_push_trigger_messages.count).to eq(0)
+        expect(client.web_push_enabled).to eq(false)
+        expect(client.web_push_tokens.count).to eq(0)
+      end
+    end
+  end
 end
