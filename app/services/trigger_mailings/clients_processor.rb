@@ -25,13 +25,9 @@ module TriggerMailings
               if shop.mailings_settings.external_getresponse?
                 begin
                   get_response_client = Mailings::GetResponseClient.new(shop).prepare
-                rescue Mailings::GetResponseClient::GetResponseApiUnavailableError => e
-                  # TODO уведомлять клиента по почте
-                  Rollbar.warning(e)
-                  next
                 rescue StandardError => e
                   # TODO уведомлять клиента по почте
-                  Rollbar.error(e)
+                  Rollbar.warning(e)
                   next
                 end
               end
