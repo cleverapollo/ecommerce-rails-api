@@ -207,7 +207,7 @@ module ActionPush
 
         # У товара есть YML
         if shop.has_imported_yml?
-          cur_item = Item.where(shop_id:shop.id, uniqid: item_id).limit(1)[0]
+          cur_item = Item.find_by(shop_id:shop.id, uniqid: item_id)
           if cur_item
             # товар есть в базе
             if available_present
