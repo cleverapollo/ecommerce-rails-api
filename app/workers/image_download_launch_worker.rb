@@ -24,7 +24,15 @@ class ImageDownloadLaunchWorker
   end
 
   def send_batch(items_images)
-    params = { shop_id: shop.id, items_images: items_images }
-    ImageDownloaderWorker.perform_async(params)
+    require "bunny"
+    conn = Bunny.new(host: "148.251.91.107", user: 'rees46', pass: Rails.application.secrets.bunny_password)
+    conn.start
+
+    ch = conn.create_channel
+
+    q = ch.queue("resize", durable: true)
+    ch.default_exchange.publish({ shop_uniqid: shop.uniqid, items_images: items_images }.to_json, durable: true, :routing_key => q.name)
+
+    conn.close
   end
 end
