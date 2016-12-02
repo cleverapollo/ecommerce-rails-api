@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161018083844) do
+ActiveRecord::Schema.define(version: 20161122121118) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -49,21 +49,27 @@ ActiveRecord::Schema.define(version: 20161018083844) do
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "overall",             default: 0, null: false
-    t.integer "activity_a",          default: 0, null: false
-    t.integer "activity_b",          default: 0, null: false
-    t.integer "activity_c",          default: 0, null: false
-    t.date    "recalculated_at",                 null: false
-    t.integer "triggers_overall",    default: 0, null: false
-    t.integer "triggers_activity_a", default: 0, null: false
-    t.integer "triggers_activity_b", default: 0, null: false
-    t.integer "triggers_activity_c", default: 0, null: false
-    t.integer "digests_overall",     default: 0, null: false
-    t.integer "digests_activity_a",  default: 0, null: false
-    t.integer "digests_activity_b",  default: 0, null: false
-    t.integer "digests_activity_c",  default: 0, null: false
-    t.integer "with_email",          default: 0, null: false
-    t.integer "web_push_overall",    default: 0, null: false
+    t.integer "overall",               default: 0, null: false
+    t.integer "activity_a",            default: 0, null: false
+    t.integer "activity_b",            default: 0, null: false
+    t.integer "activity_c",            default: 0, null: false
+    t.date    "recalculated_at",                   null: false
+    t.integer "triggers_overall",      default: 0, null: false
+    t.integer "triggers_activity_a",   default: 0, null: false
+    t.integer "triggers_activity_b",   default: 0, null: false
+    t.integer "triggers_activity_c",   default: 0, null: false
+    t.integer "digests_overall",       default: 0, null: false
+    t.integer "digests_activity_a",    default: 0, null: false
+    t.integer "digests_activity_b",    default: 0, null: false
+    t.integer "digests_activity_c",    default: 0, null: false
+    t.integer "with_email",            default: 0, null: false
+    t.integer "web_push_overall",      default: 0, null: false
+    t.integer "with_email_activity_a", default: 0, null: false
+    t.integer "with_email_activity_b", default: 0, null: false
+    t.integer "with_email_activity_c", default: 0, null: false
+    t.integer "web_push_activity_a",   default: 0, null: false
+    t.integer "web_push_activity_b",   default: 0, null: false
+    t.integer "web_push_activity_c",   default: 0, null: false
   end
 
   add_index "audience_segment_statistics", ["shop_id"], name: "index_audience_segment_statistics_on_shop_id", unique: true, using: :btree
@@ -140,7 +146,7 @@ ActiveRecord::Schema.define(version: 20161018083844) do
   add_index "clients", ["shop_id", "activity_segment"], name: "index_clients_on_shop_id_and_activity_segment", where: "(activity_segment IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
-  add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE) AND (last_activity_at IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "(((email IS NOT NULL) AND (triggers_enabled IS TRUE)) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed IS TRUE)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
@@ -321,22 +327,22 @@ ActiveRecord::Schema.define(version: 20161018083844) do
   add_index "items", ["brand_downcase"], name: "index_items_on_brand_for_brand_campaign", where: "((brand_downcase IS NOT NULL) AND (category_ids IS NOT NULL))", using: :btree
   add_index "items", ["category_ids"], name: "index_items_on_category_ids", using: :gin
   add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "((is_available IS TRUE) AND (ignored IS FALSE) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
+  add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
   add_index "items", ["is_auto"], name: "index_items_on_is_auto", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_cosmetic"], name: "index_items_on_is_cosmetic", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
+  add_index "items", ["price"], name: "index_items_on_price", where: "(((is_available = true) AND (ignored = false)) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "((price_margin IS NOT NULL) AND (is_available IS TRUE) AND (ignored IS FALSE))", using: :btree
-  add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((is_available = true) AND (ignored = false) AND (sales_rate IS NOT NULL) AND (sales_rate > 0))", using: :btree
+  add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "(((price_margin IS NOT NULL) AND (is_available IS TRUE)) AND (ignored IS FALSE))", using: :btree
+  add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id"], name: "widgetable_shop", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false
@@ -451,6 +457,13 @@ ActiveRecord::Schema.define(version: 20161018083844) do
     t.jsonb   "products_statistics"
     t.integer "web_push_subscription_popup_showed", default: 0
     t.integer "web_push_subscription_accepted",     default: 0
+    t.integer "web_push_triggers_sent",             default: 0,   null: false
+    t.integer "web_push_triggers_clicked",          default: 0,   null: false
+    t.integer "web_push_triggers_orders",           default: 0,   null: false
+    t.integer "web_push_triggers_revenue",          default: 0,   null: false
+    t.integer "web_push_triggers_orders_real",      default: 0,   null: false
+    t.integer "web_push_triggers_revenue_real",     default: 0,   null: false
+    t.integer "orders_with_recommender_count",      default: 0,   null: false
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
@@ -503,6 +516,15 @@ ActiveRecord::Schema.define(version: 20161018083844) do
     t.text     "css"
     t.string   "button"
     t.text     "agreement"
+    t.integer  "popup_type",                       default: 0,     null: false
+    t.integer  "timer",                            default: 90,    null: false
+    t.boolean  "timer_enabled",                    default: true,  null: false
+    t.integer  "pager",                            default: 5,     null: false
+    t.boolean  "pager_enabled",                    default: false, null: false
+    t.integer  "cursor",                           default: 50,    null: false
+    t.boolean  "cursor_enabled",                   default: false, null: false
+    t.boolean  "products",                         default: false, null: false
+    t.text     "successfully"
   end
 
   create_table "trigger_mailing_queues", id: :bigserial, force: :cascade do |t|
@@ -531,6 +553,7 @@ ActiveRecord::Schema.define(version: 20161018083844) do
     t.integer  "image_width",                             default: 180
     t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
+    t.datetime "activated_at"
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree
@@ -640,6 +663,7 @@ ActiveRecord::Schema.define(version: 20161018083844) do
     t.datetime "certificate_updated_at"
     t.text     "pem_content"
     t.string   "service_worker_path"
+    t.text     "successfully"
   end
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|

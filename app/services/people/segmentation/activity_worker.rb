@@ -60,7 +60,13 @@ module People
         result[:triggers_activity_b] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
         result[:triggers_activity_c] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
         result[:with_email] = @shop.clients.with_email.count
+        result[:with_email_activity_a] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::A).count
+        result[:with_email_activity_b] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::B).count
+        result[:with_email_activity_c] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::C).count
         result[:web_push_overall] = @shop.clients.where('web_push_enabled IS TRUE').count
+        result[:web_push_activity_a] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::A).count
+        result[:web_push_activity_b] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::B).count
+        result[:web_push_activity_c] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::C).count
 
         update_params = {
             overall: shop.clients.count,
@@ -77,7 +83,13 @@ module People
             triggers_activity_b: result[:triggers_activity_b],
             triggers_activity_c: result[:triggers_activity_c],
             with_email: result[:with_email],
-            web_push_overall: result[:web_push_overall]
+            with_email_activity_a: result[:with_email_activity_a],
+            with_email_activity_b: result[:with_email_activity_b],
+            with_email_activity_c: result[:with_email_activity_c],
+            web_push_overall: result[:web_push_overall],
+            web_push_activity_a: result[:web_push_activity_a],
+            web_push_activity_b: result[:web_push_activity_b],
+            web_push_activity_c: result[:web_push_activity_c],
         }
 
         AudienceSegmentStatistic.fetch(@shop).update! update_params

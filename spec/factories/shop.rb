@@ -4,7 +4,7 @@ FactoryGirl.define do
     yml_file_url
     category_id 5
     active true
-    customer nil
+    customer
     restricted false
     use_brb false
     connected_events_last_track       {{}}
@@ -39,7 +39,7 @@ FactoryGirl.define do
   end
 
   factory :shop_xml, class: Hash do
-    name 
+    name
     company
     url
     local_delivery_cost

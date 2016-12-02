@@ -3,8 +3,8 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush, :received]
-  before_action :fetch_user, only: [:create, :send_test, :decline]
+  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush, :received, :showed]
+  before_action :fetch_user, only: [:create, :send_test, :decline, :showed]
 
   # Подписка на пуш-уведомления
   # @method POST
@@ -22,6 +22,13 @@ class WebPushSubscriptionsController < ApplicationController
     end
   end
 
+  # Пользователю было показано окно подписки
+  def showed
+    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    client.web_push_subscription_popup_showed = true
+    client.save
+    render json: {}
+  end
 
   # Пользователь отказался от подписки после просмотра окна подписки.
   # @method POST

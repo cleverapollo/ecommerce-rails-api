@@ -23,7 +23,7 @@ module Mailings
       rescue
         raise GetResponseApiUnavailableError
       end
-      if response && response['result'].any? && response['result'].keys.first.present?
+      if response.present? && !response['result'].nil? && response['result'].any? && response['result'].keys.first.present?
         @campaign = response['result'].keys.first
         return self
       else
@@ -41,10 +41,10 @@ module Mailings
         if response['result'].any? && response['result'].keys.any?
           # Обновить триггер
           user_id = response['result'].keys.first
-          send_request('set_contact_customs',  contact: user_id, 'customs': [ {'name': "rees46_#{trigger_type}", 'content': trigger_mail_code} ])
+          send_request('set_contact_customs',  contact: user_id, 'customs': [ {'name': trigger_type_field, 'content': trigger_mail_code} ])
         else
           # Создать новый
-          send_request('add_contact', 'campaign': @campaign, 'email': email, 'customs': [ {'name': "rees46_#{trigger_type}", 'content': trigger_mail_code} ])
+          send_request('add_contact', 'campaign': @campaign, 'email': email, 'customs': [ {'name': trigger_type_field, 'content': trigger_mail_code} ])
         end
       else
         raise GetResponseApiUnavailableError

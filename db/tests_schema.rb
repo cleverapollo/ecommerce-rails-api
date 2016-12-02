@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161019085204) do
+ActiveRecord::Schema.define(version: 20161124120520) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -277,7 +277,10 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.integer  "min_payment",   default: 500,   null: false
     t.float    "exchange_rate", default: 1.0,   null: false
     t.boolean  "payable",       default: false
+    t.boolean  "stripe_paid",   default: false, null: false
   end
+
+  add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",       null: false
@@ -318,12 +321,18 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
+    t.string   "stripe_customer_id"
+    t.string   "stripe_card_last4"
+    t.string   "stripe_card_id"
+    t.string   "country_code"
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["quick_sign_in_token"], name: "index_customers_on_quick_sign_in_token", using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+  add_index "customers", ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id", using: :btree
 
   create_table "digest_mail_statistics", force: :cascade do |t|
     t.date     "date",                   null: false
@@ -391,15 +400,6 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "lead_shops", force: :cascade do |t|
-    t.string   "url"
-    t.integer  "tryouts",    default: 0
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "lead_shops", ["url"], name: "index_lead_shops_on_url", using: :btree
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
     t.string "list"
@@ -618,6 +618,8 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.date    "synced_with_aidata_at"
     t.date    "synced_with_auditorius_at"
     t.date    "synced_with_mailru_at"
+    t.date    "synced_with_relapio_at"
+    t.date    "synced_with_republer_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -697,11 +699,11 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.integer  "scoring",                                   default: 0,     null: false
     t.decimal  "triggers_cpa",                              default: 4.6,   null: false
     t.decimal  "digests_cpa",                               default: 2.0,   null: false
-    t.integer  "triggers_cpa_cap",                          default: 250,   null: false
-    t.integer  "digests_cpa_cap",                           default: 200,   null: false
+    t.decimal  "triggers_cpa_cap",                          default: 300.0, null: false
+    t.decimal  "digests_cpa_cap",                           default: 300.0, null: false
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
-    t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
+    t.decimal  "remarketing_cpa_cap",                       default: 300.0, null: false
     t.boolean  "ekomi_enabled"
     t.string   "ekomi_id"
     t.string   "ekomi_key"
@@ -713,6 +715,10 @@ ActiveRecord::Schema.define(version: 20161019085204) do
     t.string   "logo_content_type"
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
+    t.string   "plan",                                      default: "s"
+    t.boolean  "plan_fixed",                                default: false
+    t.boolean  "popunder_enabled",                          default: true,  null: false
+    t.boolean  "debug_order",                               default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

@@ -196,7 +196,7 @@ class Client < ActiveRecord::Base
 
       # create a new token
       web_push_token = self.web_push_tokens.create!(shop_id: self.shop_id, token: token, browser: browser)
-      self.update(web_push_enabled: true)
+      self.update(web_push_enabled: true, web_push_subscription_popup_showed: true, accepted_web_push_subscription: true)
 
       return web_push_token
     end

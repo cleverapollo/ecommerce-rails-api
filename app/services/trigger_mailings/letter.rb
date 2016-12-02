@@ -123,7 +123,7 @@ module TriggerMailings
         oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         price: item.price_at_location(location).to_i,
         oldprice: item.oldprice.to_i,
-        url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
+        url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail).merge(r46_merger: Base64.encode64(@client.email.to_s).strip)),
         image_url: (width && height ? item.resized_image(width, height) : item.image_url),
         currency: item.shop.currency,
         id: item.uniqid.to_s,

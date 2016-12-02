@@ -70,26 +70,50 @@ module InitServerString
       shop = options.fetch(:shop)
       session = options.fetch(:session)
       client = options.fetch(:client)
+      subscriptions_plan = shop.subscription_plans.subscriptions.first
+      products = nil
+      if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
+        recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
+        if recommender_ids.count > 0
+          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url)
+        end
+      end
+
+      email_settings = nil
+      if shop.subscriptions_enabled? && client.email.blank?
+        email_settings = {
+            enabled: shop.subscriptions_settings.enabled,
+            overlay: shop.subscriptions_settings.overlay,
+            header: shop.subscriptions_settings.header,
+            text: shop.subscriptions_settings.text,
+            button: shop.subscriptions_settings.button,
+            agreement: shop.subscriptions_settings.agreement,
+            successfully: shop.subscriptions_settings.successfully,
+            remote_picture_url: shop.subscriptions_settings.remote_picture_url,
+            type: 0,
+            timer: 90,
+        }
+
+        if subscriptions_plan.present? && subscriptions_plan.paid?
+          email_settings = email_settings.merge({
+            type: shop.subscriptions_settings.popup_type,
+            timer: shop.subscriptions_settings.timer_enabled? ? shop.subscriptions_settings.timer : 0,
+            pager: shop.subscriptions_settings.pager_enabled? ? shop.subscriptions_settings.pager : 0,
+            cursor: shop.subscriptions_settings.cursor_enabled? ? shop.subscriptions_settings.cursor : 0,
+            products: products,
+          })
+        end
+      end
+
       result = {
           ssid: session.code,
           currency: shop.currency,
           profile: session.user.profile_to_json,
           has_email: client.email.present?,
+          shop_debug: shop.debug_order,
           sync: get_sync_pixels(session, shop),
           emailSubscription: {
-            settings: if shop.subscriptions_enabled? && client.email.blank?
-                        {
-                            enabled: shop.subscriptions_settings.enabled,
-                            overlay: shop.subscriptions_settings.overlay,
-                            header: shop.subscriptions_settings.header,
-                            text: shop.subscriptions_settings.text,
-                            button: shop.subscriptions_settings.button,
-                            agreement: shop.subscriptions_settings.agreement,
-                            remote_picture_url: shop.subscriptions_settings.remote_picture_url
-                        }
-                      else
-                        nil
-                      end,
+            settings: email_settings,
             status: if client.accepted_subscription == true
                       'accepted'
                     elsif client.subscription_popup_showed == true && client.accepted_subscription != true
@@ -107,6 +131,7 @@ module InitServerString
                               text: shop.web_push_subscriptions_settings.text,
                               button: shop.web_push_subscriptions_settings.button,
                               agreement: shop.web_push_subscriptions_settings.agreement,
+                              successfully: shop.web_push_subscriptions_settings.successfully,
                               manual_mode: shop.web_push_subscriptions_settings.manual_mode,
                               remote_picture_url: shop.web_push_subscriptions_settings.remote_picture_url,
                               safari_enabled: shop.web_push_subscriptions_settings.safari_enabled?,
@@ -158,6 +183,15 @@ module InitServerString
           pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
           session.update synced_with_mailru_at: Date.current
         end
+        if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
+          pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
+          session.update synced_with_relapio_at: Date.current
+        end
+        if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}"
+          session.update synced_with_republer_at: Date.current
+        end
+
       end
       pixels
     end

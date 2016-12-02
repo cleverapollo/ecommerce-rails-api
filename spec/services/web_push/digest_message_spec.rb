@@ -3,8 +3,8 @@ require 'rails_helper'
 describe WebPush::DigestMessage do
 
   let!(:user) { create(:user) }
-  let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop ) }
+  let!(:shop) { create(:shop, web_push_balance: 1) }
+  let!(:client) { create(:client, user: user, shop: shop, web_push_enabled: true) }
   let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
@@ -30,6 +30,29 @@ describe WebPush::DigestMessage do
       expect(message.body[:url].scan(web_push_digest.url).any?).to be_truthy
     end
 
+  end
+
+  describe 'reduce balance' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
+
+    it 'send message' do
+      message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
+      message.send
+      expect(shop.reload.web_push_balance).to eq(0)
+      expect(shop.web_push_digest_messages.count).to eq(1)
+    end
+  end
+
+  describe 'invalid tokens' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_raise(Webpush::InvalidSubscription) }
+
+    it 'send message' do
+      message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
+      message.send
+      expect(shop.reload.web_push_balance).to eq(1)
+      expect(shop.web_push_digest_messages.count).to eq(0)
+      expect(client.reload.web_push_enabled).to eq(false)
+    end
   end
 
 end

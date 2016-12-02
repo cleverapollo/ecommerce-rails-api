@@ -79,7 +79,9 @@ class Shop < MasterTable
     if connected_events_last_track[event].blank?
       Event.event_tracked(self) if first_event?
     end
-    connected_events_last_track[event] = Time.current.to_i if !connected_events_last_track[event] || (connected_events_last_track[event] < Time.current.to_i)
+    if connected_events_last_track[event].nil? || connected_events_last_track[event].to_i < Time.current.to_i
+      connected_events_last_track[event] = Time.current.to_i
+    end
     check_connection!
     save
   end
@@ -89,7 +91,9 @@ class Shop < MasterTable
     if connected_recommenders_last_track[recommender].blank?
       Event.recommendation_given(self) if first_recommender?
     end
-    connected_recommenders_last_track[recommender] = Time.current.to_i if !connected_recommenders_last_track[recommender] || (connected_recommenders_last_track[recommender] < Time.current.to_i)
+    if connected_recommenders_last_track[recommender].nil? || connected_recommenders_last_track[recommender].to_i < Time.current.to_i
+      connected_recommenders_last_track[recommender] = Time.current.to_i
+    end
     check_connection!
     save
   end
@@ -134,6 +138,19 @@ class Shop < MasterTable
     yml_expired? && ((yml_errors || 0) < 5)
   end
 
+
+  # Попытка загрузить YML позднее, чем последняя успешная обработка YML
+  # При этом, во избежание ситуации "начали, но не удалось загрузить" ошибок обработки YML не было
+  # # Если не было успешной обработки и не было ошибок
+  # def yml_not_processing_now?
+  #   # 1. Если не было попытки начать загрузку YML.
+  #   return false if last_try_to_load_yml_at.nil?
+  #   # Если загрузка была, а обработки не было. Значит сейчас обрабатыватся. Либо сломалось и тогда будет ошибка. Но ошибка уже могла быть и до этого.  успешной обработки не было, но загрузка файла была
+  #   # 3. Если загрузка файла раньше, чем успешная обработка.
+  #   return false if !last_valid_yml_file_loaded_at.nil? && last_try_to_load_yml_at <= last_valid_yml_file_loaded_at
+  #   true
+  # end
+
   def yml_allow_import!
     update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
@@ -153,6 +170,8 @@ class Shop < MasterTable
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
     rescue Interrupt => e
+      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+    rescue Sidekiq::Shutdown => e
       Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
@@ -223,7 +242,10 @@ class Shop < MasterTable
   # Уменьшает количество веб пушей на балансе на 1 после отправки
   def reduce_web_push_balance!
     if web_push_balance > 0
-      decrement! :web_push_balance, 1
+      Shop.connection.update("UPDATE shops SET web_push_balance = web_push_balance - 1 WHERE #{ActiveRecord::Base.send(:sanitize_sql_array, ['id = ?', self.id])}")
+      self.reload
+    else
+      Rollbar.warning(shop: id, message: 'reduce_web_push_balance when web_push_balance = 0')
     end
   end
 

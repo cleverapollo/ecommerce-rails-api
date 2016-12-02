@@ -53,6 +53,11 @@ describe Recommendations::Params do
       expect(subject.cart_item_ids.sort).to eq([item_1.id])
     end
 
+    it 'extracts cart_item_id when it is hash' do
+      params[:cart_item_id] = {'0': 1, '1': 2}
+      expect(subject.cart_item_ids.sort).to eq([item_1.id, item_2.id])
+    end
+
     it 'extracts empty cart without error' do
       params[:cart_item_id] = ''
       expect(subject.cart_item_ids.sort).to eq([])

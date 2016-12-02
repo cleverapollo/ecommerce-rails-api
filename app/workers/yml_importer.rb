@@ -25,6 +25,7 @@ class YmlImporter
 
           yml.offers.each_with_index do |offer, index|
             next unless offer.id.present?
+            next unless offer.available == true
             if offer.category_id.class == Set
               category_ids = offer.category_id.map { |id| shop.categories.path_to id }.flatten.uniq.compact
               # category_ids = offer.category_id.map { |id| shop.categories.path_to(id).join('.') }.uniq.compact
@@ -42,7 +43,7 @@ class YmlImporter
             new_item.id = index
             new_item.shop_id = shop_id
             new_item.category_ids = category_ids
-            new_item.location_ids = location_ids.uniq
+            new_item.location_ids = location_ids.uniq if location_ids.compact.any? # Не пишем пустые массивы
             new_item.locations = locations
             (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
             (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?

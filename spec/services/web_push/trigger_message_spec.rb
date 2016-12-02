@@ -3,8 +3,8 @@ require 'rails_helper'
 describe WebPush::TriggerMessage do
 
   let!(:user) { create(:user) }
-  let!(:shop) { create(:shop) }
-  let!(:client) { create(:client, user: user, shop: shop ) }
+  let!(:shop) { create(:shop, web_push_balance: 1) }
+  let!(:client) { create(:client, user: user, shop: shop, web_push_enabled: true) }
   let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
@@ -28,4 +28,43 @@ describe WebPush::TriggerMessage do
 
   end
 
+  describe 'reduce balance' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
+
+    it 'send message' do
+      trigger = WebPush::TriggerDetector.new(shop).detect(client)
+      message = WebPush::TriggerMessage.new trigger, client
+      message.send
+      expect(shop.reload.web_push_balance).to eq(0)
+    end
+  end
+
+  describe 'invalid tokens' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_raise(Webpush::InvalidSubscription) }
+
+    it 'send message' do
+      trigger = WebPush::TriggerDetector.new(shop).detect(client)
+      message = WebPush::TriggerMessage.new trigger, client
+      message.send
+      expect(shop.reload.web_push_balance).to eq(1)
+      expect(shop.web_push_trigger_messages.count).to eq(0)
+      expect(client.reload.web_push_enabled).to eq(false)
+    end
+
+    context 'multiple client tokens' do
+      let!(:web_push_token_1) { create(:web_push_token, client: client, token: {token: '1234', browser: 'firefox'}) }
+
+      it 'send message' do
+        expect(client.web_push_tokens.count).to eq(2)
+
+        trigger = WebPush::TriggerDetector.new(shop).detect(client)
+        message = WebPush::TriggerMessage.new trigger, client
+        message.send
+        expect(shop.reload.web_push_balance).to eq(1)
+        expect(shop.web_push_trigger_messages.count).to eq(0)
+        expect(client.web_push_enabled).to eq(false)
+        expect(client.web_push_tokens.count).to eq(0)
+      end
+    end
+  end
 end

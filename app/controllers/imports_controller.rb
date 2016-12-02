@@ -8,6 +8,10 @@ class ImportsController < ApplicationController
   end
 
   def sync_orders
+    if %w(e143c34a52e7463665fb89296faa75).include?(@shop.uniqid)
+      render text: 'Disabled', status: 400
+      return
+    end
     OrdersSyncWorker.perform_async(params)
     render text: 'OK'
   end
@@ -39,7 +43,7 @@ class ImportsController < ApplicationController
 
   def disable
     if params[:item_ids].present?
-      params[:item_ids].split(',').each do |item_id|
+      params[:item_ids].to_s.split(',').each do |item_id|
         @shop.items.find_by(uniqid: item_id).try(:disable!)
       end
     end
