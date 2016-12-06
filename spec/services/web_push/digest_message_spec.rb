@@ -11,8 +11,6 @@ describe WebPush::DigestMessage do
   let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'test test test', message: 'test message for trigger', url: 'http://rees46.com',  ) }
   let!(:web_push_digest_batch) { create(:web_push_digest_batch, shop: shop, mailing: web_push_digest, start_id: client.id, end_id: client.id + 1 ) }
 
-  before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
-
   describe 'body generation' do
 
     it 'generates correct body' do
@@ -32,12 +30,29 @@ describe WebPush::DigestMessage do
       expect(message.body[:url].scan(web_push_digest.url).any?).to be_truthy
     end
 
-    it 'send message and reduce balance' do
+  end
+
+  describe 'reduce balance' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_return(true) }
+
+    it 'send message' do
       message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
       message.send
       expect(shop.reload.web_push_balance).to eq(0)
+      expect(shop.web_push_digest_messages.count).to eq(1)
     end
+  end
 
+  describe 'invalid tokens' do
+    before { allow_any_instance_of(WebPushToken).to receive(:send_web_push).and_raise(Webpush::InvalidSubscription) }
+
+    it 'send message' do
+      message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
+      message.send
+      expect(shop.reload.web_push_balance).to eq(1)
+      expect(shop.web_push_digest_messages.count).to eq(0)
+      expect(client.reload.web_push_enabled).to eq(false)
+    end
   end
 
 end

@@ -242,7 +242,8 @@ class Shop < MasterTable
   # Уменьшает количество веб пушей на балансе на 1 после отправки
   def reduce_web_push_balance!
     if web_push_balance > 0
-      decrement! :web_push_balance, 1
+      Shop.connection.update("UPDATE shops SET web_push_balance = web_push_balance - 1 WHERE #{ActiveRecord::Base.send(:sanitize_sql_array, ['id = ?', self.id])}")
+      self.reload
     else
       Rollbar.warning(shop: id, message: 'reduce_web_push_balance when web_push_balance = 0')
     end

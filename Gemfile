@@ -25,6 +25,7 @@ gem 'connection_pool'
 gem 'sidekiq'
 gem 'sidekiq-limit_fetch'
 gem 'sidekiq-failures'
+gem "bunny", ">= 2.6.1"
 
 # Services
 gem 'rollbar'

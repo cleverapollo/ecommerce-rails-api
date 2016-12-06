@@ -12,6 +12,7 @@ development:
   - default
   - long
   - mailing
+  - resize
   - rollbar
 :limits:
   critical: 1
