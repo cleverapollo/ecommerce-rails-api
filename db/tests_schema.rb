@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161206221111) do
+ActiveRecord::Schema.define(version: 20161207093534) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -515,6 +515,24 @@ ActiveRecord::Schema.define(version: 20161206221111) do
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
+  create_table "rtb_bid_requests", force: :cascade do |t|
+    t.string   "ssp"
+    t.string   "ssid"
+    t.string   "bid_id"
+    t.string   "imp_id"
+    t.string   "site_domain"
+    t.string   "site_page"
+    t.float    "bidfloor"
+    t.string   "bidfloorcur"
+    t.float    "bid_price"
+    t.integer  "rtb_job_id"
+    t.boolean  "bid_done"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "rtb_bid_requests", ["bid_done"], name: "index_rtb_bid_requests_on_bid_done", where: "(bid_done IS TRUE)", using: :btree
+
   create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
     t.string   "code"
     t.string   "bid_id",              null: false
@@ -620,6 +638,7 @@ ActiveRecord::Schema.define(version: 20161206221111) do
     t.date    "synced_with_mailru_at"
     t.date    "synced_with_relapio_at"
     t.date    "synced_with_republer_at"
+    t.date    "synced_with_advmaker_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
