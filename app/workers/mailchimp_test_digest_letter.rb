@@ -32,7 +32,7 @@ class MailchimpTestDigestLetter
         waiting_times += 1
       end
 
-      test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, digest_mailing.shop.currency, {}, digest_mailing.image_width, digest_mailing.image_height)) #####
+      test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, digest_mailing.shop.currency, {}, digest_mailing.images_dimension)) #####
 
       api.update_campaign(native_campaign, test_list['id'])
     end

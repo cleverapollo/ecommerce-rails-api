@@ -54,7 +54,7 @@ module Mailings
                 body: {
                   email_address: trigger.client.email,
                   status_if_new: "subscribed",
-                  merge_fields: recommendations_in_hash(trigger.source_items, trigger.source_item, trigger.client.location, trigger.shop.currency, Mailings::Composer.utm_params(trigger_mail), trigger_settings.image_width, trigger_settings.image_height)
+                  merge_fields: recommendations_in_hash(trigger.source_items, trigger.source_item, trigger.client.location, trigger.shop.currency, Mailings::Composer.utm_params(trigger_mail), trigger_settings.images_dimension)
                 }.to_json
               }
 

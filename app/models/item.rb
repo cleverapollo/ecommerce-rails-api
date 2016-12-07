@@ -217,7 +217,7 @@ class Item < ActiveRecord::Base
 
             table.connection.execute <<-SQL
               UPDATE items
-                 SET (#{ yml_update_columns.join(', ') }) = 
+                 SET (#{ yml_update_columns.join(', ') }) =
                      (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
                 FROM temp_#{ shop_id }_items AS temp
                WHERE temp.shop_id = items.shop_id
@@ -388,6 +388,13 @@ class Item < ActiveRecord::Base
   # @return String
   def resized_image(width, height)
     "https://rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
+  end
+
+  # Ссылка на отресайзенную картинку товара
+  # @param dimension [String]
+  # @return String
+  def resized_image_by_dimension(dimension = '180x180')
+    "http://pictures.rees46.com/resize-images/#{dimension.split('x')[0]}/#{shop.uniqid}/#{self.id}.jpg"
   end
 
 end

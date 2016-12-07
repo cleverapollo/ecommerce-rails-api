@@ -56,13 +56,13 @@ module TriggerMailings
       liquid_template = trigger.settings[:liquid_template].dup
       recommendations_count = trigger.settings[:amount_of_recommended_items]
       data[:source_items] = if trigger.source_items.present? && trigger.source_items.any?
-                       trigger.source_items.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
+                       trigger.source_items.map { |item| item_for_letter(item, client.location, trigger.settings[:images_dimension]) }
                      else
                        []
                      end
       RecommendationsRequest.report do |r|
         recommendations = trigger.recommendations(recommendations_count)
-        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
+        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location, trigger.settings[:images_dimension]) }
         r.shop = @shop
         r.recommender_type = 'trigger_mail'
         r.recommendations = recommendations.map(&:uniqid)
@@ -114,7 +114,7 @@ module TriggerMailings
     # @param height [Integer] Высота картинки для ресайза
     # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
-    def item_for_letter(item, location, width = nil, height = nil)
+    def item_for_letter(item, location, images_dimension = nil)
       raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
       {
         name: item.name,
@@ -124,7 +124,7 @@ module TriggerMailings
         price: item.price_at_location(location).to_i,
         oldprice: item.oldprice.to_i,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail).merge(r46_merger: Base64.encode64(@client.email.to_s).strip)),
-        image_url: (width && height ? item.resized_image(width, height) : item.image_url),
+        image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),
         currency: item.shop.currency,
         id: item.uniqid.to_s,
         barcode: item.barcode.to_s,

@@ -53,7 +53,7 @@ module Mailings
               body: {
                 email_address: client.email,
                 status_if_new: "subscribed",
-                merge_fields: recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, shop.currency, digest_utm_params(track_email, digest_mail), digest_mailing.image_width, digest_mailing.image_height)
+                merge_fields: recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, shop.currency, digest_utm_params(track_email, digest_mail), digest_mailing.images_dimension)
               }.to_json
             }
 
