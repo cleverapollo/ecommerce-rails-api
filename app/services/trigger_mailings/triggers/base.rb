@@ -30,8 +30,7 @@ module TriggerMailings
             subject: mailing.subject,
             liquid_template: mailing.liquid_template,
             amount_of_recommended_items: mailing.amount_of_recommended_items,
-            image_width: mailing.image_width,
-            image_height: mailing.image_height
+            images_dimension: mailing.images_dimension
           }
         end
 

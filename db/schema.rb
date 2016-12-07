@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161122121118) do
+ActiveRecord::Schema.define(version: 20161207090051) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -201,6 +201,7 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
+    t.integer  "images_dimension",                        default: 3
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -384,6 +385,7 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer  "status",                        default: 0,     null: false
     t.date     "status_date"
     t.boolean  "compensated"
+    t.string   "reputation_key"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -411,6 +413,27 @@ ActiveRecord::Schema.define(version: 20161122121118) do
   end
 
   add_index "recommendations_requests", ["shop_id"], name: "index_recommendations_requests_on_shop_id", using: :btree
+
+  create_table "reputations", id: :bigserial, force: :cascade do |t|
+    t.string   "name"
+    t.integer  "rating"
+    t.text     "plus"
+    t.text     "minus"
+    t.text     "comment"
+    t.datetime "published_at"
+    t.integer  "shop_id"
+    t.integer  "entity_id",    limit: 8
+    t.string   "entity_type"
+    t.integer  "parent_id",    limit: 8
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",                 default: 0, null: false
+    t.integer  "client_id",    limit: 8
+  end
+
+  add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
+  add_index "reputations", ["parent_id"], name: "index_reputations_on_parent_id", using: :btree
+  add_index "reputations", ["shop_id"], name: "index_reputations_on_shop_id", using: :btree
 
   create_table "search_queries", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",           null: false
@@ -554,6 +577,7 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
+    t.integer  "images_dimension",                        default: 3
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree

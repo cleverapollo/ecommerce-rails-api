@@ -5,6 +5,8 @@ class DigestMailing < ActiveRecord::Base
 
   class DisabledError < StandardError; end
 
+  enum images_dimension: ActiveSupport::OrderedHash[{ '120x120': 0, '140x140': 1, '160x160': 2, '180x180': 3, '200x200': 4, '220x220': 5 }]
+
   include Redis::Objects
   counter :sent_mails_count
   belongs_to :shop
