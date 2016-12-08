@@ -110,7 +110,10 @@ class Item < ActiveRecord::Base
     attrs = merge_attributes(item_proxy)
 
     begin
-      save! if changed?
+      if changed?
+        save!
+        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable?
+      end
       return self
     rescue ActiveRecord::RecordNotUnique => e
       item = Item.find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)

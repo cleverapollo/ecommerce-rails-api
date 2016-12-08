@@ -22,7 +22,12 @@ class ImageDownloadLaunchWorker
 
   def send_batch(items_images)
     require "bunny"
-    conn = Bunny.new(host: "148.251.91.107", user: 'rees46', pass: Rails.application.secrets.bunny_password)
+
+    conn = if Rails.env.production?
+      Bunny.new(host: "148.251.91.107", user: 'rees46', pass: Rails.application.secrets.bunny_password)
+    else
+      Bunny.new
+    end
     conn.start
 
     ch = conn.create_channel
