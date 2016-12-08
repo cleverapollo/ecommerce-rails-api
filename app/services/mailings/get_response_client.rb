@@ -38,8 +38,8 @@ module Mailings
       raise GetResponseApiNotPreparedError if @campaign.blank?
       trigger_type_field = "rees46_#{trigger_type}"
 
-      response = send_request('contacts',  {'query[campaignId]': @campaign, 'query[email]': email})
-      if response.present?
+      begin
+        response = send_request('contacts',  {'query[campaignId]': @campaign, 'query[email]': email})
         if response.any?
           # Обновить триггер
           user_id = response.first['contactId']
@@ -48,8 +48,8 @@ module Mailings
           # Создать новый
           send_post('contacts', {campaign: {campaignId: @campaign}, email: email, customFieldValues: [{customFieldId: trigger_type_field, value: [trigger_mail_code]}]})
         end
-      else
-        raise GetResponseApiUnavailableError
+      rescue StandardError => e
+        raise GetResponseApiUnavailableError.new e.message
       end
 
     end
@@ -67,20 +67,28 @@ module Mailings
         http.ssl_version = :SSLv3
         http.request req
       end
-      JSON.parse res.body
+      if res.code.to_i == 200
+        JSON.parse res.body
+      else
+        raise GetResponseApiError.new res.body
+      end
     end
 
     def send_post(method, params)
       uri = URI.parse("#{MailingsSettings::GETRESPONSE_API_URL}#{method}")
       req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json', 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
-      req.body = params
+      req.body = params.to_json
 
       res = Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         http.ssl_version = :SSLv3
         http.request req
       end
-      JSON.parse res.body
+      if res.code.to_i == 200
+        JSON.parse res.body
+      else
+        raise GetResponseApiError.new res.body
+      end
     end
 
 
