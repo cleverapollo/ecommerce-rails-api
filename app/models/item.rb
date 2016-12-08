@@ -112,7 +112,7 @@ class Item < ActiveRecord::Base
     begin
       if changed?
         save!
-        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable?
+        # ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable?
       end
       return self
     rescue ActiveRecord::RecordNotUnique => e
