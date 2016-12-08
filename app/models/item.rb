@@ -110,9 +110,10 @@ class Item < ActiveRecord::Base
     attrs = merge_attributes(item_proxy)
 
     begin
+      new_record = !self.persisted?
       if changed?
         save!
-        # ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable?
+        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable? && new_record
       end
       return self
     rescue ActiveRecord::RecordNotUnique => e
