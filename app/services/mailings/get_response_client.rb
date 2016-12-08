@@ -19,14 +19,16 @@ module Mailings
 
     def prepare
       begin
-        response = send_request('get_campaigns', {'name': {'EQUALS' => 'rees46triggers'}})
+        response = send_request('campaigns', {'query[name]': 'rees46triggers'})
       rescue
         raise GetResponseApiUnavailableError
       end
-      if response.present? && !response['result'].nil? && response['result'].any? && response['result'].keys.first.present?
-        @campaign = response['result'].keys.first
+      if response.present? && response.first.present? && response.first['campaignId'].present?
+        @campaign = response.first['campaignId']
         return self
       else
+        Rails.logger.debug response if Rails.env.development?
+        Rollbar.warning(response) unless Rails.env.development?
         raise GetResponseApiUnavailableError
       end
     end
@@ -36,15 +38,15 @@ module Mailings
       raise GetResponseApiNotPreparedError if @campaign.blank?
       trigger_type_field = "rees46_#{trigger_type}"
 
-      response = send_request('get_contacts',  campaigns: [@campaign], 'email': {'EQUALS': email})
-      if response && response['result'].class == Hash
-        if response['result'].any? && response['result'].keys.any?
+      response = send_request('contacts',  {'query[campaignId]': @campaign, 'query[email]': email})
+      if response.present?
+        if response.any?
           # Обновить триггер
-          user_id = response['result'].keys.first
-          send_request('set_contact_customs',  contact: user_id, 'customs': [ {'name': trigger_type_field, 'content': trigger_mail_code} ])
+          user_id = response.first['contactId']
+          send_post("contacts/#{user_id}", {customFieldValues: [{customFieldId: trigger_type_field, value: [trigger_mail_code]}]})
         else
           # Создать новый
-          send_request('add_contact', 'campaign': @campaign, 'email': email, 'customs': [ {'name': trigger_type_field, 'content': trigger_mail_code} ])
+          send_post('contacts', {campaign: {campaignId: @campaign}, email: email, customFieldValues: [{customFieldId: trigger_type_field, value: [trigger_mail_code]}]})
         end
       else
         raise GetResponseApiUnavailableError
@@ -56,18 +58,23 @@ module Mailings
     private
 
     def send_request(method, params)
-      data = {
-          jsonrpc: '2.0',
-          method: method,
-          params: [
-              @mailing_settings.getresponse_api_key,
-              params
-          ],
-          id: DateTime.now.strftime('%Q')
-      }.to_json
-      uri = URI.parse(@mailing_settings.getresponse_api_url)
-      req = Net::HTTP::Post.new '/', initheader = {'Content-Type' =>'application/json'}
-      req.body = data
+      uri = URI.parse("#{MailingsSettings::GETRESPONSE_API_URL}#{method}")
+      uri.query = URI.encode_www_form(params)
+      req = Net::HTTP::Get.new(uri, initheader = {'Content-Type' =>'application/json', 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
+
+      res = Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        http.ssl_version = :SSLv3
+        http.request req
+      end
+      JSON.parse res.body
+    end
+
+    def send_post(method, params)
+      uri = URI.parse("#{MailingsSettings::GETRESPONSE_API_URL}#{method}")
+      req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json', 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
+      req.body = params
+
       res = Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         http.ssl_version = :SSLv3
