@@ -204,9 +204,8 @@ class Shop < MasterTable
   # IDEA: возможно, стоит добавить проверку YML. Но это отрицательно скажется на иностранных клиентах.
   # @return Boolean
   def connected_now?
-    (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present?) &&
-    connected_events_last_track[:view] > (Date.current - 7).to_time.to_i && connected_events_last_track[:purchase] > (Date.current - 14).to_time.to_i # &&
-    # (connected_recommenders_last_track.values.select{|v| v != nil }.count >= 3)
+    (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present? && connected_events_last_track[:cart].present?) &&
+    connected_events_last_track[:view] > (1.day.ago).to_time.to_i && connected_events_last_track[:cart] > (1.day.ago).to_time.to_i && connected_events_last_track[:purchase] > (2.days.ago).to_time.to_i
   end
 
   def ekomi?

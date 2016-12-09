@@ -61,7 +61,7 @@ module Rtb
     private
 
     def feature_available?
-      shop.remarketing_enabled? && customer.balance > 0
+      shop.remarketing_enabled? && customer.balance > 0 && shop.active? && shop.connected? && !shop.restricted?
     end
 
     def popunder_enabled?
