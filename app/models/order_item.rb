@@ -23,7 +23,10 @@ class OrderItem < ActiveRecord::Base
         end
       end
 
-      recommended_by ||= action.recommended_by
+      # Если recommended_by не указан, но в Action был recommended_by и он не устарел, то используем его
+      if recommended_by.nil? && action.recommended_by && action.recommended_at >= Order::RECOMMENDED_BY_DECAY.ago
+        recommended_by = action.recommended_by
+      end
 
       result = OrderItem.create!(order_id: order.id,
                                  item_id: item.id,
