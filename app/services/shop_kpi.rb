@@ -86,6 +86,21 @@ class ShopKPI
       end
     end
 
+    # Web-push digests
+    relation = WebPushDigestMessage.where(shop_id: @shop.id).where(created_at: @datetime_interval)
+    @shop_metric.web_push_digests_sent = relation.count
+    @shop_metric.web_push_digests_clicked = relation.clicked.count
+    mail_ids = relation.pluck(:id)
+    if mail_ids.length > 0
+      relation = Order.where(source_type: 'WebPushDigestMessage').where(shop_id: @shop.id).where(source_id: mail_ids)
+      # All orders
+      @shop_metric.web_push_digests_orders = relation.count
+      @shop_metric.web_push_digests_revenue = relation.where.not(value: nil).sum(:value)
+      # Only paid orders
+      @shop_metric.web_push_digests_orders_real = relation.successful.count
+      @shop_metric.web_push_digests_revenue_real = relation.successful.where.not(value: nil).sum(:value)
+    end
+
     relation = DigestMail.where(shop_id: @shop.id).where(created_at: @datetime_interval)
     @shop_metric.digests_sent = relation.count
     @shop_metric.digests_clicked = relation.clicked.count
@@ -99,6 +114,13 @@ class ShopKPI
       @shop_metric.digests_orders_real = relation.successful.count
       @shop_metric.digests_revenue_real = relation.successful.where.not(value: nil).sum(:value)
     end
+
+    # Remarketing
+    @shop_metric.remarketing_carts = RtbJob.where(shop_id: @shop.id, date: @datetime_interval.first.to_date..@datetime_interval.last.to_date).count
+    @shop_metric.remarketing_impressions = RtbImpression.where(shop_id: @shop.id, date: @datetime_interval).count
+    @shop_metric.remarketing_clicks = RtbImpression.clicks.where(shop_id: @shop.id, date: @datetime_interval).count
+    @shop_metric.remarketing_orders = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).count
+    @shop_metric.remarketing_revenue = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).sum(:value)
 
     actions = Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).pluck(:item_id, :rating).delete_if { |x| x[1] != 4.2 }
     @shop_metric.abandoned_products = actions.count
