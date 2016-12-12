@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161208065551) do
+ActiveRecord::Schema.define(version: 20161212115508) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -464,6 +464,17 @@ ActiveRecord::Schema.define(version: 20161208065551) do
     t.integer "web_push_triggers_orders_real",      default: 0,   null: false
     t.integer "web_push_triggers_revenue_real",     default: 0,   null: false
     t.integer "orders_with_recommender_count",      default: 0,   null: false
+    t.integer "web_push_digests_sent",              default: 0,   null: false
+    t.integer "web_push_digests_clicked",           default: 0,   null: false
+    t.integer "web_push_digests_orders",            default: 0,   null: false
+    t.integer "web_push_digests_revenue",           default: 0,   null: false
+    t.integer "web_push_digests_orders_real",       default: 0,   null: false
+    t.integer "web_push_digests_revenue_real",      default: 0,   null: false
+    t.integer "remarketing_carts",                  default: 0,   null: false
+    t.integer "remarketing_impressions",            default: 0,   null: false
+    t.integer "remarketing_clicks",                 default: 0,   null: false
+    t.integer "remarketing_orders",                 default: 0,   null: false
+    t.integer "remarketing_revenue",                default: 0,   null: false
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
