@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bundle exec rails s -b dev.api.rees46.com -p 8080

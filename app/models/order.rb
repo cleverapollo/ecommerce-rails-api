@@ -58,6 +58,7 @@ class Order < ActiveRecord::Base
       order = Order.create!(shop_id: shop.id,
                             user_id: user.id,
                             uniqid: uniqid,
+                            date: Time.now,
                             common_value: values[:common_value],
                             recommended_value: values[:recommended_value],
                             value: values[:value],
