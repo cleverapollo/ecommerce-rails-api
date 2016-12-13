@@ -19,8 +19,6 @@ class TriggersController < ApplicationController
     end
 
     client = @trigger_mail.client
-    mailing = @trigger_mail.mailing
-    template = mailing.item_template
 
     trigger_data = JSON.parse(@trigger_mail.trigger_data['trigger'])
 
