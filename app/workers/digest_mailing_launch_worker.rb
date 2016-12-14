@@ -79,13 +79,22 @@ class DigestMailingLaunchWorker
     # Запускаем обработчики на все пачки
     digest_mailing.batches.incomplete.each do |batch|
       if settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
-        Mailings::Mailchimp::DigestMailingMailchimpBatch.new(batch, settings.mailchimp_api_key).btach_execute
+        begin
+          Mailings::Mailchimp::DigestMailingMailchimpBatch.new(batch, settings.mailchimp_api_key).btach_execute
+        rescue => e
+          digest_mailing.fail!
+          Rollbar.warn('Mailchimp ERROR', e, params)
+        end
       else
         DigestMailingBatchWorker.perform_async(batch.id)
       end
     end
 
-    Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank?
-
+    begin
+      Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank? if !digest_mailing.failed?
+    rescue => e
+      digest_mailing.fail!
+      Rollbar.warn('Mailchimp ERROR', e, params)
+    end
   end
 end

@@ -33,10 +33,29 @@ module Mailings
       end
     end
 
+    # Ищет кастомное поле
+    # @param [String] name
+    def search_custom_field(name)
+      response = send_request('custom-fields',  {'fields': 'name', 'perPage': 1000})
+      if response.any?
+        response.each do |r|
+          if r['name'] == name
+            return r['customFieldId']
+          end
+        end
+      end
+
+      # Поле не было найдено
+      Rails.logger.debug response
+      raise GetResponseApiError.new "Custom field #{name} was not found. Response count: #{response.size}"
+    end
+
     # Добавляет контакт в кампанию триггерных рассылок и отмечает ему свойство сработавшего триггера
     def add_contact(email, trigger_type, trigger_mail_code)
       raise GetResponseApiNotPreparedError if @campaign.blank?
-      trigger_type_field = "rees46_#{trigger_type}"
+
+      # Пробуем найти кастомное поле
+      trigger_type_field = search_custom_field("rees46_#{trigger_type}")
 
       begin
         response = send_request('contacts',  {'query[campaignId]': @campaign, 'query[email]': email})

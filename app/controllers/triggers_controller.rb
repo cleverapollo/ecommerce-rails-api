@@ -19,8 +19,6 @@ class TriggersController < ApplicationController
     end
 
     client = @trigger_mail.client
-    mailing = @trigger_mail.mailing
-    template = mailing.item_template
 
     trigger_data = JSON.parse(@trigger_mail.trigger_data['trigger'])
 
@@ -40,7 +38,7 @@ class TriggersController < ApplicationController
           <td align="center" style="text-align: center;">
           <a href="#{data[:url]}" title="#{data[:name]}" target="_blank"><img src="#{data[:image_url]}" style="display: block; margin: auto; padding: 0px; max-width: 220px; height: auto; max-height: 220px; text-align: center;" border="0"></a>
           <a style="text-align: left; width: 220px; display: block; margin: 0 auto; font: normal 16px/24px Arial, Verdana, sans-serif; color: #ff6600;" href="#{data[:url]}" target="_blank">#{data[:name]}</a>
-          <span style="display: block; width: 220px; margin: 0 auto; text-align: left; font: normal 24px/30px Arial, Verdana, sans-serif; color: #000000;">#{data[:price]} руб.</span>
+          <span style="display: block; width: 220px; margin: 0 auto; text-align: left; font: normal 24px/30px Arial, Verdana, sans-serif; color: #000000;">#{data[:price]} #{data[:currency]}</span>
           </td>
         </tr>
       </table>
@@ -76,7 +74,7 @@ class TriggersController < ApplicationController
       when 'viewed_but_not_bought'
         trigger.source_item = source_item
       when 'recently_purchased'
-        trigger.bought_item = source_item
+        trigger.source_item = source_item
     end
     recommendations = trigger.recommendations 9
 
@@ -99,7 +97,7 @@ class TriggersController < ApplicationController
         <td align="center" style="text-align: center;">
           <a href="#{data[:url]}" title="#{data[:name]}" target="_blank" style="display: block; height: 220px;"><img src="#{data[:image_url]}" style="display: block; margin: auto; padding: 0px; max-width: 220px; height: auto; max-height: 220px; text-align: center;" border="0"></a>
           <a style="text-align: left; width: 220px; display: block; margin: 0 auto; font: normal 16px/24px Arial, Verdana, sans-serif; color: #ff6600;" href="#{data[:url]}" target="_blank">#{data[:name]}</a>
-          <span style="display: block; width: 220px; margin: 0 auto; text-align: left; font: normal 24px/30px Arial, Verdana, sans-serif; color: #000000;">#{data[:price]} руб.</span>
+          <span style="display: block; width: 220px; margin: 0 auto; text-align: left; font: normal 24px/30px Arial, Verdana, sans-serif; color: #000000;">#{data[:price]} #{data[:currency]}</span>
         </td>
       HTML
     end
@@ -154,7 +152,7 @@ class TriggersController < ApplicationController
     {
         name: item.name.truncate(40),
         description: item.description.to_s.truncate(130),
-        price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+        price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: ' '),
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
         image_url: item.image_url,
         currency: item.shop.currency

@@ -32,9 +32,20 @@ class AudienceImportWorker
       end
 
       client.email = email || client.email
+
+      # Активируем подписку для импортируемого пользователя
+      if client.email.present?
+        client.digests_enabled = true
+        client.triggers_enabled = true
+      end
+
       client.save!
       @audiance_count += 1
     end
+
+    # Запускаем перерасчет аудитории
+    People::Segmentation::ActivityWorker.new(@shop).perform
+
     # CompletesMailer.audiance_import_completed(@shop, @audiance_count).deliver_now if @audiance_count > 0
   end
 end

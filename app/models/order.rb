@@ -55,16 +55,29 @@ class Order < ActiveRecord::Base
       # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
       return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
 
-      order = Order.create!(shop_id: shop.id,
-                            user_id: user.id,
-                            uniqid: uniqid,
-                            date: Time.now,
-                            common_value: values[:common_value],
-                            recommended_value: values[:recommended_value],
-                            value: values[:value],
-                            recommended: (values[:recommended_value] > 0),
-                            ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
-                            source: source)
+      # Ищем заказ или создаем новый
+      order = Order.find_or_initialize_by(shop_id: shop.id, uniqid: uniqid)
+
+      # Если новый заказ, указываем юзера и сохраняем его
+      if order.new_record?
+        order.user_id = user.id
+        order.save!
+      end
+
+      # Обновляем данные заказа
+      order.update(user_id: user.id,
+                   date: Time.now,
+                   common_value: values[:common_value],
+                   recommended_value: values[:recommended_value],
+                   value: values[:value],
+                   recommended: (values[:recommended_value] > 0),
+                   ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
+                   source: source)
+
+      # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
+      if items.size > 0 && order.order_items.count > 0
+        order.order_items.destroy_all
+      end
 
       # Сохраняем позиции заказа
       items.each do |item|
@@ -98,7 +111,8 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        Order.where(uniqid: uniqid, shop_id: shop.id).exists?
+        # Добавили разницу в 15 минут для предотвращения пропажи заказов, когда магазин сбросил uniqid
+        Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 15.minutes.ago).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
              .where("date > ?", 1.minutes.ago).exists?
