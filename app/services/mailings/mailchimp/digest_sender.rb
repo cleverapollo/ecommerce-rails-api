@@ -11,7 +11,7 @@ module Mailings
 
       def send
         native_campaign = api.get_campaign(digest_mailing.mailchimp_campaign_id)
-        return if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
+        raise if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
 
         # Отправление сразу всем пользователям
         api.send_campaign(digest_mailing.mailchimp_campaign_id)
