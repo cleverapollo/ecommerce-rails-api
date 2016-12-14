@@ -32,6 +32,13 @@ class AudienceImportWorker
       end
 
       client.email = email || client.email
+
+      # Активируем подписку для импортируемого пользователя
+      if client.email.present?
+        client.digests_enabled = true
+        client.triggers_enabled = true
+      end
+
       client.save!
       @audiance_count += 1
     end
