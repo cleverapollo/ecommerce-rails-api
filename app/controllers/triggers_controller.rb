@@ -74,7 +74,7 @@ class TriggersController < ApplicationController
       when 'viewed_but_not_bought'
         trigger.source_item = source_item
       when 'recently_purchased'
-        trigger.bought_item = source_item
+        trigger.source_item = source_item
     end
     recommendations = trigger.recommendations 9
 
