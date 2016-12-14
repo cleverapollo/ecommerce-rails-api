@@ -52,22 +52,27 @@ class Order < ActiveRecord::Base
       # Расчитываем суммы по заказу. Если заказ из нашего канала, то все товары рекомендованные.
       values = order_values(shop, user, items, source.present?, order_price)
 
-      # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
-      return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+      # Используем вставку UPSET для предотвращения конфиктов уникальных значений
+      order = Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
+          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO UPDATE SET "date" = ?, user_id = ?', shop.id, uniqid, user.id, Time.now, Time.now, user.id
+      ]))
+      order = Order.find order
 
-      # Ищем заказ или создаем новый
-      order = Order.find_or_initialize_by(shop_id: shop.id, uniqid: uniqid)
-
-      # Если новый заказ, указываем юзера и сохраняем его
-      if order.new_record?
-        order.user_id = user.id
-        order.save!
-      end
+      # todo если вставка upset будет работать корректно, удалить
+      # # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
+      # return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+      #
+      # # Ищем заказ или создаем новый
+      # order = Order.find_or_initialize_by(shop_id: shop.id, uniqid: uniqid)
+      #
+      # # Если новый заказ, указываем юзера и сохраняем его
+      # if order.new_record?
+      #   order.user_id = user.id
+      #   order.save!
+      # end
 
       # Обновляем данные заказа
-      order.update(user_id: user.id,
-                   date: Time.now,
-                   common_value: values[:common_value],
+      order.update(common_value: values[:common_value],
                    recommended_value: values[:recommended_value],
                    value: values[:value],
                    recommended: (values[:recommended_value] > 0),
