@@ -97,6 +97,24 @@ describe EventsController do
       expect(Order.count).to eq 1
     end
 
+    context 'when existing old order' do
+      let!(:order) { create(:order, shop: shop, uniqid: params[:order_id], date: 1.day.ago, user: create(:user), value: 100) }
+      let!(:item) { create(:item, shop: shop, uniqid: 10) }
+      let!(:action) { create(:action, user: order.user, item: item, shop: shop) }
+      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item, action: action) }
+
+      it 'default' do
+        post :push, params
+
+        expect(Order.count).to eq 1
+        expect(Order.first.id).to eq order.id
+        expect(Order.first.user_id).to eq session.user_id
+        expect(Order.first.value).to eq params[:order_price].to_f
+        expect(Order.first.order_items.count).to eq 1
+        expect(Order.first.order_items.first.item.uniqid).to eq params[:item_id][0]
+      end
+    end
+
     context 'purchase with source type' do
       let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
       let!(:batch) { create(:digest_mailing_batch, shop: shop, mailing: digest_mailing) }

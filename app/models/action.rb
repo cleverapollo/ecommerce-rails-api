@@ -15,6 +15,8 @@ class Action < ActiveRecord::Base
   scope :views, -> { where('rating::numeric = ?', Actions::View::RATING) }
   scope :carts, -> { where('rating::numeric = ?', Actions::Cart::RATING) }
 
+  validates :shop_id, :user_id, :item_id, presence: true
+
   class << self
 
     # Переносит данные от одного пользователя к другому при склеивании пользователей
