@@ -19,7 +19,7 @@ module TriggerMailings
           @happened_at = actions.first.view_date
           @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
           @source_item = @source_items.first
-          if @source_item
+          if @source_item.present?
             return true
           end
         end

@@ -131,7 +131,7 @@ class TriggersController < ApplicationController
         Rollbar.warning('GetResponse trigger with few source items', @trigger_mail)
         source_item = source_items.first
       end
-    elsif trigger_data['source_item'].present?
+    elsif trigger_data['source_item'].present? && trigger_data['source_item'] != 'null'
       source_item = JSON.parse trigger_data['source_item']
     end
     if source_item
