@@ -89,7 +89,7 @@ class Action < ActiveRecord::Base
   def merge_to(user)
 
     # @type master_action [Action]
-    master_action = self.shop.actions.find_by(user_id: user.id, item_id: self.item_id)
+    master_action = Action.where(shop_id: self.shop_id, user_id: user.id, item_id: self.item_id).where.not(id: self.id).order(:id).limit(1)[0]
 
     if master_action.present?
       master_action.update(
@@ -102,7 +102,7 @@ class Action < ActiveRecord::Base
         rating: [master_action.rating, self.rating].compact.max,
         timestamp: [master_action.timestamp, self.timestamp].compact.max,
         recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : self.recommended_by
-        )
+      )
 
       self.delete
     else
