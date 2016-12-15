@@ -21,7 +21,7 @@ class SubscribeForProductAvailable < ActiveRecord::Base
     # @param [Integer] slave_id
     def relink_user_remnants(master, slave_id)
       where(user_id: slave_id).each do |slave_row|
-        master_row = SubscribeForProductAvailable.find_by(user_id: master.id, item_id: slave_row.item_id)
+        master_row = SubscribeForProductAvailable.where(user_id: master.id, item_id: slave_row.item_id).where.not(id: slave_row.id).order(:id).limit(1)[0]
         if master_row.present?
           slave_row.delete
         else

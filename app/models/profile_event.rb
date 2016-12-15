@@ -240,7 +240,7 @@ class ProfileEvent < MasterTable
   # Перенос объекта к указанному юзеру
   # @param [User] user
   def merge_to(user)
-    master_row = ProfileEvent.find_by(user_id: user.id, shop_id: self.shop_id, industry: self.industry, property: self.property,  value: self.value)
+    master_row = ProfileEvent.where(user_id: user.id, shop_id: self.shop_id, industry: self.industry, property: self.property, value: self.value).where.not(id: self.id).order(:id).limit(1)[0]
     if master_row.present?
       hash_for_update = {}
       hash_for_update[:views] = (self.views + master_row.views) if self.views.present? && master_row.views.present?
