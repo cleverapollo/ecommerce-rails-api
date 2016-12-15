@@ -79,7 +79,9 @@ module InitServerString
         end
       end
 
-      email_settings = nil
+      email_settings = {
+          enabled: shop.subscriptions_enabled?,
+      }
       if shop.subscriptions_enabled? && client.email.blank?
         email_settings = {
             enabled: shop.subscriptions_settings.enabled,
@@ -139,7 +141,7 @@ module InitServerString
                               service_worker: shop.web_push_subscriptions_settings.service_worker,
                           }
                           else
-                            nil
+                            {enabled: shop.web_push_subscriptions_enabled?}
                         end,
               status: if client.web_push_enabled
                         'accepted'
