@@ -26,7 +26,7 @@ en:
 
   errors_mailer:
     subject:
-      yml_import_error: 'Неправильно указан YML файл'
-      yml_url_not_respond: 'Не удалось загрузить YML-файл'
-      yml_syntax_error: 'Ошибка синтаксиса YML-файла'
-      yml_off: 'Обработка YML-файла отключена'
+      yml_import_error: Wrong XML-file URL
+      yml_url_not_respond: Error in XML-file Load
+      yml_syntax_error: XML-file Syntax Error
+      yml_off: XML-file Load Is Off

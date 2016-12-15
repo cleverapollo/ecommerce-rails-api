@@ -1,0 +1,14 @@
+p Dear owner of #{link_to @shop.name, @shop.url} online store!
+
+p = "Unfortunately, we could not process your XML Product Feed due to the following reason: #{@reason}"
+
+p Current XML-file URL is: #{link_to @shop.yml_file_url, @shop.yml_file_url, target: '_blank'}
+
+p
+  = 'Please check the file and make sure you prepared it correctly.'
+  br
+  'If needed, please change the link to the XML-file in your #{link_to 'personal cabinet', "#{Rees46.site_url}/shops/#{@shop.id}/edit"} on rees46.com and notify us about it.
+
+p If, by the time your receive this letter, you have already applied the necessary changes to the XML-file and made it available by the same URL, just ignore the message.
+
+= render 'shared/errors_mailer_footer'
