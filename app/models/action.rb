@@ -26,7 +26,8 @@ class Action < ActiveRecord::Base
       slave = options.fetch(:from)
 
       slave.actions.each do |slave_action|
-        if master_action = slave_action.shop.actions.find_by(user_id: master.id, item_id: slave_action.item_id)
+        master_action = slave_action.shop.actions.find_by(user_id: master.id, item_id: slave_action.item_id)
+        if master_action.present?
           master_action.update(
             view_count: master_action.view_count + slave_action.view_count,
             cart_count: master_action.cart_count + slave_action.cart_count,
