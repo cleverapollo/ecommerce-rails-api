@@ -20,30 +20,23 @@ class Action < ActiveRecord::Base
   class << self
 
     # Переносит данные от одного пользователя к другому при склеивании пользователей
-    # @param options [Hash] {from: [Integer], to: [Integer]}
+    # @param options [Hash] {from: [User], to: [User]}
     def relink_user(options = {})
+      # @type master [User]
       master = options.fetch(:to)
+      # @type slave [User]
       slave = options.fetch(:from)
 
       slave.actions.each do |slave_action|
-        master_action = slave_action.shop.actions.find_by(user_id: master.id, item_id: slave_action.item_id)
-        if master_action.present?
-          master_action.update(
-            view_count: master_action.view_count + slave_action.view_count,
-            cart_count: master_action.cart_count + slave_action.cart_count,
-            purchase_count: master_action.purchase_count + slave_action.purchase_count,
-            view_date: [master_action.view_date, slave_action.view_date].compact.max,
-            cart_date: [master_action.cart_date, slave_action.cart_date].compact.max,
-            purchase_date: [master_action.purchase_date, slave_action.purchase_date].compact.max,
-            rating: [master_action.rating, slave_action.rating].compact.max,
-            timestamp: [master_action.timestamp, slave_action.timestamp].compact.max,
-            recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : slave_action.recommended_by
-            )
+        slave_action.merge_to(master)
+      end
+    end
 
-          slave_action.delete
-        else
-          slave_action.update_columns(user_id: master.id)
-        end
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |slave_action|
+        slave_action.merge_to(master)
       end
     end
 
@@ -88,6 +81,32 @@ class Action < ActiveRecord::Base
       post_process
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
+    end
+  end
+
+  # Перенос объекта к указанному юзеру
+  # @param [User] user
+  def merge_to(user)
+
+    # @type master_action [Action]
+    master_action = self.shop.actions.find_by(user_id: user.id, item_id: self.item_id)
+
+    if master_action.present?
+      master_action.update(
+        view_count: master_action.view_count + self.view_count,
+        cart_count: master_action.cart_count + self.cart_count,
+        purchase_count: master_action.purchase_count + self.purchase_count,
+        view_date: [master_action.view_date, self.view_date].compact.max,
+        cart_date: [master_action.cart_date, self.cart_date].compact.max,
+        purchase_date: [master_action.purchase_date, self.purchase_date].compact.max,
+        rating: [master_action.rating, self.rating].compact.max,
+        timestamp: [master_action.timestamp, self.timestamp].compact.max,
+        recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : self.recommended_by
+        )
+
+      self.delete
+    else
+      self.update_columns(user_id: user.id)
     end
   end
 

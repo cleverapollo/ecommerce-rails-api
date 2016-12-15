@@ -12,8 +12,15 @@ class SubscribeForCategory < ActiveRecord::Base
     def relink_user(options = {})
       master = options.fetch(:to)
       slave = options.fetch(:from)
-      slave.subscribe_for_categories.each do |slave_row|
-        if master_row = SubscribeForCategory.find_by(user_id: master.id, item_category_id: slave_row.item_category_id)
+      relink_user_remnants(master, slave.id)
+    end
+
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |slave_row|
+        master_row = SubscribeForCategory.find_by(user_id: master.id, item_category_id: slave_row.item_category_id)
+        if master_row.present?
           slave_row.delete
         else
           slave_row.update_columns(user_id: master.id)

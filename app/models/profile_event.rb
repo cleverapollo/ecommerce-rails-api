@@ -21,47 +21,17 @@ class ProfileEvent < MasterTable
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
       where(user_id: slave_user.id).each do |slave_row|
-        master_row = find_by(user_id: master_user.id, shop_id: slave_row.shop_id, industry: slave_row.industry, property: slave_row.property,  value: slave_row.value)
-        if master_row
-          hash_for_update = {}
-          hash_for_update[:views] = (slave_row.views + master_row.views) if slave_row.views.present? && master_row.views.present?
-          hash_for_update[:views] = slave_row.views if slave_row.views.present? && !master_row.views.present?
-          hash_for_update[:views] = master_row.views if !slave_row.views.present? && master_row.views.present?
-          hash_for_update[:carts] = (slave_row.carts + master_row.carts) if slave_row.carts.present? && master_row.carts.present?
-          hash_for_update[:carts] = slave_row.carts if slave_row.carts.present? && !master_row.carts.present?
-          hash_for_update[:carts] = master_row.carts if !slave_row.carts.present? && master_row.carts.present?
-          hash_for_update[:purchases] = (slave_row.purchases + master_row.purchases) if slave_row.purchases.present? && master_row.purchases.present?
-          hash_for_update[:purchases] = slave_row.purchases if slave_row.purchases.present? && !master_row.purchases.present?
-          hash_for_update[:purchases] = master_row.purchases if !slave_row.purchases.present? && master_row.purchases.present?
-
-          # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
-          if master_row.created_at.nil? && slave_row.created_at.nil?
-            hash_for_update[:created_at] = DateTime.current
-          elsif !master_row.created_at.nil? && slave_row.created_at.nil?
-            hash_for_update[:created_at] = master_row.created_at
-          elsif master_row.created_at.nil? && !slave_row.created_at.nil?
-            hash_for_update[:created_at] = slave_row.created_at
-          else
-            hash_for_update[:created_at] = ( master_row.created_at > slave_row.created_at ? slave_row.created_at : master_row.created_at )
-          end
-          if master_row.updated_at.nil? && slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = DateTime.current
-          elsif !master_row.updated_at.nil? && slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = master_row.updated_at
-          elsif master_row.updated_at.nil? && !slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = slave_row.updated_at
-          else
-            hash_for_update[:updated_at] = ( master_row.updated_at > slave_row.updated_at ? master_row.updated_at : slave_row.updated_at )
-          end
-
-          master_row.update hash_for_update unless hash_for_update.empty?
-          slave_row.delete
-        else
-          slave_row.update user_id: master_user.id
-        end
+        slave_row.merge_to(master_user)
       end
     end
 
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |slave_row|
+        slave_row.merge_to(master)
+      end
+    end
 
 
     # Записывает пользователю для каждого товара отраслевые характеристики в историю действий
@@ -264,6 +234,50 @@ class ProfileEvent < MasterTable
     end
 
 
+
+  end
+
+  # Перенос объекта к указанному юзеру
+  # @param [User] user
+  def merge_to(user)
+    master_row = ProfileEvent.find_by(user_id: user.id, shop_id: self.shop_id, industry: self.industry, property: self.property,  value: self.value)
+    if master_row.present?
+      hash_for_update = {}
+      hash_for_update[:views] = (self.views + master_row.views) if self.views.present? && master_row.views.present?
+      hash_for_update[:views] = self.views if self.views.present? && !master_row.views.present?
+      hash_for_update[:views] = master_row.views if !self.views.present? && master_row.views.present?
+      hash_for_update[:carts] = (self.carts + master_row.carts) if self.carts.present? && master_row.carts.present?
+      hash_for_update[:carts] = self.carts if self.carts.present? && !master_row.carts.present?
+      hash_for_update[:carts] = master_row.carts if !self.carts.present? && master_row.carts.present?
+      hash_for_update[:purchases] = (self.purchases + master_row.purchases) if self.purchases.present? && master_row.purchases.present?
+      hash_for_update[:purchases] = self.purchases if self.purchases.present? && !master_row.purchases.present?
+      hash_for_update[:purchases] = master_row.purchases if !self.purchases.present? && master_row.purchases.present?
+
+      # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
+      if master_row.created_at.nil? && self.created_at.nil?
+        hash_for_update[:created_at] = DateTime.current
+      elsif !master_row.created_at.nil? && self.created_at.nil?
+        hash_for_update[:created_at] = master_row.created_at
+      elsif master_row.created_at.nil? && !self.created_at.nil?
+        hash_for_update[:created_at] = self.created_at
+      else
+        hash_for_update[:created_at] = ( master_row.created_at > self.created_at ? self.created_at : master_row.created_at )
+      end
+      if master_row.updated_at.nil? && self.updated_at.nil?
+        hash_for_update[:updated_at] = DateTime.current
+      elsif !master_row.updated_at.nil? && self.updated_at.nil?
+        hash_for_update[:updated_at] = master_row.updated_at
+      elsif master_row.updated_at.nil? && !self.updated_at.nil?
+        hash_for_update[:updated_at] = self.updated_at
+      else
+        hash_for_update[:updated_at] = ( master_row.updated_at > self.updated_at ? master_row.updated_at : self.updated_at )
+      end
+
+      master_row.update hash_for_update unless hash_for_update.empty?
+      self.delete
+    else
+      self.update user_id: user.id
+    end
 
   end
 
