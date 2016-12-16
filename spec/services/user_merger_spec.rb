@@ -87,7 +87,7 @@ describe UserMerger do
 
       context 'client merging' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true ) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true, fb_id: 1234, vk_id: 4321 ) }
         let!(:new_web_push_token) { create(:web_push_token, client: new_client, shop: shop, token: {token: '123', browser: 'safari'}) }
 
         it 'destroys new_client' do
@@ -100,9 +100,11 @@ describe UserMerger do
           expect{ slave.reload }.to raise_exception(ActiveRecord::RecordNotFound)
         end
 
-        it 'saves new_client email in old_client' do
+        it 'saves new_client email, fb, vk in old_client' do
           subject
           expect(old_client.reload.email).to eq(new_client.email)
+          expect(old_client.reload.fb_id).to eq(new_client.fb_id)
+          expect(old_client.reload.vk_id).to eq(new_client.vk_id)
         end
 
         it 'saves web push settings to old client' do
@@ -133,6 +135,45 @@ describe UserMerger do
           expect(old_client.reload.last_activity_at).to eq(new_client.last_activity_at)
         end
 
+      end
+
+      context 'don\'t merging with exist fb_id' do
+        let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256', fb_id: 123456789) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true, fb_id: 1234 ) }
+
+        it 'saves old_client and new_client' do
+          subject
+          expect(old_client.reload.email).to eq(nil)
+          expect(old_client.reload.fb_id).to eq(old_client.fb_id)
+          expect(new_client.reload.email).to be_truthy
+          expect(new_client.reload.fb_id).to eq(new_client.fb_id)
+        end
+      end
+
+      context 'don\'t merging with exist vk_id' do
+        let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256', vk_id: 123456789) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true, vk_id: 1234 ) }
+
+        it 'saves old_client and new_client' do
+          subject
+          expect(old_client.reload.email).to eq(nil)
+          expect(old_client.reload.vk_id).to eq(old_client.vk_id)
+          expect(new_client.reload.email).to be_truthy
+          expect(new_client.reload.vk_id).to eq(new_client.vk_id)
+        end
+      end
+
+      context 'merging with exist fb_id and new email' do
+        let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256', fb_id: 123456789) }
+        let!(:new_client) { create(:client, shop: shop, user: slave, email: 'old@rees46demo.com', last_activity_at: Date.current, web_push_enabled: true, vk_id: 1234 ) }
+
+        it 'saves old_client and new_client' do
+          subject
+          expect(old_client.reload.email).to eq(new_client.email)
+          expect(old_client.reload.vk_id).to eq(new_client.vk_id)
+          expect(old_client.reload.fb_id).to eq(old_client.fb_id)
+          expect { new_client.reload }.to raise_exception(ActiveRecord::RecordNotFound)
+        end
       end
 
       context 'client merging of the same user' do

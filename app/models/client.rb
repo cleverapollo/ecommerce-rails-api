@@ -71,9 +71,20 @@ class Client < ActiveRecord::Base
   # Перенос объекта к указанному юзеру
   # @param [User] user
   def merge_to(user)
+    relation = Client.where(shop_id: self.shop_id, user_id: user.id).where.not(id: self.id)
+
+    # Если у текущего клиента есть fb_id, то мы не можем сливать с клиентами, у которых тоже указан fb_id
+    if self.fb_id.present?
+      relation = relation.where(fb_id: nil)
+    end
+
+    # Если у текущего клиента есть vk_id, то мы не можем сливать с клиентами, у которых тоже указан vk_id
+    if self.vk_id.present?
+      relation = relation.where(vk_id: nil)
+    end
 
     # @type master_client [Client]
-    master_client = Client.where(shop_id: self.shop_id, user_id: user.id).where.not(id: self.id).order(:id).limit(1)[0]
+    master_client = relation.order(:id).limit(1)[0]
     if master_client.present?
 
       # Может возникнуть ситуация, что два client принадлежат одному user, поэтому master_client == self
@@ -81,7 +92,9 @@ class Client < ActiveRecord::Base
       return if master_client.id == self.id
 
       master_client.email = master_client.email || self.email
-      master_client.save if master_client.email_changed?
+      master_client.fb_id = master_client.fb_id || self.fb_id
+      master_client.vk_id = master_client.vk_id || self.vk_id
+      master_client.save if master_client.changed?
 
       # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
       if master_client.shop_id == self.shop_id
