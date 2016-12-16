@@ -23,7 +23,7 @@ module UserProfile
       if attributes['gender'].present?
         gender = attributes['gender']
         if UserProfile::Gender.valid_gender? gender
-          # TODO: сохранять установленный пол
+          user.update(gender: gender)
         end
       end
 
