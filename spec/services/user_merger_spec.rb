@@ -65,6 +65,26 @@ describe UserMerger do
           end
         end
 
+        context 'actions with master action' do
+          let!(:item) { create(:item, shop: shop) }
+          let!(:master_action) { create(:action, user: master, item: item, shop: shop, rating: 1, purchase_date: 1.day.ago, view_date: 1.day.ago, purchase_count: 1, cart_count: 2, view_count: 2) }
+          let!(:slave_action) { create(:action, user: slave,  item: item, shop: shop, rating: 2, cart_date: 1.day.ago, view_date: 1.minute.ago, purchase_count: 1, cart_count: 2, view_count: 5, recommended_by: 'test', recommended_at: Time.current) }
+
+          it 're-links action' do
+            subject
+            expect{ slave_action.reload }.to raise_exception(ActiveRecord::RecordNotFound)
+            expect(master_action.reload.rating).to eq(2)
+            expect(master_action.reload.purchase_date).to eq(master_action.purchase_date)
+            expect(master_action.reload.cart_date).to eq(slave_action.cart_date)
+            expect(master_action.reload.view_date).to eq(slave_action.view_date)
+            expect(master_action.reload.purchase_count).to eq(2)
+            expect(master_action.reload.cart_count).to eq(4)
+            expect(master_action.reload.view_count).to eq(7)
+            expect(master_action.reload.recommended_by).to eq(slave_action.recommended_by)
+            expect(master_action.reload.recommended_at).to eq(slave_action.recommended_at)
+          end
+        end
+
         context 'orders' do
           let!(:order) { create(:order, user: slave, shop: shop) }
 
