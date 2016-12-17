@@ -23,3 +23,10 @@ ru:
       body_count: 'Импортировано пользователей: %{audiance_count}'
       tail: 'С уважением.'
       team: 'Команда REES46.'
+
+  errors_mailer:
+    subject:
+      yml_import_error: 'Неправильно указан YML файл'
+      yml_url_not_respond: 'Не удалось загрузить YML-файл'
+      yml_syntax_error: 'Ошибка синтаксиса YML-файла'
+      yml_off: 'Обработка YML-файла отключена'

@@ -1,0 +1,9 @@
+p Dear owner of #{link_to @shop.name, @shop.url} online store!
+
+p Unfortunately, we could not load your XML Product Feed.
+
+p Please, check the link to the XML-file you provided in your #{link_to 'personal account', "#{Rees46.site_url}/shops/#{@shop.id}/edit"} on rees46.com.
+
+p If, by the time your receive this letter, you have already applied the necessary changes to the XML-file and made it available by the same URL, just ignore the message.
+
+= render 'shared/errors_mailer_footer'

@@ -15,7 +15,7 @@ class InitController < ApplicationController
   # Определяет покупателя, сращивает разных покупателей в один, если необходимо.
   # Передает магазину данные о текущих свойствах клиента: группа, настройки сбора емейла и рассылок.
   def init_script
-    session_id = cookies[Rees46::COOKIE_NAME] || params[Rees46::COOKIE_NAME]
+    session_id = cookies[Rees46::COOKIE_NAME] || params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
 
     session = Session.fetch(code: session_id,
                             useragent: sanitized_header(:user_agent),
@@ -29,7 +29,8 @@ class InitController < ApplicationController
     cookies.permanent[Rees46::COOKIE_NAME] = session.code
     cookies[Rees46::COOKIE_NAME] = {
       value: session.code,
-      expires: 1.year.from_now
+      expires: 1.year.from_now,
+      domain: ".#{request.domain}"
     }
 
     # Поиск связки пользователя и магазина

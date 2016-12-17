@@ -106,7 +106,15 @@ module Mailings
       if res.code.to_i == 200
         JSON.parse res.body
       else
-        raise GetResponseApiError.new res.body
+        begin
+          json = JSON.parse res.body
+          unless %w(1002).include? json['code']
+            raise GetResponseApiError.new res.body
+          end
+        rescue Exception => e
+          raise GetResponseApiError.new "#{e.message}: #{res.body}"
+        end
+        nil
       end
     end
 

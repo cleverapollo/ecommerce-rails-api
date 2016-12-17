@@ -14,12 +14,12 @@ class OrderItem < ActiveRecord::Base
     # Сохранить товар заказа
     def persist(order, item, amount, recommended_by = nil)
 
-      action = Action.find_by(item_id: item.id, user_id: order.user.id)
+      action = Action.find_by(item_id: item.id, user_id: order.user_id)
       if action.nil?
         begin
-          action = Action.create!(item_id: item.id, user_id: order.user.id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by)
+          action = Action.create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: Time.current)
         rescue
-          action = Action.find_by(item_id: item.id, user_id: order.user.id)
+          action = Action.find_by(item_id: item.id, user_id: order.user_id)
         end
       end
 
