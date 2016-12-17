@@ -32,6 +32,8 @@ class Action < ActiveRecord::Base
       end
     end
 
+    # Перелинкует всех удаленных пользователей. Такое может произойти,
+    # если были одновременно отправлены данные юзера в push_attributes и создан заказ.
     # @param [User] master
     # @param [Integer] slave_id
     def relink_user_remnants(master, slave_id)
@@ -101,7 +103,8 @@ class Action < ActiveRecord::Base
         purchase_date: [master_action.purchase_date, self.purchase_date].compact.max,
         rating: [master_action.rating, self.rating].compact.max,
         timestamp: [master_action.timestamp, self.timestamp].compact.max,
-        recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : self.recommended_by
+        recommended_by: master_action.recommended_by.present? ? master_action.recommended_by : self.recommended_by,
+        recommended_at: master_action.recommended_at.present? ? master_action.recommended_at : self.recommended_at
       )
 
       self.delete

@@ -17,14 +17,14 @@ class OrderItem < ActiveRecord::Base
       action = Action.find_by(item_id: item.id, user_id: order.user_id)
       if action.nil?
         begin
-          action = Action.create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: Time.current)
+          action = Action.create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: recommended_by.present? ? Time.current : nil)
         rescue
           action = Action.find_by(item_id: item.id, user_id: order.user_id)
         end
       end
 
       # Если recommended_by не указан, но в Action был recommended_by и он не устарел, то используем его
-      if recommended_by.nil? && action.recommended_by && action.recommended_at >= Order::RECOMMENDED_BY_DECAY.ago
+      if recommended_by.nil? && action.recommended_by && action.recommended_at.present? && action.recommended_at >= Order::RECOMMENDED_BY_DECAY.ago
         recommended_by = action.recommended_by
       end
 
