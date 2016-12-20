@@ -74,14 +74,14 @@ describe UserMerger do
             subject
             expect{ slave_action.reload }.to raise_exception(ActiveRecord::RecordNotFound)
             expect(master_action.reload.rating).to eq(2)
-            expect(master_action.reload.purchase_date).to eq(master_action.purchase_date)
-            expect(master_action.reload.cart_date).to eq(slave_action.cart_date)
-            expect(master_action.reload.view_date).to eq(slave_action.view_date)
+            expect(master_action.reload.purchase_date.to_i).to eq(master_action.purchase_date.to_i)
+            expect(master_action.reload.cart_date.to_i).to eq(slave_action.cart_date.to_i)
+            expect(master_action.reload.view_date.to_i).to eq(slave_action.view_date.to_i)
             expect(master_action.reload.purchase_count).to eq(2)
             expect(master_action.reload.cart_count).to eq(4)
             expect(master_action.reload.view_count).to eq(7)
             expect(master_action.reload.recommended_by).to eq(slave_action.recommended_by)
-            expect(master_action.reload.recommended_at).to eq(slave_action.recommended_at)
+            expect(master_action.reload.recommended_at.to_i).to eq(slave_action.recommended_at.to_i)
           end
         end
 
