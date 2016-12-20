@@ -148,7 +148,7 @@ ActiveRecord::Schema.define(version: 20161216121156) do
   add_index "clients", ["shop_id", "activity_segment"], name: "index_clients_on_shop_id_and_activity_segment", where: "(activity_segment IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "shops_users_shop_id_id_idx", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
-  add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE) AND (last_activity_at IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "(((email IS NOT NULL) AND (triggers_enabled IS TRUE)) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed IS TRUE)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
@@ -330,22 +330,22 @@ ActiveRecord::Schema.define(version: 20161216121156) do
   add_index "items", ["brand_downcase"], name: "index_items_on_brand_for_brand_campaign", where: "((brand_downcase IS NOT NULL) AND (category_ids IS NOT NULL))", using: :btree
   add_index "items", ["category_ids"], name: "index_items_on_category_ids", using: :gin
   add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "((is_available IS TRUE) AND (ignored IS FALSE) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
+  add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "(((is_available IS TRUE) AND (ignored IS FALSE)) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
   add_index "items", ["is_auto"], name: "index_items_on_is_auto", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_cosmetic"], name: "index_items_on_is_cosmetic", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
+  add_index "items", ["price"], name: "index_items_on_price", where: "(((is_available = true) AND (ignored = false)) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "((price_margin IS NOT NULL) AND (is_available IS TRUE) AND (ignored IS FALSE))", using: :btree
-  add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((is_available = true) AND (ignored = false) AND (sales_rate IS NOT NULL) AND (sales_rate > 0))", using: :btree
+  add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "(((price_margin IS NOT NULL) AND (is_available IS TRUE)) AND (ignored IS FALSE))", using: :btree
+  add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((((is_available = true) AND (ignored = false)) AND (sales_rate IS NOT NULL)) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
   add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id"], name: "widgetable_shop", where: "(((widgetable = true) AND (is_available = true)) AND (ignored = false))", using: :btree
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false
@@ -386,6 +386,7 @@ ActiveRecord::Schema.define(version: 20161216121156) do
     t.integer  "status",                        default: 0,     null: false
     t.date     "status_date"
     t.boolean  "compensated"
+    t.string   "reputation_key"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -413,6 +414,27 @@ ActiveRecord::Schema.define(version: 20161216121156) do
   end
 
   add_index "recommendations_requests", ["shop_id"], name: "index_recommendations_requests_on_shop_id", using: :btree
+
+  create_table "reputations", id: :bigserial, force: :cascade do |t|
+    t.string   "name"
+    t.integer  "rating"
+    t.text     "plus"
+    t.text     "minus"
+    t.text     "comment"
+    t.datetime "published_at"
+    t.integer  "shop_id"
+    t.integer  "entity_id",    limit: 8
+    t.string   "entity_type"
+    t.integer  "parent_id",    limit: 8
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",                 default: 0, null: false
+    t.integer  "client_id",    limit: 8
+  end
+
+  add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
+  add_index "reputations", ["parent_id"], name: "index_reputations_on_parent_id", using: :btree
+  add_index "reputations", ["shop_id"], name: "index_reputations_on_shop_id", using: :btree
 
   create_table "search_queries", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",           null: false

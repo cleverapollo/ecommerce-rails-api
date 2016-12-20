@@ -102,7 +102,7 @@ class Shop < MasterTable
     @yml ||= begin
       update_columns(last_try_to_load_yml_at: DateTime.current)
       normalized_uri = ::Addressable::URI.parse(yml_file_url.strip).normalize
-      file = Rees46ML::File.new(Yml.new(normalized_uri))
+      file = Rees46ML::File.new(Yml.new(normalized_uri, self.customer.language))
       update_columns(yml_loaded: true)
       file
     rescue NotRespondingError => ex
@@ -110,7 +110,8 @@ class Shop < MasterTable
       Rollbar.error(ex, "Yml not respond", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
-      ErrorsMailer.yml_import_error(self, "Не обноружено XML-файлов в архиве.").deliver_now
+      I18n.locale = self.customer.language
+      ErrorsMailer.yml_import_error(self, I18n.t('yml_errors.no_files_in_archive')).deliver_now
       Rollbar.error(ex, "Не обнаружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue => ex
@@ -166,7 +167,8 @@ class Shop < MasterTable
       CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
     rescue ActiveRecord::RecordNotUnique => e
       Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
-      ErrorsMailer.yml_syntax_error(self, 'В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.').deliver_now
+      I18n.locale = self.customer.language
+      ErrorsMailer.yml_syntax_error(self, I18n.t('yml_errors.no_uniq_ids')).deliver_now
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
     rescue Interrupt => e
