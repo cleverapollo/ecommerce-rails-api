@@ -8,10 +8,14 @@ class ImportsController < ApplicationController
   end
 
   def sync_orders
-    # if %w(e143c34a52e7463665fb89296faa75).include?(@shop.uniqid)
-    #   render text: 'Disabled', status: 400
-    #   return
-    # end
+    if %w(e143c34a52e7463665fb89296faa75).include?(@shop.uniqid)
+      # render text: 'Disabled', status: 400
+      # return
+      if Rails.env.production?
+        notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Realboxing", http_options: { open_timeout: 1 }
+        notifier.ping("Sync orders")
+      end
+    end
     OrdersSyncWorker.perform_async(params)
     render text: 'OK'
   end
