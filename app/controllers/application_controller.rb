@@ -31,6 +31,10 @@ class ApplicationController < ActionController::API
     render json: { status: 'error', message: exception.to_s }, status: 402
   end
 
+  def respond_with_not_found_error(exception)
+    render json: { status: 'error', message: exception.to_s }, status: 404
+  end
+
   # Залоггировать клиентскую ошибку
   def log_client_error(exception)
     client_error = ClientError.create(shop: Shop.find_by(uniqid: params[:shop_id]),

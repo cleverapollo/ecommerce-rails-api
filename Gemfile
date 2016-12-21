@@ -1,5 +1,6 @@
 LANG="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
+LANGUAGE="en_US.UTF-8"
 
 source 'https://rubygems.org'
 ruby '2.3.0'
@@ -25,6 +26,7 @@ gem 'connection_pool'
 gem 'sidekiq'
 gem 'sidekiq-limit_fetch'
 gem 'sidekiq-failures'
+gem "bunny", ">= 2.6.1"
 
 # Services
 gem 'rollbar'

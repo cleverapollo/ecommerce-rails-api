@@ -28,14 +28,14 @@ class BrandCampaign < MasterTable
   # @param discount [Boolean] Искать только по скидочным товарам
   # @return Integer
   def first_in_selection(item_ids, discount = false)
-    relation = Item.where(id:item_ids, brand:downcase_brand).where.not(brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
-    relation.discount if discount
+    relation = Item.recommendable.widgetable.where(id:item_ids, brand:downcase_brand).where('brand IS NOT NULL').where('price >= ?', product_minimum_price).by_sales_rate
+    relation = relation.discount if discount
     relation.limit(1)[0].try(:id)
   end
 
   def first_in_categories(shop_id, categories, excluded_ids=[], discount = false, strict_categories = false)
-    relation = Item.in_categories(categories, any: !strict_categories ).where(shop_id:shop_id, brand:downcase_brand).where.not(id: excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
-    relation.discount if discount
+    relation = Item.recommendable.widgetable.in_categories(categories, any: !strict_categories ).where(shop_id:shop_id, brand:downcase_brand).where('brand IS NOT NULL').where.not(id: excluded_ids).where('price >= ?', product_minimum_price).by_sales_rate
+    relation = relation.discount if discount
     relation.limit(1)[0].try(:id)
   end
 
@@ -47,8 +47,8 @@ class BrandCampaign < MasterTable
   # end
 
   def first_in_shop(shop_id, excluded_ids=[], discount = false)
-    relation = Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil).where('price >= ?', product_minimum_price).by_sales_rate
-    relation.discount if discount
+    relation = Item.recommendable.widgetable.where(shop_id:shop_id, brand:downcase_brand).where('brand IS NOT NULL').where.not(id:excluded_ids).where('price >= ?', product_minimum_price).by_sales_rate
+    relation = relation.discount if discount
     relation.limit(1)[0].try(:id)
   end
 

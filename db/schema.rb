@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161122121118) do
+ActiveRecord::Schema.define(version: 20161216121156) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -136,6 +136,8 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.datetime "last_web_push_sent_at"
     t.boolean  "web_push_subscription_popup_showed"
     t.boolean  "accepted_web_push_subscription"
+    t.integer  "fb_id",                              limit: 8
+    t.integer  "vk_id",                              limit: 8
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
@@ -201,6 +203,7 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
+    t.integer  "images_dimension",                        default: 3
   end
 
   add_index "digest_mailings", ["shop_id"], name: "index_digest_mailings_on_shop_id", using: :btree
@@ -351,7 +354,6 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.datetime "updated_at"
     t.integer  "mailing_service",                 default: 0
     t.string   "getresponse_api_key"
-    t.string   "getresponse_api_url"
     t.integer  "template_type",                   default: 1
     t.string   "mailchimp_api_key"
   end
@@ -486,6 +488,17 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer "web_push_triggers_orders_real",      default: 0,   null: false
     t.integer "web_push_triggers_revenue_real",     default: 0,   null: false
     t.integer "orders_with_recommender_count",      default: 0,   null: false
+    t.integer "web_push_digests_sent",              default: 0,   null: false
+    t.integer "web_push_digests_clicked",           default: 0,   null: false
+    t.integer "web_push_digests_orders",            default: 0,   null: false
+    t.integer "web_push_digests_revenue",           default: 0,   null: false
+    t.integer "web_push_digests_orders_real",       default: 0,   null: false
+    t.integer "web_push_digests_revenue_real",      default: 0,   null: false
+    t.integer "remarketing_carts",                  default: 0,   null: false
+    t.integer "remarketing_impressions",            default: 0,   null: false
+    t.integer "remarketing_clicks",                 default: 0,   null: false
+    t.integer "remarketing_orders",                 default: 0,   null: false
+    t.integer "remarketing_revenue",                default: 0,   null: false
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
@@ -576,6 +589,7 @@ ActiveRecord::Schema.define(version: 20161122121118) do
     t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
+    t.integer  "images_dimension",                        default: 3
   end
 
   add_index "trigger_mailings", ["shop_id", "trigger_type"], name: "index_trigger_mailings_on_shop_id_and_trigger_type", unique: true, using: :btree

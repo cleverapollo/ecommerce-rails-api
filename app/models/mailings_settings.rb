@@ -12,6 +12,8 @@ class MailingsSettings < ActiveRecord::Base
 
   TEMPLATE_LIQUID = 1
 
+  GETRESPONSE_API_URL = 'https://api.getresponse.com/v3/'
+
   belongs_to :shop
 
   validates :shop, presence: true
@@ -24,7 +26,7 @@ class MailingsSettings < ActiveRecord::Base
 
   # Проверяет, настроен ли внешний сервис рассылок GetResponse
   def external_getresponse?
-    mailing_service == MAILING_SERVICE_GETRESPONSE && getresponse_api_key.present? && getresponse_api_url.present?
+    mailing_service == MAILING_SERVICE_GETRESPONSE && getresponse_api_key.present?
   end
 
   # Проверяет, настроен ли внешний сервис рассылок MailChimp

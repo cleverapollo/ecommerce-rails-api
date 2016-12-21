@@ -22,6 +22,11 @@ module TriggerMailings
       # При этом нет покупок за этот период
       # @return Boolean
       def condition_happened?
+
+        # Если недавно был заказ, триггер не шлем.
+        # http://y.mkechinov.ru/issue/REES-3399
+        return false if user.orders.where('date >= ?', 7.days.ago).exists?
+
         if (elements = SubscribeForCategory.where(shop: shop, user: user).where(subscribed_at: trigger_time_range).pluck(:item_category_id)).any?
           additional_info[:categories] = ItemCategory.where(id: elements)
           if additional_info[:categories].any?

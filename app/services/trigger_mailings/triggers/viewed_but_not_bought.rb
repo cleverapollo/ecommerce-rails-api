@@ -9,13 +9,17 @@ module TriggerMailings
           return false
         end
 
+        # Если недавно был заказ, триггер не шлем.
+        # http://y.mkechinov.ru/issue/REES-3399
+        return false if user.orders.where('date >= ?', 7.days.ago).exists?
+
         # Находим товар, который был вчера просмотрен самое большее число раз, но не был куплен
         actions = user.actions.where(shop: shop).views.where(view_date: time_range).where('view_count > 0').order(view_count: :desc).limit(10)
         if actions.exists?
           @happened_at = actions.first.view_date
           @source_items = actions.map { |a| a.item if a.item.widgetable? }.compact
           @source_item = @source_items.first
-          if @source_item
+          if @source_item.present?
             return true
           end
         end

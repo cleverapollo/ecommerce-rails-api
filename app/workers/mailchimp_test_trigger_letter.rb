@@ -35,8 +35,7 @@ class MailchimpTestTriggerLetter
                                                                  trigger.source_item,
                                                                  client.location,
                                                                  trigger.shop.currency, {},
-                                                                 trigger_mailing.image_width,
-                                                                 trigger_mailing.image_height))
+                                                                 trigger_mailing.images_dimension))
     api.update_campaign(native_campaign, test_list['id'])
 
     test_campaign = api.duplicate_campaign(params['campaign_id'])

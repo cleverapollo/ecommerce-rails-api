@@ -86,6 +86,13 @@ namespace :deploy do
     end
   end
 
+  desc 'Reload application'
+  task :reload do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute "sudo /bin/systemctl reload unicorn.api.rees46.service"
+    end
+  end
+
 
   # desc 'Start unicorn'
   # task :start do

@@ -22,7 +22,12 @@ module Rtb
           if rtb_item = RtbJob.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id)
             rtb_item.update counter: 0, date: Date.current, price: item.price, image: item.image_url, name: item.name, currency: shop.currency, url: item.url
           else
-            rtb_item = RtbJob.create! shop_id: shop.id, user_id: user.id, item_id: item.id, date: Date.current, counter: 0, price: item.price, image: item.image_url, name: item.name, currency: shop.currency, url: item.url, logo: shop.fetch_logo_url
+            begin
+              rtb_item = RtbJob.create! shop_id: shop.id, user_id: user.id, item_id: item.id, date: Date.current, counter: 0, price: item.price, image: item.image_url, name: item.name, currency: shop.currency, url: item.url, logo: shop.fetch_logo_url
+            rescue ActiveRecord::RecordNotUnique
+              # Concurrency
+              rtb_item = RtbJob.find_by(shop_id: shop.id, user_id: user.id, item_id: item.id)
+            end
           end
           if popunder_item.nil? || popunder_item.price < item.price
             popunder_item = item
@@ -56,7 +61,7 @@ module Rtb
     private
 
     def feature_available?
-      shop.remarketing_enabled? && customer.balance > 0
+      shop.remarketing_enabled? && customer.balance > 0 && shop.active? && shop.connected? && !shop.restricted?
     end
 
     def popunder_enabled?

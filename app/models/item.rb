@@ -111,7 +111,11 @@ class Item < ActiveRecord::Base
     attrs = merge_attributes(item_proxy)
 
     begin
-      save! if changed?
+      new_record = !self.persisted?
+      if changed?
+        save!
+        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable? && new_record
+      end
       return self
     rescue ActiveRecord::RecordNotUnique => e
       item = Item.find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
@@ -382,13 +386,11 @@ class Item < ActiveRecord::Base
     end
   end
 
-
   # Ссылка на отресайзенную картинку товара
-  # @param width [Integer]
-  # @param height [Integer]
+  # @param dimension [String]
   # @return String
-  def resized_image(width, height)
-    "https://rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
+  def resized_image_by_dimension(dimension = '180x180')
+    "http://pictures.rees46.com/resize-images/#{dimension.split('x')[0]}/#{shop.uniqid}/#{self.id}.jpg"
   end
 
 end

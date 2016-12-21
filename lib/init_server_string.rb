@@ -79,7 +79,9 @@ module InitServerString
         end
       end
 
-      email_settings = nil
+      email_settings = {
+          enabled: shop.subscriptions_enabled?,
+      }
       if shop.subscriptions_enabled? && client.email.blank?
         email_settings = {
             enabled: shop.subscriptions_settings.enabled,
@@ -110,6 +112,7 @@ module InitServerString
           currency: shop.currency,
           profile: session.user.profile_to_json,
           has_email: client.email.present?,
+          shop_debug: shop.debug_order,
           sync: get_sync_pixels(session, shop),
           emailSubscription: {
             settings: email_settings,
@@ -138,7 +141,7 @@ module InitServerString
                               service_worker: shop.web_push_subscriptions_settings.service_worker,
                           }
                           else
-                            nil
+                            {enabled: shop.web_push_subscriptions_enabled?}
                         end,
               status: if client.web_push_enabled
                         'accepted'
@@ -189,6 +192,10 @@ module InitServerString
         if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
           pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}"
           session.update synced_with_republer_at: Date.current
+        end
+        if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
+          pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.code}"
+          session.update synced_with_advmaker_at: Date.current
         end
 
       end

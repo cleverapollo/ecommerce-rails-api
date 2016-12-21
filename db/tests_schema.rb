@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161114084054) do
+ActiveRecord::Schema.define(version: 20161208122900) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -277,7 +277,10 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.integer  "min_payment",   default: 500,   null: false
     t.float    "exchange_rate", default: 1.0,   null: false
     t.boolean  "payable",       default: false
+    t.boolean  "stripe_paid",   default: false, null: false
   end
+
+  add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
 
   create_table "customers", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",    null: false
@@ -318,12 +321,18 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
+    t.string   "stripe_customer_id"
+    t.string   "stripe_card_last4"
+    t.string   "stripe_card_id"
+    t.string   "country_code"
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["quick_sign_in_token"], name: "index_customers_on_quick_sign_in_token", using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+  add_index "customers", ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id", using: :btree
 
   create_table "digest_mail_statistics", force: :cascade do |t|
     t.date     "date",                   null: false
@@ -347,6 +356,19 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.datetime "updated_at"
     t.integer  "in_sequence", default: 0, null: false
   end
+
+  create_table "fb_accounts", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "token"
+    t.string   "fb_id"
+    t.string   "business_id"
+    t.string   "ad_account_id"
+    t.string   "ad_account_name"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  add_index "fb_accounts", ["shop_id"], name: "index_fb_accounts_on_shop_id", using: :btree
 
   create_table "industries", force: :cascade do |t|
     t.string   "code",       null: false
@@ -496,6 +518,27 @@ ActiveRecord::Schema.define(version: 20161114084054) do
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
+  create_table "rtb_bid_requests", force: :cascade do |t|
+    t.string   "ssp"
+    t.string   "ssid"
+    t.string   "bid_id"
+    t.string   "imp_id"
+    t.string   "site_domain"
+    t.string   "site_page"
+    t.float    "bidfloor"
+    t.string   "bidfloorcur"
+    t.float    "bid_price"
+    t.integer  "rtb_job_id"
+    t.boolean  "bid_done"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "rtb_bid_requests", ["bid_done"], name: "index_rtb_bid_requests_on_bid_done", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["created_at", "ssp"], name: "index_rtb_bid_requests_on_created_at_and_ssp", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp_conditioned", where: "(bid_done IS TRUE)", using: :btree
+
   create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
     t.string   "code"
     t.string   "bid_id",              null: false
@@ -511,6 +554,7 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.string   "domain"
     t.string   "page"
     t.string   "banner"
+    t.string   "ssp"
   end
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
@@ -600,6 +644,7 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.date    "synced_with_mailru_at"
     t.date    "synced_with_relapio_at"
     t.date    "synced_with_republer_at"
+    t.date    "synced_with_advmaker_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -684,8 +729,11 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
     t.decimal  "remarketing_cpa_cap",                       default: 300.0, null: false
+    t.boolean  "ekomi_enabled"
+    t.string   "ekomi_id"
+    t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
-    t.integer  "web_push_balance",                          default: 0,     null: false
+    t.integer  "web_push_balance",                          default: 100,   null: false
     t.datetime "last_orders_sync"
     t.boolean  "have_industry_products",                    default: false, null: false
     t.string   "logo_file_name"
@@ -695,7 +743,9 @@ ActiveRecord::Schema.define(version: 20161114084054) do
     t.boolean  "reputations_enabled",                       default: false, null: false
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
-    t.boolean  "popunder_enabled",                          default: false, null: false
+    t.boolean  "popunder_enabled",                          default: true,  null: false
+    t.boolean  "debug_order",                               default: false, null: false
+    t.string   "currency_code"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -740,17 +790,19 @@ ActiveRecord::Schema.define(version: 20161114084054) do
   add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
-    t.integer  "amount",                       default: 500, null: false
-    t.integer  "transaction_type",             default: 0,   null: false
-    t.string   "payment_method",   limit: 255,               null: false
-    t.integer  "status",                       default: 0
+    t.integer  "amount",                        default: 500, null: false
+    t.integer  "transaction_type",              default: 0,   null: false
+    t.string   "payment_method",    limit: 255,               null: false
+    t.integer  "status",                        default: 0
     t.integer  "customer_id"
     t.datetime "processed_at"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "comment"
     t.integer  "shop_id"
-    t.integer  "currency_id",                  default: 1,   null: false
+    t.integer  "currency_id",                   default: 1,   null: false
+    t.string   "payment_result_id"
+    t.string   "transaction_id"
   end
 
   create_table "trigger_mail_statistics", force: :cascade do |t|

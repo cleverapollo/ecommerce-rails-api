@@ -27,7 +27,7 @@ module TriggerMailings
                   get_response_client = Mailings::GetResponseClient.new(shop).prepare
                 rescue StandardError => e
                   # TODO уведомлять клиента по почте
-                  Rollbar.error(e)
+                  Rollbar.warning(e)
                   next
                 end
               end

@@ -20,5 +20,19 @@ module UserLinkable
         end
       end
     end
+
+    # Перелинкует всех удаленных пользователей. Такое может произойти,
+    # если были одновременно отправлены данные юзера в push_attributes и создан заказ.
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |entity|
+        begin
+          entity.update_columns(user_id: master.id)
+        rescue ActiveRecord::RecordNotUnique
+          entity.delete
+        end
+      end
+    end
   end
 end

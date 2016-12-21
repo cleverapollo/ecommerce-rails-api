@@ -1,0 +1,16 @@
+p Dear owner of #{link_to @shop.name, @shop.url} online store!
+
+p
+  = 'Unfortunately, we could not load your XML-file due to error in syntax below.'
+  br
+  = "Error: "
+  strong = @message
+
+p
+  = 'Please check the file and make sure you prepared it correctly.'
+  br
+  'If needed, please change the link to your XML-file in your #{link_to 'personal account', "#{Rees46.site_url}/shops/#{@shop.id}/edit"} on rees46.com and notify us about it.
+
+p If, by the time your receive this letter, you have already applied the necessary changes to the XML-file and made it available by the same URL, just ignore the message.
+
+= render 'shared/errors_mailer_footer'

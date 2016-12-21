@@ -11,6 +11,10 @@ class ImportsController < ApplicationController
     if %w(e143c34a52e7463665fb89296faa75).include?(@shop.uniqid)
       render text: 'Disabled', status: 400
       return
+      # if Rails.env.production?
+      #   notifier = Slack::Notifier.new Rails.application.secrets.slack_notify_key, username: "Realboxing", http_options: { open_timeout: 1 }
+      #   notifier.ping("Sync orders")
+      # end
     end
     OrdersSyncWorker.perform_async(params)
     render text: 'OK'
@@ -43,7 +47,7 @@ class ImportsController < ApplicationController
 
   def disable
     if params[:item_ids].present?
-      params[:item_ids].split(',').each do |item_id|
+      params[:item_ids].to_s.split(',').each do |item_id|
         @shop.items.find_by(uniqid: item_id).try(:disable!)
       end
     end
