@@ -6,11 +6,11 @@ class ImageDownloadLaunchWorker
 
   BATCH_SIZE = 20
 
-  attr_reader :shop
+  attr_reader :shop, :delete_before_download
 
-  def perform(shop_id, items_images = nil)
+  def perform(shop_id, items_images = nil, delete_before_download: false)
     @shop = Shop.find(shop_id)
-
+    @delete_before_download = delete_before_download
     if items_images
       send_batch(items_images)
     else
@@ -33,7 +33,7 @@ class ImageDownloadLaunchWorker
     ch = conn.create_channel
 
     q = ch.queue("resize", durable: true)
-    ch.default_exchange.publish({ shop_uniqid: shop.uniqid, items_images: items_images }.to_json, durable: true, :routing_key => q.name)
+    ch.default_exchange.publish({ shop_uniqid: shop.uniqid, items_images: items_images, delete_before_download: delete_before_download }.to_json, durable: true, :routing_key => q.name)
 
     conn.close
   end
