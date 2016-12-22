@@ -64,6 +64,7 @@ class Action < ActiveRecord::Base
 
 
   # Точка входа при обработке события. Вся работа происходит здесь.
+  # @param [ActionPush::Params] params
   def process(params)
     # Обновить параметры, специфичные для конкретного класса действий
     update_concrete_action_attrs
@@ -76,11 +77,11 @@ class Action < ActiveRecord::Base
 
     begin
       # В Махаут сохраняются действия с рейтингом больше корзины
-      save_to_mahout if self.rating >= Actions::RemoveFromCart::RATING
+      save_to_mahout(params) if self.rating >= Actions::RemoveFromCart::RATING
 
-      save
+      save if changed?
       # Коллбек после обработки действия
-      post_process
+      post_process(params)
     rescue ActiveRecord::RecordNotUnique => e
       # Action already saved
     end
@@ -118,7 +119,8 @@ class Action < ActiveRecord::Base
   end
 
   # Callback
-  def post_process
+  # @param [ActionPush::Params] params
+  def post_process(params)
   end
 
   def update_concrete_action_attrs
@@ -138,10 +140,11 @@ class Action < ActiveRecord::Base
     self.recommended_at = Time.current
   end
 
-  def save_to_mahout
-    if shop && shop.use_brb? && user && item
-      mahout_service = MahoutService.new(shop.brb_address)
-      mahout_service.set_preference(shop.id, user.id, item.id, self.rating)
+  # @param [ActionPush::Params] params
+  def save_to_mahout(params)
+    if params.shop.present? && params.shop.use_brb? && params.user && item
+      mahout_service = MahoutService.new(params.shop.brb_address)
+      mahout_service.set_preference(params.shop.id, params.user.id, item.id, self.rating)
     end
   end
 

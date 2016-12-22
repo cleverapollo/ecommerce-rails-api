@@ -21,8 +21,11 @@ module Actions
     def update_concrete_action_attrs
     end
 
-    def post_process
-      Client.where(user_id: self.user_id, shop_id: self.shop_id).update_all(bought_something: true, supply_trigger_sent: nil)
+    # @param [ActionPush::Params] params
+    def post_process(params)
+      params.client.bought_something = true
+      params.client.supply_trigger_sent = nil
+      params.client.save if params.client.changed?
     end
 
     def needs_to_update_rating?
