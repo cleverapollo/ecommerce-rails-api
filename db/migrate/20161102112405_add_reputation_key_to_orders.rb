@@ -1,4 +1,7 @@
 class AddReputationKeyToOrders < ActiveRecord::Migration
+  class Order < ActiveRecord::Base
+  end
+
   def up
     add_column :orders, :reputation_key, :string
 
