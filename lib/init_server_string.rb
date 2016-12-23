@@ -190,7 +190,7 @@ module InitServerString
           session.update synced_with_relapio_at: Date.current
         end
         if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
-          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}"
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}&dnr=1"
           session.update synced_with_republer_at: Date.current
         end
         if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
