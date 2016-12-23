@@ -1,7 +1,8 @@
 class AddReputationKeyToOrders < ActiveRecord::Migration
 
   def up
-    add_column :orders, :reputation_key, :string
+    puts "Problem migration"
+    # add_column :orders, :reputation_key, :string
 
     # order_all = Order.count
     # order_counter = 0
