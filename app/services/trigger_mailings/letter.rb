@@ -82,9 +82,12 @@ module TriggerMailings
 
       if trigger.code == 'RecentlyPurchased' && liquid_template.scan('{% if reputation %}').any?
         plan = @shop.subscription_plans.reputation.first
+
         if plan && plan.paid? && @shop.reputations_enabled?
 
-          reputation_key = trigger.additional_info[:order].reputation_key
+          order = trigger.additional_info[:order]
+          order.update(reputation_key: Digest::MD5.hexdigest(order.id.to_s)) unless order.reputation_key
+          reputation_key = order.reputation_key
 
           data[:reputation] = @shop.reputations_enabled
           data[:rate_1_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=1"
