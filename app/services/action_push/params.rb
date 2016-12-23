@@ -17,11 +17,11 @@ module ActionPush
   class Params
     # Входящие параметры
     attr_accessor :raw
-    # Магазин
+    # @return [Shop] Магазин
     attr_accessor :shop
-    # Пользователь
+    # @return [User] Пользователь
     attr_accessor :user
-    # Клиент
+    # @return [Client] Клиент
     attr_accessor :client
     # Название действия
     attr_accessor :action
@@ -64,14 +64,12 @@ module ActionPush
     # @return [ActionPush::Params] обработанные параметры
     def extract
       extract_static_attributes
-      extract_shop
+      extract_shop if shop.nil?
       extract_user
       track_mytoys_trigger
       normalize_item_arrays and extract_items
       self
     end
-
-    private
 
     # Конструктор, выполняет первоначальную проверку параметров
     #
@@ -82,6 +80,8 @@ module ActionPush
       check
     end
 
+    private
+
     # Выполняет первоначальную проверку входящих параметров
     #
     # @private
@@ -91,6 +91,7 @@ module ActionPush
       raise ActionPush::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
       raise ActionPush::IncorrectParams.new('Action not provided') if raw[:event].blank?
       raise ActionPush::IncorrectParams.new('Unknown action') unless Action::TYPES.include?(raw[:event])
+      raise ActionPush::IncorrectParams.new('Incorrect item id') if raw[:event] == 'view' && (raw[:item_id].nil? || !raw[:item_id].present?)
       raise ActionPush::IncorrectParams.new('Unsupported action') if raw[:event] == 'rate'
       raise ActionPush::IncorrectParams.new('Incorrect rating') if raw[:rating].present? && !(1..5).include?(raw[:rating].to_i)
       raise ActionPush::IncorrectParams.new('Unknown recommender') if raw[:recommended_by].present? && !Recommender::Base::TYPES.include?(raw[:recommended_by])
@@ -152,7 +153,7 @@ module ActionPush
                                      shop: shop,
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
-      @client = @user.clients.find_by(shop_id: shop.id)
+      @client = user_fetcher.client
     end
 
 

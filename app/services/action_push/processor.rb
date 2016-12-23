@@ -3,9 +3,12 @@
 #
 module ActionPush
   class Processor
+
+    # @return [ActionPush::Params]
     attr_reader :params
     attr_reader :concrete_action_class
 
+    # @param [ActionPush::Params] params
     def initialize(params)
       @params = params
       @concrete_action_class = Action.get_implementation_for params.action
@@ -77,7 +80,7 @@ module ActionPush
       end
 
       # Отмечаем, что пользователь был активен
-      Client.find_by(user_id: params.user.id, shop_id: params.shop.id).try(&:track_last_activity)
+      params.client.track_last_activity
 
       # Трекаем таксономию в DMP
       UserTaxonomy.track params.user, params.items, params.shop, params.action
