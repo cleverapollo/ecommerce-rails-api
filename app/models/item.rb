@@ -188,7 +188,7 @@ class Item < ActiveRecord::Base
 
   # Выключает товар
   def disable!
-    update(is_available: false, widgetable: false) if is_available == true || widgetable == true
+    update(is_available: false, widgetable: false, ignored: true) if is_available == true || widgetable == true || ignored == false
   end
 
   # Цена товара с учетом локации

@@ -42,26 +42,29 @@ describe EventsController do
   end
 
   describe 'POST push' do
-    before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
+    # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
     before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
     let!(:shop) { create(:shop) }
     let!(:session) { create(:session, user: create(:user)) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code }  }
 
-    it 'extracts parameters' do
+    it 'extracts parameters when error' do
       post :push, params
 
-      expect(ActionPush::Params).to have_received(:extract)
-    end
-
-    it 'passes extracted parameters to push service' do
-      post :push, params
-
-      expect(ActionPush::Processor).to have_received(:new)
+      expect(response.status).to eq(400)
+      expect(response.body).to eq({ status: 'error', message: 'Action not provided' }.to_json)
     end
 
     context 'when all goes fine' do
+      let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'view', item_id: {'0': '1'} }  }
+
+      it 'passes extracted parameters to push service' do
+        post :push, params
+
+        expect(response.status).to eq(200)
+      end
+
       it 'responds with ok status' do
         post :push, params
 
