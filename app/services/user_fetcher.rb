@@ -6,6 +6,7 @@ class UserFetcher
   end
 
   attr_reader :external_id, :session_code, :shop, :email, :location
+  # @return [Client]
   attr_accessor :client
 
   def initialize(params)
@@ -28,7 +29,7 @@ class UserFetcher
       self.client = shop.clients.find_by!(user_id: session.user_id)
     end
 
-    if location.present?
+    if location.present? && (self.client.location.nil? || self.client.location != location.to_s)
       self.client.update(location: location)
     end
 
