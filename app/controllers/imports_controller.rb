@@ -56,7 +56,7 @@ class ImportsController < ApplicationController
   end
 
   def images
-    ImageDownloadLaunchWorker.perform_async(@shop.id, delete_old_pictires: true)
+    ImageDownloadLaunchWorker.perform_async(@shop.id, nil, true)
     render text: 'OK'
   end
 end
