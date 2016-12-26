@@ -54,4 +54,9 @@ class ImportsController < ApplicationController
 
     render text: 'OK'
   end
+
+  def images
+    ImageDownloadLaunchWorker.perform_async(@shop.id, nil, true)
+    render text: 'OK'
+  end
 end
