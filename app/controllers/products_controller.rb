@@ -20,7 +20,7 @@ class ProductsController < ApplicationController
   end
 
   def set_not_widgetable
-    item = shop.find_by_id(params[:item_id])
+    item = shop.items.find_by_id(params[:item_id])
     item.update(widgetable: false) if item
 
     render nothing: true, status: :ok
