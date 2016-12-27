@@ -216,8 +216,8 @@ module ActionPush
             else
               item_attributes.is_available = cur_item.is_available
             end
-            item_attributes.price = raw_price if !cur_item.price && raw_price.to_i > 0
           else
+            item_attributes.price = raw_price if !cur_item.price && raw_price.to_i > 0
             item_attributes.is_available = raw_is_avalilable if available_present
           end
 
