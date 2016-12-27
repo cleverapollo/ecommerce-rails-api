@@ -107,7 +107,7 @@ class Item < ActiveRecord::Base
   # Применить аттрибуты товара
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
-    attrs = merge_attributes(item_proxy)
+    self.attributes = merge_attributes(item_proxy)
 
     begin
       new_record = !self.persisted?

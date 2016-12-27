@@ -112,7 +112,7 @@ module Mailings
             raise GetResponseApiError.new res.body
           end
         rescue Exception => e
-          raise GetResponseApiError.new "#{e.message}: #{res.body}"
+          raise GetResponseApiUnavailableError.new "#{e.message}: #{res.body}"
         end
         nil
       end
