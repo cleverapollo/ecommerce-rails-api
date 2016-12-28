@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161208122900) do
+ActiveRecord::Schema.define(version: 20161228124758) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -349,26 +349,16 @@ ActiveRecord::Schema.define(version: 20161208122900) do
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
 
-  create_table "faqs", force: :cascade do |t|
-    t.text     "question",                null: false
-    t.text     "answer",                  null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "in_sequence", default: 0, null: false
-  end
-
-  create_table "fb_accounts", force: :cascade do |t|
+  create_table "e_komi_requests", force: :cascade do |t|
     t.integer  "shop_id"
-    t.string   "token"
-    t.string   "fb_id"
-    t.string   "business_id"
-    t.string   "ad_account_id"
-    t.string   "ad_account_name"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.string   "country"
+    t.string   "city"
+    t.string   "postal_code"
+    t.string   "address"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.boolean  "confirmed",   default: false
   end
-
-  add_index "fb_accounts", ["shop_id"], name: "index_fb_accounts_on_shop_id", using: :btree
 
   create_table "industries", force: :cascade do |t|
     t.string   "code",       null: false
@@ -401,6 +391,26 @@ ActiveRecord::Schema.define(version: 20161208122900) do
     t.text     "content",    null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "phone"
+    t.string   "country"
+    t.string   "city"
+    t.string   "source"
+    t.string   "comment"
+    t.string   "website"
+    t.string   "company"
+    t.string   "position"
+    t.boolean  "synced_with_crm", default: false
+    t.boolean  "success",         default: false
+    t.boolean  "cancelled",       default: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.string   "cms"
   end
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
@@ -617,17 +627,17 @@ ActiveRecord::Schema.define(version: 20161208122900) do
   end
 
   create_table "schema_version", id: false, force: :cascade do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2016-10-10 11:53:12', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
@@ -746,6 +756,7 @@ ActiveRecord::Schema.define(version: 20161208122900) do
     t.boolean  "popunder_enabled",                          default: true,  null: false
     t.boolean  "debug_order",                               default: false, null: false
     t.string   "currency_code"
+    t.integer  "js_sdk"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -790,18 +801,17 @@ ActiveRecord::Schema.define(version: 20161208122900) do
   add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
-    t.integer  "amount",                        default: 500, null: false
-    t.integer  "transaction_type",              default: 0,   null: false
-    t.string   "payment_method",    limit: 255,               null: false
-    t.integer  "status",                        default: 0
+    t.integer  "amount",                       default: 500, null: false
+    t.integer  "transaction_type",             default: 0,   null: false
+    t.string   "payment_method",   limit: 255,               null: false
+    t.integer  "status",                       default: 0
     t.integer  "customer_id"
     t.datetime "processed_at"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "comment"
     t.integer  "shop_id"
-    t.integer  "currency_id",                   default: 1,   null: false
-    t.string   "payment_result_id"
+    t.integer  "currency_id",                  default: 1,   null: false
     t.string   "transaction_id"
   end
 
@@ -868,25 +878,18 @@ ActiveRecord::Schema.define(version: 20161208122900) do
   end
 
   create_table "wizard_configurations", force: :cascade do |t|
-    t.integer  "shop_id",                                    null: false
-    t.boolean  "multi_locations",            default: false
-    t.jsonb    "industrials",                default: {}
-    t.boolean  "orders_history",             default: false
-    t.boolean  "orders_sync",                default: false
-    t.boolean  "use_recommendations",        default: false
-    t.jsonb    "triggers",                   default: {}
-    t.boolean  "use_subscriptions",          default: false
-    t.boolean  "use_digests",                default: false
-    t.integer  "mailing_engine"
-    t.string   "other_mailing_engine"
-    t.boolean  "have_audience_to_upload",    default: false
-    t.boolean  "use_remarketing",            default: false
-    t.boolean  "use_web_push_subscriptions", default: false
-    t.jsonb    "web_push_triggers",          default: {}
-    t.boolean  "use_web_push_digests",       default: false
-    t.boolean  "completed",                  default: false
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.integer  "shop_id",                           null: false
+    t.jsonb    "industrials",       default: []
+    t.boolean  "orders_history",    default: false
+    t.boolean  "orders_sync",       default: false
+    t.jsonb    "triggers",          default: []
+    t.jsonb    "web_push_triggers", default: []
+    t.boolean  "completed",         default: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "locations",         default: 0
+    t.jsonb    "products",          default: []
+    t.boolean  "subscribers",       default: false
   end
 
   add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree
