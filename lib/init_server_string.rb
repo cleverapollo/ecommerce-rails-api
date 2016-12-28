@@ -1,11 +1,13 @@
 module InitServerString
   class << self
     # Шаблон JS-кода, который отдается магазину при инициализации покупателя
-    # @param session
-    # @param shop
-    # @return string
+    # @return [String]
     def make(options = {})
+
+      # @type [Shop] shop
       shop = options.fetch(:shop)
+      shop.update(js_sdk: 2) if shop.js_sdk.nil? || shop.js_sdk != 2
+
       session = options.fetch(:session)
       client = options.fetch(:client)
 
@@ -70,8 +72,9 @@ module InitServerString
 
       # @type [Shop] shop
       shop = options.fetch(:shop)
-      session = options.fetch(:session)
+      shop.update(js_sdk: 3) if shop.js_sdk.nil? || shop.js_sdk != 3
 
+      session = options.fetch(:session)
       # @type [Client] client
       client = options.fetch(:client)
       subscriptions_plan = shop.subscription_plans.subscriptions.first
