@@ -67,8 +67,12 @@ module InitServerString
 
     # Строка инициализации для API v3
     def make_v3(options = {})
+
+      # @type [Shop] shop
       shop = options.fetch(:shop)
       session = options.fetch(:session)
+
+      # @type [Client] client
       client = options.fetch(:client)
       subscriptions_plan = shop.subscription_plans.subscriptions.first
       products = nil
@@ -139,9 +143,14 @@ module InitServerString
                               safari_enabled: shop.web_push_subscriptions_settings.safari_enabled?,
                               safari_id: shop.web_push_subscriptions_settings.safari_website_push_id,
                               service_worker: shop.web_push_subscriptions_settings.service_worker,
+                              type: shop.web_push_subscriptions_settings.popup_type,
+                              timer: shop.web_push_subscriptions_settings.timer_enabled? ? shop.web_push_subscriptions_settings.timer : 0,
+                              pager: shop.web_push_subscriptions_settings.pager_enabled? ? shop.web_push_subscriptions_settings.pager : 0,
+                              cursor: shop.web_push_subscriptions_settings.cursor_enabled? ? shop.web_push_subscriptions_settings.cursor : 0,
+                              products: products,
                           }
                           else
-                            {enabled: shop.web_push_subscriptions_enabled?}
+                            {enabled: false}
                         end,
               status: if client.web_push_enabled
                         'accepted'
