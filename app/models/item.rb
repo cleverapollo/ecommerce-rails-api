@@ -108,7 +108,7 @@ class Item < ActiveRecord::Base
   # Применить аттрибуты товара
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
-    attrs = merge_attributes(item_proxy)
+    self.attributes = merge_attributes(item_proxy)
 
     begin
       new_record = !self.persisted?
@@ -189,7 +189,7 @@ class Item < ActiveRecord::Base
 
   # Выключает товар
   def disable!
-    update(is_available: false, widgetable: false) if is_available == true || widgetable == true
+    update(is_available: false, widgetable: false, ignored: true) if is_available == true || widgetable == true || ignored == false
   end
 
   # Цена товара с учетом локации

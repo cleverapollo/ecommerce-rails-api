@@ -8,7 +8,9 @@ class EventsController < ApplicationController
   def push
 
     # Извлекаем данные из входящих параметров
-    extracted_params = ActionPush::Params.extract(params)
+    extracted_params = ActionPush::Params.new(params)
+    extracted_params.shop = @shop
+    extracted_params = extracted_params.extract
 
     # Запускаем процессор с извлеченными данными
     ActionPush::Processor.new(extracted_params).process

@@ -21,6 +21,7 @@ Rees46Api::Application.routes.draw do
 
   # Товары
   get 'products/get'
+  patch 'products/set_not_widgetable'
 
   # Отправка событий
   post 'push', to: 'events#push'
@@ -54,6 +55,8 @@ Rees46Api::Application.routes.draw do
     get :disable
     # Аудитория рассылок
     post :audience
+    # Удалить старые и загрузить новыие картинки товаров
+    post :images
   end
 
   resources :rtb_impressions, only: [:create] do

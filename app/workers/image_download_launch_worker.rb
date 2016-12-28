@@ -6,11 +6,9 @@ class ImageDownloadLaunchWorker
 
   BATCH_SIZE = 20
 
-  attr_reader :shop
-
-  def perform(shop_id, items_images = nil)
+  def perform(shop_id, items_images = nil, delete_before_download =  false)
     @shop = Shop.find(shop_id)
-
+    @delete_before_download = delete_before_download
     if items_images
       send_batch(items_images)
     else
@@ -19,6 +17,22 @@ class ImageDownloadLaunchWorker
   end
 
   private
+
+  def fetch_and_send_baches
+    items_images = []
+
+    Item.where(shop_id: @shop.id).widgetable.select(:id, :image_url).find_each do |item|
+      items_images << { id: item.id, image_url: item.image_url }
+
+      if items_images.size == BATCH_SIZE
+        send_batch(items_images)
+        items_images = []
+      end
+    end
+
+    send_batch(items_images)
+  end
+
 
   def send_batch(items_images)
     require "bunny"
@@ -33,22 +47,9 @@ class ImageDownloadLaunchWorker
     ch = conn.create_channel
 
     q = ch.queue("resize", durable: true)
-    ch.default_exchange.publish({ shop_uniqid: shop.uniqid, items_images: items_images }.to_json, durable: true, :routing_key => q.name)
+    ch.default_exchange.publish({ shop_uniqid: @shop.uniqid, items_images: items_images, delete_before_download: @delete_before_download }.to_json, durable: true, :routing_key => q.name)
 
     conn.close
   end
 
-  def fetch_and_send_baches
-    items_images = []
-
-    Item.where(shop_id: shop.id).widgetable.select(:id, :image_url).find_each do |item|
-      items_images << { id: item.id, image_url: item.image_url }
-
-      if items_images.size == BATCH_SIZE
-        send_batch(items_images)
-        items_images = []
-      end
-    end
-    send_batch(items_images)
-  end
 end

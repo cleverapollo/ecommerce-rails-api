@@ -108,11 +108,11 @@ module Mailings
       else
         begin
           json = JSON.parse res.body
-          unless %w(1002).include? json['code']
+          unless [1002].include? json['code'].to_i
             raise GetResponseApiError.new res.body
           end
         rescue Exception => e
-          raise GetResponseApiError.new "#{e.message}: #{res.body}"
+          raise GetResponseApiUnavailableError.new "#{e.message}: #{res.body}"
         end
         nil
       end

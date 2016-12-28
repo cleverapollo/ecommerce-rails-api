@@ -71,10 +71,12 @@ class YmlImporter
 
     end
 
-    # Записываем в лог число обработанных товаров
-    CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count if result == true
+    if result == true
+      # Записываем в лог число обработанных товаров
+      CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
 
-    ImageDownloadLaunchWorker.perform_async(current_shop.id);
+      ImageDownloadLaunchWorker.perform_async(current_shop.id);
+    end
 
     current_shop.update(have_industry_products: current_shop.items.where('is_cosmetic is true OR is_child is true OR is_fashion is true OR is_fmcg is true OR is_auto is true').where('(is_available = true) AND (ignored = false)').exists?)
   end
