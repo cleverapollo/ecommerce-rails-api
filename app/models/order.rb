@@ -9,10 +9,13 @@ class Order < ActiveRecord::Base
 
   has_many :order_items, dependent: :destroy
   has_many :brand_campaign_purchases
+  has_one :reputation, as: :entity
   belongs_to :source, polymorphic: true
   belongs_to :shop
 
   before_create :record_date
+  after_create :set_reputation_key
+
 
   scope :successful, -> { where(status: self::STATUS_SUCCESS) }
 
@@ -159,6 +162,10 @@ class Order < ActiveRecord::Base
   # Устанавливаем перед созданием заказа текущую дату заказа
   def record_date
     self.date = read_attribute(:date) || Time.now
+  end
+
+  def set_reputation_key
+    self.update_column(:reputation_key, Digest::MD5.hexdigest(self.id.to_s))
   end
 
 end

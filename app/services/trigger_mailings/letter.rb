@@ -80,24 +80,23 @@ module TriggerMailings
       data[:unsubscribe_url] = client.trigger_unsubscribe_url
       data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
-      if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
-        if @shop.ekomi?
-          product_ids = []
-          trigger.additional_info[:order].order_items.each do |order_item|
-            item = order_item.item
-            if item && item.name.present? && item.uniqid.present?
-              item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
-              item_additional_params[:image_url] = item.image_url if item.image_url.present?
-              begin
-                Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
-                product_ids << item.uniqid
-              rescue
-              end
-            end
-          end
-          data[:feedback_button_link] = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+      if trigger.code == 'RecentlyPurchased' && liquid_template.scan('{% if reputation %}').any?
+        plan = @shop.subscription_plans.reputation.first
+
+        if plan && plan.paid? && @shop.reputations_enabled?
+
+          order = trigger.additional_info[:order]
+          order.update(reputation_key: Digest::MD5.hexdigest(order.id.to_s)) unless order.reputation_key
+          reputation_key = order.reputation_key
+
+          data[:reputation] = @shop.reputations_enabled
+          data[:rate_1_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=1"
+          data[:rate_2_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=2"
+          data[:rate_3_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=3"
+          data[:rate_4_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=4"
+          data[:rate_5_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=5"
         else
-          data[:feedback_button_link] = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
+          data[:reputation] = false
         end
       end
 
