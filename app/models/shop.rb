@@ -48,6 +48,7 @@ class Shop < MasterTable
   has_many :subscribe_for_categories
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
+  has_many :reputations
 
   has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :logo, content_type: /\Aimage/
@@ -208,10 +209,6 @@ class Shop < MasterTable
   def connected_now?
     (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present? && connected_events_last_track[:cart].present?) &&
     connected_events_last_track[:view] > (1.day.ago).to_time.to_i && connected_events_last_track[:cart] > (1.day.ago).to_time.to_i && connected_events_last_track[:purchase] > (2.days.ago).to_time.to_i
-  end
-
-  def ekomi?
-    ekomi_enabled? && ekomi_id.present? && ekomi_key.present?
   end
 
   def subscriptions_enabled?

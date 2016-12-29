@@ -103,7 +103,7 @@ module Mailings
         http.ssl_version = :SSLv3
         http.request req
       end
-      if res.code.to_i == 200
+      if res.code.to_i == 200 || res.code.to_i == 202
         JSON.parse res.body
       else
         begin

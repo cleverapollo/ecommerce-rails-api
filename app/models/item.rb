@@ -11,6 +11,7 @@ class Item < ActiveRecord::Base
   has_many :actions
   has_many :order_items
   has_many :brand_campaign_purchases
+  has_many :reputations, as: :entity
 
   scope :recommendable, -> { available.where(ignored: false) }
   scope :widgetable,    -> { where(widgetable:true) }

@@ -15,6 +15,11 @@ every 10.minutes do
   runner "RunnerWrapper.run('Sharding::Shard.generate_nginx_mapping')"
 end
 
+# Publish all reputations older than 2 days
+every 10.minutes do
+  runner "RunnerWrapper.run('ReputationPublisher.perform')"
+end
+
 # Каждую ночь в 4 часа выключаем корзины
 every '0 4 * * *' do
   runner "RunnerWrapper.run('CartsExpirer.perform')"

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161216121156) do
+ActiveRecord::Schema.define(version: 20161228121752) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -700,6 +700,14 @@ ActiveRecord::Schema.define(version: 20161216121156) do
     t.text     "pem_content"
     t.string   "service_worker_path"
     t.text     "successfully"
+    t.integer  "popup_type",                           default: 0,     null: false
+    t.integer  "timer",                                default: 30,    null: false
+    t.boolean  "timer_enabled",                        default: true,  null: false
+    t.integer  "pager",                                default: 5,     null: false
+    t.boolean  "pager_enabled",                        default: false, null: false
+    t.integer  "cursor",                               default: 50,    null: false
+    t.boolean  "cursor_enabled",                       default: false, null: false
+    t.boolean  "products",                             default: false, null: false
   end
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|
