@@ -54,8 +54,8 @@ class BounceHandlerWorker
           # Если Permanent Failure
           if bounced_message.type == 'Permanent Failure'
 
-            type = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
-            code = to.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
+            type = to.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
+            code = to.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
 
             if code != 'test'
               entity = if type == 'digest'
