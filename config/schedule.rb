@@ -30,9 +30,9 @@ every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
 end
 
-every 30.minutes do
-  runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
-end
+# every 30.minutes do
+#   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
+# end
 
 every 40.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform_feedback_loop')"
