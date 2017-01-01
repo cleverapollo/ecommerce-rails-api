@@ -22,6 +22,12 @@ class BounceHandlerWorker
 
         raw_message = imap.fetch(m, '(ENVELOPE BODY)').first
         envelope = raw_message.attr['ENVELOPE']
+
+        if envelope.to.nil?
+          imap.store(m, "+FLAGS", [:Deleted])
+          next
+        end
+
         to = envelope.to.first.mailbox
 
         # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
