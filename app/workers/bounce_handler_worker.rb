@@ -136,10 +136,10 @@ class BounceHandlerWorker
             entity.mark_as_bounced! if entity.present?
           end
 
-          # Удаляем письмо
-          imap.store(m, "+FLAGS", [:Deleted])
-
         end
+
+        # Удаляем письмо
+        imap.store(m, "+FLAGS", [:Deleted])
 
       end
 
