@@ -94,7 +94,8 @@ class BounceHandlerWorker
 
     # Обрабатывает письма FBL
     def perform_feedback_loop
-      require 'gmail'
+
+      require 'net/imap'
 
       # http://y.mkechinov.ru/issue/REES-2541
       begin
@@ -103,40 +104,50 @@ class BounceHandlerWorker
         Rollar.error e
       end
 
-      Gmail.connect!('fbl@rees46.com', Rails.application.secrets.mailru_fbl_password) do |gmail|
-        gmail.inbox.emails.each do |email|
+      imap = Net::IMAP.new Rails.application.secrets.fbl_email_host
+      imap.login Rails.application.secrets.fbl_email_user, Rails.application.secrets.fbl_email_pass
+      imap.select('INBOX')
 
-          # Достаем "само" письмо
-          message = email.message
+      imap.search('ALL').map do |m|
 
-          # Ищем в теле наши адреса для боунсов
-          if bounced_address = message.body.match(/bounced\+shard.+@rees46.com/)
-            bounced_address = bounced_address[0]
+        raw_message = imap.fetch(m, 'RFC822').first.attr['RFC822']
+        mail = Mail.read_from_string raw_message
+        body = "#{mail.text_part.body.to_s} #{mail.html_part.body.to_s}"
 
-            # Не текущий шард, поэтому пропускаем
-            if bounced_address.match(/shard(\d{2})/)[1] != SHARD_ID
-              next
-            end
+        # Ищем в теле наши адреса для боунсов
+        if bounced_address = body.match(/bounce\+shard.+@bounce.rees46.com/)
+          bounced_address = bounced_address[0]
 
-            type = bounced_address.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
-            code = bounced_address.split("bounced+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
-
-            if code != 'test'
-              entity = if type == 'digest'
-                         DigestMail.find_by(code: code)
-                       elsif type == 'trigger'
-                         TriggerMail.find_by(code: code)
-                       end
-
-              entity.mark_as_bounced! if entity.present?
-            end
-
-            # Удаляем письмо
-            email.delete!
-
+          # Не текущий шард, поэтому пропускаем
+          if bounced_address.match(/shard(\d{2})/)[1] != SHARD_ID
+            next
           end
+
+          type = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
+          code = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
+
+          if code != 'test'
+            entity = if type == 'digest'
+                       DigestMail.find_by(code: code)
+                     elsif type == 'trigger'
+                       TriggerMail.find_by(code: code)
+                     end
+
+            entity.mark_as_bounced! if entity.present?
+          end
+
+          # Удаляем письмо
+          imap.store(m, "+FLAGS", [:Deleted])
+
         end
+
       end
+
+      # Remove all emails marked as deleted
+      imap.expunge
+
+      imap.disconnect
+
     end
 
 
