@@ -112,7 +112,13 @@ class BounceHandlerWorker
 
         raw_message = imap.fetch(m, 'RFC822').first.attr['RFC822']
         mail = Mail.read_from_string raw_message
-        body = "#{mail.text_part.body.to_s} #{mail.html_part.body.to_s}"
+        body = ""
+        if mail.text_part
+          body = "#{body} #{mail.text_part.body.to_s}"
+        end
+        if mail.html_part
+          body = "#{body} #{mail.html_part.body.to_s}"
+        end
 
         # Ищем в теле наши адреса для боунсов
         if bounced_address = body.match(/bounce\+shard.+@bounce.rees46.com/)
