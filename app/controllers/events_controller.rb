@@ -25,12 +25,13 @@ class EventsController < ApplicationController
         Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user, extracted_params.items)
     end
 
-    # Popunder
-    if popunder_urls
-      render json: { status: 'success', url: popunder_urls }
-    else
-      respond_with_success
-    end
+    # Popunder disabled temporarily
+    respond_with_success
+    # if popunder_urls
+    #   render json: { status: 'success', url: popunder_urls }
+    # else
+    #   respond_with_success
+    # end
 
   rescue ActionPush::Error => e
     log_client_error(e)
