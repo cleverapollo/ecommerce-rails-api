@@ -119,8 +119,8 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        # Добавили разницу в 15 минут для предотвращения пропажи заказов, когда магазин сбросил uniqid
-        Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 15.minutes.ago).exists?
+        # Добавили разницу в 1 месяц для предотвращения пропажи заказов, когда магазин сбросил uniqid
+        Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 1.month.ago).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
              .where("date > ?", 1.minutes.ago).exists?
