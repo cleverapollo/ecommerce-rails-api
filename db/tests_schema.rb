@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161228124758) do
+ActiveRecord::Schema.define(version: 20161229105604) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -283,12 +283,12 @@ ActiveRecord::Schema.define(version: 20161228124758) do
   add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
 
   create_table "customers", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",    null: false
-    t.string   "encrypted_password",     limit: 255, default: "",    null: false
+    t.string   "email",                  limit: 255, default: "",       null: false
+    t.string   "encrypted_password",     limit: 255, default: "",       null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,     null: false
+    t.integer  "sign_in_count",                      default: 0,        null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -299,22 +299,22 @@ ActiveRecord::Schema.define(version: 20161228124758) do
     t.string   "phone",                  limit: 255
     t.string   "city",                   limit: 255
     t.string   "company",                limit: 255
-    t.boolean  "subscribed",                         default: true,  null: false
+    t.boolean  "subscribed",                         default: true,     null: false
     t.string   "unsubscribe_token",      limit: 255
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.float    "balance",                            default: 0.0,   null: false
+    t.float    "balance",                            default: 0.0,      null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
     t.string   "juridical_person"
-    t.integer  "currency_id",                        default: 1,     null: false
-    t.string   "language",                           default: "ru",  null: false
-    t.boolean  "notify_about_finances",              default: true,  null: false
-    t.integer  "partner_balance",                    default: 0,     null: false
+    t.integer  "currency_id",                        default: 1,        null: false
+    t.string   "language",                           default: "ru",     null: false
+    t.boolean  "notify_about_finances",              default: true,     null: false
+    t.integer  "partner_balance",                    default: 0,        null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
@@ -750,13 +750,13 @@ ActiveRecord::Schema.define(version: 20161228124758) do
     t.string   "logo_content_type"
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
-    t.boolean  "reputations_enabled",                       default: false, null: false
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
     t.boolean  "popunder_enabled",                          default: true,  null: false
     t.boolean  "debug_order",                               default: false, null: false
     t.string   "currency_code"
     t.integer  "js_sdk"
+    t.boolean  "reputations_enabled",                       default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -800,6 +800,29 @@ ActiveRecord::Schema.define(version: 20161228124758) do
 
   add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
 
+  create_table "theme_purchases", force: :cascade do |t|
+    t.integer  "theme_id"
+    t.integer  "shop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "theme_purchases", ["shop_id"], name: "index_theme_purchases_on_shop_id", using: :btree
+  add_index "theme_purchases", ["theme_id", "shop_id"], name: "index_theme_purchases_on_theme_id_and_shop_id", unique: true, using: :btree
+  add_index "theme_purchases", ["theme_id"], name: "index_theme_purchases_on_theme_id", using: :btree
+
+  create_table "themes", force: :cascade do |t|
+    t.string   "name",                       null: false
+    t.string   "theme_type",                 null: false
+    t.jsonb    "variables"
+    t.string   "file",                       null: false
+    t.boolean  "free",       default: false, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "themes", ["name", "theme_type"], name: "index_themes_on_name_and_theme_type", unique: true, using: :btree
+
   create_table "transactions", force: :cascade do |t|
     t.integer  "amount",                       default: 500, null: false
     t.integer  "transaction_type",             default: 0,   null: false
@@ -829,14 +852,6 @@ ActiveRecord::Schema.define(version: 20161228124758) do
   add_index "trigger_mail_statistics", ["date"], name: "index_trigger_mail_statistics_on_date", using: :btree
   add_index "trigger_mail_statistics", ["shop_id", "date"], name: "index_trigger_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "trigger_mail_statistics", ["shop_id"], name: "index_trigger_mail_statistics_on_shop_id", using: :btree
-
-  create_table "user_shop_relations", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id", limit: 8, null: false
-    t.integer "shop_id", limit: 8, null: false
-    t.string  "uniqid"
-  end
-
-  add_index "user_shop_relations", ["uniqid", "shop_id"], name: "user_shop_relations_uniqid_shop_id_key", unique: true, using: :btree
 
   create_table "user_taxonomies", force: :cascade do |t|
     t.integer "user_id"
