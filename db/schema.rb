@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161228121752) do
+ActiveRecord::Schema.define(version: 20170109085311) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -504,6 +504,21 @@ ActiveRecord::Schema.define(version: 20161228121752) do
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
   add_index "shop_metrics", ["shop_id"], name: "index_shop_metrics_on_shop_id", using: :btree
 
+  create_table "shop_themes", id: :bigserial, force: :cascade do |t|
+    t.string   "name",                         null: false
+    t.integer  "theme_id",                     null: false
+    t.integer  "shop_id"
+    t.string   "theme_type",                   null: false
+    t.jsonb    "variables"
+    t.text     "compiled_css"
+    t.boolean  "is_custom",    default: false, null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "shop_themes", ["shop_id", "theme_type"], name: "index_shop_themes_on_shop_id_and_theme_type", using: :btree
+  add_index "shop_themes", ["shop_id"], name: "index_shop_themes_on_shop_id", using: :btree
+
   create_table "subscribe_for_categories", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "user_id",          limit: 8
@@ -548,7 +563,6 @@ ActiveRecord::Schema.define(version: 20161228121752) do
     t.string   "picture_content_type", limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
-    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.integer  "popup_type",                       default: 0,     null: false
@@ -560,7 +574,12 @@ ActiveRecord::Schema.define(version: 20161228121752) do
     t.boolean  "cursor_enabled",                   default: false, null: false
     t.boolean  "products",                         default: false, null: false
     t.text     "successfully"
+    t.text     "css"
+    t.integer  "theme_id",             limit: 8
+    t.string   "theme_type"
   end
+
+  add_index "subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_subscriptions_settings_theme", using: :btree
 
   create_table "trigger_mailing_queues", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
