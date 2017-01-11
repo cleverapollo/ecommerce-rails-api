@@ -52,7 +52,6 @@ class Item < ActiveRecord::Base
       image_url
       widgetable
       brand
-      ignored
       type_prefix
       vendor_code
       model
@@ -139,7 +138,6 @@ class Item < ActiveRecord::Base
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
         is_available: new_item.is_available,
-        ignored: new_item.ignored.nil? ? false : new_item.ignored,
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
         model: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :model)),
