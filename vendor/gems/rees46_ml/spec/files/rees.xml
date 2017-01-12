@@ -222,6 +222,15 @@
         </fmcg>
 
 
+        <pets>
+          <periodic>1</periodic>
+          <pet_type>cat</pet_type>
+          <pet_age>middle</pet_age>
+          <pet_size>large</pet_size>
+          <breed>toy terrier</breed>
+        </pets>
+
+
 
         <auto>
           <periodic>1</periodic>

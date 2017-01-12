@@ -113,6 +113,12 @@ describe "check rees.xml" do
     expect(offer.child.age.max).to eq("1")
     expect(offer.child.type).to eq("toy")
 
+    expect(offer.pets.periodic).to eq(true)
+    expect(offer.pets.pet_type).to eq("cat")
+    expect(offer.pets.pet_age).to eq("middle")
+    expect(offer.pets.pet_size).to eq("large")
+    expect(offer.pets.breed).to eq("toy terrier")
+
     expect(offer.cosmetic.gender.value).to eq("f")
     expect(offer.cosmetic.hypoallergenic).to eq(true)
     expect(offer.cosmetic.periodic).to eq(true)

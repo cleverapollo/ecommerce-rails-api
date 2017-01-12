@@ -51,6 +51,11 @@ module Rees46ML
       state :fashion
       state :cosmetic
       state :fmcg
+      state :pets
+      state :pet_age
+      state :pet_size
+      state :pet_type
+      state :breed
       state :auto
       state :compatibility
       state :vds
@@ -440,6 +445,14 @@ module Rees46ML
         transitions from: :fmcg, to: :offer
       end
 
+      event :start_pets do
+        transitions from: :offer, to: :pets
+      end
+
+      event :end_pets do
+        transitions from: :pets, to: :offer
+      end
+
       event :start_auto do
         transitions from: :offer, to: :auto
       end
@@ -460,12 +473,14 @@ module Rees46ML
         transitions from: :cosmetic, to: :periodic
         transitions from: :fmcg,     to: :periodic
         transitions from: :auto,     to: :periodic
+        transitions from: :pets,     to: :periodic
       end
 
       event :end_periodic do
         transitions from: :periodic, to: :cosmetic, guard: :in_cosmetic?
         transitions from: :periodic, to: :fmcg,    guard: :in_fmcg?
         transitions from: :periodic, to: :auto,    guard: :in_auto?
+        transitions from: :periodic, to: :pets,    guard: :in_pets?
       end
 
       event :start_compatibility do
@@ -597,14 +612,48 @@ module Rees46ML
         transitions from: :type, to: :hair, guard: :in_hair?
       end
 
+      event :start_pet_size do
+        transitions from: :pets,   to: :pet_size
+      end
+
+      event :end_pet_size do
+        transitions from: :pet_size,   to: :pets
+      end
+
+      event :start_pet_type do
+        transitions from: :pets,   to: :pet_type
+      end
+
+      event :end_pet_type do
+        transitions from: :pet_type,   to: :pets
+      end
+
+      event :start_pet_age do
+        transitions from: :pets,   to: :pet_age
+      end
+
+      event :end_pet_age do
+        transitions from: :pet_age,   to: :pets
+      end
+
+      event :start_breed do
+        transitions from: :pets,   to: :breed
+      end
+
+      event :end_breed do
+        transitions from: :breed,   to: :pets
+      end
+
       event :start_age do
         transitions from: :offer,   to: :age
         transitions from: :child,   to: :age
+        transitions from: :pets,   to: :age
       end
 
       event :end_age do
         transitions from: :age, to: :offer,   guard: :in_offer?
         transitions from: :age, to: :child,   guard: :in_child?
+        transitions from: :age, to: :pets,   guard: :in_pets?
       end
 
       event :start_min do
@@ -1106,6 +1155,8 @@ module Rees46ML
           self.current_element = Rees46ML::Cosmetic.new
         when "fmcg"
           self.current_element = Rees46ML::Fmcg.new
+        when "pets"
+          self.current_element = Rees46ML::Pets.new
         when "volume"
           self.current_element = Rees46ML::CosmeticVolume.new if in_cosmetic?
           self.current_element = Rees46ML::FmcgVolume.new if in_fmcg?
@@ -1219,6 +1270,9 @@ module Rees46ML
           stack.pop
         when "fmcg"
           self.parent_element.fmcg = self.current_element
+          stack.pop
+        when "pets"
+          self.parent_element.pets = self.current_element
           stack.pop
         when "auto"
           self.parent_element.auto = self.current_element

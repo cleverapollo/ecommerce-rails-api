@@ -80,6 +80,7 @@ module Rees46ML
     attribute :fashion, Rees46ML::Fashion, lazy: true
     attribute :cosmetic, Rees46ML::Cosmetic, lazy: true
     attribute :fmcg, Rees46ML::Fmcg, lazy: true
+    attribute :pets, Rees46ML::Pets, lazy: true
     attribute :auto, Rees46ML::Auto, lazy: true
     attribute :pictures, Set[URL], lazy: true # Почему-то не срабатывает тут url.rb с очисткой левых символов
 
@@ -98,6 +99,12 @@ module Rees46ML
       if fmcg? && fmcg.invalid?
         fmcg.errors.full_messages.each do |msg|
           errors.add(:base, "FMCG Error: #{ msg }")
+        end
+      end
+
+      if pets? && pets.invalid?
+        pets.errors.full_messages.each do |msg|
+          errors.add(:base, "Pets error: #{ msg }")
         end
       end
 
@@ -138,6 +145,10 @@ module Rees46ML
 
     def fmcg?
       fmcg.present?
+    end
+
+    def pets?
+      pets.present?
     end
 
     def auto?
