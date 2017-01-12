@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112071639) do
+ActiveRecord::Schema.define(version: 20170112112551) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -324,6 +324,12 @@ ActiveRecord::Schema.define(version: 20170112071639) do
     t.jsonb   "auto_compatibility"
     t.boolean "auto_periodic"
     t.text    "auto_vds",                                                          array: true
+    t.boolean "is_pets"
+    t.string  "pets_breed"
+    t.string  "pets_type"
+    t.string  "pets_age"
+    t.boolean "pets_periodic"
+    t.string  "pets_size"
   end
 
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
@@ -335,8 +341,13 @@ ActiveRecord::Schema.define(version: 20170112071639) do
   add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_cosmetic"], name: "index_items_on_is_cosmetic", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["is_pets"], name: "index_items_on_is_pets", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["locations"], name: "index_items_on_locations", using: :gin
   add_index "items", ["locations"], name: "index_items_on_locations_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
+  add_index "items", ["pets_age"], name: "index_items_on_pets_age", where: "((is_pets IS TRUE) AND (pets_age IS NOT NULL))", using: :btree
+  add_index "items", ["pets_breed"], name: "index_items_on_pets_breed", where: "((is_pets IS TRUE) AND (pets_breed IS NOT NULL))", using: :btree
+  add_index "items", ["pets_size"], name: "index_items_on_pets_size", where: "((is_pets IS TRUE) AND (pets_size IS NOT NULL))", using: :btree
+  add_index "items", ["pets_type"], name: "index_items_on_pets_type", where: "((is_pets IS TRUE) AND (pets_type IS NOT NULL))", using: :btree
   add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
@@ -563,6 +574,7 @@ ActiveRecord::Schema.define(version: 20170112071639) do
     t.string   "picture_content_type", limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
+    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.integer  "popup_type",                       default: 0,     null: false
@@ -574,7 +586,6 @@ ActiveRecord::Schema.define(version: 20170112071639) do
     t.boolean  "cursor_enabled",                   default: false, null: false
     t.boolean  "products",                         default: false, null: false
     t.text     "successfully"
-    t.text     "css"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
   end

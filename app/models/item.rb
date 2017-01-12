@@ -93,6 +93,12 @@ class Item < ActiveRecord::Base
       auto_compatibility
       auto_periodic
       auto_vds
+      is_pets
+      pets_breed
+      pets_type
+      pets_age
+      pets_periodic
+      pets_size
     ].sort
   end
 
@@ -341,6 +347,28 @@ class Item < ActiveRecord::Base
         item.is_fmcg = true
         item.fmcg_hypoallergenic = offer.fmcg.hypoallergenic
         item.fmcg_periodic = offer.fmcg.periodic
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_fmcg = nil
+        item.fmcg_hypoallergenic = nil
+        item.fmcg_periodic = nil
+      end
+
+      if offer.pets?
+        item.is_pets = true
+        item.pets_periodic = offer.pets.periodic
+        item.pets_breed = offer.pets.breed
+        item.pets_age = offer.pets.pet_age
+        item.pets_type = offer.pets.pet_type
+        item.pets_size = offer.pets.pet_size
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_pets = nil
+        item.pets_periodic = nil
+        item.pets_breed = nil
+        item.pets_age = nil
+        item.pets_type = nil
+        item.pets_size = nil
       end
 
       if offer.auto?
@@ -351,6 +379,12 @@ class Item < ActiveRecord::Base
         }.reject { |k,v| v.nil? || v.empty? }
         item.auto_periodic = !!offer.auto.periodic
         item.auto_vds = offer.auto.vds.map(&:downcase)
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_auto = nil
+        item.auto_compatibility = nil
+        item.auto_periodic = nil
+        item.auto_vds = nil
       end
 
       item.brand = offer.vendor
