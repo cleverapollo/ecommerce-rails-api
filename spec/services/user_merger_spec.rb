@@ -370,6 +370,9 @@ describe UserMerger do
         let!(:profile_event_22) { create(:profile_event, shop: shop, user: slave, industry: 'child', property: 'age', value: '3_5_', carts: 2 ) }
         let!(:profile_event_23) { create(:profile_event, shop: shop, user: slave, industry: 'child', property: 'age', value: '0.5__m', carts: 2 ) }
 
+        let!(:profile_event_24) { create(:profile_event, shop: shop, user: master, industry: 'pets', property: 'type', value: 'type:dog', carts: 2 ) }
+        let!(:profile_event_25) { create(:profile_event, shop: shop, user: slave, industry: 'pets', property: 'type', value: 'type:cat', carts: 2 ) }
+
 
         it 'merges profile events and recalculates profile' do
           subject
@@ -410,6 +413,11 @@ describe UserMerger do
           expect(master.cosmetic_skin['body']['condition']).to eq ['soft']
 
           expect(master.children).to eq ([{"gender"=>"m", "age_max"=>1.0, "age_min"=>0.5}, {"gender"=>"f", "age_max"=>3.0, "age_min"=>1.5}])
+
+          expect(master.profile_events.where(industry: 'pets', property: 'type', value: 'type:dog').first.carts).to eq 2
+          expect(master.profile_events.where(industry: 'pets', property: 'type', value: 'type:cat').first.carts).to eq 2
+          expect(master.pets[0]).to eq ( {'type' => 'cat', 'score' => 4 } )
+          expect(master.pets[1]).to eq ( {'type' => 'dog', 'score' => 4 } )
 
         end
 

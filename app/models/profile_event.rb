@@ -240,6 +240,13 @@ class ProfileEvent < MasterTable
 
 
 
+      # Если есть животные товары, то пересчитать животный профиль
+      if items.select { |x| x.is_pets? }.any?
+        properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+      end
+
+
+
 
       # Если есть поля для обновления пользователя – обновляем
       user.update properties_to_update unless properties_to_update.empty?

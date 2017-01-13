@@ -33,6 +33,7 @@ class UserMerger
             properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
             properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
             properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
+            properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
             master.update properties_to_update
 
             # Удаляем дочерний элемент
@@ -72,6 +73,7 @@ class UserMerger
           properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
           properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
           properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
+          properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
           master.update properties_to_update
         end
       rescue ActiveRecord::RecordNotFound

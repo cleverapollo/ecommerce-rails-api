@@ -297,4 +297,38 @@ class UserProfile::PropertyCalculator
     selected.empty? ? nil : selected
   end
 
+
+
+
+  # Определяет список животных
+  def calculate_pets(user)
+    properties = ProfileEvent.where(user_id: user.id, industry: 'pets').map { |x| Hash[x.value.split(';').map { |y| y.split(':') }].merge('score' => (x.views.to_i + x.carts.to_i * 2 + x.purchases.to_i * 5)) }.sort_by { |x| x.size }.reverse
+    selected = []
+
+    # Проверяет схожесть записей
+    def _similar(a, b)
+      return false if a['type'] != b['type']
+      return false if a['breed'].present? && b['breed'].present? && a['breed'] != b['breed']
+      return false if a['size'].present? && b['size'].present? && a['size'] != b['size']
+      return false if a['age'].present? && b['age'].present? && a['age'] != b['age']
+      true
+    end
+
+    while property = properties.pop
+      index = selected.index { |x| _similar(x, property) }
+      if index.nil?
+        selected << property
+      else
+        selected[index]['breed'] = property['breed'] if property['breed'].present? && selected[index]['breed'].nil?
+        selected[index]['age'] = property['age'] if property['age'].present? && selected[index]['age'].nil?
+        selected[index]['size'] = property['size'] if property['size'].present? && selected[index]['size'].nil?
+        selected[index]['score'] += property['score']
+      end
+    end
+
+    return selected.any? ? selected : nil
+
+  end
+
+
 end
