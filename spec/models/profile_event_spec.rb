@@ -28,6 +28,13 @@ describe ProfileEvent do
     let!(:item_16) { create(:item, shop: shop, is_child: true, child_age_max: 2 ) }
     let!(:item_17) { create(:item, shop: shop, is_child: true, child_gender: 'm', child_age_max: 2 ) }
 
+    let!(:item_18) { create(:item, shop: shop, is_pets: true, pets_type: 'dog', pets_size: 'small', pets_age: 'old', pets_breed: 'strange', pets_periodic: true) }
+    let!(:item_19) { create(:item, shop: shop, is_pets: true, pets_type: 'dog', pets_size: 'medium', pets_age: 'young', pets_periodic: true) }
+    let!(:item_20) { create(:item, shop: shop, is_pets: true, pets_type: 'cat', pets_size: 'large', pets_breed: 'cat terrier') }
+    let!(:item_21) { create(:item, shop: shop, is_pets: true, pets_type: 'cat', pets_age: 'middle', pets_breed: 'strange', pets_periodic: true) }
+    let!(:item_22) { create(:item, shop: shop, is_pets: true, pets_size: 'small', pets_age: 'old', pets_breed: 'strange') }
+    let!(:item_23) { create(:item, shop: shop, is_pets: true, pets_type: 'dog', pets_size: 'small', pets_age: 'old', pets_breed: 'strange', pets_periodic: true) }
+
 
     let!(:item_simple) { create(:item, shop: shop ) }
 
@@ -110,8 +117,6 @@ describe ProfileEvent do
 
     end
 
-
-
     context 'tracks fmcg' do
 
       it 'saves allergy for fmcg' do
@@ -172,6 +177,23 @@ describe ProfileEvent do
         expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '_2.0_m').purchases ).to eq 1
       end
 
+
+    end
+
+
+    context 'track pets' do
+
+      it 'saves correct pets' do
+        ProfileEvent.track_items(user, shop, 'view', [item_18, item_19, item_20])
+        ProfileEvent.track_items(user, shop, 'cart', [item_21, item_22, item_23])
+        expect(ProfileEvent.count).to eq 4
+        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;age:young;size:medium').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:cat;breed:cat terrier;size:large').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:cat;breed:strange;age:middle').carts ).to eq 1
+
+      end
 
     end
 

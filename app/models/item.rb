@@ -183,7 +183,7 @@ class Item < ActiveRecord::Base
 
   # Периодичный ли товар?
   def periodic?
-    (is_fmcg && fmcg_periodic == true) || (is_cosmetic && cosmetic_periodic == true) || (is_auto? && auto_periodic?)
+    (is_fmcg && fmcg_periodic == true) || (is_cosmetic && cosmetic_periodic == true) || (is_auto? && auto_periodic?) || (is_auto? && pets_periodic?)
   end
 
   # Гипоаллергенный ли товар?

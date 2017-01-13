@@ -225,7 +225,21 @@ class ProfileEvent < MasterTable
 
         end
 
+        if item.is_pets?
+          unless item.pets_type.nil?
+            property_value = "type:#{item.pets_type}"
+            property_value = "#{property_value};breed:#{item.pets_breed}" unless item.pets_breed.nil?
+            property_value = "#{property_value};age:#{item.pets_age}" unless item.pets_age.nil?
+            property_value = "#{property_value};size:#{item.pets_size}" unless item.pets_size.nil?
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'pets', property: 'type', value: property_value
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+        end
+
       end
+
+
+
 
       # Если есть поля для обновления пользователя – обновляем
       user.update properties_to_update unless properties_to_update.empty?
