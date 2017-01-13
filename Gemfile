@@ -63,6 +63,8 @@ gem 'brb', '~> 0.3.1'
 gem "rees46_ml", path: "vendor/gems/rees46_ml"
 gem "size_tables", path: "vendor/gems/size_tables"
 
+gem 'base16'
+
 group :development do
   gem 'stackprof'
   gem 'dotenv-rails', '~> 0.8.0' # ?

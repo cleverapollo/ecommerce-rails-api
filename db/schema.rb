@@ -387,6 +387,7 @@ ActiveRecord::Schema.define(version: 20170112085853) do
     t.date     "status_date"
     t.boolean  "compensated"
     t.string   "reputation_key"
+    t.datetime "created_at"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -564,6 +565,7 @@ ActiveRecord::Schema.define(version: 20170112085853) do
     t.string   "picture_content_type", limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
+    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.integer  "popup_type",                       default: 0,     null: false
@@ -575,7 +577,6 @@ ActiveRecord::Schema.define(version: 20170112085853) do
     t.boolean  "cursor_enabled",                   default: false, null: false
     t.boolean  "products",                         default: false, null: false
     t.text     "successfully"
-    t.text     "css"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
   end
