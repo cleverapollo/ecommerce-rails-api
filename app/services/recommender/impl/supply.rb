@@ -7,7 +7,7 @@ module Recommender
 
 
       def items_to_recommend
-        super.where('cosmetic_periodic IS TRUE OR fmcg_periodic IS TRUE')
+        super.where('cosmetic_periodic IS TRUE OR fmcg_periodic IS TRUE OR auto_periodic IS TRUE OR pets_periodic IS TRUE')
       end
 
       # TODO: не работает. Переделать.
