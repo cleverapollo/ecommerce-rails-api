@@ -326,6 +326,9 @@ class UserProfile::PropertyCalculator
       end
     end
 
+    # Если в выбранных животных скоринг меньше среднего, то их убираем
+    selected = selected.select { |x| x['score'] >= selected.inject(0) { |sum, y| sum + y['score'] }.to_f / selected.size } if selected.any?
+
     return selected.any? ? selected : nil
 
   end
