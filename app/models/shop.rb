@@ -70,9 +70,13 @@ class Shop < MasterTable
   scope :with_tracking_orders_status, -> { where(track_order_status: true) }
 
   # ID товаров, купленных или добавленных в корзину пользователем
+  # Купленные исключаем только те товары, которые не периодические
+  # Корзину ограничиваем неделей
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
-    actions.where('rating::numeric >= ?', Actions::Cart::RATING).where(user: user).pluck(:item_id)
+    carted_list = actions.where('rating::numeric = ?', Actions::Cart::RATING).where(user_id: user.id).where('cart_date >= ?', 7.days.ago).pluck(:item_id)
+    purchased_list = items.where(id: order_items.where(order_id: user.orders)).not_periodic.pluck(:id)
+    carted_list + purchased_list
   end
 
   # Отследить отправленное событие
