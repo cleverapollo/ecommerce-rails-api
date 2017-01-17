@@ -90,14 +90,16 @@ module TriggerMailings
           reputation_key = order.reputation_key
 
           data[:reputation] = @shop.reputations_enabled
-          data[:rate_1_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=1"
-          data[:rate_2_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=2"
-          data[:rate_3_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=3"
-          data[:rate_4_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=4"
-          data[:rate_5_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=5"
+          (1..5).each do |rate|
+            data[:"rate_#{rate}_url"] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=#{rate}"
+          end
         else
           data[:reputation] = false
         end
+      end
+
+      if trigger.code == 'DoubleOptIn'
+        data[:confirmation_email_url] = "#{Rees46.site_url}/confirm-email?shop=#{@shop.uniqid}&client=#{Base16.encode16([@client.id, @client.email].join(' '))} "
       end
 
       template = Liquid::Template.parse liquid_template

@@ -361,7 +361,7 @@ PLATFORMS
 
 DEPENDENCIES
   addressable (~> 2.3, >= 2.3.8)
-  base16
+  base16 (~> 0.0.2)
   bounce_email (~> 0.2.6)
   brb (~> 0.3.1)
   bunny (>= 2.6.1)

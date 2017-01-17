@@ -7,6 +7,13 @@ class Shop < MasterTable
 
   include Redis::Objects
 
+  GEO_LAWS = {
+    eu: 1,
+    canada: 2,
+    usa: 3,
+    none: 0
+  }
+
   # Кол-во пользователей в тестовых группах
   counter :group_1_count
   counter :group_2_count

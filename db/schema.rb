@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112112551) do
+ActiveRecord::Schema.define(version: 20170112141252) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -138,6 +138,7 @@ ActiveRecord::Schema.define(version: 20170112112551) do
     t.boolean  "accepted_web_push_subscription"
     t.integer  "fb_id",                              limit: 8
     t.integer  "vk_id",                              limit: 8
+    t.boolean  "email_confirmed"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree

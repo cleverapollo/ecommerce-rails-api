@@ -3,7 +3,7 @@ module TriggerMailings
     ##
     # Триггер "Потвержение e-mail".
     #
-    class DoublePortIn < Base
+    class DoubleOptIn < Base
 
       def condition_happened?
         false
