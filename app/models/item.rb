@@ -18,6 +18,8 @@ class Item < ActiveRecord::Base
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
   scope :available,     -> { where(is_available: true) }
   scope :discount,     -> { where('discount IS TRUE AND discount IS NOT NULL') }
+  scope :not_periodic, -> { where('fmcg_periodic IS NOT TRUE AND cosmetic_periodic IS NOT TRUE AND auto_periodic IS NOT TRUE AND pets_periodic IS NOT TRUE') }
+
 
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = { any: false }) {

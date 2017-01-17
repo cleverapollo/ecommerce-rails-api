@@ -150,6 +150,20 @@ module Recommender
           relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
         end
 
+        # Фильтрация по животным.
+        if user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
+          subconditions = user.pets.map do |pet|
+            if pet['type'] && pet['breed']
+              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
+            elsif pet['type']
+              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed IS NULL)"
+            else
+              nil
+            end
+          end.compact.join("")
+          relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
+        end
+
       end
 
       relation

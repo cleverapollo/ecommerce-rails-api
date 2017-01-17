@@ -192,4 +192,28 @@ describe UserProfile::PropertyCalculator do
     end
   end
 
+
+  describe 'pets' do
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_pets(user) }
+    before {
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small', views: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small', views: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;age:young;size:medium', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;age:old;size:medium', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:cat;breed:cat terrier;size:large', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:cat;breed:strange;age:middle', purchases: 1 )
+    }
+    it 'calculates pets' do
+      expect(subject.size).to eq 2
+      expect(subject[0]).to eq ({'type' => 'cat', 'breed' => 'strange', 'age' => 'middle', 'score' => 5})
+      expect(subject[1]).to eq ({'type' => 'cat', 'breed' => 'cat terrier', 'size' => 'large', 'score' => 4})
+      # expect(subject[2]).to eq ({'type' => 'dog', 'age' => 'old', 'size' => 'medium', 'score' => 3})
+      # expect(subject[3]).to eq ({'type' => 'dog', 'age' => 'young', 'size' => 'medium', 'score' => 3})
+      # expect(subject[4]).to eq ({'type' => 'dog', 'breed' => 'strange', 'age' => 'old', 'size' => 'small', 'score' => 3})
+    end
+  end
+
+
 end
