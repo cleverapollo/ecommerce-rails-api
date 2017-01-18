@@ -13,22 +13,12 @@ module TriggerMailings
         params = OpenStruct.new(
           shop: shop,
           user: user,
-          item: source_item,
           limit: count,
           recommend_only_widgetable: true,
-          locations: source_item.locations
         )
 
-        # Сначала похожие товары
-        result = Recommender::Impl::Similar.new(params).recommended_ids
-
-        # Затем интересные
-        if result.count < count
-          result += Recommender::Impl::Interesting.new(params.tap { |p|
-            p.limit = (count - result.count)
-            p.exclude = result
-          }).recommended_ids
-        end
+        # Сначала интересные товары
+        result = Recommender::Impl::Interesting.new(params).recommended_ids
 
         # Потом популярные
         if result.count < count

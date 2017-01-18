@@ -248,6 +248,14 @@ class Shop < MasterTable
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
   end
 
+  def double_opt_in_by_law?
+    self.geo_law != GEO_LAWS[:none]
+  end
+
+  def send_confirmation_email_trigger?
+    double_opt_in_by_law? && self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled)
+  end
+
   # Уменьшает количество веб пушей на балансе на 1 после отправки
   def reduce_web_push_balance!
     if web_push_balance > 0

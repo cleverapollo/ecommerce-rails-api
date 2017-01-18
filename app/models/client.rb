@@ -44,9 +44,6 @@ class Client < ActiveRecord::Base
   scope :ready_for_web_push_digest, -> { where("web_push_enabled IS TRUE") }
 
 
-
-
-
   class << self
     def relink_user(options = {})
       master_user = options.fetch(:to)
@@ -174,6 +171,10 @@ class Client < ActiveRecord::Base
       update email: nil
       # Client.where(email: self.email).update_all(email: nil)
     end
+  end
+
+  def real_accepted_subscription?
+    accepted_subscription && email.present?
   end
 
   # Отмечает, что пользователь недавно что-то делал. Используется затем для выборки получателей триггеров
