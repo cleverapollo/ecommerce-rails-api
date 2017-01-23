@@ -5,7 +5,7 @@ module DigestMailings
 
       def sync
         # MyToys
-        shop = Shop.find 1819
+        shop = Shop.find 828
         recommendations_count = 9
         digest_path = 'tmp/optivo_mytoys/digests.csv'
 
