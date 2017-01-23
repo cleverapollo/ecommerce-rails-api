@@ -30,6 +30,11 @@ every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
 end
 
+# Выгружаем дайджестные рассылки для MyToys
+every '0 9 * * *' do
+  runner "RunnerWrapper.run('DigestMailings::Mytoys.sync')"
+end
+
 every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
