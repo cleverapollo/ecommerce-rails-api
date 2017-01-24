@@ -74,12 +74,57 @@ describe Recommender::Impl::Interesting do
         end
 
         it 'skips female products when client is male' do
-          shop.subscription_plans.create product: 'rees46_recommendations', price: 100, paid_till: (Time.current + 1.month)
+          shop.subscription_plans.create product: 'product.recommendations', price: 100, paid_till: (Time.current + 1.month)
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
       end
+
+
+      context 'pets' do
+
+        before {
+          test_item.update is_pets: true, pets_type: 'dog', pets_breed: 'terrier'
+          shop.subscription_plans.create product: 'product.recommendations', price: 100, paid_till: (Time.current + 1.month)
+        }
+
+        it 'skips pet filter if user has no pets' do
+          recommender = Recommender::Impl::Interesting.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes dog product without breed' do
+          user.update pets: [{'type' => 'dog', 'score' => 13}]
+          test_item.update pets_breed: nil
+          params.user = user
+          recommender = Recommender::Impl::Interesting.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes dog product with breed' do
+          user.update pets: [{'type' => 'dog', 'breed' => 'terrier', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Interesting.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'skips cat products' do
+          user.update pets: [{'type' => 'cat', 'breed' => 'nordic', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Interesting.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'skips dog products for wrong breed' do
+          user.update pets: [{'type' => 'dog', 'breed' => 'bulldog', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Interesting.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+      end
+
 
     end
 

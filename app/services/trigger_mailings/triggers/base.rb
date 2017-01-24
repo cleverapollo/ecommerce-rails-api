@@ -30,8 +30,7 @@ module TriggerMailings
             subject: mailing.subject,
             liquid_template: mailing.liquid_template,
             amount_of_recommended_items: mailing.amount_of_recommended_items,
-            image_width: mailing.image_width,
-            image_height: mailing.image_height
+            images_dimension: mailing.images_dimension
           }
         end
 
@@ -97,6 +96,7 @@ module TriggerMailings
         @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
         if self.kind_of? RecentlyPurchased
           @additional_info[:order] = shop.orders.first
+          @additional_info[:test] = true
         end
         true
       end

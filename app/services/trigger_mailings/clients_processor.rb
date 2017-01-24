@@ -7,16 +7,18 @@ module TriggerMailings
     class << self
       # Обработать всех пользователей: искать для каждого триггеры, если есть - отправить письмо.
       def process_all
+        CustomLogger.logger.info("START: TriggerMailings::ClientsProcessor.process_all")
 
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
 
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
 
           Shop.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
+            CustomLogger.logger.info("- start shop: #{shop.id}")
 
             Time.use_zone(shop.customer.time_zone) do
               # Не даем рассылать триггеры тем магазинам, у кого нет денег и при этом нет оплаченных подписок
-              next if shop.customer.balance < 0 && !shop.subscription_plans.rees46_triggers.paid.exists?
+              next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.paid.exists?
 
               TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
@@ -26,7 +28,7 @@ module TriggerMailings
                     get_response_client = Mailings::GetResponseClient.new(shop).prepare
                   rescue StandardError => e
                     # TODO уведомлять клиента по почте
-                    Rollbar.error(e)
+                    Rollbar.warning(e)
                     next
                   end
                 end
@@ -40,6 +42,9 @@ module TriggerMailings
                       if trigger = trigger_detector.detect(client)
                         if shop.mailings_settings.external_getresponse?
                           TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                        elsif shop.mailings_settings.external_ofsys?
+                          result = TriggerMailings::OfsysLetter.new(client, trigger).send
+                          next unless result
                         elsif shop.mailings_settings.is_optivo_for_mytoys?
                           TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                         elsif shop.mailings_settings.external_mailchimp?
@@ -64,6 +69,9 @@ module TriggerMailings
                     if trigger = trigger_detector.detect(client)
                       if shop.mailings_settings.external_getresponse?
                         TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
+                      elsif shop.mailings_settings.external_ofsys?
+                        result = TriggerMailings::OfsysLetter.new(client, trigger).send
+                        next unless result
                       elsif shop.mailings_settings.is_optivo_for_mytoys?
                         TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
                       elsif shop.mailings_settings.external_mailchimp?
@@ -88,12 +96,14 @@ module TriggerMailings
                   Rollbar.error(e, mailchimp_trigger: shop.id)
                 end
               end
+
+              CustomLogger.logger.info("- end shop: #{shop.id}\n")
             end
           end
 
           TriggerMailings::TriggerMailingTimeLock.new.stop_sending!
         end
-
+        CustomLogger.logger.info("END: TriggerMailings::ClientsProcessor.process_all")
       end
     end
 

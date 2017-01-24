@@ -19,6 +19,10 @@ Rees46Api::Application.routes.draw do
   get 'recommend', to: 'recommendations#get'
   post 'recommendations/batch'
 
+  # Товары
+  get 'products/get'
+  patch 'products/set_not_widgetable'
+
   # Отправка событий
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
@@ -29,6 +33,10 @@ Rees46Api::Application.routes.draw do
 
   get 'triggers/trigger_content'
   get 'triggers/additional_content'
+
+  # Запрос отзывов
+  get 'reputation/shop', to: 'reputations#shop_reputation'
+  get 'reputation/product', to: 'reputations#item_reputation'
 
   # Импорты
   resource :import, only: :none do
@@ -47,6 +55,11 @@ Rees46Api::Application.routes.draw do
     get :disable
     # Аудитория рассылок
     post :audience
+    # Удалить старые и загрузить новыие картинки товаров
+    post :images
+  end
+
+  resources :rtb_impressions, only: [:create] do
   end
 
   # Дайджестные рассылки
@@ -86,6 +99,7 @@ Rees46Api::Application.routes.draw do
       get :unsubscribe
       post :subscribe_for_product_price
       post :subscribe_for_product_available
+      post :showed
     end
   end
 
@@ -93,6 +107,7 @@ Rees46Api::Application.routes.draw do
   # create - прием данных о подписке
   resources :web_push_subscriptions, only: [:create] do
     collection do
+      post :showed
       # Отметка о получении сообщения
       post :received
       # Отказался от подписки

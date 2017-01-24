@@ -43,7 +43,7 @@ module Mailings
         operations
       end
 
-      def recommendations_in_hash(items, source_item, location, currency, utm_params = {}, width = nil, height = nil)
+      def recommendations_in_hash(items, source_item, location, currency, utm_params = {}, images_dimension = nil)
         merge_fields = {}
         counter = 1
 
@@ -51,7 +51,7 @@ module Mailings
           merge_fields["NAME#{counter}"] = item.name
           merge_fields["URL#{counter}"] = UrlParamsHelper.add_params_to(item.url, utm_params)
           merge_fields["PRICE#{counter}"] = "#{ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " ")} #{currency}"
-          merge_fields["IMAGE#{counter}"] = "src=\"#{(width && height ? item.resized_image(width, height) : item.image_url)}\""
+          merge_fields["IMAGE#{counter}"] = "src=\"#{(images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url)}\""
           counter+=1
         end
 

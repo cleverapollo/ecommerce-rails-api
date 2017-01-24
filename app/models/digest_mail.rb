@@ -16,6 +16,7 @@ class DigestMail < ActiveRecord::Base
   before_create :set_date
 
   scope :clicked, -> { where(clicked: true) }
+  scope :opened, -> { where(opened: true) }
 
   # Отметить факт открытия письма
   def mark_as_opened!

@@ -54,7 +54,7 @@ module TriggerMailings
           locations: client.location.present? ? [client.location] : nil
         )
 
-        # Сначала похожие товары
+        # Сначала "недавний поиск"
         result = Recommender::Impl::Search.new(params).recommended_ids
 
         # Затем интересные

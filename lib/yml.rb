@@ -1,7 +1,7 @@
 require "net/http"
 require "open-uri"
 
-class Yml < Struct.new(:path)
+class Yml < Struct.new(:path, :locale)
   extend Forwardable
   include ActionView::Helpers::NumberHelper
 
@@ -31,6 +31,7 @@ class Yml < Struct.new(:path)
 
   def download
     attempts = 10
+    I18n.locale = locale
 
     begin
       open path, "rb", {
@@ -41,17 +42,18 @@ class Yml < Struct.new(:path)
         redirect: true
       }
     rescue Errno::ETIMEDOUT, Net::ReadTimeout, EOFError, Errno::ECONNRESET
-      if attempts -= 1
+      attempts -= 1
+      if attempts > 0
         retry
       else
-        raise NotRespondingError.new("Не удаётся выгрузить YML файл в течение 30 минут.")
+        raise NotRespondingError.new(I18n.t('yml_errors.time_limit_exceeded'))
       end
     rescue OpenURI::HTTPError
-      raise NotRespondingError.new("YML файл недоступен.")
+      raise NotRespondingError.new(I18n.t('yml_errors.unavailable_file'))
     rescue OpenSSL::SSL::SSLError => e
       raise NotRespondingError.new("SSL error: #{e}")
     rescue SocketError
-      raise NotRespondingError.new("Некоректный адрес YML файла.")
+      raise NotRespondingError.new(I18n.t('yml_errors.wrong_url'))
     end
   end
 

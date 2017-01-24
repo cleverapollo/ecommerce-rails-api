@@ -1,4 +1,5 @@
 # In the future make redis database equal shard id
+require 'sidekiq/middleware/i18n'
 redis_db = [0,1,2][SHARD_ID.to_i]
 
 Sidekiq.configure_server do |config|

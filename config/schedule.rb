@@ -15,6 +15,11 @@ every 10.minutes do
   runner "RunnerWrapper.run('Sharding::Shard.generate_nginx_mapping')"
 end
 
+# Publish all reputations older than 2 days
+every 10.minutes do
+  runner "RunnerWrapper.run('ReputationPublisher.perform')"
+end
+
 # Каждую ночь в 4 часа выключаем корзины
 every '0 4 * * *' do
   runner "RunnerWrapper.run('CartsExpirer.perform')"
@@ -23,6 +28,11 @@ end
 # Выгружаем триггерные рассылки в Optivo для MyToys
 every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
+end
+
+# Выгружаем дайджестные рассылки для MyToys
+every '1 0 * * *' do
+  runner "RunnerWrapper.run('DigestMailings::Mytoys.sync')"
 end
 
 every 30.minutes do

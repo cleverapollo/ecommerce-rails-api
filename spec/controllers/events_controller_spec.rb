@@ -43,7 +43,7 @@ describe EventsController do
   end
 
   describe 'POST push' do
-    before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
+    # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
     before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
     let!(:customer) { create(:customer) }
@@ -51,19 +51,22 @@ describe EventsController do
     let!(:session) { create(:session, user: create(:user)) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code }  }
 
-    it 'extracts parameters' do
+    it 'extracts parameters when error' do
       post :push, params
 
-      expect(ActionPush::Params).to have_received(:extract)
-    end
-
-    it 'passes extracted parameters to push service' do
-      post :push, params
-
-      expect(ActionPush::Processor).to have_received(:new)
+      expect(response.status).to eq(400)
+      expect(response.body).to eq({ status: 'error', message: 'Action not provided' }.to_json)
     end
 
     context 'when all goes fine' do
+      let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'view', item_id: {'0': '1'} }  }
+
+      it 'passes extracted parameters to push service' do
+        post :push, params
+
+        expect(response.status).to eq(200)
+      end
+
       it 'responds with ok status' do
         post :push, params
 
@@ -100,6 +103,24 @@ describe EventsController do
       expect(Order.count).to eq 1
     end
 
+    context 'when existing old order' do
+      let!(:order) { create(:order, shop: shop, uniqid: params[:order_id], date: 40.day.ago, user: create(:user), value: 100) }
+      let!(:item) { create(:item, shop: shop, uniqid: 10) }
+      let!(:action) { create(:action, user: order.user, item: item, shop: shop) }
+      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item, action: action) }
+
+      it 'default' do
+        post :push, params
+
+        expect(Order.count).to eq 1
+        expect(Order.first.id).to eq order.id
+        expect(Order.first.user_id).to eq session.user_id
+        expect(Order.first.value).to eq params[:order_price].to_f
+        expect(Order.first.order_items.count).to eq 1
+        expect(Order.first.order_items.first.item.uniqid).to eq params[:item_id][0]
+      end
+    end
+
     context 'purchase with source type' do
       let!(:digest_mailing) { create(:digest_mailing, shop: shop) }
       let!(:batch) { create(:digest_mailing_batch, shop: shop, mailing: digest_mailing) }
@@ -116,30 +137,34 @@ describe EventsController do
         post :push, params.merge({source: "{\"from\":\"digest_mail\",\"code\":\"#{digest_mail.code}\"}"})
 
         expect(Order.where(source_type: 'DigestMail').count).to eq 1
+        expect(OrderItem.where(recommended_by: 'digest_mail').count).to eq 1
       end
 
       it 'trigger_mail' do
         post :push, params.merge({source: "{\"from\":\"trigger_mail\",\"code\":\"#{trigger_mail.code}\"}"})
 
         expect(Order.where(source_type: 'TriggerMail').count).to eq 1
+        expect(OrderItem.where(recommended_by: 'trigger_mail').count).to eq 1
       end
 
       it 'r46_returner' do
         post :push, params.merge({source: "{\"from\":\"r46_returner\",\"code\":\"#{rtb_impression.code}\"}"})
 
         expect(Order.where(source_type: 'RtbImpression').count).to eq 1
+        expect(OrderItem.where(recommended_by: 'rtb_impression').count).to eq 1
       end
 
       it 'web_push_digest' do
         post :push, params.merge({source: "{\"from\":\"web_push_digest\",\"code\":\"#{web_push_digest_message.code}\"}"})
 
         expect(Order.where(source_type: 'WebPushDigestMessage').count).to eq 1
+        expect(OrderItem.where(recommended_by: 'web_push_digest_message').count).to eq 1
       end
 
       it 'web_push_trigger' do
         post :push, params.merge({source: "{\"from\":\"web_push_trigger\",\"code\":\"#{web_push_trigger_message.code}\"}"})
-
         expect(Order.where(source_type: 'WebPushTriggerMessage').count).to eq 1
+        expect(OrderItem.where(recommended_by: 'web_push_trigger_message').count).to eq 1
       end
     end
   end

@@ -1,6 +1,6 @@
 class SubscriptionPlan < MasterTable
 
-  AVAILABLE_PRODUCTS = %w(rees46_recommendations rees46_remarketing rees46_triggers rees46_digests)
+  AVAILABLE_PRODUCTS = %w(product.recommendations trigger.emails digest.emails subscriptions reputation)
 
   validates :paid_till, :product, :shop_id, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
@@ -14,7 +14,7 @@ class SubscriptionPlan < MasterTable
   scope :paid, -> { where(active: true).where('paid_till >= ?', Time.current) }
 
   AVAILABLE_PRODUCTS.each do |product|
-    scope product.to_sym, -> { where(product: product) }
+    scope product.gsub('.', '_').to_sym, -> { where(product: product) }
   end
 
   def overdue?

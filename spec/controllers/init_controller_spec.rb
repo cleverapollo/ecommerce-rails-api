@@ -76,6 +76,10 @@ describe InitController do
       it 'stores session_id to cookies' do
         expect(response.cookies[Rees46::COOKIE_NAME]).to eq Session.first.code
       end
+
+      it 'shop save js sdk v2' do
+        expect(shop.reload.js_sdk).to eq(2)
+      end
     end
 
     shared_examples 'an api initializer with data' do
@@ -131,6 +135,10 @@ describe InitController do
       it 'stores session_id to cookies' do
         expect(response.cookies[Rees46::COOKIE_NAME]).to eq Session.first.code
       end
+
+      it 'shop save js sdk v3' do
+        expect(shop.reload.js_sdk).to eq(3)
+      end
     end
 
     shared_examples 'an api initializer with data' do
@@ -152,14 +160,14 @@ describe InitController do
     end
 
     context 'with parameter' do
-      before { init_params.merge!(rees46_session_id: '12345') }
+      before { init_params.merge!(ssid: '12345') }
 
       it_behaves_like 'an api initializer with data'
     end
 
     context 'with cookie and parameter' do
       before { request.cookies[Rees46::COOKIE_NAME] = '12345' }
-      before { init_params.merge!(rees46_session_id: '12345') }
+      before { init_params.merge!(ssid: '12345') }
 
       it_behaves_like 'an api initializer with data'
     end

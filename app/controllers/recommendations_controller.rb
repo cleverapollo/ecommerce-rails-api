@@ -8,11 +8,9 @@ class RecommendationsController < ApplicationController
 
   def get
 
-    # Проверяем подписки. Если есть фиксированные и не оплачены, то отдаем ошибку
-    # Важно: если подписка деактивирована, то рекомендации работать будут.
-    # Непонятно, плохо это или хорошо.
-    if shop.subscription_plans.rees46_recommendations.active.overdue.exists?
-      raise Exception.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
+    # Проверяем подписки. Если нет оплаченных и активных, то кидаем код 402 Payment Needed
+    if !shop.subscription_plans.product_recommendations.active.paid.exists?
+      raise Finances::Error.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
     end
 
     # Извлекаем данные из входящих параметров
@@ -33,6 +31,8 @@ class RecommendationsController < ApplicationController
     render json: recommendations
 
 
+  rescue Finances::Error => e
+    respond_with_payment_error(e)
   rescue Exception => e
     # Костыль
     log_client_error(e)

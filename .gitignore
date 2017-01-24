@@ -19,6 +19,7 @@ config/secrets.yml
 config/shards.yml
 config/application.yml
 config/unicorn.rb
+/public/uploads/
 
 # Ignore coverage reports
 /coverage
@@ -35,6 +36,11 @@ config/unicorn.rb
 20150609125754_readd_brand_to_advertiser.rb
 shards.yml
 
+.DS_Store
+
 # Ignore application configuration
 /config/application.yml
 master_db.yml
+
+# Ignore items images
+resized_images/

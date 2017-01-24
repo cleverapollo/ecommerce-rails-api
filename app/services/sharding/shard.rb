@@ -3,8 +3,6 @@ module Sharding
 
     class << self
 
-
-
       # Генерирует таблицу соответствия магазинов шардам.
       # По файлу на магазин.
       def generate_nginx_mapping
@@ -23,7 +21,6 @@ module Sharding
             end
           end
         end
-
       end
 
     end

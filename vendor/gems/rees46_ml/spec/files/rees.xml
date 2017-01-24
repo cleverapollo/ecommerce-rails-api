@@ -222,6 +222,26 @@
         </fmcg>
 
 
+        <pets>
+          <periodic>1</periodic>
+          <pet_type>cat</pet_type>
+          <pet_age>middle</pet_age>
+          <pet_size>large</pet_size>
+          <breed>toy terrier</breed>
+        </pets>
+
+
+
+        <auto>
+          <periodic>1</periodic>
+          <compatibility brand="BMW" />
+          <compatibility brand="Mini" model="Cooper S" />
+          <compatibility brand="Mini" model="Cooper One" />
+          <vds>BP8AN5</vds>
+          <vds>HH5820</vds>
+        </auto>
+
+
 
       </offer>
     </offers>

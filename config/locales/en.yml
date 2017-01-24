@@ -1,23 +1,39 @@
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t 'hello'
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t('hello') %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more, please read the Rails Internationalization guide
-# available at http://guides.rubyonrails.org/i18n.html.
-
 en:
-  hello: "Hello world"
+  rees46_ml:
+    error:
+      invalid_categories: Ошибка в дереве категорий
+      invalid_locations: Ошибка в дереве точек продаж
+      shop_not_exists: Не обнаруженно ни одного магазина
+      invalid_categories: Не обнаруженно ни одной категории
+      invalid_locations: Не обнаруженно ни одной точек продаж
+      offers_not_exists: Не обнаруженно ни одного оффера
+      offers_less_than_five: Оферов меньше чем 5 штук
+      invalid_offer: Невалидный офер
+
+  complete_mailers:
+    orders_import:
+      subject: 'Successful import of orders list'
+      body_text: 'Import of your orders has been completed.'
+      body_count: 'Number of imported orders: %{orders_count}'
+      tail: 'Best regards,'
+      team: 'REES46 team.'
+    audiance_import:
+      subject: 'Successful import of subscriber list'
+      body_text: 'Import of your subscribers has been completed.'
+      body_count: 'Number of imported subscribers: %{audiance_count}'
+      tail: 'Best regards,'
+      team: 'REES46 team.'
+
+  errors_mailer:
+    subject:
+      yml_import_error: Wrong XML-file URL
+      yml_url_not_respond: Error in XML-file Load
+      yml_syntax_error: XML-file Syntax Error
+      yml_off: XML-file Load Is Off
+
+  yml_errors:
+    time_limit_exceeded: Download time limit exceeded (30m).
+    unavailable_file: File is unavailable.
+    wrong_url: Wrong XML-file URL.
+    no_files_in_archive: Archive contains no XML-files
+    no_uniq_ids: File contains two or more identical Product IDs. Each product must have its own unique Product ID.

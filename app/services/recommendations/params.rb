@@ -1,13 +1,4 @@
 module Recommendations
-  ##
-  # Базовый класс ошибки при работе с рекомендациями
-  #
-  class Error < StandardError; end
-
-  ##
-  # Ошибка входящих параметров при запросе рекомендаций
-  #
-  class IncorrectParams < Error; end
 
   ##
   # Класс, проверяющий и извлекающий нужные объекты из параметров, которые приходят от магазинов при запросе рекомендаций
@@ -229,12 +220,18 @@ module Recommendations
     #
     # @private
     def extract_cart
-      [:cart_item_id].each do |key|
-        unless raw[key].is_a?(Array)
-          raw[key] = [raw[key]]
-        end
+
+      # Конвертируем хеш в массив
+      if raw[:cart_item_id].is_a?(Hash)
+        raw[:cart_item_id] = raw[:cart_item_id].values
       end
 
+      # Конвертируем одиночное значение в массив
+      if !raw[:cart_item_id].is_a?(Array)
+        raw[:cart_item_id] = [raw[:cart_item_id]]
+      end
+
+      # Находим товары
       raw[:cart_item_id].each do |i|
         if cart_item = Item.find_by(uniqid: i.to_s, shop_id: @shop.id)
           @cart_item_ids << cart_item.id

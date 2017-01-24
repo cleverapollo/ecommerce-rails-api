@@ -16,9 +16,10 @@ describe ActionPush::Processor do
     create(:item_category, shop: @shop, external_id: '321', taxonomy: 'apparel.shirt')
     create(:item_category, shop: @shop, external_id: '333')
 
-    @items = [ create(:item, shop: @shop, category_ids: ['123', '321', '333']) ]
+    @item = create(:item, shop: @shop, category_ids: ['123', '321', '333'])
+    @items = [ @item ]
 
-    @sample_params = OpenStruct.new(action: 'view', items: @items, user: @user, shop: @shop)
+    @sample_params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'view', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}}).extract
   end
 
   describe '.new' do
@@ -48,11 +49,11 @@ describe ActionPush::Processor do
 
 
     it 'disables cart if items array is empty' do
-      params = OpenStruct.new(action: 'cart', items: @items, user: @user, shop: @shop)
+      params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'cart', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}}).extract
       instance = ActionPush::Processor.new(params)
       instance.process
       expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::Cart::RATING
-      params = OpenStruct.new(action: 'cart', items: [], user: @user, shop: @shop)
+      params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'cart'}).extract
       instance = ActionPush::Processor.new(params)
       instance.process
       expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::RemoveFromCart::RATING

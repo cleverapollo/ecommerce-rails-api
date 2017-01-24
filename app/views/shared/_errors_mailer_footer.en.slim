@@ -1,0 +1,7 @@
+p
+  = "For any following questions, contact your manager #{@manager.name}."
+  br
+  = link_to 'rees46.com', 'http://rees46.com', target: '_blank'
+  = ' | '
+  = mail_to @manager.email, @manager.email, target: '_blank'
+  = ' | +7 (812) 980-45-33'

@@ -4,6 +4,7 @@ describe RecommendationsController do
   let!(:shop) { create(:shop, uniqid: rand.to_s) }
   let!(:user) { create(:user) }
   let!(:session) { create(:session, code: rand.to_s, user: user) }
+  let!(:subscription_plan) { create(:subscription_plan, shop: shop, paid_till: 1.month.from_now, product: 'product.recommendations', price: 100) }
   # let!(:extracted_params) { {recommender_type: 'interesting' } }
   let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' }) }
   let!(:sample_recommendations) { [1, 2, 3] }
@@ -43,17 +44,17 @@ describe RecommendationsController do
 
   context 'when shop have outstanding plans' do
 
-    let!(:subscription_plan) { create(:subscription_plan, shop: shop, active: true, paid_till: 2.days.ago, price: 100, product: 'rees46_recommendations') }
-
     it 'responds with client error' do
+      subscription_plan.update paid_till: 2.days.ago
       get :get, params
-      expect(response.status).to eq(400)
+      expect(response.status).to eq(402)
     end
 
     it 'response with success if plan is not about recommendations' do
-      subscription_plan.update product: 'rees46_triggers'
+      subscription_plan.update product: 'trigger.emails', paid_till: 2.days.from_now
       get :get, params
-      expect(response.body).to eq(sample_recommendations.to_json)
+      expect(response.status).to eq(402)
+
     end
 
   end

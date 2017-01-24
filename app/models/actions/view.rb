@@ -20,13 +20,14 @@ module Actions
       self.last_action == CODE
     end
 
-    def post_process
-      super
+    # @param [ActionPush::Params] params
+    def post_process(params)
+      super(params)
 
       if item
         # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
         Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
-          BrandLogger.track_click brand_campaign_id, shop.id, recommended_by
+          BrandLogger.track_click brand_campaign_id, params.shop.id, recommended_by
         end
       end
 

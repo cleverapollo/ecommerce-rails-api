@@ -15,7 +15,7 @@ describe TriggerMailings::Triggers::AbandonedCategory do
     let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100, category_ids: [item_category.external_id]) }
     let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100, category_ids: [item_category.external_id]) }
     let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil, category_ids: [item_category.external_id]) }
-    let!(:order) { create(:order, user: user, date: 5.days.ago, shop: shop)}
+    let!(:order) { create(:order, user: user, date: 8.days.ago, shop: shop)}
 
     let!(:action) { create(:action, user: user, shop: shop, item: item_1, timestamp: 72.hours.ago.to_i) }
     let!(:subscribe_for_category) { create(:subscribe_for_category, user: user, shop: shop, item_category: item_category, subscribed_at: 3.hours.ago) }
@@ -27,6 +27,13 @@ describe TriggerMailings::Triggers::AbandonedCategory do
     context 'happened' do
       it {
         expect( subject.condition_happened? ).to be_truthy
+      }
+    end
+
+    context 'not happened if have recently order' do
+      it {
+        order.update! date: 5.days.ago
+        expect( subject.condition_happened? ).to be_falsey
       }
     end
 

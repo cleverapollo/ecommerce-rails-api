@@ -9,10 +9,13 @@ class Order < ActiveRecord::Base
 
   has_many :order_items, dependent: :destroy
   has_many :brand_campaign_purchases
+  has_one :reputation, as: :entity
   belongs_to :source, polymorphic: true
   belongs_to :shop
 
   before_create :record_date
+  after_create :set_reputation_key
+
 
   scope :successful, -> { where(status: self::STATUS_SUCCESS) }
 
@@ -49,21 +52,40 @@ class Order < ActiveRecord::Base
         source = nil
       end
 
-      # Расчитываем суммы по заказу
+      # Расчитываем суммы по заказу. Если заказ из нашего канала, то все товары рекомендованные.
       values = order_values(shop, user, items, source.present?, order_price)
 
-      # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
-      return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+      # Используем вставку UPSET для предотвращения конфиктов уникальных значений
+      order = Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
+          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO UPDATE SET "date" = ?, user_id = ?', shop.id, uniqid, user.id, Time.now, Time.now, user.id
+      ]))
+      order = Order.find order
 
-      order = Order.create!(shop_id: shop.id,
-                            user_id: user.id,
-                            uniqid: uniqid,
-                            common_value: values[:common_value],
-                            recommended_value: values[:recommended_value],
-                            value: values[:value],
-                            recommended: (values[:recommended_value] > 0),
-                            ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
-                            source: source)
+      # todo если вставка upset будет работать корректно, удалить
+      # # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
+      # return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+      #
+      # # Ищем заказ или создаем новый
+      # order = Order.find_or_initialize_by(shop_id: shop.id, uniqid: uniqid)
+      #
+      # # Если новый заказ, указываем юзера и сохраняем его
+      # if order.new_record?
+      #   order.user_id = user.id
+      #   order.save!
+      # end
+
+      # Обновляем данные заказа
+      order.update(common_value: values[:common_value],
+                   recommended_value: values[:recommended_value],
+                   value: values[:value],
+                   recommended: (values[:recommended_value] > 0),
+                   ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
+                   source: source)
+
+      # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
+      if items.size > 0 && order.order_items.count > 0
+        order.order_items.destroy_all
+      end
 
       # Сохраняем позиции заказа
       items.each do |item|
@@ -97,7 +119,8 @@ class Order < ActiveRecord::Base
 
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
-        Order.where(uniqid: uniqid, shop_id: shop.id).exists?
+        # Добавили разницу в 1 месяц для предотвращения пропажи заказов, когда магазин сбросил uniqid
+        Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 1.month.ago).exists?
       else
         Order.where(shop_id: shop.id, user_id: user.id)
              .where("date > ?", 1.minutes.ago).exists?
@@ -139,6 +162,10 @@ class Order < ActiveRecord::Base
   # Устанавливаем перед созданием заказа текущую дату заказа
   def record_date
     self.date = read_attribute(:date) || Time.now
+  end
+
+  def set_reputation_key
+    self.update_column(:reputation_key, Digest::MD5.hexdigest(self.id.to_s))
   end
 
 end

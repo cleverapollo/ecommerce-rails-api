@@ -36,6 +36,7 @@ class WebPush::Sender
       else
         # update user subscription when removed all tokens
         client.clear_web_push_subscription!
+        return false
       end
 
       true

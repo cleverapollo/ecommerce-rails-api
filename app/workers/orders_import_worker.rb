@@ -16,7 +16,6 @@ class OrdersImportWorker
   attr_accessor :import_status_messages
 
   def perform(opts)
-
     @import_status_messages = {
         order_without_id: [],       # put here order row
         order_without_user_id: [],  # put here order row
@@ -36,6 +35,7 @@ class OrdersImportWorker
 
       # Connect to BRB
       @mahout_service = MahoutService.new(@current_shop.brb_address)
+      @orders_count = 0
 
       opts['orders'].each do |order|
 
@@ -79,16 +79,18 @@ class OrdersImportWorker
         end
 
         persist_order(@current_order, items, @current_shop.id, @current_user.id)
+        @orders_count += 1
       end
 
-      # Report import results
+      # Report import results errors
       ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
 
+      # Report complited imported resoults
+      # CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now if @orders_count > 0
     rescue OrdersImportError => e
       email = opts['errors_to'] || @current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
     end
-
   end
 
   # Упрощенный поиск пользователя для импорта
@@ -135,10 +137,13 @@ class OrdersImportWorker
 
     if item.new_record?
       item_proxy = OpenStruct.new(item_raw)
+      item_proxy[:is_available] = true if item_proxy[:is_available].blank?
       item.merge_attributes(item_proxy)
       begin
         item.save!
       rescue PG::UniqueViolation => e
+        item = Item.find_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
+      rescue ActiveRecord::RecordNotUnique => e
         item = Item.find_by(shop_id: shop_id, uniqid: item_raw['id'].to_s)
       end
     end

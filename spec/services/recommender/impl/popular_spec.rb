@@ -87,7 +87,7 @@ describe Recommender::Impl::Popular do
         end
 
         it 'skips female products when client is male' do
-          shop.subscription_plans.create product: 'rees46_recommendations', price: 100, paid_till: (Time.current + 1.month)
+          shop.subscription_plans.create product: 'product.recommendations', price: 100, paid_till: (Time.current + 1.month)
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end

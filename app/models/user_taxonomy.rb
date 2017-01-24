@@ -8,6 +8,8 @@ class UserTaxonomy < MasterTable
 
     def track(user, items, shop, event)
 
+      shop_taxonomy = shop.category.present? && shop.category.taxonomy.present? ?  shop.category.taxonomy : nil
+
       event = nil if TYPES.index(event).nil?
 
       items.each do |item|
@@ -15,6 +17,12 @@ class UserTaxonomy < MasterTable
           category_ids = item.category_ids.flatten.uniq
           taxonomies = ItemCategory.where(shop: items.first.shop_id).where('taxonomy is not null').where(external_id: category_ids).pluck(:taxonomy).uniq
           taxonomies.each do |taxonomy|
+
+            # Определяем главную категорию таксономии - одежда, детские товары, косметика?
+            if shop_taxonomy
+              taxonomy = "#{shop_taxonomy}.#{taxonomy}"
+            end
+
             begin
               txn = UserTaxonomy.find_by date: Date.current, taxonomy: taxonomy, user_id: user.id, brand: item.brand
               if txn

@@ -51,6 +51,14 @@ module Rees46ML
       state :fashion
       state :cosmetic
       state :fmcg
+      state :pets
+      state :pet_age
+      state :pet_size
+      state :pet_type
+      state :breed
+      state :auto
+      state :compatibility
+      state :vds
       state :periodic
       state :skin
       state :hair
@@ -437,6 +445,22 @@ module Rees46ML
         transitions from: :fmcg, to: :offer
       end
 
+      event :start_pets do
+        transitions from: :offer, to: :pets
+      end
+
+      event :end_pets do
+        transitions from: :pets, to: :offer
+      end
+
+      event :start_auto do
+        transitions from: :offer, to: :auto
+      end
+
+      event :end_auto do
+        transitions from: :auto, to: :offer
+      end
+
       event :start_cosmetic do
         transitions from: :offer, to: :cosmetic
       end
@@ -448,11 +472,31 @@ module Rees46ML
       event :start_periodic do
         transitions from: :cosmetic, to: :periodic
         transitions from: :fmcg,     to: :periodic
+        transitions from: :auto,     to: :periodic
+        transitions from: :pets,     to: :periodic
       end
 
       event :end_periodic do
         transitions from: :periodic, to: :cosmetic, guard: :in_cosmetic?
         transitions from: :periodic, to: :fmcg,    guard: :in_fmcg?
+        transitions from: :periodic, to: :auto,    guard: :in_auto?
+        transitions from: :periodic, to: :pets,    guard: :in_pets?
+      end
+
+      event :start_compatibility do
+        transitions from: :auto, to: :compatibility
+      end
+
+      event :end_compatibility do
+        transitions from: :compatibility, to: :auto, guard: :in_auto?
+      end
+
+      event :start_vds do
+        transitions from: :auto, to: :vds
+      end
+
+      event :end_vds do
+        transitions from: :vds, to: :auto, guard: :in_auto?
       end
 
       event :start_fashion do
@@ -568,14 +612,48 @@ module Rees46ML
         transitions from: :type, to: :hair, guard: :in_hair?
       end
 
+      event :start_pet_size do
+        transitions from: :pets,   to: :pet_size
+      end
+
+      event :end_pet_size do
+        transitions from: :pet_size,   to: :pets
+      end
+
+      event :start_pet_type do
+        transitions from: :pets,   to: :pet_type
+      end
+
+      event :end_pet_type do
+        transitions from: :pet_type,   to: :pets
+      end
+
+      event :start_pet_age do
+        transitions from: :pets,   to: :pet_age
+      end
+
+      event :end_pet_age do
+        transitions from: :pet_age,   to: :pets
+      end
+
+      event :start_breed do
+        transitions from: :pets,   to: :breed
+      end
+
+      event :end_breed do
+        transitions from: :breed,   to: :pets
+      end
+
       event :start_age do
         transitions from: :offer,   to: :age
         transitions from: :child,   to: :age
+        transitions from: :pets,   to: :age
       end
 
       event :end_age do
         transitions from: :age, to: :offer,   guard: :in_offer?
         transitions from: :age, to: :child,   guard: :in_child?
+        transitions from: :age, to: :pets,   guard: :in_pets?
       end
 
       event :start_min do
@@ -1077,6 +1155,8 @@ module Rees46ML
           self.current_element = Rees46ML::Cosmetic.new
         when "fmcg"
           self.current_element = Rees46ML::Fmcg.new
+        when "pets"
+          self.current_element = Rees46ML::Pets.new
         when "volume"
           self.current_element = Rees46ML::CosmeticVolume.new if in_cosmetic?
           self.current_element = Rees46ML::FmcgVolume.new if in_fmcg?
@@ -1091,10 +1171,14 @@ module Rees46ML
           self.current_element = Rees46ML::Skin.new
         when "hair"
           self.current_element = Rees46ML::Hair.new
+        when "auto"
+          self.current_element = Rees46ML::Auto.new
         when "offer"
           self.current_element = Rees46ML::Offer.new
         when "param"
           self.current_element = Rees46ML::Param.new
+        when "compatibility"
+          self.current_element = Rees46ML::Compatibility.new if in_auto?
         end
 
         send event_name
@@ -1128,6 +1212,8 @@ module Rees46ML
             self.current_element.barcodes << safe_buffer
           when "picture"
             self.current_element.pictures << safe_buffer
+          when "vds"
+            self.current_element.vds << safe_buffer
           when "part"
             if in_skin?
               self.current_element.part << safe_buffer
@@ -1184,6 +1270,15 @@ module Rees46ML
           stack.pop
         when "fmcg"
           self.parent_element.fmcg = self.current_element
+          stack.pop
+        when "pets"
+          self.parent_element.pets = self.current_element
+          stack.pop
+        when "auto"
+          self.parent_element.auto = self.current_element
+          stack.pop
+        when "compatibility"
+          self.parent_element.compatibility << self.current_element if in_auto?
           stack.pop
         when "cosmetic"
           self.parent_element.cosmetic = self.current_element

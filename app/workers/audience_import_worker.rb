@@ -10,55 +10,42 @@ class AudienceImportWorker
 
   def perform(params)
     @shop = Shop.find_by!(uniqid: params.fetch('shop_id'), secret: params.fetch('shop_secret'))
+    @audiance_count = 0
 
     params.fetch('audience').each do |a|
       id = a.fetch('id').to_s.strip
       email = IncomingDataTranslator.email(a.fetch('email'))
 
-      # next if id.blank? && email.blank?
-      # Не доделано http://y.mkechinov.ru/issue/REES-2317
-      # # Если есть емейл и идентификатор
-      # if id.present? && email.present?
-      #   client_with_email = shop.clients.find_by(email: email)
-      #   # А что, если клиент с емейлом все же не найден в базе?
-      #   if client_with_email.external_id != id
-      #     client_with_id = shop.clients.find_by(external_id: id)
-      #     # Если пользователи разные
-      #     if client_with_id.user_id != client_with_email.user_id
-      #       # Молодого к старому
-      #       UserMerger.merge([client_with_id.user_id, client_with_email.user_id].min, [client_with_id.user_id, client_with_email.user_id].max)
-      #     else
-      #       # Пользователи одинаковые, удаляем нового и присваиваем старого клиента
-      #       Client.relink_user(from: [client_with_id.id, client_with_email.id].min, to: [client_with_id.id, client_with_email.id].max )
-      #     end
-      #   end
-      #   next
-      # end
-      #
-      # # Если есть только емейл
-      # if id.blank? && email.present?
-      #
-      #   next
-      # end
-      #
-      # # Если есть только ID, игнорируем
-      # if id.present? && email.blank?
-      #   next
-      # end
 
+      next if email.blank?
+      id ||= ''
 
-      next if id.blank? || email.blank?
-      client = shop.clients.find_by(external_id: id)
+      client = shop.clients.find_by(email: email)
+
       if client.blank?
-        client = shop.clients.find_by(email: email)
-        if client.blank?
+        client = shop.clients.find_by(external_id: id)
+        if client.present?
+          client = shop.clients.build(external_id: '', user: User.create)
+        else
           client = shop.clients.build(external_id: id, user: User.create)
         end
       end
 
       client.email = email || client.email
 
+      # Активируем подписку для импортируемого пользователя
+      if client.email.present?
+        client.digests_enabled = true
+        client.triggers_enabled = true
+      end
+
       client.save!
+      @audiance_count += 1
     end
+
+    # Запускаем перерасчет аудитории
+    People::Segmentation::ActivityWorker.new(@shop).perform
+
+    # CompletesMailer.audiance_import_completed(@shop, @audiance_count).deliver_now if @audiance_count > 0
   end
 end

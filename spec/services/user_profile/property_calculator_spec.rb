@@ -153,4 +153,67 @@ describe UserProfile::PropertyCalculator do
 
   end
 
+  describe 'calculate compatibility' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Audi', purchases: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'BMW', views: 1, carts: 2 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Toyota', carts: 1 ) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'A4', carts: 2 ) }
+    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'W300', carts: 2 ) }
+    let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
+    let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
+    let!(:profile_event_8) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_compatibility(user) }
+
+    it 'calculates compatibility' do
+      expect(subject.count).to eq 2
+      expect(subject.symbolize_keys).to eq ({brand: %w(Audi BMW), model: %w(A4 W300)})
+    end
+  end
+
+  describe 'calculate vds' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_vds(user) }
+
+    it 'calculates vds' do
+      expect(subject.count).to eq 2
+      expect(subject).to eq (%w(A4345G AFR3))
+    end
+  end
+
+
+  describe 'pets' do
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_pets(user) }
+    before {
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small', views: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small', views: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;age:young;size:medium', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;age:old;size:medium', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:cat;breed:cat terrier;size:large', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:cat;breed:strange;age:middle', purchases: 1 )
+    }
+    it 'calculates pets' do
+      expect(subject.size).to eq 2
+      expect(subject[0]).to eq ({'type' => 'cat', 'breed' => 'strange', 'age' => 'middle', 'score' => 5})
+      expect(subject[1]).to eq ({'type' => 'cat', 'breed' => 'cat terrier', 'size' => 'large', 'score' => 4})
+      # expect(subject[2]).to eq ({'type' => 'dog', 'age' => 'old', 'size' => 'medium', 'score' => 3})
+      # expect(subject[3]).to eq ({'type' => 'dog', 'age' => 'young', 'size' => 'medium', 'score' => 3})
+      # expect(subject[4]).to eq ({'type' => 'dog', 'breed' => 'strange', 'age' => 'old', 'size' => 'small', 'score' => 3})
+    end
+  end
+
+
 end

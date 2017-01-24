@@ -56,22 +56,21 @@ module TriggerMailings
       liquid_template = trigger.settings[:liquid_template].dup
       recommendations_count = trigger.settings[:amount_of_recommended_items]
       data[:source_items] = if trigger.source_items.present? && trigger.source_items.any?
-                       trigger.source_items.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
+                       trigger.source_items.map { |item| item_for_letter(item, client.location, trigger.settings[:images_dimension]) }
                      else
                        []
                      end
       RecommendationsRequest.report do |r|
         recommendations = trigger.recommendations(recommendations_count)
-        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location, trigger.settings[:image_width], trigger.settings[:image_height]) }
+        data[:recommended_items] = recommendations.map { |item| item_for_letter(item, client.location, trigger.settings[:images_dimension]) }
         r.shop = @shop
         r.recommender_type = 'trigger_mail'
         r.recommendations = recommendations.map(&:uniqid)
         r.user_id = client.user.present? ? client.user.id : 0
       end
 
-      mailings_settings = MailingsSettings.find_by(shop_id: @shop.id)
-      if mailings_settings && mailings_settings.fetch_logo_url.present?
-        data[:logo_url] = mailings_settings.fetch_logo_url
+      if @shop.fetch_logo_url.present?
+        data[:logo_url] = @shop.fetch_logo_url
       end
 
       data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)
@@ -81,24 +80,23 @@ module TriggerMailings
       data[:unsubscribe_url] = client.trigger_unsubscribe_url
       data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
-      if liquid_template.scan('{{ feedback_button_link }}').any? && trigger.code == 'RecentlyPurchased'
-        if @shop.ekomi?
-          product_ids = []
-          trigger.additional_info[:order].order_items.each do |order_item|
-            item = order_item.item
-            if item && item.name.present? && item.uniqid.present?
-              item_additional_params = {links: [rel: 'canonical', type: 'text/html', href: item.url] }
-              item_additional_params[:image_url] = item.image_url if item.image_url.present?
-              begin
-                Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_product(item.uniqid, item.name, item_additional_params)
-                product_ids << item.uniqid
-              rescue
-              end
-            end
-          end
-          data[:feedback_button_link] = Integrations::EKomi.new(@shop.ekomi_id, @shop.ekomi_key).put_order(trigger.additional_info[:order], product_ids)['link']
+      if trigger.code == 'RecentlyPurchased' && liquid_template.scan('{% if reputation %}').any?
+        plan = @shop.subscription_plans.reputation.first
+
+        if plan && plan.paid? && @shop.reputations_enabled?
+
+          order = trigger.additional_info[:order]
+          order.update(reputation_key: Digest::MD5.hexdigest(order.id.to_s)) unless order.reputation_key
+          reputation_key = order.reputation_key
+
+          data[:reputation] = @shop.reputations_enabled
+          data[:rate_1_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=1"
+          data[:rate_2_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=2"
+          data[:rate_3_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=3"
+          data[:rate_4_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=4"
+          data[:rate_5_url] = "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations/new?order_id=#{reputation_key}&rating=5"
         else
-          data[:feedback_button_link] = "#{@shop.url}/?#{Mailings::Composer.utm_params(trigger_mail, as: :string)}"
+          data[:reputation] = false
         end
       end
 
@@ -115,7 +113,7 @@ module TriggerMailings
     # @param height [Integer] Высота картинки для ресайза
     # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
-    def item_for_letter(item, location, width = nil, height = nil)
+    def item_for_letter(item, location, images_dimension = nil)
       raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
       {
         name: item.name,
@@ -124,8 +122,8 @@ module TriggerMailings
         oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         price: item.price_at_location(location).to_i,
         oldprice: item.oldprice.to_i,
-        url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
-        image_url: (width && height ? item.resized_image(width, height) : item.image_url),
+        url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail).merge(r46_merger: Base64.encode64(@client.email.to_s).strip)),
+        image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),
         currency: item.shop.currency,
         id: item.uniqid.to_s,
         barcode: item.barcode.to_s,

@@ -1,5 +1,5 @@
 require 'rails_helper'
 
-RSpec.describe CatalogImportLog, :type => :model do
+RSpec.describe Reputation, :type => :model do
   pending "add some examples to (or delete) #{__FILE__}"
 end

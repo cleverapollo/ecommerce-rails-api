@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161005134148) do
+ActiveRecord::Schema.define(version: 20170112144806) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -277,15 +277,18 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.integer  "min_payment",   default: 500,   null: false
     t.float    "exchange_rate", default: 1.0,   null: false
     t.boolean  "payable",       default: false
+    t.boolean  "stripe_paid",   default: false, null: false
   end
 
+  add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
+
   create_table "customers", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",       null: false
-    t.string   "encrypted_password",     limit: 255, default: "",       null: false
+    t.string   "email",                  limit: 255, default: "",    null: false
+    t.string   "encrypted_password",     limit: 255, default: "",    null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,        null: false
+    t.integer  "sign_in_count",                      default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -296,35 +299,39 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.string   "phone",                  limit: 255
     t.string   "city",                   limit: 255
     t.string   "company",                limit: 255
-    t.boolean  "subscribed",                         default: true,     null: false
+    t.boolean  "subscribed",                         default: true,  null: false
     t.string   "unsubscribe_token",      limit: 255
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.float    "balance",                            default: 0.0,      null: false
+    t.float    "balance",                            default: 0.0,   null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
     t.string   "juridical_person"
-    t.integer  "currency_id",                        default: 1,        null: false
-    t.string   "language",                           default: "ru",     null: false
-    t.boolean  "notify_about_finances",              default: true,     null: false
-    t.integer  "partner_balance",                    default: 0,        null: false
+    t.integer  "currency_id",                        default: 1,     null: false
+    t.string   "language",                           default: "ru",  null: false
+    t.boolean  "notify_about_finances",              default: true,  null: false
+    t.integer  "partner_balance",                    default: 0,     null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
+    t.string   "stripe_customer_id"
+    t.string   "stripe_card_last4"
+    t.string   "stripe_card_id"
+    t.string   "country_code"
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
   add_index "customers", ["email"], name: "index_customers_on_email", unique: true, using: :btree
   add_index "customers", ["quick_sign_in_token"], name: "index_customers_on_quick_sign_in_token", using: :btree
   add_index "customers", ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true, using: :btree
+  add_index "customers", ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id", using: :btree
 
   create_table "digest_mail_statistics", force: :cascade do |t|
     t.date     "date",                   null: false
@@ -350,14 +357,6 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.boolean  "confirmed",   default: false
-  end
-
-  create_table "faqs", force: :cascade do |t|
-    t.text     "question",                null: false
-    t.text     "answer",                  null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "in_sequence", default: 0, null: false
   end
 
   create_table "industries", force: :cascade do |t|
@@ -393,14 +392,25 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.datetime "updated_at"
   end
 
-  create_table "lead_shops", force: :cascade do |t|
-    t.string   "url"
-    t.integer  "tryouts",    default: 0
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+  create_table "leads", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "phone"
+    t.string   "country"
+    t.string   "city"
+    t.string   "source"
+    t.string   "comment"
+    t.string   "website"
+    t.string   "company"
+    t.string   "position"
+    t.boolean  "synced_with_crm", default: false
+    t.boolean  "success",         default: false
+    t.boolean  "cancelled",       default: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.string   "cms"
   end
-
-  add_index "lead_shops", ["url"], name: "index_lead_shops_on_url", using: :btree
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
     t.string "list"
@@ -517,6 +527,30 @@ ActiveRecord::Schema.define(version: 20161005134148) do
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
+  create_table "rtb_bid_requests", force: :cascade do |t|
+    t.string   "ssp"
+    t.string   "ssid"
+    t.string   "bid_id"
+    t.string   "imp_id"
+    t.string   "site_domain"
+    t.string   "site_page"
+    t.float    "bidfloor"
+    t.string   "bidfloorcur"
+    t.float    "bid_price"
+    t.integer  "rtb_job_id"
+    t.boolean  "bid_done"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.boolean  "is_cpa"
+    t.boolean  "win"
+  end
+
+  add_index "rtb_bid_requests", ["bid_done"], name: "index_rtb_bid_requests_on_bid_done", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["created_at", "ssp"], name: "index_rtb_bid_requests_on_created_at_and_ssp", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["is_cpa"], name: "index_rtb_bid_requests_on_is_cpa", where: "(is_cpa IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp_conditioned", where: "(bid_done IS TRUE)", using: :btree
+
   create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
     t.string   "code"
     t.string   "bid_id",              null: false
@@ -532,6 +566,7 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.string   "domain"
     t.string   "page"
     t.string   "banner"
+    t.string   "ssp"
   end
 
   add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
@@ -619,6 +654,9 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.date    "synced_with_aidata_at"
     t.date    "synced_with_auditorius_at"
     t.date    "synced_with_mailru_at"
+    t.date    "synced_with_relapio_at"
+    t.date    "synced_with_republer_at"
+    t.date    "synced_with_advmaker_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -698,18 +736,29 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.integer  "scoring",                                   default: 0,     null: false
     t.decimal  "triggers_cpa",                              default: 4.6,   null: false
     t.decimal  "digests_cpa",                               default: 2.0,   null: false
-    t.integer  "triggers_cpa_cap",                          default: 250,   null: false
-    t.integer  "digests_cpa_cap",                           default: 200,   null: false
+    t.decimal  "triggers_cpa_cap",                          default: 300.0, null: false
+    t.decimal  "digests_cpa_cap",                           default: 300.0, null: false
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
-    t.decimal  "remarketing_cpa_cap",                       default: 250.0, null: false
+    t.decimal  "remarketing_cpa_cap",                       default: 300.0, null: false
     t.boolean  "ekomi_enabled"
     t.string   "ekomi_id"
     t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
-    t.integer  "web_push_balance",                          default: 0,     null: false
+    t.integer  "web_push_balance",                          default: 100,   null: false
     t.datetime "last_orders_sync"
     t.boolean  "have_industry_products",                    default: false, null: false
+    t.string   "logo_file_name"
+    t.string   "logo_content_type"
+    t.integer  "logo_file_size"
+    t.datetime "logo_updated_at"
+    t.string   "plan",                                      default: "s"
+    t.boolean  "plan_fixed",                                default: false
+    t.boolean  "popunder_enabled",                          default: true,  null: false
+    t.boolean  "debug_order",                               default: false, null: false
+    t.string   "currency_code"
+    t.integer  "js_sdk"
+    t.boolean  "reputations_enabled",                       default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -753,6 +802,29 @@ ActiveRecord::Schema.define(version: 20161005134148) do
 
   add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
 
+  create_table "theme_purchases", force: :cascade do |t|
+    t.integer  "theme_id"
+    t.integer  "shop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "theme_purchases", ["shop_id"], name: "index_theme_purchases_on_shop_id", using: :btree
+  add_index "theme_purchases", ["theme_id", "shop_id"], name: "index_theme_purchases_on_theme_id_and_shop_id", unique: true, using: :btree
+  add_index "theme_purchases", ["theme_id"], name: "index_theme_purchases_on_theme_id", using: :btree
+
+  create_table "themes", force: :cascade do |t|
+    t.string   "name",                       null: false
+    t.string   "theme_type",                 null: false
+    t.jsonb    "variables"
+    t.string   "file",                       null: false
+    t.boolean  "free",       default: false, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "themes", ["name", "theme_type"], name: "index_themes_on_name_and_theme_type", unique: true, using: :btree
+
   create_table "transactions", force: :cascade do |t|
     t.integer  "amount",                       default: 500, null: false
     t.integer  "transaction_type",             default: 0,   null: false
@@ -765,6 +837,7 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.text     "comment"
     t.integer  "shop_id"
     t.integer  "currency_id",                  default: 1,   null: false
+    t.string   "transaction_id"
   end
 
   create_table "trigger_mail_statistics", force: :cascade do |t|
@@ -802,6 +875,9 @@ ActiveRecord::Schema.define(version: 20161005134148) do
     t.jsonb   "cosmetic_hair"
     t.jsonb   "cosmetic_skin"
     t.jsonb   "children",                array: true
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
@@ -820,25 +896,18 @@ ActiveRecord::Schema.define(version: 20161005134148) do
   end
 
   create_table "wizard_configurations", force: :cascade do |t|
-    t.integer  "shop_id",                                    null: false
-    t.boolean  "multi_locations",            default: false
-    t.jsonb    "industrials",                default: {}
-    t.boolean  "orders_history",             default: false
-    t.boolean  "orders_sync",                default: false
-    t.boolean  "use_recommendations",        default: false
-    t.jsonb    "triggers",                   default: {}
-    t.boolean  "use_subscriptions",          default: false
-    t.boolean  "use_digests",                default: false
-    t.integer  "mailing_engine"
-    t.string   "other_mailing_engine"
-    t.boolean  "have_audience_to_upload",    default: false
-    t.boolean  "use_remarketing",            default: false
-    t.boolean  "use_web_push_subscriptions", default: false
-    t.jsonb    "web_push_triggers",          default: {}
-    t.boolean  "use_web_push_digests",       default: false
-    t.boolean  "completed",                  default: false
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.integer  "shop_id",                           null: false
+    t.jsonb    "industrials",       default: []
+    t.boolean  "orders_history",    default: false
+    t.boolean  "orders_sync",       default: false
+    t.jsonb    "triggers",          default: []
+    t.jsonb    "web_push_triggers", default: []
+    t.boolean  "completed",         default: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "locations",         default: 0
+    t.jsonb    "products",          default: []
+    t.boolean  "subscribers",       default: false
   end
 
   add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree

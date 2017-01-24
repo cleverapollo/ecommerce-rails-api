@@ -5,9 +5,9 @@ describe Recommender::Impl::Search do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
 
-  let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100) }
-  let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100) }
-  let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil) }
+  let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100, pets_periodic: true) }
+  let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100, pets_periodic: true) }
+  let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil, pets_periodic: true) }
 
   let!(:action) { create(:action, user: user, shop: shop, item: item_1) }
 

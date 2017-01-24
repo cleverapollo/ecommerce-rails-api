@@ -44,66 +44,16 @@ class Client < ActiveRecord::Base
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
 
-      where(user_id: slave_user.id).order(id: :desc).each do
-        # @type slave_client [Client]
-        |slave_client|
+      where(user_id: slave_user.id).order(id: :desc).each do |slave_client|
+        slave_client.merge_to(master_user)
+      end
+    end
 
-        # @type master_client [Client]
-        master_client = where(shop_id: slave_client.shop_id, user_id: master_user.id).where.not(id: slave_client.id).order(:id).limit(1)[0]
-        if master_client
-
-          # Может возникнуть ситуация, что два client принадлежат одному user, поэтому master_user == slave_user
-          # В связи с этим master_client может быть равен slave_client. В этой ситуации просто пропускаем обработку такого client
-          next if master_client.id == slave_client.id
-
-          master_client.email = master_client.email || slave_client.email
-          master_client.save if master_client.email_changed?
-
-          # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
-          if master_client.shop_id == slave_client.shop_id
-            master_client.bought_something = true if slave_client.bought_something?
-            master_client.digests_enabled = false if !slave_client.digests_enabled? || !master_client.digests_enabled?
-            master_client.subscription_popup_showed = true if slave_client.subscription_popup_showed?
-            master_client.triggers_enabled = false if !slave_client.triggers_enabled? || !master_client.triggers_enabled?
-            master_client.accepted_subscription = true if slave_client.accepted_subscription?
-            master_client.ab_testing_group = slave_client.ab_testing_group if master_client.ab_testing_group != slave_client.ab_testing_group && !slave_client.ab_testing_group.nil?
-            master_client.external_id = slave_client.external_id if !slave_client.external_id.blank? && master_client.external_id.blank?
-            master_client.last_trigger_mail_sent_at = slave_client.last_trigger_mail_sent_at if !slave_client.last_trigger_mail_sent_at.nil?
-            master_client.location = slave_client.location if !slave_client.location.nil?
-            master_client.last_activity_at = slave_client.last_activity_at if master_client.last_activity_at.nil? || (!slave_client.last_activity_at.nil? && master_client.last_activity_at < slave_client.last_activity_at)
-            master_client.supply_trigger_sent = slave_client.supply_trigger_sent if slave_client.supply_trigger_sent
-            master_client.web_push_subscription_popup_showed = true if slave_client.web_push_subscription_popup_showed?
-            master_client.accepted_web_push_subscription = true if slave_client.accepted_web_push_subscription?
-
-
-            if slave_client.web_push_enabled?
-              master_client.last_web_push_sent_at = slave_client.last_web_push_sent_at unless slave_client.last_web_push_sent_at.nil?
-              master_client.web_push_enabled = true
-            end
-
-            master_client.save if master_client.changed?
-          end
-
-          # Перебрасываем токены веб пушей
-          slave_client.web_push_tokens.each do
-            # @type web_push_token [WebPushToken]
-            |web_push_token|
-
-            token = master_client.append_web_push_token(web_push_token.token.to_json)
-            if token.client_id != master_client.id
-              token.update(client_id: master_client.id)
-            end
-          end
-
-          slave_client.digest_mails.update_all(client_id: master_client.id)
-          slave_client.trigger_mails.update_all(client_id: master_client.id)
-          slave_client.web_push_trigger_messages.update_all(client_id: master_client.id)
-          slave_client.web_push_digest_messages.update_all(client_id: master_client.id)
-
-          slave_client.delete
-        else
-          slave_client.update_columns(user_id: master_user.id)
-        end
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |slave_client|
+        slave_client.merge_to(master)
       end
     end
   end
@@ -115,6 +65,81 @@ class Client < ActiveRecord::Base
       new_user = create_user
       update_columns(user_id: new_user.id)
       new_user
+    end
+  end
+
+  # Перенос объекта к указанному юзеру
+  # @param [User] user
+  def merge_to(user)
+    relation = Client.where(shop_id: self.shop_id, user_id: user.id).where.not(id: self.id)
+
+    # Если у текущего клиента есть fb_id, то мы не можем сливать с клиентами, у которых тоже указан fb_id
+    if self.fb_id.present?
+      relation = relation.where(fb_id: nil)
+    end
+
+    # Если у текущего клиента есть vk_id, то мы не можем сливать с клиентами, у которых тоже указан vk_id
+    if self.vk_id.present?
+      relation = relation.where(vk_id: nil)
+    end
+
+    # @type master_client [Client]
+    master_client = relation.order(:id).limit(1)[0]
+    if master_client.present?
+
+      # Может возникнуть ситуация, что два client принадлежат одному user, поэтому master_client == self
+      # В связи с этим master_client может быть равен self. В этой ситуации просто пропускаем обработку такого client
+      return if master_client.id == self.id
+
+      master_client.email = master_client.email || self.email
+      master_client.fb_id = master_client.fb_id || self.fb_id
+      master_client.vk_id = master_client.vk_id || self.vk_id
+      master_client.save if master_client.changed?
+
+      # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
+      if master_client.shop_id == self.shop_id
+        master_client.bought_something = true if self.bought_something?
+        master_client.digests_enabled = false if !self.digests_enabled? || !master_client.digests_enabled?
+        master_client.subscription_popup_showed = true if self.subscription_popup_showed?
+        master_client.triggers_enabled = false if !self.triggers_enabled? || !master_client.triggers_enabled?
+        master_client.accepted_subscription = true if self.accepted_subscription?
+        master_client.ab_testing_group = self.ab_testing_group if master_client.ab_testing_group != self.ab_testing_group && !self.ab_testing_group.nil?
+        master_client.external_id = self.external_id if !self.external_id.blank? && master_client.external_id.blank?
+        master_client.last_trigger_mail_sent_at = self.last_trigger_mail_sent_at if !self.last_trigger_mail_sent_at.nil?
+        master_client.location = self.location if !self.location.nil?
+        master_client.last_activity_at = self.last_activity_at if master_client.last_activity_at.nil? || (!self.last_activity_at.nil? && master_client.last_activity_at < self.last_activity_at)
+        master_client.supply_trigger_sent = self.supply_trigger_sent if self.supply_trigger_sent
+        master_client.web_push_subscription_popup_showed = true if self.web_push_subscription_popup_showed?
+        master_client.accepted_web_push_subscription = true if self.accepted_web_push_subscription?
+
+
+        if self.web_push_enabled?
+          master_client.last_web_push_sent_at = self.last_web_push_sent_at unless self.last_web_push_sent_at.nil?
+          master_client.web_push_enabled = true
+        end
+
+        master_client.save if master_client.changed?
+      end
+
+      # Перебрасываем токены веб пушей
+      self.web_push_tokens.each do
+        # @type web_push_token [WebPushToken]
+        |web_push_token|
+
+        token = master_client.append_web_push_token(web_push_token.token.to_json)
+        if token.client_id != master_client.id
+          token.update(client_id: master_client.id)
+        end
+      end
+
+      self.digest_mails.update_all(client_id: master_client.id)
+      self.trigger_mails.update_all(client_id: master_client.id)
+      self.web_push_trigger_messages.update_all(client_id: master_client.id)
+      self.web_push_digest_messages.update_all(client_id: master_client.id)
+
+      self.delete
+    else
+      self.update_columns(user_id: user.id)
     end
   end
 
@@ -200,7 +225,7 @@ class Client < ActiveRecord::Base
 
       # create a new token
       web_push_token = self.web_push_tokens.create!(shop_id: self.shop_id, token: token, browser: browser)
-      self.update(web_push_enabled: true)
+      self.update(web_push_enabled: true, web_push_subscription_popup_showed: true, accepted_web_push_subscription: true)
 
       return web_push_token
     end

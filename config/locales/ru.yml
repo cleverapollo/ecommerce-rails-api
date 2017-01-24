@@ -9,3 +9,31 @@ ru:
       offers_not_exists: Не обнаруженно ни одного оффера
       offers_less_than_five: Оферов меньше чем 5 штук
       invalid_offer: Невалидный офер
+
+  complete_mailers:
+    orders_import:
+      subject: 'История заказов импортирована успешно.'
+      body_text: 'Импорт истории заказов завершен.'
+      body_count: 'Импортировано заказов: %{orders_count}'
+      tail: 'С уважением.'
+      team: 'Команда REES46.'
+    audiance_import:
+      subject: 'Список подписчиков импортирован.'
+      body_text: 'Импорт списка подписчиков завершен.'
+      body_count: 'Импортировано пользователей: %{audiance_count}'
+      tail: 'С уважением.'
+      team: 'Команда REES46.'
+
+  errors_mailer:
+    subject:
+      yml_import_error: 'Неправильно указан YML файл'
+      yml_url_not_respond: 'Не удалось загрузить YML-файл'
+      yml_syntax_error: 'Ошибка синтаксиса YML-файла'
+      yml_off: 'Обработка YML-файла отключена'
+
+  yml_errors:
+    time_limit_exceeded: Не удаётся выгрузить YML файл в течение 30 минут..
+    unavailable_file: YML файл недоступен.
+    wrong_url: Некорректный адрес YML файла.
+    no_files_in_archive: Не обнаружено XML-файлов в архиве.
+    no_uniq_ids: В YML-файле встречаются товары с одинаковыми идентификаторами. Каждое товарное предложение (оффер) должно содержать уникальный идентификатор товара, не повторяющийся в пределах одного YML-файла.

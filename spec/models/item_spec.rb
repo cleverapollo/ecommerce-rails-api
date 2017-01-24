@@ -66,6 +66,14 @@ describe Item do
     let(:price_margin)   { rand 10 }
     let(:oldprice)       { rand 1000 }
     let(:discount)       { true }
+    let(:is_auto)        { true }
+    let(:auto_periodic)  { false }
+    let(:is_pets)        { true }
+    let(:pets_breed)     { 'dog terrier' }
+    let(:pets_type)      { 'dog' }
+    let(:pets_age)       { 'old' }
+    let(:pets_periodic)  { true }
+    let(:pets_size)      { 'large' }
 
     subject do
       build(:item, {
@@ -103,7 +111,15 @@ describe Item do
         fashion_sizes: sizes,
         price_margin: price_margin,
         oldprice: oldprice,
-        discount: discount
+        discount: discount,
+        is_auto: is_auto,
+        auto_periodic: auto_periodic,
+        is_pets: is_pets,
+        pets_breed: pets_breed,
+        pets_type: pets_type,
+        pets_age: pets_age,
+        pets_periodic: pets_periodic,
+        pets_size: pets_size
       })
     end
 
@@ -142,6 +158,14 @@ describe Item do
     it { expect(subject.csv_row[33]).to eq("{#{sizes.join(',')}}") }
     it { expect(subject.csv_row[49]).to eq(oldprice) }
     it { expect(subject.csv_row[51]).to eq(true) }
+    it { expect(subject.csv_row[52]).to eq(is_auto) }
+    it { expect(subject.csv_row[54]).to eq(false) }
+    it { expect(subject.csv_row[56]).to eq(is_pets) }
+    it { expect(subject.csv_row[57]).to eq(pets_breed) }
+    it { expect(subject.csv_row[58]).to eq(pets_type) }
+    it { expect(subject.csv_row[59]).to eq(pets_age) }
+    it { expect(subject.csv_row[60]).to eq(pets_periodic) }
+    it { expect(subject.csv_row[61]).to eq(pets_size) }
   end
 
   describe '.fetch' do

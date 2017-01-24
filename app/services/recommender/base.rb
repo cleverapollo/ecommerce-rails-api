@@ -50,7 +50,8 @@ module Recommender
                   name: item.name,
                   url: item.url,
                   image_url: item.image_url,
-                  price: item.price.to_s
+                  price: item.price.to_s,
+                  currency: shop.currency
               }
         end
 
@@ -123,7 +124,7 @@ module Recommender
     def apply_industrial_filter(relation)
 
       # Если известен пол покупателя и у магазина включен решим отраслевого
-      if shop.subscription_plans.rees46_recommendations.paid.exists?
+      if shop.subscription_plans.product_recommendations.paid.exists?
 
         # Фильтрация по полу
         if user.try(:gender).present?
@@ -132,6 +133,35 @@ module Recommender
           # if relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender ).exists?
           relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
           # end
+        end
+
+        # Фильтрация по маркам авто
+        if user.try(:compatibility).present?
+          relation = relation.where("
+              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
+              OR
+              (is_auto = true AND auto_compatibility IS NULL)
+              OR is_auto IS NULL
+          ", brand: user.compatibility['brand'], model: user.compatibility['model'])
+        end
+
+        # Фильтрация по VIN авто
+        if user.try(:vds).present?
+          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+        end
+
+        # Фильтрация по животным.
+        if user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
+          subconditions = user.pets.map do |pet|
+            if pet['type'] && pet['breed']
+              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
+            elsif pet['type']
+              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed IS NULL)"
+            else
+              nil
+            end
+          end.compact.join("")
+          relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
         end
 
       end

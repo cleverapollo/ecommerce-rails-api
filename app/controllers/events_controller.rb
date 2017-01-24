@@ -8,12 +8,30 @@ class EventsController < ApplicationController
   def push
 
     # Извлекаем данные из входящих параметров
-    extracted_params = ActionPush::Params.extract(params)
+    extracted_params = ActionPush::Params.new(params)
+    extracted_params.shop = @shop
+    extracted_params = extracted_params.extract
 
     # Запускаем процессор с извлеченными данными
     ActionPush::Processor.new(extracted_params).process
 
+    # Сообщаем брокеру брошенных корзин RTB
+    popunder_urls = case extracted_params.action.to_sym
+      when :cart
+         Rtb::Broker.new(extracted_params.shop).notify(extracted_params.user, extracted_params.items)
+      when :purchase
+        Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user)
+      when :remove_from_cart
+        Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user, extracted_params.items)
+    end
+
+    # Popunder disabled temporarily
     respond_with_success
+    # if popunder_urls
+    #   render json: { status: 'success', url: popunder_urls }
+    # else
+    #   respond_with_success
+    # end
 
   rescue ActionPush::Error => e
     log_client_error(e)

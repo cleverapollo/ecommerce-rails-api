@@ -7,7 +7,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
 
     let!(:user) { create(:user) }
     let!(:customer) { create(:customer) }
-    let!(:shop) { create(:shop, customer: customer, ekomi_enabled: true, ekomi_id: '665', ekomi_key: 'FMJuyuC8uEbo3WxRa5aG') }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop, email: 'test@rees46demo.com') }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
@@ -42,18 +42,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
 
     end
 
-    context 'ekomi integration' do
-      it {
-        trigger = subject
-        expect( trigger.triggered? ).to be_truthy
-        letter = TriggerMailings::Letter.new(client, trigger)
-        expect( letter.body.scan(/(feedback|opinion|kundenmeinung|klantenmening)\.php/).any? ).to be_truthy
-      }
-    end
-
-
     context 'when trigger disabled for shop' do
-
     end
 
   end

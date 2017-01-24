@@ -25,6 +25,9 @@ module Mailings
       m.header['List-Id'] = @options.fetch(:list_id)
       m.header['Feedback-ID'] = @options.fetch(:feedback_id)
 
+      # Bounced ID for Get-N-Post API
+      m.header['X-R46-ID'] = "shard#{SHARD_ID}+#{type}=#{code}"
+
       if @options.fetch(:type) == 'digest'
         m.header['Precedence'] = 'bulk'
       end
@@ -39,7 +42,7 @@ module Mailings
     def generate_return_path
       type = @options.fetch(:type)
       code = @options[:code] || 'test'
-      "bounced+shard#{SHARD_ID}+#{type}=#{code}@rees46.com"
+      "bounce+shard#{SHARD_ID}+#{type}=#{code}@bounce.rees46.com"
     end
 
     def sign(m)

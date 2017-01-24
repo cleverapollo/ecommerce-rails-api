@@ -11,11 +11,11 @@ module TriggerMailings
       @trigger = trigger
       @api = get_response_client
       @trigger_mail = client.trigger_mails.create!(
-          mailing: trigger.mailing,
-          shop: client.shop,
-          trigger_data: {
-              trigger: trigger.to_json
-          }
+        mailing: trigger.mailing,
+        shop: client.shop,
+        trigger_data: {
+          trigger: trigger.to_json
+        }
       ).reload
     end
 

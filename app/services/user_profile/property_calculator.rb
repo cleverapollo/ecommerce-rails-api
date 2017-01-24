@@ -74,7 +74,6 @@ class UserProfile::PropertyCalculator
     hair.empty? ? nil : hair
   end
 
-
   # Подсчитывает вероятность аллергии для косметики и FMCG
   # @param user [User]
   # @return Boolean | nil
@@ -87,10 +86,6 @@ class UserProfile::PropertyCalculator
     # Абстрактный порог в 10 – тогда считаем, что аллергия есть
     sum >= 10 ? true : nil
   end
-
-
-
-
 
   # Рассчитывает тип и состояние кожи по частям тела человека.
   # Структура возвращаемого хеша:
@@ -152,11 +147,6 @@ class UserProfile::PropertyCalculator
 
     skin.empty? ? nil : skin
   end
-
-
-
-
-
 
   # Рассчитывает детей покупателя
   # Структура возвращаемого массива:
@@ -255,6 +245,93 @@ class UserProfile::PropertyCalculator
 
   end
 
+  # Определяет возможные марки автомобиля
+  # @param user User
+  # @return Hash | nil
+  def calculate_compatibility(user)
+    compatibilities = {}
+    score = {}
+
+    # Заполняем хеш сырыми данными
+    ProfileEvent.where(user_id: user.id, industry: 'auto').where('property like $$compatibility_%$$').each do |event|
+      compatibility = event.property.gsub('compatibility_', '')
+      value = event.value
+      score[compatibility] = {} unless score.key?(compatibility)
+      score[compatibility][value] = 0 unless score[compatibility].key?(value)
+      score[compatibility][value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
+    end
+
+    return nil if score.empty?
+
+    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
+    # На выходе что-то вроде: {'brand' => ['BMW', 'Audi'], 'model' => ['300', 'Aveo']}
+    score.each do |compatibility, values|
+      median = values.map { |k, v| v }.max / 2.0
+      selected = values.select { |k,v| v >= median }.map { |k,v| k }.sort
+      compatibilities[compatibility] = selected unless selected.empty?
+    end
+
+    compatibilities.empty? ? nil : compatibilities
+  end
+
+  # Определяет список VIN номеров
+  # @param user User
+  # @return Hash | nil
+  def calculate_vds(user)
+    score = {}
+
+    # Заполняем хеш сырыми данными
+    ProfileEvent.where(user_id: user.id, industry: 'auto', property: 'vds').each do |event|
+      value = event.value
+      score[value] = 0 unless score.key?(value)
+      score[value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
+    end
+
+    return nil if score.empty?
+
+    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
+    # На выходе массив VDS
+    median = score.map { |k, v| v }.max / 2.0
+    selected = score.select { |k,v| v >= median }.map { |k,v| k }.sort
+
+    selected.empty? ? nil : selected
+  end
+
+
+
+
+  # Определяет список животных
+  def calculate_pets(user)
+    properties = ProfileEvent.where(user_id: user.id, industry: 'pets').map { |x| Hash[x.value.split(';').map { |y| y.split(':') }].merge('score' => (x.views.to_i + x.carts.to_i * 2 + x.purchases.to_i * 5)) }.sort_by { |x| x.size }.reverse
+    selected = []
+
+    # Проверяет схожесть записей
+    def _similar(a, b)
+      return false if a['type'] != b['type']
+      return false if a['breed'].present? && b['breed'].present? && a['breed'] != b['breed']
+      return false if a['size'].present? && b['size'].present? && a['size'] != b['size']
+      return false if a['age'].present? && b['age'].present? && a['age'] != b['age']
+      true
+    end
+
+    while property = properties.pop
+      index = selected.index { |x| _similar(x, property) }
+      if index.nil?
+        selected << property
+      else
+        selected[index]['breed'] = property['breed'] if property['breed'].present? && selected[index]['breed'].nil?
+        selected[index]['age'] = property['age'] if property['age'].present? && selected[index]['age'].nil?
+        selected[index]['size'] = property['size'] if property['size'].present? && selected[index]['size'].nil?
+        selected[index]['score'] += property['score']
+      end
+    end
+
+    # Если в выбранных животных скоринг меньше среднего, то их убираем
+    selected = selected.select { |x| x['score'] >= selected.inject(0) { |sum, y| sum + y['score'] }.to_f / selected.size } if selected.any?
+
+    return selected.any? ? selected : nil
+
+  end
 
 
 end

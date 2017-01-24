@@ -15,7 +15,7 @@ class MahoutService
   end
 
   def open
-    unless Rails.env.test?
+    if !Rails.env.test? && !Rails.env.development?
       begin
         Timeout::timeout(0.2) {
           @socket = UNIXSocket.new(SOCKET_PATH)

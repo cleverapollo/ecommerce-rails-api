@@ -4,12 +4,14 @@
 class Customer < MasterTable
 
   has_many :shops
+  belongs_to :currency
 
   scope :admins, -> { where(role: 0) }
 
   class << self
-    def default_manager
-      Customer.new(first_name: 'Дмитрий', last_name: 'Зубенко', email: 'dz@rees46.com')
+    def default_manager(language = 'ru')
+      name = (language.to_s == 'ru' ? { first: 'Дмитрий', last: 'Зубенко'} : { first: 'Dmitry ', last: 'Zubenko'})
+      Customer.new(first_name: name[:first], last_name: name[:last], email: 'dz@rees46.com')
     end
   end
 

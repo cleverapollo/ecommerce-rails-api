@@ -10,6 +10,9 @@ module Mailings
       end
 
       def send
+        native_campaign = api.get_campaign(digest_mailing.mailchimp_campaign_id)
+        raise if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
+
         # Отправление сразу всем пользователям
         api.send_campaign(digest_mailing.mailchimp_campaign_id)
 
@@ -24,7 +27,7 @@ module Mailings
         digest_mailing.finish!
 
         member_fields_counter = api.get_list(digest_mailing.mailchimp_list_id, 'stats.merge_field_count')['stats']['merge_field_count']
-        merge_fields = api.get_merge_fields(digest_mailing.mailchimp_list_id, 14, 'merge_fields.merge_id,merge_fields.tag')['merge_fields']
+        merge_fields = api.get_merge_fields(digest_mailing.mailchimp_list_id, member_fields_counter, 'merge_fields.merge_id,merge_fields.tag')['merge_fields']
 
         merge_fields_tags = []
 

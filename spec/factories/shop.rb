@@ -39,7 +39,7 @@ FactoryGirl.define do
   end
 
   factory :shop_xml, class: Hash do
-    name 
+    name
     company
     url
     local_delivery_cost

@@ -11,12 +11,15 @@ class Item < ActiveRecord::Base
   has_many :actions
   has_many :order_items
   has_many :brand_campaign_purchases
+  has_many :reputations, as: :entity
 
   scope :recommendable, -> { available.where(ignored: false) }
   scope :widgetable,    -> { where(widgetable:true) }
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
   scope :available,     -> { where(is_available: true) }
   scope :discount,     -> { where('discount IS TRUE AND discount IS NOT NULL') }
+  scope :not_periodic, -> { where('fmcg_periodic IS NOT TRUE AND cosmetic_periodic IS NOT TRUE AND auto_periodic IS NOT TRUE AND pets_periodic IS NOT TRUE') }
+
 
   # Фильтрация по категориям
   scope :in_categories, ->(categories, args = { any: false }) {
@@ -51,7 +54,6 @@ class Item < ActiveRecord::Base
       image_url
       widgetable
       brand
-      ignored
       type_prefix
       vendor_code
       model
@@ -89,6 +91,16 @@ class Item < ActiveRecord::Base
       oldprice
       brand_downcase
       discount
+      is_auto
+      auto_compatibility
+      auto_periodic
+      auto_vds
+      is_pets
+      pets_breed
+      pets_type
+      pets_age
+      pets_periodic
+      pets_size
     ].sort
   end
 
@@ -103,10 +115,14 @@ class Item < ActiveRecord::Base
   # Применить аттрибуты товара
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
-    attrs = merge_attributes(item_proxy)
+    self.attributes = merge_attributes(item_proxy)
 
     begin
-      save! if changed?
+      new_record = !self.persisted?
+      if changed?
+        save!
+        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable? && new_record
+      end
       return self
     rescue ActiveRecord::RecordNotUnique => e
       item = Item.find_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
@@ -130,7 +146,6 @@ class Item < ActiveRecord::Base
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
         is_available: new_item.is_available,
-        ignored: new_item.ignored.nil? ? false : new_item.ignored,
         type_prefix: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :type_prefix)),
         vendor_code: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :vendor_code)),
         model: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :model)),
@@ -170,7 +185,7 @@ class Item < ActiveRecord::Base
 
   # Периодичный ли товар?
   def periodic?
-    (is_fmcg && fmcg_periodic == true) || (is_cosmetic && cosmetic_periodic == true)
+    (is_fmcg && fmcg_periodic == true) || (is_cosmetic && cosmetic_periodic == true) || (is_auto? && auto_periodic?) || (is_auto? && pets_periodic?)
   end
 
   # Гипоаллергенный ли товар?
@@ -180,7 +195,7 @@ class Item < ActiveRecord::Base
 
   # Выключает товар
   def disable!
-    update(is_available: false, widgetable: false) if is_available == true || widgetable == true
+    update(is_available: false, widgetable: false, ignored: true) if is_available == true || widgetable == true || ignored == false
   end
 
   # Цена товара с учетом локации
@@ -213,7 +228,7 @@ class Item < ActiveRecord::Base
 
             table.connection.execute <<-SQL
               UPDATE items
-                 SET (#{ yml_update_columns.join(', ') }) = 
+                 SET (#{ yml_update_columns.join(', ') }) =
                      (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
                 FROM temp_#{ shop_id }_items AS temp
                WHERE temp.shop_id = items.shop_id
@@ -243,6 +258,7 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # @param offer [Rees46ML::Offer]
   def self.build_by_offer(offer)
     new do |item|
       item.uniqid = offer.id
@@ -333,6 +349,44 @@ class Item < ActiveRecord::Base
         item.is_fmcg = true
         item.fmcg_hypoallergenic = offer.fmcg.hypoallergenic
         item.fmcg_periodic = offer.fmcg.periodic
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_fmcg = nil
+        item.fmcg_hypoallergenic = nil
+        item.fmcg_periodic = nil
+      end
+
+      if offer.pets?
+        item.is_pets = true
+        item.pets_periodic = offer.pets.periodic
+        item.pets_breed = offer.pets.breed
+        item.pets_age = offer.pets.pet_age
+        item.pets_type = offer.pets.pet_type
+        item.pets_size = offer.pets.pet_size
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_pets = nil
+        item.pets_periodic = nil
+        item.pets_breed = nil
+        item.pets_age = nil
+        item.pets_type = nil
+        item.pets_size = nil
+      end
+
+      if offer.auto?
+        item.is_auto = true
+        item.auto_compatibility = {
+            brands: offer.auto.compatibility.map {|c| c[:brand].downcase }.reject { |v| v.nil? || v.empty? },
+            models: offer.auto.compatibility.map {|c| c[:model].downcase }.reject { |v| v.nil? || v.empty? }
+        }.reject { |k,v| v.nil? || v.empty? }
+        item.auto_periodic = !!offer.auto.periodic
+        item.auto_vds = offer.auto.vds.map(&:downcase)
+      else
+        # Обнуляем, если вдруг данные изменились
+        item.is_auto = nil
+        item.auto_compatibility = nil
+        item.auto_periodic = nil
+        item.auto_vds = nil
       end
 
       item.brand = offer.vendor
@@ -366,13 +420,11 @@ class Item < ActiveRecord::Base
     end
   end
 
-
   # Ссылка на отресайзенную картинку товара
-  # @param width [Integer]
-  # @param height [Integer]
+  # @param dimension [String]
   # @return String
-  def resized_image(width, height)
-    "https://rees46.com/resized-image/#{shop.uniqid}/#{id}/#{width}/#{height}"
+  def resized_image_by_dimension(dimension = '180x180')
+    "http://pictures.rees46.com/resize-images/#{dimension.split('x')[0]}/#{shop.uniqid}/#{self.id}.jpg"
   end
 
 end

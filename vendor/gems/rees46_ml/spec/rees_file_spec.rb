@@ -113,6 +113,12 @@ describe "check rees.xml" do
     expect(offer.child.age.max).to eq("1")
     expect(offer.child.type).to eq("toy")
 
+    expect(offer.pets.periodic).to eq(true)
+    expect(offer.pets.pet_type).to eq("cat")
+    expect(offer.pets.pet_age).to eq("middle")
+    expect(offer.pets.pet_size).to eq("large")
+    expect(offer.pets.breed).to eq("toy terrier")
+
     expect(offer.cosmetic.gender.value).to eq("f")
     expect(offer.cosmetic.hypoallergenic).to eq(true)
     expect(offer.cosmetic.periodic).to eq(true)
@@ -127,6 +133,16 @@ describe "check rees.xml" do
     expect(offer.fmcg.periodic).to eq(true)
     # volumes
 
+    expect(offer.auto.periodic).to eq(true)
+    expect(offer.auto.compatibility.length).to eq(3)
+    expect(offer.auto.compatibility.first.brand).to eq('BMW')
+    expect(offer.auto.compatibility.to_a[1].brand).to eq('Mini')
+    expect(offer.auto.compatibility.to_a[1].model).to eq('Cooper S')
+    expect(offer.auto.compatibility.to_a[2].brand).to eq('Mini')
+    expect(offer.auto.compatibility.to_a[2].model).to eq('Cooper One')
+    expect(offer.auto.vds.length).to eq(2)
+    expect(offer.auto.vds.to_a.first).to eq('BP8AN5')
+    expect(offer.auto.vds.to_a.last).to eq('HH5820')
 
     expect(offer.fashion.type).to eq("shirt")
     expect(offer.fashion.feature).to eq("adult")

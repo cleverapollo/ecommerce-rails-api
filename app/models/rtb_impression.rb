@@ -4,6 +4,9 @@ class RtbImpression < MasterTable
   belongs_to :shop
   belongs_to :item
   belongs_to :user
+  belongs_to :rtb_job, foreign_key: :ad_id
+
+  scope :clicks, -> { where(clicked: true) }
 
   def mark_as_purchased!
     update_columns(clicked: true, purchased: true) unless purchased?

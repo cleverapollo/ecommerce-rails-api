@@ -36,7 +36,7 @@ module WebPush
         periodic_items = {}
         Order.where(shop_id: shop.id).where(user_id: user.id).where(date: trigger_time_range).each do |order|
           order.order_items.includes(:item).each do |order_item|
-            if order_item.item.periodic? && order_item.item.is_available? && order_item.item.widgetable? && !order_item.item.ignored?
+            if order_item.item.present? && order_item.item.periodic? && order_item.item.is_available? && order_item.item.widgetable? && !order_item.item.ignored?
               if !periodic_items.key?(order_item.item_id)
                 periodic_items[order_item.item_id] = []
               end

@@ -1,0 +1,16 @@
+p Здравствуйте!
+
+p
+  = 'К сожалению мы не смогли обработать YML-файл вашего интернет-магазина '
+  = link_to @shop.name, @shop.url
+  = '.'
+  br
+  = "Причина: "
+  strong = @message
+
+p
+  = 'Пожалуйста, укажите ссылку на корректный YML-файл в '
+  = link_to 'личном кабинете', "#{Rees46.site_url}/shops/#{@shop.id}/edit"
+  = '.'
+
+= render 'shared/errors_mailer_footer'

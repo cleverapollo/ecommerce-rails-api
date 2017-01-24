@@ -21,47 +21,17 @@ class ProfileEvent < MasterTable
       master_user = options.fetch(:to)
       slave_user = options.fetch(:from)
       where(user_id: slave_user.id).each do |slave_row|
-        master_row = find_by(user_id: master_user.id, shop_id: slave_row.shop_id, industry: slave_row.industry, property: slave_row.property,  value: slave_row.value)
-        if master_row
-          hash_for_update = {}
-          hash_for_update[:views] = (slave_row.views + master_row.views) if slave_row.views.present? && master_row.views.present?
-          hash_for_update[:views] = slave_row.views if slave_row.views.present? && !master_row.views.present?
-          hash_for_update[:views] = master_row.views if !slave_row.views.present? && master_row.views.present?
-          hash_for_update[:carts] = (slave_row.carts + master_row.carts) if slave_row.carts.present? && master_row.carts.present?
-          hash_for_update[:carts] = slave_row.carts if slave_row.carts.present? && !master_row.carts.present?
-          hash_for_update[:carts] = master_row.carts if !slave_row.carts.present? && master_row.carts.present?
-          hash_for_update[:purchases] = (slave_row.purchases + master_row.purchases) if slave_row.purchases.present? && master_row.purchases.present?
-          hash_for_update[:purchases] = slave_row.purchases if slave_row.purchases.present? && !master_row.purchases.present?
-          hash_for_update[:purchases] = master_row.purchases if !slave_row.purchases.present? && master_row.purchases.present?
-
-          # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
-          if master_row.created_at.nil? && slave_row.created_at.nil?
-            hash_for_update[:created_at] = DateTime.current
-          elsif !master_row.created_at.nil? && slave_row.created_at.nil?
-            hash_for_update[:created_at] = master_row.created_at
-          elsif master_row.created_at.nil? && !slave_row.created_at.nil?
-            hash_for_update[:created_at] = slave_row.created_at
-          else
-            hash_for_update[:created_at] = ( master_row.created_at > slave_row.created_at ? slave_row.created_at : master_row.created_at )
-          end
-          if master_row.updated_at.nil? && slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = DateTime.current
-          elsif !master_row.updated_at.nil? && slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = master_row.updated_at
-          elsif master_row.updated_at.nil? && !slave_row.updated_at.nil?
-            hash_for_update[:updated_at] = slave_row.updated_at
-          else
-            hash_for_update[:updated_at] = ( master_row.updated_at > slave_row.updated_at ? master_row.updated_at : slave_row.updated_at )
-          end
-
-          master_row.update hash_for_update unless hash_for_update.empty?
-          slave_row.delete
-        else
-          slave_row.update user_id: master_user.id
-        end
+        slave_row.merge_to(master_user)
       end
     end
 
+    # @param [User] master
+    # @param [Integer] slave_id
+    def relink_user_remnants(master, slave_id)
+      where(user_id: slave_id).each do |slave_row|
+        slave_row.merge_to(master)
+      end
+    end
 
 
     # Записывает пользователю для каждого товара отраслевые характеристики в историю действий
@@ -69,7 +39,7 @@ class ProfileEvent < MasterTable
     # @param user [User]
     # @param shop [Shop]
     # @param action [Action]
-    # @param items [Item[]] Array of items
+    # @param items [Array<Item>] Array of items
     # @return Boolean
     # @throws Exception
     def track_items(user, shop, action, items)
@@ -209,15 +179,74 @@ class ProfileEvent < MasterTable
               item.fashion_sizes.each do |size|
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
-                properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
               end
+              properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
             end
 
           end
 
         end
 
+        # Авто
+        if item.is_auto?
+
+          # Марка и модель авто
+          if item.auto_compatibility.present?
+
+            # Марка
+            if item.auto_compatibility['brands'].present?
+              item.auto_compatibility['brands'].each do |brand|
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_brand', value: brand
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+
+            # Модель
+            if item.auto_compatibility['models'].present?
+              item.auto_compatibility['models'].each do |model|
+                if model.present?
+                  profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'compatibility_model', value: model
+                  profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                end
+              end
+            end
+            properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility user
+          end
+
+          # VIN
+          if item.auto_vds.present?
+            item.auto_vds.each do |vds|
+              # Марка
+              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'auto', property: 'vds', value: vds
+              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+            end
+            properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds user
+          end
+
+        end
+
+        if item.is_pets?
+          unless item.pets_type.nil?
+            property_value = "type:#{item.pets_type}"
+            property_value = "#{property_value};breed:#{item.pets_breed}" unless item.pets_breed.nil?
+            property_value = "#{property_value};age:#{item.pets_age}" unless item.pets_age.nil?
+            property_value = "#{property_value};size:#{item.pets_size}" unless item.pets_size.nil?
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'pets', property: 'type', value: property_value
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+        end
+
       end
+
+
+
+      # Если есть животные товары, то пересчитать животный профиль
+      if items.select { |x| x.is_pets? }.any?
+        properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+      end
+
+
+
 
       # Если есть поля для обновления пользователя – обновляем
       user.update properties_to_update unless properties_to_update.empty?
@@ -226,6 +255,50 @@ class ProfileEvent < MasterTable
     end
 
 
+
+  end
+
+  # Перенос объекта к указанному юзеру
+  # @param [User] user
+  def merge_to(user)
+    master_row = ProfileEvent.where(user_id: user.id, shop_id: self.shop_id, industry: self.industry, property: self.property, value: self.value).where.not(id: self.id).order(:id).limit(1)[0]
+    if master_row.present?
+      hash_for_update = {}
+      hash_for_update[:views] = (self.views + master_row.views) if self.views.present? && master_row.views.present?
+      hash_for_update[:views] = self.views if self.views.present? && !master_row.views.present?
+      hash_for_update[:views] = master_row.views if !self.views.present? && master_row.views.present?
+      hash_for_update[:carts] = (self.carts + master_row.carts) if self.carts.present? && master_row.carts.present?
+      hash_for_update[:carts] = self.carts if self.carts.present? && !master_row.carts.present?
+      hash_for_update[:carts] = master_row.carts if !self.carts.present? && master_row.carts.present?
+      hash_for_update[:purchases] = (self.purchases + master_row.purchases) if self.purchases.present? && master_row.purchases.present?
+      hash_for_update[:purchases] = self.purchases if self.purchases.present? && !master_row.purchases.present?
+      hash_for_update[:purchases] = master_row.purchases if !self.purchases.present? && master_row.purchases.present?
+
+      # created_at и updated_at тоже сливать - самый ранний created_at и самый поздний updated_at. Так сможем определять актуальность информации и динамически высчитывать возраст.
+      if master_row.created_at.nil? && self.created_at.nil?
+        hash_for_update[:created_at] = DateTime.current
+      elsif !master_row.created_at.nil? && self.created_at.nil?
+        hash_for_update[:created_at] = master_row.created_at
+      elsif master_row.created_at.nil? && !self.created_at.nil?
+        hash_for_update[:created_at] = self.created_at
+      else
+        hash_for_update[:created_at] = ( master_row.created_at > self.created_at ? self.created_at : master_row.created_at )
+      end
+      if master_row.updated_at.nil? && self.updated_at.nil?
+        hash_for_update[:updated_at] = DateTime.current
+      elsif !master_row.updated_at.nil? && self.updated_at.nil?
+        hash_for_update[:updated_at] = master_row.updated_at
+      elsif master_row.updated_at.nil? && !self.updated_at.nil?
+        hash_for_update[:updated_at] = self.updated_at
+      else
+        hash_for_update[:updated_at] = ( master_row.updated_at > self.updated_at ? master_row.updated_at : self.updated_at )
+      end
+
+      master_row.update hash_for_update unless hash_for_update.empty?
+      self.delete
+    else
+      self.update user_id: user.id
+    end
 
   end
 
