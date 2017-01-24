@@ -37,8 +37,15 @@ class OrdersSyncWorker
           # (то есть счет за CPA уже был выставлен) и заказ еще не был компенсирован, то компенсируем комиссию
           # При этом дата заказа должна быть не старше 1 месяца.
           if element["status"].to_i == Order::STATUS_CANCELLED && current_order.refundable?
-            current_order.update! compensated: true
-            current_shop.customer.change_balance CpaReport.fee(current_order, current_shop)
+
+            # Нельзя возвращать компенсацию, если есть действующая подписка
+            if !(current_order.source_type == 'TriggerMail' && current_shop.subscription_plans.trigger_emails.active.paid.exists?) &&
+               !(current_order.source_type == 'DigestMail' && current_shop.subscription_plans.digest_emails.active.paid.exists?)
+
+              # Возыращаем компенсацию
+              current_order.update! compensated: true
+              current_shop.customer.change_balance CpaReport.fee(current_order, current_shop)
+            end
           end
 
           current_order.change_status element["status"].to_i
