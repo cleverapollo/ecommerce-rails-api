@@ -170,7 +170,11 @@ class Client < ActiveRecord::Base
 
   # Отмечает, что пользователь недавно что-то делал. Используется затем для выборки получателей триггеров
   def track_last_activity
-    update last_activity_at: Date.current if last_activity_at != Date.current
+    if last_activity_at != Date.current
+      Time.use_zone(shop.customer.time_zone) do
+        update last_activity_at: Date.current
+      end
+    end
   end
 
   # Подписывает клиента на триггерные рассылки

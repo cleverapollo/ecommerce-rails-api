@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe DigestMailingBatchWorker do
-  let!(:shop) { create(:shop) }
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
   let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@rees46demo.com', activity_segment: 1) }
@@ -94,7 +95,7 @@ describe DigestMailingBatchWorker do
   end
 
   describe '#liquid_letter_body' do
-    let!(:liquid_shop) { create(:shop) }
+    let!(:liquid_shop) { create(:shop, customer: customer) }
     let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
     let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}{{item.url}}{% endfor%}') }
     let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@rees46demo.com', activity_segment: 1) }
@@ -118,7 +119,22 @@ describe DigestMailingBatchWorker do
   end
 
 
+  context 'Time zone' do
+    before { allow(Time).to receive(:now).and_return(Time.parse('2016-10-05 05:00:00 UTC +00:00')) }
+    let!(:customer) { create(:customer, time_zone: 'Pacific Time (US & Canada)') }
+    subject do
+      s = DigestMailingBatchWorker.new
+      s.current_client = client
+      s.mailing = mailing
+      s.perform(batch.id)
+    end
 
+    it 'digest_mail date yesterday for UTC' do
+     subject
+
+     expect(DigestMail.first.date.to_s).to eq '2016-10-04'
+    end
+  end
 
 
   describe '#item_for_letter' do

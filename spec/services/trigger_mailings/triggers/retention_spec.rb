@@ -6,7 +6,8 @@ describe TriggerMailings::Triggers::Retention do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop, supply_available: true) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
@@ -43,7 +44,8 @@ describe TriggerMailings::Triggers::Retention do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }

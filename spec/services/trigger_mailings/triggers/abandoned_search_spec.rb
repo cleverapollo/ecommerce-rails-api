@@ -7,7 +7,8 @@ describe TriggerMailings::Triggers::AbandonedSearch do
 
     let!(:user) { create(:user) }
     let!(:user_old) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
     let!(:client_old) { create(:client, user: user_old, shop: shop) }
 
@@ -64,7 +65,8 @@ describe TriggerMailings::Triggers::AbandonedSearch do
 
     let!(:user) { create(:user) }
     let!(:user_old) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
     let!(:client_old) { create(:client, user: user_old, shop: shop) }
 

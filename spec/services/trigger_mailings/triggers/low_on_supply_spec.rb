@@ -6,7 +6,8 @@ describe TriggerMailings::Triggers::LowOnSupply do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop, supply_available: true) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
@@ -58,7 +59,8 @@ describe TriggerMailings::Triggers::LowOnSupply do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop, supply_available: true) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }

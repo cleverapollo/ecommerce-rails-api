@@ -42,7 +42,9 @@ class DigestMail < ActiveRecord::Base
   private
 
   def set_date
-    self.date = Date.current
+    Time.use_zone(shop.customer.time_zone) do
+      self.date = Date.current
+    end
   end
 
 end

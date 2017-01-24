@@ -4,7 +4,8 @@ describe EventsController do
 
   describe 'POST push_attributes' do
     before { allow(UserProfile::AttributesProcessor).to receive(:process) }
-    let(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let(:user) { create(:user) }
     let(:session) { create(:session, user: user) }
     let!(:params) { { shop_id: shop.uniqid, session_id: session.code, attributes: { gender: 'f', size: 'e35', type: 'shoe' } } }
@@ -45,7 +46,8 @@ describe EventsController do
     # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
     before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:session) { create(:session, user: create(:user)) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code }  }
 
@@ -89,7 +91,8 @@ describe EventsController do
   end
 
   describe 'POST push purchase' do
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:session) { create(:session, user: create(:user)) }
     let!(:client) { create(:client, user: create(:user), shop: shop) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'purchase', order_id: '1', order_price: '1000', item_id: ['20'], amount: ['1'], price: ['1000'] } }

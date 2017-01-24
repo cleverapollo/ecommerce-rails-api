@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe UserMerger do
-  let!(:shop) { create(:shop) }
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
   let(:master) { create(:user) }
 
   let(:slave) { create(:user) }
