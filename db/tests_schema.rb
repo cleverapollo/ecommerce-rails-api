@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112144806) do
+ActiveRecord::Schema.define(version: 20170123085416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -283,12 +283,12 @@ ActiveRecord::Schema.define(version: 20170112144806) do
   add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
 
   create_table "customers", force: :cascade do |t|
-    t.string   "email",                  limit: 255, default: "",    null: false
-    t.string   "encrypted_password",     limit: 255, default: "",    null: false
+    t.string   "email",                  limit: 255, default: "",       null: false
+    t.string   "encrypted_password",     limit: 255, default: "",       null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,     null: false
+    t.integer  "sign_in_count",                      default: 0,        null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
@@ -299,28 +299,29 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.string   "phone",                  limit: 255
     t.string   "city",                   limit: 255
     t.string   "company",                limit: 255
-    t.boolean  "subscribed",                         default: true,  null: false
+    t.boolean  "subscribed",                         default: true,     null: false
     t.string   "unsubscribe_token",      limit: 255
     t.integer  "partner_id"
     t.string   "first_name",             limit: 255
     t.string   "last_name",              limit: 255
-    t.float    "balance",                            default: 0.0,   null: false
+    t.float    "balance",                            default: 0.0,      null: false
     t.string   "gift_link",              limit: 255
     t.boolean  "real",                               default: true
     t.boolean  "financial_manager",                  default: false
     t.date     "recent_activity"
     t.string   "promocode"
     t.string   "juridical_person"
-    t.integer  "currency_id",                        default: 1,     null: false
-    t.string   "language",                           default: "ru",  null: false
-    t.boolean  "notify_about_finances",              default: true,  null: false
-    t.integer  "partner_balance",                    default: 0,     null: false
+    t.integer  "currency_id",                        default: 1,        null: false
+    t.string   "language",                           default: "ru",     null: false
+    t.boolean  "notify_about_finances",              default: true,     null: false
+    t.integer  "partner_balance",                    default: 0,        null: false
     t.integer  "my_partner_visits",                  default: 0
     t.integer  "my_partner_signups",                 default: 0
     t.string   "api_key",                limit: 255
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
@@ -404,12 +405,15 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.string   "website"
     t.string   "company"
     t.string   "position"
-    t.boolean  "synced_with_crm", default: false
-    t.boolean  "success",         default: false
-    t.boolean  "cancelled",       default: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.boolean  "synced_with_crm",     default: false
+    t.boolean  "success",             default: false
+    t.boolean  "cancelled",           default: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.string   "cms"
+    t.string   "preferred_time_from"
+    t.string   "preferred_time_to"
+    t.string   "time_zone"
   end
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
@@ -773,8 +777,11 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.text     "css"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "theme_id",    limit: 8
+    t.string   "theme_type"
   end
 
+  add_index "styles", ["shop_id", "theme_id", "theme_type"], name: "index_styles_theme", using: :btree
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 
