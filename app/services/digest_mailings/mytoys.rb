@@ -4,8 +4,12 @@ module DigestMailings
     class << self
 
       def sync
-        # MyToys
-        shop = Shop.find 828
+        begin
+          # MyToys
+          shop = Shop.find 828
+        rescue ActiveRecord::RecordNotFound
+          return false
+        end
         recommendations_count = 9
         digest_path = 'tmp/optivo_mytoys/digests.csv'
 
