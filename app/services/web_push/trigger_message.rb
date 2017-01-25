@@ -3,30 +3,35 @@ class WebPush::TriggerMessage
   class IncorrectSettingsError < StandardError; end
   class NotEnoughMoney < StandardError; end
 
-  attr_accessor :client, :shop, :trigger, :message, :settings, :body, :safari_pusher
+  attr_accessor :client, :shop, :trigger, :message, :settings, :body, :safari_pusher, :test
 
   # Инициализация сообщения
   # @param trigger [WebPush::Triggers::Base]
   # @param client [Client]
   # @param safari_pusher [Grocer]
-  def initialize(trigger, client, safari_pusher = nil)
+  # @param test [Boolean] Тестовая отправка?
+  def initialize(trigger, client, safari_pusher = nil, test = false)
     @client = client
     @shop = @client.shop
     @trigger = trigger
     @safari_pusher = safari_pusher
+    @test = test
 
     # Проверяем наличие баланса у магазина
-    if @shop.web_push_balance < 1
+    if !test && @shop.web_push_balance < 1
       raise NotEnoughMoney
     end
 
-    @message = client.web_push_trigger_messages.create!(
-        web_push_trigger: trigger.mailing,
-        shop: client.shop,
-        trigger_data: {
-            trigger: trigger.to_json
-        }
-    ).reload
+    # Если отправляем реальный триггер, то создаем сообщение
+    unless test
+      @message = client.web_push_trigger_messages.create!(
+          web_push_trigger: trigger.mailing,
+          shop: client.shop,
+          trigger_data: {
+              trigger: trigger.to_json
+          }
+      ).reload
+    end
     @body = generate_body
   end
 
@@ -34,8 +39,8 @@ class WebPush::TriggerMessage
   # Отправляет уведомление
   def send
     # Если ни одно сообщение не было доставлено до клиента, удаляем запись из базы
-    unless WebPush::Sender.send(client, shop, body, safari_pusher)
-      @message.destroy
+    unless WebPush::Sender.send(client, shop, body, safari_pusher, test)
+      @message.destroy unless @message.nil?
     end
   end
 
@@ -53,7 +58,7 @@ class WebPush::TriggerMessage
             utm_medium: 'web_push_trigger',
             utm_campaign: trigger.mailing.trigger_type,
             recommended_by: 'web_push_trigger',
-            rees46_web_push_trigger_code: message.code
+            rees46_web_push_trigger_code: message.nil? ? nil : message.code
         })
     }
   end
