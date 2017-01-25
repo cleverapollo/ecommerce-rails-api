@@ -71,4 +71,29 @@ describe OrdersSyncWorker do
     expect(shop.reload.last_orders_sync).to_not eq nil
   end
 
+  %w(trigger.emails digest.emails).each do |product|
+    context "active subscription #{product}" do
+      let!(:subscription_plan) { create(:subscription_plan, shop: shop, active: true, product: product, paid_till: Time.now + 1.day) }
+      let!(:order) { create(:order, shop: shop, user: user, uniqid: '123', date: 1.day.ago, value: 100, source_type: case product
+                                                                                                                       when 'trigger.emails' then 'TriggerMail'
+                                                                                                                       when 'digest.emails' then 'DigestMail'
+                                                                                                                      else nil
+                                                                                                                     end) }
+
+      it 'does not compensates fee for active subscription' do
+        params['orders'][0]['status'] = Order::STATUS_CANCELLED
+        expect(order.refundable?).to be_truthy
+        SubscriptionPlan
+
+        OrdersSyncWorker.new.perform(params)
+        order = shop.orders.first!
+        customer.reload
+        expect(order.status).to eq( Order::STATUS_CANCELLED )
+        expect(order.compensated).to be_nil
+        expect(order.refundable?).to be_falsey
+        expect(customer.balance).to eq( 100 )
+      end
+    end
+  end
+
 end
