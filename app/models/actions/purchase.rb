@@ -26,6 +26,7 @@ module Actions
       params.client.bought_something = true
       params.client.supply_trigger_sent = nil
       params.client.save if params.client.changed?
+      params.user.client_carts.destroy_all
     end
 
     def needs_to_update_rating?

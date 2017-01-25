@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112112551) do
+ActiveRecord::Schema.define(version: 20170125103217) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,6 +99,16 @@ ActiveRecord::Schema.define(version: 20170112112551) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
+
+  create_table "client_carts", id: :bigserial, force: :cascade do |t|
+    t.integer "user_id", limit: 8, null: false
+    t.integer "shop_id",           null: false
+    t.jsonb   "items"
+    t.date    "date"
+  end
+
+  add_index "client_carts", ["date"], name: "index_client_carts_on_date", using: :btree
+  add_index "client_carts", ["shop_id", "user_id"], name: "index_client_carts_on_shop_id_and_user_id", unique: true, using: :btree
 
   create_table "client_errors", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
@@ -575,6 +585,7 @@ ActiveRecord::Schema.define(version: 20170112112551) do
     t.string   "picture_content_type", limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
+    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.integer  "popup_type",                       default: 0,     null: false
@@ -586,7 +597,6 @@ ActiveRecord::Schema.define(version: 20170112112551) do
     t.boolean  "cursor_enabled",                   default: false, null: false
     t.boolean  "products",                         default: false, null: false
     t.text     "successfully"
-    t.text     "css"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
   end

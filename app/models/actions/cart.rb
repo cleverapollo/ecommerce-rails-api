@@ -22,6 +22,10 @@ module Actions
             action.update rating: Actions::RemoveFromCart::RATING, cart_count: 0
           end
         end
+
+        # Track client's cart
+        ClientCart.track(params.shop, params.user, params.items)
+
       end
     end
 

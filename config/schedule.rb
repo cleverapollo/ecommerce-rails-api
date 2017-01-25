@@ -47,6 +47,11 @@ every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
 end
 
+# Drop outdated abandoned carts
+every '50 23 * * *' do
+  runner "RunnerWrapper.run('ClientCart.clear_outdated')"
+end
+
 # Удаляем просроченные подписки на брошенные категории для триггеров
 every '55 23 * * *' do
   runner "RunnerWrapper.run('TriggerMailings::SubscriptionForCategory.cleanup')"

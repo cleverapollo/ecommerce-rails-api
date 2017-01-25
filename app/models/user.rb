@@ -16,6 +16,7 @@ class User < MasterTable
   has_many :subscribe_for_categories
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
+  has_many :client_carts
 
   # Редисовая блокировка. Используется при слиянии пользователей
   lock :merging, expiration: 60, timeout: 1

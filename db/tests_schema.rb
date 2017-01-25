@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170123085416) do
+ActiveRecord::Schema.define(version: 20170125103349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -321,11 +321,11 @@ ActiveRecord::Schema.define(version: 20170123085416) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
