@@ -14,7 +14,7 @@ class WebPushTriggersController < ApplicationController
     trigger.settings[:subject] = params[:subject]
     trigger.settings[:message] = params[:message]
 
-    message = WebPush::TriggerMessage.new(trigger, client, nil, true)
+    message = WebPush::TriggerMessage.new(trigger, client, @shop.web_push_subscriptions_settings.safari_config, true)
     message.send
 
     render nothing: true

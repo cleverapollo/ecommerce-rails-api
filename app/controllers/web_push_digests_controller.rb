@@ -12,7 +12,7 @@ class WebPushDigestsController < ApplicationController
     client = Client.find_by(shop_id: @shop.id, user_id: session.user_id)
 
     # Отправляем сообщение
-    WebPush::DigestMessage.new(client, web_push_digest, nil, nil, true).send
+    WebPush::DigestMessage.new(client, web_push_digest, nil, @shop.web_push_subscriptions_settings.safari_config, true).send
 
     render nothing: true
   end
