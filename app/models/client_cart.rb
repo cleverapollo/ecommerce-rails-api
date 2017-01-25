@@ -54,7 +54,10 @@ class ClientCart < ActiveRecord::Base
 
       else
         # No record - create it
-        self.create user_id: user.id, shop_id: shop.id, items: items.map(&:id)
+        begin
+          self.create user_id: user.id, shop_id: shop.id, items: items.map(&:id)
+        rescue ActiveRecord::RecordNotUnique
+        end
       end
     end
 
