@@ -85,7 +85,8 @@ class BounceHandlerWorker
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 
@@ -150,7 +151,8 @@ class BounceHandlerWorker
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 
@@ -181,7 +183,8 @@ class BounceHandlerWorker
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 
