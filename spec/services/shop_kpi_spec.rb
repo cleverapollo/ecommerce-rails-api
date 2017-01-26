@@ -22,6 +22,9 @@ describe ShopKPI do
   let!(:action_4) { create(:action, shop: shop, item: item_2, user: user_3, rating: 3.2, timestamp: (Date.yesterday + 2.hours).to_i) }
   let!(:action_5) { create(:action, shop: shop, item: item_1, user: user_3, rating: 3.2, timestamp: DateTime.current.to_i) }
 
+  let!(:client_cart_1) { create(:client_cart, shop: shop, items: [item_1.id, item_2.id], user: user_3, date: Date.yesterday) }
+  let!(:client_cart_2) { create(:client_cart, shop: shop, items: [item_1.id], user: user, date: Date.today) }
+
   let!(:trigger_mailing_1) { create(:trigger_mailing, trigger_type: 'type_1', shop: shop, enabled: true) }
   let!(:trigger_mailing_2) { create(:trigger_mailing, trigger_type: 'type_2', shop: shop, enabled: true) }
   let!(:trigger_mailing_3) { create(:trigger_mailing, trigger_type: 'type_3', shop: shop, enabled: false) }
@@ -149,10 +152,10 @@ describe ShopKPI do
       ShopKPI.new(shop).calculate_and_write_statistics_at(Date.yesterday)
       ShopKPI.new(shop).calculate_and_write_statistics_at(Date.today)
       expect(ShopMetric.count).to eq(2)
-      expect(ShopMetric.order(:id).first.abandoned_products).to eq(1)
-      expect(ShopMetric.order(:id).first.abandoned_money).to eq(100)
+      expect(ShopMetric.order(:id).first.abandoned_products).to eq(2)
+      expect(ShopMetric.order(:id).first.abandoned_money).to eq(300)
       expect(ShopMetric.order(:id).last.abandoned_products).to eq(1)
-      expect(ShopMetric.order(:id).last.abandoned_money).to eq(200)
+      expect(ShopMetric.order(:id).last.abandoned_money).to eq(100)
 
     end
 

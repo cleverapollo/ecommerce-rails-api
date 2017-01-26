@@ -127,7 +127,7 @@ class ShopKPI
     @shop_metric.remarketing_orders = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).count
     @shop_metric.remarketing_revenue = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).sum(:value)
 
-    @shop_metric.abandoned_products = client_carts.map {|x| x.items.count }.sum
+    @shop_metric.abandoned_products = client_carts.map {|x| x.items }.flatten.uniq.count
     @shop_metric.abandoned_money = 0
     if @shop_metric.abandoned_products > 0
       item_ids = client_carts.map {|x| x.items }.flatten.uniq

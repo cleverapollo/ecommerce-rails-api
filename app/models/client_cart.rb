@@ -84,7 +84,7 @@ class ClientCart < ActiveRecord::Base
   private
 
   def set_date
-    self.date = Date.current
+    self.date = Date.current if self.date.nil?
   end
 
 end
