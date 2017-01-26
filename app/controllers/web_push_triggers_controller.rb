@@ -5,6 +5,8 @@ class WebPushTriggersController < ApplicationController
   include ShopAuthenticator
 
   def send_test
+    # todo тестовый триггер отправляется с мастера. Убираем, потому, что тестовые триггеры шлются как от магазина REES46
+    raise NotImplementedError
 
     session = Session.find_by code: params[:ssid]
     client = Client.find_by(shop_id: @shop.id, user_id: session.user_id)

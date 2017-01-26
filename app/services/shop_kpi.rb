@@ -120,7 +120,7 @@ class ShopKPI
     end
 
     # Remarketing
-    @shop_metric.remarketing_carts = RtbJob.where(shop_id: @shop.id, date: @datetime_interval.first.to_date..@datetime_interval.last.to_date).count
+    @shop_metric.remarketing_carts = ClientCart.where(shop_id: @shop.id, date: @datetime_interval.first.to_date..@datetime_interval.last.to_date).count
     @shop_metric.remarketing_impressions = RtbImpression.where(shop_id: @shop.id, date: @datetime_interval).count
     @shop_metric.remarketing_clicks = RtbImpression.clicks.where(shop_id: @shop.id, date: @datetime_interval).count
     @shop_metric.remarketing_orders = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).count
