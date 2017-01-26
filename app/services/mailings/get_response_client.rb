@@ -19,7 +19,7 @@ module Mailings
 
     def prepare
       begin
-        response = send_request('campaigns', {'query[name]': 'rees46triggers'})
+        response = send_request('campaigns', {'query[name]': "rees46triggers_#{@shop.id}"})
       rescue
         raise GetResponseApiUnavailableError
       end

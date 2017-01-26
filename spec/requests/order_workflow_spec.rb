@@ -2,7 +2,8 @@ require 'rails_helper'
 
 describe 'Order workflow' do
   before do
-    @shop = create(:shop)
+    @customer = create(:customer)
+    @shop = create(:shop, customer: @customer)
     @trigger_mail = create(:trigger_mail, shop: @shop, client_id: 1, trigger_mailing_id: 1).reload
   end
 

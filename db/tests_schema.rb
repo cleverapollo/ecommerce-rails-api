@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170112144806) do
+ActiveRecord::Schema.define(version: 20170125103349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -326,6 +326,7 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
@@ -404,12 +405,15 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.string   "website"
     t.string   "company"
     t.string   "position"
-    t.boolean  "synced_with_crm", default: false
-    t.boolean  "success",         default: false
-    t.boolean  "cancelled",       default: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.boolean  "synced_with_crm",     default: false
+    t.boolean  "success",             default: false
+    t.boolean  "cancelled",           default: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.string   "cms"
+    t.string   "preferred_time_from"
+    t.string   "preferred_time_to"
+    t.string   "time_zone"
   end
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
@@ -774,8 +778,11 @@ ActiveRecord::Schema.define(version: 20170112144806) do
     t.text     "css"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "theme_id",    limit: 8
+    t.string   "theme_type"
   end
 
+  add_index "styles", ["shop_id", "theme_id", "theme_type"], name: "index_styles_theme", using: :btree
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
 

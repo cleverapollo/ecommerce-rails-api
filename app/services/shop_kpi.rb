@@ -7,13 +7,17 @@ class ShopKPI
     # нужно пересчитывать старые данные за 14 дней.
     def recalculate_all_for_last_period
       Shop.on_current_shard.connected.active.unrestricted.each do |shop|
-        if shop.track_order_status?
-          (1..14).each do |x|
-            new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+
+        Time.use_zone(shop.customer.time_zone) do
+          if shop.track_order_status?
+            (1..14).each do |x|
+              new(shop).calculate_and_write_statistics_at(Date.today - x.days)
+            end
+          else
+            new(shop).calculate_and_write_statistics_at(Date.yesterday)
           end
-        else
-          new(shop).calculate_and_write_statistics_at(Date.yesterday)
         end
+
       end
     end
 
@@ -116,23 +120,18 @@ class ShopKPI
     end
 
     # Remarketing
-    @shop_metric.remarketing_carts = RtbJob.where(shop_id: @shop.id, date: @datetime_interval.first.to_date..@datetime_interval.last.to_date).count
+    client_carts = ClientCart.where(shop_id: @shop.id, date: @datetime_interval.first.to_date..@datetime_interval.last.to_date)
+    @shop_metric.remarketing_carts = client_carts.length
     @shop_metric.remarketing_impressions = RtbImpression.where(shop_id: @shop.id, date: @datetime_interval).count
     @shop_metric.remarketing_clicks = RtbImpression.clicks.where(shop_id: @shop.id, date: @datetime_interval).count
     @shop_metric.remarketing_orders = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).count
     @shop_metric.remarketing_revenue = Order.where(shop_id: @shop.id, source_type: 'RtbImpression', date: @datetime_interval).sum(:value)
 
-    actions = Action.where(shop_id: @shop.id).where(timestamp: @datetime_interval).pluck(:item_id, :rating).delete_if { |x| x[1] != 4.2 }
-    @shop_metric.abandoned_products = actions.count
+    @shop_metric.abandoned_products = client_carts.map {|x| x.items }.flatten.uniq.count
     @shop_metric.abandoned_money = 0
     if @shop_metric.abandoned_products > 0
-      item_ids = actions.map { |x| x[0] }.uniq
-      prices = Item.where(id: item_ids.uniq).where.not(price: nil).pluck(:id, :price)
-      item_ids.each do |item_id|
-        if price = prices.select{ |x| x[0] == item_id }.first
-          @shop_metric.abandoned_money += price[1]
-        end
-      end
+      item_ids = client_carts.map {|x| x.items }.flatten.uniq
+      @shop_metric.abandoned_money = Item.where(id: item_ids).where.not(price: nil).sum(:price)
     end
 
     # Subscriptions

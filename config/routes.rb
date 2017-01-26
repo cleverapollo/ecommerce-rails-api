@@ -80,6 +80,7 @@ Rees46Api::Application.routes.draw do
   # Дайджестные веб пуши
   resources :web_push_digests, only: [] do
     member do
+      post :send_test
       post :launch
     end
   end

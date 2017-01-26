@@ -5,7 +5,8 @@ describe TriggerMailings::SubscriptionForProduct do
   describe '.subscribe_for_price' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:item) { create(:item, shop: shop, uniqid: '123') }
     subject { TriggerMailings::SubscriptionForProduct.subscribe_for_price shop, user, item }
 
@@ -38,7 +39,8 @@ describe TriggerMailings::SubscriptionForProduct do
   describe '.subscribe_for_available' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:item) { create(:item, shop: shop, uniqid: '123') }
     subject { TriggerMailings::SubscriptionForProduct.subscribe_for_available shop, user, item }
 
@@ -71,7 +73,8 @@ describe TriggerMailings::SubscriptionForProduct do
   describe '.cleanup' do
     context 'cleans old history and saves current history' do
       let!(:user) { create(:user) }
-      let!(:shop) { create(:shop) }
+      let!(:customer) { create(:customer) }
+      let!(:shop) { create(:shop, customer: customer) }
       let!(:item) { create(:item, shop: shop, uniqid: '123') }
       let!(:subscribe_for_product_price) { create(:subscribe_for_product_price, shop: shop, user: user, item: item, subscribed_at: 7.month.ago) }
       let!(:subscribe_for_product_available) { create(:subscribe_for_product_available, shop: shop, user: user, item: item, subscribed_at: 7.month.ago) }

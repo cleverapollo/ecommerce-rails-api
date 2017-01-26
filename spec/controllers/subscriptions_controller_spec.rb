@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe SubscriptionsController do
-  let!(:shop) { create(:shop) }
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
 
   describe 'GET unsubscribe' do
     let!(:client) { create(:client, shop: shop).reload }

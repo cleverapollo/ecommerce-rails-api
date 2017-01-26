@@ -24,7 +24,8 @@ class BounceHandlerWorker
         envelope = raw_message.attr['ENVELOPE']
 
         if envelope.to.nil?
-          imap.store(m, "+FLAGS", [:Deleted])
+          # Временно выключил на расследование инцидента со спамом
+          # imap.store(m, "+FLAGS", [:Deleted])
           next
         end
 
@@ -32,13 +33,15 @@ class BounceHandlerWorker
 
         # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
         unless to.present?
-          imap.store(m, "+FLAGS", [:Deleted])
+          # Временно выключил на расследование инцидента со спамом
+          # imap.store(m, "+FLAGS", [:Deleted])
           next
         end
 
         # Если получатель не bounce, то удаляем письмо
         unless to.scan(/bounce\+shard\d+.+/).any?
-          imap.store(m, "+FLAGS", [:Deleted])
+          # Временно выключил на расследование инцидента со спамом
+          # imap.store(m, "+FLAGS", [:Deleted])
           next
         end
 
@@ -78,14 +81,16 @@ class BounceHandlerWorker
           # nope
 
           # Отмечаем для удаления
-          imap.store(m, "+FLAGS", [:Deleted])
+          # Временно выключил на расследование инцидента со спамом
+          # imap.store(m, "+FLAGS", [:Deleted])
 
         end
 
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 
@@ -145,12 +150,14 @@ class BounceHandlerWorker
         end
 
         # Удаляем письмо
-        imap.store(m, "+FLAGS", [:Deleted])
+        # Временно выключил на расследование инцидента со спамом
+        # imap.store(m, "+FLAGS", [:Deleted])
 
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 
@@ -174,14 +181,16 @@ class BounceHandlerWorker
 
         # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
         unless to.match(/shard(\d{2})/)
-          imap.store(m, "+FLAGS", [:Deleted])
+          # Временно выключил на расследование инцидента со спамом
+          # imap.store(m, "+FLAGS", [:Deleted])
           next
         end
 
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      # Временно выключил на расследование инцидента со спамом
+      # imap.expunge
 
       imap.disconnect
 

@@ -5,7 +5,8 @@ describe TriggerMailings::SubscriptionForCategory do
   describe '.subscribe' do
 
     let!(:user) { create(:user) }
-    let!(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let!(:item_category) { create(:item_category, shop: shop, external_id: '123') }
     subject { TriggerMailings::SubscriptionForCategory.subscribe shop, user, item_category }
 
@@ -38,7 +39,8 @@ describe TriggerMailings::SubscriptionForCategory do
   describe '.cleanup' do
     context 'cleans old history and saves current history' do
       let!(:user) { create(:user) }
-      let!(:shop) { create(:shop) }
+      let!(:customer) { create(:customer) }
+      let!(:shop) { create(:shop, customer: customer) }
       let!(:item_category) { create(:item_category, shop: shop, external_id: '123') }
       let!(:subscribe_for_category) { create(:subscribe_for_category, shop: shop, user: user, item_category: item_category, subscribed_at: 49.hours.ago) }
       it {

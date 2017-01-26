@@ -5,7 +5,8 @@ describe ActionPush::Params do
     context 'parameters validation' do
       let(:session)            { create(:session_with_user, code: rand(1000)) }
       let(:user)               { session.user }
-      let(:shop)               { create(:shop, url:'http://example.com/') }
+      let!(:customer)          { create(:customer) }
+      let!(:shop)              { create(:shop, customer: customer, url:'http://example.com/') }
       let(:action)             { 'view' }
       let(:rating)             { 3 }
       let(:item_with_slash)    { create(:item, shop: shop, url:'/item_01', image_url:'/image_01', price: 500) }
@@ -83,7 +84,8 @@ describe ActionPush::Params do
 
       let(:session)            { create(:session_with_user, code: rand(1000)) }
       let(:user)               { session.user }
-      let(:shop)               { create(:shop, url:'http://example.com/') }
+      let!(:customer)          { create(:customer) }
+      let!(:shop)              { create(:shop, customer: customer, url:'http://example.com/') }
       let(:action)             { 'view' }
       let(:rating)             { 3 }
       let(:item_with_slash)    { create(:item, shop: shop, url:'/item_01', image_url:'/image_01', price: 500) }

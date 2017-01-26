@@ -56,6 +56,7 @@ class Shop < MasterTable
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
   has_many :reputations
+  has_many :client_carts
 
   has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :logo, content_type: /\Aimage/

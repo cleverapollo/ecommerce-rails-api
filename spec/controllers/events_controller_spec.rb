@@ -4,9 +4,10 @@ describe EventsController do
 
   describe 'POST push_attributes' do
     before { allow(UserProfile::AttributesProcessor).to receive(:process) }
-    let(:shop) { create(:shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
     let(:user) { create(:user) }
-    let(:session) { create(:session, user: user) }
+    let(:session) { create(:session, user: user, code: SecureRandom.uuid) }
     let!(:params) { { shop_id: shop.uniqid, session_id: session.code, attributes: { gender: 'f', size: 'e35', type: 'shoe' } } }
     subject { post :push_attributes, params }
 
@@ -45,8 +46,9 @@ describe EventsController do
     # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
     before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
-    let!(:shop) { create(:shop) }
-    let!(:session) { create(:session, user: create(:user)) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
+    let!(:session) { create(:session, user: create(:user), code: SecureRandom.uuid) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code }  }
 
     it 'extracts parameters when error' do
@@ -89,15 +91,25 @@ describe EventsController do
   end
 
   describe 'POST push purchase' do
-    let!(:shop) { create(:shop) }
-    let!(:session) { create(:session, user: create(:user)) }
-    let!(:client) { create(:client, user: create(:user), shop: shop) }
+    let!(:customer) { create(:customer) }
+    let!(:shop) { create(:shop, customer: customer) }
+    let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
+    let!(:client) { create(:client, user: user, shop: shop) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'purchase', order_id: '1', order_price: '1000', item_id: ['20'], amount: ['1'], price: ['1000'] } }
 
     it 'default' do
       post :push, params
 
       expect(Order.count).to eq 1
+    end
+
+    it 'removes client carts after purchase' do
+      ClientCart.all.destroy_all
+      create(:client_cart, user_id: client.user_id, shop_id: shop.id, items: [1])
+      expect(client.user.reload.client_carts.count).to eq 1
+      post :push, params
+      expect(client.user.reload.client_carts.count).to eq 0
     end
 
     context 'when existing old order' do

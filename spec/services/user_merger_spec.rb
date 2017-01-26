@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 describe UserMerger do
-  let!(:shop) { create(:shop) }
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
   let(:master) { create(:user) }
 
   let(:slave) { create(:user) }
@@ -434,6 +435,14 @@ describe UserMerger do
     }
 
     context 'user dependencies re-linking' do
+
+      context 'client carts' do
+        let!(:client_cart) { create(:client_cart, user: slave, shop: shop, items: [1]) }
+        it 're-links client cart' do
+          subject
+          expect(client_cart.reload.user_id).to eq(master.id)
+        end
+      end
 
       context 'sessions' do
         let!(:session) { create(:session, user: slave) }

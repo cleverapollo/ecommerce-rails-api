@@ -30,6 +30,11 @@ every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
 end
 
+# Выгружаем дайджестные рассылки для MyToys
+every '1 0 * * *' do
+  runner "RunnerWrapper.run('DigestMailings::Mytoys.sync')"
+end
+
 every 30.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
@@ -40,6 +45,11 @@ end
 
 every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
+end
+
+# Drop outdated abandoned carts
+every '50 23 * * *' do
+  runner "RunnerWrapper.run('ClientCart.clear_outdated')"
 end
 
 # Удаляем просроченные подписки на брошенные категории для триггеров

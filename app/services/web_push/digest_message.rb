@@ -3,30 +3,34 @@ class WebPush::DigestMessage
   class IncorrectSettingsError < StandardError; end
   class NotEnoughMoney < StandardError; end
 
-  attr_accessor :client, :shop, :digest, :batch, :message, :settings, :body, :safari_pusher
+  attr_accessor :client, :shop, :digest, :batch, :message, :settings, :body, :safari_pusher, :test
 
   # Инициализиация сообщения
   # @param client [Client]
   # @param digest [WebPushDigest]
   # @param batch [WebPushDigestBatch]
   # @param safari_pusher [Grocer]
-  def initialize(client, digest, batch, safari_pusher = nil)
+  # @param test [Boolean] Тестовая отправка?
+  def initialize(client, digest, batch, safari_pusher = nil, test = false)
     @client = client
     @shop = @client.shop
     @digest = digest
     @batch = batch
     @safari_pusher = safari_pusher
+    @test = test
 
     # Проверяем наличие баланса у магазина
-    if @shop.web_push_balance < 1
+    if !test && @shop.web_push_balance < 1
       raise NotEnoughMoney
     end
 
-    @message = client.web_push_digest_messages.create!(
-        web_push_digest: digest,
-        web_push_digest_batch: batch,
-        shop: client.shop,
-    ).reload
+    unless test
+      @message = client.web_push_digest_messages.create!(
+          web_push_digest: digest,
+          web_push_digest_batch: batch,
+          shop: client.shop,
+      ).reload
+    end
     @body = generate_body
   end
 
@@ -34,8 +38,8 @@ class WebPush::DigestMessage
   # Отправляет уведомление
   def send
     # Если ни одно сообщение не было доставлено до клиента, удаляем запись из базы
-    unless WebPush::Sender.send(client, shop, body, safari_pusher)
-      @message.destroy
+    unless WebPush::Sender.send(client, shop, body, safari_pusher, test)
+      @message.destroy unless @message.nil?
     end
   end
 
@@ -53,7 +57,7 @@ class WebPush::DigestMessage
             utm_medium: 'web_push_digest',
             utm_campaign: "rees46_web_push_#{digest.id}",
             recommended_by: 'web_push_digest',
-            rees46_web_push_digest_code: message.code
+            rees46_web_push_digest_code: message.nil? ? nil : message.code
         })
     }
   end
