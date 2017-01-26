@@ -21,10 +21,10 @@ class Client < ActiveRecord::Base
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) do
-    if(shop.geo_law == Shop::GEO_LAWS[:none])
-      with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
-    else
+    if shop.double_opt_in_by_law?
       with_email.where("triggers_enabled IS TRUE AND email_confirmed IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+    else
+      with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
     end
   end
 
