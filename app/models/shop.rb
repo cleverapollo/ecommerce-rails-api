@@ -254,7 +254,7 @@ class Shop < MasterTable
   end
 
   def send_confirmation_email_trigger?
-    double_opt_in_by_law? && self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled)
+    self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled)
   end
 
   # Уменьшает количество веб пушей на балансе на 1 после отправки

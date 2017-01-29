@@ -409,7 +409,6 @@ ActiveRecord::Schema.define(version: 20170125103217) do
     t.date     "status_date"
     t.boolean  "compensated"
     t.string   "reputation_key"
-    t.datetime "created_at"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
