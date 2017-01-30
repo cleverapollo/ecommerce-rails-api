@@ -148,6 +148,7 @@ ActiveRecord::Schema.define(version: 20170125103217) do
     t.boolean  "accepted_web_push_subscription"
     t.integer  "fb_id",                              limit: 8
     t.integer  "vk_id",                              limit: 8
+    t.boolean  "email_confirmed"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree

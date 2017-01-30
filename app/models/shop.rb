@@ -7,6 +7,13 @@ class Shop < MasterTable
 
   include Redis::Objects
 
+  GEO_LAWS = {
+    eu: 1,
+    canada: 2,
+    usa: 3,
+    none: 0
+  }
+
   # Кол-во пользователей в тестовых группах
   counter :group_1_count
   counter :group_2_count
@@ -240,6 +247,14 @@ class Shop < MasterTable
 
   def has_imported_yml?
     self.yml_file_url.present? && self.yml_loaded && self.yml_errors < 5
+  end
+
+  def double_opt_in_by_law?
+    self.geo_law != GEO_LAWS[:none]
+  end
+
+  def send_confirmation_email_trigger?
+    self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled)
   end
 
   # Уменьшает количество веб пушей на балансе на 1 после отправки

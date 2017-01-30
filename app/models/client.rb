@@ -20,7 +20,15 @@ class Client < ActiveRecord::Base
   scope :who_saw_subscription_popup, -> { where('subscription_popup_showed IS TRUE') }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
-  scope :ready_for_trigger_mailings, -> (shop) { with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date) }
+  scope :ready_for_trigger_mailings, -> (shop) do
+    if shop.double_opt_in_by_law?
+      with_email.where("triggers_enabled IS TRUE AND email_confirmed IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+    else
+      with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+    end
+  end
+
+
   scope :ready_for_second_abandoned_cart, -> (shop) do
     trigger_mailing = TriggerMailing.where(shop: shop).where(trigger_type: 'abandoned_cart').select(:id)
     clients_ids = TriggerMail.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(opened: false).where(trigger_mailing_id: trigger_mailing).select(:id)
@@ -34,9 +42,6 @@ class Client < ActiveRecord::Base
   end
   scope :ready_for_web_push_trigger, -> (shop) { where("web_push_enabled IS TRUE AND ((last_web_push_sent_at is null) OR last_web_push_sent_at < ? )", shop.trigger_pause.days.ago) }
   scope :ready_for_web_push_digest, -> { where("web_push_enabled IS TRUE") }
-
-
-
 
 
   class << self
@@ -166,6 +171,10 @@ class Client < ActiveRecord::Base
       update email: nil
       # Client.where(email: self.email).update_all(email: nil)
     end
+  end
+
+  def real_accepted_subscription?
+    accepted_subscription && email.present?
   end
 
   # Отмечает, что пользователь недавно что-то делал. Используется затем для выборки получателей триггеров

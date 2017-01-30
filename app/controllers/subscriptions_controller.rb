@@ -17,7 +17,10 @@ class SubscriptionsController < ApplicationController
     # Если params[:declined] == true, значит пользователь отказался
     client.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
     client.subscription_popup_showed = true
-    client.save
+
+    if client.save && client.real_accepted_subscription? && @shop.send_confirmation_email_trigger?
+      TriggerMailings::Letter.new(client, TriggerMailings::Triggers::DoubleOptIn.new(client)).send
+    end
 
     render json: {}
   end

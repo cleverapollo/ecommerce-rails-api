@@ -76,6 +76,7 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
+    base16 (0.0.2)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bounce_email (0.2.6)
@@ -360,6 +361,7 @@ PLATFORMS
 
 DEPENDENCIES
   addressable (~> 2.3, >= 2.3.8)
+  base16 (~> 0.0.2)
   bounce_email (~> 0.2.6)
   brb (~> 0.3.1)
   bunny (>= 2.6.1)
