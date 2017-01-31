@@ -71,6 +71,8 @@ class YmlImporter
 
     end
 
+    current_shop.items.update_all(image_downloading_error: nil)
+
     if result == true
       # Записываем в лог число обработанных товаров
       CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
