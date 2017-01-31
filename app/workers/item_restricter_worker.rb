@@ -8,7 +8,7 @@ class ItemRestricterWorker
   def perform(params)
     shop = Shop.find_by(uniqid: params['shop_id'])
 
-    item = shop.items.find_by_id(params[:item_id])
-    item.update(widgetable: false, image_downloading_error: params[:reason]) if item
+    item = shop.items.find_by_id(params['item_id'])
+    item.update(widgetable: false, image_downloading_error: params['reason']) if item
   end
 end
