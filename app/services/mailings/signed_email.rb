@@ -12,7 +12,7 @@ module Mailings
            subject: options.fetch(:subject),
            from: options.fetch(:from),
            return_path: generate_return_path) do |format|
-        format.text { render text: options.fetch(:body).html_safe }
+        format.text { render text: options.fetch(:body).strip_tags }
         format.html { render text: options.fetch(:body).html_safe }
       end
 
