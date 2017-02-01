@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170131081924) do
+ActiveRecord::Schema.define(version: 20170201070701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -587,7 +587,6 @@ ActiveRecord::Schema.define(version: 20170131081924) do
     t.string   "picture_content_type", limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
-    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.integer  "popup_type",                       default: 0,     null: false
@@ -730,7 +729,6 @@ ActiveRecord::Schema.define(version: 20170131081924) do
     t.string   "picture_content_type",     limit: 255
     t.integer  "picture_file_size"
     t.datetime "picture_updated_at"
-    t.text     "css"
     t.string   "button"
     t.text     "agreement"
     t.boolean  "manual_mode",                          default: false
