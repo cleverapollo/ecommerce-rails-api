@@ -14,8 +14,8 @@ module TriggerMailings
           Shop.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
 
             Time.use_zone(shop.customer.time_zone) do
-              # Не даем рассылать триггеры тем магазинам, у кого нет денег и при этом нет оплаченных подписок
-              next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.paid.exists?
+              # Не даем рассылать триггеры тем магазинам, у кого нет денег и нет активных подписок или нет активных оплаченных подписок
+              next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.active.exists? || !shop.subscription_plans.trigger_emails.active.paid.exists?
 
               TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 

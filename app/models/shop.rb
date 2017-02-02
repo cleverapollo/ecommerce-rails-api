@@ -8,10 +8,10 @@ class Shop < MasterTable
   include Redis::Objects
 
   GEO_LAWS = {
+    none: nil,
     eu: 1,
     canada: 2,
-    usa: 3,
-    none: 0
+    usa: 3
   }
 
   # Кол-во пользователей в тестовых группах
@@ -254,7 +254,7 @@ class Shop < MasterTable
   end
 
   def send_confirmation_email_trigger?
-    self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled)
+    self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled) && double_opt_in_by_law?
   end
 
   # Уменьшает количество веб пушей на балансе на 1 после отправки

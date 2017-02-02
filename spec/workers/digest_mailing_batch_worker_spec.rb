@@ -21,7 +21,7 @@ describe DigestMailingBatchWorker do
       ActionMailer::Base.deliveries.first
     end
     let!(:letter_body) do
-      letter.parts.first.body.to_s
+      letter.html_part.body.to_s
     end
 
     it 'sends an email' do

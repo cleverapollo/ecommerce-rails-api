@@ -20,12 +20,7 @@ class ProductsController < ApplicationController
   end
 
   def set_not_widgetable
-    item = shop.items.find_by_id(params[:item_id])
-    item.update(widgetable: false) if item
-
+    ItemRestricterWorker.perform_async(params)
     render nothing: true, status: :ok
   end
-
-
-
 end
