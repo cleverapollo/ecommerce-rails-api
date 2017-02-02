@@ -44,6 +44,8 @@ module TriggerMailings
                           next unless result
                         elsif shop.mailings_settings.is_optivo_for_mytoys?
                           TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
+                        elsif shop.mailings_settings.external_mailganer?
+                          TriggerMailings::MailganerLetter.new(client, trigger).send
                         elsif shop.mailings_settings.external_mailchimp?
                           trigers_to_send[:second_abandoned_cart].present? ? trigers_to_send[:second_abandoned_cart] << trigger :  trigers_to_send[:second_abandoned_cart] = [trigger]
                         else
@@ -71,6 +73,8 @@ module TriggerMailings
                         next unless result
                       elsif shop.mailings_settings.is_optivo_for_mytoys?
                         TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
+                      elsif shop.mailings_settings.external_mailganer?
+                        TriggerMailings::MailganerLetter.new(client, trigger).send
                       elsif shop.mailings_settings.external_mailchimp?
                         trigger_type = trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym
                         trigers_to_send[trigger_type].present? ? trigers_to_send[trigger_type] << trigger :  trigers_to_send[trigger_type] = [trigger]
