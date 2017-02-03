@@ -4,7 +4,7 @@ module TriggerMailings
 
     class MailganerError < StandardError; end
 
-    HOOK_URL = 'ttps://mailganer.com/recommendations/rees46/'
+    HOOK_URL = 'https://mailganer.com/recommendations/rees46/'
 
     # attr_accessor :data
 
