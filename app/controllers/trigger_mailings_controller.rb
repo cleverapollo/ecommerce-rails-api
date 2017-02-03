@@ -10,7 +10,7 @@ class TriggerMailingsController < ApplicationController
 
     trigger_mailing = @shop.trigger_mailings.find_by trigger_type: params[:trigger_type]
     email = IncomingDataTranslator.email(params[:email])
-    if email && mailings_settings && trigger_mailing && params[:trigger_type].present? && mailings_settings.template_liquid?
+    if email && mailings_settings && trigger_mailing && params[:trigger_type].present?
 
       trigger_mailing_class = "TriggerMailings::Triggers::#{params[:trigger_type].camelize}".constantize
 

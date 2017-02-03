@@ -87,7 +87,7 @@ describe TriggerMailings::Triggers::AbandonedSearch do
     let!(:search_query_old) { create(:search_query, shop: shop, date: Date.current, user: user_old, query: '123123') }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_search', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.id }} {% endtablerow %}', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::AbandonedSearch.new client  }
 

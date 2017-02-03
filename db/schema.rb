@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170201070701) do
+ActiveRecord::Schema.define(version: 20170202144806) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -210,8 +210,6 @@ ActiveRecord::Schema.define(version: 20170201070701) do
     t.integer  "activity_segment"
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
-    t.integer  "image_width",                             default: 180
-    t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
@@ -377,7 +375,6 @@ ActiveRecord::Schema.define(version: 20170201070701) do
     t.datetime "updated_at"
     t.integer  "mailing_service",                 default: 0
     t.string   "getresponse_api_key"
-    t.integer  "template_type",                   default: 1
     t.string   "mailchimp_api_key"
   end
 
@@ -627,8 +624,6 @@ ActiveRecord::Schema.define(version: 20170201070701) do
     t.datetime "updated_at"
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "image_width",                             default: 180
-    t.integer  "image_height",                            default: 180
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
     t.integer  "images_dimension",                        default: 3

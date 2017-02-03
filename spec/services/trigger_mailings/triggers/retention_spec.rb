@@ -65,7 +65,7 @@ describe TriggerMailings::Triggers::Retention do
     let!(:action) { create(:action, shop: shop, user: user, item: item_1, timestamp: 1.month.ago.to_i) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'retention', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.url }}{% endtablerow %}', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::Retention.new client  }
 

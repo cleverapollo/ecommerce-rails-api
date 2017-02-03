@@ -94,7 +94,7 @@ describe TriggerMailings::Triggers::LowOnSupply do
     let!(:order_item_8) { create(:order_item, order: order_4, shop: shop, action: action, item: item_4 )}
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'low_on_supply', subject: 'haha', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::LowOnSupply.new client  }
 

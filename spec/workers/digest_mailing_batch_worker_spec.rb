@@ -3,7 +3,7 @@ require 'rails_helper'
 describe DigestMailingBatchWorker do
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
-  let!(:settings) { create(:mailings_settings, shop: shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
+  let!(:settings) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:client) { create(:client, shop: shop, email: 'test@rees46demo.com', activity_segment: 1) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
@@ -96,7 +96,7 @@ describe DigestMailingBatchWorker do
 
   describe '#liquid_letter_body' do
     let!(:liquid_shop) { create(:shop, customer: customer) }
-    let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop, template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop) }
     let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}{{item.url}}{% endfor%}') }
     let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@rees46demo.com', activity_segment: 1) }
     let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_client.id, end_id: liquid_client.id, shop: liquid_shop) }
