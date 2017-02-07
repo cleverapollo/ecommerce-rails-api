@@ -11,15 +11,12 @@ class MailingsSettings < ActiveRecord::Base
   MAILING_SERVICE_OFSYS = 4
   MAILING_SERVICE_MAILGANER = 5
 
-  TEMPLATE_LIQUID = 1
-
   GETRESPONSE_API_URL = 'https://api.getresponse.com/v3/'
 
   belongs_to :shop
 
   validates :shop, presence: true
   validates :send_from, presence: true
-  validates :template_type, presence: true, inclusion: {in: [0, 1]}
 
   def enabled?
     !shop.restricted?
@@ -50,9 +47,5 @@ class MailingsSettings < ActiveRecord::Base
   # @return Boolean
   def is_optivo_for_mytoys?
     mailing_service == MAILING_SERVICE_OPTIVO_MYTOYS
-  end
-
-  def template_liquid?
-    template_type == TEMPLATE_LIQUID
   end
 end

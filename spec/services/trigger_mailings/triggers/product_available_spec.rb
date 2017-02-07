@@ -65,7 +65,7 @@ describe TriggerMailings::Triggers::ProductAvailable do
     let!(:subscribe_for_product_available) { create(:subscribe_for_product_available, user: user, shop: shop, item: item, subscribed_at: 10.hours.ago) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'product_available', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.id }} {% endtablerow %}', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
 
     subject { TriggerMailings::Triggers::ProductAvailable.new client  }

@@ -9,6 +9,10 @@ module TriggerMailings
         false
       end
 
+      def appropriate_time_to_send?
+        true
+      end
+
       def recommended_ids(count)
         params = OpenStruct.new(
           shop: shop,

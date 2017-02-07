@@ -85,7 +85,7 @@ describe TriggerMailings::Triggers::AbandonedCategory do
     let!(:subscribe_for_category) { create(:subscribe_for_category, user: user, shop: shop, subscribed_at: 3.hours.ago, item_category_id: item_category.id) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_category', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.id }} {% endtablerow %}', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::AbandonedCategory.new client  }
 

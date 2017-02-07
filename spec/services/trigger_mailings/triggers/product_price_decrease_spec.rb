@@ -74,7 +74,7 @@ describe TriggerMailings::Triggers::ProductPriceDecrease do
     let!(:subscribe_for_product_price) { create(:subscribe_for_product_price, user: user, shop: shop, item: item, subscribed_at: 10.hours.ago, price: 100) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'product_price_decrease', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.id }} {% endtablerow %}', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::ProductPriceDecrease.new client  }
 

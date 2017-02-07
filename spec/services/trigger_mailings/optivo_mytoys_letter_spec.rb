@@ -34,7 +34,7 @@ describe TriggerMailings::OptivoMytoysLetter do
     let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, action: action, item: item_2 )}
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'recently_purchased', subject: 'haha', enabled: true) }
-    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com', template_type: MailingsSettings::TEMPLATE_LIQUID) }
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::RecentlyPurchased.new(client) }
 

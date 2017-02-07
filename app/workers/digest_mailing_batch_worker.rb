@@ -24,15 +24,7 @@ class DigestMailingBatchWorker
       return
     end
 
-
-
-    recommendations_count = if @settings.template_liquid?
-                              @mailing.amount_of_recommended_items
-                            else
-                              @mailing.template.scan('{{ recommended_item }}').count
-                            end
-
-    DigestMailingRecommendationsCalculator.open(@shop, recommendations_count) do |calculator|
+    DigestMailingRecommendationsCalculator.open(@shop, @mailing.amount_of_recommended_items) do |calculator|
       if @batch.test_mode?
         # Тестовый режим: генерируем тестовое письмо для пустого пользователя и отправляем его на тестовый адрес.
         recommendations = calculator.recommendations_for(nil)
