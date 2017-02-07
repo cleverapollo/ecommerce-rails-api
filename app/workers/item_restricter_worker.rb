@@ -7,8 +7,10 @@ class ItemRestricterWorker
 
   def perform(params)
     shop = Shop.find_by(uniqid: params['shop_id'])
+    failed_images = JSON.parse(params['items'])
 
-    item = shop.items.find_by_id(params['item_id'])
-    item.update(widgetable: false, image_downloading_error: params['reason']) if item
+    failed_images.keys.each do |key|
+      Item.where(id: failed_images[key]).update_all(widgetable: false, image_downloading_error: key)
+    end
   end
 end

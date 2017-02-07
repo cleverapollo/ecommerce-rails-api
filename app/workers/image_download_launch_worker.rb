@@ -4,7 +4,7 @@ class ImageDownloadLaunchWorker
 
   class ImageDownloadLaunchError < StandardError; end
 
-  BATCH_SIZE = 20
+  BATCH_SIZE = 50
 
   def perform(shop_id, items_images = nil, delete_before_download =  false)
     @shop = Shop.find(shop_id)
