@@ -10,7 +10,7 @@ class ItemRestricterWorker
     failed_images = JSON.parse(params['items'])
 
     failed_images.keys.each do |key|
-      Item.where(id: failed_images[key]).update_all(widgetable: false, image_downloading_error: key)
+      shop.items.where(id: failed_images[key]).update_all(widgetable: false, image_downloading_error: key)
     end
   end
 end
