@@ -623,10 +623,10 @@ ActiveRecord::Schema.define(version: 20170202144806) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

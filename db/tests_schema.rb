@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170201071614) do
+ActiveRecord::Schema.define(version: 20170207174139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -321,11 +321,11 @@ ActiveRecord::Schema.define(version: 20170201071614) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -417,6 +417,9 @@ ActiveRecord::Schema.define(version: 20170201071614) do
     t.string   "time_zone"
     t.integer  "shop_id"
     t.integer  "customer_id"
+    t.string   "utm_source"
+    t.string   "utm_medium"
+    t.string   "utm_campaign"
   end
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
@@ -605,12 +608,14 @@ ActiveRecord::Schema.define(version: 20170201071614) do
     t.string  "name"
     t.boolean "active",             default: true, null: false
     t.string  "logo"
+    t.jsonb   "products"
   end
 
   add_index "rtb_jobs", ["active", "date", "user_id"], name: "index_rtb_jobs_on_active_and_date_and_user_id", where: "(active IS TRUE)", using: :btree
   add_index "rtb_jobs", ["date", "counter"], name: "index_rtb_jobs_on_date_and_counter", where: "(counter = 0)", using: :btree
   add_index "rtb_jobs", ["shop_id", "date"], name: "index_rtb_jobs_on_shop_id_and_date", using: :btree
   add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
+  add_index "rtb_jobs", ["shop_id", "user_id"], name: "index_rtb_jobs_on_shop_id_and_user_id", using: :btree
   add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
   add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
 
