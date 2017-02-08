@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125103349) do
+ActiveRecord::Schema.define(version: 20170207174139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -321,12 +321,12 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
     t.string   "time_zone",                          default: "Moscow", null: false
+    t.boolean  "shopify",                            default: false,    null: false
   end
 
   add_index "customers", ["api_key", "api_secret"], name: "index_customers_on_api_key_and_api_secret", unique: true, using: :btree
@@ -356,8 +356,9 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.string   "city"
     t.string   "postal_code"
     t.string   "address"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.boolean  "confirmed",   default: false
   end
 
   create_table "industries", force: :cascade do |t|
@@ -414,6 +415,11 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.string   "preferred_time_from"
     t.string   "preferred_time_to"
     t.string   "time_zone"
+    t.integer  "shop_id"
+    t.integer  "customer_id"
+    t.string   "utm_source"
+    t.string   "utm_medium"
+    t.string   "utm_campaign"
   end
 
   create_table "mail_ru_audience_pools", force: :cascade do |t|
@@ -602,12 +608,14 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.string  "name"
     t.boolean "active",             default: true, null: false
     t.string  "logo"
+    t.jsonb   "products"
   end
 
   add_index "rtb_jobs", ["active", "date", "user_id"], name: "index_rtb_jobs_on_active_and_date_and_user_id", where: "(active IS TRUE)", using: :btree
   add_index "rtb_jobs", ["date", "counter"], name: "index_rtb_jobs_on_date_and_counter", where: "(counter = 0)", using: :btree
   add_index "rtb_jobs", ["shop_id", "date"], name: "index_rtb_jobs_on_shop_id_and_date", using: :btree
   add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
+  add_index "rtb_jobs", ["shop_id", "user_id"], name: "index_rtb_jobs_on_shop_id_and_user_id", using: :btree
   add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
   add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
 
@@ -633,17 +641,17 @@ ActiveRecord::Schema.define(version: 20170125103349) do
   end
 
   create_table "schema_version", id: false, force: :cascade do |t|
-    t.integer  "version_rank",                                                null: false
-    t.integer  "installed_rank",                                              null: false
-    t.string   "version",        limit: 50,                                   null: false
-    t.string   "description",    limit: 200,                                  null: false
-    t.string   "type",           limit: 20,                                   null: false
-    t.string   "script",         limit: 1000,                                 null: false
+    t.integer  "version_rank",                                  null: false
+    t.integer  "installed_rank",                                null: false
+    t.string   "version",        limit: 50,                     null: false
+    t.string   "description",    limit: 200,                    null: false
+    t.string   "type",           limit: 20,                     null: false
+    t.string   "script",         limit: 1000,                   null: false
     t.integer  "checksum"
-    t.string   "installed_by",   limit: 100,                                  null: false
-    t.datetime "installed_on",                default: '2016-10-10 11:53:12', null: false
-    t.integer  "execution_time",                                              null: false
-    t.boolean  "success",                                                     null: false
+    t.string   "installed_by",   limit: 100,                    null: false
+    t.datetime "installed_on",                default: "now()", null: false
+    t.integer  "execution_time",                                null: false
+    t.boolean  "success",                                       null: false
   end
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
@@ -693,6 +701,16 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.integer "month_recommended_count", default: 0
     t.integer "month_natural_count",     default: 0
   end
+
+  create_table "shopify_shops", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "token",      null: false
+    t.string   "domain",     null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "shopify_shops", ["shop_id"], name: "index_shopify_shops_on_shop_id", using: :btree
 
   create_table "shops", id: :bigserial, force: :cascade do |t|
     t.string   "uniqid",                        limit: 255,                 null: false
@@ -775,7 +793,6 @@ ActiveRecord::Schema.define(version: 20170125103349) do
   create_table "styles", force: :cascade do |t|
     t.integer  "shop_id",                 null: false
     t.string   "shop_uniqid", limit: 255, null: false
-    t.text     "css"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "theme_id",    limit: 8
@@ -806,6 +823,7 @@ ActiveRecord::Schema.define(version: 20170125103349) do
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
     t.boolean  "active",     default: true
+    t.boolean  "renewal",    default: true, null: false
   end
 
   add_index "subscription_plans", ["shop_id"], name: "index_subscription_plans_on_shop_id", using: :btree
