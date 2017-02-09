@@ -6,7 +6,7 @@ class WebPushDigestsController < ApplicationController
 
   # Отправляет тестовое сообщение
   def send_test
-    web_push_digest = @shop.web_push_digests.find(params.fetch('id'))
+    web_push_digest = WebPushDigest.find(params.fetch('id'))
 
     session = Session.find_by code: params[:ssid]
     client = Client.find_by(shop_id: @shop.id, user_id: session.user_id)
