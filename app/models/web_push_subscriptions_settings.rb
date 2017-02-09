@@ -38,6 +38,8 @@ class WebPushSubscriptionsSettings < ActiveRecord::Base
   # Configure safari web pusher for shop
   def safari_config
 
+    return nil if pem_content.blank?
+
     # extract certificate
     file = "#{Rails.root}/tmp/safari_keys/#{shop_id}.pem"
     File.open(file, 'w') do |f|
