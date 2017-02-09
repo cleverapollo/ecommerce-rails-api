@@ -7,6 +7,7 @@ class Yml < Struct.new(:path, :locale)
 
   NotRespondingError = Class.new(StandardError)
   NoXMLFileInArchiveError = Class.new(StandardError)
+  NotXMLFile = Class.new(StandardError)
 
   def_delegators :io, :read, :readpartial, :rewind, :close
 
@@ -15,7 +16,13 @@ class Yml < Struct.new(:path, :locale)
   def io
     @io ||= begin
       file = download
-      file = gzip_archive?(file) ? Zlib::GzipReader.new(file.tap(&:rewind)) : file
+      if gzip_archive?(file)
+        file = Zlib::GzipReader.new(file.tap(&:rewind))
+        fail NoXMLFileInArchiveError unless is_xml?(file)
+      else
+        fail NotXMLFile unless is_xml?(file)
+      end
+
       fail NoXMLFileInArchiveError unless is_xml?(file)
 
       # # @DEBUG 828
