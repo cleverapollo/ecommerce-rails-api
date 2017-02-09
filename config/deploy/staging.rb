@@ -1,8 +1,8 @@
-role :app, %w{217.195.83.92}
-role :web, %w{217.195.83.92}
-role :db,  %w{217.195.83.92}
+role :app, %w{185.16.102.217}
+role :web, %w{185.16.102.217}
+role :db,  %w{185.16.102.217}
 
-role :production_cron, %w{217.195.83.92}
+role :production_cron, %w{185.16.102.217}
 
 
 set :stage, :staging
