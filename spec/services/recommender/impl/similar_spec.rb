@@ -62,5 +62,57 @@ describe Recommender::Impl::Similar do
         end
       end
     end
+
+
+
+    context 'industrials' do
+
+      context 'kids' do
+
+        before {
+          item2.update is_child: true, child_gender: 'm', child_age_min: 1.1, child_age_max: 1.9
+          test_item.update is_child: true, child_gender: 'm', child_age_min: 1.0, child_age_max: 2.0
+        }
+
+        it 'includes item by kids param' do
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes item by kids param if source item have no gender' do
+          item2.update is_child: nil
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'excludes item by kids param if recommended item have no gender' do
+          test_item.update is_child: nil
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'it excludes item by gender' do
+          test_item.update is_child: 'f'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes item by min age' do
+          item2.update child_age_min: 2.1
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes item by max age' do
+          item2.update child_age_max: 0.9
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+      end
+
+    end
+
+
   end
 end
