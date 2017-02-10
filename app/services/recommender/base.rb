@@ -124,7 +124,7 @@ module Recommender
     def apply_industrial_filter(relation)
 
       # Если известен пол покупателя и у магазина включен решим отраслевого
-      if shop.subscription_plans.product_recommendations.paid.exists?
+      # if shop.subscription_plans.product_recommendations.paid.exists?
 
         # Фильтрация по полу
         if user.try(:gender).present?
@@ -164,7 +164,44 @@ module Recommender
           relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
         end
 
-      end
+
+        # Фильтрация по детям
+        # Оставляем:
+        # - не детские товары
+        # - детские товары без указания пола
+        if user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
+          subconditions = user.children.map do |kid|
+            if kid.is_a?(Hash) && kid.keys.any?
+            partial_subcondition = ' OR ( is_child IS TRUE '
+            if kid['gender'].present?
+              partial_subcondition += " AND (child_gender = '#{kid['gender']}' OR child_gender IS NULL) "
+            end
+            if kid['age_max'].present? && kid['age_min'].present?
+              # Есть интервал возрастов
+              # Терминология: N - нижняя граница, M - верхняя граница. Без 1 - ребенок. С 1 - товар.
+              # (N ≥ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
+              # (N ≥ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
+              # (N ≤ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
+              # (N ≤ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
+              # N > M1 - BAD
+              # M < N1 - BAD
+              partial_subcondition += " AND (child_age_max >= '#{kid['age_min'].to_f}' OR child_age_max IS NULL) "
+              partial_subcondition += " AND (child_age_min <= '#{kid['age_max'].to_f}' OR child_age_min IS NULL) "
+            elsif kid['age_max'].present? && kid['age_min']
+              # Какой-то из возрастов отсутствует, поэтому оперируем одним возрастом
+              kid['age'] = kid['age_max'] || kid['age_min']
+              partial_subcondition += " AND (child_age_max <= '#{kid['age'].to_f}' OR child_age_max IS NULL) "
+              partial_subcondition += " AND (child_age_min >= '#{kid['age'].to_f}' OR child_age_min IS NULL) "
+            end
+            partial_subcondition + ' ) ' # Возвращаем это
+            else
+              nil
+            end
+          end.compact.join("")
+          relation = relation.where("is_child IS NULL #{subconditions}")
+        end
+
+      # end
 
       relation
 
