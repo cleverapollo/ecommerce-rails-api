@@ -81,18 +81,166 @@ describe Recommender::Impl::Popular do
 
         before { test_item.update is_fashion: true, fashion_gender: 'f' }
 
-        it 'skips gender filter if shop has not subscription' do
-          recommender = Recommender::Impl::Popular.new(params)
-          expect(recommender.recommendations).to include(test_item.uniqid)
-        end
-
         it 'skips female products when client is male' do
-          shop.subscription_plans.create product: 'product.recommendations', price: 100, paid_till: (Time.current + 1.month)
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
       end
+
+
+
+      context 'pets' do
+
+        before {
+          test_item.update is_pets: true, pets_type: 'dog', pets_breed: 'terrier'
+        }
+
+        it 'skips pet filter if user has no pets' do
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes dog product without breed' do
+          user.update pets: [{'type' => 'dog', 'score' => 13}]
+          test_item.update pets_breed: nil
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes dog product with breed' do
+          user.update pets: [{'type' => 'dog', 'breed' => 'terrier', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'skips cat products' do
+          user.update pets: [{'type' => 'cat', 'breed' => 'nordic', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'skips dog products for wrong breed' do
+          user.update pets: [{'type' => 'dog', 'breed' => 'bulldog', 'score' => 13}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+      end
+
+
+
+
+
+
+
+      context 'kids' do
+
+        before {
+          test_item.update is_child: true, child_gender: 'm', child_age_min: 1.0, child_age_max: 2.0
+        }
+
+        it 'skips kid filter if user has no kids' do
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes kid product without gender' do
+          user.update children: [{'age_min' => 1.1, 'age_max' => 1.9}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes kid product without min age' do
+          user.update children: [{'gender' => 'm', 'age_max' => 1.9}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'includes kid product without max age' do
+          user.update children: [{'gender' => 'm', 'age_min' => 1.1}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'all kid data present' do
+          user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'all kid data present min age out of' do
+          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 1.9}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'all kid data present max age out of' do
+          user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 2.1}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'all kid data present max and min age out of' do
+          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 2.1}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'excludes by min age' do
+          user.update children: [{'gender' => 'm', 'age_min' => 2.1, 'age_max' => 2.2}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes by max age' do
+          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 0.95}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes by gender' do
+          user.update children: [{'gender' => 'f', 'age_min' => 1.1, 'age_max' => 1.9}]
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+
+        context 'product min or max age is null' do
+
+          it 'min age is null' do
+            user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
+            params.user = user
+            test_item.update child_age_min: nil
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+          it 'max age is null' do
+            user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
+            params.user = user
+            test_item.update child_age_max: nil
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+        end
+
+      end
+
+
 
     end
 
