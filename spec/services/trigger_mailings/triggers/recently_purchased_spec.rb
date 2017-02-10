@@ -28,7 +28,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
     let!(:order_item_4) { create(:order_item, order: order_2, shop: shop, action: action, item: item_1 )}
     let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, action: action, item: item_2 )}
 
-    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'recently_purchased', subject: 'haha', liquid_template: '{{ feedback_button_link }}', enabled: true) }
+    let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'recently_purchased', subject: 'haha', enabled: true) }
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
 
     subject { TriggerMailings::Triggers::RecentlyPurchased.new(client) }
@@ -108,7 +108,66 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
         expect( letter.trigger_mail.present? ).to be_truthy
       }
 
+      context 'if reputation paid and enabled' do
+        let!(:subscription_plan) { create(:subscription_plan, shop: shop, product: 'reputation', active: true, paid_till: 1.week.from_now) }
 
+        before do
+          shop.update(reputations_enabled: true)
+        end
+
+        it 'have reputation block in latter' do
+          trigger = subject
+          trigger.triggered?
+          letter = TriggerMailings::Letter.new(client, trigger)
+          expect(letter.trigger_mail.present?).to be_truthy
+          expect(letter.body.scan("/reputations/new?order_id=#{order_4.reputation_key}").present?).to eq true
+        end
+      end
+
+      context 'if reputation paid and disabled' do
+        let!(:subscription_plan) { create(:subscription_plan, shop: shop, product: 'reputation', active: true, paid_till: 1.week.from_now) }
+
+        before do
+          shop.update(reputations_enabled: false)
+        end
+        it "haven't reputation block in latter" do
+          trigger = subject
+          trigger.triggered?
+          letter = TriggerMailings::Letter.new(client, trigger)
+          expect( letter.trigger_mail.present? ).to be_truthy
+          expect(letter.body.scan("/reputations/new?order_id=#{order_4.reputation_key}").present?).to eq false
+        end
+      end
+
+      context 'if reputation unpaid and enabled' do
+        let!(:subscription_plan) { create(:subscription_plan, shop: shop, product: 'reputation', active: false, paid_till: 1.week.from_now) }
+
+        before do
+          shop.update(reputations_enabled: true)
+        end
+        it "haven't reputation block in latter" do
+          trigger = subject
+          trigger.triggered?
+          letter = TriggerMailings::Letter.new(client, trigger)
+          expect( letter.trigger_mail.present? ).to be_truthy
+          expect(letter.body.scan("/reputations/new?order_id=#{order_4.reputation_key}").present?).to eq false
+        end
+      end
+
+      context 'if reputation unpaid and disabled' do
+        let!(:subscription_plan) { create(:subscription_plan, shop: shop, product: 'reputation', active: false, paid_till: 1.week.from_now) }
+
+        before do
+          shop.update(reputations_enabled: false)
+        end
+        it "haven't reputation block in latter" do
+          trigger = subject
+          trigger.triggered?
+          letter = TriggerMailings::Letter.new(client, trigger)
+          expect( letter.trigger_mail.present? ).to be_truthy
+          expect(letter.body.scan("/reputations/new?order_id=#{order_4.reputation_key}").present?).to eq false
+        end
+      end
     end
 
 
