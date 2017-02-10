@@ -81,6 +81,39 @@ describe SubscriptionsController do
       end
     end
 
+    context 'if shop legislation it requires double opt-in' do
+      let!(:mailings_settings) { create(:mailings_settings, shop: shop) }
+      let!(:trigger_mailing) { create(:trigger_mailing, trigger_type: 'double_opt_in', shop: shop) }
+      let(:email) { 'some@email.com' }
+      before do
+        shop.update(geo_law: Shop::GEO_LAWS[:canada])
+      end
+
+      context 'if trigger enabled' do
+        before do
+          trigger_mailing.update(enabled: true)
+        end
+
+        it 'send double opt-in trigger' do
+          subject
+          expect(response.code).to eq('200')
+          expect(TriggerMail.count).to eq 1
+        end
+      end
+
+      context 'if trigger disabled' do
+        before do
+          trigger_mailing.update(enabled: false)
+        end
+
+        it 'no send double opt-in trigger' do
+          subject
+          expect(response.code).to eq('200')
+          expect(TriggerMail.count).to eq 0
+        end
+      end
+    end
+
     context 'with bounced email (invalid)' do
       let(:email) { 'some@email.com' }
       let!(:invalid_email) { create(:invalid_email, email: email) }
