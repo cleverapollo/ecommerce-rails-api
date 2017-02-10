@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Recommender::Impl::AlsoBought do
   let!(:shop) { create(:shop) }
-  let!(:user) { create(:user) }
+  let!(:user) { create(:user, children: [{'gender' => 'm'}]) }
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, category_ids: '{3}') }
   let!(:item2) { create(:item, shop: shop, category_ids: '{3,5}') }
@@ -35,5 +35,43 @@ describe Recommender::Impl::AlsoBought do
 
       expect(result).to include(item3.uniqid)
     end
+
+
+
+    context 'industrial' do
+
+      before {
+        order = build(:order, shop: shop, user: other_user)
+        [item1, item2, item3].each do |i|
+          order.order_items.build(item: i, action_id: 123, shop_id: shop.id)
+        end
+        order.save!
+      }
+
+      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought') }
+
+      context 'kids' do
+
+        it 'includes male product for male kid' do
+          item3.update is_child: true, child_gender: 'm'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
+        end
+
+        it 'excludes female product for male kid' do
+          item3.update is_child: true, child_gender: 'f'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to_not include(item3.uniqid)
+        end
+
+        it 'skips industrial filter for 2 kids of different genders' do
+          user.update children: [{'gender' => 'm'}, {'gender' => 'f'}]
+          item3.update is_child: true, child_gender: 'f'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
+        end
+
+      end
+
+    end
+
+
   end
 end
