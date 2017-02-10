@@ -44,7 +44,7 @@ FactoryGirl.define do
   factory :trigger_mailing do
     trigger_type 'abandoned_cart'
     subject 'test'
-    liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{confirmation_email_url}}{{% if reputation %}}{{footer}}'
+    liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{confirmation_email_url}} {% if reputation %} {{ rate_1_url }} {% endif %} {{footer}}'
   end
 
   factory :trigger_mail do
