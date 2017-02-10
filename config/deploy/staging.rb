@@ -19,7 +19,7 @@ set :ssh_options, {
 set :deploy_to, "/home/rails/stage#{fetch(:shard)}.api.rees46.com"
 set :rails_env, 'staging'
 set :sidekiq_env, 'staging'
-set :branch, 'comments'
+set :branch, 'develop'
 
 
 Rake::Task['whenever:update_crontab'].clear_actions

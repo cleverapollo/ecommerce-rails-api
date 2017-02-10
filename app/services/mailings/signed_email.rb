@@ -15,6 +15,7 @@ module Mailings
         format.text { render text: ActionView::Base.full_sanitizer.sanitize(options.fetch(:body)) }
         format.html { render text: options.fetch(:body).html_safe }
       end
+      m.transport_encoding = 'base64'
 
       type = @options.fetch(:type)
       code = @options[:code] || 'test'
@@ -32,8 +33,7 @@ module Mailings
         m.header['Precedence'] = 'bulk'
       end
 
-      m = sign(m)
-      m
+      sign(m)
     end
 
     private
