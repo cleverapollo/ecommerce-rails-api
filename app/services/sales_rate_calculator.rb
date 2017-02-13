@@ -13,23 +13,37 @@ class SalesRateCalculator
 
     # Рассчитывает sales rate для товаров всех магазинов, подключенных больше 3 дней назад (нормальный режим)
     def perform
+
+      CustomLogger.logger.info("START: SalesRateCalculator::perform")
+
       Shop.unrestricted.each do |shop|
         self.recalculate_for_shop shop
       end
+
+      CustomLogger.logger.info("STOP: SalesRateCalculator::perform")
+
       nil
     end
 
     # Рассчитывает sales rate для новых магазинов – чаще, чем основной sales rate
     def perform_newbies
+
+      CustomLogger.logger.info("START: SalesRateCalculator::perform_newbies")
+
       Shop.newbies.each do |shop|
         self.recalculate_for_shop shop
       end
+
+      CustomLogger.logger.info("STOP: SalesRateCalculator::perform_newbies")
+
       nil
     end
 
 
     # Рассчитываем sales rate для товаров указанного магазина
     def recalculate_for_shop(shop)
+
+      CustomLogger.logger.info("START: SalesRateCalculator::recalculate_for_shop shop_id=#{shop.id}")
 
       require 'matrix'
 
@@ -104,6 +118,8 @@ class SalesRateCalculator
           Item.where(id: garbage_items).update_all sales_rate: nil
         end
       end
+
+      CustomLogger.logger.info("STOP: SalesRateCalculator::recalculate_for_shop shop_id=#{shop.id}")
 
       nil
     end

@@ -7,6 +7,8 @@ class WebPush::TriggersProcessor
       # Не рассылается сейчас?
       if WebPush::TriggerTimeLock.new.sending_available?
 
+        CustomLogger.logger.info("START: WebPush::TriggersProcessor.process_all")
+
         # Отмечаем, что рассылка идет
         WebPush::TriggerTimeLock.new.start_sending!
 
@@ -19,6 +21,9 @@ class WebPush::TriggersProcessor
           next if shop.web_push_balance <= 0
 
           Time.use_zone(shop.customer.time_zone) do
+
+            CustomLogger.logger.info("START: WebPush::TriggersProcessor.process_all::SHOP_ID=#{shop.id}")
+
             safari_pusher = shop.web_push_subscriptions_settings.safari_config
 
             begin
@@ -40,11 +45,16 @@ class WebPush::TriggersProcessor
             rescue WebPush::TriggerMessage::NotEnoughMoney
               next
             end
+
+            CustomLogger.logger.info("STOP: WebPush::TriggersProcessor.process_all::SHOP_ID=#{shop.id}")
+
           end
         end
 
         # Отмечаем, что рассылка завершена
         WebPush::TriggerTimeLock.new.stop_sending!
+
+        CustomLogger.logger.info("STOP: WebPush::TriggersProcessor.process_all")
 
       end
     end
