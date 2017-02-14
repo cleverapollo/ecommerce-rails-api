@@ -51,7 +51,8 @@ module Recommender
                   url: item.url,
                   image_url: item.image_url,
                   price: item.price.to_s,
-                  currency: shop.currency
+                  currency: shop.currency,
+                  _id: item.id
               }
         end
 
