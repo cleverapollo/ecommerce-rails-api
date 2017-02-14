@@ -6,17 +6,12 @@ every '0 3 * * *' do
 end
 
 # Каждые сутки синхронизируем YML
-every 30.minutes do
+every 26.minutes do
   runner "RunnerWrapper.run('Shop.import_yml_files')"
 end
 
-# Update shards mapping
-every 10.minutes do
-  runner "RunnerWrapper.run('Sharding::Shard.generate_nginx_mapping')"
-end
-
 # Publish all reputations older than 2 days
-every 10.minutes do
+every 14.minutes do
   runner "RunnerWrapper.run('ReputationPublisher.perform')"
 end
 
@@ -35,11 +30,11 @@ every '1 0 * * *' do
   runner "RunnerWrapper.run('DigestMailings::Mytoys.sync')"
 end
 
-every 30.minutes do
+every 34.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
 
-every 40.minutes do
+every 38.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform_feedback_loop')"
 end
 
@@ -78,7 +73,7 @@ end
 
 
 # Каждые 30 минут пересчитываем SalesRate для новых магазинов
-every 30.minutes do
+every 33.minutes do
   runner "RunnerWrapper.run('SalesRateCalculator.perform_newbies')"
 end
 

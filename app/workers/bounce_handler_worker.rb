@@ -4,6 +4,8 @@
 class BounceHandlerWorker
   class << self
     def perform
+      CustomLogger.logger.info("START: BounceHandlerWorker::perform")
+
       require 'net/imap'
       require 'bounce_email'
 
@@ -94,11 +96,13 @@ class BounceHandlerWorker
 
       imap.disconnect
 
+      CustomLogger.logger.info("STOP: BounceHandlerWorker::perform")
     end
 
 
     # Обрабатывает письма FBL
     def perform_feedback_loop
+      CustomLogger.logger.info("START: BounceHandlerWorker::perform_feedback_loop")
 
       require 'net/imap'
 
@@ -161,6 +165,7 @@ class BounceHandlerWorker
 
       imap.disconnect
 
+      CustomLogger.logger.info("STOP: BounceHandlerWorker::perform_feedback_loop")
     end
 
 
