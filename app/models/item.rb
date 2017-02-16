@@ -226,8 +226,7 @@ class Item < ActiveRecord::Base
           columns = table.columns.map(&:name).reject{ |c| c == 'id' }
 
           table.connection.execute <<-SQL
-            UPDATE items SET is_available = false WHERE shop_id = #{ shop_id }
-              AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp);
+            UPDATE items SET is_available = false WHERE shop_id = #{ shop_id } AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp) AND is_available = true;
           SQL
 
           table.connection.execute <<-SQL
