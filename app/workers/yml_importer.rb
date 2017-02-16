@@ -10,6 +10,8 @@ class YmlImporter
   # @param shop_id [Integer]
   def perform(shop_id)
 
+    CustomLogger.logger.info("START: YmlImporter::perform(#{shop_id})")
+
     current_shop = Shop.find(shop_id)
 
     result = current_shop.import do |yml|
@@ -59,8 +61,12 @@ class YmlImporter
         attempt = 0
 
         begin
+          CustomLogger.logger.info("START UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
+
           Item.bulk_update shop_id, file
           ItemCategory.bulk_update shop_id, shop.categories
+
+          CustomLogger.logger.info("STOP UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
         rescue PG::UniqueViolation => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
           attempt += 1
@@ -71,6 +77,7 @@ class YmlImporter
 
     end
 
+    CustomLogger.logger.info("FINISH UPDATING: YmlImporter::perform(#{shop_id})")
 
     if result == true
       # Записываем в лог число обработанных товаров
@@ -81,5 +88,7 @@ class YmlImporter
     end
 
     current_shop.update(have_industry_products: current_shop.items.where('is_cosmetic is true OR is_child is true OR is_fashion is true OR is_fmcg is true OR is_auto is true OR is_pets is true').where('(is_available = true) AND (ignored = false)').exists?)
+
+    CustomLogger.logger.info("STOP: YmlImporter::perform(#{shop_id})")
   end
 end

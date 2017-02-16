@@ -118,10 +118,10 @@ class Item < ActiveRecord::Base
     self.attributes = merge_attributes(item_proxy)
 
     begin
-      new_record = !self.persisted?
-      if changed?
-        save!
-        ImageDownloadLaunchWorker.perform_async(self.shop_id, [ { id: self.id, image_url: self.image_url } ]) if self.widgetable? && new_record
+      image_changed = image_url_changed?
+      save! if changed?
+      if widgetable? && image_changed && persisted?
+        ImageDownloadLaunchWorker.perform_async(self.shop_id, [{ id: self.id, image_url: self.image_url }])
       end
       return self
     rescue ActiveRecord::RecordNotUnique => e
@@ -212,47 +212,43 @@ class Item < ActiveRecord::Base
   def self.bulk_update(shop_id, csv_file)
     ActiveRecord::Base.connection_pool.with_connection do |conn|
       tap do |table|
-        table.transaction do
-          begin
-            table.connection.execute <<-SQL
-              DROP TABLE IF EXISTS temp_#{ shop_id }_items;
-              CREATE UNLOGGED TABLE IF NOT EXISTS temp_#{ shop_id }_items(LIKE items);
-            SQL
+        begin
+          table.connection.execute <<-SQL
+            DROP TABLE IF EXISTS temp_#{ shop_id }_items;
+            CREATE UNLOGGED TABLE IF NOT EXISTS temp_#{ shop_id }_items(LIKE items);
+          SQL
 
-            # table.table_name = "temp_#{ shop_id }_items"
-            # table.copy_from csv_file.path
-            # table.table_name = "items"
-            table.copy_from csv_file.path, table: "temp_#{ shop_id }_items"
+          # table.table_name = "temp_#{ shop_id }_items"
+          # table.copy_from csv_file.path
+          # table.table_name = "items"
+          table.copy_from csv_file.path, table: "temp_#{ shop_id }_items"
 
-            columns = table.columns.map(&:name).reject{ |c| c == 'id' }
+          columns = table.columns.map(&:name).reject{ |c| c == 'id' }
 
-            table.connection.execute <<-SQL
-              UPDATE items
-                 SET (#{ yml_update_columns.join(', ') }) =
-                     (#{ yml_update_columns.map{ |c| "temp.#{ c }" }.join(', ') })
-                FROM temp_#{ shop_id }_items AS temp
-               WHERE temp.shop_id = items.shop_id
-                 AND temp.uniqid = items.uniqid;
+          table.connection.execute <<-SQL
+            UPDATE items SET is_available = false WHERE shop_id = #{ shop_id }
+              AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp);
+          SQL
 
-              UPDATE items
-                 SET is_available = false
-               WHERE shop_id = #{ shop_id }
-                 AND uniqid NOT IN (SELECT temp.uniqid FROM temp_#{ shop_id }_items AS temp);
+          table.connection.execute <<-SQL
+            INSERT
+              INTO items (#{ columns.join(', ') })
+            SELECT #{ columns.map{|c| "temp.#{ c }"}.join(', ') }
+              FROM temp_#{ shop_id }_items as temp
+              ON CONFLICT (shop_id, uniqid) DO UPDATE
+                SET (#{ yml_update_columns.join(', ') }) =
+                    (#{ yml_update_columns.map{ |c| "excluded.#{ c }" }.join(', ') })
+            ;
 
-              DELETE
-                FROM temp_#{ shop_id }_items
-               WHERE uniqid in (SELECT items.uniqid FROM items WHERE items.shop_id = #{ shop_id });
-
-              INSERT
-                INTO items (#{ columns.join(', ') })
-              SELECT #{ columns.map{|c| "temp.#{ c }"}.join(', ') }
-                FROM temp_#{ shop_id }_items as temp;
-
-              DROP TABLE temp_#{ shop_id }_items;
-            SQL
-          ensure
-            # table.table_name = "items"
-          end
+            DROP TABLE temp_#{ shop_id }_items;
+          SQL
+        rescue Exception => e
+          table.connection.execute <<-SQL
+            DROP TABLE IF EXISTS temp_#{ shop_id }_items;
+          SQL
+          raise e
+        ensure
+          # table.table_name = "items"
         end
       end
     end
