@@ -82,7 +82,7 @@ module InitServerString
       if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
         recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
         if recommender_ids.count > 0
-          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url)
+          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url, :name, :price, :uniqid)
         end
       end
 
@@ -110,6 +110,8 @@ module InitServerString
             pager: shop.subscriptions_settings.pager_enabled? ? shop.subscriptions_settings.pager : 0,
             cursor: shop.subscriptions_settings.cursor_enabled? ? shop.subscriptions_settings.cursor : 0,
             products: products,
+            products_title: I18n.t('email_settings.products_title', locale: shop.customer.language || 'en'),
+            products_buy: I18n.t('email_settings.buy', locale: shop.customer.language || 'en'),
           })
         end
       end
@@ -151,6 +153,8 @@ module InitServerString
                               pager: shop.web_push_subscriptions_settings.pager_enabled? ? shop.web_push_subscriptions_settings.pager : 0,
                               cursor: shop.web_push_subscriptions_settings.cursor_enabled? ? shop.web_push_subscriptions_settings.cursor : 0,
                               products: products,
+                              products_title: I18n.t('email_settings.products_title', locale: shop.customer.language || 'en'),
+                              products_buy: I18n.t('email_settings.buy', locale: shop.customer.language || 'en'),
                           }
                           else
                             {enabled: false}
@@ -193,10 +197,10 @@ module InitServerString
         #   pixels << "//dmg.digitaltarget.ru/1/2026/i/i?a=26&e=#{session.code}&i=#{rand}"
         #   session.update synced_with_amber_at: Date.current
         # end
-        if session.synced_with_mailru_at.nil? || session.synced_with_mailru_at < Date.current
-          pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
-          session.update synced_with_mailru_at: Date.current
-        end
+        # if session.synced_with_mailru_at.nil? || session.synced_with_mailru_at < Date.current
+        #   pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
+        #   session.update synced_with_mailru_at: Date.current
+        # end
         if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
           pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
           session.update synced_with_relapio_at: Date.current

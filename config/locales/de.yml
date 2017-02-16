@@ -37,3 +37,7 @@ de:
     wrong_url: Wrong XML-file URL.
     no_files_in_archive: Archive contains no XML-files
     no_uniq_ids: File contains two or more identical Product IDs. Each product must have its own unique Product ID.
+
+  email_settings:
+    products_title: Recently viewed
+    buy: Cart
