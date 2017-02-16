@@ -82,7 +82,7 @@ module InitServerString
       if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
         recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
         if recommender_ids.count > 0
-          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url)
+          products = shop.items.recommendable.widgetable.available.where(id: recommender_ids).limit(3).pluck(:url, :image_url, :name, :price, :uniqid)
         end
       end
 
