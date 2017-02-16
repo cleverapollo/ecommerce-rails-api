@@ -41,6 +41,20 @@ describe WebPush::Triggers::Retention do
       }
     end
 
+    context 'exclude bought items' do
+      let!(:order) { create(:order, user: user, shop: shop) }
+      let!(:order_item_1) { create(:order_item, order: order, shop: shop, action: action, item: item_1 )}
+      let!(:order_item_2) { create(:order_item, order: order, shop: shop, action: action, item: item_2 )}
+
+      it 'not in recommended items' do
+        trigger = subject
+        trigger.triggered?
+
+        expect(subject.recommended_ids(13).include?(item_1.id)).to eq false
+        expect(subject.recommended_ids(13).include?(item_2.id)).to eq false
+      end
+    end
+
   end
 
 

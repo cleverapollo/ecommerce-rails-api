@@ -20,6 +20,14 @@ module WebPush
         if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
           @happened_at = 1.month.ago
           @items = Item.where(id: recommended_ids(1))
+
+          @bought_item = []
+          orders_relation = user.orders.where(shop: shop) #.where(date: trigger_time_range)
+          orders_relation = orders_relation.successful if shop.track_order_status?
+          orders_relation.each do |order|
+            @bought_item << Item.where(id: order.order_items.pluck(:item_id)).pluck(:uniqid)
+          end
+
           return true
         end
         false
@@ -34,7 +42,8 @@ module WebPush
           shop: shop,
           user: user,
           limit: count,
-          recommend_only_widgetable: true
+          recommend_only_widgetable: true,
+          exclude: @bought_item
         )
 
         # Сначала интересные твоары
@@ -44,7 +53,7 @@ module WebPush
         if result.count < count
           result += Recommender::Impl::Popular.new(params.tap { |p|
             p.limit = (count - result.count)
-            p.exclude = result
+            p.exclude += result
           }).recommended_ids
         end
 
