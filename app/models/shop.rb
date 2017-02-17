@@ -174,30 +174,30 @@ class Shop < MasterTable
   end
 
   def import
-    begin
+    # begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
-    rescue Yml::NoXMLFileInArchiveError => e
-      Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
-      ErrorsMailer.yml_url_not_respond(self).deliver_now
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
-    rescue ActiveRecord::RecordNotUnique => e
-      Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
-      I18n.locale = self.customer.language
-      ErrorsMailer.yml_syntax_error(self, I18n.t('yml_errors.no_uniq_ids')).deliver_now
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
-    rescue Interrupt => e
-      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
-    rescue Sidekiq::Shutdown => e
-      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
-    rescue Exception => e
-      ErrorsMailer.yml_import_error(self, e).deliver_now
-      Rollbar.warning(e, "YML process error", shop_id: id)
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
-    end
+    # rescue Yml::NoXMLFileInArchiveError => e
+    #   Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
+    #   ErrorsMailer.yml_url_not_respond(self).deliver_now
+    #   increment!(:yml_errors)
+    #   CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
+    # rescue ActiveRecord::RecordNotUnique => e
+    #   Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
+    #   I18n.locale = self.customer.language
+    #   ErrorsMailer.yml_syntax_error(self, I18n.t('yml_errors.no_uniq_ids')).deliver_now
+    #   increment!(:yml_errors)
+    #   CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
+    # rescue Interrupt => e
+    #   Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+    # rescue Sidekiq::Shutdown => e
+    #   Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+    # rescue Exception => e
+    #   ErrorsMailer.yml_import_error(self, e).deliver_now
+    #   Rollbar.warning(e, "YML process error", shop_id: id)
+    #   increment!(:yml_errors)
+    #   CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
+    # end
 
   end
 

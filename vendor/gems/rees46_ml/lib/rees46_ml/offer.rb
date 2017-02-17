@@ -136,7 +136,7 @@ module Rees46ML
     end
 
     def adult?
-      !child? || adult
+      !child?
     end
 
     def child?
