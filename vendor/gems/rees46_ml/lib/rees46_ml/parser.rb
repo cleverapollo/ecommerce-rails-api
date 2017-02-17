@@ -51,6 +51,16 @@ module Rees46ML
       state :fashion
       state :cosmetic
       state :fmcg
+      state :jewelry
+      state :ring_sizes
+      state :ring_size
+      state :bracelet_sizes
+      state :bracelet_size
+      state :chain_sizes
+      state :chain_size
+      state :jewelry_metal
+      state :jewelry_color
+      state :jewelry_gem
       state :pets
       state :pet_age
       state :pet_size
@@ -461,6 +471,14 @@ module Rees46ML
         transitions from: :auto, to: :offer
       end
 
+      event :start_jewelry do
+        transitions from: :offer, to: :jewelry
+      end
+
+      event :end_jewelry do
+        transitions from: :jewelry, to: :offer
+      end
+
       event :start_cosmetic do
         transitions from: :offer, to: :cosmetic
       end
@@ -590,12 +608,14 @@ module Rees46ML
         transitions from: :child,    to: :gender
         transitions from: :fashion,  to: :gender
         transitions from: :cosmetic, to: :gender
+        transitions from: :jewelry, to: :gender
       end
 
       event :end_gender do
         transitions from: :gender, to: :child,    guard: :in_child?
         transitions from: :gender, to: :fashion,  guard: :in_fashion?
         transitions from: :gender, to: :cosmetic, guard: :in_cosmetic?
+        transitions from: :gender, to: :jewelry, guard: :in_jewelry?
       end
 
       event :start_type do
@@ -687,6 +707,79 @@ module Rees46ML
       event :end_size do
         transitions from: :size, to: :sizes
       end
+
+      event :start_jewelry_color do
+        transitions from: :jewelry, to: :jewelry_color
+      end
+
+      event :end_jewelry_color do
+        transitions from: :jewelry_color, to: :jewelry
+      end
+
+      event :start_jewelry_metal do
+        transitions from: :jewelry, to: :jewelry_metal
+      end
+
+      event :end_jewelry_metal do
+        transitions from: :jewelry_metal, to: :jewelry
+      end
+
+      event :start_jewelry_gem do
+        transitions from: :jewelry, to: :jewelry_gem
+      end
+
+      event :end_jewelry_gem do
+        transitions from: :jewelry_gem, to: :jewelry
+      end
+
+      event :start_ring_sizes do
+        transitions from: :jewelry, to: :ring_sizes
+      end
+
+      event :end_ring_sizes do
+        transitions from: :ring_sizes, to: :jewelry
+      end
+
+      event :start_bracelet_sizes do
+        transitions from: :jewelry, to: :bracelet_sizes
+      end
+
+      event :end_bracelet_sizes do
+        transitions from: :bracelet_sizes, to: :jewelry
+      end
+
+      event :start_chain_sizes do
+        transitions from: :jewelry, to: :chain_sizes
+      end
+
+      event :end_chain_sizes do
+        transitions from: :chain_sizes, to: :jewelry
+      end
+
+      event :start_ring_size do
+        transitions from: :ring_sizes, to: :ring_size
+      end
+
+      event :end_ring_size do
+        transitions from: :ring_size, to: :ring_sizes
+      end
+
+      event :start_bracelet_size do
+        transitions from: :bracelet_sizes, to: :bracelet_size
+      end
+
+      event :end_bracelet_size do
+        transitions from: :bracelet_size, to: :bracelet_sizes
+      end
+
+      event :start_chain_size do
+        transitions from: :chain_sizes, to: :chain_size
+      end
+
+      event :end_chain_size do
+        transitions from: :chain_size, to: :chain_sizes
+      end
+
 
       event :start_pickup do
         transitions from: :shop, to: :pickup
@@ -1155,6 +1248,8 @@ module Rees46ML
           self.current_element = Rees46ML::Cosmetic.new
         when "fmcg"
           self.current_element = Rees46ML::Fmcg.new
+        when "jewelry"
+          self.current_element = Rees46ML::Jewelry.new
         when "pets"
           self.current_element = Rees46ML::Pets.new
         when "volume"
@@ -1165,6 +1260,12 @@ module Rees46ML
           self.current_element = Rees46ML::ChildAge.new if in_child?
         when "gender"
           self.current_element = Rees46ML::Gender.new
+        when "ring_size"
+          self.current_element = Rees46ML::RingSize.new if in_ring_sizes?
+        when "bracelet_size"
+          self.current_element = Rees46ML::BraceletSize.new if in_bracelet_sizes?
+        when "chain_size"
+          self.current_element = Rees46ML::ChainSize.new if in_chain_sizes?
         when "size"
           self.current_element = Rees46ML::Size.new
         when "skin"
@@ -1202,7 +1303,9 @@ module Rees46ML
 
         stack.pop
       else
+
         if buffer?
+
           attibute = underscore(path.last)
 
           case attibute
@@ -1230,6 +1333,13 @@ module Rees46ML
             self.current_element.condition << safe_buffer if in_hair?
           when "data_tour"
             self.current_element.data_tours << safe_buffer
+          # Вот так инициализируются значения, если на значение у нас собственный класс. Типа размеров.
+          when 'ring_size'
+            self.current_element.value = safe_buffer
+          when 'bracelet_size'
+            self.current_element.value = safe_buffer
+          when 'chain_size'
+            self.current_element.value = safe_buffer
           when "currencies"
           else
             if self.current_element.respond_to?(attibute)
@@ -1271,6 +1381,9 @@ module Rees46ML
         when "fmcg"
           self.parent_element.fmcg = self.current_element
           stack.pop
+        when "jewelry"
+          self.parent_element.jewelry = self.current_element
+          stack.pop
         when "pets"
           self.parent_element.pets = self.current_element
           stack.pop
@@ -1303,6 +1416,15 @@ module Rees46ML
           end
         when "size"
           self.parent_element.sizes << self.current_element
+          stack.pop
+        when "ring_size"
+          self.parent_element.ring_sizes << self.current_element
+          stack.pop
+        when "bracelet_size"
+          self.parent_element.bracelet_sizes << self.current_element
+          stack.pop
+        when "chain_size"
+          self.parent_element.chain_sizes << self.current_element
           stack.pop
         when "offer"
           @consumer.call self.current_element

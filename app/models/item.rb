@@ -101,6 +101,14 @@ class Item < ActiveRecord::Base
       pets_age
       pets_periodic
       pets_size
+      is_jewelry
+      jewelry_gender
+      jewelry_color
+      jewelry_metal
+      jewelry_gem
+      ring_sizes
+      bracelet_sizes
+      chain_sizes
     ].sort
   end
 
@@ -286,6 +294,7 @@ class Item < ActiveRecord::Base
         if offer.fashion.gender && offer.fashion.type
           size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
 
+
           # TODO: тут не работает unisex
           if size_table && offer.fashion.gender.value
             table = size_table.new
@@ -366,6 +375,26 @@ class Item < ActiveRecord::Base
         item.pets_age = nil
         item.pets_type = nil
         item.pets_size = nil
+      end
+
+      if offer.jewelry
+        item.is_jewelry = true
+        item.jewelry_gender  =  offer.jewelry.gender && offer.jewelry.gender.valid? ? offer.jewelry.gender.value : nil
+        item.jewelry_color  = offer.jewelry.jewelry_color ? offer.jewelry.jewelry_color : nil
+        item.jewelry_metal  = offer.jewelry.jewelry_metal ? offer.jewelry.jewelry_metal : nil
+        item.jewelry_gem  = offer.jewelry.jewelry_gem ? offer.jewelry.jewelry_gem : nil
+        item.ring_sizes = offer.jewelry.ring_sizes && offer.jewelry.ring_sizes.any? ? offer.jewelry.ring_sizes.map { |x| x.value } : nil
+        item.bracelet_sizes = offer.jewelry.bracelet_sizes && offer.jewelry.bracelet_sizes.any? ? offer.jewelry.bracelet_sizes.map { |x| x.value } : nil
+        item.chain_sizes = offer.jewelry.chain_sizes && offer.jewelry.chain_sizes.any? ? offer.jewelry.chain_sizes.map { |x| x.value } : nil
+      else
+        item.is_jewelry = nil
+        item.jewelry_gender = nil
+        item.jewelry_color = nil
+        item.jewelry_metal = nil
+        item.jewelry_gem = nil
+        item.ring_sizes = nil
+        item.bracelet_sizes = nil
+        item.chain_sizes = nil
       end
 
       if offer.auto?

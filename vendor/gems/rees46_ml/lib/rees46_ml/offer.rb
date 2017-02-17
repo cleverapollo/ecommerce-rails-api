@@ -82,6 +82,7 @@ module Rees46ML
     attribute :fmcg, Rees46ML::Fmcg, lazy: true
     attribute :pets, Rees46ML::Pets, lazy: true
     attribute :auto, Rees46ML::Auto, lazy: true
+    attribute :jewelry, Rees46ML::Jewelry, lazy: true
     attribute :pictures, Set[URL], lazy: true # Почему-то не срабатывает тут url.rb с очисткой левых символов
 
     attribute :locations, Set, lazy: true
@@ -125,10 +126,17 @@ module Rees46ML
           errors.add(:base, "Child Error: #{ msg }")
         end
       end
+
+      if jewelry? && jewelry.invalid?
+        jewelry.errors.full_messages.each do |msg|
+          errors.add(:base, "Jewelry Error: #{ msg }")
+        end
+      end
+
     end
 
     def adult?
-      !child? || adult
+      !child?
     end
 
     def child?
@@ -137,6 +145,10 @@ module Rees46ML
 
     def fashion?
       fashion.present?
+    end
+
+    def jewelry?
+      jewelry.present?
     end
 
     def cosmetic?

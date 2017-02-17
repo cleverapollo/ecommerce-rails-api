@@ -74,6 +74,14 @@ describe Item do
     let(:pets_age)       { 'old' }
     let(:pets_periodic)  { true }
     let(:pets_size)      { 'large' }
+    let(:is_jewelry)     { true }
+    let(:jewelry_gender) { 'f' }
+    let(:jewelry_color)  { 'yellow' }
+    let(:jewelry_metal)  { 'gold' }
+    let(:jewelry_gem)    { 'diamond' }
+    let(:ring_sizes)     { (1..4).map{ rand 10 } }
+    let(:bracelet_sizes) { (1..4).map{ rand 10 } }
+    let(:chain_sizes)    { (1..4).map{ rand 10 } }
 
     subject do
       build(:item, {
@@ -119,7 +127,15 @@ describe Item do
         pets_type: pets_type,
         pets_age: pets_age,
         pets_periodic: pets_periodic,
-        pets_size: pets_size
+        pets_size: pets_size,
+        is_jewelry: is_jewelry,
+        jewelry_gender: jewelry_gender,
+        jewelry_color: jewelry_color,
+        jewelry_metal: jewelry_metal,
+        jewelry_gem: jewelry_gem,
+        ring_sizes: ring_sizes,
+        bracelet_sizes: bracelet_sizes,
+        chain_sizes: chain_sizes
       })
     end
 
@@ -166,6 +182,14 @@ describe Item do
     it { expect(subject.csv_row[59]).to eq(pets_age) }
     it { expect(subject.csv_row[60]).to eq(pets_periodic) }
     it { expect(subject.csv_row[61]).to eq(pets_size) }
+    it { expect(subject.csv_row[63]).to eq(is_jewelry) }
+    it { expect(subject.csv_row[64]).to eq(jewelry_gender) }
+    it { expect(subject.csv_row[65]).to eq(jewelry_color) }
+    it { expect(subject.csv_row[66]).to eq(jewelry_metal) }
+    it { expect(subject.csv_row[67]).to eq(jewelry_gem) }
+    it { expect(subject.csv_row[68]).to eq("[#{ring_sizes.join(',')}]") }
+    it { expect(subject.csv_row[69]).to eq("[#{bracelet_sizes.join(',')}]") }
+    it { expect(subject.csv_row[70]).to eq("[#{chain_sizes.join(',')}]") }
   end
 
   describe '.fetch' do
