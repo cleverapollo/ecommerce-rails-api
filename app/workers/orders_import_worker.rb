@@ -167,6 +167,8 @@ class OrdersImportWorker
       end
     rescue PG::UniqueViolation => e
       retry
+    rescue ActiveRecord::RecordNotUnique => e
+      retry
     end
 
     action.id
