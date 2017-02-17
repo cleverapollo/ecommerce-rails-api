@@ -10,7 +10,7 @@ module Mailings
 
       m = mail(to: options.fetch(:to),
            subject: options.fetch(:subject),
-           from: options.fetch(:from),
+           from: options.fetch(:from).gsub('"',"'"),
            return_path: generate_return_path) do |format|
         format.text { render text: ActionView::Base.full_sanitizer.sanitize(options.fetch(:body)) }
         format.html { render text: options.fetch(:body).html_safe }

@@ -110,6 +110,8 @@ module InitServerString
             pager: shop.subscriptions_settings.pager_enabled? ? shop.subscriptions_settings.pager : 0,
             cursor: shop.subscriptions_settings.cursor_enabled? ? shop.subscriptions_settings.cursor : 0,
             products: products,
+            products_title: I18n.t('email_settings.products_title', locale: shop.customer.language || 'en'),
+            products_buy: I18n.t('email_settings.buy', locale: shop.customer.language || 'en'),
           })
         end
       end
@@ -151,6 +153,8 @@ module InitServerString
                               pager: shop.web_push_subscriptions_settings.pager_enabled? ? shop.web_push_subscriptions_settings.pager : 0,
                               cursor: shop.web_push_subscriptions_settings.cursor_enabled? ? shop.web_push_subscriptions_settings.cursor : 0,
                               products: products,
+                              products_title: I18n.t('email_settings.products_title', locale: shop.customer.language || 'en'),
+                              products_buy: I18n.t('email_settings.buy', locale: shop.customer.language || 'en'),
                           }
                           else
                             {enabled: false}

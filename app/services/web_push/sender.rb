@@ -25,7 +25,6 @@ class WebPush::Sender
           web_push_token.send_web_push(message, safari_pusher: safari_pusher)
 
         rescue Webpush::InvalidSubscription => e
-          Rollbar.warn e
           # remove token
           web_push_token.destroy
         end
