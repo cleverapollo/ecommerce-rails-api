@@ -225,6 +225,7 @@ class ProfileEvent < MasterTable
 
         end
 
+        # Животные
         if item.is_pets?
           unless item.pets_type.nil?
             property_value = "type:#{item.pets_type}"
@@ -236,6 +237,68 @@ class ProfileEvent < MasterTable
           end
         end
 
+
+        # Ювелирные украшения
+        # Считаем, что у человека предпочтения не конкретно к золотым кольцам или золотым браслетам, а к цвету, металлу и камням, независимот от типа украшения
+        if item.is_jewelry?
+
+          # Предпочтения к металлу
+          if item.jewelry_metal
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'metal', value: item.jewelry_metal.downcase
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+
+          # Предпочтения к драгоценным камням
+          if item.jewelry_gem
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'gem', value: item.jewelry_gem.downcase
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+
+          # Предпочтения к цвету украшения
+          if item.jewelry_color
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'color', value: item.jewelry_color.downcase
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+
+          # Предпочтения к полу
+          if item.jewelry_gender && %w(f m).include?(item.jewelry_gender)
+            profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'gender', value: item.jewelry_gender
+            profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+          end
+
+
+          # Размер кольца
+          if item.ring_sizes.present? && item.ring_sizes.any?
+            item.ring_sizes.each do |size|
+              if size.to_s.strip.present?
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'ring_size', value: size.to_s.strip
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+          end
+
+          # Размер браслета
+          if item.bracelet_sizes.present? && item.bracelet_sizes.any?
+            item.bracelet_sizes.each do |size|
+              if size.to_s.strip.present?
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'bracelet_size', value: size.to_s.strip
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+          end
+
+          # Размер цепочки
+          if item.chain_sizes.present? && item.chain_sizes.any?
+            item.chain_sizes.each do |size|
+              if size.to_s.strip.present?
+                profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'jewelry', property: 'chain_size', value: size.to_s.strip
+                profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              end
+            end
+          end
+
+        end
+
       end
 
 
@@ -243,6 +306,11 @@ class ProfileEvent < MasterTable
       # Если есть животные товары, то пересчитать животный профиль
       if items.select { |x| x.is_pets? }.any?
         properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+      end
+
+      # Если есть ювелирные товары, пересчитываем ювелирный профиль
+      if items.select { |x| x.is_jewelry? }.any?
+
       end
 
 

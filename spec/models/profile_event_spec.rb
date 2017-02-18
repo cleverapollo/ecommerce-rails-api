@@ -35,6 +35,9 @@ describe ProfileEvent do
     let!(:item_22) { create(:item, shop: shop, is_pets: true, pets_size: 'small', pets_age: 'old', pets_breed: 'strange') }
     let!(:item_23) { create(:item, shop: shop, is_pets: true, pets_type: 'dog', pets_size: 'small', pets_age: 'old', pets_breed: 'strange', pets_periodic: true) }
 
+    let!(:item_24) { create(:item, shop: shop, is_jewelry: true, jewelry_color: 'yellow', jewelry_metal: 'gold', jewelry_gem: 'diamond', ring_sizes: [3,4,5], bracelet_sizes: [4,5,6], chain_sizes: [6,7,8], jewelry_gender: 'f') }
+    let!(:item_25) { create(:item, shop: shop, is_jewelry: true, jewelry_color: 'white', jewelry_metal: 'silver', jewelry_gem: 'ruby', ring_sizes: [3,4,5], bracelet_sizes: [4,5,6], chain_sizes: [6,7,8], jewelry_gender: 'm') }
+
 
     let!(:item_simple) { create(:item, shop: shop ) }
 
@@ -196,6 +199,44 @@ describe ProfileEvent do
       end
 
     end
+
+
+    context 'tracks jewelry' do
+
+      it 'saves correct jewelry' do
+        ProfileEvent.track_items(user, shop, 'view', [item_24])
+        ProfileEvent.track_items(user, shop, 'cart', [item_25])
+        expect(ProfileEvent.count).to eq 17
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gender', value: 'f').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gender', value: 'm').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'color', value: 'yellow').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'color', value: 'white').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'metal', value: 'gold').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'metal', value: 'silver').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gem', value: 'diamond').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gem', value: 'ruby').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '3').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '3').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '4').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '4').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '5').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '5').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '4').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '4').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '5').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '5').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '6').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '6').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '6').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '6').carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '7').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '7').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '8').views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '8').carts ).to eq 1
+      end
+
+    end
+
 
   end
 
