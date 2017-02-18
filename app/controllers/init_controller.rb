@@ -18,7 +18,6 @@ class InitController < ApplicationController
     session_id = cookies[Rees46::COOKIE_NAME] || params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
 
     session = Session.fetch(code: session_id,
-                            useragent: sanitized_header(:user_agent),
                             email: params[:user_email],
                             location: params[:user_location],
                             city: sanitized_header(:city),

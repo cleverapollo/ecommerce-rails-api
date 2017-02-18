@@ -4,7 +4,7 @@ describe Session do
   describe '.fetch' do
     context 'with existing session' do
       before { @session = create(:session, user: create(:user)) }
-      subject { Session.fetch(code: @session.code, useragent: 'Testerbot' ) }
+      subject { Session.fetch(code: @session.code ) }
 
       it 'returns that session' do
         expect(subject).to eq @session
@@ -26,7 +26,7 @@ describe Session do
     end
 
     context 'without existing session' do
-      subject { Session.fetch(code: nil, useragent: 'Testerbot' ) }
+      subject { Session.fetch(code: nil ) }
 
       it 'creates new session' do
         expect{ subject }.to change(Session, :count).from(0).to(1)
@@ -43,7 +43,7 @@ describe Session do
   end
 
   describe '.create_with_code_and_user' do
-    subject { Session.create_with_code_and_user(useragent: 'Testerbot') }
+    subject { Session.create_with_code_and_user() }
 
     it 'returns session' do
       expect(subject).to be_an_instance_of(Session)
@@ -53,8 +53,5 @@ describe Session do
       expect(subject.user).to be_an_instance_of(User)
     end
 
-    it 'assigns useragent to returned session' do
-      expect(subject.useragent).to eq 'Testerbot'
-    end
   end
 end

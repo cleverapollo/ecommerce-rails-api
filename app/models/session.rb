@@ -45,7 +45,7 @@ class Session < MasterTable
           end
 
           # Сохранить параметры бразуера в сессию.
-          [:useragent, :city, :country, :language].each do |field|
+          [:city, :country, :language].each do |field|
             if session.send(field).blank? && params[field].present?
               session.send("#{field}=", params[:field])
             end
@@ -78,7 +78,6 @@ class Session < MasterTable
 
       s = build_with_code
       s.assign_attributes(user: user,
-                          useragent: params[:useragent],
                           country: params[:country].present? ? params[:country] : nil,
                           city: params[:city].present? ? params[:city] : nil,
                           language: params[:language])
