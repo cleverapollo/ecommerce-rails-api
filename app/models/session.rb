@@ -80,7 +80,7 @@ class Session < MasterTable
       s.assign_attributes(user: user,
                           country: params[:country].present? ? params[:country] : nil,
                           city: params[:city].present? ? params[:city] : nil,
-                          language: params[:language])
+                          language: params[:language] ? params[:language] : nil)
       s.save!
       s
     end
