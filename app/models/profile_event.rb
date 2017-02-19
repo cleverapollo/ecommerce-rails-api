@@ -239,7 +239,6 @@ class ProfileEvent < MasterTable
 
 
         # Ювелирные украшения
-        # Считаем, что у человека предпочтения не конкретно к золотым кольцам или золотым браслетам, а к цвету, металлу и камням, независимот от типа украшения
         if item.is_jewelry?
 
           # Предпочтения к металлу
@@ -310,11 +309,8 @@ class ProfileEvent < MasterTable
 
       # Если есть ювелирные товары, пересчитываем ювелирный профиль
       if items.select { |x| x.is_jewelry? }.any?
-
+        properties_to_update[:jewelry] = UserProfile::PropertyCalculator.new.calculate_jewelry user
       end
-
-
-
 
       # Если есть поля для обновления пользователя – обновляем
       user.update properties_to_update unless properties_to_update.empty?

@@ -1,3 +1,4 @@
+# IMPORTANT: в качесвте ключей для хешей, которые пойдут в БД, всегда используйте строки. Во избежание путаницы.
 class UserProfile::PropertyCalculator
 
 
@@ -291,6 +292,8 @@ class UserProfile::PropertyCalculator
 
     # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
     # На выходе массив VDS
+    # @param user User
+    # @return Hash | nil
     median = score.map { |k, v| v }.max / 2.0
     selected = score.select { |k,v| v >= median }.map { |k,v| k }.sort
 
@@ -331,6 +334,51 @@ class UserProfile::PropertyCalculator
 
     return selected.any? ? selected : nil
 
+  end
+
+
+  # Рассчитывает ювелирные особенности покупателя
+  # Считаем, что у человека предпочтения не конкретно к золотым кольцам или золотым браслетам,
+  # а к цвету, металлу и камням, независимот от типа украшения
+  def calculate_jewelry(user)
+
+    score = {}
+
+    properties = ProfileEvent.where(user_id: user.id, industry: 'jewelry').map { |x| {property: x.property, value: x.value, score: (x.views.to_i + x.carts.to_i * 2 + x.purchases.to_i * 5)} }
+
+    if properties.any?
+
+      if properties.select { |x| x[:property] == 'metal' }.any?
+        score['metal'] = properties.select { |x| x[:property] == 'metal' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'color' }.any?
+        score['color'] = properties.select { |x| x[:property] == 'color' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'gem' }.any?
+        score['gem'] = properties.select { |x| x[:property] == 'gem' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'gender' }.any?
+        score['gender'] = properties.select { |x| x[:property] == 'gender' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'ring_size' }.any?
+        score['ring_size'] = properties.select { |x| x[:property] == 'ring_size' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'bracelet_size' }.any?
+        score['bracelet_size'] = properties.select { |x| x[:property] == 'bracelet_size' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+      if properties.select { |x| x[:property] == 'chain_size' }.any?
+        score['chain_size'] = properties.select { |x| x[:property] == 'chain_size' }.sort { |a,b| a[:score] <=> b[:score] }.last[:value]
+      end
+
+    end
+
+    score.keys.any? ? score : nil
   end
 
 

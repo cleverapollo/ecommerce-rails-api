@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170207174139) do
+ActiveRecord::Schema.define(version: 20170219072554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -281,6 +281,13 @@ ActiveRecord::Schema.define(version: 20170207174139) do
   end
 
   add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
+
+  create_table "customer_balance_histories", force: :cascade do |t|
+    t.integer  "customer_id"
+    t.string   "message"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "customers", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "",       null: false
@@ -657,7 +664,6 @@ ActiveRecord::Schema.define(version: 20170207174139) do
   create_table "sessions", id: :bigserial, force: :cascade do |t|
     t.integer "user_id",                   limit: 8,   null: false
     t.string  "code",                      limit: 255, null: false
-    t.string  "useragent",                 limit: 255
     t.string  "city",                      limit: 255
     t.string  "country",                   limit: 255
     t.string  "language",                  limit: 255
@@ -669,6 +675,7 @@ ActiveRecord::Schema.define(version: 20170207174139) do
     t.date    "synced_with_relapio_at"
     t.date    "synced_with_republer_at"
     t.date    "synced_with_advmaker_at"
+    t.string  "useragent"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -904,6 +911,7 @@ ActiveRecord::Schema.define(version: 20170207174139) do
     t.jsonb   "compatibility"
     t.jsonb   "vds"
     t.jsonb   "pets"
+    t.jsonb   "jewelry"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

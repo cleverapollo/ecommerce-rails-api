@@ -203,7 +203,7 @@ describe ProfileEvent do
 
     context 'tracks jewelry' do
 
-      it 'saves correct jewelry' do
+      it 'saves correct jewelry', :jewelry do
         ProfileEvent.track_items(user, shop, 'view', [item_24])
         ProfileEvent.track_items(user, shop, 'cart', [item_25])
         expect(ProfileEvent.count).to eq 17

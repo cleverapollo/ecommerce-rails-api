@@ -216,4 +216,37 @@ describe UserProfile::PropertyCalculator do
   end
 
 
+  describe 'jewelry' do
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_jewelry(user) }
+    before {
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'metal', value: 'gold', views: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'metal', value: 'silver', views: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'color', value: 'blue', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'color', value: 'yellow', views: 4 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'gem', value: 'diamond', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'gem', value: 'ruby', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'gender', value: 'm', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'gender', value: 'f', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'ring_size', value: '3', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'ring_size', value: '4', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'bracelet_size', value: '6', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'bracelet_size', value: '7', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'chain_size', value: '4', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'chain_size', value: '5', views: 3 )
+    }
+    it 'calculates metarials', :jewelry do
+      expect(subject['metal']).to eq 'silver'
+      expect(subject['color']).to eq 'yellow'
+      expect(subject['gem']).to eq 'ruby'
+      expect(subject['gender']).to eq 'f'
+      expect(subject['ring_size']).to eq '3'
+      expect(subject['bracelet_size']).to eq '6'
+      expect(subject['chain_size']).to eq '4'
+    end
+
+  end
+
+
 end
