@@ -119,6 +119,36 @@ module Recommender
     end
 
 
+    # Применяет ювелирный отраслевой фильтр (общий)
+    # @return ActiveRecord::Relation
+    def apply_jewelry_industrial_filter(relation)
+      if user.try(:jewelry).present? && user.jewelry.is_a?(Hash) && user.jewelry.keys.any?
+
+        # Физические характеристики по ИЛИ
+        materials = []
+        materials << " (jewelry_metal IS NOT NULL AND jewelry_metal = $$#{user.jewelry['metal']}$$) " if user.jewelry['metal'].present?
+        materials << " (jewelry_color IS NOT NULL AND jewelry_color = $$#{user.jewelry['color']}$$) " if user.jewelry['color'].present?
+        materials << " (jewelry_gem IS NOT NULL AND jewelry_gem = $$#{user.jewelry['gem']}$$) " if user.jewelry['color'].present?
+
+        # Размеры
+        sizes = []
+        sizes << " (ring_sizes IS NOT NULL AND ring_sizes ? $$#{user.jewelry['ring_size']}$$::varchar) " if user.jewelry['ring_size'].present?
+        sizes << " (bracelet_sizes IS NOT NULL AND bracelet_sizes ? $$#{user.jewelry['bracelet_size']}$$::varchar) " if user.jewelry['bracelet_size'].present?
+        sizes << " (chain_sizes IS NOT NULL AND chain_sizes ? $$#{user.jewelry['chain_size']}$$::varchar) " if user.jewelry['chain_size'].present?
+
+        # Группируем фильтры
+        filters = []
+        filters << " ( #{materials.join(' OR ')} ) " if materials.any?
+        filters << " ( #{sizes.join(' OR ')} ) " if sizes.any?
+        filters << " ( jewelry_gender IS NULL OR jewelry_gender = $$#{user.jewelry['gender']}$$ ) " if user.jewelry['gender'].present?
+
+        relation = relation.where("is_jewelry IS NULL OR (is_jewelry IS TRUE AND #{filters.join(' AND ')} )" )
+      end
+
+      relation
+
+    end
+
     # Применить отраслевую фильтрацию к товарной выборке
     # @param relation [ActiveRecord::Relation]
     # @return ActiveRecord::Relation
@@ -165,6 +195,8 @@ module Recommender
           relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
         end
 
+        # Фильтрация по ювелирке
+        relation = apply_jewelry_industrial_filter relation
 
         # Фильтрация по детям
         # Оставляем:

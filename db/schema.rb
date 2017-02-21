@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170217125733) do
+ActiveRecord::Schema.define(version: 20170221063253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -350,12 +350,12 @@ ActiveRecord::Schema.define(version: 20170217125733) do
     t.jsonb   "chain_sizes"
   end
 
-  add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin
   add_index "items", ["brand"], name: "index_items_on_brand", where: "(brand IS NOT NULL)", using: :btree
   add_index "items", ["brand_downcase"], name: "index_items_on_brand_for_brand_campaign", where: "((brand_downcase IS NOT NULL) AND (category_ids IS NOT NULL))", using: :btree
   add_index "items", ["category_ids"], name: "index_items_on_category_ids", using: :gin
   add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
-  add_index "items", ["chain_sizes"], name: "index_items_on_chain_sizes", where: "((is_jewelry IS TRUE) AND (chain_sizes IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["chain_sizes"], name: "index_items_on_chain_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (chain_sizes IS NOT NULL))", using: :gin
   add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "((is_available IS TRUE) AND (ignored IS FALSE) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
   add_index "items", ["is_auto"], name: "index_items_on_is_auto", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
@@ -373,7 +373,7 @@ ActiveRecord::Schema.define(version: 20170217125733) do
   add_index "items", ["pets_size"], name: "index_items_on_pets_size", where: "((is_pets IS TRUE) AND (pets_size IS NOT NULL))", using: :btree
   add_index "items", ["pets_type"], name: "index_items_on_pets_type", where: "((is_pets IS TRUE) AND (pets_type IS NOT NULL))", using: :btree
   add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
-  add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL))", using: :gin
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "((price_margin IS NOT NULL) AND (is_available IS TRUE) AND (ignored IS FALSE))", using: :btree

@@ -73,6 +73,19 @@ module Recommender
 
         end
 
+        if item.is_jewelry?
+
+          subconditions = []
+          subconditions << " jewelry_color IS NOT NULL AND jewelry_color = $$#{item.jewelry_color}$$ " if item.jewelry_color.present?
+          subconditions << " jewelry_metal IS NOT NULL AND jewelry_metal = $$#{item.jewelry_metal}$$ " if item.jewelry_metal.present?
+          subconditions << " jewelry_gem IS NOT NULL AND jewelry_gem = $$#{item.jewelry_gem}$$ " if item.jewelry_gem.present?
+
+          if subconditions.any?
+            result = result.where("is_jewelry IS TRUE AND ( #{subconditions.join('OR')} ) ")
+          end
+
+        end
+
         result
       end
 

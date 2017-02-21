@@ -111,6 +111,50 @@ describe Recommender::Impl::Similar do
 
       end
 
+      context 'jewelry' do
+
+        before {
+          test_item.update is_jewelry: true, jewelry_gem: 'diamond', jewelry_color: 'yellow', jewelry_metal: 'gold'
+        }
+
+        it 'includes item without data' do
+          item2.update is_jewelry: true
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'excludes item with wrong gem' do
+          item2.update is_jewelry: true, jewelry_gem: 'ruby'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes item with wrong metal' do
+          item2.update is_jewelry: true, jewelry_color: 'white'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'excludes item with wrong color' do
+          item2.update is_jewelry: true, jewelry_metal: 'silver'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'includes item with one fit' do
+          item2.update is_jewelry: true, jewelry_gem: 'diamond', jewelry_color: '-', jewelry_metal: 'gold'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          item2.update is_jewelry: true, jewelry_gem: '-', jewelry_color: 'yellow', jewelry_metal: 'gold'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          item2.update is_jewelry: true, jewelry_gem: 'diamond', jewelry_color: 'yellow', jewelry_metal: '-'
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+      end
+
     end
 
 

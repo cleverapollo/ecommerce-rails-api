@@ -135,6 +135,80 @@ describe Recommender::Impl::Popular do
 
 
 
+      context 'jewelry', :jewelry do
+
+        before {
+          test_item.update is_jewelry: true, jewelry_gender: 'f', jewelry_color: 'yellow', jewelry_metal: 'gold', jewelry_gem: 'ruby', ring_sizes: ['16', '17', '18'], bracelet_sizes: ['16', '17', '18'], chain_sizes: ['16', '17', '18']
+        }
+
+        it 'skips jewelry filter if user has no jewelry' do
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+        it 'checks gender' do
+          user.update jewelry: {'gender' => 'f'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'gender' => 'm'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'checks materials' do
+          user.update jewelry: {'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'color' => 'white', 'metal' => 'gold', 'gem' => 'diamond'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'ruby'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'diamond'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'checks sizes' do
+          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '-', 'chain_size' => '-'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '16', 'chain_size' => '-'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '-', 'chain_size' => '16'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '16', 'chain_size' => '16'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+          user.update jewelry: {'ring_size' => '15', 'bracelet_size' => '15', 'chain_size' => '15'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
+        end
+
+        it 'checks full profile' do
+          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '17', 'chain_size' => '18', 'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond', 'gender' => 'f'}
+          params.user = user
+          recommender = Recommender::Impl::Popular.new(params)
+          expect(recommender.recommendations).to include(test_item.uniqid)
+        end
+
+      end
+
+
 
 
 
