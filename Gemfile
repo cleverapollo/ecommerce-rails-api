@@ -75,7 +75,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-sidekiq'
   gem 'capistrano3-unicorn'
-  gem 'jazz_hands2'
+  gem 'pry-byebug'
 end
 
 # Rspec
