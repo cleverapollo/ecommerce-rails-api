@@ -104,66 +104,86 @@ class BounceHandlerWorker
     def perform_feedback_loop
       CustomLogger.logger.info("START: BounceHandlerWorker::perform_feedback_loop")
 
-      require 'net/imap'
 
-      # http://y.mkechinov.ru/issue/REES-2541
-      begin
-        OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ssl_version] = 'TLSv1'
-      rescue => e
-        Rollar.error e
-      end
+      # Пока шлем через get-n-post, забираем отлупы с их сервера
 
-      imap = Net::IMAP.new Rails.application.secrets.fbl_email_host
-      imap.login Rails.application.secrets.fbl_email_user, Rails.application.secrets.fbl_email_pass
-      imap.select('INBOX')
+      xml = Nokogiri::XML HTTParty.get('http://api.get-n-post.ru/api/v1/get_fbl_report', query: { key: Rails.application.secrets.fbl_secret_key })
 
-      imap.search('ALL').map do |m|
+      if xml.xpath('//item').any?
+        xml.xpath('//item').each do |element|
+          email = element.xpath('//email').text
 
-        raw_message = imap.fetch(m, 'RFC822').first.attr['RFC822']
-        mail = Mail.read_from_string raw_message
-        body = ""
-        if mail.text_part
-          body = "#{body} #{mail.text_part.body.to_s}"
-        end
-        if mail.html_part
-          body = "#{body} #{mail.html_part.body.to_s}"
-        end
-
-        # Ищем в теле наши адреса для боунсов
-        if bounced_address = body.match(/bounce\+shard.+@bounce.rees46.com/)
-          bounced_address = bounced_address[0]
-
-          # Не текущий шард, поэтому пропускаем
-          if bounced_address.match(/shard(\d{2})/)[1] != SHARD_ID
-            next
-          end
-
-          type = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
-          code = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
-
-          if code != 'test'
-            entity = if type == 'digest'
-                       DigestMail.find_by(code: code)
-                     elsif type == 'trigger'
-                       TriggerMail.find_by(code: code)
-                     end
-
-            entity.mark_as_bounced! if entity.present?
+          if email
+            DigestMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced! }
+            TriggerMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced! }
           end
 
         end
-
-        # Удаляем письмо
-        # Временно выключил на расследование инцидента со спамом
-        # imap.store(m, "+FLAGS", [:Deleted])
-
       end
 
-      # Remove all emails marked as deleted
-      # Временно выключил на расследование инцидента со спамом
-      # imap.expunge
 
-      imap.disconnect
+
+
+      # require 'net/imap'
+      #
+      # # http://y.mkechinov.ru/issue/REES-2541
+      # begin
+      #   OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ssl_version] = 'TLSv1'
+      # rescue => e
+      #   Rollar.error e
+      # end
+      #
+      # imap = Net::IMAP.new Rails.application.secrets.fbl_email_host
+      # imap.login Rails.application.secrets.fbl_email_user, Rails.application.secrets.fbl_email_pass
+      # imap.select('INBOX')
+      #
+      # imap.search('ALL').map do |m|
+      #
+      #   raw_message = imap.fetch(m, 'RFC822').first.attr['RFC822']
+      #   mail = Mail.read_from_string raw_message
+      #   body = ""
+      #   if mail.text_part
+      #     body = "#{body} #{mail.text_part.body.to_s}"
+      #   end
+      #   if mail.html_part
+      #     body = "#{body} #{mail.html_part.body.to_s}"
+      #   end
+      #
+      #   # Ищем в теле наши адреса для боунсов
+      #   if bounced_address = body.match(/bounce\+shard.+@bounce.rees46.com/)
+      #     bounced_address = bounced_address[0]
+      #
+      #     # Не текущий шард, поэтому пропускаем
+      #     if bounced_address.match(/shard(\d{2})/)[1] != SHARD_ID
+      #       next
+      #     end
+      #
+      #     type = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).first
+      #     code = bounced_address.split("bounce+shard#{SHARD_ID}+", 2).last.split('@', 2).first.split('=', 2).last
+      #
+      #     if code != 'test'
+      #       entity = if type == 'digest'
+      #                  DigestMail.find_by(code: code)
+      #                elsif type == 'trigger'
+      #                  TriggerMail.find_by(code: code)
+      #                end
+      #
+      #       entity.mark_as_bounced! if entity.present?
+      #     end
+      #
+      #   end
+      #
+      #   # Удаляем письмо
+      #   # Временно выключил на расследование инцидента со спамом
+      #   # imap.store(m, "+FLAGS", [:Deleted])
+      #
+      # end
+      #
+      # # Remove all emails marked as deleted
+      # # Временно выключил на расследование инцидента со спамом
+      # # imap.expunge
+      #
+      # imap.disconnect
 
       CustomLogger.logger.info("STOP: BounceHandlerWorker::perform_feedback_loop")
     end

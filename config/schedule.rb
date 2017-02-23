@@ -34,7 +34,7 @@ every 34.minutes do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform')"
 end
 
-every 38.minutes do
+every '45 23 * * *' do
   runner "RunnerWrapper.run('BounceHandlerWorker.perform_feedback_loop')"
 end
 
