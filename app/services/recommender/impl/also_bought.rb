@@ -10,9 +10,10 @@ module Recommender
         result = super
 
         # Только если есть дети с полом и пол только один (чтобы исключить товары противоположного пола)
-        if user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
-          result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
-        end
+        # Тест на дочках показывает снижение продаж. Проверка.
+        # if user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
+        #   result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
+        # end
 
         # Основная фильтрация
         result = apply_jewelry_industrial_filter result
