@@ -107,7 +107,7 @@ class BounceHandlerWorker
 
       # Пока шлем через get-n-post, забираем отлупы с их сервера
 
-      xml = Nokogiri::XML HTTParty.get('http://api.get-n-post.ru/api/v1/get_fbl_report', query: { key: Rails.application.secrets.fbl_secret_key })
+      xml = Nokogiri::XML HTTParty.get('http://api.get-n-post.ru/api/v1/get_fbl_report', query: { key: Rails.application.secrets.fbl_secret_key }).response.body
 
       if xml.xpath('//item').any?
         xml.xpath('//item').each do |element|
