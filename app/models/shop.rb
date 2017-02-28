@@ -275,4 +275,16 @@ class Shop < MasterTable
     self.logo.present? ? URI.join("#{Rees46.site_url}", self.logo.url).to_s : ''
   end
 
+  # Проверяет наличие отраслевых товаров разных категорий и отмечает их флаги
+  def check_industrial_products
+    update has_products_jewelry: items.recommendable.where('is_jewelry IS TRUE').exists?
+    update has_products_kids: items.recommendable.where('is_child IS TRUE').exists?
+    update has_products_fashion: items.recommendable.where('is_fashion IS TRUE').exists?
+    update has_products_pets: items.recommendable.where('is_pets IS TRUE').exists?
+    update has_products_cosmetic: items.recommendable.where('is_cosmetic IS TRUE').exists?
+    update has_products_fmcg: items.recommendable.where('is_fmcg IS TRUE').exists?
+    update has_products_auto: items.recommendable.where('is_auto IS TRUE').exists?
+  end
+
+
 end

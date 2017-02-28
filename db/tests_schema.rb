@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170219072554) do
+ActiveRecord::Schema.define(version: 20170228134820) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -386,6 +386,15 @@ ActiveRecord::Schema.define(version: 20170219072554) do
 
   add_index "insales_shops", ["shop_id"], name: "index_insales_shops_on_shop_id", using: :btree
 
+  create_table "instant_auth_tokens", force: :cascade do |t|
+    t.integer "customer_id"
+    t.string  "token"
+    t.date    "date"
+  end
+
+  add_index "instant_auth_tokens", ["date"], name: "index_instant_auth_tokens_on_date", using: :btree
+  add_index "instant_auth_tokens", ["token"], name: "index_instant_auth_tokens_on_token", unique: true, using: :btree
+
   create_table "invalid_emails", force: :cascade do |t|
     t.string   "email",      null: false
     t.string   "reason"
@@ -504,6 +513,15 @@ ActiveRecord::Schema.define(version: 20170219072554) do
     t.datetime "updated_at",   null: false
     t.date     "finishing_at"
   end
+
+  create_table "propeller_track_visits", force: :cascade do |t|
+    t.date     "date"
+    t.boolean  "redirect"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "propeller_track_visits", ["date"], name: "index_propeller_track_visits_on_date", using: :btree
 
   create_table "recommender_statistics", force: :cascade do |t|
     t.string   "efficiency", limit: 3000
@@ -789,6 +807,13 @@ ActiveRecord::Schema.define(version: 20170219072554) do
     t.integer  "js_sdk"
     t.boolean  "reputations_enabled",                       default: false, null: false
     t.integer  "geo_law"
+    t.boolean  "has_products_jewelry",                      default: false
+    t.boolean  "has_products_kids",                         default: false
+    t.boolean  "has_products_fashion",                      default: false
+    t.boolean  "has_products_pets",                         default: false
+    t.boolean  "has_products_cosmetic",                     default: false
+    t.boolean  "has_products_fmcg",                         default: false
+    t.boolean  "has_products_auto",                         default: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
