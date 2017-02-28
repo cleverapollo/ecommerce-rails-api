@@ -29,13 +29,14 @@ class RecommendationsController < ApplicationController
     end
 
     if shop.mailings_settings.try(:external_mailganer?)
+      redis_db = [0,0,2][ENV['REES46_SHARD'].to_i]
+      redis = Redis.new({
+        url: "redis://localhost:6379/#{ redis_db }",
+        namespace: "rees46_api_#{ Rails.env }"
+      })
       key = "recommender.request.#{shop.id}.#{Time.now.utc.to_date}"
-      begin
-        Redis.current.incr(key)
-        Redis.current.expire(key, 2.days)
-      rescue Exception => e
-        Rollbar.error e, Redis.current.methods.join(', ')
-      end
+      redis.incr(key)
+      redis.expire(key, 2.days)
     end
 
     render json: recommendations
