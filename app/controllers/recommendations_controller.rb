@@ -28,6 +28,12 @@ class RecommendationsController < ApplicationController
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
     end
 
+    if shop.mailings_settings.try(:external_mailganer?)
+      key = "recommender.request.#{shop.id}.#{Time.now.utc.to_date}"
+      Redis.current.incr(key)
+      Redis.current.expire(key, 2.days)
+    end
+
     render json: recommendations
 
 
