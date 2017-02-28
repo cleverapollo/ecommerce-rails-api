@@ -30,8 +30,12 @@ class RecommendationsController < ApplicationController
 
     if shop.mailings_settings.try(:external_mailganer?)
       key = "recommender.request.#{shop.id}.#{Time.now.utc.to_date}"
-      Redis.current.incr(key)
-      Redis.current.expire(key, 2.days)
+      begin
+        Redis.current.incr(key)
+        Redis.current.expire(key, 2.days)
+      rescue Exception => e
+        Rollbar.error e, Redis.current.methods.join(', ')
+      end
     end
 
     render json: recommendations
