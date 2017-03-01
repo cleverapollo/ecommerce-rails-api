@@ -131,11 +131,11 @@ describe ShopKPI do
       expect(shop_metric.digests_orders_real).to eq(1)
       expect(shop_metric.digests_revenue_real).to eq(200)
 
-      expect(shop_metric.subscription_popup_showed).to eq(0)
-      expect(shop_metric.subscription_accepted).to eq(0)
+      expect(shop_metric.subscription_popup_showed).to eq(1)
+      expect(shop_metric.subscription_accepted).to eq(1)
 
-      expect(shop_metric.web_push_subscription_popup_showed).to eq(0)
-      expect(shop_metric.web_push_subscription_accepted).to eq(0)
+      expect(shop_metric.web_push_subscription_popup_showed).to eq(1)
+      expect(shop_metric.web_push_subscription_accepted).to eq(1)
 
       expect(shop_metric.product_views_total).to eq(3)
       expect(shop_metric.product_views_recommended).to eq(1)
