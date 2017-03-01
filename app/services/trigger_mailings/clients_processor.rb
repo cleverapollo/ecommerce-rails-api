@@ -13,7 +13,7 @@ module TriggerMailings
 
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
 
-          Shop.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
+          Shop.connected.active.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
 
             Time.use_zone(shop.customer.time_zone) do
               # Не даем рассылать триггеры тем магазинам, у кого нет денег и нет активных подписок или нет активных оплаченных подписок
