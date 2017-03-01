@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170228132637) do
+ActiveRecord::Schema.define(version: 20170301124349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -646,7 +646,7 @@ ActiveRecord::Schema.define(version: 20170228132637) do
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
-    t.boolean  "simple_editor",                           default: false, null: false
+    t.boolean  "simple_editor",                           default: true,  null: false
     t.string   "intro_text"
   end
 
