@@ -134,11 +134,21 @@ class ShopKPI
       @shop_metric.abandoned_money = Item.where(id: item_ids).where.not(price: nil).sum(:price)
     end
 
-    # Subscriptions
-    @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
-    @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
-    @shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').count
-    @shop_metric.web_push_subscription_accepted = Client.where(shop_id: @shop.id).where('accepted_web_push_subscription IS TRUE OR web_push_enabled IS TRUE').count
+    # Обновляем только за последний день, т.к. считается инкримент
+    if date == Date.yesterday || date == Date.current
+
+      # Subscriptions
+      @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
+      @shop_metric.subscription_accepted = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
+      @shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: @shop.id).where('web_push_subscription_popup_showed IS TRUE').count
+      @shop_metric.web_push_subscription_accepted = Client.where(shop_id: @shop.id).where('accepted_web_push_subscription IS TRUE OR web_push_enabled IS TRUE').count
+
+    end
+
+    if date == Date.yesterday || date == Date.current
+      # Recommenders request count
+      @shop_metric.recommendation_requests = Redis.current.get("recommender.request.#{@shop.id}.#{date}")
+    end
 
     # Считаем товары
     products = Retailer::Products::OverviewStatistic.new @shop

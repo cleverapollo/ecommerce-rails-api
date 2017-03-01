@@ -71,6 +71,7 @@ describe ShopKPI do
   let!(:visit_2) { create(:visit, shop: shop, user: user_2, date:  (Date.yesterday + 2.hours)) }
   let!(:visit_3) { create(:visit, shop: shop, user: user_3, date:  (Date.yesterday + 2.hours)) }
 
+  let!(:params) { { shop_id: shop.uniqid, email: 'test@test.com', recommender_type: 'interesting' } }
 
   describe '.calculate' do
 
@@ -163,6 +164,36 @@ describe ShopKPI do
 
   end
 
+  describe '.calculate today', type: :request do
+
+    let!(:mailings_settings) { create(:mailings_settings, shop: shop, mailing_service: MailingsSettings::MAILING_SERVICE_MAILGANER) }
+    let!(:subscription_plan) { create(:subscription_plan, shop: shop, paid_till: 1.month.from_now, product: 'product.recommendations', price: 100) }
+
+    subject { ShopKPI.new(shop).calculate_and_write_statistics_at(Date.current) }
+
+    it 'finds or initialize only one object per date' do
+      expect{subject}.to change(ShopMetric, :count).from(0).to(1)
+      subject
+      expect(ShopMetric.count).to eq(1)
+    end
+
+    it 'calculates correct today' do
+      get '/recommend', params
+
+      subject
+      shop_metric = ShopMetric.first
+
+      expect(shop_metric.subscription_popup_showed).to eq(1)
+      expect(shop_metric.subscription_accepted).to eq(1)
+
+      expect(shop_metric.web_push_subscription_popup_showed).to eq(1)
+      expect(shop_metric.web_push_subscription_accepted).to eq(1)
+
+      expect(shop_metric.recommendation_requests).to eq(1)
+
+      Redis.current.del("recommender.request.#{shop.id}.#{Time.now.utc.to_date}")
+    end
+  end
 
 
 

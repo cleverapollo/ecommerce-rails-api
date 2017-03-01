@@ -15,6 +15,11 @@ class InitController < ApplicationController
   # Определяет покупателя, сращивает разных покупателей в один, если необходимо.
   # Передает магазину данные о текущих свойствах клиента: группа, настройки сбора емейла и рассылок.
   def init_script
+    if cookies['r46_personalization_opt_out'] == 'optout'
+      render json: {opt_out: 'enabled'}
+      return
+    end
+
     session_id = cookies[Rees46::COOKIE_NAME] || params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
 
     session = Session.fetch(code: session_id,

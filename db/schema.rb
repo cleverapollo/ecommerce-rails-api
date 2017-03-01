@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170221082014) do
+ActiveRecord::Schema.define(version: 20170301124349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -534,6 +534,7 @@ ActiveRecord::Schema.define(version: 20170221082014) do
     t.integer "remarketing_clicks",                 default: 0,   null: false
     t.integer "remarketing_orders",                 default: 0,   null: false
     t.integer "remarketing_revenue",                default: 0,   null: false
+    t.integer "recommendation_requests"
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
@@ -645,7 +646,7 @@ ActiveRecord::Schema.define(version: 20170221082014) do
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
-    t.boolean  "simple_editor",                           default: false, null: false
+    t.boolean  "simple_editor",                           default: true,  null: false
     t.string   "intro_text"
   end
 
