@@ -135,7 +135,7 @@ class ShopKPI
     end
 
     # Обновляем только за последний день, т.к. считается инкримент
-    if date == Date.current
+    if date == Date.yesterday || date == Date.current
 
       # Subscriptions
       @shop_metric.subscription_popup_showed = Client.where(shop_id: @shop.id).where('subscription_popup_showed IS TRUE').count
