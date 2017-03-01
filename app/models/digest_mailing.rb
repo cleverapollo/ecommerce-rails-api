@@ -39,4 +39,10 @@ class DigestMailing < ActiveRecord::Base
   def mailchimp_attr_present?
     self.mailchimp_campaign_id.present? && self.mailchimp_list_id.present?
   end
+
+  # Проверяет, валидный ли размер картинки
+  def self.valid_image_size?(size)
+    images_dimensions.key?("#{size}x#{size}")
+  end
+
 end

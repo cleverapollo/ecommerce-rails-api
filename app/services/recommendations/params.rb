@@ -38,6 +38,8 @@ module Recommendations
     attr_accessor :search_query
     # В рекомендациях участвуют только акционные товары со скидкой
     attr_accessor :discount
+    # Нужно ли ресайзить изображения? Если да, то до какого размера
+    attr_accessor :resize_image
 
     # Проверяет и обрабатывает параметры
     #
@@ -116,6 +118,8 @@ module Recommendations
       @limit = 1 if @limit < 1
       @extended = raw[:extended].present?
       @discount = raw[:discount].present?
+      @resize_image = raw[:resize_image] if TriggerMailing.valid_image_size?(raw[:resize_image])
+
     end
 
     # Извлекает магазин

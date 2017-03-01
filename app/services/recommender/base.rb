@@ -49,7 +49,7 @@ module Recommender
                   id: item.uniqid,
                   name: item.name,
                   url: item.url,
-                  image_url: item.image_url,
+                  image_url: params.resize_image.nil? ? item.image_url : item.resized_image_by_dimension("#{params.resize_image}x#{params.resize_image}"),
                   price: item.price.to_s,
                   currency: shop.currency,
                   _id: item.id

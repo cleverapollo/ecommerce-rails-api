@@ -18,7 +18,8 @@ describe Recommendations::Params do
       {
         ssid: session.code,
         shop_id: shop.uniqid,
-        recommender_type: 'interesting'
+        recommender_type: 'interesting',
+        resize_image: '120'
       } 
     end
 
@@ -29,6 +30,13 @@ describe Recommendations::Params do
     it { expect(subject.user).to eq(user) }
     it { expect(subject.shop).to eq(shop) }
     it { expect(subject.type).to eq(params[:recommender_type]) }
+    it { expect(subject.resize_image).to eq(params[:resize_image]) }
+
+    it {
+      params[:resize_image] = '12'
+      expect(subject.resize_image).to eq nil
+    }
+
   end
 
 
