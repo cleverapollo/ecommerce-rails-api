@@ -10,7 +10,9 @@ module Recommender
     # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/recommender/impl/*').map{|a| a.split('/').last.split('.').first }
 
-    attr_accessor :params, :strict_categories
+    # @return [Recommendations::Params] params
+    attr_accessor :params
+    attr_accessor :strict_categories
 
     class << self
       # Получить класс рекомендера по названию
@@ -70,7 +72,12 @@ module Recommender
       # Запоминаем, что магазин вызвал рекомендер
       params.shop.report_recommender(params.type.to_sym)
 
-      return result
+      # Дополнительно указываем запрос рекоммендера популярного в категории
+      if params.type == 'popular' && params.categories.present? && params.categories.any?
+        params.shop.report_recommender(:popular_category)
+      end
+
+      result
     end
 
     # Проверка, валидны ли параметры для конкретного рекомендера
@@ -83,6 +90,7 @@ module Recommender
       raise NotImplementedError.new('This should be implemented in concrete recommender class')
     end
 
+    # @param [Recommendations::Params] params
     def initialize(params)
       @params = params
       @strict_categories = false
