@@ -59,6 +59,17 @@ describe RecommendationsController do
 
   end
 
+  context 'when also_bought empty' do
+    let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: 1 }) }
+    before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
+
+    it 'process exactly 3 times' do
+      get :get, params
+
+      expect(Recommendations::Processor).to have_received(:process).exactly(3).times
+    end
+  end
+
 
   # @mk: выше тесты не позволяют выполнять эту проверку, т.к. перезаписывают поведение классов Recommendations::Params
   # context 'saves category subscription' do

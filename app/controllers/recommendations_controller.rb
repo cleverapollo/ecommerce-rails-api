@@ -19,6 +19,25 @@ class RecommendationsController < ApplicationController
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)
 
+    # Если ничего не нашли для also_bought меняем на see_also
+    if recommendations.blank? && extracted_params.type == 'also_bought'
+      extracted_params.type = 'see_also'
+
+      # достаем товары из корзины
+      extracted_params.cart_item_ids = ClientCart.where(user: extracted_params.user, shop: extracted_params.shop).first.try(:items) || []
+
+      # Запускаем процессор с извлеченными данными
+      recommendations = Recommendations::Processor.process(extracted_params)
+
+      # Если ничего не нашли для see_also меняем на popular
+      if recommendations.blank?
+        extracted_params.type = 'popular'
+
+        # Запускаем процессор с извлеченными данными
+        recommendations = Recommendations::Processor.process(extracted_params)
+      end
+    end
+
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
     begin
@@ -26,6 +45,7 @@ class RecommendationsController < ApplicationController
         TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
       end
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
+      Rails.logger.error e.message
     end
 
     if shop.mailings_settings.try(:external_mailganer?)
