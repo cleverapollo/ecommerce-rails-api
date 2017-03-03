@@ -27,6 +27,8 @@ class WebPush::Sender
         rescue Webpush::InvalidSubscription => e
           # remove token
           web_push_token.destroy
+        rescue Webpush::ResponseError => e
+          Rollbar.error e, token: web_push_token.token
         end
       end
 

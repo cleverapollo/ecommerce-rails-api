@@ -215,6 +215,11 @@ module InitServerString
         end
 
       end
+
+      if shop && shop.id == 725
+        pixels << '//api.rees46.com/pix/auditory.png'
+      end
+
       pixels
     end
 

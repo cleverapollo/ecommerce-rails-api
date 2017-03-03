@@ -15,6 +15,7 @@ module Recommendations
     # Тип вызываемого рекомендера
     attr_accessor :type
     # Массив категорий
+    # @return [Array] categories
     attr_accessor :categories
     # Текущий просматриваемый товар
     # TODO: переименовать в current_item
