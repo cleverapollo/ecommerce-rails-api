@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Recommender::Impl::BuyingNow do
-  let!(:shop) { create(:shop) }
+  let!(:shop) { create(:shop, has_products_jewelry: true, has_products_kids: true, has_products_fashion: true, has_products_pets: true, has_products_cosmetic: true, has_products_fmcg: true, has_products_auto: true) }
   let!(:user) { create(:user, gender: 'm') }
   let!(:other_user) { create(:user) }
   let!(:test_item) { create(:item, shop: shop, sales_rate: 10000, discount: true) }

@@ -28,7 +28,11 @@ class WebPush::Sender
           # remove token
           web_push_token.destroy
         rescue Webpush::ResponseError => e
-          Rollbar.error e, token: web_push_token.token
+          if e.message.include?('InvalidTokenFormat')
+            web_push_token.destroy
+          else
+            Rollbar.error e, web_push_token
+          end
         end
       end
 

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Recommender::Impl::SeeAlso do
-  let!(:shop) { create(:shop) }
+  let!(:shop) { create(:shop, has_products_jewelry: true, has_products_kids: true, has_products_fashion: true, has_products_pets: true, has_products_cosmetic: true, has_products_fmcg: true, has_products_auto: true) }
   let!(:user) { create(:user, children: [{'gender' => 'm'}]) }
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, category_ids: '{3}') }

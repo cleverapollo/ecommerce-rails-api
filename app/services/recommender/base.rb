@@ -130,7 +130,7 @@ module Recommender
     # Применяет ювелирный отраслевой фильтр (общий)
     # @return ActiveRecord::Relation
     def apply_jewelry_industrial_filter(relation)
-      if user.try(:jewelry).present? && user.jewelry.is_a?(Hash) && user.jewelry.keys.any?
+      if shop.has_products_jewelry? && user.try(:jewelry).present? && user.jewelry.is_a?(Hash) && user.jewelry.keys.any?
 
         # Физические характеристики по ИЛИ
         materials = []
@@ -166,7 +166,7 @@ module Recommender
       # if shop.subscription_plans.product_recommendations.paid.exists?
 
         # Фильтрация по полу
-        if user.try(:gender).present?
+        if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
           # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
           # Сброс не работает, т.к. дополнительные фильтры отдельных рекомендеров (например, популярные в категориях) еще не применены.
           # if relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender ).exists?
@@ -174,23 +174,27 @@ module Recommender
           # end
         end
 
-        # Фильтрация по маркам авто
-        if user.try(:compatibility).present?
-          relation = relation.where("
-              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
-              OR
-              (is_auto = true AND auto_compatibility IS NULL)
-              OR is_auto IS NULL
-          ", brand: user.compatibility['brand'], model: user.compatibility['model'])
-        end
+        if shop.has_products_auto?
 
-        # Фильтрация по VIN авто
-        if user.try(:vds).present?
-          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+          # Фильтрация по маркам авто
+          if user.try(:compatibility).present?
+            relation = relation.where("
+                (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
+                OR
+                (is_auto = true AND auto_compatibility IS NULL)
+                OR is_auto IS NULL
+            ", brand: user.compatibility['brand'], model: user.compatibility['model'])
+          end
+
+          # Фильтрация по VIN авто
+          if user.try(:vds).present?
+            relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+          end
+
         end
 
         # Фильтрация по животным.
-        if user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
+        if shop.has_products_pets? && user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
           subconditions = user.pets.map do |pet|
             if pet['type'] && pet['breed']
               " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
@@ -210,7 +214,7 @@ module Recommender
         # Оставляем:
         # - не детские товары
         # - детские товары без указания пола
-        if user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
+        if shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
           subconditions = user.children.map do |kid|
             if kid.is_a?(Hash) && kid.keys.any?
             partial_subcondition = ' OR ( is_child IS TRUE '
