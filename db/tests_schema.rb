@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170228134820) do
+ActiveRecord::Schema.define(version: 20170307062332) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -328,11 +328,11 @@ ActiveRecord::Schema.define(version: 20170228134820) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -523,6 +523,41 @@ ActiveRecord::Schema.define(version: 20170228134820) do
 
   add_index "propeller_track_visits", ["date"], name: "index_propeller_track_visits_on_date", using: :btree
 
+  create_table "prospects", force: :cascade do |t|
+    t.string "filename"
+    t.string "domain"
+    t.string "location_on_site"
+    t.string "company"
+    t.string "vertical"
+    t.string "quantcast"
+    t.string "alexa"
+    t.string "telephones"
+    t.string "emails"
+    t.string "twitter"
+    t.string "facebook"
+    t.string "linkedIn"
+    t.string "google"
+    t.string "pinterest"
+    t.string "github"
+    t.string "instagram"
+    t.string "vk"
+    t.string "vimeo"
+    t.string "youtube"
+    t.string "people"
+    t.string "city"
+    t.string "state"
+    t.string "zip"
+    t.string "country"
+    t.string "first_detected"
+    t.string "last_found"
+    t.string "first_indexed"
+    t.string "last_indexed"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "name"
+    t.string "position"
+  end
+
   create_table "recommender_statistics", force: :cascade do |t|
     t.string   "efficiency", limit: 3000
     t.integer  "shop_id"
@@ -694,6 +729,7 @@ ActiveRecord::Schema.define(version: 20170228134820) do
     t.date    "synced_with_republer_at"
     t.date    "synced_with_advmaker_at"
     t.string  "useragent"
+    t.jsonb   "segment"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
@@ -710,6 +746,13 @@ ActiveRecord::Schema.define(version: 20170228134820) do
   end
 
   add_index "shop_days_statistics", ["shop_id"], name: "index_shop_days_statistics_on_shop_id", using: :btree
+
+  create_table "shop_images", force: :cascade do |t|
+    t.integer  "shop_id",    null: false
+    t.string   "file",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "shop_statistics", force: :cascade do |t|
     t.integer "shop_id"

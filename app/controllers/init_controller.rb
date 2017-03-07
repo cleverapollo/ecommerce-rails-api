@@ -52,6 +52,20 @@ class InitController < ApplicationController
       LeadSourceProcessor.new(params[:from], params[:code]).process
     end
 
+    # Трекаем изменение сессии для DS
+    if params[:segment1].present? && params[:segment2].present?
+      if session.segment.nil?
+        session.update segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}]
+      else
+        last = session.segment.last
+        if last['s1'] != params[:segment1] && last['s2'] != params[:segment2]
+          session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
+          session.save!
+          session.segment_changed = true
+        end
+      end
+    end
+
     if params[:v] == '3'
       render json: InitServerString.make_v3(shop: shop, session: session, client: client)
     else

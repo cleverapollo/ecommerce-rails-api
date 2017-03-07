@@ -28,6 +28,7 @@ class Session < MasterTable
   include UserLinkable
 
   validates :code, presence: true
+  attr_accessor :segment_changed
 
   class << self
     # Получить подходящую по параметрам сессию.
