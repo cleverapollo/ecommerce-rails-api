@@ -32,12 +32,12 @@ class RecommendationsController < ApplicationController
     end
 
     # Если ничего не нашли для see_also меняем на popular
-    if recommendations.blank? && extracted_params.type == 'see_also'
-      extracted_params.type = 'popular'
-
-      # Запускаем процессор с извлеченными данными
-      recommendations = Recommendations::Processor.process(extracted_params)
-    end
+    # if recommendations.blank? && extracted_params.type == 'see_also'
+    #   extracted_params.type = 'popular'
+    #
+    #   # Запускаем процессор с извлеченными данными
+    #   recommendations = Recommendations::Processor.process(extracted_params)
+    # end
 
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
