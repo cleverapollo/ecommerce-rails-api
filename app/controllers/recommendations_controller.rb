@@ -20,16 +20,16 @@ class RecommendationsController < ApplicationController
     recommendations = Recommendations::Processor.process(extracted_params)
 
     # Если ничего не нашли для also_bought меняем на see_also
-    if recommendations.blank? && extracted_params.type == 'also_bought'
-      extracted_params.type = 'see_also'
-
-      # достаем товары из корзины
-      extracted_params.cart_item_ids = ClientCart.where(user: extracted_params.user, shop: extracted_params.shop).first.try(:items) || []
-
-      # Запускаем процессор с извлеченными данными
-      recommendations = Recommendations::Processor.process(extracted_params)
-
-    end
+    # if recommendations.blank? && extracted_params.type == 'also_bought'
+    #   extracted_params.type = 'see_also'
+    #
+    #   # достаем товары из корзины
+    #   extracted_params.cart_item_ids = ClientCart.where(user: extracted_params.user, shop: extracted_params.shop).first.try(:items) || []
+    #
+    #   # Запускаем процессор с извлеченными данными
+    #   recommendations = Recommendations::Processor.process(extracted_params)
+    #
+    # end
 
     # Если ничего не нашли для see_also меняем на popular
     # if recommendations.blank? && extracted_params.type == 'see_also'
