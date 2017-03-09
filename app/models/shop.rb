@@ -286,5 +286,9 @@ class Shop < MasterTable
     update has_products_auto: items.recommendable.where('is_auto IS TRUE').exists?
   end
 
-
+  # Все необходимые записи установлены в DNS домена?
+  # @return [Boolean]
+  def mailing_dig_verify?
+    mailings_settings.mailing_service != MailingsSettings::MAILING_SERVICE_REES46 || verify_domain.try(:[], 'domain') && verify_domain.try(:[], 'spf') && verify_domain.try(:[], 'dkim') && verify_domain.try(:[], 'dmarc')
+  end
 end

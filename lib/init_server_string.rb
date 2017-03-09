@@ -216,7 +216,7 @@ module InitServerString
 
       end
 
-      if shop && shop.id == 725 && session.segment_changed
+      if shop && shop.id == 725 && session.segment_changed && false
         pixels << '//api.rees46.com/pix/auditory.png'
       end
 
