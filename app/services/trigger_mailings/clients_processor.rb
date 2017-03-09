@@ -15,6 +15,10 @@ module TriggerMailings
 
           Shop.connected.active.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
 
+            # Запрещаем отправку сообщений при не настроенном DNS
+            # todo пока отключили, ждем отмашки от Кечинова
+            # next unless shop.mailing_dig_verify?
+
             Time.use_zone(shop.customer.time_zone) do
               # Не даем рассылать триггеры тем магазинам, у кого нет денег и нет активных подписок или нет активных оплаченных подписок
               next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.active.exists? || shop.subscription_plans.trigger_emails.active.exists? && !shop.subscription_plans.trigger_emails.active.paid.exists?

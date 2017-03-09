@@ -62,6 +62,11 @@ class InitController < ApplicationController
           session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
           session.save!
           session.segment_changed = true
+
+          # Отправляем в слак
+          if Rails.env == 'production'
+            SlackNotifierWorker.perform_async('DS', "Segment changed for session `<https://rees46.com/admin/clients?code=#{session.code}|#{session.code}>`: `#{last['s2']}` -> `#{params[:segment2]}`", webhook_url: 'https://hooks.slack.com/services/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')
+          end
         end
       end
     end
