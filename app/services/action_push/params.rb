@@ -23,6 +23,8 @@ module ActionPush
     attr_accessor :user
     # @return [Client] Клиент
     attr_accessor :client
+    # @return [Session]
+    attr_accessor :session
     # Название действия
     attr_accessor :action
     # Рейтинг (только для действия rate)
@@ -154,6 +156,7 @@ module ActionPush
                                      session_code: raw[:ssid])
       @user = user_fetcher.fetch
       @client = user_fetcher.client
+      self.session = user_fetcher.session
     end
 
 
