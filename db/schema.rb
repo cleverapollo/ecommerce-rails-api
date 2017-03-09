@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170306070514) do
+ActiveRecord::Schema.define(version: 20170309100941) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -614,7 +614,7 @@ ActiveRecord::Schema.define(version: 20170306070514) do
     t.boolean  "pager_enabled",                    default: false, null: false
     t.integer  "cursor",                           default: 50,    null: false
     t.boolean  "cursor_enabled",                   default: false, null: false
-    t.boolean  "products",                         default: false, null: false
+    t.boolean  "products",                         default: true,  null: false
     t.text     "successfully"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
