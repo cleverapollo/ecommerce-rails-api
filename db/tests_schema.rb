@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170307083644) do
+ActiveRecord::Schema.define(version: 20170309130023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -732,6 +732,7 @@ ActiveRecord::Schema.define(version: 20170307083644) do
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["segment"], name: "index_sessions_on_segment", where: "(segment IS NOT NULL)", using: :gin
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: :cascade do |t|
@@ -857,6 +858,8 @@ ActiveRecord::Schema.define(version: 20170307083644) do
     t.boolean  "has_products_fmcg",                         default: false
     t.boolean  "has_products_auto",                         default: false
     t.jsonb    "verify_domain",                             default: {},    null: false
+    t.datetime "last_orders_import_at"
+    t.datetime "last_orders_sync_at"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -1013,5 +1016,4 @@ ActiveRecord::Schema.define(version: 20170307083644) do
   end
 
   add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree
-
 end

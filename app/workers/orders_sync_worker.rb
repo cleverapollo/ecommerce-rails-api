@@ -8,7 +8,6 @@ class OrdersSyncWorker
   sidekiq_options retry: false, queue: 'long'
 
   def perform(opts)
-
     begin
 
       current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
@@ -21,7 +20,6 @@ class OrdersSyncWorker
       end
 
       opts['orders'].each do |element|
-
         if element["id"].blank?
           raise OrdersSyncError.new("Передан заказ без ID: #{element}")
         end
@@ -51,9 +49,7 @@ class OrdersSyncWorker
           current_order.change_status element["status"].to_i
 
         end
-
       end
-
 
       # Отмечаем дату последней синхронизации заказов и сообщаем об этом в Slack
       if opts['orders'].any?
@@ -70,12 +66,10 @@ class OrdersSyncWorker
         current_shop.update last_orders_sync: Time.current
       end
 
-
     rescue OrdersSyncError => e
       email = opts['errors_to'] || current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
     end
   end
-
 
 end

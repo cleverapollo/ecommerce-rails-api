@@ -65,7 +65,7 @@ class InitController < ApplicationController
 
           # Отправляем в слак
           if Rails.env == 'production'
-            SlackNotifierWorker.perform_async('DS', "Segment changed for session `<https://rees46.com/admin/clients?code=#{session.code}|#{session.code}>`: `#{last['s2']}` -> `#{params[:segment2]}`", 'https://hooks.slack.com/services/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')
+            SlackNotifierWorker.perform_async('DS', "Segment changed for session `<https://rees46.com/admin/clients?code=#{session.code}|#{session.code}>`: `#{last['s2']}` -> `#{params[:segment2]}`. Referer: #{request.referer}. User-Agent: #{request.user_agent}.", 'https://hooks.slack.com/services/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')
           end
         end
       end

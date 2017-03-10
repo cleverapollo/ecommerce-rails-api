@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170306070514) do
+ActiveRecord::Schema.define(version: 20170309100941) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -204,6 +204,8 @@ ActiveRecord::Schema.define(version: 20170306070514) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.integer  "activity_segment"
     t.text     "liquid_template"
@@ -211,8 +213,6 @@ ActiveRecord::Schema.define(version: 20170306070514) do
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -614,7 +614,7 @@ ActiveRecord::Schema.define(version: 20170306070514) do
     t.boolean  "pager_enabled",                    default: false, null: false
     t.integer  "cursor",                           default: 50,    null: false
     t.boolean  "cursor_enabled",                   default: false, null: false
-    t.boolean  "products",                         default: false, null: false
+    t.boolean  "products",                         default: true,  null: false
     t.text     "successfully"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
@@ -644,10 +644,10 @@ ActiveRecord::Schema.define(version: 20170306070514) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

@@ -227,8 +227,10 @@ class Shop < MasterTable
     connected_events_last_track[:view] > (1.day.ago).to_time.to_i && connected_events_last_track[:cart] > (1.day.ago).to_time.to_i && connected_events_last_track[:purchase] > (2.days.ago).to_time.to_i
   end
 
+  # Оформлена подписка и попап включен?
   def subscriptions_enabled?
-    subscriptions_settings.present? && subscriptions_settings.enabled?
+    plan = self.subscription_plans.where(product: 'subscriptions').first
+    subscriptions_settings.present? && subscriptions_settings.enabled? && plan.present? && plan.paid?
   end
 
   # Check if shop has enabled web push subscriptions

@@ -2,12 +2,8 @@
 # Класс, ответственный за импорт истории заказов магазина. Работает в фоне
 #
 class OrdersImportWorker
-
-  class OrdersImportError < StandardError;
-  end
-
-  class OrdersImportOrderWithoutItemError < StandardError;
-  end
+  class OrdersImportError < StandardError; end
+  class OrdersImportOrderWithoutItemError < StandardError; end
 
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
@@ -34,11 +30,10 @@ class OrdersImportWorker
       end
 
       # Connect to BRB
-      @mahout_service = MahoutService.new(@current_shop.brb_address)
+      @mahout_service = MahoutService.new(@current_shop.brb_address) if @current_shop.use_brb?
       @orders_count = 0
 
       opts['orders'].each do |order|
-
         @current_order = order
 
         if @current_order['id'].blank?
@@ -85,6 +80,7 @@ class OrdersImportWorker
       # Report import results errors
       ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
 
+      @current_shop.update(last_orders_import_at: Time.now)
       # Report complited imported resoults
       # CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now if @orders_count > 0
     rescue OrdersImportError => e
@@ -115,7 +111,6 @@ class OrdersImportWorker
     end
 
     user
-
   end
 
   # Упрощенный поиск товара для импорта
@@ -152,7 +147,6 @@ class OrdersImportWorker
   end
 
   def fetch_actions(item, shop_id, user_id)
-
     begin
       action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
 
@@ -162,7 +156,7 @@ class OrdersImportWorker
         action.update(rating: 5.0, purchase_count: 1)
 
         # Send rate to BRB
-        mahout_service.set_preference(shop_id, user_id, item.id, action.rating)
+        mahout_service.set_preference(shop_id, user_id, item.id, action.rating) if @current_shop.use_brb?
 
       end
     rescue PG::UniqueViolation => e

@@ -8,6 +8,8 @@ class UserFetcher
   attr_reader :external_id, :session_code, :shop, :email, :location
   # @return [Client]
   attr_accessor :client
+  # @return [Session]
+  attr_accessor :session
 
   def initialize(params)
     @external_id = params[:external_id]
@@ -19,14 +21,14 @@ class UserFetcher
 
   def fetch
     # Сессия должна существовать
-    session = Session.find_by(code: session_code)
-    raise SessionNotFoundError if session.blank?
+    self.session = Session.find_by(code: session_code)
+    raise SessionNotFoundError if self.session.blank?
 
     # Находим или создаем связку пользователя с магазином
     begin
-      self.client = shop.clients.find_or_create_by!(user_id: session.user_id)
+      self.client = shop.clients.find_or_create_by!(user_id: self.session.user_id)
     rescue ActiveRecord::RecordNotUnique
-      self.client = shop.clients.find_by!(user_id: session.user_id)
+      self.client = shop.clients.find_by!(user_id: self.session.user_id)
     end
 
     if location.present? && (self.client.location.nil? || self.client.location != location.to_s)
