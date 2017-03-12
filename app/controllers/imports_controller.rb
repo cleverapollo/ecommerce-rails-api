@@ -31,7 +31,7 @@ class ImportsController < ApplicationController
   end
 
   def yml
-    YmlImporter.perform_async(@shop.id)
+    YmlImporter.perform_async(@shop.id, true)
     render text: 'OK'
   end
 

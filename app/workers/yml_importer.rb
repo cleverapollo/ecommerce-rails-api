@@ -8,11 +8,30 @@ class YmlImporter
 
   # Точка входа обработки YML
   # @param shop_id [Integer]
-  def perform(shop_id)
+  # @param force [Boolean] Флаг, что насильно переимпортировать файл, игнорируя if-modified-since
+  def perform(shop_id, force = false)
 
     CustomLogger.logger.info("START: YmlImporter::perform(#{shop_id})")
 
     current_shop = Shop.find(shop_id)
+
+    # Проверяем, менялся ли файл: http://y.mkechinov.ru/issue/REES-3526
+    # Если файл статический и у нас есть дата последней успешной обработки и запрос возвращает 304, то пропускаем
+    # обработку, т.к. файл не изменился
+    if current_shop.last_valid_yml_file_loaded_at.present? && force == false
+      begin
+        response = HTTParty.head(shop.yml_file_url, headers: {'If-Modified-Since' => shop.last_valid_yml_file_loaded_at.rfc822 }, timeout: 1)
+        if response.code == 304 || ( response.headers && response.headers["last-modified"] && DateTime.parse(response.headers["last-modified"]) < shop.last_valid_yml_file_loaded_at )
+          # Файл не изменился, пишем в лог и считаем, все обработано
+          # Записываем в лог число обработанных товаров
+          CatalogImportLog.create shop_id: shop_id, success: true, message: 'Not modified', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
+          CustomLogger.logger.info("STOP: YmlImporter::perform(#{shop_id}) - file not modified")
+          return
+        end
+      rescue
+        # Таймаут, значит живой скрипт, придется обрабатывать
+      end
+    end
 
     result = current_shop.import do |yml|
 
