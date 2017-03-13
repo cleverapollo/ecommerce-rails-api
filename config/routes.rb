@@ -57,6 +57,12 @@ Rees46Api::Application.routes.draw do
     post :audience
     # Удалить старые и загрузить новыие картинки товаров
     post :images
+
+    # Импорт товаров через HTTP API
+    post :products
+    put :products
+    delete :products
+
   end
 
   resources :rtb_impressions, only: [:create] do

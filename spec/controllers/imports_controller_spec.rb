@@ -36,4 +36,41 @@ describe ImportsController do
       end
     end
   end
+
+
+  describe 'import products' do
+
+    let(:shop) { create(:shop) }
+
+    context 'insert' do
+      it 'works' do
+        post :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        expect(response.code).to eq('204')
+      end
+    end
+
+    context 'update' do
+      it 'works' do
+        put :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        expect(response.code).to eq('204')
+      end
+    end
+
+    context 'delete' do
+      it 'works' do
+        delete :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        expect(response.code).to eq('204')
+      end
+    end
+
+    context 'access denied' do
+      it 'declines' do
+        post :products
+        expect(response.code).to eq('400')
+      end
+    end
+
+  end
+
+
 end

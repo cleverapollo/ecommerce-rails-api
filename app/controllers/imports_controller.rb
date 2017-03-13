@@ -55,6 +55,14 @@ class ImportsController < ApplicationController
     render text: 'OK'
   end
 
+
+  # Заглушка для импорта товаров через HTTP
+  # Тесты тоже есть.
+  def products
+    render nothing: true, status: 204
+  end
+
+
   def images
     ImageDownloadLaunchWorker.perform_async(@shop.id, nil, true)
     render text: 'OK'
