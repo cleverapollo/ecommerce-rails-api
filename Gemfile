@@ -69,17 +69,19 @@ group :development do
   gem 'stackprof'
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
-  gem 'capistrano'
-  gem 'capistrano-rvm'
-  gem 'capistrano-rails'
-  gem 'capistrano-bundler'
-  gem 'capistrano-sidekiq'
-  gem 'capistrano3-unicorn'
   gem 'pry-byebug'
 end
 
 # Rspec
 group :development, :test do
+
+  gem 'capistrano', '~> 3.4.0'
+  gem 'capistrano-rvm'
+  gem 'capistrano-rails'
+  gem 'capistrano-bundler'
+  gem 'capistrano-sidekiq'
+  gem 'capistrano3-unicorn'
+
   gem 'pry'
   gem 'timecop', '~> 0.7.1' # Изменяет в тестах текущее время
   gem 'rspec-rails', '~> 3.1.0'
