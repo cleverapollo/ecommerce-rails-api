@@ -41,9 +41,8 @@ class DigestMailingBatchWorker
 
         # Проходим по всей доступной аудитории
         relation = @shop.clients.suitable_for_digest_mailings.includes(:user).where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id)
-        relation = relation.where('activity_segment is not null and activity_segment = ?', @batch.activity_segment) unless @batch.activity_segment.nil?
+        relation = relation.with_segment(@batch.segment_id) if @batch.segment_id.present?
         relation.each do |client|
-
 
           # Каждый раз запоминаем текущий обрабатываемый ID
           @current_client = client

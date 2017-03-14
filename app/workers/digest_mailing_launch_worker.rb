@@ -1,10 +1,10 @@
 ##
 # Обработчик запуска дайджестной рассылки.
-#
 class DigestMailingLaunchWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'mailing'
 
+  # @return [Shop]
   attr_reader :shop
 
   BATCH_SIZE = 200
@@ -48,7 +48,7 @@ class DigestMailingLaunchWorker
           # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
           offset = 0
           while offset < all_audience
-            digest_mailing.batches.create!(mailchimp_count: MAILCHIMP_BATCH_SIZE, mailchimp_offset: offset, shop_id: shop.id, activity_segment: digest_mailing.activity_segment)
+            digest_mailing.batches.create!(mailchimp_count: MAILCHIMP_BATCH_SIZE, mailchimp_offset: offset, shop_id: shop.id, segment_id: digest_mailing.segment_id)
             offset += MAILCHIMP_BATCH_SIZE
           end
         end
@@ -58,13 +58,13 @@ class DigestMailingLaunchWorker
 
         # Для всех остальных
         audience_relation = shop.clients.suitable_for_digest_mailings
-        audience_relation = audience_relation.where('activity_segment is not null and activity_segment = ?', digest_mailing.activity_segment) unless digest_mailing.activity_segment.nil?
+        audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
 
         if digest_mailing.batches.incomplete.not_test.none?
 
           # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
           audience_relation.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
-            digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id, activity_segment: digest_mailing.activity_segment)
+            digest_mailing.batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id, segment_id: digest_mailing.segment_id)
           end
         end
         # Запоминаем, сколько пользователей попало в рассылку
