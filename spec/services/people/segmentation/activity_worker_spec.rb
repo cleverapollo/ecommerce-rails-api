@@ -10,6 +10,9 @@ describe People::Segmentation::ActivityWorker do
     let!(:user3) { create(:user) }
     let!(:user4) { create(:user) }
     let!(:user5) { create(:user) }
+    let!(:segment_a) { create(:segment, name: 'A', shop: shop) }
+    let!(:segment_b) { create(:segment, name: 'B', shop: shop) }
+    let!(:segment_c) { create(:segment, name: 'C', shop: shop) }
     let!(:client1) { create(:client, user: user1, shop: shop) }
     let!(:client2) { create(:client, user: user2, shop: shop) }
     let!(:client3) { create(:client, user: user3, shop: shop) }
@@ -25,11 +28,11 @@ describe People::Segmentation::ActivityWorker do
 
       People::Segmentation::ActivityWorker.new(shop).perform
 
-      expect(People::Segmentation::Activity.new(client1.reload).group_a?).to be_truthy
-      expect(People::Segmentation::Activity.new(client2.reload).group_b?).to be_truthy
-      expect(People::Segmentation::Activity.new(client3.reload).group_b?).to be_truthy
-      expect(People::Segmentation::Activity.new(client4.reload).group_c?).to be_truthy
-      expect(People::Segmentation::Activity.new(client5.reload).inactive?).to be_truthy
+      expect(client1.reload.segment_ids.include?(segment_a.id)).to be_truthy
+      expect(client2.reload.segment_ids.include?(segment_b.id)).to be_truthy
+      expect(client3.reload.segment_ids.include?(segment_b.id)).to be_truthy
+      expect(client4.reload.segment_ids.include?(segment_c.id)).to be_truthy
+      expect(client5.reload.segment_ids.nil?).to be_truthy
 
     end
 

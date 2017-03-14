@@ -10,6 +10,7 @@ module People
         end
       end
 
+      # @return [Shop]
       attr_accessor :shop
 
       def initialize(shop)
@@ -17,56 +18,63 @@ module People
       end
 
       def perform
+
+        # find calculation segments
+        segment_a = Segment.find_calculated_segment(shop, 'A')
+        segment_b = Segment.find_calculated_segment(shop, 'B')
+        segment_c = Segment.find_calculated_segment(shop, 'C')
+        segments = [segment_a, segment_b, segment_c]
+
         users = {}
-        Rails.logger.warn "Collect orders"
+        Rails.logger.warn 'Collect orders'
         Order.where(shop_id: @shop.id).where('date >= ?', 6.months.ago).pluck(:user_id, :value).each do |order|
           users[order[0]] = 0 unless users.key?(order[0])
           users[order[0]] += order[1]
         end
-        Rails.logger.warn "Orders collected"
+        Rails.logger.warn 'Orders collected'
         data = users.map { |k, v| { user_id: k, sum: users[k].to_i } }.collect.sort { |a,b| a[:sum] <=> b[:sum] }.reverse
-        Rails.logger.warn "Orders sorted"
+        Rails.logger.warn 'Orders sorted'
         result = {a: [], b: [], c: []}
-        Rails.logger.warn "Calculate A"
+        Rails.logger.warn 'Calculate A'
         index_a = (data.length * 0.15).ceil
         if index_a > 0
           result[:a] = data[0..(index_a-1)]
         end
         if index_a < data.length
-          Rails.logger.warn "Calculate B"
+          Rails.logger.warn 'Calculate B'
           index_b = index_a + (data.length * 0.35).ceil
           if index_b > index_a
             result[:b] = data[index_a..(index_b-1)]
-            Rails.logger.warn "Calculate C"
+            Rails.logger.warn 'Calculate C'
             result[:c] = data[index_b..data.length]
           end
         end
-        Rails.logger.warn "All calculated. Nullify all"
-        @shop.clients.where.not(user_id: data.map { |x| x[:user_id] } ).where('activity_segment is not null').update_all activity_segment: nil
-        Rails.logger.warn "Save A"
-        @shop.clients.where(user_id: result[:a].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::A
-        Rails.logger.warn "Save B"
-        @shop.clients.where(user_id: result[:b].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::B
-        Rails.logger.warn "Save C"
-        @shop.clients.where(user_id: result[:c].map { |x| x[:user_id] } ).update_all activity_segment: People::Segmentation::Activity::C
-        Rails.logger.warn "Done"
+        Rails.logger.warn 'All calculated. Nullify all'
 
-        result[:digests_overall] = @shop.clients.with_email.where('digests_enabled IS TRUE').count
-        result[:digests_activity_a] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:digests_activity_b] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:digests_activity_c] = @shop.clients.with_email.where('digests_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
-        result[:triggers_overall] = @shop.clients.with_email.where('triggers_enabled IS TRUE').count
-        result[:triggers_activity_a] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:triggers_activity_b] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:triggers_activity_c] = @shop.clients.where('triggers_enabled IS TRUE AND activity_segment is not null and activity_segment = ?', People::Segmentation::Activity::C).count
-        result[:with_email] = @shop.clients.with_email.count
-        result[:with_email_activity_a] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:with_email_activity_b] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:with_email_activity_c] = @shop.clients.with_email.where('activity_segment = ?', People::Segmentation::Activity::C).count
-        result[:web_push_overall] = @shop.clients.where('web_push_enabled IS TRUE').count
-        result[:web_push_activity_a] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::A).count
-        result[:web_push_activity_b] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::B).count
-        result[:web_push_activity_c] = @shop.clients.where('web_push_enabled IS TRUE AND activity_segment = ?', People::Segmentation::Activity::C).count
+        # Удалеям расчетные сегменты у клиентов
+        shop.clients.with_segments(segments.map{|s| s.id}).where.not(user_id: data.map { |x| x[:user_id] } ).update_all(
+            "segment_ids = CASE COALESCE(array_length(segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}], 1), 0)
+              WHEN 0 THEN NULL
+              ELSE (segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}]) END"
+        )
+        segments.each do |segment|
+          Rails.logger.warn "Saving #{segment.name}"
+          t = Benchmark.ms { shop.clients.where(user_id: result[segment.name.downcase.to_sym].map { |x| x[:user_id] } ).update_all("segment_ids = array_append(segment_ids, #{segment.id})") }.round(2)
+          Rails.logger.warn "Done: #{t} ms"
+
+          # Обновляем статистику сегмента
+          Rails.logger.warn "Updating statistic #{segment.name}"
+          t = Benchmark.ms do
+            segment.update({
+                client_count: result[segment.name.downcase.to_sym].count,
+                with_email_count: shop.clients.with_segment(segment.id).with_email.count,
+                trigger_client_count: shop.clients.with_segment(segment.id).where(triggers_enabled: true).count,
+                digest_client_count: shop.clients.with_segment(segment.id).where(digests_enabled: true).count,
+                web_push_client_count: shop.clients.with_segment(segment.id).where(web_push_enabled: true).count,
+            })
+          end
+          Rails.logger.warn "Done: #{t.round(2)} ms"
+        end
 
         update_params = {
             overall: shop.clients.count,
@@ -74,25 +82,25 @@ module People
             activity_b: result[:b].count,
             activity_c: result[:c].count,
             recalculated_at: Date.current,
-            digests_overall: result[:digests_overall],
-            digests_activity_a: result[:digests_activity_a],
-            digests_activity_b: result[:digests_activity_b],
-            digests_activity_c: result[:digests_activity_c],
-            triggers_overall: result[:triggers_overall],
-            triggers_activity_a: result[:triggers_activity_a],
-            triggers_activity_b: result[:triggers_activity_b],
-            triggers_activity_c: result[:triggers_activity_c],
-            with_email: result[:with_email],
-            with_email_activity_a: result[:with_email_activity_a],
-            with_email_activity_b: result[:with_email_activity_b],
-            with_email_activity_c: result[:with_email_activity_c],
-            web_push_overall: result[:web_push_overall],
-            web_push_activity_a: result[:web_push_activity_a],
-            web_push_activity_b: result[:web_push_activity_b],
-            web_push_activity_c: result[:web_push_activity_c],
+            digests_overall: shop.clients.with_email.where('digests_enabled IS TRUE').count,
+            digests_activity_a: segment_a.digest_client_count,
+            digests_activity_b: segment_b.digest_client_count,
+            digests_activity_c: segment_c.digest_client_count,
+            triggers_overall: shop.clients.with_email.where('triggers_enabled IS TRUE').count,
+            triggers_activity_a: segment_a.trigger_client_count,
+            triggers_activity_b: segment_b.trigger_client_count,
+            triggers_activity_c: segment_c.trigger_client_count,
+            with_email: shop.clients.with_email.count,
+            with_email_activity_a: segment_a.with_email_count,
+            with_email_activity_b: segment_b.with_email_count,
+            with_email_activity_c: segment_c.with_email_count,
+            web_push_overall: shop.clients.where('web_push_enabled IS TRUE').count,
+            web_push_activity_a: segment_a.web_push_client_count,
+            web_push_activity_b: segment_b.web_push_client_count,
+            web_push_activity_c: segment_c.web_push_client_count,
         }
 
-        AudienceSegmentStatistic.fetch(@shop).update! update_params
+        AudienceSegmentStatistic.fetch(shop).update! update_params
 
         true
 

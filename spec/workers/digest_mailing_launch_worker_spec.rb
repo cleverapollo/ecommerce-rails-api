@@ -32,6 +32,7 @@ describe DigestMailingLaunchWorker do
       let(:test_email) { 'test@rees46demo.com' }
       let(:params_test_email) { base_params.merge({ 'test_email' => test_email }) }
       let(:params) { base_params }
+      let!(:segment) { create(:segment, shop: shop) }
       let!(:client1) { create(:client, :with_email, shop: shop) }
       let!(:client2) { create(:client, :with_email, shop: shop) }
 
@@ -73,8 +74,8 @@ describe DigestMailingLaunchWorker do
       end
 
       it 'uses activity segments' do
-        client1.update activity_segment: People::Segmentation::Activity::A
-        mailing.update activity_segment: People::Segmentation::Activity::A
+        client1.update segment_ids: [segment.id]
+        mailing.update segment: segment
         subject
         expect(mailing.reload.total_mails_count).to eq(1)
       end

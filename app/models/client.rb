@@ -14,6 +14,7 @@ class Client < ActiveRecord::Base
   has_many :web_push_tokens
 
   before_create :assign_ab_testing_group
+  before_save :fix_empty_segment
 
   validates :shop, presence: true
 
@@ -27,6 +28,8 @@ class Client < ActiveRecord::Base
       with_email.where("triggers_enabled IS TRUE AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )", shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
     end
   end
+  scope :with_segment, -> (segment_id) { where('segment_ids IS NOT NULL AND segment_ids @> ARRAY[?]', segment_id) }
+  scope :with_segments, -> (segment_ids) { where('segment_ids IS NOT NULL AND segment_ids && ARRAY[?]::int[]', segment_ids) }
 
 
   scope :ready_for_second_abandoned_cart, -> (shop) do
@@ -242,6 +245,14 @@ class Client < ActiveRecord::Base
     raise 'Token is not valid'
   end
 
+  # Добавляет сегмент к пользователю
+  # @param [Integer] segment_id
+  def add_segment(segment_id)
+    self.segment_ids ||= []
+    self.segment_ids << segment_id unless self.segment_ids.include? segment_id
+    self
+  end
+
   protected
   def assign_ab_testing_group
     return if self.ab_testing_group.present?
@@ -253,5 +264,10 @@ class Client < ActiveRecord::Base
     end
 
     shop.send("group_#{self.ab_testing_group}_count").incr
+  end
+
+  # Исправляет значение сегмента, если пустой массив
+  def fix_empty_segment
+    self.segment_ids = nil if !self.segment_ids.nil? && self.segment_ids.empty?
   end
 end
