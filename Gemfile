@@ -75,7 +75,7 @@ end
 # Rspec
 group :development, :test do
 
-  gem 'capistrano', '~> 3.4.0'
+  gem 'capistrano', '3.7.2'
   gem 'capistrano-rvm'
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
