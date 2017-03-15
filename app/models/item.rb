@@ -14,10 +14,10 @@ class Item < ActiveRecord::Base
   has_many :reputations, as: :entity
 
   scope :recommendable, -> { available.where(ignored: false) }
-  scope :widgetable,    -> { where(widgetable:true) }
+  scope :widgetable,    -> { where(widgetable: true) }
   scope :by_sales_rate, -> { order('sales_rate DESC NULLS LAST') }
   scope :available,     -> { where(is_available: true) }
-  scope :discount,     -> { where('discount IS TRUE AND discount IS NOT NULL') }
+  scope :discount,     -> { where(discount: true) }
   scope :not_periodic, -> { where('fmcg_periodic IS NOT TRUE AND cosmetic_periodic IS NOT TRUE AND auto_periodic IS NOT TRUE AND pets_periodic IS NOT TRUE') }
 
 

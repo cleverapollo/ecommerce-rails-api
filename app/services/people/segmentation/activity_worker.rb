@@ -26,7 +26,7 @@ module People
         segments = [segment_a, segment_b, segment_c]
 
         users = {}
-        Rails.logger.warn 'Collect orders'
+        Rails.logger.warn "Collect orders: #{shop.id}"
         Order.where(shop_id: @shop.id).where('date >= ?', 6.months.ago).pluck(:user_id, :value).each do |order|
           users[order[0]] = 0 unless users.key?(order[0])
           users[order[0]] += order[1]
@@ -52,11 +52,16 @@ module People
         Rails.logger.warn 'All calculated. Nullify all'
 
         # Удалеям расчетные сегменты у клиентов
-        shop.clients.with_segments(segments.map{|s| s.id}).where.not(user_id: data.map { |x| x[:user_id] } ).update_all(
-            "segment_ids = CASE COALESCE(array_length(segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}], 1), 0)
-              WHEN 0 THEN NULL
-              ELSE (segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}]) END"
-        )
+        t = Benchmark.ms do
+          shop.clients.with_segments(segments.map{|s| s.id}).where.not(user_id: data.map { |x| x[:user_id] } ).update_all(
+              "segment_ids = CASE COALESCE(array_length(segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}], 1), 0)
+                WHEN 0 THEN NULL
+                ELSE (segment_ids - ARRAY[#{segments.map{|s| s.id}.join(',')}]) END"
+          )
+        end
+        Rails.logger.warn "Done: #{t.round(2)} ms"
+
+        # Обновляем данные сегмента
         segments.each do |segment|
           Rails.logger.warn "Saving #{segment.name}"
           t = Benchmark.ms { shop.clients.where(user_id: result[segment.name.downcase.to_sym].map { |x| x[:user_id] } ).update_all("segment_ids = array_append(segment_ids, #{segment.id})") }.round(2)
