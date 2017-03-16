@@ -43,9 +43,10 @@ describe AudienceImportWorker do
         let!(:client) { create(:client, shop: shop, external_id: audience_raw['id'], user: user) }
         before { params['audience'] << audience_raw }
 
-        it 'create new client email' do
+        it 'update client email' do
           subject.perform(params)
-          expect(Client.count).to eq(2)
+          expect(Client.count).to eq(1)
+          expect(Client.first.email).to eq(audience_raw['email'])
         end
       end
 
@@ -100,6 +101,23 @@ describe AudienceImportWorker do
           it 'create two users' do
             subject.perform(params)
             expect(Client.count).to eq(2)
+          end
+        end
+
+        context 'can create users with segment id' do
+          let!(:segment) { create(:segment, shop: shop) }
+          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw_next) {{ 'id' => '123', 'email' => 'test2@rees46demo.com', 'name' => 'Test' }}
+          before :each do
+            params['segment_id'] = segment.id
+            params['audience'] << audience_raw
+            params['audience'] << audience_raw_next
+          end
+          it 'create two users' do
+            subject.perform(params)
+            expect(Client.count).to eq(2)
+            expect(Client.first.segment_ids).to eq([segment.id])
+            expect(Client.last.segment_ids).to eq([segment.id])
           end
         end
       end
