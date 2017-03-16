@@ -2,10 +2,16 @@ module People
   module Segmentation
     class ActivityWorker
 
+      # @return [Segment]
+      attr_accessor :segment_a, :segment_b, :segment_c
+
       class << self
         def perform_all
           Shop.active.connected.each do |shop|
             self.new(shop).perform
+          end
+          Shop.active.connected.each do |shop|
+            self.new(shop).update
           end
         end
       end
@@ -17,13 +23,12 @@ module People
         @shop = shop
       end
 
+      # Расчеты сегментов для пользователей
+      # @return [People::Segmentation::ActivityWorker]
       def perform
 
-        # find calculation segments
-        segment_a = Segment.find_calculated_segment(shop, 'A')
-        segment_b = Segment.find_calculated_segment(shop, 'B')
-        segment_c = Segment.find_calculated_segment(shop, 'C')
-        segments = [segment_a, segment_b, segment_c]
+        # Находит сегменты магазина
+        segments = fetch_shop_segments
 
         users = {}
         Rails.logger.warn "Collect orders: #{shop.id}"
@@ -64,14 +69,28 @@ module People
         # Обновляем данные сегмента
         segments.each do |segment|
           Rails.logger.warn "Saving #{segment.name}"
-          t = Benchmark.ms { shop.clients.where(user_id: result[segment.name.downcase.to_sym].map { |x| x[:user_id] } ).update_all("segment_ids = array_append(segment_ids, #{segment.id})") }.round(2)
+          other_segments = segments.map {|s| s.id} - [segment.id]
+          t = Benchmark.ms { shop.clients.where(user_id: result[segment.name.downcase.to_sym].map { |x| x[:user_id] } ).update_all("segment_ids = array_append(segment_ids, #{segment.id}) - ARRAY[#{other_segments.join(',')}]") }.round(2)
           Rails.logger.warn "Done: #{t} ms"
+        end
 
+        self
+
+      end
+
+      # Обновление статистики после расчетов
+      def update
+        Rails.logger.warn "Updating: #{shop.id}"
+
+        # Находит сегменты магазина
+        segments = fetch_shop_segments
+
+        segments.each do |segment|
           # Обновляем статистику сегмента
           Rails.logger.warn "Updating statistic #{segment.name}"
           t = Benchmark.ms do
             segment.update({
-                client_count: result[segment.name.downcase.to_sym].count,
+                client_count: shop.clients.with_segment(segment.id).count,
                 with_email_count: shop.clients.with_segment(segment.id).with_email.count,
                 trigger_client_count: shop.clients.with_segment(segment.id).where(triggers_enabled: true).count,
                 digest_client_count: shop.clients.with_segment(segment.id).where(digests_enabled: true).count,
@@ -81,36 +100,49 @@ module People
           Rails.logger.warn "Done: #{t.round(2)} ms"
         end
 
+        # Ищем ранее сохраненную статистику
+        statistic = AudienceSegmentStatistic.fetch(shop)
+
+        Rails.logger.warn ' * Updating AudienceSegmentStatistic'
         update_params = {
-            overall: shop.clients.count,
-            activity_a: result[:a].count,
-            activity_b: result[:b].count,
-            activity_c: result[:c].count,
+            activity_a: segment_a.client_count,
+            activity_b: segment_b.client_count,
+            activity_c: segment_c.client_count,
             recalculated_at: Date.current,
-            digests_overall: shop.clients.with_email.where('digests_enabled IS TRUE').count,
             digests_activity_a: segment_a.digest_client_count,
             digests_activity_b: segment_b.digest_client_count,
             digests_activity_c: segment_c.digest_client_count,
-            triggers_overall: shop.clients.with_email.where('triggers_enabled IS TRUE').count,
             triggers_activity_a: segment_a.trigger_client_count,
             triggers_activity_b: segment_b.trigger_client_count,
             triggers_activity_c: segment_c.trigger_client_count,
-            with_email: shop.clients.with_email.count,
             with_email_activity_a: segment_a.with_email_count,
             with_email_activity_b: segment_b.with_email_count,
             with_email_activity_c: segment_c.with_email_count,
-            web_push_overall: shop.clients.where('web_push_enabled IS TRUE').count,
             web_push_activity_a: segment_a.web_push_client_count,
             web_push_activity_b: segment_b.web_push_client_count,
             web_push_activity_c: segment_c.web_push_client_count,
         }
 
-        AudienceSegmentStatistic.fetch(shop).update! update_params
+        Rails.logger.warn "   - overall: #{Benchmark.ms { update_params[:overall] = shop.clients.count }.round(2)} ms"
+        Rails.logger.warn "   - digests_overall: #{Benchmark.ms { update_params[:digests_overall] = shop.clients.with_email.where('digests_enabled IS TRUE').count }.round(2)} ms"
+        Rails.logger.warn "   - triggers_overall: #{Benchmark.ms { update_params[:triggers_overall] = shop.clients.with_email.where('triggers_enabled IS TRUE').count }.round(2)} ms"
+        Rails.logger.warn "   - with_email: #{Benchmark.ms { update_params[:with_email] = shop.clients.with_email.count }.round(2)} ms"
+        Rails.logger.warn "   - web_push_overall: #{Benchmark.ms { update_params[:web_push_overall] = shop.clients.where('web_push_enabled IS TRUE').count }.round(2)} ms"
 
-        true
-
+        statistic.update! update_params
       end
 
+      private
+
+      # @return [Array<Segment>]
+      def fetch_shop_segments
+        # find calculation segments
+        self.segment_a = Segment.find_calculated_segment(shop, 'A')
+        self.segment_b = Segment.find_calculated_segment(shop, 'B')
+        self.segment_c = Segment.find_calculated_segment(shop, 'C')
+
+        [self.segment_a, self.segment_b, self.segment_c]
+      end
 
     end
   end

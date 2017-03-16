@@ -44,7 +44,7 @@ class AudienceImportWorker
     end
 
     # Запускаем перерасчет аудитории
-    People::Segmentation::ActivityWorker.new(@shop).perform
+    People::Segmentation::ActivityWorker.new(@shop).perform.update
 
     # CompletesMailer.audiance_import_completed(@shop, @audiance_count).deliver_now if @audiance_count > 0
   end

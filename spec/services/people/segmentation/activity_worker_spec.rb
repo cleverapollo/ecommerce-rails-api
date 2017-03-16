@@ -26,7 +26,7 @@ describe People::Segmentation::ActivityWorker do
 
     it 'calculates segments and saves it to database' do
 
-      People::Segmentation::ActivityWorker.new(shop).perform
+      People::Segmentation::ActivityWorker.new(shop).perform.update
 
       expect(client1.reload.segment_ids.include?(segment_a.id)).to be_truthy
       expect(client2.reload.segment_ids.include?(segment_b.id)).to be_truthy
