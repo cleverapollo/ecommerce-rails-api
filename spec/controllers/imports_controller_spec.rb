@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 describe ImportsController do
+  let(:shop) { create(:shop) }
+
   describe 'GET disable' do
-    let(:shop) { create(:shop) }
     let(:item) { create(:item, shop: shop) }
 
     context 'when one id passed' do
@@ -40,8 +41,6 @@ describe ImportsController do
 
   describe 'import products' do
 
-    let(:shop) { create(:shop) }
-
     context 'insert' do
       it 'works' do
         post :products, shop_id: shop.uniqid, shop_secret: shop.secret
@@ -70,6 +69,13 @@ describe ImportsController do
       end
     end
 
+  end
+
+  context 'job_worker' do
+    it 'works' do
+      post :job_worker, shop_id: shop.uniqid, shop_secret: shop.secret, code: 'KJhsd872Hj&^%3lkjJs', job_data: { class: 'SegmentDestroyWorker', args: nil }
+      expect(response.code).to eq('200')
+    end
   end
 
 

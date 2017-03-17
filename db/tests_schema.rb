@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170314103352) do
+ActiveRecord::Schema.define(version: 20170317073221) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -715,16 +715,18 @@ ActiveRecord::Schema.define(version: 20170314103352) do
   end
 
   create_table "segments", force: :cascade do |t|
-    t.integer  "shop_id",                           null: false
-    t.string   "name",                              null: false
-    t.integer  "segment_type",          default: 0, null: false
-    t.integer  "client_count",          default: 0, null: false
-    t.integer  "with_email_count",      default: 0, null: false
-    t.integer  "trigger_client_count",  default: 0, null: false
-    t.integer  "digest_client_count",   default: 0, null: false
-    t.integer  "web_push_client_count", default: 0, null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.integer  "shop_id",                               null: false
+    t.string   "name",                                  null: false
+    t.integer  "segment_type",          default: 0,     null: false
+    t.integer  "client_count",          default: 0,     null: false
+    t.integer  "with_email_count",      default: 0,     null: false
+    t.integer  "trigger_client_count",  default: 0,     null: false
+    t.integer  "digest_client_count",   default: 0,     null: false
+    t.integer  "web_push_client_count", default: 0,     null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.boolean  "deleted",               default: false, null: false
+    t.boolean  "updating",              default: false, null: false
   end
 
   add_index "segments", ["shop_id"], name: "index_segments_on_shop_id", using: :btree

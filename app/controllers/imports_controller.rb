@@ -7,6 +7,26 @@ class ImportsController < ApplicationController
     render text: 'OK'
   end
 
+  # Запускает sidekiq воркер в работу
+  # Используется для передачи информации от мастера
+  def job_worker
+
+    # Проверяем код
+    if params[:code].blank? || params[:code] != 'KJhsd872Hj&^%3lkjJs'
+      render nothing: true, status: 401
+      return
+    end
+
+    worker_class = params[:job_data][:class].constantize rescue nil
+    if !worker_class.nil?
+      # Запускаем класс в работу
+      worker_class.perform_async *params[:job_data][:args]
+      render nothing: true
+    else
+      render nothing: true, status: 404
+    end
+  end
+
   def sync_orders
     # if %w(e143c34a52e7463665fb89296faa75).include?(@shop.uniqid)
     #   # render text: 'Disabled', status: 400

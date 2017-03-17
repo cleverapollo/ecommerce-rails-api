@@ -14,6 +14,7 @@ class AudienceImportWorker
     # Если был передан сегмент
     if params['segment_id'].present?
       segment = @shop.segments.find_by(id: params['segment_id'])
+      segment.update(updating: true) if segment.present? && !segment.updating?
     else
       segment = nil
     end
@@ -53,9 +54,13 @@ class AudienceImportWorker
       client.save! if client.changed?
     end
 
-    # Запускаем перерасчет аудитории
-    People::Segmentation::ActivityWorker.new(@shop).perform.update
+    # Завершаем обновление сегмента, если был указан
+    if segment.present?
+      segment.update(updating: false)
+      People::Segmentation::SegmentWorker.new.perform(segment)
+    end
 
-    # CompletesMailer.audiance_import_completed(shop, @audiance_count).deliver_now if @audiance_count > 0
+    # Запускаем перерасчет аудитории
+    People::Segmentation::ActivityWorker.new(@shop).update_overall
   end
 end

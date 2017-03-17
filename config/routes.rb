@@ -58,6 +58,8 @@ Rees46Api::Application.routes.draw do
     # Удалить старые и загрузить новыие картинки товаров
     post :images
 
+    post :job_worker
+
     # Импорт товаров через HTTP API
     post :products
     put :products

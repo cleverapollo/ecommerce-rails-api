@@ -11,7 +11,7 @@ module People
             self.new(shop).perform
           end
           Shop.active.connected.each do |shop|
-            self.new(shop).update
+            self.new(shop).update.update_overall
           end
         end
       end
@@ -79,6 +79,7 @@ module People
       end
 
       # Обновление статистики после расчетов
+      # @return [People::Segmentation::ActivityWorker]
       def update
         Rails.logger.warn "Updating: #{shop.id}"
 
@@ -88,16 +89,7 @@ module People
         segments.each do |segment|
           # Обновляем статистику сегмента
           Rails.logger.warn "Updating statistic #{segment.name}"
-          t = Benchmark.ms do
-            segment.update({
-                client_count: shop.clients.with_segment(segment.id).count,
-                with_email_count: shop.clients.with_segment(segment.id).with_email.count,
-                trigger_client_count: shop.clients.with_segment(segment.id).where(triggers_enabled: true).count,
-                digest_client_count: shop.clients.with_segment(segment.id).where(digests_enabled: true).count,
-                web_push_client_count: shop.clients.with_segment(segment.id).where(web_push_enabled: true).count,
-            })
-          end
-          Rails.logger.warn "Done: #{t.round(2)} ms"
+          Rails.logger.warn "Done: #{Benchmark.ms { People::Segmentation::SegmentWorker.new.perform(segment) }.round(2)} ms"
         end
 
         # Ищем ранее сохраненную статистику
@@ -122,6 +114,20 @@ module People
             web_push_activity_b: segment_b.web_push_client_count,
             web_push_activity_c: segment_c.web_push_client_count,
         }
+        statistic.update! update_params
+
+        self
+      end
+
+      # Обновляет глобальную статистику
+      # @return [People::Segmentation::ActivityWorker]
+      def update_overall
+
+        # Ищем ранее сохраненную статистику
+        statistic = AudienceSegmentStatistic.fetch(shop)
+        update_params = {
+            recalculated_at: Date.current,
+        }
 
         Rails.logger.warn "   - overall: #{Benchmark.ms { update_params[:overall] = shop.clients.count }.round(2)} ms"
         Rails.logger.warn "   - digests_overall: #{Benchmark.ms { update_params[:digests_overall] = shop.clients.with_email.where('digests_enabled IS TRUE').count }.round(2)} ms"
@@ -130,6 +136,8 @@ module People
         Rails.logger.warn "   - web_push_overall: #{Benchmark.ms { update_params[:web_push_overall] = shop.clients.where('web_push_enabled IS TRUE').count }.round(2)} ms"
 
         statistic.update! update_params
+
+        self
       end
 
       private

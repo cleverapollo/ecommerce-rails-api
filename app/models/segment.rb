@@ -32,6 +32,6 @@ class Segment < MasterTable
   # Убирает связь у клиента с удаленным сегментом
   # Если у клиента больше не остается сегментов, сохраняем как null
   def remove_segment_from_client
-    self.clients.update_all("segment_ids = CASE array_length(array_remove(segment_ids, #{self.id}), 1) WHEN 0 THEN NULL ELSE array_remove(segment_ids, #{self.id}) END")
+    self.clients.update_all("segment_ids = CASE COALESCE(array_length(array_remove(segment_ids, #{self.id}), 1), 0) WHEN 0 THEN NULL ELSE array_remove(segment_ids, #{self.id}) END")
   end
 end
