@@ -35,47 +35,55 @@ class YmlImporter
 
     result = current_shop.import do |yml|
 
+      # @type shop [Rees46ML::Shop]
       shop = yml.shop
       wear_types = WearTypeDictionary.index
       brands = Brand.all
       offers_count = 0
 
+      STDOUT.write "Prepare csv file:\n\r"
       temp_file do |file|
-        csv_file file, col_sep: "," do |csv|
-          csv << Item.csv_header
+        t = Benchmark.realtime do
+          csv_file file, col_sep: ',' do |csv|
+            csv << Item.csv_header
 
-          yml.offers.each_with_index do |offer, index|
-            next unless offer.id.present?
-            next unless offer.available == true
-            if offer.category_id.class == Set
-              category_ids = offer.category_id.map { |id| shop.categories.path_to id }.flatten.uniq.compact
-              # category_ids = offer.category_id.map { |id| shop.categories.path_to(id).join('.') }.uniq.compact
-            else
-              category_ids = shop.categories.path_to offer.category_id
+            yml.offers.each_with_index do |offer, index|
+
+              next unless offer.id.present?
+              next unless offer.available
+
+              if offer.category_id.class == Set
+                category_ids = offer.category_id.map { |id| shop.categories.path_to id }.flatten.uniq.compact
+                # category_ids = offer.category_id.map { |id| shop.categories.path_to(id).join('.') }.uniq.compact
+              else
+                category_ids = shop.categories.path_to offer.category_id
+              end
+              category = shop.categories[offer.category_id].try(:name)
+              location_ids = offer.locations.flat_map{ |location| shop.locations.path_to location.id }
+              locations = {}
+              offer.locations.each { |l| locations[l.id] = {}; locations[l.id]['price'] = l.prices.first.value.to_i if l.prices.any? } if offer.locations && offer.locations.any?
+
+              offers_count += 1
+
+              new_item = Item.build_by_offer(offer)
+              new_item.id = index
+              new_item.shop_id = shop_id
+              new_item.category_ids = category_ids
+              new_item.location_ids = location_ids.uniq if location_ids.compact.any? # Не пишем пустые массивы
+              new_item.locations = locations
+              (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
+              (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
+              if new_item.name.present? && (new_item.brand.nil? || !new_item.brand.present?)
+                new_item.brand = brands.detect{ |brand| brand.match? new_item.name }.try(:name)
+              end
+              new_item.brand_downcase = new_item.brand.downcase if new_item.brand.present? && new_item.brand_downcase.nil?
+
+              csv << new_item.csv_row
+              STDOUT.write "\rItems: #{ index }"
             end
-            category = shop.categories[offer.category_id].try(:name)
-            location_ids = offer.locations.flat_map{ |location| shop.locations.path_to location.id }
-            locations = {}
-            offer.locations.each { |l| locations[l.id] = {}; locations[l.id]['price'] = l.prices.first.value.to_i if l.prices.any? } if offer.locations && offer.locations.any?
-
-            offers_count += 1
-
-            new_item = Item.build_by_offer(offer)
-            new_item.id = index
-            new_item.shop_id = shop_id
-            new_item.category_ids = category_ids
-            new_item.location_ids = location_ids.uniq if location_ids.compact.any? # Не пишем пустые массивы
-            new_item.locations = locations
-            (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
-            (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
-            if new_item.name.present? && (new_item.brand.nil? || !new_item.brand.present?)
-              new_item.brand = brands.detect{ |brand| brand.match? new_item.name }.try(:name)
-            end
-            new_item.brand_downcase = new_item.brand.downcase if new_item.brand.present? && new_item.brand_downcase.nil?
-
-            csv << new_item.csv_row
           end
         end
+        STDOUT.write "\rDone: #{t.round(2)} sec\n"
 
         attempt = 0
 
@@ -84,6 +92,7 @@ class YmlImporter
 
           Item.bulk_update shop_id, file
           ItemCategory.bulk_update shop_id, shop.categories
+          ShopLocation.bulk_update shop_id, shop.locations
 
           CustomLogger.logger.info("STOP UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
         rescue PG::UniqueViolation => e
@@ -98,7 +107,7 @@ class YmlImporter
 
     CustomLogger.logger.info("FINISH UPDATING: YmlImporter::perform(#{shop_id})")
 
-    if result == true
+    if result
       # Записываем в лог число обработанных товаров
       CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
 

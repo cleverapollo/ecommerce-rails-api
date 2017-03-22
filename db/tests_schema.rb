@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170317073221) do
+ActiveRecord::Schema.define(version: 20170321065646) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -727,6 +727,7 @@ ActiveRecord::Schema.define(version: 20170317073221) do
     t.datetime "updated_at",                            null: false
     t.boolean  "deleted",               default: false, null: false
     t.boolean  "updating",              default: false, null: false
+    t.jsonb    "filters",               default: {},    null: false
   end
 
   add_index "segments", ["shop_id"], name: "index_segments_on_shop_id", using: :btree

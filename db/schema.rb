@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170313104333) do
+ActiveRecord::Schema.define(version: 20170322101049) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -484,6 +484,19 @@ ActiveRecord::Schema.define(version: 20170313104333) do
   end
 
   add_index "search_queries", ["shop_id", "query"], name: "index_search_queries_on_shop_id_and_query", using: :btree
+
+  create_table "shop_locations", id: :bigserial, force: :cascade do |t|
+    t.integer  "shop_id",                      null: false
+    t.string   "external_id",                  null: false
+    t.string   "name",                         null: false
+    t.string   "external_type",                null: false
+    t.integer  "parent_id",          limit: 8
+    t.string   "parent_external_id"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+  end
+
+  add_index "shop_locations", ["shop_id", "external_id"], name: "index_shop_locations_on_shop_id_and_external_id", unique: true, using: :btree
 
   create_table "shop_metrics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
