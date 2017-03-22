@@ -75,6 +75,11 @@ module UserProfile
 
       end
 
+      if attributes['location'].present?
+        shop_location = shop.shop_locations.find_by(external_id: attributes['location'])
+        client.update location: shop_location.external_id if shop_location.present?
+      end
+
       user.save if user.changed?
     end
   end

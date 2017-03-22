@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 describe EventsController do
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
+  let!(:user) { create(:user) }
 
   describe 'POST push_attributes' do
     before { allow(UserProfile::AttributesProcessor).to receive(:process) }
-    let!(:customer) { create(:customer) }
-    let!(:shop) { create(:shop, customer: customer) }
-    let(:user) { create(:user) }
     let(:session) { create(:session, user: user, code: SecureRandom.uuid) }
     let!(:params) { { shop_id: shop.uniqid, session_id: session.code, attributes: { gender: 'f', size: 'e35', type: 'shoe' } } }
     subject { post :push_attributes, params }
@@ -42,13 +42,24 @@ describe EventsController do
     end
   end
 
+  describe 'POST push_attributes and client update' do
+    let!(:shop_location) { create(:shop_location, shop: shop) }
+    let!(:client) { create(:client, shop: shop, user: user) }
+    let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
+    let!(:params) { { shop_id: shop.uniqid, session_id: session.code, attributes: { gender: 'f', size: 'e35', type: 'shoe', location: shop_location.external_id } } }
+    subject { post :push_attributes, params }
+
+    it 'client location saved' do
+      subject
+      expect(Client.first.location).to eq(shop_location.external_id)
+    end
+  end
+
   describe 'POST push' do
     # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }
     before { allow_any_instance_of(ActionPush::Processor).to receive(:process).and_return(true) }
-    let!(:customer) { create(:customer) }
-    let!(:shop) { create(:shop, customer: customer) }
-    let!(:session) { create(:session, user: create(:user), code: SecureRandom.uuid) }
+    let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code }  }
 
     it 'extracts parameters when error' do
@@ -91,9 +102,6 @@ describe EventsController do
   end
 
   describe 'POST push purchase' do
-    let!(:customer) { create(:customer) }
-    let!(:shop) { create(:shop, customer: customer) }
-    let!(:user) { create(:user) }
     let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
     let!(:client) { create(:client, user: user, shop: shop) }
     let(:params) { { shop_id: shop.uniqid, ssid: session.code, event: 'purchase', order_id: '1', order_price: '1000', item_id: ['20'], amount: ['1'], price: ['1000'] } }

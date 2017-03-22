@@ -83,4 +83,9 @@ FactoryGirl.define do
     name { 'Apple' }
   end
 
+  factory :shop_location do
+    external_id { SecureRandom.uuid }
+    external_type { 'city' }
+    name { Faker::Lorem.word }
+  end
 end
