@@ -262,6 +262,7 @@ class Item < ActiveRecord::Base
   end
 
   # @param offer [Rees46ML::Offer]
+  # @return [Item]
   def self.build_by_offer(offer)
     new do |item|
       item.uniqid = offer.id

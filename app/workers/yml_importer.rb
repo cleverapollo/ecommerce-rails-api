@@ -41,6 +41,9 @@ class YmlImporter
       brands = Brand.all
       offers_count = 0
 
+      # Костыль, пропускаем магазины, в которых не указан available в YML
+      skip_shop_items_available = [2373]
+
       STDOUT.write "Prepare csv file:\n\r"
       temp_file do |file|
         t = Benchmark.realtime do
@@ -49,8 +52,15 @@ class YmlImporter
 
             yml.offers.each_with_index do |offer, index|
 
-              next unless offer.id.present?
-              next unless offer.available
+              # Костыль для Roxy-Russia, у них отсутствует параметр available в YML
+              if !offer.id.present? || !skip_shop_items_available.include?(current_shop.id) && !offer.available
+                next
+              end
+
+              # Изменяем значение
+              if skip_shop_items_available.include?(current_shop.id)
+                offer.available = true
+              end
 
               if offer.category_id.class == Set
                 category_ids = offer.category_id.map { |id| shop.categories.path_to id }.flatten.uniq.compact
@@ -68,6 +78,7 @@ class YmlImporter
               new_item = Item.build_by_offer(offer)
               new_item.id = index
               new_item.shop_id = shop_id
+              new_item.is_available = offer.available
               new_item.category_ids = category_ids
               new_item.location_ids = location_ids.uniq if location_ids.compact.any? # Не пишем пустые массивы
               new_item.locations = locations
