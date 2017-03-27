@@ -137,17 +137,13 @@ class Shop < MasterTable
   end
 
   def self.import_yml_files
-    CustomLogger.logger.info("START: Shop::import_yml_files")
     active.connected.with_valid_yml.where(shard: SHARD_ID).each do |shop|
       if shop.yml_allow_import?
-        CustomLogger.logger.info("START: Shop::import_yml_files::shop_id=#{shop.id}")
         YmlImporter.perform_async(shop.id)
-        CustomLogger.logger.info("STOP: Shop::import_yml_files::shop_id=#{shop.id}")
       elsif shop.yml_errors >= 5
         ErrorsMailer.yml_off(shop).deliver_now
       end
     end
-    CustomLogger.logger.info("STOP: Shop::import_yml_files")
   end
 
   def yml_expired?

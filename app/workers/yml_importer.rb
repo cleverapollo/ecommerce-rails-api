@@ -11,7 +11,6 @@ class YmlImporter
   # @param force [Boolean] Флаг, что насильно переимпортировать файл, игнорируя if-modified-since
   def perform(shop_id, force = false)
 
-    CustomLogger.logger.info("START: YmlImporter::perform(#{shop_id})")
 
     current_shop = Shop.find(shop_id)
 
@@ -25,7 +24,6 @@ class YmlImporter
           # Файл не изменился, пишем в лог и считаем, все обработано
           # Записываем в лог число обработанных товаров
           CatalogImportLog.create shop_id: shop_id, success: true, message: 'Not modified', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
-          CustomLogger.logger.info("STOP: YmlImporter::perform(#{shop_id}) - file not modified")
           return
         end
       rescue
@@ -99,8 +97,6 @@ class YmlImporter
         attempt = 0
 
         begin
-          CustomLogger.logger.info("START UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
-
           Item.bulk_update shop_id, file
           ItemCategory.bulk_update shop_id, shop.categories
           ShopLocation.bulk_update shop_id, shop.locations
@@ -108,7 +104,6 @@ class YmlImporter
           # Обновялем статистику по товарам
           ShopKPI.new(current_shop).calculate_products
 
-          CustomLogger.logger.info("STOP UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
         rescue PG::UniqueViolation => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
           attempt += 1
@@ -119,21 +114,18 @@ class YmlImporter
 
     end
 
-    CustomLogger.logger.info("FINISH UPDATING: YmlImporter::perform(#{shop_id})")
-
-    if result
+    if result == true
       # Записываем в лог число обработанных товаров
       CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
 
       # Пересчитываем наличие отраслевых товаров
       current_shop.check_industrial_products
 
-      # current_shop.items.available.widgetable.update_all(image_downloading_error: nil)
+      current_shop.items.where.not(image_downloading_error: nil).update_all(image_downloading_error: nil)
       ImageDownloadLaunchWorker.perform_async(current_shop.id)
     end
 
     current_shop.update(have_industry_products: current_shop.items.where('is_cosmetic is true OR is_child is true OR is_fashion is true OR is_fmcg is true OR is_auto is true OR is_pets is true').where('(is_available = true) AND (ignored = false)').exists?)
 
-    CustomLogger.logger.info("STOP: YmlImporter::perform(#{shop_id})")
   end
 end
