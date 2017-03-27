@@ -125,7 +125,7 @@ class Shop < MasterTable
       Rollbar.error(ex, "Yml not respond", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
     rescue NoXMLFileInArchiveError => ex
-      I18n.locale = self.customer.language
+      I18n.locale = customer.language
       ErrorsMailer.yml_import_error(self, I18n.t('yml_errors.no_files_in_archive')).deliver_now
       Rollbar.error(ex, "Не обнаружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       update_columns(yml_loaded: false)
@@ -175,28 +175,29 @@ class Shop < MasterTable
     begin
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
+    rescue PG::TRDeadlockDetected => e
+      Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
     rescue Yml::NoXMLFileInArchiveError => e
-      Rollbar.warning(e, "Incorrect YML archive", shop_id: id)
+      Rollbar.warning(e, 'Incorrect YML archive', shop_id: id)
       ErrorsMailer.yml_url_not_respond(self).deliver_now
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
     rescue ActiveRecord::RecordNotUnique => e
-      Rollbar.warning(e, "Ошибка синтаксиса YML", shop_id: id)
-      I18n.locale = self.customer.language
+      Rollbar.warning(e, 'Ошибка синтаксиса YML', shop_id: id)
+      I18n.locale = customer.language
       ErrorsMailer.yml_syntax_error(self, I18n.t('yml_errors.no_uniq_ids')).deliver_now
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
     rescue Interrupt => e
-      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+      Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
     rescue Sidekiq::Shutdown => e
-      Rollbar.info(e, "Sidekiq shutdown, abort YML processing", shop_id: id)
+      Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
-      Rollbar.warning(e, "YML process error", shop_id: id)
+      Rollbar.warning(e, 'YML process error', shop_id: id)
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
     end
-
   end
 
   def first_event?
