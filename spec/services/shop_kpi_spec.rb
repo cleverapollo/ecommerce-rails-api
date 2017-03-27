@@ -75,7 +75,7 @@ describe ShopKPI do
 
   describe '.calculate' do
 
-    subject { ShopKPI.new(shop).calculate_and_write_statistics_at(Date.yesterday) }
+    subject { ShopKPI.new(shop, Date.yesterday).calculate_statistics }
 
     it 'finds or initialize only one object per date' do
       expect{subject}.to change(ShopMetric, :count).from(0).to(1)
@@ -150,8 +150,8 @@ describe ShopKPI do
     it 'does not break abandoned carts statistics with summarizing money and nullifying count' do
       expect{subject}.to change(ShopMetric, :count).from(0).to(1)
       action_3.update timestamp: 2.hours.ago.to_i
-      ShopKPI.new(shop).calculate_and_write_statistics_at(Date.yesterday)
-      ShopKPI.new(shop).calculate_and_write_statistics_at(Date.today)
+      ShopKPI.new(shop, Date.yesterday).calculate_statistics
+      ShopKPI.new(shop, Date.today).calculate_statistics
       expect(ShopMetric.count).to eq(2)
       expect(ShopMetric.order(:id).first.abandoned_products).to eq(2)
       expect(ShopMetric.order(:id).first.abandoned_money).to eq(300)
@@ -169,7 +169,7 @@ describe ShopKPI do
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, mailing_service: MailingsSettings::MAILING_SERVICE_MAILGANER) }
     let!(:subscription_plan) { create(:subscription_plan, shop: shop, paid_till: 1.month.from_now, product: 'product.recommendations', price: 100) }
 
-    subject { ShopKPI.new(shop).calculate_and_write_statistics_at(Date.current) }
+    subject { ShopKPI.new(shop, Date.current).calculate_statistics }
 
     it 'finds or initialize only one object per date' do
       expect{subject}.to change(ShopMetric, :count).from(0).to(1)

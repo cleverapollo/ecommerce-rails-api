@@ -105,6 +105,9 @@ class YmlImporter
           ItemCategory.bulk_update shop_id, shop.categories
           ShopLocation.bulk_update shop_id, shop.locations
 
+          # Обновялем статистику по товарам
+          ShopKPI.new(current_shop).calculate_products
+
           CustomLogger.logger.info("STOP UPDATING DB TABLE: YmlImporter::perform(#{shop_id})")
         rescue PG::UniqueViolation => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
@@ -126,7 +129,7 @@ class YmlImporter
       current_shop.check_industrial_products
 
       # current_shop.items.available.widgetable.update_all(image_downloading_error: nil)
-      ImageDownloadLaunchWorker.perform_async(current_shop.id);
+      ImageDownloadLaunchWorker.perform_async(current_shop.id)
     end
 
     current_shop.update(have_industry_products: current_shop.items.where('is_cosmetic is true OR is_child is true OR is_fashion is true OR is_fmcg is true OR is_auto is true OR is_pets is true').where('(is_available = true) AND (ignored = false)').exists?)
