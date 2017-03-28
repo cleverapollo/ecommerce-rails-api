@@ -116,7 +116,7 @@ class ShopKPI
       shop_metric.web_push_digests_revenue_real = relation.successful.where.not(value: nil).sum(:value)
     end
 
-    relation = DigestMail.where(shop_id: shop.id).where(created_at: @datetime_interval)
+    relation = DigestMail.where(shop_id: shop.id).where(created_at: @datetime_interval).where('"date" >= ?', @datetime_interval.first.to_date)
     shop_metric.digests_sent = relation.count
     shop_metric.digests_clicked = relation.clicked.count
     mail_ids = relation.pluck(:id)
