@@ -133,7 +133,7 @@ module People
         Rails.logger.warn "   - digests_overall: #{Benchmark.ms { update_params[:digests_overall] = shop.clients.with_email.where('digests_enabled IS TRUE').count }.round(2)} ms"
         Rails.logger.warn "   - triggers_overall: #{Benchmark.ms { update_params[:triggers_overall] = shop.clients.with_email.where('triggers_enabled IS TRUE').count }.round(2)} ms"
         Rails.logger.warn "   - with_email: #{Benchmark.ms { update_params[:with_email] = shop.clients.with_email.count }.round(2)} ms"
-        Rails.logger.warn "   - web_push_overall: #{Benchmark.ms { update_params[:web_push_overall] = shop.clients.where('web_push_enabled IS TRUE').count }.round(2)} ms"
+        Rails.logger.warn "   - web_push_overall: #{Benchmark.ms { update_params[:web_push_overall] = shop.clients.where(web_push_enabled: true).count }.round(2)} ms"
 
         statistic.update! update_params
 

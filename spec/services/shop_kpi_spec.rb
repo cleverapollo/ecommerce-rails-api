@@ -10,7 +10,7 @@ describe ShopKPI do
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
 
-  let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true, web_push_subscription_popup_showed: true, accepted_web_push_subscription: true )}
+  let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true, web_push_subscription_popup_showed: true, web_push_enabled: true )}
 
   let!(:item_1) { create(:item, shop: shop, price: 100, is_available: 1) }
   let!(:item_2) { create(:item, shop: shop, price: 200, is_fashion: 1, widgetable: true, is_available: 1) }

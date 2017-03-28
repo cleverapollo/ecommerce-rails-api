@@ -43,8 +43,8 @@ class Client < ActiveRecord::Base
     clients_ids = WebPushTriggerMessage.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(clicked: false).where(web_push_trigger_id: web_push_trigger_id).select(:id)
     where(id: clients_ids).where(last_web_push_sent_at: 28.hours.ago..24.hours.ago)
   end
-  scope :ready_for_web_push_trigger, -> (shop) { where("web_push_enabled IS TRUE AND ((last_web_push_sent_at is null) OR last_web_push_sent_at < ? )", shop.trigger_pause.days.ago) }
-  scope :ready_for_web_push_digest, -> { where("web_push_enabled IS TRUE") }
+  scope :ready_for_web_push_trigger, -> (shop) { where('web_push_enabled = true AND ((last_web_push_sent_at is null) OR last_web_push_sent_at < ? )', shop.trigger_pause.days.ago) }
+  scope :ready_for_web_push_digest, -> { where(web_push_enabled: true) }
 
 
   class << self
