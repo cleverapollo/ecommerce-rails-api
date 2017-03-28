@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170327144635) do
+ActiveRecord::Schema.define(version: 20170328103554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -154,17 +154,15 @@ ActiveRecord::Schema.define(version: 20170327144635) do
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
-  add_index "clients", ["shop_id", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((accepted_subscription IS TRUE) AND (subscription_popup_showed IS TRUE))", using: :btree
-  add_index "clients", ["shop_id", "accepted_web_push_subscription"], name: "index_clients_on_shop_id_and_accepted_web_push_subscription", where: "((accepted_web_push_subscription IS TRUE) AND (web_push_subscription_popup_showed IS TRUE))", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "segment_ids"], name: "index_clients_on_shop_id_and_segment_ids", where: "(segment_ids IS NOT NULL)", using: :gin
-  add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed IS TRUE)", using: :btree
+  add_index "clients", ["shop_id", "subscription_popup_showed", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((subscription_popup_showed = true) AND (accepted_subscription = true))", using: :btree
+  add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
-  add_index "clients", ["shop_id", "web_push_enabled", "last_web_push_sent_at"], name: "index_clients_last_web_push_sent_at", where: "((web_push_enabled IS TRUE) AND (last_web_push_sent_at IS NOT NULL))", using: :btree
-  add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled IS TRUE)", using: :btree
-  add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed IS TRUE)", using: :btree
+  add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
+  add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled IS TRUE))", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE))", using: :btree
@@ -381,14 +379,15 @@ ActiveRecord::Schema.define(version: 20170327144635) do
   add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL))", using: :gin
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id", "ignored"], name: "index_items_on_shop_id_and_ignored", where: "(ignored = true)", using: :btree
   add_index "items", ["shop_id", "image_downloading_error"], name: "index_items_on_shop_id_and_image_downloading_error", where: "(image_downloading_error IS NOT NULL)", using: :btree
+  add_index "items", ["shop_id", "is_available", "ignored"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "((price_margin IS NOT NULL) AND (is_available IS TRUE) AND (ignored IS FALSE))", using: :btree
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((is_available = true) AND (ignored = false) AND (sales_rate IS NOT NULL) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid_and_is_available", where: "(is_available = true)", using: :btree
+  add_index "items", ["shop_id", "widgetable", "is_available", "ignored"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
-  add_index "items", ["shop_id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false

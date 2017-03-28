@@ -18,7 +18,7 @@ class Client < ActiveRecord::Base
 
   validates :shop, presence: true
 
-  scope :who_saw_subscription_popup, -> { where('subscription_popup_showed IS TRUE') }
+  scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) do

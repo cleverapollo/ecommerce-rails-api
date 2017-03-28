@@ -149,10 +149,10 @@ class ShopKPI
     if date == Date.yesterday || date == Date.current
 
       # Subscriptions
-      shop_metric.subscription_popup_showed = Client.where(shop_id: shop.id).where('subscription_popup_showed IS TRUE').count
-      shop_metric.subscription_accepted = Client.where(shop_id: shop.id).where('subscription_popup_showed IS TRUE').where('accepted_subscription IS TRUE').count
-      shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: shop.id).where('web_push_subscription_popup_showed IS TRUE').count
-      shop_metric.web_push_subscription_accepted = Client.where(shop_id: shop.id).where('accepted_web_push_subscription IS TRUE OR web_push_enabled IS TRUE').count
+      shop_metric.subscription_popup_showed = Client.where(shop_id: shop.id, subscription_popup_showed: true).count
+      shop_metric.subscription_accepted = Client.where(shop_id: shop.id, subscription_popup_showed: true, accepted_subscription: true).count
+      shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: shop.id, web_push_subscription_popup_showed: true).count
+      shop_metric.web_push_subscription_accepted = Client.where(shop_id: shop.id, web_push_enabled: true).count
 
     end
 
