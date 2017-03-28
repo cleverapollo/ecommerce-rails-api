@@ -102,7 +102,7 @@ class YmlImporter
           ShopLocation.bulk_update shop_id, shop.locations
 
           # Обновялем статистику по товарам
-          ShopKPI.new(current_shop).calculate_products
+          ShopKPI.new(current_shop, Date.yesterday).calculate_products
 
         rescue PG::UniqueViolation => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
