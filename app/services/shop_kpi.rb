@@ -68,7 +68,7 @@ class ShopKPI
       # Используем здесь trigger_mailings_ids для активации индекса, т.к. индекса на только shop_id нет.
       trigger_mailings_ids = TriggerMailing.where(shop_id: shop.id).pluck(:id)
       if trigger_mailings_ids.count > 0
-        relation = TriggerMail.where(trigger_mailing_id: trigger_mailings_ids).where(shop_id: shop.id).where(created_at: @datetime_interval)
+        relation = TriggerMail.where(trigger_mailing_id: trigger_mailings_ids).where(shop_id: shop.id).where(created_at: @datetime_interval).where('"date" >= ?', @datetime_interval.first.to_date)
         shop_metric.triggers_sent = relation.count
         shop_metric.triggers_clicked = relation.clicked.count
         mail_ids = relation.pluck(:id)
@@ -87,7 +87,7 @@ class ShopKPI
     # Web-push triggers
     web_push_trigger_ids = WebPushTrigger.where(shop_id: shop.id).pluck(:id)
     if web_push_trigger_ids.count > 0
-      relation = WebPushTriggerMessage.where(web_push_trigger_id: web_push_trigger_ids, shop_id: shop.id).where(created_at: @datetime_interval)
+      relation = WebPushTriggerMessage.where(web_push_trigger_id: web_push_trigger_ids, shop_id: shop.id).where(created_at: @datetime_interval).where('"date" >= ?', @datetime_interval.first.to_date)
       shop_metric.web_push_triggers_sent = relation.count
       shop_metric.web_push_triggers_clicked = relation.clicked.count
       if relation.count > 0
@@ -102,7 +102,7 @@ class ShopKPI
     end
 
     # Web-push digests
-    relation = WebPushDigestMessage.where(shop_id: shop.id).where(created_at: @datetime_interval)
+    relation = WebPushDigestMessage.where(shop_id: shop.id).where(created_at: @datetime_interval).where('"date" >= ?', @datetime_interval.first.to_date)
     shop_metric.web_push_digests_sent = relation.count
     shop_metric.web_push_digests_clicked = relation.clicked.count
     mail_ids = relation.pluck(:id)
