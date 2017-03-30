@@ -11,6 +11,7 @@ development:
   - critical
   - default
   - long
+  - mailing_test
   - mailing
   - resize
   - rollbar
@@ -18,5 +19,6 @@ development:
   critical: 1
   rollbar: 1
   long: 23
+  mailing_test: 1
   mailing: 20
   default: 5
