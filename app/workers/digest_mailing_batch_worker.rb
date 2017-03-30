@@ -90,14 +90,20 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
-    Mailings::SignedEmail.compose(@shop, to: email,
+    m = nil
+    t = Benchmark.ms {
+    m = Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
                                   from: @settings.send_from,
                                   body: liquid_letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code),
                                   list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                  feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
+                                  feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
+    }
+
+    ts = Benchmark.ms { m.deliver_now }
+    STDOUT.write " #{@current_client.user_id} m: #{t.round(2)} ms, deliver: #{ts.round(2)} ms\n"
   end
 
 
