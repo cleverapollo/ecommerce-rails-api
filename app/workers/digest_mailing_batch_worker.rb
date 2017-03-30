@@ -57,7 +57,7 @@ class DigestMailingBatchWorker
               t_r = Benchmark.ms { recommendations = calculator.recommendations_for(@current_client.user) }
 
               t_m = Benchmark.ms { send_mail(@current_client.email, recommendations, @current_client.location) }
-              STDOUT.write " #{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
+              #STDOUT.write " #{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
 
               r.shop = @shop
               r.recommender_type = 'digest_mail'
@@ -90,20 +90,14 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
-    m = nil
-    t = Benchmark.ms {
-    m = Mailings::SignedEmail.compose(@shop, to: email,
+    Mailings::SignedEmail.compose(@shop, to: email,
                                   subject: @mailing.subject,
                                   from: @settings.send_from,
                                   body: liquid_letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code),
                                   list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                  feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
-    }
-
-    ts = Benchmark.ms { m.deliver_now }
-    STDOUT.write " #{@current_client.user_id} m: #{t.round(2)} ms, deliver: #{ts.round(2)} ms\n"
+                                  feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
   end
 
 
@@ -130,13 +124,8 @@ class DigestMailingBatchWorker
     }
     data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
-    html = ''
-    t = Benchmark.realtime do
-      template = Liquid::Template.parse template
-      html = template.render data.deep_stringify_keys
-    end
-    STDOUT.write " #{@current_client.user_id} template: #{t.round(2)} ms\n"
-    html
+    template = Liquid::Template.parse template
+    template.render data.deep_stringify_keys
   end
 
 
