@@ -86,7 +86,11 @@ class DigestMailingLaunchWorker
           Rollbar.warn('Mailchimp ERROR', e, params)
         end
       else
-        DigestMailingBatchWorker.perform_async(batch.id)
+        if params['test_email'].present?
+          DigestMailingBatchWorker.set(queue: 'mailing_test').perform_async(batch.id)
+        else
+          DigestMailingBatchWorker.perform_async(batch.id)
+        end
       end
     end
 
