@@ -54,9 +54,10 @@ class DigestMailingBatchWorker
           if IncomingDataTranslator.email_valid?(@current_client.email)
             RecommendationsRequest.report do |r|
 
-              recommendations = calculator.recommendations_for(@current_client.user)
+              t_r = Benchmark.ms { recommendations = calculator.recommendations_for(@current_client.user) }
 
-              send_mail(@current_client.email, recommendations, @current_client.location)
+              t_m = Benchmark.ms { send_mail(@current_client.email, recommendations, @current_client.location) }
+              STDOUT.write "#{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
 
               r.shop = @shop
               r.recommender_type = 'digest_mail'

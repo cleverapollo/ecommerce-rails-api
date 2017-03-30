@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170328125718) do
+ActiveRecord::Schema.define(version: 20170330104250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -154,6 +154,8 @@ ActiveRecord::Schema.define(version: 20170328125718) do
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["id", "shop_id", "email", "digests_enabled"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
+  add_index "clients", ["id", "shop_id", "email", "triggers_enabled"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_activity_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_trigger_mail_sent_at"], name: "idx_clients_shop_id_last_trigger_email_nulls_first", where: "((triggers_enabled = true) AND (email IS NOT NULL))", using: :btree
@@ -164,8 +166,6 @@ ActiveRecord::Schema.define(version: 20170328125718) do
   add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
-  add_index "clients", ["shop_id"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled IS TRUE))", using: :btree
-  add_index "clients", ["shop_id"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled IS TRUE))", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
@@ -360,11 +360,6 @@ ActiveRecord::Schema.define(version: 20170328125718) do
   add_index "items", ["category_ids"], name: "index_items_on_category_ids_recommendable", where: "((is_available = true) AND (ignored = false))", using: :gin
   add_index "items", ["chain_sizes"], name: "index_items_on_chain_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (chain_sizes IS NOT NULL))", using: :gin
   add_index "items", ["fashion_sizes", "fashion_wear_type"], name: "index_items_on_sizes_recommendable", where: "((is_available IS TRUE) AND (ignored IS FALSE) AND ((fashion_sizes IS NOT NULL) AND (fashion_wear_type IS NOT NULL)))", using: :gin
-  add_index "items", ["is_auto"], name: "index_items_on_is_auto", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["is_child"], name: "index_items_on_is_child", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["is_cosmetic"], name: "index_items_on_is_cosmetic", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["is_fashion"], name: "index_items_on_is_fashion", where: "((is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["is_pets"], name: "index_items_on_is_pets", where: "((is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["jewelry_color"], name: "index_items_on_jewelry_color", where: "((is_jewelry IS TRUE) AND (jewelry_color IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["jewelry_gem"], name: "index_items_on_jewelry_gem", where: "((is_jewelry IS TRUE) AND (jewelry_gem IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["jewelry_gender"], name: "index_items_on_jewelry_gender", where: "((is_jewelry IS TRUE) AND (jewelry_gender IS NOT NULL) AND (is_available = true) AND (ignored = false))", using: :btree
