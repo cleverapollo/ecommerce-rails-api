@@ -10,7 +10,6 @@ development:
 :queues:
   - critical
   - default
-  - long
   - mailing_test
   - mailing
   - resize
@@ -18,7 +17,7 @@ development:
 :limits:
   critical: 1
   rollbar: 1
-  long: 23
+  resize: 12
   mailing_test: 1
-  mailing: 20
+  mailing: 30
   default: 5
