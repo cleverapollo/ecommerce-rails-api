@@ -7,7 +7,7 @@ class DigestMailingLaunchWorker
   # @return [Shop]
   attr_reader :shop
 
-  BATCH_SIZE = 50
+  BATCH_SIZE = 100
   MAILCHIMP_BATCH_SIZE = 200
 
   # Запустить дайджестную рассылку.
