@@ -22,7 +22,6 @@ module TriggerMailings
       # При этом нет покупок за этот период
       # @return Boolean
       def condition_happened?
-
         # Если недавно был заказ, триггер не шлем.
         # http://y.mkechinov.ru/issue/REES-3399
         return false if user.orders.where('date >= ?', 7.days.ago).exists?
@@ -54,27 +53,24 @@ module TriggerMailings
       # Рекомендации:
       # - популярные в категориях
       def recommended_ids(count)
-
         result = []
 
         additional_info[:categories].each do |category|
+          next if result.count >= count
 
           params = OpenStruct.new(
-              shop: shop,
-              user: user,
-              limit: count,
-              recommend_only_widgetable: true,
-              categories: [category.external_id],
-              locations: client.location.present? ? [client.location] : nil
+            shop: shop,
+            user: user,
+            limit: count,
+            recommend_only_widgetable: true,
+            categories: [category.external_id],
+            locations: client.location.present? ? [client.location] : nil
           )
 
-          if result.count < count
-            result += Recommender::Impl::Popular.new(params.tap { |p|
-              p.limit = (count - result.count)
-              p.exclude = result
-            }).recommended_ids
-          end
-
+          result += Recommender::Impl::Popular.new(params.tap do |p|
+            p.limit = (count - result.count)
+            p.exclude = result
+          end).recommended_ids
         end
 
         result

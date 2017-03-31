@@ -28,7 +28,6 @@ module TriggerMailings
     # Отправить сформированное письмо
     def send
       email = client.email
-      #email = 'anton.zhavoronkov@mkechinov.ru'
       Mailings::SignedEmail.compose(@shop, to: email,
                                     subject: trigger.settings[:subject],
                                     from: trigger.settings[:send_from],
@@ -104,7 +103,6 @@ module TriggerMailings
 
       template = Liquid::Template.parse liquid_template
       template.render data.deep_stringify_keys
-
     end
 
 
