@@ -60,21 +60,25 @@ class UserMerger
         master = User.find master_id
         if slave_id != master.id
           DEPENDENCIES.each do |dependency|
-            dependency.public_send(:relink_user_remnants, master, slave_id)
+            t = Benchmark.ms { dependency.public_send(:relink_user_remnants, master, slave_id) }
+            STDOUT.write " remnants #{dependency} master #{master_id} from #{slave_id} #{t.round(2)} ms,"
           end
 
-          # Сливаем виртуальный профиль
-          properties_to_update = {}
-          properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
-          properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
-          properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair master
-          properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
-          properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin master
-          properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
-          properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
-          properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
-          properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
-          master.update properties_to_update
+          t = Benchmark.ms do
+            # Сливаем виртуальный профиль
+            properties_to_update = {}
+            properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
+            properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
+            properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair master
+            properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
+            properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin master
+            properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
+            properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
+            properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
+            properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
+            master.update properties_to_update
+          end
+          STDOUT.write " PropertyCalculator #{master_id} from #{slave_id} #{t.round(2)} ms\n"
         end
       rescue ActiveRecord::RecordNotFound
         # Юзер уже потерялся, ну и ладно
@@ -85,7 +89,7 @@ class UserMerger
     def merge_by_mail(shop, client, user_email)
       # Найдем пользователя с тем же мылом в данном магазине
       client_with_current_mail = shop.clients.where.not(id: client.id).where(email: user_email).order(id: :asc).limit(1)[0]
-      if client_with_current_mail
+      if client_with_current_mail.present?
         old_user = client_with_current_mail.user
         UserMerger.merge(old_user, client.user)
       else
