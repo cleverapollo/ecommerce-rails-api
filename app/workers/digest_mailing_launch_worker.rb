@@ -100,5 +100,9 @@ class DigestMailingLaunchWorker
       digest_mailing.fail!
       Rollbar.warn('Mailchimp ERROR', e, params)
     end
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

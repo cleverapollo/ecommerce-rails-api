@@ -39,6 +39,10 @@ class InsalesWorker
     end
 
     send_orders
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 
   # В InSales нельзя получить в API список категорий

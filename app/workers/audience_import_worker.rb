@@ -62,5 +62,9 @@ class AudienceImportWorker
 
     # Запускаем перерасчет аудитории
     People::Segmentation::ActivityWorker.new(@shop).update_overall
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

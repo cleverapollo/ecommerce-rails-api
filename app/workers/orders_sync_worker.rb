@@ -70,6 +70,10 @@ class OrdersSyncWorker
       email = opts['errors_to'] || current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
     end
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 
 end

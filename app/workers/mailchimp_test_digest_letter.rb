@@ -55,6 +55,10 @@ class MailchimpTestDigestLetter
     delete_camping_and_list(api, test_campaign['id'], test_list['id'])
 
     api.update_campaign(native_campaign, digest_mailing.mailchimp_list_id)
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 
 end

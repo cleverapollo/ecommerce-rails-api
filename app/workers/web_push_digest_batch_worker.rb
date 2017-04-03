@@ -57,7 +57,9 @@ class WebPushDigestBatchWorker
   rescue Exception => e
     @mailing.fail! if @mailing
     raise e
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
-
-
 end

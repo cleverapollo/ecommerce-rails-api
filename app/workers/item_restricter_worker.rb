@@ -12,5 +12,9 @@ class ItemRestricterWorker
     failed_images.keys.each do |key|
       shop.items.where(id: failed_images[key]).update_all(widgetable: false, image_downloading_error: key)
     end
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

@@ -20,6 +20,9 @@ class ImageDownloadLaunchWorker
     end
 
     @connection.close
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 
   private

@@ -60,5 +60,9 @@ class MailchimpTestTriggerLetter
       api.delete_campaign(test_campaign['id']) if test_campaign.present?
       api.delete_list(test_list['id']) if test_list.present?
       Rollbar.warning('MailchimpTestTriggerLetter', shop_id: trigger.shop.id)
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

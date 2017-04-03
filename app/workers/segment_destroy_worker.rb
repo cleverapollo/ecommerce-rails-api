@@ -18,5 +18,9 @@ class SegmentDestroyWorker
 
     # Удаляем сегмент. Опеация зависит от количества клиентов в сегменте
     segment.destroy
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

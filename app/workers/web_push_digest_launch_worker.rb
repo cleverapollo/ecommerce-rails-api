@@ -44,5 +44,9 @@ class WebPushDigestLaunchWorker
     web_push_digest.web_push_digest_batches.incomplete.each do |batch|
       WebPushDigestBatchWorker.perform_async(batch.id)
     end
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

@@ -9,6 +9,10 @@ class ItemsImportWorker
   def perform(params)
     fetch_and_authenticate_shop(params.fetch('shop_id'), params.fetch('shop_secret'))
     process_items(params.fetch('items'))
+
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 
   def fetch_and_authenticate_shop(uniqid, secret)

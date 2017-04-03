@@ -17,7 +17,7 @@ Sidekiq.configure_server do |config|
     ActiveSupport.on_load(:active_record) do
       config = Rails.application.config.database_configuration[Rails.env]
       config['reaping_frequency'] = 10 # seconds
-      config['pool'] = Sidekiq.options[:concurrency].to_i + 1
+      config['pool'] = Sidekiq.options[:concurrency]
       ActiveRecord::Base.establish_connection(config)
 
       Rails.logger.info("Connection Pool size for Sidekiq Server is now: #{ActiveRecord::Base.connection.pool.instance_variable_get('@size')}")
