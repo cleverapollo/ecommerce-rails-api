@@ -10,11 +10,13 @@ development:
 :queues:
   - critical
   - default
+  - mailing
   - mailing_test
   - resize
   - rollbar
 :limits:
   critical: 1
   rollbar: 1
+  mailing: 10
   mailing_test: 1
   default: 5
