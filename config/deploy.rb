@@ -44,24 +44,24 @@ namespace :sidekiq do
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.long.service'
-      # execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing1.service'
-      # execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing2.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.service'
     end
   end
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.long.service'
-      # execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing1.service'
-      # execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing2.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.service'
     end
   end
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.long.service'
-      # execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing1.service'
-      # execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing2.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.service'
     end
   end
