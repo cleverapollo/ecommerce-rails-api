@@ -77,6 +77,29 @@ describe ActionPush::Params do
         it_behaves_like 'raising error'
       end
 
+      context 'with a bit amount' do
+        let(:params) do
+          {
+            ssid: session.code,
+            event: 'purchase',
+            shop_id: shop.uniqid,
+            rating: rating,
+            item_id: [item_with_slash.id, item_without_slash.id],
+            amount: [100000000000000.00, 1],
+            url: [item_with_slash.url, item_without_slash.url],
+            price: [300, 499],
+            image_url: [item_with_slash.image_url, item_without_slash.image_url],
+            order_id: 111,
+            order_price: 333
+          }
+        end
+
+        it 'with max amount 1000' do
+          expect(subject.items[0].amount).to eq(1000)
+          expect(subject.items[1].amount).to eq(1)
+        end
+      end
+
     end
 
 

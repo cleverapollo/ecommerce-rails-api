@@ -20,6 +20,7 @@ config/shards.yml
 config/application.yml
 config/unicorn.rb
 /public/uploads/
+/public/assets/
 
 # Ignore coverage reports
 /coverage

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170331134337) do
+ActiveRecord::Schema.define(version: 20170404080055) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -783,9 +783,11 @@ ActiveRecord::Schema.define(version: 20170331134337) do
     t.boolean  "products",                             default: false, null: false
     t.integer  "theme_id",                 limit: 8
     t.string   "theme_type"
+    t.string   "subdomain"
   end
 
   add_index "web_push_subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_web_push_subscriptions_settings_theme", using: :btree
+  add_index "web_push_subscriptions_settings", ["subdomain"], name: "index_web_push_subscriptions_settings_on_subdomain", unique: true, using: :btree
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|
     t.integer  "client_id",  limit: 8, null: false

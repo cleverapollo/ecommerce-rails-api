@@ -199,11 +199,12 @@ module ActionPush
       raw[:item_id].each_with_index do |item_id, i|
         item_attributes = OpenStruct.new(uniqid: item_id)
 
-        item_attributes.amount = raw[:amount][i].present? ? raw[:amount][i] : 1
+        item_attributes.amount = raw[:amount][i].present? && raw[:amount][i].to_i > 1 ? raw[:amount][i].to_i : 1
+        item_attributes.amount = 1000 if item_attributes.amount > 1000
         item_attributes.ignored = raw[:priority][i].present? ? raw[:priority][i] == 'ignore' : false
         item_attributes.brand = raw[:brand][i] ? StringHelper.encode_and_truncate(raw[:brand][i].mb_chars.downcase.strip) : nil
 
-        raw_is_avalilable =  IncomingDataTranslator.is_available?(raw[:is_available][i])
+        raw_is_available =  IncomingDataTranslator.is_available?(raw[:is_available][i])
         available_present = raw[:is_available].present? && raw[:is_available][i].present?
 
         raw_price = nil
@@ -215,19 +216,19 @@ module ActionPush
           if cur_item
             # товар есть в базе
             if available_present
-              item_attributes.is_available = raw_is_avalilable
+              item_attributes.is_available = raw_is_available
             else
               item_attributes.is_available = cur_item.is_available
             end
             item_attributes.price = raw_price if !cur_item.price && raw_price.to_i > 0
           else
             item_attributes.price = raw_price if raw_price.to_i > 0
-            item_attributes.is_available = raw_is_avalilable if available_present
+            item_attributes.is_available = raw_is_available if available_present
           end
 
         else
 
-          item_attributes.is_available = raw_is_avalilable
+          item_attributes.is_available = raw_is_available
 
           item_attributes.locations = raw[:locations][i].present? ? raw[:locations][i].split(',') : []
           item_attributes.price = raw_price

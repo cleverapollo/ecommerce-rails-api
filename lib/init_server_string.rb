@@ -137,6 +137,7 @@ module InitServerString
               settings: if shop.web_push_subscriptions_enabled?
                           {
                               enabled: shop.web_push_subscriptions_settings.enabled,
+                              subdomain: shop.web_push_subscriptions_settings.subdomain,
                               overlay: shop.web_push_subscriptions_settings.overlay,
                               header: shop.web_push_subscriptions_settings.header,
                               text: shop.web_push_subscriptions_settings.text,
