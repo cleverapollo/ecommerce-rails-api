@@ -21,6 +21,7 @@ class WebPush::BaseController < ActionController::Base
     @settings = WebPushSubscriptionsSettings.find_by(subdomain: request.subdomain(2))
     if @settings.nil?
       render nothing: true, status: 404
+      return
     end
 
     # Проверяем, подключен ли магазин
