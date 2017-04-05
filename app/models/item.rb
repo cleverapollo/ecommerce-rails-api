@@ -33,7 +33,7 @@ class Item < ActiveRecord::Base
   # Фильтрация по городам
   scope :in_locations, ->(locations, args = { any: true }) {
     if locations && locations.any?
-      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } location_ids", (locations.is_a?(Hash) ? locations.keys : locations))
+      where("ARRAY[?]::varchar[] #{ args[:any] ? '&&' : '<@' } location_ids OR (array_length(location_ids, 1) = 0) OR (location_ids IS NULL)", (locations.is_a?(Hash) ? locations.keys : locations))
     else
       all
     end
