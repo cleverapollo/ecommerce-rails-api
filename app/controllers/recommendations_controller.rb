@@ -14,7 +14,9 @@ class RecommendationsController < ApplicationController
     end
 
     # Извлекаем данные из входящих параметров
-    extracted_params = Recommendations::Params.extract(params)
+    extracted_params = Recommendations::Params.new(params)
+    extracted_params.shop = @shop
+    extracted_params.extract
 
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)

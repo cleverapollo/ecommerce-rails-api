@@ -10,7 +10,7 @@ module Recommendations
     attr_accessor :user
     # Сессия
     attr_accessor :session
-    # Магазин
+    # @return [Shop] shop Магазин
     attr_accessor :shop
     # Тип вызываемого рекомендера
     attr_accessor :type
@@ -128,6 +128,8 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] исключение с сообщением, если магазин не найден
     def extract_shop
+      return if shop.present?
+
       unless @shop = Shop.find_by(uniqid: raw[:shop_id])
         raise Recommendations::IncorrectParams.new("Shop with ID #{raw[:shop_id]} not found")
       end

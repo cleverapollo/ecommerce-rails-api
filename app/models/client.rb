@@ -184,7 +184,8 @@ class Client < ActiveRecord::Base
   def track_last_activity
     if last_activity_at != Date.current
       Time.use_zone(shop.customer.time_zone) do
-        update last_activity_at: Date.current
+        assign_attributes last_activity_at: Date.current
+        atomic_save! if changed?
       end
     end
   end
@@ -193,14 +194,16 @@ class Client < ActiveRecord::Base
   # @return nil
   def subscribe_for_triggers!
     unless triggers_enabled?
-      update triggers_enabled: true
+      assign_attributes triggers_enabled: true
+      atomic_save! if changed?
     end
     nil
   end
 
   # Сбрасывает историю подписок на веб пуши, чтобы пользователь мог опять получить окно подписки.
   def clear_web_push_subscription!
-    update web_push_enabled: false, web_push_subscription_popup_showed: nil, accepted_web_push_subscription: nil
+    assign_attributes web_push_enabled: false, web_push_subscription_popup_showed: nil, accepted_web_push_subscription: nil
+    atomic_save! if changed?
   end
 
   # Append a new token

@@ -98,7 +98,7 @@ class Shop < MasterTable
       connected_events_last_track[event] = Time.current.to_i
     end
     check_connection!
-    save
+    atomic_save if changed?
   end
 
   # Отследить запрошенную рекомендацию
@@ -110,7 +110,7 @@ class Shop < MasterTable
       connected_recommenders_last_track[recommender] = Time.current.to_i
     end
     check_connection!
-    save
+    atomic_save if changed?
   end
 
   def yml
@@ -228,8 +228,8 @@ class Shop < MasterTable
 
   # Оформлена подписка и попап включен?
   def subscriptions_enabled?
-    plan = self.subscription_plans.where(product: 'subscriptions').first
-    subscriptions_settings.present? && subscriptions_settings.enabled? && plan.present? && plan.paid?
+    @subscriptions_plan ||= self.subscription_plans.subscriptions.first
+    subscriptions_settings.present? && subscriptions_settings.enabled? && @subscriptions_plan.present? && @subscriptions_plan.paid?
   end
 
   # Check if shop has enabled web push subscriptions

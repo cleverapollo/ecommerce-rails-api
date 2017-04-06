@@ -75,12 +75,13 @@ class Order < ActiveRecord::Base
       # end
 
       # Обновляем данные заказа
-      order.update(common_value: values[:common_value],
+      order.assign_attributes(common_value: values[:common_value],
                    recommended_value: values[:recommended_value],
                    value: values[:value],
                    recommended: (values[:recommended_value] > 0),
                    ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
                    source: source)
+      order.atomic_save if order.changed?
 
       # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
       if items.size > 0 && order.order_items.count > 0
