@@ -23,12 +23,10 @@ class DataManager
 
       # Выбираем все записи, которые меньше max integer
       rows = cls.where('id < 2147483647')
-      next if rows.length == 0
-      STDOUT.write "found: #{rows.length}\n\r"
 
       # Проходим по строкам
       rows.find_each.with_index do |row, index|
-        STDOUT.write "\r#{(index.to_f / rows.length * 100).round(1)}%" if ActiveRecord::Base.logger.level > 0
+        STDOUT.write "\r#{index}" if ActiveRecord::Base.logger.level > 0
 
         # Получаем функцию nextval
         nextval = ActiveRecord::Base.connection.select_value("SELECT column_default FROM information_schema.columns WHERE (table_schema, table_name) = ('public', '#{table}') AND column_name = 'id'")
