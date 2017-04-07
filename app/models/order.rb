@@ -56,10 +56,13 @@ class Order < ActiveRecord::Base
       values = order_values(shop, user, items, source.present?, order_price)
 
       # Используем вставку UPSET для предотвращения конфиктов уникальных значений
-      order = Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO UPDATE SET "date" = ?, user_id = ?', shop.id, uniqid, user.id, Time.now, Time.now, user.id
+      Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
+          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO NOTHING', shop.id, uniqid, user.id, Time.now
       ]))
-      order = Order.find order
+      order = Order.find_by shop_id: shop.id, uniqid: uniqid
+
+      # Выходим, если заказ было создан не сегодня
+      return nil if order.date < Date.current
 
       # todo если вставка upset будет работать корректно, удалить
       # # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
