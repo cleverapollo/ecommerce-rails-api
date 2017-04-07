@@ -12,6 +12,7 @@ class Client < ActiveRecord::Base
   has_many :web_push_trigger_messages
   has_many :web_push_digest_messages
   has_many :web_push_tokens
+  has_many :reputations
 
   before_create :assign_ab_testing_group
   before_save :fix_empty_segment

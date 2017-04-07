@@ -8,6 +8,8 @@ class Action < ActiveRecord::Base
   belongs_to :item
   belongs_to :shop
 
+  has_many :order_items
+
   TYPES = Dir.glob(Rails.root + 'app/models/actions/*').map{|a| a.split('/').last.split('.').first }
 
   scope :by_average_rating, -> { order('AVG(rating) DESC') }
