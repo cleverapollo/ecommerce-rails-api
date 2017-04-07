@@ -4,6 +4,7 @@
 class TriggerMailing < ActiveRecord::Base
 
   belongs_to :shop
+  has_many :trigger_mails
 
   scope :enabled, -> { where(enabled: true) }
 

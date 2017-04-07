@@ -9,8 +9,11 @@ class Item < ActiveRecord::Base
   belongs_to :shop
 
   has_many :actions
+  has_many :interactions
   has_many :order_items
   has_many :brand_campaign_purchases
+  has_many :subscribe_for_product_availables
+  has_many :subscribe_for_product_prices
   has_many :reputations, as: :entity
 
   scope :recommendable, -> { available.where(ignored: false) }
