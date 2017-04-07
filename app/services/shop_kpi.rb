@@ -58,8 +58,8 @@ class ShopKPI
 
     # Пока не придумаем, как на тестах ходить в clickhouse, ставим костыль
     if Rails.env.production?
-      shop_metric.product_views_total = Clickhouse.connection.query("SELECT COUNT(*) FROM rees46.interactions WHERE shop_id = #{shop.id} AND code = 1 AND created_at >= '#{@datetime_interval.first.to_formatted_s(:db)}' AND created_at <= '#{@datetime_interval.last.to_formatted_s(:db)}'").to_a.flatten.first.to_i
-      shop_metric.product_views_recommended = Clickhouse.connection.query("SELECT COUNT(*) FROM rees46.interactions WHERE shop_id = #{shop.id} AND code = 1 AND recommender_code != '' AND created_at >= '#{@datetime_interval.first.to_formatted_s(:db)}' AND created_at <= '#{@datetime_interval.last.to_formatted_s(:db)}'").to_a.flatten.first.to_i
+      shop_metric.product_views_total = Clickhouse.connection.query("SELECT COUNT(*) FROM rees46.interactions WHERE shop_id = #{shop.id} AND code = '1' AND created_at >= '#{@datetime_interval.first.to_formatted_s(:db)}' AND created_at <= '#{@datetime_interval.last.to_formatted_s(:db)}'").to_a.flatten.first.to_i
+      shop_metric.product_views_recommended = Clickhouse.connection.query("SELECT COUNT(*) FROM rees46.interactions WHERE shop_id = #{shop.id} AND code = '1' AND recommender_code != '' AND created_at >= '#{@datetime_interval.first.to_formatted_s(:db)}' AND created_at <= '#{@datetime_interval.last.to_formatted_s(:db)}'").to_a.flatten.first.to_i
     else
       shop_metric.product_views_total = Interaction.where(shop_id: shop.id).where(created_at: @datetime_interval).views.count
       shop_metric.product_views_recommended = Interaction.where(shop_id: shop.id).where(created_at: @datetime_interval).views.from_recommender.count
