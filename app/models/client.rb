@@ -102,7 +102,7 @@ class Client < ActiveRecord::Base
       master_client.email = master_client.email || self.email
       master_client.fb_id = master_client.fb_id || self.fb_id
       master_client.vk_id = master_client.vk_id || self.vk_id
-      master_client.save if master_client.changed?
+      master_client.atomic_save if master_client.changed?
 
       # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
       if master_client.shop_id == self.shop_id
@@ -126,7 +126,7 @@ class Client < ActiveRecord::Base
           master_client.web_push_enabled = true
         end
 
-        master_client.save if master_client.changed?
+        master_client.atomic_save if master_client.changed?
       end
 
       # Перебрасываем токены веб пушей
