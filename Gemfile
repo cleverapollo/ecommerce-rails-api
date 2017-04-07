@@ -21,6 +21,7 @@ gem 'redis-objects'
 gem 'redis-namespace'
 gem 'postgres-copy'
 gem 'connection_pool'
+gem 'clickhouse'
 
 # Workers
 gem 'sidekiq'
