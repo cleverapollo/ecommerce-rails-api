@@ -51,7 +51,7 @@ class DataManager
           row.update_attribute(:id, id)
         end
       end
-      STDOUT.write "\r"
+      STDOUT.write " done\n\r"
     end
     nil
   end
