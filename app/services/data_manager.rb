@@ -7,6 +7,7 @@ class DataManager
   end
 
   def fix_ids
+    ActiveRecord::Base.logger.level = 1
     tables.each do |table|
       STDOUT.write "#{table}\n\r"
 
@@ -26,7 +27,7 @@ class DataManager
       STDOUT.write "found: #{rows.length}\n\r"
 
       # Проходим по строкам
-      rows.each_with_index do |row, index|
+      rows.find_each.with_index do |row, index|
         STDOUT.write "\r#{(index.to_f / rows.length * 100).round(1)}%" if ActiveRecord::Base.logger.level > 0
 
         # Получаем функцию nextval
