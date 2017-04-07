@@ -39,9 +39,9 @@ class InitController < ApplicationController
 
     # Поиск связки пользователя и магазина
     begin
-      client = Client.find_or_create_by!(user_id: session.user_id, shop_id: shop.id)
+      client = Client.find_or_create_by!(user_id: session.user_id, shop: shop)
     rescue ActiveRecord::RecordNotUnique => e
-      client = Client.find_by!(user_id: session.user_id, shop_id: shop.id)
+      client = Client.find_by!(user_id: session.user_id, shop: shop)
     end
 
     # Сохраняем визит

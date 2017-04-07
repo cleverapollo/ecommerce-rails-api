@@ -77,7 +77,6 @@ module InitServerString
       session = options.fetch(:session)
       # @type [Client] client
       client = options.fetch(:client)
-      subscriptions_plan = shop.subscription_plans.subscriptions.first
       products = nil
       if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
         recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
@@ -99,12 +98,6 @@ module InitServerString
             agreement: shop.subscriptions_settings.agreement,
             successfully: shop.subscriptions_settings.successfully,
             remote_picture_url: shop.subscriptions_settings.remote_picture_url,
-            type: 0,
-            timer: 90,
-        }
-
-        if subscriptions_plan.present? && subscriptions_plan.paid?
-          email_settings = email_settings.merge({
             type: shop.subscriptions_settings.popup_type,
             timer: shop.subscriptions_settings.timer_enabled? ? shop.subscriptions_settings.timer : 0,
             pager: shop.subscriptions_settings.pager_enabled? ? shop.subscriptions_settings.pager : 0,
@@ -112,8 +105,7 @@ module InitServerString
             products: products,
             products_title: I18n.t('email_settings.products_title', locale: shop.customer.language || 'en'),
             products_buy: I18n.t('email_settings.buy', locale: shop.customer.language || 'en'),
-          })
-        end
+        }
       end
 
       result = {
@@ -184,37 +176,38 @@ module InitServerString
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
         # if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < Date.current
         #   pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}"
-        #   session.update synced_with_aidata_at: Date.current
+        #   session.synced_with_aidata_at = Date.current
         # end
         # if session.synced_with_dca_at.nil? || session.synced_with_dca_at < Date.current
         #   pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}"
-        #   session.update synced_with_dca_at: Date.current
+        #   session.synced_with_dca_at = Date.current
         # end
         # if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < Date.current
         #   pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
-        #   session.update synced_with_auditorius_at: Date.current
+        #   session.synced_with_auditorius_at = Date.current
         # end
         # if session.synced_with_amber_at.nil? || session.synced_with_amber_at < Date.current
         #   pixels << "//dmg.digitaltarget.ru/1/2026/i/i?a=26&e=#{session.code}&i=#{rand}"
-        #   session.update synced_with_amber_at: Date.current
+        #   session.synced_with_amber_at = Date.current
         # end
         # if session.synced_with_mailru_at.nil? || session.synced_with_mailru_at < Date.current
         #   pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
-        #   session.update synced_with_mailru_at: Date.current
+        #   session.synced_with_mailru_at = Date.current
         # end
         if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
           pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
-          session.update synced_with_relapio_at: Date.current
+          session.synced_with_relapio_at = Date.current
         end
         if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
           pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}&dnr=1"
-          session.update synced_with_republer_at: Date.current
+          session.synced_with_republer_at = Date.current
         end
         if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
           pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.code}"
-          session.update synced_with_advmaker_at: Date.current
+          session.synced_with_advmaker_at =Date.current
         end
 
+        session.atomic_save! if session.changed?
       end
 
       if shop && shop.id == 725 && session.segment_changed && false

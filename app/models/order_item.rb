@@ -17,7 +17,7 @@ class OrderItem < ActiveRecord::Base
       action = Action.find_by(item_id: item.id, user_id: order.user_id)
       if action.nil?
         begin
-          action = Action.create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: recommended_by.present? ? Time.current : nil)
+          action = Action.atomic_create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: recommended_by.present? ? Time.current : nil)
         rescue
           action = Action.find_by(item_id: item.id, user_id: order.user_id)
         end
@@ -28,7 +28,7 @@ class OrderItem < ActiveRecord::Base
         recommended_by = action.recommended_by
       end
 
-      result = OrderItem.create!(order_id: order.id,
+      result = OrderItem.atomic_create!(order_id: order.id,
                                  item_id: item.id,
                                  action_id: action.id,
                                  shop_id: order.shop_id,

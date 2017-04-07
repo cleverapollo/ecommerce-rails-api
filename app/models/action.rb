@@ -79,7 +79,7 @@ class Action < ActiveRecord::Base
       # В Махаут сохраняются действия с рейтингом больше корзины
       save_to_mahout(params) if self.rating >= Actions::RemoveFromCart::RATING
 
-      save if changed?
+      atomic_save! if changed?
       # Коллбек после обработки действия
       post_process(params)
     rescue ActiveRecord::RecordNotUnique => e

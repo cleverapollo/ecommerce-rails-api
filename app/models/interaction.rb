@@ -43,7 +43,7 @@ class Interaction < ActiveRecord::Base
 
   class << self
     def push(opts = {})
-      create!(
+      atomic_create!(
                  user_id: opts.fetch(:user_id),
                  shop_id: opts.fetch(:shop_id),
                  item_id: opts.fetch(:item_id),

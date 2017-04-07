@@ -12,17 +12,12 @@ describe RecommendationsController do
   before { allow(Recommendations::Processor).to receive(:process).and_return(sample_recommendations) }
   let!(:params) { { shop_id: shop.uniqid } }
 
-  it 'extracts parameters' do
-    get :get, params
-
-    expect(Recommendations::Params).to have_received(:extract)
-  end
-
   context 'when all goes fine' do
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' } }
     it 'passes parameters to recommendations handler' do
       get :get, params
 
-      expect(Recommendations::Processor).to have_received(:process).with(extracted_params)
+      expect(Recommendations::Processor).to have_received(:process)
     end
 
     it 'responds with json array of recommendations' do
@@ -60,8 +55,8 @@ describe RecommendationsController do
   end
 
   context 'when also_bought empty' do
-    let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: 1 }) }
     before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: 1 } }
 
     it 'process exactly 1 times' do
       get :get, params
