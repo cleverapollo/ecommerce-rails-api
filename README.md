@@ -25,11 +25,11 @@ Back-end для приема событий и выдачи рекомендац
 * Redis
 * https://bitbucket.org/mkechinov/rees46_brb
 
-### Развертывание
+### Развертывание на development
 
 ```
 $ bundle
-$ bin/rake db:create db:schema:load
+... $ bin/rake db:create db:schema:load ... не делать schema:load на production, т.к. она не создает функции, генерирующие уникальные ID. Использовать восстановление бэкапа.
 $ foreman start
 ```
 

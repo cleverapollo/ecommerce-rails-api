@@ -3,7 +3,7 @@ lock '3.7.2'
 set :application, 'api.rees46.com'
 
 set :repo_url, 'git@rees46_api.bitbucket.org:mkechinov/rees46_api.git'
-set :scm, :git
+# set :scm, :git
 
 set :deploy_to, "/home/rails/#{fetch(:application)}"
 set :deploy_via,      :remote_cache
