@@ -1,12 +1,15 @@
 class DataManager
 
-  attr_accessor :tables
+  attr_accessor :tables, :size
 
-  def initialize
+  def initialize(size = 5)
     @tables = ActiveRecord::Base.connection.tables - ['schema_migrations']
+    @size = size
   end
 
   def fix_ids
+    ActiveRecord::Base.logger.level = 1
+
     tables.each do |table|
       STDOUT.write "#{table}\n\r"
 
@@ -22,37 +25,57 @@ class DataManager
 
       # Выбираем все записи, которые меньше max integer
       rows = cls.where('id < 2147483647')
-      next if rows.length == 0
-      STDOUT.write "found: #{rows.length}\n\r"
 
-      # Проходим по строкам
-      rows.each_with_index do |row, index|
-        STDOUT.write "\r#{(index.to_f / rows.length * 100).round(1)}%" if ActiveRecord::Base.logger.level > 0
+      # Проходим по строкам, достаем по 1000
+      i = 0
+      rows.find_in_batches do |groups|
 
-        # Получаем функцию nextval
-        nextval = ActiveRecord::Base.connection.select_value("SELECT column_default FROM information_schema.columns WHERE (table_schema, table_name) = ('public', '#{table}') AND column_name = 'id'")
+        # Разбиваем массив по группам
+        groups.each_slice(size) do |group|
+          threads = []
+          group.each do |row|
+            i += 1
+            if ActiveRecord::Base.logger.level > 0
+              STDOUT.write "\r".rjust(i.to_s.length + size)
+              STDOUT.write "\r#{i} "
+            end
 
-        # Получаем следующий id из сиквенса
-        id = ActiveRecord::Base.connection.select_value("SELECT #{nextval}")
-        row.transaction do
+            # Создаем тред
+            threads << Thread.new(row) do |row|
 
-          # Обновляем все связи
-          associations.each do |association|
-            Rails.logger.debug association.name
+              # Получаем функцию nextval
+              nextval = ActiveRecord::Base.connection.select_value("SELECT column_default FROM information_schema.columns WHERE (table_schema, table_name) = ('public', '#{table}') AND column_name = 'id'")
 
-            # Получаем связанные данные
-            children = row.try(association.name)
-            next if children.nil?
+              # Получаем следующий id из сиквенса
+              id = ActiveRecord::Base.connection.select_value("SELECT #{nextval}")
+              row.transaction do
 
-            # Выполняем все в транзакции
-            children.update_all(association.foreign_key => id)
+                # Обновляем все связи
+                associations.each do |association|
+                  Rails.logger.debug association.name
+
+                  # Получаем связанные данные
+                  children = row.try(association.name)
+                  next if children.nil?
+
+                  # Выполняем все в транзакции
+                  children.update_all(association.foreign_key => id)
+                end
+
+                # Обновляем саму строку
+                row.update_attribute(:id, id)
+              end
+              STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
+            end
+
           end
 
-          # Обновляем саму строку
-          row.update_attribute(:id, id)
+          # Запускаем выполнение тасков
+          threads.each &:join
         end
+
       end
-      STDOUT.write "\r"
+      STDOUT.write " done\n\r" if i > 0
     end
     nil
   end
