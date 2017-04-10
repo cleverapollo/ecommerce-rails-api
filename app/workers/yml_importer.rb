@@ -4,7 +4,7 @@ class YmlImporter
   include Sidekiq::Worker
   include TempFiles
 
-  sidekiq_options retry: 2, queue: 'long', failures: true, backtrace: true
+  sidekiq_options retry: false, queue: 'yml', failures: true, backtrace: true
 
   # Точка входа обработки YML
   # @param shop_id [Integer]
