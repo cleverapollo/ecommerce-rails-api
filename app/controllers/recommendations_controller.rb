@@ -48,7 +48,7 @@ class RecommendationsController < ApplicationController
         TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
       end
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
-      Rails.logger.error e
+      Rails.logger.error e.inspect
       Rollbar.error e
     end
 
