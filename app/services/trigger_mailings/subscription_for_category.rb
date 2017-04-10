@@ -15,9 +15,9 @@ module TriggerMailings
       #
       def subscribe(shop, user, category)
 
-        raise IncorrectMailingSettingsError if shop.nil?
-        raise IncorrectMailingSettingsError if user.nil?
-        raise IncorrectMailingSettingsError if category.nil?
+        raise IncorrectMailingSettingsError.new('Shop not set for abandoned category trigger') if shop.nil?
+        raise IncorrectMailingSettingsError.new('User not found for abandoned category trigger') if user.nil?
+        raise IncorrectMailingSettingsError.new('Incorrect category for abandoned category trigger') if category.nil?
 
         if element = SubscribeForCategory.find_by(shop_id: shop.id, user_id: user.id, item_category_id: category.id)
           element.update subscribed_at: DateTime.current

@@ -43,14 +43,8 @@ class RecommendationsController < ApplicationController
 
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
-    begin
-      if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0 && TriggerMailing.where(shop_id: @shop.id, trigger_type: 'abandoned_category', enabled: true).exists?
-        TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
-      end
-    rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
-      Rails.logger.error e.inspect
-      Rails.logger.error params.inspect
-      # Rollbar.error e
+    if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0 && TriggerMailing.where(shop_id: @shop.id, trigger_type: 'abandoned_category', enabled: true).exists?
+      TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
     end
 
     if shop.mailings_settings.try(:external_mailganer?)
@@ -61,11 +55,13 @@ class RecommendationsController < ApplicationController
 
     render json: recommendations
 
-
   rescue Finances::Error => e
     respond_with_payment_error(e)
   rescue Exception => e
     # Костыль
+    log_client_error(e)
+    respond_with_client_error(e)
+  rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
     log_client_error(e)
     respond_with_client_error(e)
   rescue Recommendations::Error => e
