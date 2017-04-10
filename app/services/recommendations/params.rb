@@ -163,6 +163,10 @@ module Recommendations
         @session = Session.find_by(code: raw[:ssid])
         raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
       end
+      # Убедиться, что у сессии есть юзер.
+      if @session.user.blank?
+        @session.create_user
+      end
       @user = @session.user
     end
 
