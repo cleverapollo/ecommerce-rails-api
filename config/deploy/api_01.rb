@@ -10,7 +10,7 @@ set :log_level,   :info
 set :ssh_options, {
     user: 'rails',
     forward_agent: true,
-    port: 22
+    port: 21212
 }
 
 set :deploy_to, "/home/rails/#{fetch(:application)}"
