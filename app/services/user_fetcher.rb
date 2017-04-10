@@ -12,7 +12,8 @@ class UserFetcher
   attr_accessor :session
 
   def initialize(params)
-    @external_id = params[:external_id]
+    # Если external_id указан, он корректный
+    @external_id = params[:external_id] if external_id.present? && external_id.to_s != '0' && external_id.to_i >= 0
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
     @email = IncomingDataTranslator.email(params[:email])
