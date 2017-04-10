@@ -2,7 +2,7 @@
 :concurrency: 15
 :pidfile: tmp/pids/sidekiq.pid
 production:
-  :concurrency: 20
+  :concurrency: 30
 staging:
   :concurrency: 20
 development:
@@ -10,13 +10,16 @@ development:
 :queues:
   - critical
   - default
+  - mailing
   - mailing_test
   - resize
   - rollbar
+  - long
 :limits:
   critical: 1
   rollbar: 1
   mailing: 10
   mailing_test: 1
-  long: 2
+  yml: 2
+  long: 5
   default: 5
