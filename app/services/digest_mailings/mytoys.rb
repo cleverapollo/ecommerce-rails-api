@@ -35,7 +35,7 @@ module DigestMailings
             if IncomingDataTranslator.email_valid?(client.email)
 
               # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
-              if client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?)
+              if !client.user.orders.where(shop_id: 828).exists? && (client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?))
                 if empty_user_recommendations.nil?
                   empty_user_recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
                 end
