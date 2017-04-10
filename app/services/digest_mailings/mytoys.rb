@@ -24,11 +24,26 @@ module DigestMailings
         # Создаем новый файл или обнуляем старый
         file_source = File.open(File.join(Rails.root, digest_path), 'w+')
 
-        clients = shop.clients.with_email.suitable_for_digest_mailings.includes(:user)
         DigestMailingRecommendationsCalculator.open(shop, recommendations_count) do |calculator|
+
+          clients = shop.clients.with_email.suitable_for_digest_mailings.includes(:user)
+
+          # Для юзера без истории и профиля здесь будем хранить дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
+          empty_user_recommendations = nil
+
           clients.find_each do |client|
             if IncomingDataTranslator.email_valid?(client.email)
-              recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+
+              # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
+              if client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?)
+                if empty_user_recommendations.nil?
+                  empty_user_recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+                end
+                recommendations = empty_user_recommendations
+              else
+                recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+              end
+
               file_source.puts "#{client.email};#{recommendations.join(',')}"
             end
           end
