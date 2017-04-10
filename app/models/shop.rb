@@ -137,7 +137,7 @@ class Shop < MasterTable
   end
 
   def self.import_yml_files
-    active.connected.with_valid_yml.where(shard: SHARD_ID).each do |shop|
+    active.connected.with_valid_yml.where(shard: SHARD_ID).where('yml_load_start_at IS NULL or yml_load_start_at < now() - INTERVAL \'1 day\'').each do |shop|
       if shop.yml_allow_import?
         YmlImporter.perform_async(shop.id)
       elsif shop.yml_errors >= 5
@@ -173,6 +173,8 @@ class Shop < MasterTable
 
   def import
     begin
+      # Указываем время начала
+      update_attribute(:yml_load_start_at, Time.now)
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
     rescue PG::TRDeadlockDetected => e
@@ -197,6 +199,8 @@ class Shop < MasterTable
       Rollbar.warning(e, 'YML process error', shop_id: id)
       increment!(:yml_errors)
       CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
+    ensure
+      update_attribute(:yml_load_start_at, nil)
     end
   end
 

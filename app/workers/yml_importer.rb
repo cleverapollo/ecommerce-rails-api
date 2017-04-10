@@ -14,6 +14,9 @@ class YmlImporter
 
     current_shop = Shop.find(shop_id)
 
+    # Выходим, если файл уже обрабатывается и время старта меньше 1 дня
+    return if !force && current_shop.yml_load_start_at.present? && current_shop.yml_load_start_at > 1.day.ago
+
     # Проверяем, менялся ли файл: http://y.mkechinov.ru/issue/REES-3526
     # Если файл статический и у нас есть дата последней успешной обработки и запрос возвращает 304, то пропускаем
     # обработку, т.к. файл не изменился
