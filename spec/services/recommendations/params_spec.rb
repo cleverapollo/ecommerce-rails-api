@@ -134,5 +134,23 @@ describe Recommendations::Params do
 
   end
 
+  context '.blank user' do
+    let(:params) do
+      {
+        ssid: session.code,
+        shop_id: shop.uniqid,
+        recommender_type: 'interesting',
+        resize_image: '120'
+      }
+    end
+
+    it '.extract and create new user' do
+      user.delete
+      expect(subject.user).not_to be_nil
+      expect(subject.user).not_to eq(user)
+    end
+
+  end
+
 
 end
