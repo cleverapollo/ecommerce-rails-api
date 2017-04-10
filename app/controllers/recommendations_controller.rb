@@ -49,6 +49,7 @@ class RecommendationsController < ApplicationController
       end
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
       Rails.logger.error e.message
+      Rollbar.error e
     end
 
     if shop.mailings_settings.try(:external_mailganer?)
