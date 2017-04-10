@@ -44,7 +44,7 @@ class ApplicationController < ActionController::API
                                       referer: request.referer.try(:truncate, 250))
 
     CLIENT_ERRORS_LOGGER.error(client_error)
-    Rollbar.error(exception) if exception.class != Recommendations::IncorrectParams
+    Rollbar.error(exception) if exception.class != Recommendations::IncorrectParams && exception.class != TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError
   end
 
   def store_request_params!
