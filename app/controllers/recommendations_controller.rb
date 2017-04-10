@@ -49,6 +49,7 @@ class RecommendationsController < ApplicationController
       end
     rescue TriggerMailings::SubscriptionForCategory::IncorrectMailingSettingsError => e
       Rails.logger.error e.inspect
+      Rails.logger.error params.inspect
       Rollbar.error e
     end
 
