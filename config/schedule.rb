@@ -26,7 +26,7 @@ every '0 * * * *' do
 end
 
 # Выгружаем дайджестные рассылки для MyToys
-every '1 0 * * *' do
+every '1 0 */2 * *' do
   runner "RunnerWrapper.run('DigestMailings::Mytoys.sync')"
 end
 
