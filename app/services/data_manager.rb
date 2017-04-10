@@ -7,7 +7,7 @@ class DataManager
     @size = size
   end
 
-  def fix_ids
+  def fix_ids(shop_id = nil)
     ActiveRecord::Base.logger.level = 1
 
     tables.each do |table|
@@ -25,6 +25,7 @@ class DataManager
 
       # Выбираем все записи, которые меньше max integer
       rows = cls.where('id < 2147483647')
+      rows = rows.where(shop_id: shop_id) if shop_id.present?
 
       # Проходим по строкам, достаем по 1000
       i = 0
