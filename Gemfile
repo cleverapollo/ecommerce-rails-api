@@ -8,6 +8,7 @@ ruby '2.3.0'
 # Rails
 gem 'rails', '4.2.6'
 gem 'rails-api', '0.4.1'
+gem 'rake', '< 11.0'
 gem "sinatra", require: false # for sidekiq
 
 # Server
