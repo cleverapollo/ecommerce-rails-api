@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170321065646) do
+ActiveRecord::Schema.define(version: 20170410170413) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -212,7 +212,7 @@ ActiveRecord::Schema.define(version: 20170321065646) do
     t.datetime "updated_at",                                  null: false
   end
 
-  add_index "brand_campaign_statistics_events", ["brand_campaign_statistic_id"], name: "index_brand_campaign_statistics_events_on_brand_campaign_stat", using: :btree
+  add_index "brand_campaign_statistics_events", ["brand_campaign_statistic_id", "brand_campaign_shop_id", "recommended", "event"], name: "index_brand_campaign_statistics_events_campaign_and_shop", using: :btree
 
   create_table "brand_campaigns", force: :cascade do |t|
     t.integer  "advertiser_id"
@@ -505,14 +505,6 @@ ActiveRecord::Schema.define(version: 20170321065646) do
   add_index "profile_events", ["user_id", "shop_id", "industry"], name: "index_profile_events_on_user_id_and_shop_id_and_industry", using: :btree
   add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
   add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
-
-  create_table "promotions", force: :cascade do |t|
-    t.string   "brand",        null: false
-    t.string   "categories",   null: false, array: true
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.date     "finishing_at"
-  end
 
   create_table "propeller_track_visits", force: :cascade do |t|
     t.date     "date"
@@ -878,6 +870,7 @@ ActiveRecord::Schema.define(version: 20170321065646) do
     t.boolean  "has_products_auto",                         default: false
     t.jsonb    "verify_domain",                             default: {},    null: false
     t.datetime "last_orders_import_at"
+    t.datetime "yml_load_start_at"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
