@@ -24,7 +24,6 @@ class DigestMailingRecommendationsCalculator
     @limit = limit
     @items_cache = {}
     @mahout_service = MahoutService.new(@shop.brb_address)
-    @items_in_shop = @shop.items.available.widgetable.pluck(:id)
   end
 
   # Получить рекомендации для юзера.
