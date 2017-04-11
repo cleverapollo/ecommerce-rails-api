@@ -5,7 +5,7 @@ class ReputationsController < ApplicationController
   before_action :fetch_subscription_plans
   before_action :set_count_and_offset, only: [:shop_reputation, :item_reputation]
 
-  # Oпубликованых отзывов с оценками к магазину. 
+  # Oпубликованых отзывов с оценками к магазину.
   # get param shop_id (*) - (uniqid - магазина)
   # get param count       - (The number of records to return.)
   # get param offset     - (The number of records from a collection to skip. "count*offset")
@@ -37,8 +37,21 @@ class ReputationsController < ApplicationController
   # Может поставить на сайт виджет с общей оценкой.
   def reputation_widget
     if @plan.present? && @plan.paid?
-      # TODO
-      render json: nil
+      review = @shop.reputations.published.for_shop.actual.where('comment IS NOT NULL AND rating > 2').order("RANDOM()").first
+
+      render json: { widget: widget } and return if review.blank?
+
+      rate = @shop.reputations.published.for_shop.actual.average(:rating).to_f.round(1)
+      widget = File.read("app/assets/snippets/reputation/#{@shop.customer.language}/widget.html")
+      widget.gsub!('{{ style }}', params[:style] || 'white')
+      widget.gsub!('{{ reputaion_url }}', "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations")
+      widget.gsub!('{{ rate_percent }}', (rate * 20).to_i.to_s)
+      widget.gsub!('{{ rate }}', rate.to_s)
+      widget.gsub!('{{ review }}', review.comment.truncate(70))
+      widget.gsub!('{{ name }}', review.name)
+      widget.gsub!('{{ date }}', review.created_at.to_s)
+
+      render json: { widget: widget }
     else
       render json: nil
     end
@@ -61,10 +74,4 @@ class ReputationsController < ApplicationController
     @count = params[:count].present? && params[:count].to_i > 0 && params[:count].to_i < 51 ? params[:count].to_i : 50
     @offset = params[:offset].present? && params[:offset].to_i > 0 ? @count * params[:offset].to_i : 0
   end
-
 end
-
-
-# TODO list:
-# Продавец
-# Может поставить на сайт виджет с общей оценкой.
