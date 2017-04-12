@@ -77,7 +77,7 @@ Subscriber.prototype.registerServiceWorker = function() {
 	} else {
 
 		//Register service worker
-		navigator.serviceWorker.register('/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
+		navigator.serviceWorker.register('https://' + this.settings.subdomain + '.push.rees46.com/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
 			this.initialized = true;
 			this.registration = reg;
 
