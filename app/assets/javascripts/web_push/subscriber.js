@@ -2,7 +2,8 @@
  * Конструктор подписка на веб пуши
  * @constructor
  */
-function Subscriber() {
+function Subscriber(shop_id) {
+	this.shop_id = shop_id;
 	window.addEventListener("message", this.onMessage.bind(this));
 	if( window.opener ) {
 		window.opener.postMessage({type: 'load'}, '*')
@@ -71,12 +72,12 @@ Subscriber.prototype.registerServiceWorker = function() {
 		}
 
 		if( data.permission !== 'denied' ) {
-			this.removeSubscribeButtons()
+			this.unsubscribed()
 		}
 	} else {
 
 		//Register service worker
-		navigator.serviceWorker.register('/assets/sw.js').then(function(reg) {
+		navigator.serviceWorker.register('/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
 			this.initialized = true;
 			this.registration = reg;
 
@@ -122,12 +123,10 @@ Subscriber.prototype.supported = function() {
 
 	// Are Notifications supported in the service worker?
 	if( !(this.supportedSafari() && this.enabledSafari() || this.supportedOpera() || this.supportedWebkit()) ) {
-		this.logger.debug('Notifications aren\'t supported.', this);
 		return false;
 	}
 
 	if( Notification.permission === 'denied' ) {
-		this.logger.debug('The user has blocked notifications.', this);
 		return false;
 	}
 
