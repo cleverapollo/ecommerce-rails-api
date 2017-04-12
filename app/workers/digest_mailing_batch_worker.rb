@@ -77,7 +77,7 @@ class DigestMailingBatchWorker
     end
 
   rescue Sidekiq::Shutdown => e
-    Rollbar.error e
+    Rollbar.warn e
     sleep 5
     retry
   rescue Exception => e
