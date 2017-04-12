@@ -28,5 +28,10 @@ class WebPush::BaseController < ActionController::Base
     if @settings.shop.nil? || !@settings.shop.connected?
       render nothing: true, status: 402
     end
+
+    # Проверяем совпадает ли shop code
+    if @settings.shop.uniqid != params[:shop_id]
+      render nothing: true, status: 401
+    end
   end
 end

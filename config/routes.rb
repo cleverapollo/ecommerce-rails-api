@@ -45,6 +45,7 @@ Rees46Api::Application.routes.draw do
   # Запрос отзывов
   get 'reputation/shop', to: 'reputations#shop_reputation'
   get 'reputation/product', to: 'reputations#item_reputation'
+  get 'reputation/widget', to: 'reputations#reputation_widget'
 
   # Импорты
   resource :import, only: :none do

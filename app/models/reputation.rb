@@ -19,4 +19,5 @@ class Reputation < ActiveRecord::Base
   scope :for_items, -> { where(entity_type: 'Item') }
   scope :published, -> { where(status: STATUSES[:published])}
   scope :on_moderation, -> { where(status: STATUSES[:moderation]) }
+  scope :actual, -> { where(created_at: 3.month.ago..Time.now) }
 end

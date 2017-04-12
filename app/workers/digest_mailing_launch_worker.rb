@@ -30,7 +30,9 @@ class DigestMailingLaunchWorker
     if params['test_email'].present?
       if settings.external_mailchimp? && digest_mailing.mailchimp_attr_present?
 
-        MailchimpTestDigestLetter.perform_async({digest_mailing_id: digest_mailing.id, api_key: settings.mailchimp_api_key, test_email: params['test_email']});
+        MailchimpTestDigestLetter.perform_async(digest_mailing_id: digest_mailing.id,
+                                                api_key: settings.mailchimp_api_key,
+                                                test_email: params['test_email'])
       else
         # Режим тестового письма.
         # Создаем одну тестовую пачку.
@@ -95,7 +97,7 @@ class DigestMailingLaunchWorker
     end
 
     begin
-      Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank? if !digest_mailing.failed?
+      Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank? && !digest_mailing.failed?
     rescue => e
       digest_mailing.fail!
       Rollbar.warn('Mailchimp ERROR', e, params)
