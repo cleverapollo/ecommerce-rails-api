@@ -25,9 +25,11 @@ Subscriber.prototype.initialize = function(options, safari_url) {
 	this.initialized = false;
 
 	//enabled & supported
-	if( this.settings && this.enabled() && this.supported() ) {
+	if( this.popup && this.settings && this.enabled() && this.supported() ) {
 		this.available = true;
 		this.registerServiceWorker();
+	} else {
+		this.send({type: 'initialized'});
 	}
 };
 
@@ -77,16 +79,10 @@ Subscriber.prototype.registerServiceWorker = function() {
 	} else {
 
 		//Register service worker
-		navigator.serviceWorker.register('https://' + this.settings.subdomain + '.push.rees46.com/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
+		navigator.serviceWorker.register('/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
 			this.initialized = true;
 			this.registration = reg;
-
-			//Если в окне, запускаем подписку
-			if( this.popup ) {
-				this.subscribe()
-			} else {
-				this.send({type: 'initialized'})
-			}
+			this.subscribe();
 		}.bind(this)).catch(function(error) {
 			console.error('Service Worker error: ' + error);
 		}.bind(this));
@@ -100,6 +96,23 @@ Subscriber.prototype.registerServiceWorker = function() {
 				}
 			}.bind(this))
 		}.bind(this));
+	}
+};
+
+/**
+ * Запрашивает разрешение на отображение нотификаций
+ */
+Subscriber.prototype.requestPermission = function() {
+	if( Notification.permission === 'granted' ) {
+		this.send({type: 'popup'})
+	} else {
+		Notification.requestPermission().then(function(r) {
+			if( r === 'granted' ) {
+				this.send({type: 'granted'})
+			} else if( r === 'denied') {
+				this.send({type: 'close'})
+			}
+		}.bind(this))
 	}
 };
 
@@ -126,11 +139,7 @@ Subscriber.prototype.supported = function() {
 		return false;
 	}
 
-	if( Notification.permission === 'denied' ) {
-		return false;
-	}
-
-	return true;
+	return Notification.permission !== 'denied';
 };
 
 Subscriber.prototype.subscribe = function() {
@@ -193,6 +202,8 @@ Subscriber.prototype.subscribe = function() {
 					}.bind(this));
 			}
 		}
+	} else {
+		this.requestPermission()
 	}
 };
 
