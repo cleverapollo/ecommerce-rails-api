@@ -55,24 +55,20 @@ module Recommender
 
         # Если товар детский
         # Тест на дочках показывает снижение продаж. Проверка.
-        # if item.is_child?
-        #
-        #   result = result.where('is_child IS TRUE')
-        #   if item.child_gender.present?
-        #     result = result.where('(child_gender = ? OR child_gender IS NULL)', item.child_gender)
-        #   end
-        #   if item.child_age_min.present?
-        #     result = result.where('(child_age_max >= ? OR child_age_max IS NULL)', item.child_age_min)
-        #   end
-        #   if item.child_age_max.present?
-        #     result = result.where('(child_age_min <= ? OR child_age_min IS NULL)', item.child_age_max)
-        #   end
-        #
-        #   # TODO: товары должен быть детскими
-        #   # Если пол есть, то не противоположного пола
-        #   # Если возраст есть, то в рамках возраста (плюс 10% от границы)
-        #
-        # end
+        if item.is_child?
+
+          result = result.where('is_child IS TRUE')
+          if item.child_gender.present?
+            result = result.where('(child_gender = ? OR child_gender IS NULL)', item.child_gender)
+          end
+          if item.child_age_min.present?
+            result = result.where('(child_age_max >= ? OR child_age_max IS NULL)', item.child_age_min)
+          end
+          if item.child_age_max.present?
+            result = result.where('(child_age_min <= ? OR child_age_min IS NULL)', item.child_age_max)
+          end
+
+        end
 
         if item.is_jewelry?
 

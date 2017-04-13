@@ -13,6 +13,8 @@ require 'capistrano/deploy'
 require 'capistrano/rvm'
 require 'capistrano/bundler'
 require 'capistrano/rails/migrations'
+require 'capistrano/rails/assets'
+
 # require 'capistrano/sidekiq' # Команды выполняются в sysctl на сервере, конфиг у админа
 require 'capistrano3/unicorn'
 require 'whenever/capistrano'

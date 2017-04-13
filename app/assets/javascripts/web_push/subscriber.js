@@ -2,7 +2,8 @@
  * Конструктор подписка на веб пуши
  * @constructor
  */
-function Subscriber() {
+function Subscriber(shop_id) {
+	this.shop_id = shop_id;
 	window.addEventListener("message", this.onMessage.bind(this));
 	if( window.opener ) {
 		window.opener.postMessage({type: 'load'}, '*')
@@ -24,9 +25,11 @@ Subscriber.prototype.initialize = function(options, safari_url) {
 	this.initialized = false;
 
 	//enabled & supported
-	if( this.settings && this.enabled() && this.supported() ) {
+	if( this.popup && this.settings && this.enabled() && this.supported() ) {
 		this.available = true;
 		this.registerServiceWorker();
+	} else {
+		this.send({type: 'initialized'});
 	}
 };
 
@@ -71,21 +74,15 @@ Subscriber.prototype.registerServiceWorker = function() {
 		}
 
 		if( data.permission !== 'denied' ) {
-			this.removeSubscribeButtons()
+			this.unsubscribed()
 		}
 	} else {
 
 		//Register service worker
-		navigator.serviceWorker.register('/assets/sw.js').then(function(reg) {
+		navigator.serviceWorker.register('/assets/sw.js?shop_id=' + this.shop_id).then(function(reg) {
 			this.initialized = true;
 			this.registration = reg;
-
-			//Если в окне, запускаем подписку
-			if( this.popup ) {
-				this.subscribe()
-			} else {
-				this.send({type: 'initialized'})
-			}
+			this.subscribe();
 		}.bind(this)).catch(function(error) {
 			console.error('Service Worker error: ' + error);
 		}.bind(this));
@@ -99,6 +96,23 @@ Subscriber.prototype.registerServiceWorker = function() {
 				}
 			}.bind(this))
 		}.bind(this));
+	}
+};
+
+/**
+ * Запрашивает разрешение на отображение нотификаций
+ */
+Subscriber.prototype.requestPermission = function() {
+	if( Notification.permission === 'granted' ) {
+		this.send({type: 'popup'})
+	} else {
+		Notification.requestPermission().then(function(r) {
+			if( r === 'granted' ) {
+				this.send({type: 'granted'})
+			} else if( r === 'denied') {
+				this.send({type: 'close'})
+			}
+		}.bind(this))
 	}
 };
 
@@ -122,16 +136,10 @@ Subscriber.prototype.supported = function() {
 
 	// Are Notifications supported in the service worker?
 	if( !(this.supportedSafari() && this.enabledSafari() || this.supportedOpera() || this.supportedWebkit()) ) {
-		this.logger.debug('Notifications aren\'t supported.', this);
 		return false;
 	}
 
-	if( Notification.permission === 'denied' ) {
-		this.logger.debug('The user has blocked notifications.', this);
-		return false;
-	}
-
-	return true;
+	return Notification.permission !== 'denied';
 };
 
 Subscriber.prototype.subscribe = function() {
@@ -194,6 +202,8 @@ Subscriber.prototype.subscribe = function() {
 					}.bind(this));
 			}
 		}
+	} else {
+		this.requestPermission()
 	}
 };
 

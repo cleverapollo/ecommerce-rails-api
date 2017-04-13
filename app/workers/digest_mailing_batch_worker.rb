@@ -77,7 +77,7 @@ class DigestMailingBatchWorker
     end
 
   rescue Sidekiq::Shutdown => e
-    Rollbar.error e
+    Rollbar.warn e
     sleep 5
     retry
   rescue Exception => e
@@ -139,7 +139,6 @@ class DigestMailingBatchWorker
   # @param item [Item] товар.
   # @param location [String] Код локации для локальной цены
   # @param track_email [String] Зашифрованный емейл для склеивания юзера после перехода
-  # @param width [Image] Зашифрованный емейл для склеивания юзера после перехода
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
   # @return [Hash] обертка.
   def item_for_letter(item, location, track_email = "", images_dimension = nil)
@@ -150,6 +149,8 @@ class DigestMailingBatchWorker
       price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
       oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
       price: item.price_at_location(location).to_i,
+      price_full: item.price_at_location(location).to_f,
+      price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 2, delimiter: ' '),
       oldprice: item.oldprice.to_i,
       url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
                                              utm_medium: 'digest_mail',

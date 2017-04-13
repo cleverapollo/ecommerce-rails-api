@@ -51,25 +51,25 @@ describe Recommender::Impl::AlsoBought do
       let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought') }
 
       # Тест на дочках показывает снижение продаж. Проверка.
-      # context 'kids' do
-      #
-      #   it 'includes male product for male kid' do
-      #     item3.update is_child: true, child_gender: 'm'
-      #     expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
-      #   end
-      #
-      #   it 'excludes female product for male kid' do
-      #     item3.update is_child: true, child_gender: 'f'
-      #     expect(Recommender::Impl::AlsoBought.new(params).recommendations).to_not include(item3.uniqid)
-      #   end
-      #
-      #   it 'skips industrial filter for 2 kids of different genders' do
-      #     user.update children: [{'gender' => 'm'}, {'gender' => 'f'}]
-      #     item3.update is_child: true, child_gender: 'f'
-      #     expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
-      #   end
-      #
-      # end
+      context 'kids' do
+
+        it 'includes male product for male kid' do
+          item3.update is_child: true, child_gender: 'm'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
+        end
+
+        it 'excludes female product for male kid' do
+          item3.update is_child: true, child_gender: 'f'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to_not include(item3.uniqid)
+        end
+
+        it 'skips industrial filter for 2 kids of different genders' do
+          user.update children: [{'gender' => 'm'}, {'gender' => 'f'}]
+          item3.update is_child: true, child_gender: 'f'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
+        end
+
+      end
 
 
       context 'jewelry' do
