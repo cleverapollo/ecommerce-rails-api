@@ -7,15 +7,15 @@ class ProductsController < ApplicationController
   def get
     if item = shop.items.available.widgetable.find_by(uniqid: params[:item_id])
       render json: {
-          name: item.name,
-          description: item.description,
-          price: item.price,
-          currency: shop.currency,
-          url: item.url,
-          picture: item.image_url
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        currency: shop.currency,
+        url: item.url,
+        picture: item.image_url
       }
     else
-      render json: nil
+      render json: {}
     end
   end
 
