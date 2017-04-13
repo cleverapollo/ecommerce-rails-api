@@ -76,6 +76,8 @@ module TriggerMailings
         barcode: item.barcode.to_s,
         price: item.price_at_location(location).to_i,
         price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+        price_full: item.price_at_location(location).to_f,
+        price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 2, delimiter: ' '),
         oldprice: item.oldprice.to_i,
         oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         currency: item.shop.currency,
