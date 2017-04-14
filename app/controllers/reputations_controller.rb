@@ -39,8 +39,6 @@ class ReputationsController < ApplicationController
     if @plan.present? && @plan.paid?
       review = @shop.reputations.published.for_shop.actual.where("((comment IS NOT NULL AND comment != '') or (plus IS NOT NULL AND plus != '' )) AND rating > 2").order('RANDOM()').first
 
-      binding.pry if Rails.env.development?
-
       render text: '' and return if review.blank?
 
       rate = @shop.reputations.published.for_shop.actual.average(:rating).to_f.round(1)
