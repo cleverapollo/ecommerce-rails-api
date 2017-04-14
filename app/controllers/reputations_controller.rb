@@ -14,7 +14,7 @@ class ReputationsController < ApplicationController
     @shop.subscription_plans.reputation
 
     if @plan.present? && @plan.paid?
-      render json: @shop.reputations.for_shop.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
+      render json: @shop.reputations.for_shop.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
     else
       render json: {}
     end
@@ -28,7 +28,7 @@ class ReputationsController < ApplicationController
   # route: /reputation/product
   def item_reputation
     if @plan.present? && @plan.paid?
-      render json: @item.reputations.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
+      render json: @item.reputations.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
     else
       render json: {}
     end
@@ -37,7 +37,7 @@ class ReputationsController < ApplicationController
   # Может поставить на сайт виджет с общей оценкой.
   def reputation_widget
     if @plan.present? && @plan.paid?
-      review = @shop.reputations.published.for_shop.actual.where('comment IS NOT NULL AND rating > 2').order('RANDOM()').first
+      review = @shop.reputations.published.for_shop.actual.where("comment IS NOT NULL AND comment != '' AND rating > 2").order('RANDOM()').first
       render text: '' and return if review.blank?
 
       rate = @shop.reputations.published.for_shop.actual.average(:rating).to_f.round(1)
@@ -48,7 +48,7 @@ class ReputationsController < ApplicationController
       widget.gsub!('{{ rate }}', rate.to_s)
       widget.gsub!('{{ review }}', review.comment.truncate(70))
       widget.gsub!('{{ name }}', review.name)
-      widget.gsub!('{{ date }}', review.created_at.to_s)
+      widget.gsub!('{{ date }}', @shop.customer.language == 'ru' ? Russian::strftime(review.created_at, '%d %B %Y | %H:%M') : review.created_at.strftime('%B %d, %Y | %H:%M'))
 
       render text: widget
     else
