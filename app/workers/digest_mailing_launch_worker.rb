@@ -2,7 +2,7 @@
 # Обработчик запуска дайджестной рассылки.
 class DigestMailingLaunchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'mailing'
+  sidekiq_options retry: false, queue: 'default'
 
   # @return [Shop]
   attr_reader :shop
