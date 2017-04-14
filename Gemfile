@@ -48,7 +48,6 @@ gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
 gem 'liquid'
-gem 'non-stupid-digest-assets'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -73,7 +72,6 @@ group :development do
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
   gem 'pry-byebug'
-  gem 'quiet_assets', '~> 1.0.2'
 end
 
 # Rspec
@@ -101,6 +99,3 @@ group :test do
   gem 'rspec-sidekiq'
 end
 
-group :assets do
-  gem 'uglifier'
-end

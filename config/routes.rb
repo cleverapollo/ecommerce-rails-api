@@ -1,13 +1,5 @@
 Rees46Api::Application.routes.draw do
 
-  # Web push
-  constraints(Subdomain) do
-    namespace(:web_push, path: '/') do
-      get '/', to: 'base#index'
-      get '/manifest.json', to: 'base#manifest'
-    end
-  end
-
   root to: 'home#index'
 
   # Инициализация
