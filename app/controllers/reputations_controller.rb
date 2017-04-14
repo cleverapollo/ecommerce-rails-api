@@ -37,7 +37,10 @@ class ReputationsController < ApplicationController
   # Может поставить на сайт виджет с общей оценкой.
   def reputation_widget
     if @plan.present? && @plan.paid?
-      review = @shop.reputations.published.for_shop.actual.where("comment IS NOT NULL AND comment != '' AND rating > 2").order('RANDOM()').first
+      review = @shop.reputations.published.for_shop.actual.where("((comment IS NOT NULL AND comment != '') or (plus IS NOT NULL AND plus != '' )) AND rating > 2").order('RANDOM()').first
+
+      binding.pry if Rails.env.development?
+
       render text: '' and return if review.blank?
 
       rate = @shop.reputations.published.for_shop.actual.average(:rating).to_f.round(1)
@@ -46,8 +49,8 @@ class ReputationsController < ApplicationController
       widget.gsub!('{{ reputaion_url }}', "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations")
       widget.gsub!('{{ rate_percent }}', (rate * 20).to_i.to_s)
       widget.gsub!('{{ rate }}', rate.to_s)
-      widget.gsub!('{{ review }}', review.comment.truncate(70))
-      widget.gsub!('{{ name }}', review.name)
+      widget.gsub!('{{ review }}', (review.comment.present? ? review.comment : review.plus).truncate(70))
+      widget.gsub!('{{ name }}', review.name.split[0])
       widget.gsub!('{{ date }}', @shop.customer.language == 'ru' ? Russian::strftime(review.created_at, '%d %B %Y | %H:%M') : review.created_at.strftime('%B %d, %Y | %H:%M'))
 
       render text: widget
