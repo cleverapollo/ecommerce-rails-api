@@ -33,8 +33,10 @@ class DigestMailing < ActiveRecord::Base
 
   # Возобновить сломавшуюся рассылку
   def resume!
-    update(state: 'started')
-    batches.incomplete.each{|batch| DigestMailingBatchWorker.perform_async(batch.id) }
+    if self.state == 'failed'
+      update(state: 'started')
+      batches.incomplete.each{|batch| DigestMailingBatchWorker.perform_async(batch.id) }
+    end
   end
 
   def mailchimp_attr_present?
