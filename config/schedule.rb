@@ -4,6 +4,10 @@
 every '0 3 * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_period')"
 end
+# Пересчитываем статистику за сегодня
+every '5 * * * *' do
+  runner "RunnerWrapper.run('ShopKPI.recalculate_for_today')"
+end
 
 # Каждые сутки синхронизируем YML
 every 26.minutes do
