@@ -78,7 +78,6 @@ end
 
 # Rspec
 group :development, :test do
-
   gem 'capistrano', '3.7.2'
   gem 'capistrano-rvm'
   gem 'capistrano-rails'
@@ -100,4 +99,3 @@ group :test do
   gem 'ffaker', '~> 1.25.0' # Генерирует данные (имя, e-mail) для тестов
   gem 'rspec-sidekiq'
 end
-
