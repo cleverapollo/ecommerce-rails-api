@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170414132526) do
+ActiveRecord::Schema.define(version: 20170417070729) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,7 +114,7 @@ ActiveRecord::Schema.define(version: 20170414132526) do
   create_table "client_errors", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
     t.string   "exception_class",   limit: 255,                 null: false
-    t.string   "exception_message", limit: 255,                 null: false
+    t.text     "exception_message",                             null: false
     t.text     "params",                                        null: false
     t.boolean  "resolved",                      default: false, null: false
     t.datetime "created_at"
