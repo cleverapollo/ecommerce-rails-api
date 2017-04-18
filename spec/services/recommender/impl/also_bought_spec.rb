@@ -48,7 +48,7 @@ describe Recommender::Impl::AlsoBought do
         order.save!
       }
 
-      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought') }
+      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought', industrial_kids: true) }
 
       # Тест на дочках показывает снижение продаж. Проверка.
       context 'kids' do
@@ -61,6 +61,12 @@ describe Recommender::Impl::AlsoBought do
         it 'excludes female product for male kid' do
           item3.update is_child: true, child_gender: 'f'
           expect(Recommender::Impl::AlsoBought.new(params).recommendations).to_not include(item3.uniqid)
+        end
+
+        it 'skip industrial filter for disabled' do
+          params.industrial_kids = false
+          item3.update is_child: true, child_gender: 'f'
+          expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
         end
 
         it 'skips industrial filter for 2 kids of different genders' do

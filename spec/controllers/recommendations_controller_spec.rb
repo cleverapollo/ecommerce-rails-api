@@ -61,6 +61,17 @@ describe RecommendationsController do
     it 'process exactly 1 times' do
       get :get, params
 
+      expect(Recommendations::Processor).to have_received(:process).exactly(4).times
+    end
+  end
+
+  context 'when similar empty' do
+    before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'similar', item_id: 1 } }
+
+    it 'process exactly 1 times' do
+      get :get, params
+
       expect(Recommendations::Processor).to have_received(:process).exactly(1).times
     end
   end

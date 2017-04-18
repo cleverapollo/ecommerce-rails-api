@@ -19,6 +19,7 @@ module Recommendations
     attr_accessor :categories
     # Текущий просматриваемый товар
     # TODO: переименовать в current_item
+    # @return [Item] item
     attr_accessor :item
     # Массив ID товаров в корзине
     attr_accessor :cart_item_ids
@@ -41,6 +42,10 @@ module Recommendations
     attr_accessor :discount
     # Нужно ли ресайзить изображения? Если да, то до какого размера
     attr_accessor :resize_image
+    # @return [Boolean] industrial_kids Включен ли отраслевой режим для детей (включен по умолчанию)
+    attr_accessor :industrial_kids
+    # @return [Boolean] track_recommender Нужно ли трекать вызов рекомендера (включен по умолчанию)
+    attr_accessor :track_recommender
 
     # Проверяет и обрабатывает параметры
     #
@@ -94,6 +99,8 @@ module Recommendations
         @recommend_only_widgetable = true
       end
       @exclude                   = []
+      @industrial_kids           = true
+      @track_recommender         = true
       check
     end
 

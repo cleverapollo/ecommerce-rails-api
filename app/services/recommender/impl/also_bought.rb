@@ -11,7 +11,7 @@ module Recommender
 
         # Только если есть дети с полом и пол только один (чтобы исключить товары противоположного пола)
         # Тест на дочках показывает снижение продаж. Проверка.
-        if shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
+        if params.industrial_kids && shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
           result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
         end
 
@@ -66,7 +66,7 @@ module Recommender
       end
 
       def items_which_cart_to_analyze
-        [item.id]
+        params.cart_item_ids.present? ? params.cart_item_ids : [item.id]
       end
 
       def categories_for_promo
