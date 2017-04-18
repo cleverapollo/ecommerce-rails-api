@@ -34,7 +34,6 @@ class RecommendationsController < ApplicationController
 
       # Запускаем процессор с извлеченными данными
       recommendations += recommender.recommendations
-      recommendations = recommendations.uniq
     end
 
     # Если нашли меньше, чем нужно для see_also, also_bought
@@ -44,7 +43,6 @@ class RecommendationsController < ApplicationController
 
       # Запускаем процессор с извлеченными данными
       recommendations += Recommendations::Processor.process(extracted_params)
-      recommendations = recommendations.uniq
     end
 
     # Если нашли меньше, чем нужно для see_also, also_bought
@@ -58,21 +56,20 @@ class RecommendationsController < ApplicationController
 
       # Запускаем процессор с извлеченными данными
       recommendations += recommender.recommendations
-      recommendations = recommendations.uniq
     end
 
-    # # Если нашли меньше, чем нужно для see_also, also_bought добавляем похожие
-    # if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-    #   extracted_params.type = 'similar'
-    #   extracted_params.exclude += recommendations
-    #   extracted_params.exclude = extracted_params.exclude.uniq
-    #
-    #   # Запускаем процессор с извлеченными данными
-    #   recommendations += Recommendations::Processor.process(extracted_params)
-    # end
+    # Если нашли меньше, чем нужно для see_also, also_bought добавляем похожие
+    if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
+      extracted_params.type = 'interesting'
+      extracted_params.exclude += recommendations
+      extracted_params.exclude = extracted_params.exclude.uniq
+
+      # Запускаем процессор с извлеченными данными
+      recommendations += Recommendations::Processor.process(extracted_params)
+    end
 
     # Обрзаем возможные лишние товары
-    recommendations = recommendations.take(extracted_params.limit)
+    recommendations = recommendations.uniq.take(extracted_params.limit)
 
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
