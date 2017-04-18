@@ -1,6 +1,7 @@
 module Mailings
   module Mailchimp
     class TriggersSender
+      class MailchimpTriggersSender < StandardError; end
       include Mailings::Mailchimp::Common
 
       attr_accessor :triggers, :api, :shop_id
@@ -77,7 +78,7 @@ module Mailings
             # потому что продублированый темплейт отказывается
             # принимать созданый список как список по умолчанию (косяк MailCimp)
             result = api.update_campaign(native_campaign, list['id'])
-            raise if result.is_a?(String)
+            raise MailchimpTriggersSender.new(result) if result.is_a?(String)
 
             # Дублируем темплейт триггера
             campaign = api.duplicate_campaign(trigger_settings.mailchimp_campaign_id)
@@ -105,12 +106,12 @@ module Mailings
               trigger.client.update_columns(last_trigger_mail_sent_at: Time.now)
               trigger.client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
             end
-          rescue
+          rescue => e
             api.delete_campaign(campaign['id']) if campaign.present?
             api.delete_list(list['id']) if list.present?
             sleep 5
 
-            Rollbar.warning('MailchimpTriggerLetter', shop_id: trigger.shop.id)
+            Rollbar.warning("MailchimpTriggerLetter: #{e}", shop_id: @shop_id)
           end
         end
 
