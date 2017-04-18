@@ -70,7 +70,7 @@ module Recommender
       end
 
       # Запоминаем, что магазин вызвал рекомендер
-      params.shop.report_recommender(params.type.to_sym)
+      params.shop.report_recommender(params.type.to_sym) if params.track_recommender
 
       # Дополнительно указываем запрос рекоммендера популярного в категории
       if params.type == 'popular' && params.categories.present? && params.categories.any?

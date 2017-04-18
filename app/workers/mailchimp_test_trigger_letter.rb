@@ -25,7 +25,6 @@ class MailchimpTestTriggerLetter
     while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
       raise NotImplementedError.new('Too long pending merge fields') if waiting_times > 6
       sleep 10
-      puts 'Merge fields batch pending...'
       waiting_times += 1
     end
 
@@ -47,7 +46,6 @@ class MailchimpTestTriggerLetter
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
       raise NotImplementedError.new('Too long sending test letter') if waiting_times > 6
       sleep 10
-      puts 'Sending...'
       waiting_times += 1
     end
 

@@ -109,8 +109,6 @@ module TriggerMailings
     # Обертка над товаром для отображения в письме
     # @param [Item] товар
     # @param location [String] Идентификатор локации, в которой находится клиент
-    # @param width [Integer] Ширина картинки для ресайза
-    # @param height [Integer] Высота картинки для ресайза
     # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
     def item_for_letter(item, location, images_dimension = nil)
@@ -121,6 +119,8 @@ module TriggerMailings
         price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
         oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
         price: item.price_at_location(location).to_i,
+        price_full: item.price_at_location(location).to_f,
+        price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 2, delimiter: ' '),
         oldprice: item.oldprice.to_i,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail).merge(r46_merger: Base64.encode64(@client.email.to_s).strip)),
         image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),

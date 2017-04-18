@@ -139,10 +139,13 @@ describe ShopKPI do
 
       expect(shop_metric.product_views_total).to eq(3)
       expect(shop_metric.product_views_recommended).to eq(1)
+    end
 
+    it 'calculates products' do
+      ShopKPI.new(shop, Date.yesterday).calculate_products
+      shop_metric = ShopMetric.first
       expect(shop_metric.top_products).to eq([{id: item_1.id, name: item_1.name, url: item_1.url, amount: 4}.stringify_keys])
       expect(shop_metric.products_statistics).to eq({ total: 3, recommendable: 3, widgetable: 2, ignored: 0,  industrial: 2}.stringify_keys)
-
     end
 
     # Была проблема в том, что каждый раз, когда делали перерасчет за предыдущие дни исходная сумма не обнулялась,

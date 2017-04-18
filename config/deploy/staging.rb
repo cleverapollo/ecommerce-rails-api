@@ -6,7 +6,7 @@ role :production_cron, %w{185.16.102.217}
 
 
 set :stage, :staging
-set :shard, ENV['shard'] || '00'
+set :shard, ENV['shard'] || '01'
 
 set :log_level, :info
 

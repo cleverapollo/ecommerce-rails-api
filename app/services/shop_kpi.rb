@@ -18,13 +18,21 @@ class ShopKPI
         Time.use_zone(shop.customer.time_zone) do
           if shop.track_order_status?
             (1..14).each do |x|
-              new(shop, Date.today - x.days).calculate_statistics
+              new(shop, Date.today - x.days).calculate_statistics.calculate_products
             end
           else
-            new(shop, Date.yesterday).calculate_statistics
+            new(shop, Date.yesterday).calculate_statistics.calculate_products
           end
         end
 
+      end
+    end
+
+    def recalculate_for_today
+      Shop.on_current_shard.connected.active.unrestricted.each do |shop|
+        Time.use_zone(shop.customer.time_zone) do
+          new(shop, Date.yesterday).calculate_statistics
+        end
       end
     end
 
@@ -167,10 +175,9 @@ class ShopKPI
       shop_metric.recommendation_requests = Redis.current.get("recommender.request.#{shop.id}.#{date}")
     end
 
-    calculate_products
-
     shop_metric.save! if shop_metric.changed?
 
+    self
   end
 
   # Считает товары

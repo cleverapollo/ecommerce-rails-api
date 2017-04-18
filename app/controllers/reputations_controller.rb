@@ -14,9 +14,9 @@ class ReputationsController < ApplicationController
     @shop.subscription_plans.reputation
 
     if @plan.present? && @plan.paid?
-      render json: @shop.reputations.for_shop.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
+      render json: @shop.reputations.for_shop.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
     else
-      render json: nil
+      render json: {}
     end
   end
 
@@ -28,18 +28,18 @@ class ReputationsController < ApplicationController
   # route: /reputation/product
   def item_reputation
     if @plan.present? && @plan.paid?
-      render json: @item.reputations.published.select(:id, 'name AS client', :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
+      render json: @item.reputations.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
     else
-      render json: nil
+      render json: {}
     end
   end
 
   # Может поставить на сайт виджет с общей оценкой.
   def reputation_widget
     if @plan.present? && @plan.paid?
-      review = @shop.reputations.published.for_shop.actual.where('comment IS NOT NULL AND rating > 2').order("RANDOM()").first
+      review = @shop.reputations.published.for_shop.actual.where("((comment IS NOT NULL AND comment != '') or (plus IS NOT NULL AND plus != '' )) AND rating > 2").order('RANDOM()').first
 
-      render json: { widget: widget } and return if review.blank?
+      render text: '' and return if review.blank?
 
       rate = @shop.reputations.published.for_shop.actual.average(:rating).to_f.round(1)
       widget = File.read("app/assets/snippets/reputation/#{@shop.customer.language}/widget.html")
@@ -47,13 +47,13 @@ class ReputationsController < ApplicationController
       widget.gsub!('{{ reputaion_url }}', "#{Rees46.site_url}/shops/#{@shop.uniqid}/reputations")
       widget.gsub!('{{ rate_percent }}', (rate * 20).to_i.to_s)
       widget.gsub!('{{ rate }}', rate.to_s)
-      widget.gsub!('{{ review }}', review.comment.truncate(70))
-      widget.gsub!('{{ name }}', review.name)
-      widget.gsub!('{{ date }}', review.created_at.to_s)
+      widget.gsub!('{{ review }}', (review.comment.present? ? review.comment : review.plus).truncate(70))
+      widget.gsub!('{{ name }}', review.name.split[0])
+      widget.gsub!('{{ date }}', @shop.customer.language == 'ru' ? Russian::strftime(review.created_at, '%d %B %Y | %H:%M') : review.created_at.strftime('%B %d, %Y | %H:%M'))
 
-      render json: { widget: widget }
+      render text: widget
     else
-      render json: nil
+      render text: ''
     end
   end
 

@@ -49,6 +49,7 @@ gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
 gem 'liquid'
 gem 'non-stupid-digest-assets'
+gem 'russian', '~> 0.6.0'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
@@ -73,12 +74,10 @@ group :development do
   gem 'dotenv-rails', '~> 0.8.0' # ?
   gem 'letter_opener', '~> 1.2.0'
   gem 'pry-byebug'
-  gem 'quiet_assets', '~> 1.0.2'
 end
 
 # Rspec
 group :development, :test do
-
   gem 'capistrano', '3.7.2'
   gem 'capistrano-rvm'
   gem 'capistrano-rails'
@@ -99,8 +98,4 @@ group :test do
   gem 'database_cleaner', '~> 1.3.0'
   gem 'ffaker', '~> 1.25.0' # Генерирует данные (имя, e-mail) для тестов
   gem 'rspec-sidekiq'
-end
-
-group :assets do
-  gem 'uglifier'
 end
