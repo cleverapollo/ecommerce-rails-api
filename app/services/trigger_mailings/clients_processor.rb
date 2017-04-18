@@ -19,6 +19,9 @@ module TriggerMailings
             # todo пока отключили, ждем отмашки от Кечинова
             # next unless shop.mailing_dig_verify?
 
+            # Клиент на MailChimp временно отключен
+            next if shop.id == 2442
+
             Time.use_zone(shop.customer.time_zone) do
               # Не даем рассылать триггеры тем магазинам, у кого нет денег и нет активных подписок или нет активных оплаченных подписок
               next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.active.exists? || shop.subscription_plans.trigger_emails.active.exists? && !shop.subscription_plans.trigger_emails.active.paid.exists?
