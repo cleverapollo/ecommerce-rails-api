@@ -8,6 +8,7 @@ describe RecommendationsController do
   # let!(:extracted_params) { {recommender_type: 'interesting' } }
   let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' }) }
   let!(:sample_recommendations) { [1, 2, 3] }
+  let!(:item) { create(:item, shop: shop) }
   before { allow(Recommendations::Params).to receive(:extract).and_return(extracted_params) }
   before { allow(Recommendations::Processor).to receive(:process).and_return(sample_recommendations) }
   let!(:params) { { shop_id: shop.uniqid } }
@@ -56,18 +57,18 @@ describe RecommendationsController do
 
   context 'when also_bought empty' do
     before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
-    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: 1 } }
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: item.uniqid } }
 
-    it 'process exactly 1 times' do
+    it 'process exactly 3 times' do
       get :get, params
 
-      expect(Recommendations::Processor).to have_received(:process).exactly(4).times
+      expect(Recommendations::Processor).to have_received(:process).exactly(3).times
     end
   end
 
   context 'when similar empty' do
     before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
-    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'similar', item_id: 1 } }
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'similar', item_id: item.uniqid } }
 
     it 'process exactly 1 times' do
       get :get, params

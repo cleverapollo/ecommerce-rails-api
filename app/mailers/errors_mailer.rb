@@ -10,7 +10,7 @@ class ErrorsMailer < ActionMailer::Base
 
     m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_import_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_import_error>"
-    m.header['Feedback-ID'] = "#{@shop.customer.email}:yml_import_error:errors_mailer:rees46mailer"
+    m.header['Feedback-ID'] = "yml_import_error:errors_mailer:rees46mailer"
     m
   end
 
@@ -21,7 +21,7 @@ class ErrorsMailer < ActionMailer::Base
 
     m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_url_not_respond'))
     m.header['List-Id'] = "<notification errors_mailer:yml_url_not_respond>"
-    m.header['Feedback-ID'] = "#{@shop.customer.email}:yml_url_not_respond:errors_mailer:rees46mailer"
+    m.header['Feedback-ID'] = "yml_url_not_respond:errors_mailer:rees46mailer"
     m
   end
 
@@ -33,7 +33,7 @@ class ErrorsMailer < ActionMailer::Base
 
     m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_syntax_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_syntax_error>"
-    m.header['Feedback-ID'] = "#{@shop.customer.email}:yml_syntax_error:errors_mailer:rees46mailer"
+    m.header['Feedback-ID'] = "yml_syntax_error:errors_mailer:rees46mailer"
     m
   end
 
@@ -44,7 +44,7 @@ class ErrorsMailer < ActionMailer::Base
 
     m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_off'))
     m.header['List-Id'] = "<notification errors_mailer:yml_off>"
-    m.header['Feedback-ID'] = "#{@shop.customer.email}:yml_off:errors_mailer:rees46mailer"
+    m.header['Feedback-ID'] = ":yml_off:errors_mailer:rees46mailer"
     m
   end
 

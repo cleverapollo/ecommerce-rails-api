@@ -52,7 +52,7 @@ class WebPush::TriggerMessage
     {
         title:  trigger.settings[:subject],
         body:   trigger.settings[:message],
-        icon:   trigger.items.first.image_url,
+        icon:   trigger.items.first.resized_image_by_dimension('220x220'),
         url:    UrlParamsHelper.add_params_to(trigger.items.first.url, {
             utm_source: 'rees46',
             utm_medium: 'web_push_trigger',

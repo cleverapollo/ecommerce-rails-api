@@ -26,7 +26,19 @@ class RecommendationsController < ApplicationController
     if recommendations.count < extracted_params.limit && %w(also_bought).include?(extracted_params.type)
 
       # достаем товары из корзины
-      extracted_params.cart_item_ids += ClientCart.where(user: extracted_params.user, shop: extracted_params.shop).first.try(:items) || []
+      extracted_params.exclude += recommendations
+
+      # Создаем рекомендер
+      recommender = Recommender::Impl::AlsoBought.new(extracted_params)
+      recommender.use_cart = true
+
+      # Запускаем процессор с извлеченными данными
+      recommendations += recommender.recommendations
+    end
+
+    # Если нашли меньше, чем нужно для see_also, also_bought
+    if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
+      extracted_params.industrial_kids = false
       extracted_params.exclude += recommendations
 
       # Запускаем процессор с извлеченными данными
@@ -37,15 +49,18 @@ class RecommendationsController < ApplicationController
     if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
       extracted_params.industrial_kids = false
       extracted_params.exclude += recommendations
-      extracted_params.exclude = extracted_params.exclude.uniq
+
+      # Создаем рекомендер
+      recommender = Recommender::Impl::AlsoBought.new(extracted_params)
+      recommender.use_cart = true
 
       # Запускаем процессор с извлеченными данными
-      recommendations += Recommendations::Processor.process(extracted_params)
+      recommendations += recommender.recommendations
     end
 
     # Если нашли меньше, чем нужно для see_also, also_bought добавляем похожие
     if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-      extracted_params.type = 'similar'
+      extracted_params.type = 'interesting'
       extracted_params.exclude += recommendations
       extracted_params.exclude = extracted_params.exclude.uniq
 
@@ -54,7 +69,7 @@ class RecommendationsController < ApplicationController
     end
 
     # Обрзаем возможные лишние товары
-    recommendations = recommendations.take(extracted_params.limit)
+    recommendations = recommendations.uniq.take(extracted_params.limit)
 
     # Для триггера "Брошенная категория" отмечаем подписку на категории
     # Если категории есть, конечно.
