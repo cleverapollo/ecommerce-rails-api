@@ -46,16 +46,16 @@ module Recommender
 
         # Исключаем товары, которые находятся ровно в том же наборе категорий
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
-        # if ids.any? && item && item.category_ids
-        #   _ids = []
-        #   Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
-        #     if _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
-        #     # unless (item.category_ids - _element[1]).empty?
-        #       _ids << _element[0]
-        #     end
-        #   end
-        #   ids = _ids
-        # end
+        if ids.any? && item && item.category_ids
+          _ids = []
+          Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
+            if _element[1].nil? || _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
+            # unless (item.category_ids - _element[1]).empty?
+              _ids << _element[0]
+            end
+          end
+          ids = _ids
+        end
 
         # Рекомендации аксессуаров
         if categories.present? && ids.size < limit
