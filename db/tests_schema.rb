@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170412125034) do
+ActiveRecord::Schema.define(version: 20170419123416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -604,13 +604,11 @@ ActiveRecord::Schema.define(version: 20170412125034) do
     t.boolean  "bid_done"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
-    t.boolean  "is_cpa"
     t.boolean  "win"
   end
 
   add_index "rtb_bid_requests", ["bid_done"], name: "index_rtb_bid_requests_on_bid_done", where: "(bid_done IS TRUE)", using: :btree
   add_index "rtb_bid_requests", ["created_at", "ssp"], name: "index_rtb_bid_requests_on_created_at_and_ssp", where: "(bid_done IS TRUE)", using: :btree
-  add_index "rtb_bid_requests", ["is_cpa"], name: "index_rtb_bid_requests_on_is_cpa", where: "(is_cpa IS TRUE)", using: :btree
   add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp", using: :btree
   add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp_conditioned", where: "(bid_done IS TRUE)", using: :btree
 
