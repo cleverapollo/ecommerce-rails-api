@@ -1,7 +1,7 @@
 module Mailings
   module Mailchimp
     class DigestSender
-
+      class MailchimpDigestSender < StandardError; end
       attr_accessor :digest_mailing, :api
 
       def initialize(digest_mailing, api_key)
@@ -19,8 +19,7 @@ module Mailings
         # Ждем пока не отправили всем письма
         waiting_times = 0
         while (api.get_campaign(digest_mailing.mailchimp_campaign_id,'status')['status'] != 'sent')
-          raise if waiting_times > 6
-          puts 'Sending...'
+          raise MailchimpDigestSender.new('Sending more than 5 minutes') if waiting_times > 30
           sleep 10
           waiting_times += 1
         end

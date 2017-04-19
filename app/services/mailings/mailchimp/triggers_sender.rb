@@ -23,14 +23,14 @@ module Mailings
             native_campaign = api.get_campaign(trigger_settings.mailchimp_campaign_id) # Темплейт трггера
             next if native_campaign.is_a?(String) # TODO уведомлять клиента по почте
 
-            list = api.create_temp_list(native_campaign) # Создание временный список
+            list = api.create_temp_list(Shop.find(shop_id), trigger_settings) # Создание временный список
             sleep 5
             merge_fields_batch = api.create_batch(prepare_merge_fields_batch(list['id'], trigger_settings.amount_of_recommended_items, one_type_triggers[0].source_item.present?)) # Добавление переменных в список
 
             # Ждем пока добавление не пройдет
             waiting_imes = 0
             while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
-              raise if waiting_imes > 6
+              raise MailchimpTriggersSender.new('Merge fields batch') if waiting_imes > 6
               sleep 5
               waiting_imes += 1
             end
@@ -67,7 +67,7 @@ module Mailings
             # Ждем пока добавление клиентов в список не пройдет
             waiting_imes = 0
             while api.get_batch(members_to_list_batch['id'],'status')['status'] != 'finished'
-              raise if waiting_imes > 6
+              raise MailchimpTriggersSender.new('Members to list batch') if waiting_imes > 6
               sleep 10
               waiting_imes += 1
             end
@@ -75,14 +75,15 @@ module Mailings
             # Темплейту триггера указиваем созданый список как список по умолчанию
             # потому что продублированый темплейт отказывается
             # принимать созданый список как список по умолчанию (косяк MailCimp)
-            result = api.update_campaign(native_campaign, list['id'])
+            result = api.update_campaign(native_campaign, list['id'], trigger_settings)
             raise MailchimpTriggersSender.new(result) if result.is_a?(String)
 
             # Дублируем темплейт триггера
             campaign = api.duplicate_campaign(trigger_settings.mailchimp_campaign_id)
 
             # Отправление данного триггера сразу всем пользователям которые должны получить триггер
-            api.send_campaign(campaign['id'])
+            result_sending = api.send_campaign(campaign['id'])
+            raise MailchimpTriggersSender.new(result_sending) if result_sending.is_a?(String)
 
             # Ждем пока не отправили всем письма
             waiting_times = 0

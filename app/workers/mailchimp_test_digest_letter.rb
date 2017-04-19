@@ -19,7 +19,7 @@ class MailchimpTestDigestLetter
     native_campaign = api.get_campaign(digest_mailing.mailchimp_campaign_id)
     return if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
 
-    test_list = api.create_temp_list(native_campaign)
+    test_list = api.create_temp_list(client.shop, digest_mailing)
 
     DigestMailingRecommendationsCalculator.open(digest_mailing.shop, digest_mailing.amount_of_recommended_items) do |calculator|
       merge_fields_batch = api.create_batch(prepare_merge_fields_batch(test_list['id'], digest_mailing.amount_of_recommended_items))
@@ -34,7 +34,7 @@ class MailchimpTestDigestLetter
 
       test_member = api.add_member_to_list(test_list['id'], client.email, recommendations_in_hash(calculator.recommendations_for(client.user), nil, client.location, digest_mailing.shop.currency, {}, digest_mailing.images_dimension)) #####
 
-      api.update_campaign(native_campaign, test_list['id'])
+      api.update_campaign(native_campaign, test_list['id'], digest_mailing)
     end
 
     test_campaign = api.duplicate_campaign(digest_mailing.mailchimp_campaign_id)
@@ -54,7 +54,7 @@ class MailchimpTestDigestLetter
 
     delete_camping_and_list(api, test_campaign['id'], test_list['id'])
 
-    api.update_campaign(native_campaign, digest_mailing.mailchimp_list_id)
+    api.update_campaign(native_campaign, digest_mailing.mailchimp_list_id, digest_mailing)
 
   ensure
     ActiveRecord::Base.clear_active_connections!

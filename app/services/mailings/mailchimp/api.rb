@@ -24,22 +24,23 @@ module Mailings
         self.class.post("#{base_url}/campaigns/#{campaign_id}/actions/replicate",
           headers: {'content-type' => 'application/json'},
           basic_auth: auth,
+          timeout: 60
         )
       end
 
-      def update_campaign(campaign, list_id)
+      def update_campaign(campaign, list_id, settings)
         self.class.patch("#{base_url}/campaigns/#{campaign['id']}",
-          headers: {'content-type' => 'application/json'},
+          headers: { 'content-type' => 'application/json' },
           basic_auth: auth,
           body: {
-            type: "regular",
+            type: 'regular',
             recipients: {
               list_id: list_id
             },
             settings: {
-              subject_line: campaign['settings']['subject_line'],
-              reply_to: campaign['settings']['reply_to'],
-              from_name: campaign['settings']['from_name']
+              subject_line: settings.subject,
+              reply_to: settings.shop.mailings_settings.send_from.match(/.+<(.+)>/)[1],
+              from_name: settings.shop.name
             }
           }.to_json
         )
@@ -61,7 +62,7 @@ module Mailings
 
       ## LIST ---------------------------------------------------------------
 
-      def create_temp_list(default_camping)
+      def create_temp_list(shop, settings)
         self.class.post("#{base_url}/lists",
           headers: {'content-type' => 'application/json'},
           basic_auth: auth,
@@ -78,10 +79,10 @@ module Mailings
             },
             permission_reminder: "Trigger mail.",
             campaign_defaults: {
-              from_name: default_camping['settings']['from_name'],
-              from_email: default_camping['settings']['reply_to'],
-              subject: default_camping['settings']['subject_line'],
-              language: 'en'
+              from_name: shop.name,
+              from_email: shop.mailings_settings.send_from.match(/.+<(.+)>/)[1],
+              subject: settings.subject,
+              language: shop.customer.language
               },
             email_type_option: false
           }.to_json

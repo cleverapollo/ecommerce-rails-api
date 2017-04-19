@@ -1,6 +1,8 @@
 module Mailings
   module Mailchimp
     class DigestMailingMailchimpBatch
+      class DigestMailingMailchimpBatchError < StandardError; end
+
       include Mailings::Mailchimp::Common
 
       attr_accessor :batch, :api, :digest_mailing, :shop
@@ -19,9 +21,8 @@ module Mailings
         # Ждем пока добавление не пройдет
         waiting_imes = 0
         while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
-          raise if waiting_imes > 6
-          puts 'Merge fields batch pending...'
-          sleep 5
+          raise DigestMailingMailchimpBatchError.new('Merge fields batch more than 2 min') if waiting_imes > 12
+          sleep 10
           waiting_imes += 1
         end
 
@@ -67,8 +68,7 @@ module Mailings
         # Ждем пока обновление клиентов в список не пройдет
         waiting_imes = 0
         while api.get_batch(members_to_list_batch['id'],'status')['status'] != 'finished'
-          raise if waiting_imes > 6
-          puts 'Clients adding to list batch pending...'
+          raise raise DigestMailingMailchimpBatchError.new('Members to list batch more than 2 min') if waiting_imes > 6
           sleep 20
           waiting_imes += 1
         end

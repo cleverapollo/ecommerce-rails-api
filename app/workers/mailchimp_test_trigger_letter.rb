@@ -11,19 +11,18 @@ class MailchimpTestTriggerLetter
     trigger = params['trigger_mailing_class'].constantize.new client
     trigger.generate_test_data!
     trigger_mailing = TriggerMailing.find_by(shop_id: trigger.shop.id, trigger_type: trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym)
-
     return if trigger_mailing.mailchimp_campaign_id.blank?
 
     native_campaign = api.get_campaign(params['campaign_id'])
-    return if native_campaign.is_a?(String) # TODO уведомлять клиента по почте что не указал правильный Сampaign ID
+    return if native_campaign.is_a?(String)
 
-
-    test_list = api.create_temp_list(native_campaign)
+    test_list = api.create_temp_list(client.shop, trigger_mailing)
     sleep 5
+
     merge_fields_batch = api.create_batch(prepare_merge_fields_batch(test_list['id'], trigger.source_items.count, trigger.source_item.present?))
     waiting_times = 0
     while api.get_batch(merge_fields_batch['id'],'status')['status'] != 'finished'
-      raise NotImplementedError.new('Too long pending merge fields') if waiting_times > 6
+      raise NotImplementedError.new('Too long pending merge fields') if waiting_times > 10
       sleep 10
       waiting_times += 1
     end
@@ -35,9 +34,11 @@ class MailchimpTestTriggerLetter
                                                                  client.location,
                                                                  trigger.shop.currency, {},
                                                                  trigger_mailing.images_dimension))
-    api.update_campaign(native_campaign, test_list['id'])
+    api.update_campaign(native_campaign, test_list['id'], trigger_mailing)
 
-    test_campaign = api.duplicate_campaign(params['campaign_id'])
+    api.get_campaign(native_campaign['id'])
+    sleep 5
+    test_campaign = api.duplicate_campaign(native_campaign['id'])
 
     sleep 5
     api.send_campaign(test_campaign['id'])
@@ -54,12 +55,14 @@ class MailchimpTestTriggerLetter
       api.delete_campaign(test_campaign['id']) if test_campaign.present?
       api.delete_list(test_list['id']) if test_list.present?
       Rollbar.warning(ex, shop_id: trigger.shop.id)
-    rescue
+    rescue => e
       api.delete_campaign(test_campaign['id']) if test_campaign.present?
       api.delete_list(test_list['id']) if test_list.present?
-      Rollbar.warning('MailchimpTestTriggerLetter', shop_id: trigger.shop.id)
+      Rollbar.warning("MailchimpTestTriggerLetter: #{e}", shop_id: trigger.shop.id)
 
   ensure
+    api.delete_campaign(test_campaign['id']) if test_campaign.present?
+    api.delete_list(test_list['id']) if test_list.present?
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close
   end
