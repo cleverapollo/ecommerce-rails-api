@@ -207,7 +207,7 @@ module InitServerString
           session.synced_with_advmaker_at =Date.current
         end
 
-        session.atomic_save! if session.changed?
+        session.save! if session.changed?
       end
 
       if shop && shop.id == 725 && session.segment_changed
