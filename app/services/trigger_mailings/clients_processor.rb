@@ -9,8 +9,6 @@ module TriggerMailings
       def process_all
         if TriggerMailings::TriggerMailingTimeLock.new.sending_available?
 
-          CustomLogger.logger.info("START: TriggerMailings::ClientsProcessor.process_all")
-
           TriggerMailings::TriggerMailingTimeLock.new.start_sending!
 
           Shop.connected.active.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
@@ -25,8 +23,6 @@ module TriggerMailings
             Time.use_zone(shop.customer.time_zone) do
               # Не даем рассылать триггеры тем магазинам, у кого нет денег и нет активных подписок или нет активных оплаченных подписок
               next if shop.customer.balance < 0 && !shop.subscription_plans.trigger_emails.active.exists? || shop.subscription_plans.trigger_emails.active.exists? && !shop.subscription_plans.trigger_emails.active.paid.exists?
-
-              CustomLogger.logger.info("START: TriggerMailings::ClientsProcessor.process_all::SHOP_ID = #{shop.id}")
 
               TriggerMailings::TriggerDetector.for(shop) do |trigger_detector|
 
@@ -109,15 +105,10 @@ module TriggerMailings
                 end
               end
 
-              CustomLogger.logger.info("STOP: TriggerMailings::ClientsProcessor.process_all::SHOP_ID = #{shop.id}")
-
             end
           end
 
           TriggerMailings::TriggerMailingTimeLock.new.stop_sending!
-
-          CustomLogger.logger.info("STOP: TriggerMailings::ClientsProcessor.process_all")
-
         end
       end
     end
