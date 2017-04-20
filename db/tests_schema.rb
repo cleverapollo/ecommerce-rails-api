@@ -11,11 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170419123416) do
+ActiveRecord::Schema.define(version: 20170420123756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "pg_trgm"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -329,11 +328,11 @@ ActiveRecord::Schema.define(version: 20170419123416) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -739,6 +738,7 @@ ActiveRecord::Schema.define(version: 20170419123416) do
     t.date    "synced_with_advmaker_at"
     t.string  "useragent"
     t.jsonb   "segment"
+    t.date    "updated_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree

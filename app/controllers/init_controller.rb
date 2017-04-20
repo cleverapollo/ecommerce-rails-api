@@ -71,6 +71,9 @@ class InitController < ApplicationController
       end
     end
 
+    session.updated_at = Date.current
+    session.atomic_save! if session.changed?
+
     if params[:v] == '3'
       render json: InitServerString.make_v3(shop: shop, session: session, client: client)
     else
