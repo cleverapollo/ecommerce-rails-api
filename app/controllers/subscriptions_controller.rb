@@ -3,7 +3,7 @@
 #
 class SubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
+  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed, :unsubscribe]
   before_action :fetch_user, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
 
   # Взаимодействие с окном сбора email
@@ -31,7 +31,7 @@ class SubscriptionsController < ApplicationController
       client.unsubscribe_from(params[:type])
     end
 
-    render text: 'Вы успешно отписаны от рассылок.'
+    render text: shop.mailings_settings.present? ? shop.mailings_settings.unsubscribe_message : 'You have successfully unsubscribed from newsletters.'
   end
 
   # Пользователю было показано окно подписки

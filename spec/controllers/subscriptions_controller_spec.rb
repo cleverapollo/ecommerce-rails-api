@@ -10,7 +10,7 @@ describe SubscriptionsController do
     context 'for trigger mailings' do
       it 'sets client triggers_enabled to false' do
         expect(client.triggers_enabled).to eq(true)
-        get :unsubscribe, type: 'trigger', code: client.code
+        get :unsubscribe, type: 'trigger', code: client.code, shop_id: shop.uniqid
         expect(client.reload.triggers_enabled).to eq(false)
       end
     end
@@ -18,8 +18,18 @@ describe SubscriptionsController do
     context 'for digest mailings' do
       it 'sets client digests_enabled to false' do
         expect(client.digests_enabled).to eq(true)
-        get :unsubscribe, type: 'digest', code: client.code
+        get :unsubscribe, type: 'digest', code: client.code, shop_id: shop.uniqid
         expect(client.reload.digests_enabled).to eq(false)
+      end
+    end
+
+    context 'for correct message' do
+      let!(:mailings_settings) { create(:mailings_settings, shop: shop, unsubscribe_message: 'test') }
+      subject { get :unsubscribe, type: 'trigger', code: client.code, shop_id: shop.uniqid }
+      it 'sets client triggers_enabled to false' do
+        subject
+        expect(response.body).to eq('test')
+        expect(client.reload.triggers_enabled).to eq(false)
       end
     end
   end
