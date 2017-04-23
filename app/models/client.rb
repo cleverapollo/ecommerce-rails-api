@@ -68,13 +68,12 @@ class Client < ActiveRecord::Base
   end
 
   def user
-    if super.present?
-      super
-    else
-      new_user = create_user
-      update_columns(user_id: new_user.id)
-      new_user
+    @user ||= super || create_user
+
+    if self.user_id != @user.id
+      update_columns(user_id: @user.id)
     end
+    @user
   end
 
   # Перенос объекта к указанному юзеру

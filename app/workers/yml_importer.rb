@@ -43,7 +43,7 @@ class YmlImporter
       offers_count = 0
 
       # Костыль, пропускаем магазины, в которых не указан available в YML
-      skip_shop_items_available = [2373]
+      skip_shop_items_available = [2373,2549]
 
       STDOUT.write "Prepare csv file:\n\r"
       temp_file do |file|
