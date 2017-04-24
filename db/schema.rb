@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170420102550) do
+ActiveRecord::Schema.define(version: 20170421084616) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -750,6 +750,8 @@ ActiveRecord::Schema.define(version: 20170420102550) do
     t.datetime "picture_updated_at"
     t.string   "message",              limit: 125
     t.string   "url",                  limit: 4096
+    t.jsonb    "actions"
+    t.string   "additional_image"
   end
 
   add_index "web_push_digests", ["shop_id"], name: "index_web_push_digests_on_shop_id", using: :btree
