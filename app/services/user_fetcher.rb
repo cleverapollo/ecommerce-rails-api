@@ -44,7 +44,7 @@ class UserFetcher
     end
 
     # Если известен ID пользователя в магазине
-    if external_id.present? && (self.client.external_id.nil? || self.client.external_id != external_id)
+    if self.external_id.present? && self.client.present? && (self.client.external_id.nil? || self.client.external_id != self.external_id)
       if old_client = shop.clients.where.not(id: self.client.id).find_by(external_id: external_id)
         # И при этом этот ID есть у другой связки
         # Значит, нужно сливать этих двух пользователей
