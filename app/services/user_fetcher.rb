@@ -40,11 +40,11 @@ class UserFetcher
 
     if email.present?
       user = UserMerger.merge_by_mail(shop, self.client, email)
-      self.client = user.clients.where(shop_id: shop.id).limit(1)[0]
+      self.client = user.clients.find_by!(shop_id: shop.id)
     end
 
     # Если известен ID пользователя в магазине
-    if self.external_id.present? && self.client.present? && (self.client.external_id.nil? || self.client.external_id != self.external_id)
+    if self.external_id.present? && (self.client.external_id.nil? || self.client.external_id != self.external_id)
       if old_client = shop.clients.where.not(id: self.client.id).find_by(external_id: external_id)
         # И при этом этот ID есть у другой связки
         # Значит, нужно сливать этих двух пользователей
