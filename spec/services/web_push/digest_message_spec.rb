@@ -5,7 +5,8 @@ describe WebPush::DigestMessage do
   let!(:user) { create(:user) }
   let!(:shop) { create(:shop, web_push_balance: 1) }
   let!(:client) { create(:client, user: user, shop: shop, web_push_enabled: true) }
-  let!(:web_push_token) { create(:web_push_token, client: client, token: {token: '123', browser: 'chrome'}) }
+  let(:token) { {'token' => '123', 'browser' => 'chrome'} }
+  let!(:web_push_token) { create(:web_push_token, client: client, token: token) }
 
   let!(:web_push_subscriptions_settings)  { create(:web_push_subscriptions_settings, shop: shop) }
   let!(:web_push_digest) { create(:web_push_digest, shop: shop, subject: 'test test test', message: 'test message for trigger', url: 'http://rees46.com',  ) }
@@ -40,6 +41,8 @@ describe WebPush::DigestMessage do
       message.send
       expect(shop.reload.web_push_balance).to eq(0)
       expect(shop.web_push_digest_messages.count).to eq(1)
+      expect(message.message.reload.unsubscribed).to eq(false)
+      expect(WebPushTokenError.count).to eq(0)
     end
   end
 
@@ -50,8 +53,11 @@ describe WebPush::DigestMessage do
       message = WebPush::DigestMessage.new client, web_push_digest, web_push_digest_batch
       message.send
       expect(shop.reload.web_push_balance).to eq(1)
-      expect(shop.web_push_digest_messages.count).to eq(0)
+      expect(shop.web_push_digest_messages.sent.count).to eq(0)
       expect(client.reload.web_push_enabled).to eq(false)
+      expect(message.message.reload.unsubscribed).to eq(true)
+      expect(WebPushTokenError.count).to eq(1)
+      expect(WebPushTokenError.first.message[:token]).to eq(token)
     end
   end
 

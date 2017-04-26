@@ -39,7 +39,7 @@ class WebPush::DigestMessage
   def send
     # Если ни одно сообщение не было доставлено до клиента, удаляем запись из базы
     unless WebPush::Sender.send(client, shop, body, safari_pusher, test)
-      @message.destroy unless @message.nil?
+      @message.update(unsubscribed: true) unless @message.nil?
     end
   end
 
