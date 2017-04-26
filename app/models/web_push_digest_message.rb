@@ -14,7 +14,7 @@ class WebPushDigestMessage < ActiveRecord::Base
   before_create :set_date
 
   scope :clicked, -> { where('clicked IS TRUE') }
-
+  scope :sent, -> { where(unsubscribed: false) }
 
   # Отметить факт перехода
   def mark_as_clicked!

@@ -25,6 +25,8 @@ class WebPush::Sender
           web_push_token.send_web_push(message, safari_pusher: safari_pusher)
 
         rescue Webpush::InvalidSubscription => e
+          # save response error message
+          WebPushTokenError.create(client_id: web_push_token.client_id, shop_id: shop.id, message: { error: e, token: web_push_token.token })
           # remove token
           web_push_token.destroy
         rescue Webpush::ResponseError => e

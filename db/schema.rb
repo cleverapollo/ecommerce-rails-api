@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170420102550) do
+ActiveRecord::Schema.define(version: 20170426071315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -732,6 +732,7 @@ ActiveRecord::Schema.define(version: 20170420102550) do
   add_index "web_push_digest_messages", ["date", "shop_id"], name: "index_web_push_digest_messages_on_date_and_shop_id", using: :btree
   add_index "web_push_digest_messages", ["date"], name: "index_web_push_digest_messages_on_date", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_and_showed", where: "(showed IS TRUE)", using: :btree
+  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_unsubscribed", where: "(unsubscribed = false)", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
   add_index "web_push_digest_messages", ["web_push_digest_id"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
 
@@ -750,6 +751,8 @@ ActiveRecord::Schema.define(version: 20170420102550) do
     t.datetime "picture_updated_at"
     t.string   "message",              limit: 125
     t.string   "url",                  limit: 4096
+    t.jsonb    "actions"
+    t.string   "additional_image"
   end
 
   add_index "web_push_digests", ["shop_id"], name: "index_web_push_digests_on_shop_id", using: :btree
@@ -793,6 +796,14 @@ ActiveRecord::Schema.define(version: 20170420102550) do
 
   add_index "web_push_subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_web_push_subscriptions_settings_theme", using: :btree
   add_index "web_push_subscriptions_settings", ["subdomain"], name: "index_web_push_subscriptions_settings_on_subdomain", unique: true, using: :btree
+
+  create_table "web_push_token_errors", id: :bigserial, force: :cascade do |t|
+    t.integer  "client_id",  limit: 8
+    t.integer  "shop_id"
+    t.jsonb    "message"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "web_push_tokens", id: :bigserial, force: :cascade do |t|
     t.integer  "client_id",  limit: 8, null: false

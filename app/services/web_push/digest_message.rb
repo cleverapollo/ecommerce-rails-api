@@ -39,7 +39,7 @@ class WebPush::DigestMessage
   def send
     # Если ни одно сообщение не было доставлено до клиента, удаляем запись из базы
     unless WebPush::Sender.send(client, shop, body, safari_pusher, test)
-      @message.destroy unless @message.nil?
+      @message.update(unsubscribed: true) unless @message.nil?
     end
   end
 
@@ -57,7 +57,7 @@ class WebPush::DigestMessage
             utm_medium: 'web_push_digest',
             utm_campaign: "rees46_web_push_#{digest.id}",
             recommended_by: 'web_push_digest',
-            rees46_web_push_digest_code: message.nil? ? nil : message.code
+            rees46_web_push_digest_code: message.nil? ? 'test' : message.code
         })
     }
   end

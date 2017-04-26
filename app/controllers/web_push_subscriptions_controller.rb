@@ -3,7 +3,7 @@
 #
 class WebPushSubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush, :received, :showed]
+  before_action :fetch_shop, only: [:create, :send_test, :decline, :safari_webpush, :delete_safari_webpush, :received, :showed, :clicked]
   before_action :fetch_user, only: [:create, :send_test, :decline, :showed]
 
   # Подписка на пуш-уведомления
@@ -65,6 +65,24 @@ class WebPushSubscriptionsController < ApplicationController
               message.update(showed: true) if message && !message.showed?
 
           end
+        end
+      end
+    end
+    render nothing: true
+  end
+
+  # Отметка об открытии сообщения
+  # @method POST
+  # Params:
+  #   shop_id [String]
+  #   url [String]
+  def clicked
+    if params[:url].present?
+      uri = URI::parse(params[:url])
+      if uri
+        url_params = URI::decode_www_form(uri.query).to_h
+        if url_params && url_params['recommended_by'].present?
+          LeadSourceProcessor.new(url_params['recommended_by'], url_params['rees46_web_push_digest_code']).process
         end
       end
     end
