@@ -119,6 +119,7 @@ Rees46Api::Application.routes.draw do
       post :showed
       # Отметка о получении сообщения
       post :received
+      post :clicked
       # Отказался от подписки
       post :decline
       # Отправить тестовое сообщение
