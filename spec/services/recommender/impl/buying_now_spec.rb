@@ -81,17 +81,10 @@ describe Recommender::Impl::BuyingNow do
 
         before { test_item.update is_fashion: true, fashion_gender: 'f' }
 
-        it 'skips gender filter if shop has not subscription' do
+        it 'applies gender filter' do
           recommender = Recommender::Impl::BuyingNow.new(params)
-          expect(recommender.recommendations).to include(test_item.uniqid)
+          expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
-
-        # Не применяем отраслевой фильтр.
-        # it 'skips female products when client is male' do
-        #   shop.subscription_plans.create product: 'product.recommendations', price: 100, paid_till: (Time.current + 1.month)
-        #   recommender = Recommender::Impl::BuyingNow.new(params)
-        #   expect(recommender.recommendations).to_not include(test_item.uniqid)
-        # end
 
       end
 
