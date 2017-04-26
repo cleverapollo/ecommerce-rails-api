@@ -177,8 +177,6 @@ GEM
     newrelic_rpm (3.16.0.318)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
-    non-stupid-digest-assets (1.0.9)
-      sprockets (>= 2.0)
     open_uri_redirections (0.2.1)
     paperclip (5.0.0)
       activemodel (>= 4.2.0)
@@ -369,7 +367,6 @@ DEPENDENCIES
   net-sftp
   newrelic_moped
   newrelic_rpm
-  non-stupid-digest-assets
   open_uri_redirections
   paperclip
   pg (~> 0.18.1)
