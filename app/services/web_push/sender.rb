@@ -27,6 +27,7 @@ class WebPush::Sender
         rescue Webpush::InvalidSubscription => e
           # remove token
           web_push_token.destroy
+          Rollbar.warn e, token: web_push_token, shop_id: shop.id
         rescue Webpush::ResponseError => e
           if e.message.include?('InvalidTokenFormat')
             web_push_token.destroy
