@@ -11,17 +11,13 @@ class UrlParamsHelper
     def add_params_to(url, params = {})
       require 'addressable/uri'
       result = Addressable::URI.parse(url).normalize.to_s
+      uri = URI.parse(result)
+      query = Hash[URI.decode_www_form(uri.query)].deep_symbolize_keys
       params.each do |param_key, param_value|
-        uri = URI.parse(result)
-        result = if uri.query.present?
-          new_query = URI.decode_www_form(uri.query) << [param_key, param_value]
-          uri.query = URI.encode_www_form(new_query)
-          uri.to_s
-        else
-          "#{uri}?#{param_key}=#{param_value}"
-        end
+        query = query.merge(Hash[param_key, param_value])
       end
-      result
+      uri.query = URI.encode_www_form(query)
+      uri.to_s
     end
   end
 end
