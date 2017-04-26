@@ -12,7 +12,7 @@ class UrlParamsHelper
       require 'addressable/uri'
       result = Addressable::URI.parse(url).normalize.to_s
       uri = URI.parse(result)
-      query = Hash[URI.decode_www_form(uri.query)].deep_symbolize_keys
+      query = (uri.query.present? ? Hash[URI.decode_www_form(uri.query)] : {}).deep_symbolize_keys
       params.each do |param_key, param_value|
         query = query.merge(Hash[param_key, param_value])
       end
