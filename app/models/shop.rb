@@ -194,6 +194,8 @@ class Shop < MasterTable
       Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
     rescue Sidekiq::Shutdown => e
       Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
+    rescue PG::CardinalityViolation => e
+      ErrorsMailer.yml_import_error(self, 'You can not import offers with the same id.').deliver_now
     rescue Exception => e
       ErrorsMailer.yml_import_error(self, e).deliver_now
       Rollbar.warning(e, 'YML process error', shop_id: id)
