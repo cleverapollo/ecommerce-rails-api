@@ -48,7 +48,6 @@ gem 'figaro'
 gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
 gem 'liquid'
-gem 'non-stupid-digest-assets'
 gem 'russian', '~> 0.6.0'
 
 # Crontab

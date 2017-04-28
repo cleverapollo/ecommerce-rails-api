@@ -21,9 +21,10 @@ Back-end для приема событий и выдачи рекомендац
 
 ### Внешние зависимости
 * ruby-2.3.0
-* PostgreSQL 9.5+
-* Redis
-* https://bitbucket.org/mkechinov/rees46_brb
+* [PostgreSQL 9.5+](http://docs.rees46.com/pages/viewpage.action?pageId=3735759)
+* [Redis](https://docs.google.com/document/d/1L8NfEB6Jvapt5-ZgdyKuaQpOw7izQvzdHrzmpTiSj6o/edit)
+* [BRB](https://bitbucket.org/mkechinov/rees46_brb)
+* Postfix, get-n-post
 
 ### Развертывание на development
 
