@@ -68,6 +68,18 @@ class ErrorsMailer < ActionMailer::Base
     m
   end
 
+  # Сообщаем об ошибке обработки импорта
+  def products_import_error(shop, message)
+    @shop = shop
+    @message = message
+    I18n.locale = @shop.customer.language || 'en'
+
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.products_import_error'))
+    m.header['List-Id'] = '<notification errors_mailer:products_import_error>'
+    m.header['Feedback-ID'] = 'products_import_error:errors_mailer:rees46mailer'
+    m
+  end
+
 
   ## Orders Import Errors
 

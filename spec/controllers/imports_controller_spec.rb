@@ -40,25 +40,29 @@ describe ImportsController do
 
 
   describe 'import products' do
+    before { allow(ItemsImportWorker).to receive(:perform_async) }
 
     context 'insert' do
       it 'works' do
-        post :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        post :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: [{id: 1, name: 'Test', price: 1.0, currency: 'USD', url: 'http://google.com', picture: 'http://google.com/1.png', available: true, categories: []}]
         expect(response.code).to eq('204')
+        expect(ItemsImportWorker).to have_received(:perform_async).once
       end
     end
 
     context 'update' do
       it 'works' do
-        put :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        put :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: [{id: 1, name: 'Test', price: 1.0, currency: 'USD', url: 'http://google.com', picture: 'http://google.com/1.png', available: true, categories: []}]
         expect(response.code).to eq('204')
+        expect(ItemsImportWorker).to have_received(:perform_async).once
       end
     end
 
     context 'delete' do
       it 'works' do
-        delete :products, shop_id: shop.uniqid, shop_secret: shop.secret
+        delete :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: [1]
         expect(response.code).to eq('204')
+        expect(ItemsImportWorker).to have_received(:perform_async).once
       end
     end
 
@@ -66,6 +70,7 @@ describe ImportsController do
       it 'declines' do
         post :products
         expect(response.code).to eq('400')
+        expect(ItemsImportWorker).to_not have_received(:perform_async)
       end
     end
 

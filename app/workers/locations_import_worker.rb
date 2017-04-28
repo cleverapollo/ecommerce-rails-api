@@ -22,5 +22,8 @@ class LocationsImportWorker
     end
   rescue Exception => e
     ErrorsMailer.locations_import_error(Shop.find(shop_id), e.message).deliver_now
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

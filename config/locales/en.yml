@@ -32,6 +32,7 @@ en:
       yml_off: XML-file Load Is Off
       locations_import_error: 'Locations import error'
       categories_import_error: 'Categories import error'
+      products_import_error: 'Products import error'
 
   yml_errors:
     time_limit_exceeded: Download time limit exceeded (30m).

@@ -151,6 +151,8 @@ class Item < ActiveRecord::Base
         price: ValuesHelper.present_one(new_item, self, :price),
         price_margin: ValuesHelper.present_one(new_item, self, :price_margin),
         category_ids: ValuesHelper.with_contents(new_item, self, :category_ids),
+        location_ids: ValuesHelper.with_contents(new_item, self, :location_ids),
+        locations: ValuesHelper.with_contents(new_item, self, :locations),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
         description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
         url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
@@ -172,7 +174,9 @@ class Item < ActiveRecord::Base
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
         condition: ValuesHelper.present_one(new_item, self, :condition),
         fmcg_volume: ValuesHelper.present_one(new_item, self, :fmcg_volume),
-        barcode: ValuesHelper.present_one(new_item, self, :barcode)
+        barcode: ValuesHelper.present_one(new_item, self, :barcode),
+        is_child: ValuesHelper.present_one(new_item, self, :is_child),
+        is_fashion: ValuesHelper.present_one(new_item, self, :is_fashion),
     }
 
     # Downcased brand for brand campaign manage

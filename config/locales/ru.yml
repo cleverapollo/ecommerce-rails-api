@@ -32,6 +32,7 @@ ru:
       yml_off: 'Обработка YML-файла отключена'
       locations_import_error: 'Ошибка импорта городов'
       categories_import_error: 'Ошибка импорта категорий'
+      products_import_error: 'Ошибка импорта товаров'
 
   yml_errors:
     time_limit_exceeded: Не удаётся выгрузить YML файл в течение 30 минут..
