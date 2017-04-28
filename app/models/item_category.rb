@@ -26,10 +26,12 @@ class ItemCategory < ActiveRecord::Base
 
             # Создаем родителя
             yml_parent_category = categories_tree[yml_category.parent_id]
-            parent_category_id = yml_insert(shop_id, yml_parent_category)
+            if yml_parent_category.present?
+              parent_category_id = yml_insert(shop_id, yml_parent_category)
 
-            # Обновляем
-            where(shop_id: shop_id, external_id: category_id).update_all(parent_id: parent_category_id)
+              # Обновляем
+              where(shop_id: shop_id, external_id: category_id).update_all(parent_id: parent_category_id)
+            end
           end
         end
       end
