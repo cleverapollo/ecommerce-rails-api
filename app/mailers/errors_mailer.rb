@@ -6,9 +6,8 @@ class ErrorsMailer < ActionMailer::Base
     @shop = shop
     @reason = reason
     I18n.locale = @shop.customer.language || 'en'
-    @manager = @shop.manager || Customer.default_manager(I18n.locale.to_s)
 
-    m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_import_error'))
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_import_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_import_error>"
     m.header['Feedback-ID'] = "yml_import_error:errors_mailer:rees46mailer"
     m
@@ -17,9 +16,8 @@ class ErrorsMailer < ActionMailer::Base
   def yml_url_not_respond(shop)
     @shop = shop
     I18n.locale = @shop.customer.language || 'en'
-    @manager = @shop.manager || Customer.default_manager(I18n.locale.to_s)
 
-    m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_url_not_respond'))
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_url_not_respond'))
     m.header['List-Id'] = "<notification errors_mailer:yml_url_not_respond>"
     m.header['Feedback-ID'] = "yml_url_not_respond:errors_mailer:rees46mailer"
     m
@@ -29,9 +27,8 @@ class ErrorsMailer < ActionMailer::Base
     @shop = shop
     @message = message
     I18n.locale = @shop.customer.language || 'en'
-    @manager = shop.manager || Customer.default_manager(I18n.locale.to_s)
 
-    m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_syntax_error'))
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_syntax_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_syntax_error>"
     m.header['Feedback-ID'] = "yml_syntax_error:errors_mailer:rees46mailer"
     m
@@ -40,11 +37,34 @@ class ErrorsMailer < ActionMailer::Base
   def yml_off(shop)
     @shop = shop
     I18n.locale = @shop.customer.language || 'en'
-    @manager = shop.manager || Customer.default_manager(I18n.locale.to_s)
 
-    m = mail(from: @manager.email, to: @shop.customer.email, bcc: @manager.email, subject: I18n.t('errors_mailer.subject.yml_off'))
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_off'))
     m.header['List-Id'] = "<notification errors_mailer:yml_off>"
     m.header['Feedback-ID'] = ":yml_off:errors_mailer:rees46mailer"
+    m
+  end
+
+  # Сообщаем об ошибке обработки импорта
+  def locations_import_error(shop, message)
+    @shop = shop
+    @message = message
+    I18n.locale = @shop.customer.language || 'en'
+
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.locations_import_error'))
+    m.header['List-Id'] = '<notification errors_mailer:locations_import_error>'
+    m.header['Feedback-ID'] = 'locations_import_error:errors_mailer:rees46mailer'
+    m
+  end
+
+  # Сообщаем об ошибке обработки импорта
+  def categories_import_error(shop, message)
+    @shop = shop
+    @message = message
+    I18n.locale = @shop.customer.language || 'en'
+
+    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.categories_import_error'))
+    m.header['List-Id'] = '<notification errors_mailer:locations_import_error>'
+    m.header['Feedback-ID'] = 'categories_import_error:errors_mailer:rees46mailer'
     m
   end
 

@@ -1,0 +1,16 @@
+p Здравствуйте!
+
+p
+  = 'К сожалению, мы не смогли обработать импортируемые вами категории '
+  = link_to @shop.name, @shop.url
+  = '.'
+  br
+  = 'Причина: '
+  strong = @message
+
+p
+  = 'Пожалуйста, сверьте корректность передаваемых вами данных с '
+  = link_to 'нашей документацией', 'http://docs.rees46.com/pages/viewpage.action?pageId=7640694'
+  = '.'
+
+= render 'shared/errors_mailer_footer'

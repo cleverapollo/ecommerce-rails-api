@@ -71,6 +71,36 @@ describe ImportsController do
 
   end
 
+  context 'import locations' do
+    before { allow(LocationsImportWorker).to receive(:perform_async) }
+
+    it 'works' do
+      put :locations, shop_id: shop.uniqid, shop_secret: shop.secret, locations: [{id: 1, name: 'Moscow', parent: nil}]
+      expect(response.code).to eq('204')
+      expect(LocationsImportWorker).to have_received(:perform_async).once
+    end
+    it 'error empty locations' do
+      put :locations, shop_id: shop.uniqid, shop_secret: shop.secret
+      expect(response.code).to eq('400')
+      expect(LocationsImportWorker).to_not have_received(:perform_async)
+    end
+  end
+
+  context 'import categories' do
+    before { allow(CategoriesImportWorker).to receive(:perform_async) }
+
+    it 'works' do
+      put :categories, shop_id: shop.uniqid, shop_secret: shop.secret, categories: [{id: 1, name: 'T-Shirt', parent: nil}]
+      expect(response.code).to eq('204')
+      expect(CategoriesImportWorker).to have_received(:perform_async).once
+    end
+    it 'error empty categories' do
+      put :categories, shop_id: shop.uniqid, shop_secret: shop.secret
+      expect(response.code).to eq('400')
+      expect(CategoriesImportWorker).to_not have_received(:perform_async)
+    end
+  end
+
   context 'job_worker' do
     it 'works' do
       post :job_worker, shop_id: shop.uniqid, shop_secret: shop.secret, code: 'KJhsd872Hj&^%3lkjJs', job_data: { class: 'SegmentDestroyWorker', args: nil }

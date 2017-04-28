@@ -26,7 +26,7 @@ class WebPush::Sender
 
         rescue Webpush::InvalidSubscription => e
           # save response error message
-          WebPushTokenError.create(client_id: web_push_token.client_id, shop_id: shop.id, message: { error: e, token: web_push_token.token })
+          WebPushTokenError.create(client_id: web_push_token.client_id, shop_id: shop.id, message: { error: e.message, token: web_push_token.token })
           # remove token
           web_push_token.destroy
         rescue Webpush::ResponseError => e

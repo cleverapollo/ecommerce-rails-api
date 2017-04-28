@@ -30,6 +30,8 @@ de:
       yml_url_not_respond: Error in XML-file Load
       yml_syntax_error: XML-file Syntax Error
       yml_off: XML-file Load Is Off
+      locations_import_error: 'Locations import error'
+      categories_import_error: 'Categories import error'
 
   yml_errors:
     time_limit_exceeded: Download time limit exceeded (30m).

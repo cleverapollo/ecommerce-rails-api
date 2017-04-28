@@ -30,6 +30,8 @@ ru:
       yml_url_not_respond: 'Не удалось загрузить YML-файл'
       yml_syntax_error: 'Ошибка синтаксиса YML-файла'
       yml_off: 'Обработка YML-файла отключена'
+      locations_import_error: 'Ошибка импорта городов'
+      categories_import_error: 'Ошибка импорта категорий'
 
   yml_errors:
     time_limit_exceeded: Не удаётся выгрузить YML файл в течение 30 минут..

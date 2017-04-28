@@ -1,0 +1,16 @@
+p Hello!
+
+p
+  = 'Unfortunately, we couldn't process the list of imported locations '
+  = link_to @shop.name, @shop.url
+  = '.'
+  br
+  = 'Reason: '
+  strong = @message
+
+p
+  = 'Be sure to check your syntax against  '
+  = link_to 'our Documentation:', 'http://docs.rees46.com/pages/viewpage.action?pageId=7640698'
+  = '.'
+
+= render 'shared/errors_mailer_footer'
