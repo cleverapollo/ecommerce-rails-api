@@ -2,7 +2,12 @@
 # Обработчик отклоненных писем
 #
 class BounceHandlerWorker
+
+  # Можно выключать удаление, если требуется перестать удалять обработанные письма для расследования инцидентов со спамом
+  ALLOW_TO_DELETE = true
+
   class << self
+
     def perform
       CustomLogger.logger.info("START: BounceHandlerWorker::perform")
 
@@ -26,8 +31,7 @@ class BounceHandlerWorker
         envelope = raw_message.attr['ENVELOPE']
 
         if envelope.to.nil?
-          # Временно выключил на расследование инцидента со спамом
-          # imap.store(m, "+FLAGS", [:Deleted])
+          imap.store(m, "+FLAGS", [:Deleted]) if ALLOW_TO_DELETE
           next
         end
 
@@ -35,15 +39,13 @@ class BounceHandlerWorker
 
         # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
         unless to.present?
-          # Временно выключил на расследование инцидента со спамом
-          # imap.store(m, "+FLAGS", [:Deleted])
+          imap.store(m, "+FLAGS", [:Deleted]) if ALLOW_TO_DELETE
           next
         end
 
         # Если получатель не bounce, то удаляем письмо
         unless to.scan(/bounce\+shard\d+.+/).any?
-          # Временно выключил на расследование инцидента со спамом
-          # imap.store(m, "+FLAGS", [:Deleted])
+          imap.store(m, "+FLAGS", [:Deleted])  if ALLOW_TO_DELETE
           next
         end
 
@@ -83,16 +85,14 @@ class BounceHandlerWorker
           # nope
 
           # Отмечаем для удаления
-          # Временно выключил на расследование инцидента со спамом
-          # imap.store(m, "+FLAGS", [:Deleted])
+          imap.store(m, "+FLAGS", [:Deleted]) if ALLOW_TO_DELETE
 
         end
 
       end
 
       # Remove all emails marked as deleted
-      # Временно выключил на расследование инцидента со спамом
-      # imap.expunge
+      imap.expunge if ALLOW_TO_DELETE
 
       imap.disconnect
 
@@ -174,12 +174,12 @@ class BounceHandlerWorker
         end
 
         # Удаляем письмо
-        imap.store(m, "+FLAGS", [:Deleted])
+        imap.store(m, "+FLAGS", [:Deleted]) if ALLOW_TO_DELETE
 
       end
 
       # Remove all emails marked as deleted
-      imap.expunge
+      imap.expunge if ALLOW_TO_DELETE
 
       imap.disconnect
 
@@ -204,16 +204,14 @@ class BounceHandlerWorker
 
         # Если получателя нет (бывает, что в групповых письмах Gmail его нет), то удаляем письмо
         unless to.match(/shard(\d{2})/)
-          # Временно выключил на расследование инцидента со спамом
-          # imap.store(m, "+FLAGS", [:Deleted])
+          imap.store(m, "+FLAGS", [:Deleted])  if ALLOW_TO_DELETE
           next
         end
 
       end
 
       # Remove all emails marked as deleted
-      # Временно выключил на расследование инцидента со спамом
-      # imap.expunge
+      imap.expunge if ALLOW_TO_DELETE
 
       imap.disconnect
 
