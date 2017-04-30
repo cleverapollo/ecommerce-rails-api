@@ -105,6 +105,7 @@ module Rees46Api
     config.middleware.insert 0, ::HandleInvalidPercentEncoding
     config.middleware.insert 0, Rack::UTF8Sanitizer
 
+    config.support_email = 'support@rees46.com'
 
     config.active_record.raise_in_transactional_callbacks = true
   end

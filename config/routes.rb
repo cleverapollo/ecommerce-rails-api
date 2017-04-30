@@ -58,6 +58,10 @@ Rees46Api::Application.routes.draw do
     post :audience
     # Удалить старые и загрузить новыие картинки товаров
     post :images
+    # Загрузка городов
+    post :locations
+    # Загрузка категорий
+    post :categories
 
     post :job_worker
 

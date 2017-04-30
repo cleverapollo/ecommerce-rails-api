@@ -1,0 +1,16 @@
+p Hello!
+
+p
+  = 'Unfortunately, we couldn\'t process the list of imported products '
+  = link_to @shop.name, @shop.url
+  = '.'
+  br
+  = 'Reason: '
+  strong = @message
+
+p
+  = 'Be sure to check your syntax against  '
+  = link_to 'our Documentation:', 'http://docs.rees46.com/display/en/Product+Feed+Import+via+HTTP+API'
+  = '.'
+
+= render 'shared/errors_mailer_footer'

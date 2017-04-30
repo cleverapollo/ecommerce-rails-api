@@ -41,7 +41,7 @@ class ImportsController < ApplicationController
   end
 
   def items
-    ItemsImportWorker.perform_async(params)
+    ItemsImportWorker.perform_async(@shop.id, params[:items])
     render text: 'OK'
   end
 
@@ -75,10 +75,45 @@ class ImportsController < ApplicationController
     render text: 'OK'
   end
 
+  # Загрузка категорий
+  def categories
+    if params[:categories].blank?
+      respond_with_client_error('Categories can\'t be blank') and return false
+    end
+    unless params[:categories].is_a?(Array)
+      respond_with_client_error('Categories must be array') and return false
+    end
+
+    CategoriesImportWorker.perform_async(@shop.id, params[:categories])
+    render nothing: true, status: 204
+  end
+
+  # Загрузка городов
+  def locations
+    if params[:locations].blank?
+      respond_with_client_error('Locations can\'t be blank') and return false
+    end
+    unless params[:locations].is_a?(Array)
+      respond_with_client_error('Locations must be array') and return false
+    end
+
+    LocationsImportWorker.perform_async(@shop.id, params[:locations])
+    render nothing: true, status: 204
+  end
+
 
   # Заглушка для импорта товаров через HTTP
   # Тесты тоже есть.
   def products
+
+    if params[:items].blank?
+      respond_with_client_error('Items can\'t be blank') and return false
+    end
+    unless params[:items].is_a?(Array)
+      respond_with_client_error('Items must be array') and return false
+    end
+
+    ItemsImportWorker.perform_async(@shop.id, params[:items], request.method_symbol)
     render nothing: true, status: 204
   end
 
