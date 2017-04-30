@@ -10,8 +10,8 @@ class Customer < MasterTable
 
   class << self
     def default_manager(language = 'ru')
-      name = (language.to_s == 'ru' ? { first: 'Дмитрий', last: 'Зубенко'} : { first: 'Dmitry ', last: 'Zubenko'})
-      Customer.new(first_name: name[:first], last_name: name[:last], email: 'dz@rees46.com')
+      name = (language.to_s == 'ru' ? { first: 'Поддержка', last: 'REES46'} : { first: 'REES46', last: 'Support'})
+      Customer.new(first_name: name[:first], last_name: name[:last], email: Rails.configuration.support_email)
     end
   end
 

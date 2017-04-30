@@ -1,5 +1,5 @@
 class ErrorsMailer < ActionMailer::Base
-  default from: 'REES46 <reports@rees46.com>',
+  default from: 'REES46 <support@rees46.com>',
           bcc: ['mk@rees46.com', 'av@rees46.com', 'dz@rees46.com']
 
   def yml_import_error(shop, reason)
