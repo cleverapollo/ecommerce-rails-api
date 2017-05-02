@@ -90,7 +90,9 @@ class UserMerger
       client_with_current_mail = shop.clients.where.not(id: client.id).order(id: :asc).find_by(email: user_email)
       if client_with_current_mail.present?
         old_user = client_with_current_mail.user
-        UserMerger.merge(old_user, client.user)
+        if UserMerger.merge(old_user, client.user).nil?
+          Rollbar.error('wtf?', shop_id: shop.id, client: old_user.id, client_email: old_user.email, user: old_user.user_id, email: user_email)
+        end
         old_user
       else
         # Обновляем текущему клиенту email

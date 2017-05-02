@@ -50,20 +50,34 @@ describe UserMerger do
 
       context 'in current shop' do
         let!(:old_client) { create(:client, shop: shop, user: create(:user), email: 'test@test.com') }
-        let!(:client) { create(:client, shop: shop, email: 'test@test.com') }
 
-        it 'merge' do
-          expect(subject.reload).not_to be_nil
-          expect(Client.count).to eq(1)
-          expect(old_client.reload.email).to eq('test@test.com')
-          expect(User.count).to eq(1)
-          expect(User.first).to eq(old_client.user)
+        context '.with email' do
+          let!(:client) { create(:client, shop: shop, email: 'test@test.com') }
+
+          it 'merge' do
+            expect(subject.reload).not_to be_nil
+            expect(Client.count).to eq(1)
+            expect(old_client.reload.email).to eq('test@test.com')
+            expect(User.count).to eq(1)
+            expect(User.first).to eq(old_client.user)
+          end
+        end
+
+        context '.without email' do
+          let!(:client) { create(:client, shop: shop, email: nil) }
+          it 'merge' do
+            expect(subject.reload).not_to be_nil
+            expect(Client.count).to eq(1)
+            expect(old_client.reload.email).to eq('test@test.com')
+            expect(User.count).to eq(1)
+            expect(User.first).to eq(old_client.user)
+          end
         end
       end
 
       context 'in different shop' do
         let!(:old_client) { create(:client, shop: create(:shop), email: 'test@test.com') }
-        let!(:client) { create(:client, shop: shop) }
+        let!(:client) { create(:client, shop: shop, email: nil) }
 
         it 'merge' do
           expect(subject.reload).not_to be_nil
