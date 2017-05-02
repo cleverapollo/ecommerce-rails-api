@@ -43,7 +43,7 @@ class UserFetcher
         user = UserMerger.merge_by_mail(shop, client, email)
         self.client = user.clients.find_by!(shop_id: shop.id)
       rescue ActiveRecord::RecordNotFound => e
-        Rollbar.error(e, shop_id: shop.id, client: client.id, email: email)
+        Rollbar.error(e, shop_id: shop.id, client: client.id, client_email: client.email, email: email)
         return nil
       end
     end

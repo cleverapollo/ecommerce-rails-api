@@ -45,6 +45,44 @@ describe UserMerger do
       end
     end
 
+    describe '.merge_by_email' do
+      subject { UserMerger.merge_by_mail(shop, client, 'test@test.com') }
+
+      context 'in current shop' do
+        let!(:old_client) { create(:client, shop: shop, user: create(:user), email: 'test@test.com') }
+        let!(:client) { create(:client, shop: shop, email: 'test@test.com') }
+
+        it 'merge' do
+          expect(subject.reload).not_to be_nil
+          expect(Client.count).to eq(1)
+          expect(old_client.reload.email).to eq('test@test.com')
+          expect(User.count).to eq(1)
+          expect(User.first).to eq(old_client.user)
+        end
+      end
+
+      context 'in different shop' do
+        let!(:old_client) { create(:client, shop: create(:shop), email: 'test@test.com') }
+        let!(:client) { create(:client, shop: shop) }
+
+        it 'merge' do
+          expect(subject.reload).not_to be_nil
+          expect(Client.count).to eq(2)
+          expect(client.reload.email).to eq('test@test.com')
+        end
+
+        context 'email exist in shop' do
+          let!(:client_1) { create(:client, shop: shop, email: 'test@test.com') }
+
+          it 'merge' do
+            expect(subject.reload).not_to be_nil
+            expect(Client.count).to eq(2)
+            expect{ client.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
+      end
+    end
+
     context 'when user signs in' do
       context 'user dependencies re-linking' do
 
