@@ -70,7 +70,8 @@ class Client < ActiveRecord::Base
   def user
     @user ||= super || create_user
 
-    if self.user_id != @user.id
+    # Если создали нового юзера
+    if self.user_id_changed?
       update_columns(user_id: @user.id)
     end
     @user
