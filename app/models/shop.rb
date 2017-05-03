@@ -180,30 +180,34 @@ class Shop < MasterTable
     rescue PG::TRDeadlockDetected => e
       Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
     rescue Yml::NoXMLFileInArchiveError => e
-      Rollbar.warning(e, 'Incorrect YML archive', shop_id: id)
-      ErrorsMailer.yml_url_not_respond(self).deliver_now
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'Incorrect YML archive'
+      import_error(e, 'Incorrect YML archive')
     rescue ActiveRecord::RecordNotUnique => e
-      Rollbar.warning(e, 'Ошибка синтаксиса YML', shop_id: id)
-      I18n.locale = customer.language
-      ErrorsMailer.yml_syntax_error(self, I18n.t('yml_errors.no_uniq_ids')).deliver_now
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'Ошибка синтаксиса YML'
+      import_error(e, I18n.t('yml_errors.no_uniq_ids'))
     rescue Interrupt => e
       Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
     rescue Sidekiq::Shutdown => e
       Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
-    rescue PG::CardinalityViolation => e
-      ErrorsMailer.yml_import_error(self, 'You can not import offers with the same id.').deliver_now
+    rescue ActiveRecord::StatementInvalid => e
+      if e.message.match(/^PG::CardinalityViolation/).present?
+        import_error(e, I18n.t('yml_errors.no_uniq_ids'))
+      else
+        import_error(e, 'YML process error')
+      end
     rescue Exception => e
-      ErrorsMailer.yml_import_error(self, e).deliver_now
-      Rollbar.warning(e, 'YML process error', shop_id: id)
-      increment!(:yml_errors)
-      CatalogImportLog.create shop_id: id, success: false, message: 'YML process error'
+      import_error(e, 'YML process error')
     ensure
       update_attribute(:yml_load_start_at, nil)
     end
+  end
+
+  # @param [Exception] e
+  # @param [String] message
+  def import_error(e, message)
+    I18n.locale = customer.language
+    ErrorsMailer.yml_import_error(self, message).deliver_now
+    Rollbar.warning(e, message, shop_id: id)
+    increment!(:yml_errors)
+    CatalogImportLog.create shop_id: id, success: false, message: message
   end
 
   def first_event?
