@@ -204,7 +204,11 @@ module InitServerString
         end
         if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
           pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.code}"
-          session.synced_with_advmaker_at =Date.current
+          session.synced_with_advmaker_at = Date.current
+        end
+        if session.synced_with_doubleclick_at.nil? || session.synced_with_doubleclick_at < Date.current
+          pixels << "//cm.g.doubleclick.net/pixel?google_nid=217939336&google_sc&google_hm=#{Base64.urlsafe_encode64(session.code)}"
+          session.synced_with_doubleclick_at = Date.current
         end
 
         session.atomic_save! if session.changed?
