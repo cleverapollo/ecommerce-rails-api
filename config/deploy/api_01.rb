@@ -16,3 +16,13 @@ set :ssh_options, {
 set :deploy_to, "/home/rails/#{fetch(:application)}"
 set :branch, 'master'
 set :rails_env, 'production'
+
+# Запрещено инициализировать крон таски
+Rake::Task['whenever:update_crontab'].clear_actions
+namespace :whenever do
+  task :update_crontab do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'echo Disable for 01'
+    end
+  end
+end
