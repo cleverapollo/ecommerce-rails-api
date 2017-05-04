@@ -7,6 +7,20 @@ describe UserMerger do
 
   let(:slave) { create(:user) }
 
+  def fork_with_new_connection
+    config = ActiveRecord::Base.remove_connection
+    fork do
+      begin
+        ActiveRecord::Base.establish_connection(config)
+        yield
+      ensure
+        ActiveRecord::Base.remove_connection
+        Process.exit!
+      end
+    end
+    ActiveRecord::Base.establish_connection(config)
+  end
+
 
   describe '.merge' do
     subject { UserMerger.merge(master, slave) }
@@ -41,6 +55,81 @@ describe UserMerger do
 
         it 'raises ArgumentError' do
           expect { subject }.to raise_exception(ArgumentError)
+        end
+      end
+    end
+
+    describe '.merge_by_email' do
+      subject { UserMerger.merge_by_mail(shop, client, 'test@test.com') }
+
+      context 'in current shop' do
+        let!(:old_user) { create(:user) }
+        let!(:old_client) { create(:client, shop: shop, user: old_user, email: 'test@test.com', external_id: 1) }
+
+        context '.with email' do
+          let!(:user) { create(:user) }
+          let!(:client) { create(:client, shop: shop, user: user, email: 'test@test.com') }
+
+          it 'merge' do
+            expect(subject.reload).not_to be_nil
+            expect(Client.count).to eq(1)
+            expect(old_client.reload.email).to eq('test@test.com')
+            expect(User.count).to eq(1)
+            expect(User.first.id).to eq(old_user.id)
+            expect{ client.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
+
+        context '.without email' do
+          let!(:user) { create(:user) }
+          let!(:client) { create(:client, shop: shop, user: user, email: nil, external_id: 2) }
+          it 'merge' do
+            c = subject
+            expect(c.reload).not_to be_nil
+            expect(Client.count).to eq(1)
+            expect(old_client.reload.email).to eq('test@test.com')
+            expect(old_client.reload.external_id).to eq('1')
+            expect(User.count).to eq(1)
+            expect(c.id).to eq(old_user.id)
+            expect{ client.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
+
+      end
+
+      context '.with incorrect user_id' do
+        let!(:old_client) { create(:client, shop: shop, user_id: 0, email: 'test@test.com', external_id: 1) }
+        let!(:client) { create(:client, shop: shop, user: create(:user), email: nil, external_id: 2) }
+        it 'merge' do
+          c = subject
+          expect(c.reload).not_to be_nil
+          expect(Client.count).to eq(1)
+          expect(Client.first.user_id).to eq(Client.first.user.id)
+          expect(Client.first.email).to eq('test@test.com')
+          expect(Client.first.external_id).to eq('1')
+          expect(User.count).to eq(1)
+          expect{ client.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+
+      context 'in different shop' do
+        let!(:old_client) { create(:client, shop: create(:shop), user: create(:user), email: 'test@test.com') }
+        let!(:client) { create(:client, shop: shop, email: nil) }
+
+        it 'merge' do
+          expect(subject.reload).not_to be_nil
+          expect(Client.count).to eq(2)
+          expect(client.reload.email).to eq('test@test.com')
+        end
+
+        context 'email exist in shop' do
+          let!(:client_1) { create(:client, shop: shop, user: create(:user), email: 'test@test.com') }
+
+          it 'merge' do
+            expect(subject.reload).not_to be_nil
+            expect(Client.count).to eq(2)
+            expect{ client.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
         end
       end
     end

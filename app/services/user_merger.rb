@@ -15,6 +15,7 @@ class UserMerger
 
       begin
         slave.merging_lock.lock {
+          master.merging_lock.lock {
 
           # Если случайно не склеиваем профиль с самим собой (у одного пользователя может быть несколько клиентов с одинаковым e-mail)
           if slave.id != master.id
@@ -47,8 +48,10 @@ class UserMerger
 
           master
 
+          }
         }
       rescue Redis::Lock::LockTimeout
+        Rails.logger.debug " * user locked, skip: #{slave.id}"
         # Обработка уже ведется - ничего делать не нужно.
       end
 
@@ -82,19 +85,19 @@ class UserMerger
     end
 
     # Склеиваем пользователя по мылу
+    # @param [Shop] shop
+    # @param [Client] client
+    # @param [String] user_email
     def merge_by_mail(shop, client, user_email)
       # Найдем пользователя с тем же мылом в данном магазине
-      client_with_current_mail = shop.clients.where.not(id: client.id).where(email: user_email).order(id: :asc).limit(1)[0]
+      client_with_current_mail = shop.clients.where.not(id: client.id).order(id: :asc).find_by(email: user_email)
       if client_with_current_mail.present?
-        old_user = client_with_current_mail.user
-        UserMerger.merge(old_user, client.user)
+        UserMerger.merge(client_with_current_mail.user, client.user)
       else
-        # И при этом этого мыла больше нигде нет
-        # Запоминаем его для текущего пользователя
-        # Адовый способ не ломать транзакцию
-        exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and email = ?)"
-        shop.clients.where(id: client.id).where(exclude_query, shop.id, user_email).update_all(email: user_email)
-        client.reload.user
+        # Обновляем текущему клиенту email
+        client.email = user_email
+        client.atomic_save!
+        client.user
       end
     end
 

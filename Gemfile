@@ -88,6 +88,8 @@ group :development, :test do
   gem 'timecop', '~> 0.7.1' # Изменяет в тестах текущее время
   gem 'rspec-rails', '~> 3.1.0'
   gem 'thin'
+
+  gem 'rubocop', require: false
 end
 
 # Test tools

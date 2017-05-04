@@ -2,7 +2,7 @@
 # Класс, отвечающий за поиск пользователя по определенным входящим параметрам.
 #
 class UserFetcher
-  class SessionNotFoundError < StandardError;
+  class SessionNotFoundError < StandardError
   end
 
   attr_reader :external_id, :session_code, :shop, :email, :location
@@ -27,35 +27,41 @@ class UserFetcher
 
     # Находим или создаем связку пользователя с магазином
     begin
-      self.client = shop.clients.find_or_create_by!(user_id: self.session.user_id)
+      self.client = shop.clients.find_or_create_by!(user_id: session.user_id)
     rescue ActiveRecord::RecordNotUnique
-      self.client = shop.clients.find_by!(user_id: self.session.user_id)
+      self.client = shop.clients.find_by!(user_id: session.user_id)
     end
 
-    if location.present? && (self.client.location.nil? || self.client.location != location.to_s)
-      self.client.update(location: location)
+    if location.present? && (client.location.nil? || client.location != location.to_s)
+      client.update(location: location)
     end
 
-    user = self.client.user
+    user = client.user
 
     if email.present?
-      user = UserMerger.merge_by_mail(shop, self.client, email)
-      self.client = user.clients.find_by!(shop_id: shop.id)
+      begin
+        user = UserMerger.merge_by_mail(shop, client, email)
+        self.client = user.clients.find_by!(shop_id: shop.id)
+      rescue ActiveRecord::RecordNotFound => e
+        Rollbar.error(e, shop_id: shop.id, client: client.id, client_email: client.email, email: email, user: client.user_id)
+        return nil
+      end
     end
 
     # Если известен ID пользователя в магазине
-    if self.external_id.present? && (self.client.external_id.nil? || self.client.external_id != self.external_id)
-      if old_client = shop.clients.where.not(id: self.client.id).find_by(external_id: external_id)
+    if external_id.present? && (client.external_id.nil? || client.external_id != external_id)
+      old_client = shop.clients.where.not(id: client.id).find_by(external_id: external_id)
+      if old_client.present?
         # И при этом этот ID есть у другой связки
         # Значит, нужно сливать этих двух пользователей
-        user = UserMerger.merge(old_client.user, self.client.user)
+        user = UserMerger.merge(old_client.user, client.user)
       else
         # И при этом этого ID больше нигде нет
         # Запоминаем его для текущего пользователя
         # Адовый способ не ломать транзакцию
-        exclude_query = "NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and external_id = ?)"
-        shop.clients.where(id: self.client.id).where(exclude_query, shop.id, external_id).update_all(external_id: external_id)
-        user = self.client.user
+        exclude_query = 'NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and external_id = ?)'
+        shop.clients.where(id: client.id).where(exclude_query, shop.id, external_id).update_all(external_id: external_id)
+        user = client.user
       end
     end
 
