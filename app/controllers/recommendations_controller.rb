@@ -23,18 +23,18 @@ class RecommendationsController < ApplicationController
     extracted_params.track_recommender = false
 
     # Если нашли меньше, чем нужно для also_bought
-    if recommendations.count < extracted_params.limit && %w(also_bought).include?(extracted_params.type)
-
-      # достаем товары из корзины
-      extracted_params.exclude += recommendations
-
-      # Создаем рекомендер
-      recommender = Recommender::Impl::AlsoBought.new(extracted_params)
-      recommender.use_cart = true
-
-      # Запускаем процессор с извлеченными данными
-      recommendations += recommender.recommendations
-    end
+    # if recommendations.count < extracted_params.limit && %w(also_bought).include?(extracted_params.type)
+    #
+    #   # достаем товары из корзины
+    #   extracted_params.exclude += recommendations
+    #
+    #   # Создаем рекомендер
+    #   recommender = Recommender::Impl::AlsoBought.new(extracted_params)
+    #   recommender.use_cart = true
+    #
+    #   # Запускаем процессор с извлеченными данными
+    #   recommendations += recommender.recommendations
+    # end
 
     # Если нашли меньше, чем нужно для see_also, also_bought
     if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
@@ -46,17 +46,17 @@ class RecommendationsController < ApplicationController
     end
 
     # Если нашли меньше, чем нужно для see_also, also_bought
-    if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-      extracted_params.industrial_kids = false
-      extracted_params.exclude += recommendations
-
-      # Создаем рекомендер
-      recommender = Recommender::Impl::AlsoBought.new(extracted_params)
-      recommender.use_cart = true
-
-      # Запускаем процессор с извлеченными данными
-      recommendations += recommender.recommendations
-    end
+    # if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
+    #   extracted_params.industrial_kids = false
+    #   extracted_params.exclude += recommendations
+    #
+    #   # Создаем рекомендер
+    #   recommender = Recommender::Impl::AlsoBought.new(extracted_params)
+    #   recommender.use_cart = true
+    #
+    #   # Запускаем процессор с извлеченными данными
+    #   recommendations += recommender.recommendations
+    # end
 
     # Если нашли меньше, чем нужно для see_also, also_bought добавляем похожие
     if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
