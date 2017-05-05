@@ -63,3 +63,4 @@ namespace :sidekiq do
     end
   end
 end
+after 'deploy:restart', 'sidekiq:restart'
