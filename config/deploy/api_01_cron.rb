@@ -1,6 +1,6 @@
-role :app, %w{148.251.91.107}
-role :web, %w{148.251.91.107}
-role :db,  %w{148.251.91.107}
+role :app, %w{88.99.193.211}
+role :web, %w{88.99.193.211}
+role :db,  %w{88.99.193.211}
 
 set :stage, :api_01
 set :shard, :api_01
@@ -32,4 +32,34 @@ namespace :deploy do
     end
   end
 
+end
+
+Rake::Task['sidekiq:start'].clear_actions
+Rake::Task['sidekiq:stop'].clear_actions
+Rake::Task['sidekiq:restart'].clear_actions
+namespace :sidekiq do
+  task :start do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.yml.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.service'
+    end
+  end
+  task :stop do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.yml.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.service'
+    end
+  end
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.yml.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing1.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.service'
+    end
+  end
 end

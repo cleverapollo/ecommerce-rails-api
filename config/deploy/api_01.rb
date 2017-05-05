@@ -26,3 +26,24 @@ namespace :whenever do
     end
   end
 end
+
+Rake::Task['sidekiq:start'].clear_actions
+Rake::Task['sidekiq:stop'].clear_actions
+Rake::Task['sidekiq:restart'].clear_actions
+namespace :sidekiq do
+  task :start do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'echo disable for 01'
+    end
+  end
+  task :stop do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'echo disable for 01'
+    end
+  end
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute 'echo disable for 01'
+    end
+  end
+end
