@@ -60,7 +60,7 @@ class RecommendationsController < ApplicationController
 
     # Если нашли меньше, чем нужно для see_also, also_bought добавляем похожие
     if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-      extracted_params.type = 'interesting'
+      extracted_params.type = 'similar'
       extracted_params.exclude += recommendations
       extracted_params.exclude = extracted_params.exclude.uniq
 
