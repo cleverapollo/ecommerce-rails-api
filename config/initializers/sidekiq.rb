@@ -1,6 +1,12 @@
 # In the future make redis database equal shard id
 require 'sidekiq/middleware/i18n'
 redis_db = 0
+if SHARD_ID == '01'
+  # На 01 шарде редис перенесен на сервер с крон тасками
+  host = '88.99.193.211:7000'
+else
+  host = 'localhost:6379'
+end
 
 Sidekiq.configure_server do |config|
   config.failures_max_count = 5000
@@ -8,7 +14,7 @@ Sidekiq.configure_server do |config|
   if Rails.env.staging?
     config.redis = { size: (ENV["CONCURRENCY"] || 20).to_i, url: "redis://localhost:6379/7", namespace: "rees46_api_#{ Rails.env }" }
   else
-    config.redis = { size: (ENV["CONCURRENCY"] || 60).to_i, url: "redis://localhost:6379/#{ redis_db }", namespace: "rees46_api_#{ Rails.env }" }
+    config.redis = { size: (ENV["CONCURRENCY"] || 60).to_i, url: "redis://#{host}/#{ redis_db }", namespace: "rees46_api_#{ Rails.env }" }
   end
 
   Rails.application.config.after_initialize do
@@ -29,7 +35,7 @@ Sidekiq.configure_client do |config|
   if Rails.env.staging?
     config.redis = { size: (ENV["CONCURRENCY"] || 20).to_i, url: "redis://localhost:6379/7", namespace: "rees46_api_#{ Rails.env }" }
   else
-    config.redis = { size: (ENV["CONCURRENCY"] || 60).to_i, url: "redis://localhost:6379/#{ redis_db }", namespace: "rees46_api_#{ Rails.env }" }
+    config.redis = { size: (ENV["CONCURRENCY"] || 60).to_i, url: "redis://#{host}/#{ redis_db }", namespace: "rees46_api_#{ Rails.env }" }
   end
 end
 
