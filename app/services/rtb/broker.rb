@@ -19,7 +19,7 @@ module Rtb
       items = items.select { |item| item.price && item.price >= @customer.currency.min_payment && item.widgetable? && item.is_available? && item.name.to_s.length < 1024 && item.image_url.to_s.length < 1024 && item.url.to_s.length < 1024 }.compact
 
       # Переводим в массив с нужными данными
-      items = items.map { |item| {id: item.id, uniqid: item.uniqid, price: item.price.round, oldprice:  item.oldprice.present? ? item.oldprice.round : nil, image: item.image_url, url: item.url, name: item.name, currency: shop.currency } }
+      items = items.map { |item| {id: item.id, uniqid: item.uniqid, price: item.price.round, oldprice:  item.oldprice.present? ? item.oldprice.round : nil, image: item.resized_image_by_dimension('200x200'), url: item.url, name: item.name, currency: shop.currency } }
 
       # Ничего не осталось
       return false unless items.any?
