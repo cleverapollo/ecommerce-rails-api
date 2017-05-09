@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170504073350) do
+ActiveRecord::Schema.define(version: 20170509080626) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -506,15 +506,6 @@ ActiveRecord::Schema.define(version: 20170504073350) do
   add_index "profile_events", ["user_id", "shop_id", "industry"], name: "index_profile_events_on_user_id_and_shop_id_and_industry", using: :btree
   add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
   add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
-
-  create_table "propeller_track_visits", force: :cascade do |t|
-    t.date     "date"
-    t.boolean  "redirect"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "propeller_track_visits", ["date"], name: "index_propeller_track_visits_on_date", using: :btree
 
   create_table "prospects", force: :cascade do |t|
     t.string "filename"
