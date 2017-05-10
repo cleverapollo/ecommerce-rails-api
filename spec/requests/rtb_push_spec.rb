@@ -4,7 +4,7 @@ describe 'Pushing an event for rtb' do
   before do
     @currency = create(:currency)
     @customer = create(:customer, balance: 300, currency: @currency)
-    @shop = create(:shop, customer: @customer, remarketing_enabled: true, popunder_enabled: false, active: true, connected: true, restricted: false, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
+    @shop = create(:shop, customer: @customer, remarketing_enabled: true, active: true, connected: true, restricted: false, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
     @user = create(:user)
     @session = create(:session, user: @user, code: SecureRandom.uuid)
     @client = create(:client, shop: @shop, user: @user, supply_trigger_sent: true)
@@ -24,7 +24,7 @@ describe 'Pushing an event for rtb' do
     }
   end
 
-  context 'Popunders disabled' do
+  context 'Default' do
 
     it 'creates one rtb job' do
       post '/push', @params
@@ -87,12 +87,6 @@ describe 'Pushing an event for rtb' do
     end
 
   end
-
-  context 'Popunder enabledd' do
-    pending 'Implement it!'
-  end
-
-
 
 
 end

@@ -72,9 +72,6 @@ Rees46Api::Application.routes.draw do
 
   end
 
-  resources :rtb_impressions, only: [:create] do
-  end
-
   # Дайджестные рассылки
   resources :digest_mailings, only: [] do
     member do

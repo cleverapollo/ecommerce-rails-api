@@ -16,7 +16,7 @@ class EventsController < ApplicationController
     ActionPush::Processor.new(extracted_params).process
 
     # Сообщаем брокеру брошенных корзин RTB
-    popunder_urls = case extracted_params.action.to_sym
+    case extracted_params.action.to_sym
       when :cart
          Rtb::Broker.new(extracted_params.shop).notify(extracted_params.user, extracted_params.items)
       when :purchase
@@ -43,13 +43,7 @@ class EventsController < ApplicationController
       end
     end
 
-    # Popunder disabled temporarily
     respond_with_success
-    # if popunder_urls
-    #   render json: { status: 'success', url: popunder_urls }
-    # else
-    #   respond_with_success
-    # end
 
   rescue ActionPush::Error => e
     log_client_error(e)
