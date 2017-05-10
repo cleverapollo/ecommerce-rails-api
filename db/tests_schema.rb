@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170509080626) do
+ActiveRecord::Schema.define(version: 20170510121318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -834,7 +834,6 @@ ActiveRecord::Schema.define(version: 20170509080626) do
     t.datetime "logo_updated_at"
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
-    t.boolean  "popunder_enabled",                          default: true,  null: false
     t.boolean  "debug_order",                               default: false, null: false
     t.string   "currency_code"
     t.integer  "js_sdk"
