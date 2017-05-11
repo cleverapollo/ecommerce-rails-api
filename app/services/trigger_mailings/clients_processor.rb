@@ -58,7 +58,7 @@ module TriggerMailings
                         else
                           begin
                             TriggerMailings::Letter.new(client, trigger).send
-                          rescue EmptyProductsCollectionError => e
+                          rescue TriggerMailings::Letter::EmptyProductsCollectionError => e
                             # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
                             # Костыль, конечно, но пока так.
                           end
@@ -93,7 +93,7 @@ module TriggerMailings
                       else
                         begin
                           TriggerMailings::Letter.new(client, trigger).send
-                        rescue EmptyProductsCollectionError => e
+                        rescue TriggerMailings::Letter::EmptyProductsCollectionError => e
                           # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
                           # Костыль, конечно, но пока так.
                         end
