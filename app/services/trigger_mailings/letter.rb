@@ -4,6 +4,7 @@ module TriggerMailings
   #
   class Letter
     class IncorrectMailingSettingsError < StandardError; end
+    class EmptyProductsCollectionError < StandardError; end
 
     attr_accessor :client, :trigger, :trigger_mail, :body
 
@@ -67,6 +68,10 @@ module TriggerMailings
         r.recommendations = recommendations.map(&:uniqid)
         r.user_id = client.user.present? ? client.user.id : 0
       end
+
+      # Товаров может и не быть и в этом случае уходят пустые письма.
+      # Поэтому вызываем ошибку и перехватываем ее в обработчике рассылки ClientProcessor
+      raise EmptyProductsCollectionError if data[:recommended_items].size == 0 && trigger.code != 'DoubleOptIn'
 
       if @shop.fetch_logo_url.present?
         data[:logo_url] = @shop.fetch_logo_url

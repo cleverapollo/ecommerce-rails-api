@@ -56,7 +56,12 @@ module TriggerMailings
                         elsif shop.mailings_settings.external_mailchimp?
                           trigers_to_send[:second_abandoned_cart].present? ? trigers_to_send[:second_abandoned_cart] << trigger :  trigers_to_send[:second_abandoned_cart] = [trigger]
                         else
-                          TriggerMailings::Letter.new(client, trigger).send
+                          begin
+                            TriggerMailings::Letter.new(client, trigger).send
+                          rescue EmptyProductsCollectionError => e
+                            # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
+                            # Костыль, конечно, но пока так.
+                          end
                         end
                         unless shop.mailings_settings.external_mailchimp?
                           client.update_columns(last_trigger_mail_sent_at: Time.now)
@@ -86,7 +91,12 @@ module TriggerMailings
                         trigger_type = trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym
                         trigers_to_send[trigger_type].present? ? trigers_to_send[trigger_type] << trigger :  trigers_to_send[trigger_type] = [trigger]
                       else
-                        TriggerMailings::Letter.new(client, trigger).send
+                        begin
+                          TriggerMailings::Letter.new(client, trigger).send
+                        rescue EmptyProductsCollectionError => e
+                          # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
+                          # Костыль, конечно, но пока так.
+                        end
                       end
                       unless shop.mailings_settings.external_mailchimp?
                         client.update_columns(last_trigger_mail_sent_at: Time.now)
