@@ -10,6 +10,7 @@ development:
 :queues:
   - critical
   - default
+  - trigger
   - mailing
   - mailing_test
   - resize
@@ -18,6 +19,7 @@ development:
 :limits:
   critical: 1
   rollbar: 1
+  trigger: 10
   mailing: 10
   mailing_test: 1
   yml: 2

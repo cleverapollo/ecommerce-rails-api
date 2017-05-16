@@ -64,7 +64,18 @@ YmlImporter.new.perform(Shop.last.id)
 
 Запуск на сервере:
 ```
-RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 5.9.48.142
+RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 88.99.193.211
+```
+
+### Настройка Redis для cron-task сервера
+`iptables -S` - список правил
+
+Открываем доступ для определенных ip
+
+```
+-A INPUT -s 88.99.193.175/32 -p tcp -m tcp --dport 7000 -j ACCEPT
+-A INPUT -s 88.99.193.211/32 -p tcp -m tcp --dport 7000 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 7000 -j DROP
 ```
 
 ### Принцип работы Rees46ML

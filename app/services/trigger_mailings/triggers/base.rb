@@ -4,7 +4,13 @@ module TriggerMailings
     # Базовый класс, от которого наследуются реализации триггеров
     #
     class Base
-      attr_accessor :shop, :user, :client, :happened_at, :source_item, :source_items, :additional_info, :search_query
+      # @return [Shop]
+      attr_accessor :shop
+      # @return [User]
+      attr_accessor :user
+      # @return [Client]
+      attr_accessor :client
+      attr_accessor :happened_at, :source_item, :source_items, :additional_info, :search_query
 
       class << self
         # Код триггера
@@ -51,6 +57,7 @@ module TriggerMailings
         @shop = client.shop
         @client = client
         @additional_info = {}
+        Rails.logger.debug "\e[1m\e[35m[trigger] \e[32m#{self.class}\e[0m"
       end
 
       # Проверка верхнего уровня - учитывает, включен ли триггер в настройках триггерных рассылок, можно ли сейчас слать письмо и случился ли триггер.
@@ -81,7 +88,7 @@ module TriggerMailings
       # @return [Array[Item]] массив рекомендованных товаров
       def recommendations(count)
         ids = recommended_ids(count)
-        items_list = shop.items.recommendable.widgetable.where(id: ids).load
+        items_list = Slavery.on_slave { shop.items.recommendable.widgetable.where(id: ids).load }
         items_list.sort_by do |element|
           ids.index(element.id)
         end
@@ -90,17 +97,55 @@ module TriggerMailings
 
       # Генерирует фейковые данные для отправки тестового триггера
       def generate_test_data!(recommended_items = 3)
-        @happened_at = DateTime.current
-        @source_items = shop.items.available.recommendable.widgetable.limit(recommended_items)
-        @source_item = shop.items.available.recommendable.widgetable.limit(1)[0]
-        @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.available.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
-        if self.kind_of? RecentlyPurchased
-          @additional_info[:order] = shop.orders.first
-          @additional_info[:test] = true
+        Slavery.on_slave do
+          @happened_at = DateTime.current
+          @source_items = shop.items.available.recommendable.widgetable.limit(recommended_items)
+          @source_item = shop.items.available.recommendable.widgetable.limit(1)[0]
+          @additional_info[:categories] = ItemCategory.where(shop_id: shop.id, external_id: shop.items.available.recommendable.widgetable.limit(5).pluck(:category_ids).flatten.uniq.compact)
+          if self.kind_of? RecentlyPurchased
+            @additional_info[:order] = shop.orders.first
+            @additional_info[:test] = true
+          end
+          true
         end
-        true
       end
 
+      # Current trigger type, for example :second_abandoned_cart
+      # @return [Symbol]
+      def type
+        self.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym
+      end
+
+      # Отправляет триггерное письмо
+      # @param [Client] client
+      # @param [Mailings::GetResponseClient] get_response_client
+      def letter(client, get_response_client = nil)
+        if shop.mailings_settings.external_getresponse?
+          TriggerMailings::GetResponseLetter.new(client, self, get_response_client).send
+        elsif shop.mailings_settings.external_ofsys?
+          result = TriggerMailings::OfsysLetter.new(client, self).send
+          return unless result
+        elsif shop.mailings_settings.is_optivo_for_mytoys?
+          TriggerMailings::OptivoMytoysLetter.new(client, self).send
+        elsif shop.mailings_settings.external_mailganer?
+          TriggerMailings::MailganerLetter.new(client, self).send
+        elsif shop.mailings_settings.external_mailchimp?
+          # Здесь для маилчимпа ничего не нужно делать
+          return
+        else
+          begin
+            TriggerMailings::Letter.new(client, self).send
+          rescue TriggerMailings::Letter::EmptyProductsCollectionError => e
+            # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
+            # Костыль, конечно, но пока так.
+            Rails.logger.warn e
+          end
+        end
+        unless shop.mailings_settings.external_mailchimp?
+          client.update_columns(last_trigger_mail_sent_at: Time.now)
+          client.update_columns(supply_trigger_sent: true) if self.class == TriggerMailings::Triggers::LowOnSupply
+        end
+      end
 
       # Возвращает массив ID рекомендованных товаров для данного триггера.
       # Применяется в методе recommendations. В нем содержится вся логика товарных рекомендаций в конкретных реализациях

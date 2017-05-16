@@ -33,7 +33,8 @@ RSpec.configure do |config|
 
     ActiveRecord::Base.establish_connection
 
-
+    # Disable slave gem for tests
+    Slavery.disabled = true
   end
 
 

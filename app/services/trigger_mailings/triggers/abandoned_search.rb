@@ -25,15 +25,18 @@ module TriggerMailings
       # Были действия за нужный интервал времени.
       # Не было покупок за сегодня.
       def condition_happened?
-        # Были поисковые запросы сегодня?
-        if (search_queries = user.search_queries.where(date: Date.current).where(shop: shop).order(id: :desc)).any?
-          @search_query = search_queries.first.query
-          # Не было покупок за сутки?
-          if !user.orders.where(shop: shop).where('date > ? ', 2.days.ago).exists?
-            # Были действия за указанный указанный промежуток времени?
-            if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists?
-              @source_items = []
-              return true
+        Slavery.on_slave do
+          search = user.search_queries.where(date: Date.current).where(shop: shop).order(id: :desc).first
+          # Были поисковые запросы сегодня?
+          if search.present?
+            @search_query = search.query
+            # Не было покупок за сутки?
+            unless user.orders.where(shop: shop).where('date > ? ', 2.days.ago).exists?
+              # Были действия за указанный указанный промежуток времени?
+              if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists?
+                @source_items = []
+                return true
+              end
             end
           end
         end
