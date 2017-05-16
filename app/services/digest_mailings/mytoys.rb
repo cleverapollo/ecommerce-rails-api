@@ -58,7 +58,7 @@ module DigestMailings
           require 'net/sftp'
 
           begin
-            session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner')
+            session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner', timeout: 5)
             sftp = Net::SFTP::Session.new(session).connect!
             sftp.upload!(digest_path, 'digests.csv') if File.exists? digest_path
             sftp.close_channel
