@@ -253,4 +253,5 @@ puts file.lazy.select{ |element| element.is_a?(Rees46ML::Offer) }.take(1).map(&:
 - [Fibers & Cooperative Scheduling](https://www.igvita.com/2009/05/13/fibers-cooperative-scheduling-in-ruby/)
 
 
-
+### Postgres
+Отслеживание текущих транзакций `select * from pg_stat_activity ;`

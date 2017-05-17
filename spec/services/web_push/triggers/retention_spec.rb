@@ -50,8 +50,8 @@ describe WebPush::Triggers::Retention do
         trigger = subject
         trigger.triggered?
 
-        expect(subject.recommended_ids(13).include?(item_1.id)).to eq false
-        expect(subject.recommended_ids(13).include?(item_2.id)).to eq false
+        expect(trigger.recommended_ids(13).include?(item_1.id)).to eq false
+        expect(trigger.recommended_ids(13).include?(item_2.id)).to eq false
       end
     end
 

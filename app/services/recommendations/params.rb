@@ -81,6 +81,11 @@ module Recommendations
       item.try(:id)
     end
 
+    # Получает список Item id
+    def exclude_item_ids
+      @exclude_item_ids ||= (raw[:exclude].present? ? shop.items.where(uniqid: exclude).pluck(:id) : [])
+    end
+
     private
 
     # Конструктор, инициализирует аттрибуты, выполняет первоначальную проверку параметров
@@ -266,11 +271,6 @@ module Recommendations
           SearchQuery.find_or_create_by user_id: @user.id, shop_id: @shop.id, date: Date.current, query: @search_query
         end
       end
-    end
-
-    # Получает список Item id
-    def exclude_item_ids
-      @exclude_item_ids ||= (raw[:exclude].present? ? shop.items.where(uniqid: exclude).pluck(:id) : [])
     end
 
   end
