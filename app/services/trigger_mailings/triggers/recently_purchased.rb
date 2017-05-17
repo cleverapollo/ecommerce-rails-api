@@ -3,22 +3,24 @@ module TriggerMailings
     class RecentlyPurchased < Base
 
       def condition_happened?
-        time_range = (7.day.ago.beginning_of_day)..(7.day.ago.end_of_day)
-        # Находим покупки, которые были сделаны 7 дней назад
-        orders_relation = user.orders.where(shop: shop).where(date: time_range).order(date: :desc)
+        Slavery.on_slave do
+          time_range = (7.day.ago.beginning_of_day)..(7.day.ago.end_of_day)
+          # Находим покупки, которые были сделаны 7 дней назад
+          orders_relation = user.orders.where(shop: shop).where(date: time_range).order(date: :desc)
 
-        orders_relation = orders_relation.successful if shop.track_order_status?
+          orders_relation = orders_relation.successful if shop.track_order_status?
 
-        orders_relation.each do |order|
-          if order
-            @additional_info[:order] = order
-            @happened_at = order.date
-            @source_items = order.order_items.map { |a| a.item if a.item.widgetable? }.compact.sort { |i1, i2| (i1.price || 0) <=> (i2.price || 0) }.reverse
-            @source_item = @source_items.first
-            return true
+          orders_relation.each do |order|
+            if order
+              @additional_info[:order] = order
+              @happened_at = order.date
+              @source_items = order.order_items.map { |a| a.item if a.item.widgetable? }.compact.sort { |i1, i2| (i1.price || 0) <=> (i2.price || 0) }.reverse
+              @source_item = @source_items.first
+              return true
+            end
           end
+          false
         end
-        return false
       end
 
       def recommended_ids(count)

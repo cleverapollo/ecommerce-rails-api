@@ -74,6 +74,28 @@ class SetUnicornProcline
   end
 end
 
+class CatchJsonParseErrors
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    begin
+      @app.call(env)
+    rescue ActionDispatch::ParamsParser::ParseError => error
+      if env['CONTENT_TYPE'] =~ /application\/json/i
+        error_output = 'There was a problem in the JSON you submitted'
+        return [
+          400, {'Content-Type' => 'application/json'},
+          [ { status: 400, error: error_output }.to_json ]
+        ]
+      else
+        raise error
+      end
+    end
+  end
+end
+
 
 module Rees46Api
   class Application < Rails::Application
@@ -104,6 +126,7 @@ module Rees46Api
     config.middleware.insert 0, ::SetUnicornProcline
     config.middleware.insert 0, ::HandleInvalidPercentEncoding
     config.middleware.insert 0, Rack::UTF8Sanitizer
+    config.middleware.insert_before ActionDispatch::ParamsParser, ::CatchJsonParseErrors
 
     config.support_email = 'support@rees46.com'
 

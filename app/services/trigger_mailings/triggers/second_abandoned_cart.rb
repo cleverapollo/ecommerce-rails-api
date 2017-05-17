@@ -18,30 +18,30 @@ module TriggerMailings
       end
 
       def condition_happened?
+        Slavery.on_slave do
+          # Если в это время был заказ, то не отправлять письмо
+          return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
-        # Если в это время был заказ, то не отправлять письмо
-        return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
+          # Проверка что последное письмо отправили киленту 1 дня назад
+          return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
 
-        # Проверка что последное письмо отправили киленту 1 дня назад
-        return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
+          # Находим вчерашную не открытую брошеную корзину
+          unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: shop.trigger_abandoned_cart_id).where(client_id: client.id)
+          return false if !unopened_abandoned_cart
 
-        # Находим вчерашную не открытую брошеную корзину
-        trigger_mailing = TriggerMailing.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
-        unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: trigger_mailing.id).where(client_id: client.id)
-        return false if !unopened_abandoned_cart
-
-        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-        if actions.exists?
-          @happened_at = actions.first.cart_date
-          @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
-          @source_item = @source_items.first
-          if @source_item
-            return true
+          # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
+          actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
+          if actions.exists?
+            @happened_at = actions.first.cart_date
+            @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
+            @source_item = @source_items.first
+            if @source_item
+              return true
+            end
           end
-        end
 
-        false
+          false
+        end
       end
 
       # Рекомендации для второй брошенной корзины
