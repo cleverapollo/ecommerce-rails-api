@@ -58,34 +58,6 @@ class TriggerMailingWorker
                         end
                       end
 
-
-                      # # todo перенести, возможно в
-                      # trigger = trigger_detector.detect(client)
-                      # if trigger.present?
-                      #   if shop.mailings_settings.external_getresponse?
-                      #     TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
-                      #   elsif shop.mailings_settings.external_ofsys?
-                      #     result = TriggerMailings::OfsysLetter.new(client, trigger).send
-                      #     next unless result
-                      #   elsif shop.mailings_settings.is_optivo_for_mytoys?
-                      #     TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
-                      #   elsif shop.mailings_settings.external_mailganer?
-                      #     TriggerMailings::MailganerLetter.new(client, trigger).send
-                      #   elsif shop.mailings_settings.external_mailchimp?
-                      #     triggers_to_send[:second_abandoned_cart].present? ? triggers_to_send[:second_abandoned_cart] << trigger :  triggers_to_send[:second_abandoned_cart] = [trigger]
-                      #   else
-                      #     begin
-                      #       TriggerMailings::Letter.new(client, trigger).send
-                      #     rescue TriggerMailings::Letter::EmptyProductsCollectionError => e
-                      #       # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
-                      #       # Костыль, конечно, но пока так.
-                      #     end
-                      #   end
-                      #   unless shop.mailings_settings.external_mailchimp?
-                      #     client.update_columns(last_trigger_mail_sent_at: Time.now)
-                      #     client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
-                      #   end
-                      # end
                     rescue StandardError => e
                       Rails.logger.error e
                       Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
@@ -115,30 +87,6 @@ class TriggerMailingWorker
                         triggers_to_send[trigger_type].present? ? triggers_to_send[trigger_type] << trigger : triggers_to_send[trigger_type] = [trigger]
                       end
 
-                      # if shop.mailings_settings.external_getresponse?
-                      #   TriggerMailings::GetResponseLetter.new(client, trigger, get_response_client).send
-                      # elsif shop.mailings_settings.external_ofsys?
-                      #   result = TriggerMailings::OfsysLetter.new(client, trigger).send
-                      #   next unless result
-                      # elsif shop.mailings_settings.is_optivo_for_mytoys?
-                      #   TriggerMailings::OptivoMytoysLetter.new(client, trigger).send
-                      # elsif shop.mailings_settings.external_mailganer?
-                      #   TriggerMailings::MailganerLetter.new(client, trigger).send
-                      # elsif shop.mailings_settings.external_mailchimp?
-                      #   trigger_type = trigger.class.to_s.gsub(/\A(.+::)(.+)\z/, '\2').underscore.to_sym
-                      #   triggers_to_send[trigger_type].present? ? triggers_to_send[trigger_type] << trigger :  triggers_to_send[trigger_type] = [trigger]
-                      # else
-                      #   begin
-                      #     TriggerMailings::Letter.new(client, trigger).send
-                      #   rescue TriggerMailings::Letter::EmptyProductsCollectionError => e
-                      #     # Если вдруг не было товаров к рассылке, то просто ничего не делаем. Письмо в базе остается как будто отправленное.
-                      #     # Костыль, конечно, но пока так.
-                      #   end
-                      # end
-                      # unless shop.mailings_settings.external_mailchimp?
-                      #   client.update_columns(last_trigger_mail_sent_at: Time.now)
-                      #   client.update_columns(supply_trigger_sent: true) if trigger.class == TriggerMailings::Triggers::LowOnSupply
-                      # end
                     end
                   rescue StandardError => e
                     Rails.logger.error e

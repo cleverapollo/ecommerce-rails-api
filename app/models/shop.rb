@@ -302,4 +302,16 @@ class Shop < MasterTable
   def mailing_dig_verify?
     mailings_settings.mailing_service != MailingsSettings::MAILING_SERVICE_REES46 || verify_domain.try(:[], 'domain') && verify_domain.try(:[], 'spf') && verify_domain.try(:[], 'dkim') && verify_domain.try(:[], 'dmarc')
   end
+
+  # Trigger mailing cache ids
+  # @return [Integer]
+  def trigger_abandoned_cart_id
+    @trigger_abandoned_cart_id ||= TriggerMailing.where(shop_id: self.id).where(trigger_type: 'abandoned_cart').pluck(:id).first
+  end
+
+  # Web push trigger cache ids
+  # @return [Integer]
+  def web_push_trigger_abandoned_cart_id
+    @web_push_trigger_abandoned_cart_id ||= WebPushTrigger.where(shop_id: self.id).where(trigger_type: 'abandoned_cart').pluck(:id).first
+  end
 end
