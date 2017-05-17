@@ -35,7 +35,7 @@ class Client < ActiveRecord::Base
 
   scope :ready_for_second_abandoned_cart, -> (shop) do
     clients_ids = TriggerMail.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(opened: false).where(trigger_mailing_id: shop.trigger_abandoned_cart_id).select(:client_id)
-    where(id: clients_ids).where(last_trigger_mail_sent_at: 28.hours.ago..24.hours.ago)
+    with_email.where(id: clients_ids).where(last_trigger_mail_sent_at: 28.hours.ago..24.hours.ago)
   end
 
   scope :ready_for_second_abandoned_cart_web_push, -> (shop) do

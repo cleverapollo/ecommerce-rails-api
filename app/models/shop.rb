@@ -84,7 +84,7 @@ class Shop < MasterTable
   # Корзину ограничиваем неделей
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
-    carted_list = actions.where('rating::numeric = ?', Actions::Cart::RATING).where(user_id: user.id).where('cart_date >= ?', 7.days.ago).pluck(:item_id)
+    carted_list = ClientCart.find_by(shop_id: id, user_id: user.id).try(:items) || []
     purchased_list = items.where(id: order_items.where(order_id: user.orders)).not_periodic.pluck(:id)
     carted_list + purchased_list
   end

@@ -106,7 +106,7 @@ module Recommender
         if result.size < limit
 
           result += items_relation_with_price_condition.order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id).uniq
-
+          puts items_relation_with_price_condition.order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).select(:id).to_sql
           if result.size < limit
             # Расширяем границы поиска
             result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)

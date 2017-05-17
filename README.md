@@ -46,14 +46,9 @@ $ foreman start
 ### Тесты
 
 ```sh
-RAILS_ENV=test bundle exec rake db:reset
-RAILS_ENV=test bundle exec rake db:test:load_schema
-rspec
-```
-or
-```sh
 bin/testing
 ```
+
 ### Ручное импортирование YML файла
 
 ```

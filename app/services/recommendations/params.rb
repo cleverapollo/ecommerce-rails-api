@@ -268,6 +268,10 @@ module Recommendations
       end
     end
 
+    # Получает список Item id
+    def exclude_item_ids
+      @exclude_item_ids ||= (raw[:exclude].present? ? shop.items.where(uniqid: exclude).pluck(:id) : [])
+    end
 
   end
 end
