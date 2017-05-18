@@ -313,8 +313,8 @@ class Item < ActiveRecord::Base
             table = size_table.new
             _sizes = offer.fashion.sizes.map { |size|
               size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
-            }.sort.compact
-            item.fashion_sizes = _sizes && _sizes.any? ? _sizes : nil
+            }.compact
+            item.fashion_sizes = _sizes && _sizes.any? ? _sizes.sort : nil
           end
         end
       else
