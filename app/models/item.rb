@@ -269,8 +269,9 @@ class Item < ActiveRecord::Base
   end
 
   # @param offer [Rees46ML::Offer]
+  # @param [String] category
   # @return [Item]
-  def self.build_by_offer(offer)
+  def self.build_by_offer(offer, category, wear_types)
     new do |item|
       item.uniqid = offer.id
       item.name = offer.name
@@ -288,27 +289,31 @@ class Item < ActiveRecord::Base
       item.discount = item.price.present? && item.oldprice.present? && item.price < item.oldprice
       item.url = offer.url
       item.image_url = offer.pictures.first
+      item.image_url = item.image_url.strip if item.image_url.present?
       item.type_prefix = offer.type_prefix
       item.vendor_code = offer.vendor_code
       item.barcode = offer.barcodes.first
 
 
+      # Определяем тип одежды
+      (item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(item.name) }.try(:first)) if item.name.present?
+      (item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
+
       if offer.fashion?
         item.is_fashion = true
         item.fashion_feature = offer.fashion.feature
-        item.fashion_wear_type = offer.fashion.type
+        item.fashion_wear_type = offer.fashion.type if offer.fashion.type
         item.fashion_gender = offer.fashion.gender.value if offer.fashion.gender && offer.fashion.gender.valid?
 
-        if offer.fashion.gender && offer.fashion.type
-          size_table = "SizeTables::#{ offer.fashion.type.camelcase }".safe_constantize
-
+        if offer.fashion.gender && item.fashion_wear_type
+          size_table = "SizeTables::#{ item.fashion_wear_type.camelcase }".safe_constantize
 
           # TODO: тут не работает unisex
           if size_table && offer.fashion.gender.value
             table = size_table.new
             _sizes = offer.fashion.sizes.map { |size|
               size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
-            }.compact
+            }.sort.compact
             item.fashion_sizes = _sizes && _sizes.any? ? _sizes : nil
           end
         end

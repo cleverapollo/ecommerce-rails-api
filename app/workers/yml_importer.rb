@@ -17,6 +17,9 @@ class YmlImporter
     # Выходим, если файл уже обрабатывается и время старта меньше 1 дня
     return if !force && current_shop.yml_load_start_at.present? && current_shop.yml_load_start_at > 1.day.ago
 
+    # Выходим, если файл не указан
+    return if current_shop.yml_file_url.blank?
+
     # Проверяем, менялся ли файл: http://y.mkechinov.ru/issue/REES-3526
     # Если файл статический и у нас есть дата последней успешной обработки и запрос возвращает 304, то пропускаем
     # обработку, т.к. файл не изменился
@@ -34,7 +37,9 @@ class YmlImporter
       end
     end
 
-    result = current_shop.import do |yml|
+    result = current_shop.import do
+      # @type [Rees46ML::File] yml
+      |yml|
 
       # @type shop [Rees46ML::Shop]
       shop = yml.shop
@@ -76,15 +81,13 @@ class YmlImporter
 
               offers_count += 1
 
-              new_item = Item.build_by_offer(offer)
+              new_item = Item.build_by_offer(offer, category, wear_types)
               new_item.id = index
               new_item.shop_id = shop_id
               new_item.is_available = offer.available
               new_item.category_ids = category_ids
               new_item.location_ids = location_ids.uniq if location_ids.compact.any? # Не пишем пустые массивы
               new_item.locations = locations
-              (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(new_item.name) }.try(:first)) if new_item.name.present?
-              (new_item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(category) }.try(:first)) if category.present?
               if new_item.name.present? && (new_item.brand.nil? || !new_item.brand.present?)
                 new_item.brand = brands.detect{ |brand| brand.match? new_item.name }.try(:name)
               end
@@ -117,7 +120,7 @@ class YmlImporter
 
     end
 
-    if result == true
+    if result
       # Записываем в лог число обработанных товаров
       CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
 

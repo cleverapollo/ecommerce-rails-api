@@ -203,6 +203,7 @@ class Shop < MasterTable
   # @param [Exception] e
   # @param [String] message
   def import_error(e, message)
+    raise e unless Rails.env.production?
     I18n.locale = customer.language
     ErrorsMailer.yml_import_error(self, message).deliver_now
     Rollbar.warning(e, message, shop_id: id)
