@@ -314,7 +314,7 @@ class Item < ActiveRecord::Base
             _sizes = offer.fashion.sizes.map { |size|
               size.ru? ? size.num : table.value(offer.fashion.gender.value, size.region, (offer.adult? ? :adult : :child), size.num)
             }.compact
-            item.fashion_sizes = _sizes && _sizes.any? ? _sizes.sort : nil
+            item.fashion_sizes = _sizes && _sizes.any? ? _sizes.sort_by(&:to_i) : nil
           end
         end
       else
