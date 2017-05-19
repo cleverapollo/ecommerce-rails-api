@@ -26,7 +26,7 @@ module DigestMailings
 
         DigestMailingRecommendationsCalculator.open(shop, recommendations_count) do |calculator|
 
-          clients = shop.clients.with_email.suitable_for_digest_mailings.includes(:user)
+          clients = shop.clients.suitable_for_digest_mailings.includes(:user)
 
           # Для юзера без истории и профиля здесь будем хранить дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
           empty_user_recommendations = nil
