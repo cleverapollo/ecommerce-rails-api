@@ -17,7 +17,12 @@ class DataManager
       begin
         cls = table.classify.constantize
       rescue
-        cls = table.titleize.gsub(/\s/, '').constantize
+        begin
+          cls = table.titleize.gsub(/\s/, '').constantize
+        rescue
+          STDOUT.write "skip\n\r"
+          next
+        end
       end
 
       # Получаем список зависимостей

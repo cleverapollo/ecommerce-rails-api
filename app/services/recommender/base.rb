@@ -259,7 +259,7 @@ module Recommender
     # - купленные пользователем
     # - переданные в параметре :exclude
     def excluded_items_ids
-      [item.try(:id), cart_item_ids, shop.item_ids_bought_or_carted_by(user), shop.items.where(uniqid: params.exclude).pluck(:id)].flatten.uniq.compact
+      [item.try(:id), cart_item_ids, item_ids_bought_or_carted, params.exclude_item_ids].flatten.uniq.compact
     end
 
     def recommend_only_widgetable?
@@ -285,6 +285,11 @@ module Recommender
     # Товары, доступные к рекомендациям - переопределяется в реализациях
     def items_to_recommend
       items_in_shop
+    end
+
+    # Получает ID всех товаров в корзине юзера и в истории заказов (исключая переодические)
+    def item_ids_bought_or_carted
+      @item_ids_bought_or_carted ||= shop.item_ids_bought_or_carted_by(user)
     end
   end
 end

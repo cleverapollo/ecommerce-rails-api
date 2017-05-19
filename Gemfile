@@ -10,6 +10,10 @@ gem 'rails', '4.2.6'
 gem 'rails-api', '0.4.1'
 gem 'rake', '< 11.0'
 gem "sinatra", require: false # for sidekiq
+gem 'slavery', github: 'PNixx/slavery' # support read from slave server
+
+# Хороший гем, но не дружит с Octopus
+# gem 'active_record_slave'
 
 # Server
 gem 'unicorn', '~> 4.9.0'

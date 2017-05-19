@@ -84,8 +84,8 @@ class Shop < MasterTable
   # Корзину ограничиваем неделей
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
-    carted_list = actions.where('rating::numeric = ?', Actions::Cart::RATING).where(user_id: user.id).where('cart_date >= ?', 7.days.ago).pluck(:item_id)
-    purchased_list = items.where(id: order_items.where(order_id: user.orders)).not_periodic.pluck(:id)
+    carted_list = ClientCart.find_by(shop_id: id, user_id: user.id).try(:items) || []
+    purchased_list = items.where(id: order_items.where(order_id: user.orders).select(:item_id)).not_periodic.pluck(:id)
     carted_list + purchased_list
   end
 
@@ -203,6 +203,7 @@ class Shop < MasterTable
   # @param [Exception] e
   # @param [String] message
   def import_error(e, message)
+    raise e unless Rails.env.production?
     I18n.locale = customer.language
     ErrorsMailer.yml_import_error(self, message).deliver_now
     Rollbar.warning(e, message, shop_id: id)
@@ -301,5 +302,17 @@ class Shop < MasterTable
   # @return [Boolean]
   def mailing_dig_verify?
     mailings_settings.mailing_service != MailingsSettings::MAILING_SERVICE_REES46 || verify_domain.try(:[], 'domain') && verify_domain.try(:[], 'spf') && verify_domain.try(:[], 'dkim') && verify_domain.try(:[], 'dmarc')
+  end
+
+  # Trigger mailing cache ids
+  # @return [Integer]
+  def trigger_abandoned_cart_id
+    @trigger_abandoned_cart_id ||= TriggerMailing.where(shop_id: self.id).where(trigger_type: 'abandoned_cart').pluck(:id).first
+  end
+
+  # Web push trigger cache ids
+  # @return [Integer]
+  def web_push_trigger_abandoned_cart_id
+    @web_push_trigger_abandoned_cart_id ||= WebPushTrigger.where(shop_id: self.id).where(trigger_type: 'abandoned_cart').pluck(:id).first
   end
 end

@@ -21,20 +21,22 @@ module TriggerMailings
       # 1. Последнее действие было месяц назад.
       # 2. После этого не было действий вообще.
       def condition_happened?
-        if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
-          @happened_at = 1.month.ago
-          @source_items = []
+        Slavery.on_slave do
+          if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
+            @happened_at = 1.month.ago
+            @source_items = []
 
-          @bought_item = []
-          orders_relation = user.orders.where(shop: shop) #.where(date: trigger_time_range)
-          orders_relation = orders_relation.successful if shop.track_order_status?
-          orders_relation.each do |order|
-            @bought_item << Item.where(id: order.order_items.pluck(:item_id)).pluck(:uniqid)
+            @bought_item = []
+            orders_relation = user.orders.where(shop: shop) #.where(date: trigger_time_range)
+            orders_relation = orders_relation.successful if shop.track_order_status?
+            orders_relation.each do |order|
+              @bought_item << Item.where(id: order.order_items.pluck(:item_id)).pluck(:uniqid)
+            end
+
+            return true
           end
-
-          return true
+          false
         end
-        false
       end
 
       # Рекомендации для долгой неактивности:

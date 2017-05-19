@@ -95,7 +95,7 @@ module TriggerMailings
             require 'net/sftp'
 
             begin
-              session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner')
+              session = Net::SSH.start('ftpapi.broadmail.de', 'r_mytoysru_partner', timeout: 5)
               sftp = Net::SFTP::Session.new(session).connect!
               trigger_types_matching.each do |key, trigger|
                 sftp.upload!("tmp/optivo_mytoys/#{trigger[:file_source]}", trigger[:file_source])                         if File.exists? "tmp/optivo_mytoys/#{trigger[:file_source]}"

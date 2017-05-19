@@ -34,14 +34,12 @@ class Client < ActiveRecord::Base
 
 
   scope :ready_for_second_abandoned_cart, -> (shop) do
-    trigger_mailing = TriggerMailing.where(shop: shop).where(trigger_type: 'abandoned_cart').select(:id)
-    clients_ids = TriggerMail.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(opened: false).where(trigger_mailing_id: trigger_mailing).select(:id)
-    where(id: clients_ids).where(last_trigger_mail_sent_at: 28.hours.ago..24.hours.ago)
+    clients_ids = TriggerMail.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(opened: false).where(trigger_mailing_id: shop.trigger_abandoned_cart_id).select(:client_id)
+    with_email.where(id: clients_ids).where(last_trigger_mail_sent_at: 28.hours.ago..24.hours.ago)
   end
 
   scope :ready_for_second_abandoned_cart_web_push, -> (shop) do
-    web_push_trigger_id = WebPushTrigger.where(shop: shop).where(trigger_type: 'abandoned_cart').limit(1).pluck(:id).first
-    clients_ids = WebPushTriggerMessage.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(clicked: false).where(web_push_trigger_id: web_push_trigger_id).select(:id)
+    clients_ids = WebPushTriggerMessage.where(shop: shop).where(created_at: 28.hours.ago..24.hours.ago).where(clicked: false).where(web_push_trigger_id: shop.web_push_trigger_abandoned_cart_id).select(:client_id)
     where(id: clients_ids).where(last_web_push_sent_at: 28.hours.ago..24.hours.ago)
   end
   scope :ready_for_web_push_trigger, -> (shop) { where('web_push_enabled = true AND ((last_web_push_sent_at is null) OR last_web_push_sent_at < ? )', shop.trigger_pause.days.ago) }

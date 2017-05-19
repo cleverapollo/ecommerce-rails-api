@@ -9,6 +9,17 @@ production:
   port: 5432
   timeout: 5000
 
+production_slave:
+  adapter: postgresql
+  encoding: unicode
+  database: rees46_production
+  pool: 5
+  username: rees46
+  password: rees46
+  host: localhost
+  port: 5432
+  timeout: 5000
+
 production_master:
   database: master_database
   host: localhost
@@ -21,6 +32,17 @@ production_master:
   port: 5432
 
 development:
+  adapter: postgresql
+  encoding: unicode
+  database: rees46_development
+  pool: 5
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
+  host: localhost
+  port: 5432
+  timeout: 5000
+
+development_slave:
   adapter: postgresql
   encoding: unicode
   database: rees46_development

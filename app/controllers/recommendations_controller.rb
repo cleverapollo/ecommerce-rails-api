@@ -22,6 +22,15 @@ class RecommendationsController < ApplicationController
     recommendations = Recommendations::Processor.process(extracted_params)
     extracted_params.track_recommender = false
 
+    # Если нашли меньше, чем нужно для see_also, also_bought
+    if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
+      extracted_params.industrial_kids = false
+      extracted_params.exclude += recommendations
+
+      # Запускаем процессор с извлеченными данными
+      recommendations += Recommendations::Processor.process(extracted_params)
+    end
+
     # Если нашли меньше, чем нужно для also_bought
     if recommendations.count < extracted_params.limit && %w(also_bought).include?(extracted_params.type)
 
@@ -34,15 +43,6 @@ class RecommendationsController < ApplicationController
 
       # Запускаем процессор с извлеченными данными
       recommendations += recommender.recommendations
-    end
-
-    # Если нашли меньше, чем нужно для see_also, also_bought
-    if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-      extracted_params.industrial_kids = false
-      extracted_params.exclude += recommendations
-
-      # Запускаем процессор с извлеченными данными
-      recommendations += Recommendations::Processor.process(extracted_params)
     end
 
     # Если нашли меньше, чем нужно для see_also, also_bought

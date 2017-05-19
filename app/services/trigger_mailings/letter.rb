@@ -6,6 +6,8 @@ module TriggerMailings
     class IncorrectMailingSettingsError < StandardError; end
     class EmptyProductsCollectionError < StandardError; end
 
+    # @return [Shop]
+    attr_accessor :shop
     attr_accessor :client, :trigger, :trigger_mail, :body
 
     # Конструктор
@@ -15,7 +17,7 @@ module TriggerMailings
       @client = client
       @shop = @client.shop
       @trigger = trigger
-      @mailings_settings = @shop.mailings_settings
+      @mailings_settings = Slavery.on_slave { @shop.mailings_settings }
       @trigger_mail = client.trigger_mails.create!(
         mailing: trigger.mailing,
         shop: client.shop,
@@ -112,8 +114,8 @@ module TriggerMailings
 
 
     # Обертка над товаром для отображения в письме
-    # @param [Item] товар
-    # @param location [String] Идентификатор локации, в которой находится клиент
+    # @param [Item] item товар
+    # @param [String] location Идентификатор локации, в которой находится клиент
     # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров
     # @return [Hash] обертка
     def item_for_letter(item, location, images_dimension = nil)
@@ -129,7 +131,7 @@ module TriggerMailings
         oldprice: item.oldprice.to_i,
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail).merge(r46_merger: Base64.encode64(@client.email.to_s).strip)),
         image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),
-        currency: item.shop.currency,
+        currency: self.shop.currency,
         id: item.uniqid.to_s,
         barcode: item.barcode.to_s,
         brand: item.brand.to_s,

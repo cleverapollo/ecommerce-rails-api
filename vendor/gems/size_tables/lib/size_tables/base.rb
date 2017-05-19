@@ -54,7 +54,7 @@ module SizeTables
         if value.is_a?(Proc)
           value = value.call(key)
         else
-          value = value[key]
+          value = value[key.upcase]
         end
       end
       value

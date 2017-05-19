@@ -18,18 +18,19 @@ module TriggerMailings
       end
 
       def condition_happened?
+        Slavery.on_slave do
+          # Если в это время был заказ, то не отправлять письмо
+          return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
-        # Если в это время был заказ, то не отправлять письмо
-        return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
-
-        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-        if actions.exists?
-          @happened_at = actions.first.cart_date
-          @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
-          @source_item = @source_items.first
-          if @source_item
-            return true
+          # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
+          actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
+          if actions.exists?
+            @happened_at = actions.first.cart_date
+            @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
+            @source_item = @source_items.first
+            if @source_item
+              return true
+            end
           end
         end
 
@@ -45,7 +46,7 @@ module TriggerMailings
           item: source_item,
           limit: count,
           recommend_only_widgetable: true,
-          locations: @source_item.locations
+          locations: source_item.locations
         )
 
         # Сначала похожие товары
