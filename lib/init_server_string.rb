@@ -207,7 +207,7 @@ module InitServerString
           session.synced_with_advmaker_at = Date.current
         end
         if session.synced_with_doubleclick_at.nil? || session.synced_with_doubleclick_at < Date.current
-          pixels << "//cm.g.doubleclick.net/pixel?google_nid=217939336&google_sc=1&google_cm=1&google_hm=#{Base64.urlsafe_encode64(session.code)}"
+          pixels << "//cm.g.doubleclick.net/pixel?google_nid=217939336&google_sc=1&google_cm=1&google_hm=#{session.code}"
           session.synced_with_doubleclick_at = Date.current
         end
 
