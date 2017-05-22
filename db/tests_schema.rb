@@ -11,11 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170510121318) do
+ActiveRecord::Schema.define(version: 20170522075922) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "pg_trgm"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -329,11 +328,11 @@ ActiveRecord::Schema.define(version: 20170510121318) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -357,6 +356,20 @@ ActiveRecord::Schema.define(version: 20170510121318) do
   add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
+
+  create_table "dummy", id: false, force: :cascade do |t|
+    t.integer "id",            limit: 8
+    t.string  "gender",        limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
+    t.jsonb   "children",                array: true
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
+    t.jsonb   "jewelry"
+  end
 
   create_table "e_komi_requests", force: :cascade do |t|
     t.integer  "shop_id"
@@ -849,6 +862,7 @@ ActiveRecord::Schema.define(version: 20170510121318) do
     t.jsonb    "verify_domain",                             default: {},    null: false
     t.datetime "last_orders_import_at"
     t.datetime "yml_load_start_at"
+    t.string   "yml_state"
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

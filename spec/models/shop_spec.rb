@@ -26,14 +26,15 @@ describe Shop do
       before { allow_any_instance_of(Shop).to receive(:yml_allow_import?).and_return(true) }
       before { Shop.import_yml_files }
 
-      it { expect(YmlImporter).to have_enqueued_job(shop.id) }
+      it { expect(YmlImporter).to have_enqueued_job(shop.id, false) }
+      it { expect(shop.reload.yml_state).to eq('queue') }
     end
 
     context "any yml forbid import" do
       before { allow_any_instance_of(Shop).to receive(:yml_allow_import?).and_return(false) }
       before { Shop.import_yml_files }
 
-      it { expect(YmlImporter).to_not have_enqueued_job(shop.id) }
+      it { expect(YmlImporter).to_not have_enqueued_job(shop.id, false) }
     end
   end
 end

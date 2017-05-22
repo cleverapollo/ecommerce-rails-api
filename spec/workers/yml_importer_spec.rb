@@ -12,6 +12,7 @@ describe YmlImporter do
   it 'import' do
     subject
     expect(shop.reload.yml_loaded).to be_truthy
+    expect(shop.reload.yml_state).to be_nil
     expect(Item.count).to eq(1)
     expect(ItemCategory.count).to eq(3)
 
