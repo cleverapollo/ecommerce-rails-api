@@ -108,17 +108,15 @@ class UserMerger
     # @return [Client]
     def merge_by_facebook(shop, client, fb_id)
       # Найдем пользователя с тем же в данном магазине
-      client_with = shop.clients.where.not(id: client.id).where(fb_id: fb_id).order(id: :asc).limit(1)[0]
-      if client_with
+      client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(fb_id: fb_id)
+      if client_with.present?
         old_user = client_with.user
         UserMerger.merge(old_user, client.user)
       else
-        # И при этом этого мыла больше нигде нет
-        # Запоминаем его для текущего пользователя
-        # Адовый способ не ломать транзакцию
-        exclude_query = 'NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and fb_id = ?)'
-        shop.clients.where(id: client.id).where(exclude_query, shop.id, fb_id).update_all(fb_id: fb_id)
-        client.reload.user
+        # Обновляем текущему клиенту email
+        client.fb_id = fb_id
+        client.atomic_save!
+        client.user
       end
     end
 
@@ -129,17 +127,15 @@ class UserMerger
     # @return [Client]
     def merge_by_vkontakte(shop, client, vk_id)
       # Найдем пользователя с тем же в данном магазине
-      client_with = shop.clients.where.not(id: client.id).where(vk_id: vk_id).order(id: :asc).limit(1)[0]
-      if client_with
+      client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(vk_id: vk_id)
+      if client_with.present?
         old_user = client_with.user
         UserMerger.merge(old_user, client.user)
       else
-        # И при этом этого мыла больше нигде нет
-        # Запоминаем его для текущего пользователя
-        # Адовый способ не ломать транзакцию
-        exclude_query = 'NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and vk_id = ?)'
-        shop.clients.where(id: client.id).where(exclude_query, shop.id, vk_id).update_all(vk_id: vk_id)
-        client.reload.user
+        # Обновляем текущему клиенту email
+        client.vk_id = vk_id
+        client.atomic_save!
+        client.user
       end
     end
   end

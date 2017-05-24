@@ -64,9 +64,6 @@ class Shop < MasterTable
   validates_attachment_content_type :logo, content_type: /\Aimage/
   validates_attachment_file_name :logo, matches: [/png\Z/i, /jpe?g\Z/i]
 
-  # Делаем так, чтобы в API были доступны только те магазины, которые принадлежат текущему шарду
-  default_scope { where(shard: SHARD_ID) }
-
   scope :with_valid_yml, -> { where('yml_file_url is not null').where("yml_file_url != ''").where("yml_errors < 5" ) }
   scope :with_yml_processed_recently, -> { where('last_valid_yml_file_loaded_at IS NOT NULL') }
   scope :with_enabled_triggers, -> { where(id: TriggerMailing.where(enabled: true).pluck(:shop_id).uniq ) }
@@ -123,23 +120,24 @@ class Shop < MasterTable
     rescue NotRespondingError => ex
       ErrorsMailer.yml_url_not_respond.deliver_now
       Rollbar.error(ex, "Yml not respond", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
-      update_columns(yml_loaded: false)
+      update_columns(yml_loaded: false, yml_state: 'failed')
     rescue NoXMLFileInArchiveError => ex
       I18n.locale = customer.language
       ErrorsMailer.yml_import_error(self, I18n.t('yml_errors.no_files_in_archive')).deliver_now
       Rollbar.error(ex, "Не обнаружено XML-файлов в архиве.", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
-      update_columns(yml_loaded: false)
+      update_columns(yml_loaded: false, yml_state: 'failed')
     rescue => ex
-      update_columns(yml_loaded: false)
+      update_columns(yml_loaded: false, yml_state: 'failed')
       Rollbar.error(ex, "YML importing failed", attributes.select{|k,_| k =~ /yml/}.merge(shop_id: self.id))
       raise
     end
   end
 
+  # Импорт YML файлов всех активных магазинов
   def self.import_yml_files
-    active.connected.with_valid_yml.where(shard: SHARD_ID).where('yml_load_start_at IS NULL or yml_load_start_at < now() - INTERVAL \'1 day\'').each do |shop|
+    active.connected.with_valid_yml.where('yml_load_start_at IS NULL or yml_load_start_at < now() - INTERVAL \'1 day\'').each do |shop|
       if shop.yml_allow_import?
-        YmlImporter.perform_async(shop.id)
+        shop.async_yml_import
       elsif shop.yml_errors >= 5
         ErrorsMailer.yml_off(shop).deliver_now
       end
@@ -151,7 +149,7 @@ class Shop < MasterTable
   end
 
   def yml_allow_import?
-    yml_expired? && ((yml_errors || 0) < 5)
+    yml_expired? && ((yml_errors || 0) < 5) && (yml_state.nil? || yml_state == 'failed')
   end
 
 
@@ -171,12 +169,24 @@ class Shop < MasterTable
     update(last_valid_yml_file_loaded_at: (Time.now.utc - yml_load_period.hours), yml_errors: 0)
   end
 
+  # Создает очередь на обработку YML
+  # @param [Boolean] force Флаг, что насильно переимпортировать файл, игнорируя if-modified-since
+  def async_yml_import(force = false)
+
+    # Добавляем статус в редис
+    self.yml_state = 'queue'
+    self.atomic_save!
+
+    # Добавляем задачу на обработку yml
+    YmlImporter.perform_async(self.id, force)
+  end
+
   def import
     begin
       # Указываем время начала
       update_attribute(:yml_load_start_at, Time.now)
       yield yml if block_given?
-      update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0)
+      update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil)
     rescue PG::TRDeadlockDetected => e
       Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
     rescue Yml::NoXMLFileInArchiveError => e
@@ -207,7 +217,7 @@ class Shop < MasterTable
     I18n.locale = customer.language
     ErrorsMailer.yml_import_error(self, message).deliver_now
     Rollbar.warning(e, message, shop_id: id)
-    increment!(:yml_errors)
+    update(yml_errors: self.yml_errors + 1, yml_state: 'failed')
     CatalogImportLog.create shop_id: id, success: false, message: message
   end
 

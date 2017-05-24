@@ -21,6 +21,9 @@ class ItemsImportWorker
     if method == :delete
       delete_items(items)
     end
+
+    # Обновляем дату yml
+    shop.update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil, yml_loaded: true)
   rescue Exception => e
     ErrorsMailer.products_import_error(self.shop, e.message).deliver_now
   ensure
