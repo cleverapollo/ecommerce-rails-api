@@ -64,7 +64,7 @@ class People::Segmentation::DynamicCalculateWorker
       # ---------->
 
       # Достаем весь список юзеров, доступных для рассылок
-      users = users_relation.pluck('DISTINCT "clients".user_id')
+      users = Slavery.on_slave { users_relation.pluck('DISTINCT "clients".user_id') }
 
       # Фильтруем список дополнительно по просмотрам
       if segment.filters[:marketing].present?
@@ -99,7 +99,7 @@ class People::Segmentation::DynamicCalculateWorker
           end
 
           # Достаем список юзеров
-          users = users_relation.pluck('DISTINCT "actions".user_id')
+          users = Slavery.on_slave { users_relation.pluck('DISTINCT "actions".user_id') }
         end
       end
 
