@@ -13,6 +13,7 @@ class Client < ActiveRecord::Base
   has_many :web_push_digest_messages
   has_many :web_push_tokens
   has_many :reputations
+  has_many :orders, foreign_key: :user_id, primary_key: :user_id
 
   before_create :assign_ab_testing_group
   before_save :fix_empty_segment

@@ -56,7 +56,6 @@ class AudienceImportWorker
 
     # Завершаем обновление сегмента, если был указан
     if segment.present?
-      segment.update(updating: false)
       People::Segmentation::SegmentWorker.new.perform(segment)
     end
 

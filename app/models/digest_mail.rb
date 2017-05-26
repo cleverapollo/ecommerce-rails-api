@@ -20,7 +20,13 @@ class DigestMail < ActiveRecord::Base
 
   # Отметить факт открытия письма
   def mark_as_opened!
-    update_columns(opened: true) unless opened?
+    unless opened?
+      update_columns(opened: true)
+
+      # Отмечаем, что клиент хоть раз открывал дайджестную рассылку.
+      # Используется в динамическом сегментаторе
+      client.update_columns(digest_opened: true) unless client.digest_opened?
+    end
   end
 
   # Отметить факт перехода по письму (и соответственно просмотра)

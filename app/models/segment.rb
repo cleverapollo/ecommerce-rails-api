@@ -5,9 +5,11 @@ class Segment < MasterTable
   TYPE_DYNAMIC = 1
   TYPE_STATIC = 2
 
+  serialize :filters, HashSerializer
+
   validates :shop_id, :name, :segment_type, presence: true
 
-  after_destroy :remove_segment_from_client
+  after_destroy :remove_segment_from_clients
 
   class << self
 
@@ -27,11 +29,9 @@ class Segment < MasterTable
     shop.clients.with_segment(self.id)
   end
 
-  private
-
   # Убирает связь у клиента с удаленным сегментом
   # Если у клиента больше не остается сегментов, сохраняем как null
-  def remove_segment_from_client
+  def remove_segment_from_clients
     self.clients.update_all("segment_ids = CASE COALESCE(array_length(array_remove(segment_ids, #{self.id}), 1), 0) WHEN 0 THEN NULL ELSE array_remove(segment_ids, #{self.id}) END")
   end
 end
