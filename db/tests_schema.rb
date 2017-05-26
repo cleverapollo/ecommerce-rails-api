@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170522075922) do
+ActiveRecord::Schema.define(version: 20170525090331) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -981,7 +981,7 @@ ActiveRecord::Schema.define(version: 20170522075922) do
     t.boolean "allergy"
     t.jsonb   "cosmetic_hair"
     t.jsonb   "cosmetic_skin"
-    t.jsonb   "children",                array: true
+    t.jsonb   "children"
     t.jsonb   "compatibility"
     t.jsonb   "vds"
     t.jsonb   "pets"

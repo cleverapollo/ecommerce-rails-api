@@ -55,16 +55,16 @@ describe RecommendationsController do
 
   end
 
-  context 'when also_bought empty' do
-    before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
-    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: item.uniqid } }
-
-    it 'process exactly 3 times' do
-      get :get, params
-
-      expect(Recommendations::Processor).to have_received(:process).exactly(3).times
-    end
-  end
+  # context 'when also_bought empty' do
+  #   before { allow(Recommendations::Processor).to receive(:process).and_return([]) }
+  #   let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'also_bought', item_id: item.uniqid } }
+  #
+  #   it 'process exactly 3 times' do
+  #     get :get, params
+  #
+  #     expect(Recommendations::Processor).to have_received(:process).exactly(3).times
+  #   end
+  # end
 
   context 'when similar empty' do
     before { allow(Recommendations::Processor).to receive(:process).and_return([]) }

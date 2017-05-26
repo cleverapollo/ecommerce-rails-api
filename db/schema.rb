@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170428065236) do
+ActiveRecord::Schema.define(version: 20170524083711) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,7 +46,6 @@ ActiveRecord::Schema.define(version: 20170428065236) do
   add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
   add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
-  add_index "actions", ["user_id"], name: "index_actions_on_user_id", using: :btree
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
@@ -151,6 +150,7 @@ ActiveRecord::Schema.define(version: 20170428065236) do
     t.integer  "vk_id",                              limit: 8
     t.boolean  "email_confirmed"
     t.integer  "segment_ids",                                                                                array: true
+    t.boolean  "digest_opened"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree

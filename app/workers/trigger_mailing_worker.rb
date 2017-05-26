@@ -110,7 +110,7 @@ class TriggerMailingWorker
         lock.stop_sending!
       end
     else
-      Rollbar.warn('Trigger process too long', shop_id: shop_id)
+      Rollbar.warn("Trigger process too long #{shop_id}")
     end
   ensure
     ActiveRecord::Base.clear_active_connections!
