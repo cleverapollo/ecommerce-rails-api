@@ -2,11 +2,19 @@ class People::Segmentation::DynamicCalculateWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
+  # Запускает перерасчет динамических сегментов для всех подключенных магазнов
+  # Интервал обоновления: 2 дня
+  def self.perform_all_shops
+    Segment.where(shop: Shop.connected.active.unrestricted, segment_type: Segment::TYPE_DYNAMIC).where("updated_at < now() - INTERVAL '2 DAY'").each do |segment|
+      People::Segmentation::DynamicCalculateWorker.perform_async(segment.id)
+    end
+  end
+
   def perform(segment_id)
     return if segment_id.blank?
 
     # Ищем сегмент и проверяем его тип
-    segment = Segment.find segment_id
+    segment = Segment.find_by id: segment_id
     return if segment.nil? || segment.segment_type != Segment::TYPE_DYNAMIC || segment.updating?
 
     # @type [Shop] shop
