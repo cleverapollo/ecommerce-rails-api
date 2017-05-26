@@ -36,7 +36,7 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Purchase
       if segment.filters[:purchase].present? && segment.filters[:purchase][:bought_something].to_i == 1
-        users_relation = users_relation.where(bought_something: true).joins(:orders)
+        users_relation = users_relation.where(bought_something: true).joins(:orders).where('orders.status != ?', Order::STATUS_CANCELLED)
 
         # Покупали в указанный период
         if segment.filters[:purchase][:last].present?
