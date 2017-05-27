@@ -2,11 +2,19 @@ class People::Segmentation::DynamicCalculateWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
 
+  # Запускает перерасчет динамических сегментов для всех подключенных магазнов
+  # Интервал обоновления: 2 дня
+  def self.perform_all_shops
+    Segment.where(shop: Shop.connected.active.unrestricted, segment_type: Segment::TYPE_DYNAMIC).where("updated_at < now() - INTERVAL '2 DAY'").each do |segment|
+      People::Segmentation::DynamicCalculateWorker.perform_async(segment.id)
+    end
+  end
+
   def perform(segment_id)
     return if segment_id.blank?
 
     # Ищем сегмент и проверяем его тип
-    segment = Segment.find segment_id
+    segment = Segment.find_by id: segment_id
     return if segment.nil? || segment.segment_type != Segment::TYPE_DYNAMIC || segment.updating?
 
     # @type [Shop] shop
@@ -28,7 +36,7 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Purchase
       if segment.filters[:purchase].present? && segment.filters[:purchase][:bought_something].to_i == 1
-        users_relation = users_relation.where(bought_something: true).joins(:orders)
+        users_relation = users_relation.where(bought_something: true).joins(:orders).where('orders.status != ?', Order::STATUS_CANCELLED)
 
         # Покупали в указанный период
         if segment.filters[:purchase][:last].present?
@@ -64,7 +72,7 @@ class People::Segmentation::DynamicCalculateWorker
       # ---------->
 
       # Достаем весь список юзеров, доступных для рассылок
-      users = users_relation.pluck('DISTINCT "clients".user_id')
+      users = Slavery.on_slave { users_relation.pluck('DISTINCT "clients".user_id') }
 
       # Фильтруем список дополнительно по просмотрам
       if segment.filters[:marketing].present?
@@ -99,7 +107,7 @@ class People::Segmentation::DynamicCalculateWorker
           end
 
           # Достаем список юзеров
-          users = users_relation.pluck('DISTINCT "actions".user_id')
+          users = Slavery.on_slave { users_relation.pluck('DISTINCT "actions".user_id') }
         end
       end
 

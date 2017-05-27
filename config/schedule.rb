@@ -85,3 +85,7 @@ end
 every '0 23 * * *' do
   runner "RunnerWrapper.run('People::Segmentation::ActivityWorker.perform_all')"
 end
+# Пересчитываем динамические сегменты
+every '57 * * * *' do
+  runner "RunnerWrapper.run('People::Segmentation::DynamicCalculateWorker.perform_all_shops')"
+end
