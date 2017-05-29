@@ -12,10 +12,12 @@ class DigestMailingRecommendationsCalculator
     # @param shop [Shop] магазин.
     # @param limit [Integer] нужное количество рекомендаций.
     def open(shop, limit)
-      calculator = new(shop, limit)
-      calculator.mahout_service.open
-      yield calculator
-      calculator.mahout_service.close
+      Slavery.on_master do
+        calculator = new(shop, limit)
+        calculator.mahout_service.open
+        yield calculator
+        calculator.mahout_service.close
+      end
     end
   end
 
