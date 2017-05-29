@@ -16,8 +16,8 @@ class People::Segmentation::SegmentWorker
         updating: false,
         client_count: shop.clients.with_segment(segment.id).count,
         with_email_count: shop.clients.with_segment(segment.id).with_email.count,
-        trigger_client_count: shop.clients.with_segment(segment.id).where(triggers_enabled: true).count,
-        digest_client_count: shop.clients.with_segment(segment.id).where(digests_enabled: true).count,
+        trigger_client_count: shop.clients.with_email.with_segment(segment.id).where(triggers_enabled: true).count,
+        digest_client_count: shop.clients.with_email.with_segment(segment.id).where(digests_enabled: true).count,
         web_push_client_count: shop.clients.with_segment(segment.id).where(web_push_enabled: true).count,
     })
   end
