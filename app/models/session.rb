@@ -50,7 +50,7 @@ class Session < MasterTable
           end
         end
 
-        session.save if session.changed?
+        session.atomic_save! if session.changed?
       else
         # Создать новую, сгенерировать код и юзера.
         session = create_with_code_and_user(params)

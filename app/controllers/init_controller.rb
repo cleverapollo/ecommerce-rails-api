@@ -21,6 +21,10 @@ class InitController < ApplicationController
     end
 
     session_id = params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME] || cookies[Rees46::COOKIE_NAME]
+    email = nil
+    if params[:user_email].present?
+      email = IncomingDataTranslator.email(params[:user_email])
+    end
 
     session = Session.fetch(code: session_id,
                             email: params[:user_email],
@@ -42,6 +46,13 @@ class InitController < ApplicationController
       client = Client.find_or_create_by!(user_id: session.user_id, shop: shop)
     rescue ActiveRecord::RecordNotUnique => e
       client = Client.find_by!(user_id: session.user_id, shop: shop)
+    end
+
+    # Указано мыло и оно не совпадает с мылом пользователя
+    if email.present? && client.email.blank?
+      user = UserMerger.merge_by_mail(shop, client, email)
+      client = user.clients.find_by(shop: shop, email: email)
+      session.reload
     end
 
     # Сохраняем визит

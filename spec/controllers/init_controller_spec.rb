@@ -233,6 +233,19 @@ describe InitController do
 
     end
 
+    context 'merge user by user_email' do
+      let!(:shop) { create(:shop) }
+      let!(:init_params) { { shop_id: shop.uniqid, user_email: 'test@test.com' } }
+      let!(:user) { create(:user) }
+      let!(:client) { create(:client, email: 'test@test.com', user: user, shop: shop) }
+      before { allow(UserMerger).to receive(:merge_by_mail).and_return(user) }
+
+      it 'merge received' do
+        get :init_script, init_params
+        expect(UserMerger).to have_received(:merge_by_mail).once
+      end
+    end
+
 
 
   end
