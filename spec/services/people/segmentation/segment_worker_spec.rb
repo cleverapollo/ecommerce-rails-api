@@ -12,7 +12,7 @@ describe People::Segmentation::SegmentWorker do
     let!(:user5) { create(:user) }
     let!(:segment) { create(:segment, name: 'test', shop: shop, segment_type: Segment::TYPE_STATIC) }
     let!(:client1) { create(:client, user: user1, shop: shop, email: 'test@test.com', triggers_enabled: false, digests_enabled: false, segment_ids: [segment.id]) }
-    let!(:client2) { create(:client, user: user2, shop: shop, triggers_enabled: true, digests_enabled: false, segment_ids: [segment.id]) }
+    let!(:client2) { create(:client, user: user2, shop: shop, email: 'test2@test.com', triggers_enabled: true, digests_enabled: true, segment_ids: [segment.id]) }
     let!(:client3) { create(:client, user: user3, shop: shop, triggers_enabled: false, digests_enabled: true, segment_ids: [segment.id]) }
     let!(:client4) { create(:client, user: user4, shop: shop, triggers_enabled: false, digests_enabled: false, web_push_enabled: true, segment_ids: [segment.id]) }
     let!(:client5) { create(:client, user: user5, shop: shop, triggers_enabled: true, digests_enabled: true) }
@@ -27,7 +27,7 @@ describe People::Segmentation::SegmentWorker do
       People::Segmentation::SegmentWorker.new.perform(segment)
 
       expect(segment.reload.client_count).to be(4)
-      expect(segment.reload.with_email_count).to be(1)
+      expect(segment.reload.with_email_count).to be(2)
       expect(segment.reload.trigger_client_count).to be(1)
       expect(segment.reload.digest_client_count).to be(1)
       expect(segment.reload.web_push_client_count).to be(1)
