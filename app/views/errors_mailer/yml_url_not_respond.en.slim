@@ -7,3 +7,16 @@ p Please, check the link to the XML-file you provided in your #{link_to 'persona
 p If, by the time your receive this letter, you have already applied the necessary changes to the XML-file and made it available by the same URL, just ignore the message.
 
 = render 'shared/errors_mailer_footer'
+
+script type="application/ld+json"
+  | {
+  |   "@context": "http://schema.org",
+  |   "@type": "EmailMessage",
+  |   "potentialAction": {
+  |     "@type": "ViewAction",
+  |     "target": "#{Rees46.site_url}/instant-auth/#{InstantAuthToken.fetch(@shop.customer).token}?to=#{Rees46.site_url}/shops/#{@shop.id}/products",
+  |     "url": "#{Rees46.site_url}/instant-auth/#{InstantAuthToken.fetch(@shop.customer).token}?to=#{Rees46.site_url}/shops/#{@shop.id}/products",
+  |     "name": "Go to products catalog"
+  |   },
+  |   "description": "Go to products catalog"
+  | }

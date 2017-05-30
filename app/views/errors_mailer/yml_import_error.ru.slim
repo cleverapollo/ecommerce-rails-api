@@ -12,3 +12,16 @@ p Пожалуйста, проверьте корректность YML-файл
 p Если на момент получения данного письма вы уже внесли все необходимые изменения и YML-файл доступен, то просто проигнорируйте это сообщение.
 
 = render 'shared/errors_mailer_footer'
+
+script type="application/ld+json"
+  | {
+  |   "@context": "http://schema.org",
+  |   "@type": "EmailMessage",
+  |   "potentialAction": {
+  |     "@type": "ViewAction",
+  |     "target": "#{Rees46.site_url}/instant-auth/#{InstantAuthToken.fetch(@shop.customer).token}?to=#{Rees46.site_url}/shops/#{@shop.id}/products",
+  |     "url": "#{Rees46.site_url}/instant-auth/#{InstantAuthToken.fetch(@shop.customer).token}?to=#{Rees46.site_url}/shops/#{@shop.id}/products",
+  |     "name": "Go to products catalog"
+  |   },
+  |   "description": "Go to products catalog"
+  | }

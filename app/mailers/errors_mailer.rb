@@ -40,7 +40,7 @@ class ErrorsMailer < ActionMailer::Base
 
     m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_off'))
     m.header['List-Id'] = "<notification errors_mailer:yml_off>"
-    m.header['Feedback-ID'] = ":yml_off:errors_mailer:rees46mailer"
+    m.header['Feedback-ID'] = "yml_off:errors_mailer:rees46mailer"
     m
   end
 

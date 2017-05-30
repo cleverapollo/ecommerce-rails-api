@@ -129,6 +129,7 @@ module Rees46Api
     config.middleware.insert_before ActionDispatch::ParamsParser, ::CatchJsonParseErrors
 
     config.support_email = 'support@rees46.com'
+    config.action_mailer.preview_path = "#{Rails.root}/spec/mailers/previews"
 
     config.active_record.raise_in_transactional_callbacks = true
   end
