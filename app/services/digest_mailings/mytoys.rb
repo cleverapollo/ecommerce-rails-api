@@ -65,6 +65,7 @@ module DigestMailings
                 sftp = Net::SFTP::Session.new(session).connect!
                 sftp.upload!(digest_path, 'digests.csv') if File.exists? digest_path
                 sftp.close_channel
+                Rollbar.info('MyToys digest upload success')
               rescue Exception => e
                 Rollbar.error(e)
               end
