@@ -13,7 +13,7 @@ class WebPush::TriggersProcessor
         WebPush::TriggerTimeLock.new.start_sending!
 
         # Все магазины с включенными веб пуш триггерами
-        Shop.active.connected.unrestricted.with_valid_yml.with_enabled_web_push_triggers.each do
+        Shop.active.connected.unrestricted.with_yml_processed_recently.with_enabled_web_push_triggers.each do
           # @type shop [Shop]
           |shop|
 

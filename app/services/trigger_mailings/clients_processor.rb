@@ -7,7 +7,7 @@ module TriggerMailings
     class << self
       # Обработать всех пользователей: искать для каждого триггеры, если есть - отправить письмо.
       def process_all
-        Shop.connected.active.unrestricted.with_valid_yml.with_yml_processed_recently.with_enabled_triggers.each do |shop|
+        Shop.connected.active.unrestricted.with_yml_processed_recently.with_enabled_triggers.each do |shop|
 
           # Запрещаем отправку сообщений при не настроенном DNS
           # todo пока отключили, ждем отмашки от Кечинова
