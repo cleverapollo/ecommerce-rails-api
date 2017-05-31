@@ -113,6 +113,9 @@ class ImportsController < ApplicationController
       respond_with_client_error('Items must be array') and return false
     end
 
+    # Добавляем статус
+    @shop.update(yml_state: 'queue')
+
     ItemsImportWorker.perform_async(@shop.id, params[:items], request.method_symbol)
     render nothing: true, status: 204
   end

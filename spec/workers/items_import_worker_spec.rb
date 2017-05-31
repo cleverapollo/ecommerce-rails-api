@@ -28,7 +28,7 @@ describe ItemsImportWorker do
         },
     ]
   }
-  subject { ItemsImportWorker.new.perform(shop.id, items) }
+  subject { ItemsImportWorker.new.perform(shop.id, items, :put) }
 
   it 'works' do
     subject
@@ -53,6 +53,8 @@ describe ItemsImportWorker do
     expect(Item.first.fashion_sizes).to eq(items.first[:fashion][:sizes].map{|s| s.to_s})
     expect(Item.first.fashion_gender).to eq(items.first[:fashion][:gender])
     expect(Item.first.fashion_wear_type).to eq(items.first[:fashion][:type])
+
+    expect(CatalogImportLog.count).to eq(1)
   end
 
   it 'delete works' do
@@ -60,5 +62,24 @@ describe ItemsImportWorker do
     ItemsImportWorker.new.perform(shop.id, [items.first[:id]], :delete)
 
     expect(Item.first.is_available).to be_falsey
+  end
+
+  context 'disable another items' do
+    let!(:item) { create(:item, shop: shop, uniqid: 2, is_available: true) }
+    it 'works' do
+      ItemsImportWorker.new.perform(shop.id, items)
+
+      expect(Item.count).to eq(2)
+      expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(items.first[:available])
+      expect(Item.find_by(shop: shop, uniqid: 2).is_available).to eq(false)
+    end
+
+    it 'works add' do
+      ItemsImportWorker.new.perform(shop.id, items, :put)
+
+      expect(Item.count).to eq(2)
+      expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(items.first[:available])
+      expect(Item.find_by(shop: shop, uniqid: 2).is_available).to eq(true)
+    end
   end
 end

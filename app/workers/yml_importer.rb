@@ -13,8 +13,7 @@ class YmlImporter
     current_shop = Shop.find(shop_id)
 
     # Указываем, что идет обработка
-    current_shop.yml_state = 'processing'
-    current_shop.atomic_save!
+    current_shop.update(yml_state: 'processing')
 
     # Выходим, если файл уже обрабатывается и время старта меньше 1 дня
     return if !force && current_shop.yml_load_start_at.present? && current_shop.yml_load_start_at > 1.day.ago
@@ -110,7 +109,7 @@ class YmlImporter
           ShopLocation.bulk_update shop_id, shop.locations
 
           # Обновялем статистику по товарам
-          ShopKPI.new(current_shop, Date.yesterday).calculate_products
+          ShopKPI.new(current_shop).calculate_products
 
         rescue PG::UniqueViolation => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
@@ -122,7 +121,7 @@ class YmlImporter
 
     end
 
-    if result == true
+    if result
       # Записываем в лог число обработанных товаров
       CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: current_shop.items.count, available: current_shop.items.available.count, widgetable: current_shop.items.available.widgetable.count
 
@@ -136,9 +135,8 @@ class YmlImporter
     current_shop.update(have_industry_products: current_shop.items.where('is_cosmetic is true OR is_child is true OR is_fashion is true OR is_fmcg is true OR is_auto is true OR is_pets is true').where('(is_available = true) AND (ignored = false)').exists?)
 
   ensure
-    # Удаляем из очереди
-    current_shop.yml_state = nil
-    current_shop.atomic_save!
+    # Обработка закончилась
+    current_shop.update(yml_state: nil)
 
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close

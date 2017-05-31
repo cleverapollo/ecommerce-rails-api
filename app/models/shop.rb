@@ -173,20 +173,21 @@ class Shop < MasterTable
   # @param [Boolean] force Флаг, что насильно переимпортировать файл, игнорируя if-modified-since
   def async_yml_import(force = false)
 
-    # Добавляем статус в редис
-    self.yml_state = 'queue'
-    self.atomic_save!
+    # Добавляем статус
+    self.update(yml_state: 'queue')
 
     # Добавляем задачу на обработку yml
     YmlImporter.perform_async(self.id, force)
   end
 
+  # @return [Boolean]
   def import
     begin
       # Указываем время начала
       update_attribute(:yml_load_start_at, Time.now)
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil)
+      return true
     rescue PG::TRDeadlockDetected => e
       Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
     rescue Yml::NoXMLFileInArchiveError => e
@@ -208,6 +209,8 @@ class Shop < MasterTable
     ensure
       update_attribute(:yml_load_start_at, nil)
     end
+
+    false
   end
 
   # @param [Exception] e

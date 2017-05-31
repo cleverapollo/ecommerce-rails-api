@@ -12,6 +12,14 @@ class ItemsImportWorker
   def perform(shop_id, items, method = :post)
     self.shop = Shop.find(shop_id)
 
+    # Указываем, что идет обработка
+    shop.update(yml_state: 'processing')
+
+    # Помечаем как недоступные все товары
+    if method == :post
+      shop.items.available.update_all(is_available: false)
+    end
+
     # Вставка, обновление
     if [:post, :put].include?(method)
       process_items(items.map{|item| item.deep_symbolize_keys})
@@ -24,15 +32,30 @@ class ItemsImportWorker
 
     # Обновляем дату yml
     shop.update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil, yml_loaded: true)
+
+    # Записываем в лог число обработанных товаров
+    CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: shop.items.count, available: shop.items.available.count, widgetable: shop.items.available.widgetable.count
+
+    # Обновялем статистику по товарам
+    ShopKPI.new(shop).calculate_products
+
   rescue Exception => e
     ErrorsMailer.products_import_error(self.shop, e.message).deliver_now
   ensure
+
+    # Обработка закончилась
+    shop.update(yml_state: nil)
+
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close
   end
 
   # Добавление / обновление товаров
   def process_items(items)
+
+    # Указываем, что идет обработка
+    shop.update(yml_state: 'processing')
+
     items.map do |item_params|
       item_struct = OpenStruct.new(item_params)
       item_struct.uniqid = item_params.fetch(:id)
