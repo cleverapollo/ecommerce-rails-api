@@ -34,7 +34,7 @@ class ItemsImportWorker
     shop.update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil, yml_loaded: true)
 
     # Записываем в лог число обработанных товаров
-    CatalogImportLog.create shop_id: shop_id, success: true, message: 'Loaded', total: shop.items.count, available: shop.items.available.count, widgetable: shop.items.available.widgetable.count
+    CatalogImportLog.create shop_id: shop_id, success: true, message: "HTTP #{method} items #{items.count}", total: shop.items.count, available: shop.items.available.count, widgetable: shop.items.available.widgetable.count
 
     # Обновялем статистику по товарам
     ShopKPI.new(shop).calculate_products
