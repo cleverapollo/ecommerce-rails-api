@@ -17,8 +17,9 @@ class ShopKPI
 
         Time.use_zone(shop.customer.time_zone) do
           if shop.track_order_status?
-            (1..14).each do |x|
-              new(shop, Date.today - x.days).calculate_statistics.calculate_products
+            (0..13).each do |x|
+              kpi = new(shop, Date.today - x.days).calculate_statistics
+              kpi.calculate_products if x == 0
             end
           else
             new(shop, Date.yesterday).calculate_statistics.calculate_products
