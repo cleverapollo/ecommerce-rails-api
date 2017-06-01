@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170524083711) do
+ActiveRecord::Schema.define(version: 20170601115246) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -203,14 +203,14 @@ ActiveRecord::Schema.define(version: 20170524083711) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -372,7 +372,7 @@ ActiveRecord::Schema.define(version: 20170524083711) do
   add_index "items", ["pets_breed"], name: "index_items_on_pets_breed", where: "((is_pets IS TRUE) AND (pets_breed IS NOT NULL))", using: :btree
   add_index "items", ["pets_size"], name: "index_items_on_pets_size", where: "((is_pets IS TRUE) AND (pets_size IS NOT NULL))", using: :btree
   add_index "items", ["pets_type"], name: "index_items_on_pets_type", where: "((is_pets IS TRUE) AND (pets_type IS NOT NULL))", using: :btree
-  add_index "items", ["price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
+  add_index "items", ["price", "shop_id"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL))", using: :gin
   add_index "items", ["shop_id", "brand", "id"], name: "index_items_on_shop_and_brand", where: "((is_available = true) AND (ignored = false) AND (widgetable = true) AND (brand IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
@@ -466,12 +466,10 @@ ActiveRecord::Schema.define(version: 20170524083711) do
     t.integer  "entity_id",    limit: 8
     t.string   "entity_type"
     t.integer  "parent_id",    limit: 8
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "status",                 default: 0,  null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",                 default: 0, null: false
     t.integer  "client_id",    limit: 8
-    t.string   "video_url"
-    t.integer  "images",       limit: 8, default: [],              array: true
   end
 
   add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
@@ -660,10 +658,10 @@ ActiveRecord::Schema.define(version: 20170524083711) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

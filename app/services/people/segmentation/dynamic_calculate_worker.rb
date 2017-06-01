@@ -35,25 +35,15 @@ class People::Segmentation::DynamicCalculateWorker
       users_relation = users_relation.where(location: segment.filters[:demography][:locations]) if segment.filters[:demography].present? && segment.filters[:demography][:locations].present?
 
       # Purchase
-      if segment.filters[:purchase].present? && segment.filters[:purchase][:bought_something].to_i == 1
+      if segment.filters[:marketing].present? && segment.filters[:marketing][:category_purchased].present? && segment.filters[:marketing][:category_purchased].to_i == 1
         users_relation = users_relation.where(bought_something: true).joins(:orders).where('orders.status != ?', Order::STATUS_CANCELLED)
 
         # Покупали в указанный период
-        if segment.filters[:purchase][:last].present?
-          dates = segment.filters[:purchase][:last].split(' - ').map { |d| Date.parse(d) }
-          users_relation = users_relation.where(orders: {date: dates[0]..(dates[1] + 1.day)})
-        end
+        users_relation = users_relation.where('orders.date >= ?', Time.current - segment.filters[:marketing][:category_purchase_period].to_i.days)
 
         # Цена покупки
-        if segment.filters[:purchase][:price].present?
-          price = segment.filters[:purchase][:price]
-          users_relation = users_relation.where('orders.value >= ? AND orders.value <= ?', price[:from], price[:to])
-        end
-
-        # Если указаны бренды (жестко делать столько join, нужно придумать что-то другое)
-        if segment.filters[:purchase][:brand].present?
-          users_relation = users_relation.joins('INNER JOIN order_items ON orders.id = order_items.order_id').joins('INNER JOIN items ON order_items.item_id = items.id').where(items: { brand: segment.filters[:purchase][:brand]})
-        end
+        price = segment.filters[:marketing][:category_purchase_price]
+        users_relation = users_relation.where('orders.value >= ? AND orders.value <= ?', price[:from], price[:to])
       end
 
       # Email marketing
@@ -92,6 +82,9 @@ class People::Segmentation::DynamicCalculateWorker
 
             # Добавляем дату просмотра
             users_relation = users_relation.where('view_date >= ?', Time.current - filter[:category_view_period].to_i.days)
+
+            # Добавляем стоимость товара
+            users_relation = users_relation.joins(:item).where('items.price >= ? AND items.price <= ?', filter[:category_view_price][:from], filter[:category_view_price][:to])
           end
 
           # Покупка в категории

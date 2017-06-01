@@ -22,7 +22,7 @@ class ShopKPI
               kpi.calculate_products if x == 0
             end
           else
-            new(shop, Date.yesterday).calculate_statistics.calculate_products
+            new(shop).calculate_statistics.calculate_products
           end
         end
 
