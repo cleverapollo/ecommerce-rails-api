@@ -108,38 +108,6 @@ describe People::Segmentation::DynamicCalculateWorker do
     expect(client3.reload.segment_ids).to be_nil
   end
 
-  # Purchase
-  context 'purchase history' do
-    before { segment.update(filters: { purchase: { bought_something: '1', price: { from: '100', to: '200' } } }) }
-
-    it 'bought_something' do
-      subject
-      expect(client1.reload.segment_ids).to include(segment.id)
-      expect(client2.reload.segment_ids).to be_nil
-      expect(client3.reload.segment_ids).to be_nil
-    end
-
-    it 'with brand' do
-      segment.filters[:purchase][:brand] = %w(brand1 brand2)
-      segment.filters[:purchase][:price][:from] = '0'
-      segment.save!
-      subject
-      expect(client1.reload.segment_ids).to include(segment.id)
-      expect(client2.reload.segment_ids).to be_nil
-      expect(client3.reload.segment_ids).to be_nil
-    end
-
-    it 'with purchase range' do
-      segment.filters[:purchase][:last] = "#{1.week.ago.to_date} - #{Date.current}"
-      segment.filters[:purchase][:price][:from] = '0'
-      segment.save!
-      subject
-      expect(client1.reload.segment_ids).to include(segment.id)
-      expect(client2.reload.segment_ids).to be_nil
-      expect(client3.reload.segment_ids).to be_nil
-    end
-  end
-
   # Marketing
   context 'email marketing' do
     it 'letter_open' do
@@ -168,7 +136,7 @@ describe People::Segmentation::DynamicCalculateWorker do
 
     # View
     it 'category view period' do
-      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7' } })
+      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7', category_view_price: { from: '100', to: '200' } } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -176,7 +144,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with brand' do
-      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7', category_view_brand: ['brand1'] } })
+      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7', category_view_price: { from: '100', to: '200' }, category_view_brand: ['brand1'] } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -184,7 +152,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with category' do
-      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '40', category_view: %w(3) } })
+      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '40', category_view_price: { from: '1', to: '50' }, category_view: %w(3) } })
       subject
       expect(client1.reload.segment_ids).to be_nil
       expect(client2.reload.segment_ids).to include(segment.id)
@@ -192,7 +160,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with brand and category' do
-      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7', category_view_brand: %w(brand1 brand2), category_view: %w(1 3) } })
+      segment.update(filters: { marketing: { category_viewed: '1', category_view_period: '7', category_view_price: { from: '100', to: '200' }, category_view_brand: %w(brand1 brand2), category_view: %w(1 3) } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -201,7 +169,15 @@ describe People::Segmentation::DynamicCalculateWorker do
 
     # Purchase
     it 'category purchase period' do
-      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7' } })
+      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7', category_purchase_price: { from: '100', to: '200' } } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to be_nil
+      expect(client3.reload.segment_ids).to be_nil
+    end
+
+    it 'category purchase price' do
+      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '40', category_purchase_price: { from: '100', to: '200' } } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -209,7 +185,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with brand' do
-      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7', category_purchase_brand: ['brand1'] } })
+      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7', category_purchase_price: { from: '100', to: '200' }, category_purchase_brand: ['brand1'] } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -217,7 +193,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with category' do
-      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '40', category_purchase: %w(3) } })
+      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '40', category_purchase_price: { from: '1', to: '100' }, category_purchase: %w(3) } })
       subject
       expect(client1.reload.segment_ids).to be_nil
       expect(client2.reload.segment_ids).to include(segment.id)
@@ -225,7 +201,7 @@ describe People::Segmentation::DynamicCalculateWorker do
     end
 
     it 'category view period with brand and category' do
-      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7', category_purchase_brand: %w(brand1 brand2), category_purchase: %w(1 3) } })
+      segment.update(filters: { marketing: { category_purchased: '1', category_purchase_period: '7', category_purchase_price: { from: '100', to: '200' }, category_purchase_brand: %w(brand1 brand2), category_purchase: %w(1 3) } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -235,8 +211,8 @@ describe People::Segmentation::DynamicCalculateWorker do
     it 'full' do
       segment.update(filters: { marketing: {
           letter_open: '1', digest: '1',
-          category_viewed: '1', category_view_period: '7', category_view_brand: %w(brand1 brand2), category_view: %w(1 3),
-          category_purchased: '1', category_purchase_period: '7', category_purchase_brand: %w(brand1 brand2), category_purchase: %w(1 3)
+          category_viewed: '1', category_view_period: '7', category_view_price: { from: '100', to: '200' }, category_view_brand: %w(brand1 brand2), category_view: %w(1 3),
+          category_purchased: '1', category_purchase_period: '7', category_purchase_price: { from: '100', to: '200' }, category_purchase_brand: %w(brand1 brand2), category_purchase: %w(1 3)
       } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
