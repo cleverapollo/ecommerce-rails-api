@@ -8,6 +8,11 @@ class ImageDownloadLaunchWorker
 
   BATCH_SIZE = 50
 
+  # Отправляет задачу в RabbitMQ на скачивание картинок.
+  # https://bitbucket.org/mkechinov/rees46_pictures - как работает скрипт
+  # @param shop_id - [Integer] - id магазина
+  # @param items_images - [Array[ {id: item_id, image_url: item_image}, ... ] - масив хешов в которых записано id товара и url кратинки товара
+  # @param delete_before_download - [Boolean] - если true тогда обязательно удаляем старую картинку и качаем ту которая указана в image_url
   def perform(shop_id, items_images = nil, delete_before_download =  false)
     @shop = Shop.find(shop_id)
     @delete_before_download = delete_before_download
