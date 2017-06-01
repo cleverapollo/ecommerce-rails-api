@@ -44,3 +44,8 @@ en:
   email_settings:
     products_title: Recently viewed
     buy: Cart
+
+  activerecord:
+    attributes:
+      item_category:
+        external_id: 'Category id'
