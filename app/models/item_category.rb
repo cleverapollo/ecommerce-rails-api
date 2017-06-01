@@ -51,7 +51,7 @@ class ItemCategory < ActiveRecord::Base
 
       record = new(params)
       unless record.valid?
-        raise record.errors.messages.values.join(', ')
+        raise record.errors.full_messages.join(', ')
       end
 
       connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
