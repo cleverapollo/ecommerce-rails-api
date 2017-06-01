@@ -10,13 +10,14 @@ class BrandLogger
     # @param recommender [String] Код рекомендера
     def track_view(brand_campaign_id, shop_id, recommender)
       row = get_statistics_row brand_campaign_id, Date.current
-      row.update views: (row.views + 1)
+      row.views = (row.views + 1)
+      row.atomic_save
       brand_campaign_shops = BrandCampaignShop.where(brand_campaign_id: brand_campaign_id).where(shop_id: shop_id).limit(1) # limit для ускорения, чтобы всю базу не копать
       brand_campaign_shops.update_all last_event_at: Time.current
 
       # Записываем детальную статистику
       brand_campaign_shops.each do |brand_campaign_shop|
-        BrandCampaignStatisticsEvent.create! brand_campaign_shop_id: brand_campaign_shop.id,
+        BrandCampaignStatisticsEvent.atomic_create! brand_campaign_shop_id: brand_campaign_shop.id,
           brand_campaign_statistic_id: row.id,
           event: 'view',
           recommended: true,
