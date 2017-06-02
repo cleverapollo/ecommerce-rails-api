@@ -1,4 +1,4 @@
-class BrandCampaignStatisticsEvent < MasterTable
+class BrandCampaignStatisticsEvent < ActiveRecord::Base
 
   validates :brand_campaign_statistic_id, :brand_campaign_shop_id, :event, presence: true
   belongs_to :brand_campaign_statistic

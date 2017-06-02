@@ -176,33 +176,6 @@ ActiveRecord::Schema.define(version: 20170602091247) do
   add_index "brand_campaign_purchases", ["brand_campaign_id", "shop_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id_and_shop_id", using: :btree
   add_index "brand_campaign_purchases", ["brand_campaign_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id", using: :btree
 
-  create_table "brand_campaign_statistics", force: :cascade do |t|
-    t.integer  "views",                 default: 0,   null: false
-    t.integer  "original_purchases",    default: 0,   null: false
-    t.integer  "recommended_purchases", default: 0,   null: false
-    t.float    "cost",                  default: 0.0, null: false
-    t.date     "date",                                null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "recommended_clicks",    default: 0,   null: false
-    t.integer  "original_clicks",       default: 0,   null: false
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "brand_campaign_statistics", ["brand_campaign_id", "date"], name: "index_brand_campaign_statistics_on_brand_campaign_id_and_date", unique: true, using: :btree
-
-  create_table "brand_campaign_statistics_events", force: :cascade do |t|
-    t.integer  "brand_campaign_statistic_id",                 null: false
-    t.integer  "brand_campaign_shop_id",                      null: false
-    t.string   "recommender"
-    t.string   "event",                                       null: false
-    t.boolean  "recommended",                 default: false, null: false
-    t.datetime "created_at",                                  null: false
-    t.datetime "updated_at",                                  null: false
-  end
-
-  add_index "brand_campaign_statistics_events", ["brand_campaign_statistic_id", "brand_campaign_shop_id", "recommended", "event"], name: "index_brand_campaign_statistics_events_campaign_and_shop", using: :btree
-
   create_table "brand_campaigns", force: :cascade do |t|
     t.integer  "advertiser_id"
     t.float    "balance",               default: 0.0,   null: false
