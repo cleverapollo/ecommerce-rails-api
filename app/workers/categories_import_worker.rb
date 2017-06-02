@@ -7,6 +7,7 @@ class CategoriesImportWorker
   # @param [Integer] shop_id
   # @param [Array<Hash<id,name,parent>>] categories
   def perform(shop_id, categories)
+    categories = categories.map {|c| c.with_indifferent_access }
 
     # Создаем локации без указания родителя
     categories.each do |category|
