@@ -174,26 +174,6 @@ module InitServerString
       # return [] # Отключено, потому что смущают магазины. А массивных продаж данных пока нет.
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
-        # if session.synced_with_aidata_at.nil? || session.synced_with_aidata_at < Date.current
-        #   pixels << "//x01.aidata.io/0.gif?pid=REES46&id=#{session.code}"
-        #   session.synced_with_aidata_at = Date.current
-        # end
-        # if session.synced_with_dca_at.nil? || session.synced_with_dca_at < Date.current
-        #   pixels << "//front.facetz.net/collect?source=rees46&pixel_id=686&id=#{session.code}"
-        #   session.synced_with_dca_at = Date.current
-        # end
-        # if session.synced_with_auditorius_at.nil? || session.synced_with_auditorius_at < Date.current
-        #   pixels << "//sync.audtd.com/match/rs?pid=#{session.code}"
-        #   session.synced_with_auditorius_at = Date.current
-        # end
-        # if session.synced_with_amber_at.nil? || session.synced_with_amber_at < Date.current
-        #   pixels << "//dmg.digitaltarget.ru/1/2026/i/i?a=26&e=#{session.code}&i=#{rand}"
-        #   session.synced_with_amber_at = Date.current
-        # end
-        # if session.synced_with_mailru_at.nil? || session.synced_with_mailru_at < Date.current
-        #   pixels << "//ad.mail.ru/cm.gif?p=74&id=#{session.code}"
-        #   session.synced_with_mailru_at = Date.current
-        # end
         if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
           pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
           session.synced_with_relapio_at = Date.current
