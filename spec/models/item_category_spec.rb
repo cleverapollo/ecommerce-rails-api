@@ -15,7 +15,7 @@ describe ItemCategory do
     it 'insert_or_update' do
       params = {shop_id: shop.id, name: 'test'}
       I18n.locale = 'en'
-      expect{ ItemCategory.insert_or_update(params) }.to raise_error("Category id can't be blank, params: #{params.to_json}")
+      expect{ ItemCategory.insert_or_update(params) }.to raise_error("Category id can't be blank")
     end
   end
 end

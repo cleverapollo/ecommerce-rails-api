@@ -10,7 +10,11 @@ class CategoriesImportWorker
 
     # Создаем локации без указания родителя
     categories.each do |category|
-      ItemCategory.insert_or_update(shop_id: shop_id, name: category[:name], external_id: category[:id])
+      begin
+        ItemCategory.insert_or_update(shop_id: shop_id, name: category[:name], external_id: category[:id])
+      rescue Exception => e
+        raise "#{e.message}, params: #{category.to_json}"
+      end
     end
 
     # Делаем update локаций в которых указан родитель
