@@ -54,7 +54,7 @@ module Promoting
       def brand_campaigns_for_shop(shop, expansion_only)
         relation = BrandCampaign.active.prioritized
         relation = relation.expansion if expansion_only
-        relation.where(id: BrandCampaignShop.where(shop_id: shop.id).select('brand_campaign_id'))
+        relation.where(id: BrandCampaignShop.where(shop_id: shop.id).pluck('brand_campaign_id'))
       end
 
     end
