@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170525090331) do
+ActiveRecord::Schema.define(version: 20170602091247) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -175,17 +175,6 @@ ActiveRecord::Schema.define(version: 20170525090331) do
 
   add_index "brand_campaign_purchases", ["brand_campaign_id", "shop_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id_and_shop_id", using: :btree
   add_index "brand_campaign_purchases", ["brand_campaign_id"], name: "index_brand_campaign_purchases_on_brand_campaign_id", using: :btree
-
-  create_table "brand_campaign_shops", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
-    t.datetime "last_event_at"
-    t.integer  "brand_campaign_id"
-  end
-
-  add_index "brand_campaign_shops", ["brand_campaign_id"], name: "index_brand_campaign_shops_on_brand_campaign_id", using: :btree
-  add_index "brand_campaign_shops", ["shop_id"], name: "index_brand_campaign_shops_on_shop_id", using: :btree
 
   create_table "brand_campaign_statistics", force: :cascade do |t|
     t.integer  "views",                 default: 0,   null: false

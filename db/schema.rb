@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170601115246) do
+ActiveRecord::Schema.define(version: 20170602072123) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -86,6 +86,17 @@ ActiveRecord::Schema.define(version: 20170601115246) do
     t.boolean  "tracked",                     default: false, null: false
     t.integer  "beacon_offer_id"
   end
+
+  create_table "brand_campaign_shops", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.datetime "last_event_at"
+    t.integer  "brand_campaign_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "brand_campaign_shops", ["brand_campaign_id"], name: "index_brand_campaign_shops_on_brand_campaign_id", using: :btree
+  add_index "brand_campaign_shops", ["shop_id"], name: "index_brand_campaign_shops_on_shop_id", using: :btree
 
   create_table "catalog_import_logs", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
