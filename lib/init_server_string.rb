@@ -187,7 +187,8 @@ module InitServerString
           session.synced_with_advmaker_at = Date.current
         end
         if session.synced_with_doubleclick_at.nil? || session.synced_with_doubleclick_at < Date.current
-          pixels << "//cm.g.doubleclick.net/pixel?google_nid=rees46&google_sc&google_cm&google_hm=#{Base64.encode64(session.id.to_s).strip}"
+          # Используем ID, потому что гугл не может работать со строками длиннее 24 байт.
+          pixels << "//cm.g.doubleclick.net/pixel?google_nid=rees46&google_sc&google_cm&google_hm=#{Base64.encode64(session.user_id.to_s).strip}"
           session.synced_with_doubleclick_at = Date.current
         end
 
