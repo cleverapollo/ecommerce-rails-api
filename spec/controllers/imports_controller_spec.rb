@@ -58,6 +58,14 @@ describe ImportsController do
       end
     end
 
+    context 'sync' do
+      it 'works' do
+        patch :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: ['1']
+        expect(response.code).to eq('204')
+        expect(ItemsImportWorker).to have_received(:perform_async).once
+      end
+    end
+
     context 'delete' do
       it 'works' do
         delete :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: [1]

@@ -25,6 +25,15 @@ class ItemsImportWorker
       process_items(items.map{|item| item.deep_symbolize_keys})
     end
 
+    # Отмечает указанные товары как доступные
+    if method == :patch
+      # Те, которых нет в списке - отмечаем как недоступные
+      shop.items.available.where.not(uniqid: items).update_all(is_available: false)
+
+      # Отмечаем доступные
+      shop.items.where(is_available: false, uniqid: items).update_all(is_available: true)
+    end
+
     # Удаление
     if method == :delete
       delete_items(items)
