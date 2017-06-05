@@ -1,7 +1,7 @@
 REES46 API
 ----------
 
-![Codeship](https://www.codeship.io/projects/d543d470-be61-0131-e6b6-6ea1a21f61c4/status)
+![Codeship](https://app.codeship.com/projects/d543d470-be61-0131-e6b6-6ea1a21f61c4/status)
 
 Back-end для приема событий и выдачи рекомендаций
 =================================================
@@ -36,9 +36,11 @@ $ foreman start
 
 ### Специфичные файлы конфигурации
 
-/config/application.yml - прописать переменную REES46_SHARD (двузначный номер - 00, 01, ...)
-/config/secrets – прописать весь набор ключей, указанный в примере secrets.yml.example
-/config/database.yml – прописать доступ к мастер-базе (базе, где содержатся клиенты сервиса, магазины и т.д.
+`/config/application.yml` - прописать переменную REES46_SHARD (двузначный номер - 00, 01, ...) (@deprecated сейчас используется на продакшене 01, на девелоп 00)
+
+`/config/secrets` – прописать весь набор ключей, указанный в примере secrets.yml.example
+
+`/config/database.yml` – прописать доступ к мастер-базе (базе, где содержатся клиенты сервиса, магазины и т.д.
 
 ### Настройка Optivo MyToys
 Файлы ключей для подключения к SFTP взять с bs сервера.
@@ -68,7 +70,7 @@ RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 88.9
 ### Настройка Redis для cron-task сервера
 `iptables -S` - список правил
 
-Открываем доступ для определенных ip
+Открываем доступ для определенных IP
 
 ```
 -A INPUT -s 88.99.193.175/32 -p tcp -m tcp --dport 7000 -j ACCEPT
