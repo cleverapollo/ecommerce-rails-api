@@ -28,7 +28,7 @@ describe ItemsImportWorker do
         },
     ]
   }
-  subject { ItemsImportWorker.new.perform(shop.id, items, :put) }
+  subject { ItemsImportWorker.new.perform(shop.id, items, 'put') }
 
   it 'works' do
     subject
@@ -59,7 +59,7 @@ describe ItemsImportWorker do
 
   it 'delete works' do
     subject
-    ItemsImportWorker.new.perform(shop.id, [items.first[:id]], :delete)
+    ItemsImportWorker.new.perform(shop.id, [items.first[:id]], 'delete')
 
     expect(Item.first.is_available).to be_falsey
   end
@@ -75,7 +75,7 @@ describe ItemsImportWorker do
     end
 
     it 'works add' do
-      ItemsImportWorker.new.perform(shop.id, items, :put)
+      ItemsImportWorker.new.perform(shop.id, items, 'put')
 
       expect(Item.count).to eq(2)
       expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(items.first[:available])
@@ -83,8 +83,8 @@ describe ItemsImportWorker do
     end
 
     it 'patch is_available' do
-      ItemsImportWorker.new.perform(shop.id, items, :put)
-      ItemsImportWorker.new.perform(shop.id, ['1'], :patch)
+      ItemsImportWorker.new.perform(shop.id, items, 'put')
+      ItemsImportWorker.new.perform(shop.id, ['1'], 'patch')
 
       expect(Item.count).to eq(2)
       expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(true)

@@ -9,24 +9,24 @@ class ItemsImportWorker
   # @param [Integer] shop_id
   # @param [Array<Hash>] items
   # @param [Symbol] method Тип запроса для воркера, post, put, delete.
-  def perform(shop_id, items, method = :post)
+  def perform(shop_id, items, method = 'post')
     self.shop = Shop.find(shop_id)
 
     # Указываем, что идет обработка
     shop.update(yml_state: 'processing')
 
     # Помечаем как недоступные все товары
-    if method == :post
+    if method == 'post'
       shop.items.available.update_all(is_available: false)
     end
 
     # Вставка, обновление
-    if [:post, :put].include?(method)
+    if %w(post put).include?(method)
       process_items(items.map{|item| item.deep_symbolize_keys})
     end
 
     # Отмечает указанные товары как доступные
-    if method == :patch
+    if method == 'patch'
       # Те, которых нет в списке - отмечаем как недоступные
       shop.items.available.where.not(uniqid: items).update_all(is_available: false)
 
@@ -35,7 +35,7 @@ class ItemsImportWorker
     end
 
     # Удаление
-    if method == :delete
+    if method == 'delete'
       delete_items(items)
     end
 

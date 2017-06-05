@@ -105,6 +105,8 @@ class ImportsController < ApplicationController
   # Заглушка для импорта товаров через HTTP
   # Тесты тоже есть.
   def products
+    method = request.method.downcase
+    method = params['method'].downcase if request.method_symbol == :post && params['method'].present?
 
     if params[:items].blank?
       respond_with_client_error('Items can\'t be blank') and return false
@@ -116,7 +118,12 @@ class ImportsController < ApplicationController
     # Добавляем статус
     @shop.update(yml_state: 'queue')
 
-    ItemsImportWorker.perform_async(@shop.id, params[:items], request.method_symbol)
+    unless %w(post put patch delete).include?(method)
+      render nothing: true, status: 400
+      return
+    end
+
+    ItemsImportWorker.perform_async(@shop.id, params[:items], method)
     render nothing: true, status: 204
   end
 

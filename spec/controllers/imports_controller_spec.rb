@@ -82,6 +82,17 @@ describe ImportsController do
       end
     end
 
+    it 'filter incorrect request' do
+      get :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: ['1']
+      expect(response.code).to eq('400')
+    end
+
+    it 'convert method from params' do
+      post :products, shop_id: shop.uniqid, shop_secret: shop.secret, items: ['1'], method: 'patch'
+      expect(response.code).to eq('204')
+      expect(ItemsImportWorker).to have_received(:perform_async).once
+    end
+
   end
 
   context 'import locations' do
