@@ -81,5 +81,14 @@ describe ItemsImportWorker do
       expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(items.first[:available])
       expect(Item.find_by(shop: shop, uniqid: 2).is_available).to eq(true)
     end
+
+    it 'patch is_available' do
+      ItemsImportWorker.new.perform(shop.id, items, :put)
+      ItemsImportWorker.new.perform(shop.id, ['1'], :patch)
+
+      expect(Item.count).to eq(2)
+      expect(Item.find_by(shop: shop, uniqid: 1).is_available).to eq(true)
+      expect(Item.find_by(shop: shop, uniqid: 2).is_available).to eq(false)
+    end
   end
 end
