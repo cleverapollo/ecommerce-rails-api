@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170602091247) do
+ActiveRecord::Schema.define(version: 20170605104703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -677,11 +677,11 @@ ActiveRecord::Schema.define(version: 20170602091247) do
   add_index "segments", ["shop_id"], name: "index_segments_on_shop_id", using: :btree
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",                    limit: 8,   null: false
-    t.string  "code",                       limit: 255, null: false
-    t.string  "city",                       limit: 255
-    t.string  "country",                    limit: 255
-    t.string  "language",                   limit: 255
+    t.integer "user_id",                         limit: 8,   null: false
+    t.string  "code",                            limit: 255, null: false
+    t.string  "city",                            limit: 255
+    t.string  "country",                         limit: 255
+    t.string  "language",                        limit: 255
     t.date    "synced_with_amber_at"
     t.date    "synced_with_dca_at"
     t.date    "synced_with_aidata_at"
@@ -694,6 +694,7 @@ ActiveRecord::Schema.define(version: 20170602091247) do
     t.jsonb   "segment"
     t.date    "updated_at"
     t.date    "synced_with_doubleclick_at"
+    t.date    "synced_with_doubleclick_cart_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree

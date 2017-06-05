@@ -191,6 +191,11 @@ module InitServerString
           pixels << "//cm.g.doubleclick.net/pixel?google_nid=rees46&google_sc&google_cm&google_hm=#{Base64.encode64(session.user_id.to_s).strip}"
           session.synced_with_doubleclick_at = Date.current
         end
+        # Трекаем добавление в корзину
+        if (session.synced_with_doubleclick_cart_at.nil? || session.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
+          pixels << "//googleads.g.doubleclick.net/pagead/viewthroughconversion/855802464/?guid=ON&script=0"
+          session.synced_with_doubleclick_cart_at = Date.current
+        end
 
         session.atomic_save! if session.changed?
       end
