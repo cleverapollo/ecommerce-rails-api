@@ -134,6 +134,10 @@
         <age unit="month">12</age>
         <age unit="year">18</age>
 
+        <seasonality>1</seasonality>
+        <seasonality>3</seasonality>
+        <seasonality>4</seasonality>
+
         <locations>
           <location id="1">
             <price>50300</price>

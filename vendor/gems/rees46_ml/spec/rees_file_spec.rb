@@ -208,5 +208,7 @@ describe "check rees.xml" do
     expect(offer.ages).to include(Rees46ML::Age.new(value: "0",unit: "month"))
     expect(offer.ages).to include(Rees46ML::Age.new(value: "12",unit: "month"))
     expect(offer.ages).to include(Rees46ML::Age.new(value: "18",unit: "year"))
+
+    expect(offer.seasonality).to eq(Set.new %w(1 3 4))
   end
 end

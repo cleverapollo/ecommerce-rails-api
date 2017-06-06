@@ -132,6 +132,7 @@ module Rees46ML
       state :date
       state :is_premiere
       state :is_kids
+      state :seasonality
 
       event :start_yml_catalog do
         transitions from: :root, to: :yml_catalog
@@ -403,6 +404,14 @@ module Rees46ML
 
       event :end_category_id do
         transitions from: :category_id, to: :offer
+      end
+
+      event :start_seasonality do
+        transitions from: :offer, to: :seasonality
+      end
+
+      event :end_seasonality do
+        transitions from: :seasonality, to: :offer
       end
 
       event :start_picture do
@@ -1311,6 +1320,8 @@ module Rees46ML
           case attibute
           when "category_id"
             self.current_element.category_id << safe_buffer
+          when 'seasonality'
+            self.current_element.seasonality << safe_buffer
           when "barcode"
             self.current_element.barcodes << safe_buffer
           when "picture"

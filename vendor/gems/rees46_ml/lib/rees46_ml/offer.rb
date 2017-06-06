@@ -71,6 +71,7 @@ module Rees46ML
     attribute :weight, String, default: "", lazy: true
     attribute :world_region, String, default: "", lazy: true
     attribute :year, String, default: "", lazy: true
+    attribute :seasonality, Set[String], lazy: true
 
     attribute :delivery_options, Set[Rees46ML::DeliveryOption], lazy: true
     attribute :ages, Set[Rees46ML::Age], lazy: true

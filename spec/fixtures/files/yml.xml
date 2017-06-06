@@ -46,6 +46,19 @@
                 <delivery-options>
                     <option cost="0" days="1-2"/>
                 </delivery-options>
+                <seasonality>1</seasonality>
+                <seasonality>3</seasonality>
+                <seasonality>4</seasonality>
+                <seasonality>4</seasonality>
+                <seasonality>6</seasonality>
+            </offer>
+            <offer id="1" available="true">
+                <url>http://www.quiksilver.ru/1.html</url>
+                <price>10</price>
+                <currencyId>RUR</currencyId>
+                <vendor>Quiksilver</vendor>
+                <name>Купальные шорты</name>
+                <model>Купальные шорты Inlay</model>
             </offer>
         </offers>
     </shop>

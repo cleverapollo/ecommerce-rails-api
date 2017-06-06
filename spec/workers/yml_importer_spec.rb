@@ -4,7 +4,7 @@ describe YmlImporter do
   let!(:shop) { create(:shop) }
   before do
     create(:wear_type_dictionary, type_name: 'trouser', word: 'Шорты')
-    allow_any_instance_of(Yml).to receive(:download).and_return(File.open("#{Rails.root}/spec/yml.xml"))
+    allow_any_instance_of(Yml).to receive(:download).and_return(File.open("#{Rails.root}/spec/fixtures/files/yml.xml"))
   end
 
   subject { YmlImporter.new.perform(shop.id) }
@@ -13,7 +13,7 @@ describe YmlImporter do
     subject
     expect(shop.reload.yml_loaded).to be_truthy
     expect(shop.reload.yml_state).to be_nil
-    expect(Item.count).to eq(1)
+    expect(Item.count).to eq(2)
     expect(ItemCategory.count).to eq(3)
 
     # Fashion
@@ -37,5 +37,16 @@ describe YmlImporter do
     expect(item.fashion_sizes).to eq(%w(46 48 50 54 56))
     expect(item.fashion_wear_type).to eq('trouser')
     expect(item.category_ids).to eq(%w(8 13))
+    expect(item.seasonality).to eq([1, 3, 4, 6])
+
+    # Blank
+    item = Item.find_by uniqid: '1', shop_id: shop.id
+    expect(item.present?).to be_truthy
+    expect(item.price).to eq(10)
+    expect(item.is_available).to be_truthy
+    expect(item.name).to eq('Купальные шорты')
+    expect(item.description).to eq('')
+    expect(item.model).to eq('Купальные шорты Inlay')
+    expect(item.seasonality).to be_nil
   end
 end

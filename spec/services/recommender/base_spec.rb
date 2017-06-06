@@ -18,6 +18,12 @@ describe Recommender::Base do
 
       d = create(:item, :recommendable, :widgetable, shop: shop, location_ids: params.locations, brand: params.brand)
       expect(Recommender::Base.new(params).items_in_shop.pluck(:id)).to include(d.id)
+
+      e = create(:item, :recommendable, :widgetable, shop: shop, location_ids: params.locations, seasonality: [1.month.ago.to_date.month, Date.current.month])
+      expect(Recommender::Base.new(params).items_in_shop.pluck(:id)).to include(e.id)
+
+      f = create(:item, :recommendable, :widgetable, shop: shop, location_ids: params.locations, seasonality: [1.month.ago.to_date.month])
+      expect(Recommender::Base.new(params).items_in_shop.pluck(:id)).to_not include(f.id)
     end
   end
 end

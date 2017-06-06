@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170602104357) do
+ActiveRecord::Schema.define(version: 20170606111927) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -391,6 +391,7 @@ ActiveRecord::Schema.define(version: 20170602104357) do
     t.jsonb   "ring_sizes"
     t.jsonb   "bracelet_sizes"
     t.jsonb   "chain_sizes"
+    t.integer "seasonality",                                                       array: true
   end
 
   add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin

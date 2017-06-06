@@ -111,8 +111,8 @@ module Recommender
     # Возвращает массив идентификаторов товаров, среди которых стоит рассчитывать рекомендации
     # @return Item[]
     def items_in_shop
-      # Получаем все товары, которые можно рекомендовать, с учетом локаций, если локации указаны.
-      relation = shop.items.recommendable.in_locations(locations)
+      # Получаем все товары, которые можно рекомендовать, с учетом локаций, если локации указаны и сезонностью
+      relation = shop.items.recommendable.in_locations(locations).in_seasonality
 
       # Получаем акционные товары, если был запрос на акции
       relation = relation.discount if discount == true

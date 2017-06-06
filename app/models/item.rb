@@ -42,6 +42,10 @@ class Item < ActiveRecord::Base
     end
   }
 
+  # Добавляет выборку с сезонностью
+  scope :in_seasonality, -> { where('(seasonality IS NULL) OR (seasonality && ARRAY[?])', Date.current.month) }
+
+  # Фильтруем по бренду
   scope :by_brands, ->(*brands) {
     brands.flatten.any? ? where("brand_downcase in (?) and brand_downcase is not null", brands.flatten) : all
   }
@@ -112,6 +116,7 @@ class Item < ActiveRecord::Base
       ring_sizes
       bracelet_sizes
       chain_sizes
+      seasonality
     ].sort
   end
 
@@ -177,6 +182,7 @@ class Item < ActiveRecord::Base
         barcode: ValuesHelper.present_one(new_item, self, :barcode),
         is_child: ValuesHelper.present_one(new_item, self, :is_child),
         is_fashion: ValuesHelper.present_one(new_item, self, :is_fashion),
+        seasonality: ValuesHelper.present_one(new_item, self, :seasonality),
     }
 
     # Downcased brand for brand campaign manage
@@ -268,7 +274,7 @@ class Item < ActiveRecord::Base
     end
   end
 
-  # @param offer [Rees46ML::Offer]
+  # @param [Rees46ML::Offer] offer
   # @param [String] category
   # @return [Item]
   def self.build_by_offer(offer, category, wear_types)
@@ -294,6 +300,8 @@ class Item < ActiveRecord::Base
       item.vendor_code = offer.vendor_code
       item.barcode = offer.barcodes.first
 
+      # Сезонность товара
+      item.seasonality = offer.seasonality.map {|s| s.to_i }.select {|s| s > 0 && s <= 12 }.uniq || nil if offer.seasonality.present?
 
       # Определяем тип одежды
       (item.fashion_wear_type ||= wear_types.detect { |(size_type, regexp)| regexp.match(item.name) }.try(:first)) if item.name.present?
