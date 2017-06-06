@@ -31,7 +31,7 @@ end
 
 # Выгружаем дайджестные рассылки для MyToys
 every '1 0 * * *' do
-  runner "RunnerWrapper.run('DigestMailings::Mytoys.sync(10)')"
+  runner "RunnerWrapper.run('DigestMailings::Mytoys.sync(1)')"
 end
 
 every 34.minutes do
