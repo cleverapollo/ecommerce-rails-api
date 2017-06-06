@@ -17,8 +17,8 @@ ActiveRecord::Schema.define(version: 20170602104357) do
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "intarray"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -241,14 +241,14 @@ ActiveRecord::Schema.define(version: 20170602104357) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -504,10 +504,12 @@ ActiveRecord::Schema.define(version: 20170602104357) do
     t.integer  "entity_id",    limit: 8
     t.string   "entity_type"
     t.integer  "parent_id",    limit: 8
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.integer  "status",                 default: 0, null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.integer  "status",                 default: 0,  null: false
     t.integer  "client_id",    limit: 8
+    t.string   "video_url"
+    t.integer  "images",       limit: 8, default: [],              array: true
   end
 
   add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
@@ -696,10 +698,10 @@ ActiveRecord::Schema.define(version: 20170602104357) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

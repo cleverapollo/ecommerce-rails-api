@@ -92,8 +92,12 @@ module TriggerMailings
         if plan && plan.paid? && @shop.reputations_enabled?
 
           order = trigger.additional_info[:order]
-          order.update(reputation_key: Digest::MD5.hexdigest(order.id.to_s)) unless order.reputation_key
-          reputation_key = order.reputation_key
+          if order.present?
+            order.update(reputation_key: Digest::MD5.hexdigest(order.id.to_s)) unless order.reputation_key
+            reputation_key = order.reputation_key
+          else
+            reputation_key = 'test'
+          end
 
           data[:reputation] = @shop.reputations_enabled
           (1..5).each do |rate|
