@@ -192,7 +192,7 @@ module InitServerString
           session.synced_with_doubleclick_at = Date.current
         end
         # Трекаем добавление в корзину
-        if (session.synced_with_doubleclick_cart_at.nil? || session.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
+        if shop.remarketing_enabled? && (session.synced_with_doubleclick_cart_at.nil? || session.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
           pixels << "//googleads.g.doubleclick.net/pagead/viewthroughconversion/855802464/?guid=ON&script=0"
           session.synced_with_doubleclick_cart_at = Date.current
         end
