@@ -5,7 +5,11 @@ class Rees46
 
   class << self
     def site_url
-      Rails.env.production? ? 'https://rees46.com' : Rails.env.staging? ? 'http://stage.rees46.com' : 'http://localhost:3000'
+      if Rails.env.production?
+        'https://rees46.com'
+      else
+        Rails.env.staging? ? 'http://stage.rees46.com' : 'http://localhost:3000'
+      end
     end
   end
 end

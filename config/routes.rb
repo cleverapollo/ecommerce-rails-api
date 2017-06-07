@@ -107,6 +107,8 @@ Rees46Api::Application.routes.draw do
     collection do
       # Отписаться
       get :unsubscribe
+      # Подписаться
+      get :subscribe
       post :subscribe_for_product_price
       post :subscribe_for_product_available
       post :showed

@@ -3,7 +3,7 @@
 #
 class SubscriptionsController < ApplicationController
   include ShopFetcher
-  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed, :unsubscribe]
+  before_action :fetch_shop, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
   before_action :fetch_user, only: [:create, :subscribe_for_product_available, :subscribe_for_product_price, :showed]
 
   # Взаимодействие с окном сбора email
@@ -27,11 +27,22 @@ class SubscriptionsController < ApplicationController
 
   # Отписка от рассылок в один клик
   def unsubscribe
-    if client = Client.find_by(code: params[:code])
-      client.unsubscribe_from(params[:type])
+    client = Client.find_by(code: params[:code])
+    if client.present?
+      client.unsubscribe_from(params[:type], false)
     end
 
-    render text: shop.mailings_settings.present? ? shop.mailings_settings.unsubscribe_message : 'You have successfully unsubscribed from newsletters.'
+    redirect_to "#{Rees46.site_url}/mailings/unsubscribed?code=#{params[:code]}&type=#{params[:type]}"
+  end
+
+  # Подписка на рассылоки в один клик
+  def subscribe
+    client = Client.find_by(code: params[:code])
+    if client.present?
+      client.unsubscribe_from(params[:type], true)
+    end
+
+    redirect_to "#{Rees46.site_url}/mailings/subscribed?code=#{params[:code]}&type=#{params[:type]}"
   end
 
   # Пользователю было показано окно подписки

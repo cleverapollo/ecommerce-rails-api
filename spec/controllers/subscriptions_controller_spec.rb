@@ -28,7 +28,7 @@ describe SubscriptionsController do
       subject { get :unsubscribe, type: 'trigger', code: client.code, shop_id: shop.uniqid }
       it 'sets client triggers_enabled to false' do
         subject
-        expect(response.body).to eq('test')
+        expect(response).to redirect_to("#{Rees46.site_url}/mailings/unsubscribed?code=#{client.code}&type=trigger")
         expect(client.reload.triggers_enabled).to eq(false)
       end
     end

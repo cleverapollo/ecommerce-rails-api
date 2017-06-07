@@ -159,12 +159,14 @@ class Client < ActiveRecord::Base
     Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
-  def unsubscribe_from(mailings_type)
+  # @param [Symbol] mailings_type Тип отписки / подписки
+  # @param [Boolean] subscribe Подписываемся / Отписываемся
+  def unsubscribe_from(mailings_type, subscribe)
     case mailings_type.to_sym
       when :digest
-        update_columns(digests_enabled: false)
+        update_columns(digests_enabled: subscribe)
       when :trigger
-        update_columns(triggers_enabled: false)
+        update_columns(triggers_enabled: subscribe)
     end
   end
 
