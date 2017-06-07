@@ -13,6 +13,7 @@ module DigestMailings
         end
         recommendations_count = 9
         digest_path = 'tmp/optivo_mytoys/digests.csv'
+        path = File.join(Rails.root, digest_path)
 
         # Создаем каталог, если он отсутствует
         unless Dir.exists?('tmp/optivo_mytoys')
@@ -25,8 +26,8 @@ module DigestMailings
           start_sending!
 
           begin
-            # Создаем новый файл или обнуляем старый
-            file_source = File.open(File.join(Rails.root, digest_path), 'w+')
+            # Удаляем файл, если существует
+            File.delete(path) if File.exist?(path)
 
             DigestMailingRecommendationsCalculator.open(shop, recommendations_count) do |calculator|
 
@@ -64,7 +65,12 @@ module DigestMailings
                           recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
                         end
 
-                        file_source.puts "#{client.email};#{recommendations.join(',')}"
+                        # Добавляем строку в файл
+                        File.open(path, 'a') do |file_source|
+                          file_source.flock(File::LOCK_EX)
+                          file_source.puts "#{client.email};#{recommendations.join(',')}"
+                          file_source.flock(File::LOCK_UN)
+                        end
 
                         STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
                       end
