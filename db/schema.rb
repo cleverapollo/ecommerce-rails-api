@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170607103406) do
+ActiveRecord::Schema.define(version: 20170607111037) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -218,6 +218,8 @@ ActiveRecord::Schema.define(version: 20170607103406) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
+
+  add_index "create_segment_changes_logs", ["label"], name: "index_create_segment_changes_logs_on_label", where: "((label IS NOT NULL) AND ((label)::text <> 'initial'::text))", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
     t.integer "digest_mailing_id", limit: 8,                   null: false
