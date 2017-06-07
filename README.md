@@ -28,10 +28,23 @@ Back-end для приема событий и выдачи рекомендац
 
 ### Развертывание на development
 
+Прописать в файле `/etc/hosts` строчку:
+ 
 ```
+127.0.0.1       dev.api.rees46.com
+```
+
+Установка и настройка зависимостей
+
+```sh
 $ bundle
-... $ bin/rake db:create db:schema:load ... не делать schema:load на production, т.к. она не создает функции, генерирующие уникальные ID. Использовать восстановление бэкапа.
-$ foreman start
+$ bin/rake db:create db:schema:load
+```
+
+Запуск сервера
+
+```sh
+$ bin/server
 ```
 
 ### Специфичные файлы конфигурации
@@ -48,7 +61,7 @@ $ foreman start
 ### Тесты
 
 ```sh
-bin/testing
+$ bin/testing
 ```
 
 ### Ручное импортирование YML файла
@@ -64,7 +77,7 @@ YmlImporter.new.perform(Shop.last.id)
 
 Запуск на сервере:
 ```
-RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 88.99.193.211
+$ RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o 88.99.193.211
 ```
 
 ### Настройка Redis для cron-task сервера
