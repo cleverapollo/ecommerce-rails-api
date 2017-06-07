@@ -75,7 +75,12 @@ class InitController < ApplicationController
           session.save!
           session.segment_changed = true
 
-          CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'initial'
+          first = session.segment.first
+          if first['s2'] == params[:segment2]
+            CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'restored'
+          else
+            CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'changed'
+          end
 
           # Отправляем в слак
           if Rails.env == 'production'
