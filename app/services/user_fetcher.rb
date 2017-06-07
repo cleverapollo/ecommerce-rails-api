@@ -13,7 +13,7 @@ class UserFetcher
 
   def initialize(params)
     # Если external_id указан, он корректный
-    @external_id = params[:external_id] if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i >= 0
+    @external_id = params[:external_id].to_s if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i >= 0
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
     @email = IncomingDataTranslator.email(params[:email])
