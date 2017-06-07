@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170606111927) do
+ActiveRecord::Schema.define(version: 20170607103406) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -206,6 +206,18 @@ ActiveRecord::Schema.define(version: 20170606111927) do
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
+
+  create_table "create_segment_changes_logs", force: :cascade do |t|
+    t.integer  "session_id",       limit: 8, null: false
+    t.string   "ssid"
+    t.string   "segment"
+    t.string   "segment_previous"
+    t.string   "page"
+    t.string   "user_agent"
+    t.string   "label"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
     t.integer "digest_mailing_id", limit: 8,                   null: false
@@ -505,12 +517,10 @@ ActiveRecord::Schema.define(version: 20170606111927) do
     t.integer  "entity_id",    limit: 8
     t.string   "entity_type"
     t.integer  "parent_id",    limit: 8
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "status",                 default: 0,  null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "status",                 default: 0, null: false
     t.integer  "client_id",    limit: 8
-    t.string   "video_url"
-    t.integer  "images",       limit: 8, default: [],              array: true
   end
 
   add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree

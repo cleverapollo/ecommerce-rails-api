@@ -67,12 +67,15 @@ class InitController < ApplicationController
     if params[:segment1].present? && params[:segment2].present?
       if session.segment.nil?
         session.update segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}]
+        CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: '', session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'initial'
       else
         last = session.segment.last
         if last['s1'] != params[:segment1] && last['s2'] != params[:segment2]
           session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
           session.save!
           session.segment_changed = true
+
+          CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'initial'
 
           # Отправляем в слак
           if Rails.env == 'production'
