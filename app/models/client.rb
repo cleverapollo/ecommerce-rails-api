@@ -22,10 +22,11 @@ class Client < ActiveRecord::Base
 
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
+  scope :email_confirmed, -> { with_email.where('email_confirmed = true') }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) do
     if shop.double_opt_in_by_law?
-      with_email.where('triggers_enabled = true AND email_confirmed = true AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+      email_confirmed.where('triggers_enabled = true AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
     else
       with_email.where('triggers_enabled = true AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
     end

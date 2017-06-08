@@ -59,8 +59,13 @@ class DigestMailingLaunchWorker
       else
 
         # Для всех остальных
-        audience_relation = shop.clients.suitable_for_digest_mailings
-        audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+        if shop.double_opt_in_by_law?
+          audience_relation = shop.clients.email_confirmed.suitable_for_digest_mailings
+          audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+        else
+          audience_relation = shop.clients.suitable_for_digest_mailings
+          audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+        end
 
         if digest_mailing.batches.incomplete.not_test.none?
           Slavery.on_slave do

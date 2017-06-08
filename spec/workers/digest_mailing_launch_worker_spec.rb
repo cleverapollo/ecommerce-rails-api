@@ -80,6 +80,13 @@ describe DigestMailingLaunchWorker do
         expect(mailing.reload.total_mails_count).to eq(1)
       end
 
+      it 'send only to confirmed email clients' do
+        shop.update geo_law: Shop::GEO_LAWS[:eu]
+        client1.update email_confirmed: true
+
+        subject
+        expect(mailing.reload.total_mails_count).to eq(1)
+      end
     end
   end
 end
