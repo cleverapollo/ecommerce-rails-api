@@ -13,6 +13,11 @@ class RecommendationsController < ApplicationController
       raise Finances::Error.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
     end
 
+    # Если магазин в ограниченном режиме
+    if shop.restricted?
+      raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at support@rees46.com')
+    end
+
     # Извлекаем данные из входящих параметров
     extracted_params = Recommendations::Params.new(params)
     extracted_params.shop = @shop
