@@ -50,6 +50,8 @@ class EventsController < ApplicationController
 
     respond_with_success
 
+  rescue Finances::Error => e
+    respond_with_payment_error(e)
   rescue ActionPush::Error => e
     log_client_error(e)
     respond_with_client_error(e)
