@@ -85,8 +85,6 @@ module DigestMailings
               end
             end
 
-            file_source.close
-
             # Отправляем на sFTP (только в production mode и только для 828 магазина)
             if Rails.env.production?
               require 'net/ssh'
