@@ -3,6 +3,7 @@
 #
 class OrdersSyncWorker
   class OrdersSyncError < StandardError; end
+  class OrdersSyncDisabledError < StandardError; end
 
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'long'
@@ -15,7 +16,7 @@ class OrdersSyncWorker
 
       # Если у магазина отключена синхронизация заказов
       unless current_shop.track_order_status?
-        raise OrdersSyncError.new('Disable order sync for this shop')
+        raise OrdersSyncDisabledError.new('Disable order sync for this shop')
       end
 
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
@@ -72,6 +73,8 @@ class OrdersSyncWorker
         current_shop.update last_orders_sync: Time.current
       end
 
+    rescue OrdersSyncDisabledError => e
+      Rollbar.warn e, shop_id: current_shop.id
     rescue OrdersSyncError => e
       email = opts['errors_to'] || current_shop.customer.email
       ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
