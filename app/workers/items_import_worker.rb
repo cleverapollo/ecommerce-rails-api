@@ -82,8 +82,8 @@ class ItemsImportWorker
 
       if item_params[:fashion].present?
         item_struct.fashion_sizes = item_params.fetch(:fashion)[:sizes]
-        item_struct.fashion_gender = item_params.fetch(:fashion).fetch(:gender) if item_params.fetch(:fashion)[:gender].present?
-        item_struct.fashion_wear_type = item_params.fetch(:fashion).fetch(:type)
+        item_struct.fashion_gender = item_params.fetch(:fashion)[:gender]
+        item_struct.fashion_wear_type = item_params.fetch(:fashion)[:type]
       end
 
       if item_params[:cosmetic].present?
@@ -100,10 +100,12 @@ class ItemsImportWorker
           item_struct.cosmetic_hair_condition = item_params[:cosmetic][:hair][:condition] if item_params[:cosmetic][:hair][:condition].is_a?(Array)
         end
         if item_params[:cosmetic][:nail].present?
+          item_struct.cosmetic_nail = true
           item_struct.cosmetic_nail_type = item_params[:cosmetic][:nail][:type]
+          item_struct.cosmetic_nail_color = item_params[:cosmetic][:nail][:polish_color] if item_params[:cosmetic][:nail][:type].present? && item_params[:cosmetic][:nail][:type] == 'polish'
         end
         if item_params[:cosmetic][:perfume].present?
-          item_struct.cosmetic_perfume_aroma = item_params[:cosmetic][:perfume][:aroma]
+          item_struct.cosmetic_perfume_aroma = item_params[:cosmetic][:perfume][:aroma] if item_params[:cosmetic][:perfume][:aroma].is_a?(Array)
         end
         item_struct.cosmetic_professional = item_params[:cosmetic][:professional] || nil
       end

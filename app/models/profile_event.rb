@@ -110,7 +110,7 @@ class ProfileEvent < MasterTable
               end
 
               # Рассчитываем волосы для обновления пользователя
-              properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair user
+              properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair user
 
             end
 
@@ -138,7 +138,7 @@ class ProfileEvent < MasterTable
               end
 
               # Рассчитываем кожу для обновления пользователя
-              properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin user
+              properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin user
 
             end
 
@@ -151,13 +151,15 @@ class ProfileEvent < MasterTable
             # Ногти
             if item.cosmetic_nail_type.present?
               ProfileEvent.track_event(user, shop, 'cosmetic', 'nail_type', item.cosmetic_nail_type, counter_field_name)
-              # properties_to_update[:cosmetic][:nail] = UserProfile::PropertyCalculator.new.calculate_nail user
+              # properties_to_update[:cosmetic_nail] = UserProfile::PropertyCalculator.new.calculate_nail user
             end
 
             # Парфюмерия
             if item.cosmetic_perfume_aroma.present?
-              ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_aroma', item.cosmetic_perfume_aroma, counter_field_name)
-              properties_to_update[:cosmetic][:perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
+              item.cosmetic_perfume_aroma.each do |aroma|
+                ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_aroma', aroma, counter_field_name)
+              end
+              properties_to_update[:cosmetic_perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
             end
 
             # Товар для профессионалов

@@ -53,10 +53,12 @@
 				<seasonality>6</seasonality>
 				<cosmetic>
 					<nail>
-						<type>tool</type>
+						<type>polish</type>
+						<polish_color>red</polish_color>
 					</nail>
 					<perfume>
 						<aroma>woody</aroma>
+						<aroma>fruity</aroma>
 					</perfume>
 					<professional>1</professional>
 				</cosmetic>

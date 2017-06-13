@@ -183,7 +183,9 @@ class Item < ActiveRecord::Base
         cosmetic_skin_condition: ValuesHelper.present_one(new_item, self, :cosmetic_skin_condition),
         cosmetic_hair_type: ValuesHelper.present_one(new_item, self, :cosmetic_hair_type),
         cosmetic_hair_condition: ValuesHelper.present_one(new_item, self, :cosmetic_hair_condition),
+        cosmetic_nail: ValuesHelper.present_one(new_item, self, :cosmetic_nail),
         cosmetic_nail_type: ValuesHelper.present_one(new_item, self, :cosmetic_nail_type),
+        cosmetic_nail_color: ValuesHelper.present_one(new_item, self, :cosmetic_nail_color),
         cosmetic_perfume_aroma: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_aroma),
         cosmetic_professional: ValuesHelper.present_one(new_item, self, :cosmetic_professional),
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
@@ -379,8 +381,14 @@ class Item < ActiveRecord::Base
         end
 
         # Обрабатываем данные ногтей
-        item.cosmetic_nail_type = offer.cosmetic.nail.type if offer.cosmetic.nail.type.present?
-        item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma if offer.cosmetic.perfume.aroma.present?
+        item.cosmetic_nail = offer.cosmetic.nail.present? || nil
+        if offer.cosmetic.nail.type.present?
+          item.cosmetic_nail_type = offer.cosmetic.nail.type
+          item.cosmetic_nail_color = offer.cosmetic.nail.polish_color if offer.cosmetic.nail.type == 'polish'
+        end
+        # Парфюмерия
+        item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma.to_a if offer.cosmetic.perfume.aroma.present? && offer.cosmetic.perfume.aroma.to_a.any?
+        # Для профессионалов
         item.cosmetic_professional = offer.cosmetic.professional || nil
       else
         item.is_cosmetic = nil

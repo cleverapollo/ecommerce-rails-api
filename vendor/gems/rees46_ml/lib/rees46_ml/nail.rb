@@ -4,6 +4,7 @@ module Rees46ML
     NAIL_TYPE = %w[tool polish gel oil cleaner]
 
     attribute :type, String, lazy: true
+    attribute :polish_color, String, lazy: true
 
   end
 end

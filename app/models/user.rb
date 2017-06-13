@@ -38,8 +38,8 @@ class User < MasterTable
             sizes: fashion_sizes
         },
         cosmetic: {
-            hair: cosmetic.present? && cosmetic[:hair],
-            skin: cosmetic.present? && cosmetic[:skin]
+            hair: cosmetic_hair,
+            skin: cosmetic_skin
         },
         allergy: allergy
 

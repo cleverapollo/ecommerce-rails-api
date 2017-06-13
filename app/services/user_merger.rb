@@ -25,17 +25,17 @@ class UserMerger
             end
 
             # Сливаем виртуальный профиль
-            properties_to_update = Hash.recursive
-            properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
-            properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
-            properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair master
-            properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
-            properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin master
-            properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
-            properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
-            properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
-            properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
-            master.update properties_to_update
+            master.gender = UserProfile::PropertyCalculator.new.calculate_gender master
+            master.fashion_sizes = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
+            master.cosmetic_hair = UserProfile::PropertyCalculator.new.calculate_hair master
+            master.allergy = UserProfile::PropertyCalculator.new.calculate_allergy master
+            master.cosmetic_skin = UserProfile::PropertyCalculator.new.calculate_skin master
+            master.cosmetic_perfume = UserProfile::PropertyCalculator.new.calculate_perfume master
+            master.children = UserProfile::PropertyCalculator.new.calculate_children master
+            master.compatibility = UserProfile::PropertyCalculator.new.calculate_compatibility master
+            master.vds = UserProfile::PropertyCalculator.new.calculate_vds master
+            master.pets = UserProfile::PropertyCalculator.new.calculate_pets master
+            master.atomic_save! if master.changed?
 
             # Удаляем дочерний элемент
             slave.delete
@@ -58,6 +58,9 @@ class UserMerger
       master
     end
 
+    # Сливает возможные остатки удаленного юзера
+    # @param [Integer] master_id
+    # @param [Integer] slave_id
     def merge_remnants(master_id, slave_id)
       begin
         master = User.find master_id
@@ -67,18 +70,19 @@ class UserMerger
           end
 
           # Сливаем виртуальный профиль
-          properties_to_update = Hash.recursive
-          properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
-          properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
-          properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair master
-          properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
-          properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin master
-          properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
-          properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
-          properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
-          properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets master
-          master.update properties_to_update
+          master.gender = UserProfile::PropertyCalculator.new.calculate_gender master
+          master.fashion_sizes = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
+          master.cosmetic_hair = UserProfile::PropertyCalculator.new.calculate_hair master
+          master.allergy = UserProfile::PropertyCalculator.new.calculate_allergy master
+          master.cosmetic_skin = UserProfile::PropertyCalculator.new.calculate_skin master
+          master.cosmetic_perfume = UserProfile::PropertyCalculator.new.calculate_perfume master
+          master.children = UserProfile::PropertyCalculator.new.calculate_children master
+          master.compatibility = UserProfile::PropertyCalculator.new.calculate_compatibility master
+          master.vds = UserProfile::PropertyCalculator.new.calculate_vds master
+          master.pets = UserProfile::PropertyCalculator.new.calculate_pets master
+          master.atomic_save! if master.changed?
         end
+        master
       rescue ActiveRecord::RecordNotFound
         # Юзер уже потерялся, ну и ладно
       end

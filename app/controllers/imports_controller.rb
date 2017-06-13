@@ -37,7 +37,7 @@ class ImportsController < ApplicationController
     #   end
     # end
     # @type [Shop] shop
-    current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+    current_shop = Shop.find_by!(uniqid: params['shop_id'], secret: params['shop_secret'])
 
     # Если у магазина отключена синхронизация заказов
     unless current_shop.track_order_status?

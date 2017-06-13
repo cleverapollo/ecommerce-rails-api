@@ -38,8 +38,10 @@ describe YmlImporter do
     expect(item.fashion_wear_type).to eq('trouser')
     expect(item.category_ids).to eq(%w(8 13))
     expect(item.seasonality).to eq([1, 3, 4, 6])
-    expect(item.cosmetic_nail_type).to eq('tool')
-    expect(item.cosmetic_perfume_aroma).to eq('woody')
+    expect(item.cosmetic_nail).to eq(true)
+    expect(item.cosmetic_nail_type).to eq('polish')
+    expect(item.cosmetic_nail_color).to eq('red')
+    expect(item.cosmetic_perfume_aroma).to eq(%w(woody fruity))
     expect(item.cosmetic_professional).to eq(true)
 
     # Blank
@@ -51,7 +53,9 @@ describe YmlImporter do
     expect(item.description).to eq('')
     expect(item.model).to eq('Купальные шорты Inlay')
     expect(item.seasonality).to be_nil
+    expect(item.cosmetic_nail).to be_nil
     expect(item.cosmetic_nail_type).to be_nil
+    expect(item.cosmetic_nail_color).to be_nil
     expect(item.cosmetic_perfume_aroma).to be_nil
     expect(item.cosmetic_professional).to be_nil
   end

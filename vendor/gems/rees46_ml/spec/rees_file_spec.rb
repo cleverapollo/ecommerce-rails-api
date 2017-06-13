@@ -129,7 +129,9 @@ describe "check rees.xml" do
     expect(offer.cosmetic.hair.condition).to include("colored")
 
     expect(offer.cosmetic.nail.type).to eq('tool')
-    expect(offer.cosmetic.perfume.aroma).to eq('woody')
+    expect(offer.cosmetic.nail.polish_color).to eq('red')
+    expect(offer.cosmetic.perfume.aroma).to include('woody')
+    expect(offer.cosmetic.perfume.aroma).to include('citrus')
     expect(offer.cosmetic.professional).to eq(true)
     # volumes
 

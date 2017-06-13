@@ -940,7 +940,7 @@ ActiveRecord::Schema.define(version: 20170613125046) do
   add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
-    t.string  "gender",        limit: 1
+    t.string  "gender",           limit: 1
     t.jsonb   "fashion_sizes"
     t.boolean "allergy"
     t.jsonb   "cosmetic_hair"
@@ -950,7 +950,7 @@ ActiveRecord::Schema.define(version: 20170613125046) do
     t.jsonb   "vds"
     t.jsonb   "pets"
     t.jsonb   "jewelry"
-    t.jsonb   "cosmetic"
+    t.jsonb   "cosmetic_perfume"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

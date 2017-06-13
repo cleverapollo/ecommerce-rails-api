@@ -73,6 +73,7 @@ module Rees46ML
       state :skin
       state :hair
       state :nail
+      state :polish_color
       state :perfume
       state :aroma
       state :professional
@@ -613,6 +614,14 @@ module Rees46ML
 
       event :end_nail do
         transitions from: :nail, to: :cosmetic
+      end
+
+      event :start_polish_color do
+        transitions from: :nail, to: :polish_color
+      end
+
+      event :end_polish_color do
+        transitions from: :polish_color, to: :nail
       end
 
       event :start_perfume do
@@ -1395,6 +1404,8 @@ module Rees46ML
             self.current_element.value = safe_buffer
           when 'chain_size'
             self.current_element.value = safe_buffer
+          when 'aroma'
+            self.current_element.aroma << safe_buffer
           when "currencies"
           else
             if self.current_element.respond_to?(attibute)

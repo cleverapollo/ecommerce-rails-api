@@ -204,6 +204,7 @@ ActiveRecord::Schema.define(version: 20170613075631) do
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
   add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
+  add_index "clients", ["shop_id"], name: "index_client_on_shop_id_and_email_present", where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
@@ -406,8 +407,10 @@ ActiveRecord::Schema.define(version: 20170613075631) do
     t.jsonb   "bracelet_sizes"
     t.jsonb   "chain_sizes"
     t.integer "seasonality",                                                       array: true
+    t.boolean "cosmetic_nail"
     t.string  "cosmetic_nail_type"
-    t.string  "cosmetic_perfume_aroma"
+    t.string  "cosmetic_nail_color"
+    t.string  "cosmetic_perfume_aroma",                                            array: true
     t.boolean "cosmetic_professional"
   end
 

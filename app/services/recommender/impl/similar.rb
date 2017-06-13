@@ -40,6 +40,7 @@ module Recommender
         result = super.in_categories(categories_for_query, any: (params.categories.try(:any?) ? true : false) ).where.not(id: excluded_items_ids)
 
         # Если товар для авто
+        # @type item [Item]
         if item.is_auto?
           result = result.where(is_auto: true)
 
@@ -81,6 +82,29 @@ module Recommender
             result = result.where("is_jewelry IS TRUE AND ( #{subconditions.join('OR')} ) ")
           end
 
+        end
+
+        if item.is_cosmetic?
+          result = result.where(is_cosmetic: true)
+
+          # Фильтруем похожие ароматы
+          if item.cosmetic_perfume_aroma.present?
+            result = result.where('cosmetic_perfume_aroma && ARRAY[?]::varchar[] OR cosmetic_perfume_aroma IS NULL', item.cosmetic_perfume_aroma)
+          end
+
+          # Ногти
+          if item.cosmetic_nail?
+            result = result.where(cosmetic_nail: true)
+
+            # Фильтруем по типу
+            result = result.where(cosmetic_nail_type: item.cosmetic_nail_type) if item.cosmetic_nail_type.present?
+
+            # Для лака добавляет фильтр цвета
+            # todo так то лак выбирают близкого по цвету, а не такого же. Спросить у знающих (спросили, вроде как по большой палитре норм).
+            if item.cosmetic_nail_type.present? && item.cosmetic_nail_type == 'polish' && item.cosmetic_nail_color.present?
+              result = result.where(cosmetic_nail_color: item.cosmetic_nail_color)
+            end
+          end
         end
 
         result

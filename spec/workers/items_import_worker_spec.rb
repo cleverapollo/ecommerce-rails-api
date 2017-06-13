@@ -39,10 +39,11 @@ describe ItemsImportWorker do
                 },
                 periodic: true,
                 nail: {
-                    type: 'tool'
+                    type: 'polish',
+                    polish_color: 'red',
                 },
                 perfume: {
-                    aroma: 'woody'
+                    aroma: %w(woody fruity)
                 },
                 professional: true
             },
@@ -84,9 +85,53 @@ describe ItemsImportWorker do
     expect(item.cosmetic_hair_type).to eq(['dry'])
     expect(item.cosmetic_hair_condition).to eq(['colored'])
     expect(item.cosmetic_periodic).to eq(true)
-    expect(item.cosmetic_nail_type).to eq('tool')
-    expect(item.cosmetic_perfume_aroma).to eq('woody')
+    expect(item.cosmetic_nail).to eq(true)
+    expect(item.cosmetic_nail_type).to eq('polish')
+    expect(item.cosmetic_nail_color).to eq('red')
+    expect(item.cosmetic_perfume_aroma).to eq(%w(woody fruity))
     expect(item.cosmetic_professional).to eq(true)
+
+    expect(CatalogImportLog.count).to eq(1)
+  end
+
+  it 'works with empty industries' do
+    ItemsImportWorker.new.perform(shop.id, [{
+        id: 1,
+        name: 'Shtaniy',
+        price: 1.0,
+        url: 'http://google.com',
+        picture: 'http://google.com/1.png',
+        categories: [],
+        available: true,
+    }], 'put')
+
+    item = Item.first
+    expect(item.uniqid).to eq('1')
+    expect(item.name).to eq('Shtaniy')
+    expect(item.price).to eq(1.0)
+    expect(item.url).to eq('http://google.com')
+    expect(item.image_url).to eq('http://google.com/1.png')
+    expect(item.is_available).to eq(true)
+
+    expect(item.is_fashion).to be_nil
+    expect(item.fashion_sizes).to be_nil
+    expect(item.fashion_gender).to be_nil
+    expect(item.fashion_wear_type).to be_nil
+
+    expect(item.is_cosmetic).to be_nil
+    expect(item.cosmetic_gender).to be_nil
+    expect(item.cosmetic_hypoallergenic).to be_nil
+    expect(item.cosmetic_skin_part).to be_nil
+    expect(item.cosmetic_skin_type).to be_nil
+    expect(item.cosmetic_skin_condition).to be_nil
+    expect(item.cosmetic_hair_type).to be_nil
+    expect(item.cosmetic_hair_condition).to be_nil
+    expect(item.cosmetic_periodic).to be_nil
+    expect(item.cosmetic_nail).to be_nil
+    expect(item.cosmetic_nail_type).to be_nil
+    expect(item.cosmetic_nail_color).to be_nil
+    expect(item.cosmetic_perfume_aroma).to be_nil
+    expect(item.cosmetic_professional).to be_nil
 
     expect(CatalogImportLog.count).to eq(1)
   end

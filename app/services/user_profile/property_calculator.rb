@@ -171,7 +171,7 @@ class UserProfile::PropertyCalculator
       score[key][event.value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
     end
 
-    return nil if score.empty?
+    return nil if score.reject { |k,v| v.nil? || v.empty? }.blank?
 
     # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
     score.each do |perfume, values|
