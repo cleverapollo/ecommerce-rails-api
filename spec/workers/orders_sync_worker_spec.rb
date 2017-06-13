@@ -17,16 +17,6 @@ describe OrdersSyncWorker do
     }
   }
 
-  it 'disable sync' do
-    shop.update(track_order_status: false)
-    params['orders'][0]['status'] = Order::STATUS_CANCELLED
-    OrdersSyncWorker.new.perform(params)
-
-    order = shop.orders.first!
-    expect(order.status).to eq(0)
-    expect(customer.reload.balance).to eq(100)
-  end
-
   it 'persists given orders' do
     OrdersSyncWorker.new.perform(params)
 
