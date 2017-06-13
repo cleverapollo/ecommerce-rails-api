@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe OrdersSyncWorker do
   let!(:customer) { create(:customer, balance: 100) }
-  let!(:shop) { create(:shop, customer: customer) }
+  let!(:shop) { create(:shop, customer: customer, track_order_status: true) }
   let!(:user) { create(:user) }
   let!(:order) { create(:order, shop: shop, user: user, uniqid: '123', date: 1.day.ago, value: 100, source_type: 'TriggerMail') }
   let!(:params) {
@@ -16,6 +16,16 @@ describe OrdersSyncWorker do
       ]
     }
   }
+
+  it 'disable sync' do
+    shop.update(track_order_status: false)
+    params['orders'][0]['status'] = Order::STATUS_CANCELLED
+    OrdersSyncWorker.new.perform(params)
+
+    order = shop.orders.first!
+    expect(order.status).to eq(0)
+    expect(customer.reload.balance).to eq(100)
+  end
 
   it 'persists given orders' do
     OrdersSyncWorker.new.perform(params)

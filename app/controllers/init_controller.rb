@@ -20,7 +20,7 @@ class InitController < ApplicationController
       return
     end
 
-    session_id = params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME] || cookies[Rees46::COOKIE_NAME]
+    session_id = cookies[Rees46::COOKIE_NAME] || params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
     email = nil
     if params[:user_email].present?
       email = IncomingDataTranslator.email(params[:user_email])

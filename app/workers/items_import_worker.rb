@@ -82,7 +82,7 @@ class ItemsImportWorker
 
       if item_params[:fashion].present?
         item_struct.fashion_sizes = item_params.fetch(:fashion)[:sizes]
-        item_struct.fashion_gender = item_params.fetch(:fashion).fetch(:gender)
+        item_struct.fashion_gender = item_params.fetch(:fashion).fetch(:gender) if item_params.fetch(:fashion)[:gender].present?
         item_struct.fashion_wear_type = item_params.fetch(:fashion).fetch(:type)
       end
       item_struct.amount = 0
