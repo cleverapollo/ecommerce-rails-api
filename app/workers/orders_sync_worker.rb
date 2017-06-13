@@ -10,7 +10,13 @@ class OrdersSyncWorker
   def perform(opts)
     begin
 
+      # @type [Shop] shop
       current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+
+      # Если у магазина отключена синхронизация заказов
+      unless current_shop.track_order_status?
+        raise OrdersSyncError.new('Disable order sync for this shop')
+      end
 
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
         raise OrdersSyncError.new('Не передан массив заказов')
@@ -42,7 +48,7 @@ class OrdersSyncWorker
 
               # Возыращаем компенсацию
               current_order.update! compensated: true
-              current_shop.customer.change_balance CpaReport.fee(current_order, current_shop)
+              current_shop.customer.change_balance(CpaReport.fee(current_order, current_shop), 'API Order sync')
             end
           end
 
