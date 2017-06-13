@@ -28,7 +28,7 @@ class ReputationsController < ApplicationController
   # route: /reputation/product
   def item_reputation
     if @plan.present? && @plan.paid?
-      render json: @item.reputations.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment).order(id: :desc).limit(@count).offset(@offset)
+      render json: @item.reputations.published.select(:id, :name, :rating, 'plus AS pros', 'minus AS cons', :comment, 'video_url AS video').order(id: :desc).limit(@count).offset(@offset)
     else
       render json: {}
     end
