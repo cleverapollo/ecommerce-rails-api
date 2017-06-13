@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170607111037) do
+ActiveRecord::Schema.define(version: 20170613155125) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -204,6 +204,7 @@ ActiveRecord::Schema.define(version: 20170607111037) do
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
   add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
+  add_index "clients", ["shop_id"], name: "index_client_on_shop_id_and_email_present", where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id"], name: "index_clients_on_shop_id", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
@@ -255,14 +256,14 @@ ActiveRecord::Schema.define(version: 20170607111037) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -713,10 +714,10 @@ ActiveRecord::Schema.define(version: 20170607111037) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
