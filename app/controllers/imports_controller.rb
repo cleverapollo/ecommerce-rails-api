@@ -36,6 +36,15 @@ class ImportsController < ApplicationController
     #     notifier.ping("Sync orders")
     #   end
     # end
+    # @type [Shop] shop
+    current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+
+    # Если у магазина отключена синхронизация заказов
+    unless current_shop.track_order_status?
+      respond_with_client_error('Disable order sync for this shop')
+      return false
+    end
+
     OrdersSyncWorker.perform_async(params)
     render text: 'OK'
   end
