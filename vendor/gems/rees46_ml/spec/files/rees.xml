@@ -207,6 +207,16 @@
               <price>2000</price>
             </volume>
           </volumes>
+
+          <nail>
+            <type>tool</type>
+          </nail>
+
+          <perfume>
+            <aroma>woody</aroma>
+          </perfume>
+
+          <professional>1</professional>
         </cosmetic>
 
 

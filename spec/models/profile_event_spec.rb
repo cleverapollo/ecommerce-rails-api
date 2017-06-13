@@ -38,6 +38,10 @@ describe ProfileEvent do
     let!(:item_24) { create(:item, shop: shop, is_jewelry: true, jewelry_color: 'yellow', jewelry_metal: 'gold', jewelry_gem: 'diamond', ring_sizes: [3,4,5], bracelet_sizes: [4,5,6], chain_sizes: [6,7,8], jewelry_gender: 'f') }
     let!(:item_25) { create(:item, shop: shop, is_jewelry: true, jewelry_color: 'white', jewelry_metal: 'silver', jewelry_gem: 'ruby', ring_sizes: [3,4,5], bracelet_sizes: [4,5,6], chain_sizes: [6,7,8], jewelry_gender: 'm') }
 
+    let!(:item_26) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'tool') }
+    let!(:item_27) { create(:item, shop: shop, is_cosmetic: true, cosmetic_perfume_aroma: 'citrus') }
+    let!(:item_28) { create(:item, shop: shop, is_cosmetic: true, cosmetic_professional: true) }
+
 
     let!(:item_simple) { create(:item, shop: shop ) }
 
@@ -87,8 +91,8 @@ describe ProfileEvent do
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').views).to eq 2
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').carts).to eq 1
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').purchases).to eq 1
-        expect(user.reload.cosmetic_hair['condition']).to eq('damage')
-        expect(user.reload.cosmetic_hair['type']).to eq('long')
+        expect(user.reload.cosmetic['hair']['condition']).to eq('damage')
+        expect(user.reload.cosmetic['hair']['type']).to eq('long')
       end
 
       it 'saves allergy for cosmetic' do
@@ -116,6 +120,42 @@ describe ProfileEvent do
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_hand', value: 'tattoo').carts).to eq 1
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_leg', value: 'tattoo').views).to eq 1
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_hand', value: 'soft').purchases).to eq 1
+        expect(user.reload.cosmetic['skin']['leg']['condition']).to eq(['tattoo'])
+        expect(user.reload.cosmetic['skin']['hand']['condition']).to eq(['tattoo'])
+        expect(user.reload.cosmetic['skin']['hand']['type']).to eq(['soft'])
+        expect(user.reload.cosmetic['skin']['body']['type']).to eq(['oily'])
+        expect(user.reload.cosmetic['skin']['body']['condition']).to eq(['damage'])
+      end
+
+      it 'saves nail for cosmetic' do
+        ProfileEvent.track_items(user, shop, 'view', [item_26, item_simple])
+        ProfileEvent.track_items(user, shop, 'view', [item_26, item_simple])
+        ProfileEvent.track_items(user, shop, 'cart', [item_26, item_simple])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_26, item_simple])
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').views).to eq 2
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').purchases).to eq 1
+      end
+
+      it 'saves perfume for cosmetic' do
+        ProfileEvent.track_items(user, shop, 'view', [item_27, item_simple])
+        ProfileEvent.track_items(user, shop, 'cart', [item_27, item_simple])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_27, item_simple])
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').views).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').purchases).to eq 1
+      end
+
+      it 'saves professional for cosmetic' do
+        ProfileEvent.track_items(user, shop, 'view', [item_28, item_simple])
+        ProfileEvent.track_items(user, shop, 'cart', [item_28, item_simple])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_28, item_simple])
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').views).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').purchases).to eq 1
       end
 
     end

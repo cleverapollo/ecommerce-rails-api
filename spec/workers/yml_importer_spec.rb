@@ -38,6 +38,9 @@ describe YmlImporter do
     expect(item.fashion_wear_type).to eq('trouser')
     expect(item.category_ids).to eq(%w(8 13))
     expect(item.seasonality).to eq([1, 3, 4, 6])
+    expect(item.cosmetic_nail_type).to eq('tool')
+    expect(item.cosmetic_perfume_aroma).to eq('woody')
+    expect(item.cosmetic_professional).to eq(true)
 
     # Blank
     item = Item.find_by uniqid: '1', shop_id: shop.id
@@ -48,5 +51,8 @@ describe YmlImporter do
     expect(item.description).to eq('')
     expect(item.model).to eq('Купальные шорты Inlay')
     expect(item.seasonality).to be_nil
+    expect(item.cosmetic_nail_type).to be_nil
+    expect(item.cosmetic_perfume_aroma).to be_nil
+    expect(item.cosmetic_professional).to be_nil
   end
 end

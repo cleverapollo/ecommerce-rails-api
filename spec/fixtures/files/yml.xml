@@ -1,65 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <yml_catalog date="2017-05-17 16:59">
-    <shop>
-        <name>Quiksilver</name>
-        <company>Quiksilver Russia</company>
-        <url>http://www.quiksilver.ru</url>
-        <currencies>
-            <currency rate="1" id="RUR"/>
-        </currencies>
-        <categories>
-            <category id="2">Скидки</category>
-            <category id="8">Мужчинам</category>
-            <category id="13" parentId="8">Бордшорты</category>
-        </categories>
-        <delivery-options>
-            <option cost="250" days="1-2"/>
-        </delivery-options>
-        <offers>
-            <offer id="3613372537448" type="vendor.model" available="true">
-                <url>http://www.quiksilver.ru/3613372537448.html</url>
-                <price>4290</price>
-                <currencyId>RUR</currencyId>
-                <categoryId>13</categoryId>
-                <vendor>Quiksilver</vendor>
-                <name>Купальные шорты Inlay 17"</name>
-                <fashion>
-                    <gender>m</gender>
-                    <sizes>
-                        <size>xl</size>
-                        <size>s</size>
-                        <size>m</size>
-                        <size>l</size>
-                        <size>xxl</size>
-                    </sizes>
-                </fashion>
-                <model>Купальные шорты Inlay 17" model</model>
-                <vendorCode>EQYJV03198</vendorCode>
-                <typePrefix>Бордшорты</typePrefix>
-                <description>Купальные шорты Inlay 17" классика</description>
-                <picture>
-                    http://static.quiksilver.com/www/store.quiksilver.eu/html/images/catalogs/global/quiksilver-products/all/default/large/eqyjv03198_inlayvolley17,w_bjb6_frt1.jpg
-                </picture>
-                <param name="Цвет">Синий</param>
-                <param name="Материал">90% переработанный полиэстер, 10% эластан</param>
-                <param name="Размер" unit="INT">xxl</param>
-                <delivery-options>
-                    <option cost="0" days="1-2"/>
-                </delivery-options>
-                <seasonality>1</seasonality>
-                <seasonality>3</seasonality>
-                <seasonality>4</seasonality>
-                <seasonality>4</seasonality>
-                <seasonality>6</seasonality>
-            </offer>
-            <offer id="1" available="true">
-                <url>http://www.quiksilver.ru/1.html</url>
-                <price>10</price>
-                <currencyId>RUR</currencyId>
-                <vendor>Quiksilver</vendor>
-                <name>Купальные шорты</name>
-                <model>Купальные шорты Inlay</model>
-            </offer>
-        </offers>
-    </shop>
+	<shop>
+		<name>Quiksilver</name>
+		<company>Quiksilver Russia</company>
+		<url>http://www.quiksilver.ru</url>
+		<currencies>
+			<currency rate="1" id="RUR"/>
+		</currencies>
+		<categories>
+			<category id="2">Скидки</category>
+			<category id="8">Мужчинам</category>
+			<category id="13" parentId="8">Бордшорты</category>
+		</categories>
+		<delivery-options>
+			<option cost="250" days="1-2"/>
+		</delivery-options>
+		<offers>
+			<offer id="3613372537448" type="vendor.model" available="true">
+				<url>http://www.quiksilver.ru/3613372537448.html</url>
+				<price>4290</price>
+				<currencyId>RUR</currencyId>
+				<categoryId>13</categoryId>
+				<vendor>Quiksilver</vendor>
+				<name>Купальные шорты Inlay 17"</name>
+				<fashion>
+					<gender>m</gender>
+					<sizes>
+						<size>xl</size>
+						<size>s</size>
+						<size>m</size>
+						<size>l</size>
+						<size>xxl</size>
+					</sizes>
+				</fashion>
+				<model>Купальные шорты Inlay 17" model</model>
+				<vendorCode>EQYJV03198</vendorCode>
+				<typePrefix>Бордшорты</typePrefix>
+				<description>Купальные шорты Inlay 17" классика</description>
+				<picture>
+					http://static.quiksilver.com/www/store.quiksilver.eu/html/images/catalogs/global/quiksilver-products/all/default/large/eqyjv03198_inlayvolley17,w_bjb6_frt1.jpg
+				</picture>
+				<param name="Цвет">Синий</param>
+				<param name="Материал">90% переработанный полиэстер, 10% эластан</param>
+				<param name="Размер" unit="INT">xxl</param>
+				<delivery-options>
+					<option cost="0" days="1-2"/>
+				</delivery-options>
+				<seasonality>1</seasonality>
+				<seasonality>3</seasonality>
+				<seasonality>4</seasonality>
+				<seasonality>4</seasonality>
+				<seasonality>6</seasonality>
+				<cosmetic>
+					<nail>
+						<type>tool</type>
+					</nail>
+					<perfume>
+						<aroma>woody</aroma>
+					</perfume>
+					<professional>1</professional>
+				</cosmetic>
+			</offer>
+			<offer id="1" available="true">
+				<url>http://www.quiksilver.ru/1.html</url>
+				<price>10</price>
+				<currencyId>RUR</currencyId>
+				<vendor>Quiksilver</vendor>
+				<name>Купальные шорты</name>
+				<model>Купальные шорты Inlay</model>
+			</offer>
+		</offers>
+	</shop>
 </yml_catalog>

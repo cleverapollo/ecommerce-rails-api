@@ -488,8 +488,8 @@ describe UserMerger do
           expect(master.profile_events.where(industry: 'cosmetic', property: 'hypoallergenic').first.carts).to eq 3
           expect(master.allergy).to be_truthy
 
-          expect(master.cosmetic_hair['type']).to eq 'short'
-          expect(master.cosmetic_hair['condition']).to eq 'normal'
+          expect(master.cosmetic['hair']['type']).to eq 'short'
+          expect(master.cosmetic['hair']['condition']).to eq 'normal'
 
           expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'dry').first.purchases).to eq 2
           expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'normal').first.views).to eq 1
@@ -497,10 +497,10 @@ describe UserMerger do
           expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_hand', value: 'normal').first.carts).to eq 1
           expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage').first.carts).to eq 2
           expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_body', value: 'soft').first.carts).to eq 2
-          expect(master.cosmetic_skin['hand']['type']).to eq ['normal']
-          expect(master.cosmetic_skin['hand']['condition']).to eq ['damage']
-          expect(master.cosmetic_skin['body']['type']).to eq ['dry', 'normal']
-          expect(master.cosmetic_skin['body']['condition']).to eq ['soft']
+          expect(master.cosmetic['skin']['hand']['type']).to eq ['normal']
+          expect(master.cosmetic['skin']['hand']['condition']).to eq ['damage']
+          expect(master.cosmetic['skin']['body']['type']).to eq ['dry', 'normal']
+          expect(master.cosmetic['skin']['body']['condition']).to eq ['soft']
 
           expect(master.children).to eq ([{"gender"=>"m", "age_max"=>1.0, "age_min"=>0.5}, {"gender"=>"f", "age_max"=>3.0, "age_min"=>1.5}])
 
@@ -802,8 +802,8 @@ describe UserMerger do
         expect(master.profile_events.where(industry: 'cosmetic', property: 'hypoallergenic').first.carts).to eq 3
         expect(master.allergy).to be_truthy
 
-        expect(master.cosmetic_hair['type']).to eq 'short'
-        expect(master.cosmetic_hair['condition']).to eq 'normal'
+        expect(master.cosmetic['hair']['type']).to eq 'short'
+        expect(master.cosmetic['hair']['condition']).to eq 'normal'
 
         expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'dry').first.purchases).to eq 2
         expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_body', value: 'normal').first.views).to eq 1
@@ -811,10 +811,10 @@ describe UserMerger do
         expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_type_hand', value: 'normal').first.carts).to eq 1
         expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_hand', value: 'damage').first.carts).to eq 2
         expect(master.profile_events.where(industry: 'cosmetic', property: 'skin_condition_body', value: 'soft').first.carts).to eq 2
-        expect(master.cosmetic_skin['hand']['type']).to eq ['normal']
-        expect(master.cosmetic_skin['hand']['condition']).to eq ['damage']
-        expect(master.cosmetic_skin['body']['type']).to eq ['dry', 'normal']
-        expect(master.cosmetic_skin['body']['condition']).to eq ['soft']
+        expect(master.cosmetic['skin']['hand']['type']).to eq ['normal']
+        expect(master.cosmetic['skin']['hand']['condition']).to eq ['damage']
+        expect(master.cosmetic['skin']['body']['type']).to eq ['dry', 'normal']
+        expect(master.cosmetic['skin']['body']['condition']).to eq ['soft']
 
         expect(master.children).to eq ([{"gender"=>"m", "age_max"=>1.0, "age_min"=>0.5}, {"gender"=>"f", "age_max"=>3.0, "age_min"=>1.5}])
 

@@ -53,7 +53,7 @@ class ProfileEvent < MasterTable
       counter_field_name = action.pluralize.to_sym
 
       # Хеш обновлений свойств пользователя
-      properties_to_update = {}
+      properties_to_update = Hash.recursive
 
       # Для каждого товара записываем событие, если товар отраслевой
       items.each do |item|
@@ -110,7 +110,7 @@ class ProfileEvent < MasterTable
               end
 
               # Рассчитываем волосы для обновления пользователя
-              properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair user
+              properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair user
 
             end
 
@@ -138,15 +138,31 @@ class ProfileEvent < MasterTable
               end
 
               # Рассчитываем кожу для обновления пользователя
-              properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin user
+              properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin user
 
             end
 
             # Гипоаллергенность
             if item.cosmetic_hypoallergenic?
-              profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'cosmetic', property: 'hypoallergenic', value: '1'
-              profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              ProfileEvent.track_event(user, shop, 'cosmetic', 'hypoallergenic', '1', counter_field_name)
               properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+            end
+
+            # Ногти
+            if item.cosmetic_nail_type.present?
+              ProfileEvent.track_event(user, shop, 'cosmetic', 'nail_type', item.cosmetic_nail_type, counter_field_name)
+              # properties_to_update[:cosmetic][:nail] = UserProfile::PropertyCalculator.new.calculate_nail user
+            end
+
+            # Парфюмерия
+            if item.cosmetic_perfume_aroma.present?
+              ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_aroma', item.cosmetic_perfume_aroma, counter_field_name)
+              properties_to_update[:cosmetic][:perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
+            end
+
+            # Товар для профессионалов
+            if item.cosmetic_professional?
+              ProfileEvent.track_event(user, shop, 'cosmetic', 'professional', '1', counter_field_name)
             end
 
           end
@@ -316,6 +332,18 @@ class ProfileEvent < MasterTable
       user.update properties_to_update unless properties_to_update.empty?
 
       true
+    end
+
+    # Увеличивает счетчик у события или создает новое
+    # @param user [User]
+    # @param shop [Shop]
+    # @param industry [String]
+    # @param property [String]
+    # @param value [String]
+    # @param counter_field_name [Symbol]
+    def track_event(user, shop, industry, property, value, counter_field_name)
+      profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: industry, property: property, value: value
+      profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
     end
 
 

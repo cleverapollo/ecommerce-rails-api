@@ -25,12 +25,12 @@ class UserMerger
             end
 
             # Сливаем виртуальный профиль
-            properties_to_update = {}
+            properties_to_update = Hash.recursive
             properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
             properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
-            properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair master
+            properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair master
             properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
-            properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin master
+            properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin master
             properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
             properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
             properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master
@@ -67,12 +67,12 @@ class UserMerger
           end
 
           # Сливаем виртуальный профиль
-          properties_to_update = {}
+          properties_to_update = Hash.recursive
           properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender master
           properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
-          properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair master
+          properties_to_update[:cosmetic][:hair] = UserProfile::PropertyCalculator.new.calculate_hair master
           properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy master
-          properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin master
+          properties_to_update[:cosmetic][:skin] = UserProfile::PropertyCalculator.new.calculate_skin master
           properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children master
           properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility master
           properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds master

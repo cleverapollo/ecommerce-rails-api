@@ -91,6 +91,9 @@ class Item < ActiveRecord::Base
       cosmetic_hair_condition
       cosmetic_volume
       cosmetic_periodic
+      cosmetic_nail_type
+      cosmetic_perfume_aroma
+      cosmetic_professional
       is_cosmetic
       is_child
       is_fashion
@@ -148,7 +151,6 @@ class Item < ActiveRecord::Base
   end
 
   # Назначить аттрибуты
-  # deprecated
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
 
@@ -173,8 +175,17 @@ class Item < ActiveRecord::Base
         fashion_sizes: ValuesHelper.present_one(new_item, self, :fashion_sizes),
         child_age_min: ValuesHelper.present_one(new_item, self, :child_age_min),
         child_age_max: ValuesHelper.present_one(new_item, self, :child_age_max),
+        cosmetic_gender: ValuesHelper.present_one(new_item, self, :cosmetic_gender),
         cosmetic_hypoallergenic: ValuesHelper.present_one(new_item, self, :cosmetic_hypoallergenic),
         cosmetic_periodic: ValuesHelper.present_one(new_item, self, :cosmetic_periodic),
+        cosmetic_skin_part: ValuesHelper.present_one(new_item, self, :cosmetic_skin_part),
+        cosmetic_skin_type: ValuesHelper.present_one(new_item, self, :cosmetic_skin_type),
+        cosmetic_skin_condition: ValuesHelper.present_one(new_item, self, :cosmetic_skin_condition),
+        cosmetic_hair_type: ValuesHelper.present_one(new_item, self, :cosmetic_hair_type),
+        cosmetic_hair_condition: ValuesHelper.present_one(new_item, self, :cosmetic_hair_condition),
+        cosmetic_nail_type: ValuesHelper.present_one(new_item, self, :cosmetic_nail_type),
+        cosmetic_perfume_aroma: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_aroma),
+        cosmetic_professional: ValuesHelper.present_one(new_item, self, :cosmetic_professional),
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
         condition: ValuesHelper.present_one(new_item, self, :condition),
@@ -366,6 +377,11 @@ class Item < ActiveRecord::Base
             item.cosmetic_hair_condition = offer.cosmetic.hair.condition.to_a
           end
         end
+
+        # Обрабатываем данные ногтей
+        item.cosmetic_nail_type = offer.cosmetic.nail.type if offer.cosmetic.nail.type.present?
+        item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma if offer.cosmetic.perfume.aroma.present?
+        item.cosmetic_professional = offer.cosmetic.professional || nil
       else
         item.is_cosmetic = nil
       end
