@@ -113,6 +113,23 @@ describe UserProfile::PropertyCalculator do
 
   end
 
+  describe 'calculate perfume' do
+
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+
+    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'floral', purchases: 2 ) }
+    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus', views: 1, carts: 2 ) }
+    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'woody', carts: 1 ) }
+    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'oriental', carts: 2 ) }
+
+    subject { UserProfile::PropertyCalculator.new.calculate_perfume(user) }
+
+    it 'calculates aroma' do
+      expect(subject['aroma']).to eq(%w(citrus floral))
+    end
+  end
+
 
   describe 'calculate allergy' do
 

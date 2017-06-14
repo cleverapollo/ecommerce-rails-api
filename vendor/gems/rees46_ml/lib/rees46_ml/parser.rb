@@ -72,6 +72,11 @@ module Rees46ML
       state :periodic
       state :skin
       state :hair
+      state :nail
+      state :polish_color
+      state :perfume
+      state :aroma
+      state :professional
       state :part
       state :type
       state :condition
@@ -603,6 +608,38 @@ module Rees46ML
         transitions from: :hair, to: :cosmetic
       end
 
+      event :start_nail do
+        transitions from: :cosmetic, to: :nail
+      end
+
+      event :end_nail do
+        transitions from: :nail, to: :cosmetic
+      end
+
+      event :start_polish_color do
+        transitions from: :nail, to: :polish_color
+      end
+
+      event :end_polish_color do
+        transitions from: :polish_color, to: :nail
+      end
+
+      event :start_perfume do
+        transitions from: :cosmetic, to: :perfume
+      end
+
+      event :end_perfume do
+        transitions from: :perfume, to: :cosmetic
+      end
+
+      event :start_professional do
+        transitions from: :cosmetic, to: :professional
+      end
+
+      event :end_professional do
+        transitions from: :professional, to: :cosmetic
+      end
+
       event :start_condition do
         transitions from: :skin, to: :condition
         transitions from: :hair, to: :condition
@@ -632,6 +669,7 @@ module Rees46ML
         transitions from: :fashion, to: :type
         transitions from: :skin, to: :type
         transitions from: :hair, to: :type
+        transitions from: :nail, to: :type
       end
 
       event :end_type do
@@ -639,6 +677,15 @@ module Rees46ML
         transitions from: :type, to: :fashion, guard: :in_fashion?
         transitions from: :type, to: :skin, guard: :in_skin?
         transitions from: :type, to: :hair, guard: :in_hair?
+        transitions from: :type, to: :nail, guard: :in_nail?
+      end
+
+      event :start_aroma do
+        transitions from: :perfume,   to: :aroma
+      end
+
+      event :end_aroma do
+        transitions from: :aroma,   to: :perfume
       end
 
       event :start_pet_size do
@@ -1281,6 +1328,10 @@ module Rees46ML
           self.current_element = Rees46ML::Skin.new
         when "hair"
           self.current_element = Rees46ML::Hair.new
+        when "nail"
+          self.current_element = Rees46ML::Nail.new
+        when "perfume"
+          self.current_element = Rees46ML::Perfume.new
         when "auto"
           self.current_element = Rees46ML::Auto.new
         when "offer"
@@ -1339,9 +1390,11 @@ module Rees46ML
             self.current_element.type = safe_buffer if in_fashion?
             self.current_element.type << safe_buffer if in_skin?
             self.current_element.type << safe_buffer if in_hair?
+            self.current_element.type = safe_buffer if in_nail?
           when "condition"
             self.current_element.condition << safe_buffer if in_skin?
             self.current_element.condition << safe_buffer if in_hair?
+            self.current_element.condition = safe_buffer if in_nail?
           when "data_tour"
             self.current_element.data_tours << safe_buffer
           # Вот так инициализируются значения, если на значение у нас собственный класс. Типа размеров.
@@ -1351,6 +1404,8 @@ module Rees46ML
             self.current_element.value = safe_buffer
           when 'chain_size'
             self.current_element.value = safe_buffer
+          when 'aroma'
+            self.current_element.aroma << safe_buffer
           when "currencies"
           else
             if self.current_element.respond_to?(attibute)
@@ -1412,6 +1467,12 @@ module Rees46ML
           stack.pop
         when "hair"
           self.parent_element.hair = self.current_element
+          stack.pop
+        when "nail"
+          self.parent_element.nail = self.current_element
+          stack.pop
+        when "perfume"
+          self.parent_element.perfume = self.current_element
           stack.pop
         when "age"
           self.parent_element.age = self.current_element   if self.parent_element.respond_to?(:age)

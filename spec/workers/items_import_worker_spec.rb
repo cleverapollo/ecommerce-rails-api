@@ -24,7 +24,29 @@ describe ItemsImportWorker do
                 gender: 'm',
                 sizes: [37],
                 type: 'shoe'
-            }
+            },
+            cosmetic: {
+                gender: 'f',
+                hypoallergenic: true,
+                skin: {
+                    part: ['face'],
+                    type: ['dry'],
+                    condition: ['dehydrated'],
+                },
+                hair: {
+                    type: ['dry'],
+                    condition: ['colored'],
+                },
+                periodic: true,
+                nail: {
+                    type: 'polish',
+                    polish_color: 'red',
+                },
+                perfume: {
+                    aroma: %w(woody fruity)
+                },
+                professional: true
+            },
         },
     ]
   }
@@ -33,26 +55,83 @@ describe ItemsImportWorker do
   it 'works' do
     subject
 
-    expect(Item.first.uniqid).to eq(items.first[:id].to_s)
-    expect(Item.first.name).to eq(items.first[:name].to_s)
-    expect(Item.first.price).to eq(items.first[:price])
-    expect(Item.first.url).to eq(items.first[:url])
-    expect(Item.first.image_url).to eq(items.first[:picture])
-    expect(Item.first.is_available).to eq(items.first[:available])
-    expect(Item.first.category_ids).to eq(items.first[:categories].map{|c| c.to_s})
+    item = Item.first
+    expect(item.uniqid).to eq(items.first[:id].to_s)
+    expect(item.name).to eq(items.first[:name].to_s)
+    expect(item.price).to eq(items.first[:price])
+    expect(item.url).to eq(items.first[:url])
+    expect(item.image_url).to eq(items.first[:picture])
+    expect(item.is_available).to eq(items.first[:available])
+    expect(item.category_ids).to eq(items.first[:categories].map{|c| c.to_s})
 
-    expect(Item.first.locations).to eq(items.first[:locations].map{|l| l.stringify_keys})
-    expect(Item.first.location_ids).to eq(items.first[:locations].map{|l| l[:location]})
+    expect(item.locations).to eq(items.first[:locations].map{|l| l.stringify_keys})
+    expect(item.location_ids).to eq(items.first[:locations].map{|l| l[:location]})
 
-    expect(Item.first.brand).to eq(items.first[:brand])
-    expect(Item.first.barcode).to eq(items.first[:barcode])
-    expect(Item.first.price_margin).to eq(items.first[:price_margin])
-    expect(Item.first.is_child).to eq(items.first[:is_child])
+    expect(item.brand).to eq(items.first[:brand])
+    expect(item.barcode).to eq(items.first[:barcode])
+    expect(item.price_margin).to eq(items.first[:price_margin])
+    expect(item.is_child).to eq(items.first[:is_child])
 
-    expect(Item.first.is_fashion).to eq(items.first[:is_fashion])
-    expect(Item.first.fashion_sizes).to eq(items.first[:fashion][:sizes].map{|s| s.to_s})
-    expect(Item.first.fashion_gender).to eq(items.first[:fashion][:gender])
-    expect(Item.first.fashion_wear_type).to eq(items.first[:fashion][:type])
+    expect(item.is_fashion).to eq(items.first[:is_fashion])
+    expect(item.fashion_sizes).to eq(items.first[:fashion][:sizes].map{|s| s.to_s})
+    expect(item.fashion_gender).to eq(items.first[:fashion][:gender])
+    expect(item.fashion_wear_type).to eq(items.first[:fashion][:type])
+
+    expect(item.cosmetic_gender).to eq('f')
+    expect(item.cosmetic_hypoallergenic).to eq(true)
+    expect(item.cosmetic_skin_part).to eq(['face'])
+    expect(item.cosmetic_skin_type).to eq(['dry'])
+    expect(item.cosmetic_skin_condition).to eq(['dehydrated'])
+    expect(item.cosmetic_hair_type).to eq(['dry'])
+    expect(item.cosmetic_hair_condition).to eq(['colored'])
+    expect(item.cosmetic_periodic).to eq(true)
+    expect(item.cosmetic_nail).to eq(true)
+    expect(item.cosmetic_nail_type).to eq('polish')
+    expect(item.cosmetic_nail_color).to eq('red')
+    expect(item.cosmetic_perfume_aroma).to eq(%w(woody fruity))
+    expect(item.cosmetic_professional).to eq(true)
+
+    expect(CatalogImportLog.count).to eq(1)
+  end
+
+  it 'works with empty industries' do
+    ItemsImportWorker.new.perform(shop.id, [{
+        id: 1,
+        name: 'Shtaniy',
+        price: 1.0,
+        url: 'http://google.com',
+        picture: 'http://google.com/1.png',
+        categories: [],
+        available: true,
+    }], 'put')
+
+    item = Item.first
+    expect(item.uniqid).to eq('1')
+    expect(item.name).to eq('Shtaniy')
+    expect(item.price).to eq(1.0)
+    expect(item.url).to eq('http://google.com')
+    expect(item.image_url).to eq('http://google.com/1.png')
+    expect(item.is_available).to eq(true)
+
+    expect(item.is_fashion).to be_nil
+    expect(item.fashion_sizes).to be_nil
+    expect(item.fashion_gender).to be_nil
+    expect(item.fashion_wear_type).to be_nil
+
+    expect(item.is_cosmetic).to be_nil
+    expect(item.cosmetic_gender).to be_nil
+    expect(item.cosmetic_hypoallergenic).to be_nil
+    expect(item.cosmetic_skin_part).to be_nil
+    expect(item.cosmetic_skin_type).to be_nil
+    expect(item.cosmetic_skin_condition).to be_nil
+    expect(item.cosmetic_hair_type).to be_nil
+    expect(item.cosmetic_hair_condition).to be_nil
+    expect(item.cosmetic_periodic).to be_nil
+    expect(item.cosmetic_nail).to be_nil
+    expect(item.cosmetic_nail_type).to be_nil
+    expect(item.cosmetic_nail_color).to be_nil
+    expect(item.cosmetic_perfume_aroma).to be_nil
+    expect(item.cosmetic_professional).to be_nil
 
     expect(CatalogImportLog.count).to eq(1)
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170605104703) do
+ActiveRecord::Schema.define(version: 20170613125046) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -714,10 +714,11 @@ ActiveRecord::Schema.define(version: 20170605104703) do
   add_index "shop_days_statistics", ["shop_id"], name: "index_shop_days_statistics_on_shop_id", using: :btree
 
   create_table "shop_images", force: :cascade do |t|
-    t.integer  "shop_id",    null: false
-    t.string   "file",       null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "shop_id",                null: false
+    t.string   "file",                   null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.integer  "image_type", default: 0, null: false
   end
 
   create_table "shop_statistics", force: :cascade do |t|
@@ -939,7 +940,7 @@ ActiveRecord::Schema.define(version: 20170605104703) do
   add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
-    t.string  "gender",        limit: 1
+    t.string  "gender",           limit: 1
     t.jsonb   "fashion_sizes"
     t.boolean "allergy"
     t.jsonb   "cosmetic_hair"
@@ -949,6 +950,7 @@ ActiveRecord::Schema.define(version: 20170605104703) do
     t.jsonb   "vds"
     t.jsonb   "pets"
     t.jsonb   "jewelry"
+    t.jsonb   "cosmetic_perfume"
   end
 
   create_table "wear_type_dictionaries", force: :cascade do |t|

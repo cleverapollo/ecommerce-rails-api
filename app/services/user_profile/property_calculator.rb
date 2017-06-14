@@ -149,6 +149,40 @@ class UserProfile::PropertyCalculator
     skin.empty? ? nil : skin
   end
 
+  # Расчитывает ногти
+  # @param user [User]
+  # @return [Hash | nil]
+  def calculate_nail(user)
+
+  end
+
+  # Расчитывает парфюмерию
+  # @param user [User]
+  # @return [Hash | nil]
+  def calculate_perfume(user)
+    perfumes = {}
+    score = {aroma: {}}
+
+    # Заполняем хеш сырыми данными
+    # В будущем, property может быть массивом, see #calculate_hair
+    ProfileEvent.where(user_id: user.id, industry: 'cosmetic', property: 'perfume_aroma').each do |event|
+      key = event.property.gsub('perfume_', '').to_sym
+      score[key][event.value] = 0 unless score[key].key?(event.value)
+      score[key][event.value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
+    end
+
+    return nil if score.reject { |k,v| v.nil? || v.empty? }.blank?
+
+    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
+    score.each do |perfume, values|
+      median = values.map { |k, v| v }.max / 2.0
+      selected = values.select { |k,v| v >= median }.map { |k,v| k }.sort
+      perfumes[perfume.to_s] = selected unless selected.empty?
+    end
+
+    perfumes
+  end
+
   # Рассчитывает детей покупателя
   # Структура возвращаемого массива:
   # [

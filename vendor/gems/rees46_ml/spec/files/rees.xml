@@ -207,6 +207,18 @@
               <price>2000</price>
             </volume>
           </volumes>
+
+          <nail>
+            <type>tool</type>
+            <polish_color>red</polish_color>
+          </nail>
+
+          <perfume>
+            <aroma>woody</aroma>
+            <aroma>citrus</aroma>
+          </perfume>
+
+          <professional>1</professional>
         </cosmetic>
 
 

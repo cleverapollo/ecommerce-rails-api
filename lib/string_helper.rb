@@ -6,7 +6,7 @@ module StringHelper
       res = res.encode('UTF-8', {:invalid => :replace, :undef => :replace, :replace => '?'})
       res = res.truncate(length)
       res = res.strip
-      res
+      res.present? ? res : nil
     end
 
     def format_money(value)

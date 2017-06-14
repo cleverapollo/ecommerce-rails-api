@@ -156,6 +156,73 @@ describe Recommender::Impl::Similar do
 
       end
 
+      context 'cosmetic' do
+        context 'perfume' do
+          before {
+            test_item.update is_cosmetic: true, cosmetic_perfume_aroma: %w(citrus spicy)
+          }
+          it 'includes item without data' do
+            item2.update is_cosmetic: true
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+
+          it 'excludes item with wrong aroma' do
+            item2.update is_cosmetic: true, cosmetic_perfume_aroma: ['woody']
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to_not include(test_item.uniqid)
+          end
+
+          it 'includes item with one fit' do
+            item2.update is_cosmetic: true, cosmetic_perfume_aroma: %w(citrus woody)
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+        end
+
+        context 'nail' do
+          before {
+            test_item.update is_cosmetic: true, cosmetic_nail: true, cosmetic_nail_type: 'polish', cosmetic_nail_color: 'red'
+          }
+          it 'includes item without data' do
+            item2.update is_cosmetic: true
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+
+          it 'excludes item with wrong nail' do
+            item2.update is_cosmetic: true, cosmetic_nail: true
+            test_item.update cosmetic_nail: false
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to_not include(test_item.uniqid)
+          end
+
+          it 'excludes item with wrong nail type' do
+            item2.update is_cosmetic: true, cosmetic_nail: true, cosmetic_nail_type: 'tool'
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to_not include(test_item.uniqid)
+          end
+
+          it 'excludes item with wrong nail polish color' do
+            item2.update is_cosmetic: true, cosmetic_nail: true, cosmetic_nail_type: 'polish', cosmetic_nail_color: 'green'
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to_not include(test_item.uniqid)
+          end
+
+          it 'includes item with one fit' do
+            item2.update is_cosmetic: true, cosmetic_nail: true
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+            item2.update is_cosmetic: true, cosmetic_nail: true, cosmetic_nail_type: 'polish'
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+            item2.update is_cosmetic: true, cosmetic_nail: true, cosmetic_nail_type: 'polish', cosmetic_nail_color: 'red'
+            recommender = Recommender::Impl::Similar.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+        end
+      end
+
     end
 
 

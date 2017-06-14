@@ -407,6 +407,11 @@ ActiveRecord::Schema.define(version: 20170613155125) do
     t.jsonb   "bracelet_sizes"
     t.jsonb   "chain_sizes"
     t.integer "seasonality",                                                       array: true
+    t.boolean "cosmetic_nail"
+    t.string  "cosmetic_nail_type"
+    t.string  "cosmetic_nail_color"
+    t.string  "cosmetic_perfume_aroma",                                            array: true
+    t.boolean "cosmetic_professional"
   end
 
   add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin

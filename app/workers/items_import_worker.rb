@@ -82,9 +82,34 @@ class ItemsImportWorker
 
       if item_params[:fashion].present?
         item_struct.fashion_sizes = item_params.fetch(:fashion)[:sizes]
-        item_struct.fashion_gender = item_params.fetch(:fashion).fetch(:gender) if item_params.fetch(:fashion)[:gender].present?
-        item_struct.fashion_wear_type = item_params.fetch(:fashion).fetch(:type)
+        item_struct.fashion_gender = item_params.fetch(:fashion)[:gender]
+        item_struct.fashion_wear_type = item_params.fetch(:fashion)[:type]
       end
+
+      if item_params[:cosmetic].present?
+        item_struct.cosmetic_gender = item_params[:cosmetic][:gender]
+        item_struct.cosmetic_hypoallergenic = item_params[:cosmetic][:hypoallergenic] || nil
+        item_struct.cosmetic_periodic = item_params[:cosmetic][:periodic] || nil
+        if item_params[:cosmetic][:skin].present?
+          item_struct.cosmetic_skin_part = item_params[:cosmetic][:skin][:part] if item_params[:cosmetic][:skin][:part].is_a?(Array)
+          item_struct.cosmetic_skin_type = item_params[:cosmetic][:skin][:type] if item_params[:cosmetic][:skin][:type].is_a?(Array)
+          item_struct.cosmetic_skin_condition = item_params[:cosmetic][:skin][:condition] if item_params[:cosmetic][:skin][:condition].is_a?(Array)
+        end
+        if item_params[:cosmetic][:hair].present?
+          item_struct.cosmetic_hair_type = item_params[:cosmetic][:hair][:type] if item_params[:cosmetic][:hair][:type].is_a?(Array)
+          item_struct.cosmetic_hair_condition = item_params[:cosmetic][:hair][:condition] if item_params[:cosmetic][:hair][:condition].is_a?(Array)
+        end
+        if item_params[:cosmetic][:nail].present?
+          item_struct.cosmetic_nail = true
+          item_struct.cosmetic_nail_type = item_params[:cosmetic][:nail][:type]
+          item_struct.cosmetic_nail_color = item_params[:cosmetic][:nail][:polish_color] if item_params[:cosmetic][:nail][:type].present? && item_params[:cosmetic][:nail][:type] == 'polish'
+        end
+        if item_params[:cosmetic][:perfume].present?
+          item_struct.cosmetic_perfume_aroma = item_params[:cosmetic][:perfume][:aroma] if item_params[:cosmetic][:perfume][:aroma].is_a?(Array)
+        end
+        item_struct.cosmetic_professional = item_params[:cosmetic][:professional] || nil
+      end
+
       item_struct.amount = 0
       item_struct
     end.each do |item_struct|
