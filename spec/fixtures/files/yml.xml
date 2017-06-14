@@ -52,6 +52,7 @@
 				<seasonality>4</seasonality>
 				<seasonality>6</seasonality>
 				<cosmetic>
+					<gender>f</gender>
 					<nail>
 						<type>polish</type>
 						<polish_color>red</polish_color>
@@ -60,6 +61,7 @@
 						<aroma>woody</aroma>
 						<aroma>fruity</aroma>
 					</perfume>
+					<periodic>1</periodic>
 					<professional>1</professional>
 				</cosmetic>
 			</offer>
@@ -70,6 +72,31 @@
 				<vendor>Quiksilver</vendor>
 				<name>Купальные шорты</name>
 				<model>Купальные шорты Inlay</model>
+			</offer>
+			<offer id="5546328" available="true">
+				<url>
+					http://www.krasotkapro.ru/catalog/sophin/sophin_tsvet_0338_summer_12_ml/
+				</url>
+				<price>330</price>
+				<currencyId>RUB</currencyId>
+				<categoryId>646</categoryId>
+				<picture>
+					http://www.krasotkapro.ru/upload/iblock/1fe/45b447dcd88711e496b9000c2954c772_3768e4cb3c2a11e58016000c2954c772.jpg
+				</picture>
+				<name>Sophin, цвет №0338 (Summer) 12 мл</name>
+				<description>
+					Лак кораллово-оранжевый, неоновый, без блесток и перламутра, плотный
+				</description>
+				<sales_notes>Минимальная сумма заказа 600 руб</sales_notes>
+				<vendor>Sophin</vendor>
+				<param name="Цвет">Оранжевый</param>
+				<param name="Объем" unit="мл">12.00</param>
+				<cosmetic>
+					<gender>f</gender>
+					<nail></nail>
+					<periodic>0</periodic>
+					<professional>0</professional>
+				</cosmetic>
 			</offer>
 		</offers>
 	</shop>

@@ -91,7 +91,9 @@ class Item < ActiveRecord::Base
       cosmetic_hair_condition
       cosmetic_volume
       cosmetic_periodic
+      cosmetic_nail
       cosmetic_nail_type
+      cosmetic_nail_color
       cosmetic_perfume_aroma
       cosmetic_professional
       is_cosmetic
@@ -359,7 +361,7 @@ class Item < ActiveRecord::Base
         item.is_cosmetic = true
         item.cosmetic_gender = offer.cosmetic.gender.value if offer.cosmetic.gender && offer.cosmetic.gender.valid?
         item.cosmetic_hypoallergenic = offer.cosmetic.hypoallergenic
-        item.cosmetic_periodic = offer.cosmetic.periodic
+        item.cosmetic_periodic = offer.cosmetic.periodic || nil
         if offer.cosmetic.skin.present?
           if offer.cosmetic.skin.part.present? && offer.cosmetic.skin.part.to_a.any?
             item.cosmetic_skin_part = offer.cosmetic.skin.part.to_a
