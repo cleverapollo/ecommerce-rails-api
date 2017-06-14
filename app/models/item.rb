@@ -381,13 +381,19 @@ class Item < ActiveRecord::Base
         end
 
         # Обрабатываем данные ногтей
-        item.cosmetic_nail = offer.cosmetic.nail.present? || nil
-        if offer.cosmetic.nail.type.present?
-          item.cosmetic_nail_type = offer.cosmetic.nail.type
-          item.cosmetic_nail_color = offer.cosmetic.nail.polish_color if offer.cosmetic.nail.type == 'polish'
+        if offer.cosmetic.nail.present?
+          item.cosmetic_nail = true
+
+          # Типы ногтей
+          if offer.cosmetic.nail.type.present?
+            item.cosmetic_nail_type = offer.cosmetic.nail.type
+            item.cosmetic_nail_color = offer.cosmetic.nail.polish_color if offer.cosmetic.nail.type == 'polish'
+          end
         end
         # Парфюмерия
-        item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma.to_a if offer.cosmetic.perfume.aroma.present? && offer.cosmetic.perfume.aroma.to_a.any?
+        if offer.cosmetic.perfume.present?
+          item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma.to_a if offer.cosmetic.perfume.aroma.present? && offer.cosmetic.perfume.aroma.to_a.any?
+        end
         # Для профессионалов
         item.cosmetic_professional = offer.cosmetic.professional || nil
       else
