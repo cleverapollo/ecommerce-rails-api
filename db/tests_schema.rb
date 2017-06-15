@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170613125046) do
+ActiveRecord::Schema.define(version: 20170615093144) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -281,7 +281,7 @@ ActiveRecord::Schema.define(version: 20170613125046) do
     t.string   "promocode"
     t.string   "juridical_person"
     t.integer  "currency_id",                        default: 1,        null: false
-    t.string   "language",                           default: "ru",     null: false
+    t.string   "language",                           default: "en",     null: false
     t.boolean  "notify_about_finances",              default: true,     null: false
     t.integer  "partner_balance",                    default: 0,        null: false
     t.integer  "my_partner_visits",                  default: 0
@@ -462,25 +462,6 @@ ActiveRecord::Schema.define(version: 20170613125046) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "profile_events", force: :cascade do |t|
-    t.integer  "user_id",    limit: 8, null: false
-    t.integer  "shop_id",              null: false
-    t.string   "industry",             null: false
-    t.string   "property",             null: false
-    t.string   "value",                null: false
-    t.integer  "views"
-    t.integer  "carts"
-    t.integer  "purchases"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "profile_events", ["user_id", "industry", "property"], name: "index_profile_events_on_user_id_and_industry_and_property", using: :btree
-  add_index "profile_events", ["user_id", "shop_id", "industry", "property"], name: "index_profile_events_all_columns", using: :btree
-  add_index "profile_events", ["user_id", "shop_id", "industry"], name: "index_profile_events_on_user_id_and_shop_id_and_industry", using: :btree
-  add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
-  add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
 
   create_table "prospects", force: :cascade do |t|
     t.string "filename"
