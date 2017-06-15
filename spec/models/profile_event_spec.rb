@@ -285,14 +285,68 @@ describe ProfileEvent do
   describe '.track_push_attributes' do
     context 'tracks children attributes' do
       let(:attributes_1) { { kids: [{ gender: 'm', birthday: '2014-02-10' }, { gender: 'f', birthday: '2010-02-10' }] } }
-      # let(:attributes_1) {  }
-      # let(:attributes_1) {  }
-      # let(:attributes_1) {  }
+      let(:attributes_2) { { kids: ['not valid'] } }
+      let(:attributes_3) { { email: 'email@example.com' } }
+      let(:attributes_4) { { kids: [{ gender: 'm' }] } }
+      let(:attributes_5) { { kids: [{ gender: 'f', birthday: '2014/102-10' }] } }
+      let(:attributes_6) { { kids: [{ gender: 'm', birthday: '1980-02-10' }] } }
+      let(:attributes_7) { { kids: [{ birthday: '2014-12-10' }] } }
+      let(:attributes_8) { { kids: [{ gender: 'x', birthday: '2014-02-10' }] } }
+      let(:attributes_9) { { kids: [{ gender: 'x', birthday: '2014-200-100' }] } }
 
-      it 'create two push_attributes_children', :jewelry do
+      it 'create two push_attributes_children events' do
         ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_1)
-
         expect(ProfileEvent.count).to eq 2
+      end
+
+      it 'do not create push_attributes_children event if format "kids" data is not valid' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_2)
+        expect(ProfileEvent.count).to eq 0
+      end
+
+      it 'do not create push_attributes_children event without "kids" attribute data' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_3)
+        expect(ProfileEvent.count).to eq 0
+      end
+
+      it 'create push_attributes_children event only with gender' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_4)
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.first.value.include?('gender:')).to eq true
+        expect(ProfileEvent.first.value.include?('birthday:')).to eq false
+      end
+
+      it 'create push_attributes_children event only with gender if age is not valid format' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_5)
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.first.value.include?('gender:')).to eq true
+        expect(ProfileEvent.first.value.include?('birthday:')).to eq false
+      end
+
+      it 'create push_attributes_children event only with gender if age is more than 18 years' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_6)
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.first.value.include?('gender:')).to eq true
+        expect(ProfileEvent.first.value.include?('birthday:')).to eq false
+      end
+
+      it 'create push_attributes_children event only with age' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_7)
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.first.value.include?('birthday:')).to eq true
+        expect(ProfileEvent.first.value.include?('gender:')).to eq false
+      end
+
+      it 'create push_attributes_children event only with age if gender is not valid' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_8)
+        expect(ProfileEvent.count).to eq 1
+        expect(ProfileEvent.first.value.include?('birthday:')).to eq true
+        expect(ProfileEvent.first.value.include?('gender:')).to eq false
+      end
+
+      it 'do not create push_attributes_children event if "kids" data is not valid' do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_9)
+        expect(ProfileEvent.count).to eq 0
       end
     end
   end

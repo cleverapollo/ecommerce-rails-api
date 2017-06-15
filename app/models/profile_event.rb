@@ -355,7 +355,6 @@ class ProfileEvent < ActiveRecord::Base
     # @param event [String]
     # @param attributes [Hash] - push_attributes
     # @return Boolean
-    # @throws Exception
     def track_push_attributes(user, shop, event, attributes)
       # Check
       return unless %w[push_attributes_children].include?(event)
@@ -365,19 +364,21 @@ class ProfileEvent < ActiveRecord::Base
 
       if event == 'push_attributes_children'
         # attributes[:kids] [Array<Hash>] Array of hashes { gender: 'm|f', birthday: "YYYY-mm-DD"}
-        unless attributes[:kids].nil?
+
+        if attributes[:kids].present? && attributes[:kids].is_a?(Array)
           kids_by_push_attribute = []
 
           attributes[:kids].each do |children|
-            next unless children.is_a?(Hash) && children[:gender].present? || children[:birthday].present?
+            next unless children.is_a?(Hash) && (children[:gender].present? || children[:birthday].present?)
             value = ''
             value = "gender:#{children[:gender]}" if UserProfile::Gender.valid_gender?(children[:gender])
-            value = "#{value};birthday:#{children[:birthday]}" unless children[:birthday].nil?
+            value = "#{value};birthday:#{children[:birthday]}" if UserProfile::Date.valid_child_date?(children[:birthday])
 
+            next if value.blank?
             kids_by_push_attribute << ProfileEvent.find_or_create_by(user_id: user.id,
               shop_id: shop.id,
               industry: 'child',
-              property: 'push_attributes_children',
+              property: event,
               value: value)
           end
         end

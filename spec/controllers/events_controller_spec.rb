@@ -55,6 +55,20 @@ describe EventsController do
     end
   end
 
+  describe 'POST push_attributes create ProfileEvent for user' do
+    let!(:shop_location) { create(:shop_location, shop: shop) }
+    let!(:client) { create(:client, shop: shop, user: user) }
+    let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
+    let!(:params) { { shop_id: shop.uniqid, session_id: session.code, attributes: { gender: 'f', kids: [{ gender: 'm', birthday: '2014-02-10' }, { gender: 'f', birthday: '2010-02-10' }] } } }
+    subject { post :push_attributes, params }
+
+    it 'client location saved' do
+      subject
+      expect(ProfileEvent.where(property: 'push_attributes_children').count).to eq 2
+      expect(ProfileEvent.where(property: 'push_attributes_children').first.user).to eq Client.first.user
+    end
+  end
+
   describe 'POST push' do
     # before { allow(ActionPush::Params).to receive(:extract).and_return(OpenStruct.new(action: 'view')) }
     before { allow(ActionPush::Processor).to receive(:new).and_return(ActionPush::Processor.new(OpenStruct.new(action: 'view'))) }

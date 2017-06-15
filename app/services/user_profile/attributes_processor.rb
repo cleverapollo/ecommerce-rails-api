@@ -81,7 +81,7 @@ module UserProfile
       end
 
       if attributes['kids'].present?
-        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes['kids'])
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes)
       end
 
       user.save if user.changed?
