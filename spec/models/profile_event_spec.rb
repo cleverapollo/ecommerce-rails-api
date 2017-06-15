@@ -1,12 +1,11 @@
 require 'rails_helper'
 
 describe ProfileEvent do
+  let!(:customer) { create(:customer) }
+  let!(:shop) { create(:shop, customer: customer) }
+  let!(:user) { create(:user) }
 
   describe '.track_items' do
-
-    let!(:customer) { create(:customer) }
-    let!(:shop) { create(:shop, customer: customer) }
-    let!(:user) { create(:user) }
 
     let!(:item_1) { create(:item, shop: shop, is_fashion: true, fashion_gender: 'm' ) }
     let!(:item_2) { create(:item, shop: shop, is_fashion: true, fashion_gender: 'f' ) }
@@ -283,6 +282,19 @@ describe ProfileEvent do
 
   end
 
+  describe '.track_push_attributes' do
+    context 'tracks children attributes' do
+      let(:attributes_1) { { kids: [{ gender: 'm', birthday: '2014-02-10' }, { gender: 'f', birthday: '2010-02-10' }] } }
+      # let(:attributes_1) {  }
+      # let(:attributes_1) {  }
+      # let(:attributes_1) {  }
 
+      it 'create two push_attributes_children', :jewelry do
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes_1)
+
+        expect(ProfileEvent.count).to eq 2
+      end
+    end
+  end
 
 end
