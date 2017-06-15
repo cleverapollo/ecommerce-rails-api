@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170613155125) do
+ActiveRecord::Schema.define(version: 20170615083742) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -497,6 +497,24 @@ ActiveRecord::Schema.define(version: 20170613155125) do
   add_index "orders", ["source_type", "source_id"], name: "index_orders_on_source_type_and_source_id", using: :btree
   add_index "orders", ["uniqid"], name: "index_orders_on_uniqid", using: :btree
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
+
+  create_table "profile_events", force: :cascade do |t|
+    t.integer  "user_id",    limit: 8, null: false
+    t.integer  "shop_id",              null: false
+    t.string   "industry",             null: false
+    t.string   "property",             null: false
+    t.string   "value",                null: false
+    t.integer  "views"
+    t.integer  "carts"
+    t.integer  "purchases"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "profile_events", ["user_id", "industry", "property"], name: "index_profile_events_on_user_id_and_industry_and_property", using: :btree
+  add_index "profile_events", ["user_id", "shop_id", "industry", "property"], name: "index_profile_events_all_columns", using: :btree
+  add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
+  add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
 
   create_table "recommendations_requests", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                           null: false

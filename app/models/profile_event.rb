@@ -11,7 +11,7 @@
 # carts - количество добавлений в корзину такого товара
 # purchases - количество покупок такого товара
 
-class ProfileEvent < MasterTable
+class ProfileEvent < ActiveRecord::Base
   belongs_to :user
   belongs_to :shop
 
