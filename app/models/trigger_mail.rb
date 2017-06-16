@@ -16,6 +16,9 @@ class TriggerMail < ActiveRecord::Base
 
   scope :clicked, -> { where(clicked: true) }
   scope :opened, -> { where(opened: true) }
+  scope :bounced, -> { where(bounced: true) }
+  scope :previous_month, -> { where(date: 1.month.ago.beginning_of_month.to_date..1.month.ago.end_of_month.to_date) }
+  scope :this_month, -> { where(date: Date.current.beginning_of_month..Date.current) }
 
   store :trigger_data, coder: JSON
 
@@ -44,7 +47,7 @@ class TriggerMail < ActiveRecord::Base
 
   def set_date
     Time.use_zone(shop.customer.time_zone) do
-      self.date = Date.current
+      self.date = Date.current if self.date.blank?
     end
   end
 
