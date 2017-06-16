@@ -20,7 +20,7 @@ class TriggerMailing < ActiveRecord::Base
   def with_orders_count(date_range = nil)
     relation = Order.joins('INNER JOIN trigger_mails ON orders.source_id = trigger_mails.id').where('orders.source_type = ?', 'TriggerMail').where('trigger_mails.trigger_mailing_id = ?', self.id)
     if date_range.present?
-      relation = relation.where('trigger_mails.created_at >= ?', date_range.begin).where('trigger_mails.created_at <= ?', date_range.end)
+      relation = relation.where('orders.date >= ?', date_range.begin).where('trigger_mails.created_at >= ?', date_range.begin).where('trigger_mails.created_at <= ?', date_range.end)
     end
     relation.count
   end
@@ -28,7 +28,7 @@ class TriggerMailing < ActiveRecord::Base
   def with_orders_value(date_range = nil)
     relation = Order.joins('INNER JOIN trigger_mails ON orders.source_id = trigger_mails.id').where('orders.source_type = ?', 'TriggerMail').where('trigger_mails.trigger_mailing_id = ?', self.id)
     if date_range.nil?
-      relation = relation.where('trigger_mails.created_at >= ?', date_range.begin).where('trigger_mails.created_at <= ?', date_range.end)
+      relation = relation.where('orders.date >= ?', date_range.begin).where('trigger_mails.created_at >= ?', date_range.begin).where('trigger_mails.created_at <= ?', date_range.end)
     end
     relation.sum(:value)
   end
