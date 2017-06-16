@@ -29,6 +29,13 @@ class RecommendationsController < ApplicationController
     # Эксперимент для 725 - вместо also_bought запускаем similar
     if @shop.id == 725 && extracted_params.type == 'also_bought'
       extracted_params.type = 'similar'
+      extracted_params.track_recommender = false
+      recommendations = Recommendations::Processor.process(extracted_params)
+    end
+
+    if @shop.id == 725 && extracted_params.type == 'interesting'
+      extracted_params.type = 'recently_viewed'
+      extracted_params.track_recommender = false
       recommendations = Recommendations::Processor.process(extracted_params)
     end
 
