@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170616080026) do
+ActiveRecord::Schema.define(version: 20170616094208) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -770,7 +770,7 @@ ActiveRecord::Schema.define(version: 20170616080026) do
   add_index "trigger_mails", ["date", "shop_id"], name: "index_trigger_mails_on_date_and_shop_id", using: :btree
   add_index "trigger_mails", ["date"], name: "index_trigger_mails_on_date", using: :btree
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id", "opened"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", using: :btree
-  add_index "trigger_mails", ["trigger_mailing_id"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
+  add_index "trigger_mails", ["trigger_mailing_id", "date"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
   create_table "visits", id: :bigserial, force: :cascade do |t|
     t.date    "date",                          null: false
