@@ -15,6 +15,7 @@ class TriggerMail < ActiveRecord::Base
   before_create :set_date
 
   scope :clicked, -> { where(clicked: true) }
+  scope :opened, -> { where(opened: true) }
 
   store :trigger_data, coder: JSON
 

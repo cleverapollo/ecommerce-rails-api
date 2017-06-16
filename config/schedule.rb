@@ -8,6 +8,9 @@ end
 every '5 * * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_for_today')"
 end
+every '2 * * * *' do
+  runner "RunnerWrapper.run('TriggerMailings::Statistics.recalculate_all')"
+end
 
 # Каждые сутки синхронизируем YML
 every 26.minutes do
