@@ -26,23 +26,25 @@ class TriggerMailings::Statistics
 
       Slavery.on_slave do
         # Расчитываем статистику за последние 24 часа
+        # дополнительный фильтры по "date" нужен для активации индекса
         trigger_mailing.statistic[:today] = {
-            sent: trigger_mailing.trigger_mails.where(created_at: 1.day.ago..Time.now).count,
-            opened: trigger_mailing.trigger_mails.where(created_at: 1.day.ago..Time.now).opened.count,
-            clicked: trigger_mailing.trigger_mails.where(created_at: 1.day.ago..Time.now).clicked.count,
+            sent: trigger_mailing.trigger_mails.where('"date" >= ?', 1.day.ago.to_date).where(created_at: 1.day.ago..Time.now).count,
+            opened: trigger_mailing.trigger_mails.where('"date" >= ?', 1.day.ago.to_date).where(created_at: 1.day.ago..Time.now).opened.count,
+            clicked: trigger_mailing.trigger_mails.where('"date" >= ?', 1.day.ago.to_date).where(created_at: 1.day.ago..Time.now).clicked.count,
             purchases: trigger_mailing.with_orders_count(1.day.ago..Time.now)
         }
 
         # Расчитываем статистику за предыдущие 24 часа
         trigger_mailing.statistic[:yesterday] = {
-            sent: trigger_mailing.trigger_mails.where(created_at: 2.days.ago..1.day.ago).count,
-            opened: trigger_mailing.trigger_mails.where(created_at: 2.days.ago..1.day.ago).opened.count,
-            clicked: trigger_mailing.trigger_mails.where(created_at: 2.days.ago..1.day.ago).clicked.count,
+            sent: trigger_mailing.trigger_mails.where('"date" >= ?', 2.day.ago.to_date).where(created_at: 2.days.ago..1.day.ago).count,
+            opened: trigger_mailing.trigger_mails.where('"date" >= ?', 2.day.ago.to_date).where(created_at: 2.days.ago..1.day.ago).opened.count,
+            clicked: trigger_mailing.trigger_mails.where('"date" >= ?', 2.day.ago.to_date).where(created_at: 2.days.ago..1.day.ago).clicked.count,
             purchases: trigger_mailing.with_orders_count(2.days.ago..1.day.ago)
         }
       end
 
       trigger_mailing.atomic_save! if trigger_mailing.changed?
     end
+    true
   end
 end
