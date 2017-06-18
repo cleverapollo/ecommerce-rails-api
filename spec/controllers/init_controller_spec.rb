@@ -124,6 +124,8 @@ describe InitController do
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
     let!(:init_params) { { shop_id: shop.uniqid, v: 3 } }
+    let!(:experiment_1) { create(:experiment, shop_id: shop.id, segments: 2, active: true ) }
+    let!(:experiment_2) { create(:experiment, shop_id: shop.id, segments: 3, active: true ) }
 
     shared_examples 'an api initializer' do
       before { get :init_script, init_params }
@@ -139,6 +141,12 @@ describe InitController do
       it 'shop save js sdk v3' do
         expect(shop.reload.js_sdk).to eq(3)
       end
+
+      it 'returns experiments' do
+        puts response.body
+        expect(JSON.parse(response.body)['experiments'].count).to eq 2
+      end
+
     end
 
     shared_examples 'an api initializer with data' do
