@@ -33,11 +33,11 @@ class RecommendationsController < ApplicationController
       recommendations = Recommendations::Processor.process(extracted_params)
     end
 
-    if @shop.id == 725 && extracted_params.type == 'interesting'
-      extracted_params.type = 'recently_viewed'
-      extracted_params.track_recommender = false
-      recommendations = Recommendations::Processor.process(extracted_params)
-    end
+    # if @shop.id == 725 && extracted_params.type == 'interesting'
+    #   extracted_params.type = 'recently_viewed'
+    #   extracted_params.track_recommender = false
+    #   recommendations = Recommendations::Processor.process(extracted_params)
+    # end
 
     if @shop.id == 725
       extracted_params.track_recommender = false
