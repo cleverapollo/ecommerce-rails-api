@@ -10,7 +10,8 @@ module Recommender
       LARGE_PRICE_UP = 1.5
       PRICE_UP = 1.25
       LARGE_PRICE_DOWN = 0.5
-      PRICE_DOWN = 0.85
+      # PRICE_DOWN = 0.85
+      PRICE_DOWN = 1.0
 
       K_SR = 1.0
       K_CF = 1.0
