@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170616094208) do
+ActiveRecord::Schema.define(version: 20170618180651) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "intarray"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -256,14 +256,14 @@ ActiveRecord::Schema.define(version: 20170616094208) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -307,6 +307,15 @@ ActiveRecord::Schema.define(version: 20170616094208) do
   add_index "events", ["created_at"], name: "index_events_on_created_at", using: :btree
   add_index "events", ["name"], name: "index_events_on_name", using: :btree
   add_index "events", ["shop_id"], name: "index_events_on_shop_id", using: :btree
+
+  create_table "experiments", force: :cascade do |t|
+    t.integer  "shop_id",                    null: false
+    t.string   "name",                       null: false
+    t.integer  "segments",   default: 2,     null: false
+    t.boolean  "active",     default: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
 
   create_table "interactions", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                    null: false
@@ -737,10 +746,10 @@ ActiveRecord::Schema.define(version: 20170616094208) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
