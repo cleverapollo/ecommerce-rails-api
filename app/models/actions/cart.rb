@@ -10,6 +10,7 @@ module Actions
       # Сохранение слепка корзины, если товаров больше одного (см. JS SDK v3)
       # Те товары, которые были в корзине, сделать "удален из корзины"
       # Текущие товары отметить как в корзине
+      # @param [ActionPush::Params] params
       def mass_process(params)
         if params.items.count > 1
           params.user.actions.carts.where.not(item_id: params.items.map(&:id)).update_all rating: Actions::RemoveFromCart::RATING, cart_count: 0
@@ -24,7 +25,7 @@ module Actions
         end
 
         # Track client's cart
-        ClientCart.track(params.shop, params.user, params.items)
+        ClientCart.track(params.shop, params.user, params.items, params.segments)
 
       end
     end

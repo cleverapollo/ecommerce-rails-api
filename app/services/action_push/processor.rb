@@ -59,7 +59,7 @@ module ActionPush
         action.process params
 
         # Логгируем событие
-        Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by)
+        Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by, segments: params.segments)
 
       end
 

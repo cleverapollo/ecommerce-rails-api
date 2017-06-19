@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170618180651) do
+ActiveRecord::Schema.define(version: 20170619115255) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -139,10 +139,11 @@ ActiveRecord::Schema.define(version: 20170618180651) do
   end
 
   create_table "client_carts", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id", limit: 8, null: false
-    t.integer "shop_id",           null: false
+    t.integer "user_id",  limit: 8, null: false
+    t.integer "shop_id",            null: false
     t.jsonb   "items"
     t.date    "date"
+    t.string  "segments",                        array: true
   end
 
   add_index "client_carts", ["date"], name: "index_client_carts_on_date", using: :btree
@@ -256,14 +257,14 @@ ActiveRecord::Schema.define(version: 20170618180651) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -324,6 +325,7 @@ ActiveRecord::Schema.define(version: 20170618180651) do
     t.integer  "code",                       null: false
     t.integer  "recommender_code"
     t.datetime "created_at",                 null: false
+    t.string   "segments",                                array: true
   end
 
   add_index "interactions", ["shop_id", "created_at", "recommender_code"], name: "interactions_shop_id_created_at_recommender_code_idx", where: "(code = 1)", using: :btree
@@ -495,6 +497,7 @@ ActiveRecord::Schema.define(version: 20170618180651) do
     t.date     "status_date"
     t.boolean  "compensated"
     t.string   "reputation_key"
+    t.string   "segments",                                                   array: true
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
@@ -746,10 +749,10 @@ ActiveRecord::Schema.define(version: 20170618180651) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

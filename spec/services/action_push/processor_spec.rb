@@ -19,7 +19,7 @@ describe ActionPush::Processor do
     @item = create(:item, shop: @shop, category_ids: ['123', '321', '333'])
     @items = [ @item ]
 
-    @sample_params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'view', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}}).extract
+    @sample_params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'view', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}, segments: {'1' => '3'}}).extract
   end
 
   describe '.new' do
@@ -139,6 +139,26 @@ describe ActionPush::Processor do
         expect(rtb_impression.reload.purchased).to be_truthy
       end
 
+    end
+
+    it 'segments view' do
+      @instance = ActionPush::Processor.new(@sample_params)
+      @instance.process
+      expect(Interaction.first.segments).to eq(['1_3'])
+    end
+
+    it 'segments cart' do
+      @sample_params.action = 'cart'
+      @instance = ActionPush::Processor.new(@sample_params)
+      @instance.process
+      expect(ClientCart.first.segments).to eq(['1_3'])
+    end
+
+    it 'segments purchase' do
+      @sample_params.action = 'purchase'
+      @instance = ActionPush::Processor.new(@sample_params)
+      @instance.process
+      expect(Order.first.segments).to eq(['1_3'])
     end
 
   end

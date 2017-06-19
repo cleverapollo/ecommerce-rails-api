@@ -48,7 +48,8 @@ class Interaction < ActiveRecord::Base
                  shop_id: opts.fetch(:shop_id),
                  item_id: opts.fetch(:item_id),
                     code: CODES[opts.fetch(:type)],
-        recommender_code: RECOMMENDER_CODES[opts[:recommended_by]]
+        recommender_code: RECOMMENDER_CODES[opts[:recommended_by]],
+                segments: opts[:segments],
       )
     end
   end
