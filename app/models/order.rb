@@ -25,7 +25,14 @@ class Order < ActiveRecord::Base
 
   class << self
     # Сохранить заказ
-    def persist(shop, user, uniqid, items, source = {}, order_price = nil)
+    # @param shop [Shop]
+    # @param user [User]
+    # @param uniqid [String]
+    # @param items [Item[]]
+    # @param source [Hash]
+    # @param order_price [Decimal]
+    # @param segments [Array]
+    def persist(shop, user, uniqid, items, source = {}, order_price = nil, segments = nil)
 
       # Иногда событие заказа приходит несколько раз
       return nil if duplicate?(shop, user, uniqid, items)
@@ -83,7 +90,8 @@ class Order < ActiveRecord::Base
                    value: values[:value],
                    recommended: (values[:recommended_value] > 0),
                    ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
-                   source: source)
+                   source: source,
+                   segments: segments)
       order.atomic_save if order.changed?
 
       # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары

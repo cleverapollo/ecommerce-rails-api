@@ -25,7 +25,8 @@ class ClientCart < ActiveRecord::Base
     # @param shop [Shop]
     # @param user [User]
     # @param items [Item[]]
-    def track(shop, user, items)
+    # @param segments [Array]
+    def track(shop, user, items, segments = nil)
 
       # Find record
       record = self.find_by(shop_id: shop.id, user_id: user.id)
@@ -38,13 +39,13 @@ class ClientCart < ActiveRecord::Base
 
         # Rewrite cart
         if items.count > 1
-          record.update items: items.map(&:id)
+          record.update items: items.map(&:id), segments: segments
 
         # Update cart or create cart (depends on SDK version)
         elsif items.count == 1
 
           unless record.items.include?(items.first.id)
-            record.update items: (record.items << items.first.id)
+            record.update items: (record.items << items.first.id), segments: segments
           end
 
         elsif items.count == 0
@@ -55,7 +56,7 @@ class ClientCart < ActiveRecord::Base
       else
         # No record - create it
         begin
-          self.create user_id: user.id, shop_id: shop.id, items: items.map(&:id)
+          self.create user_id: user.id, shop_id: shop.id, items: items.map(&:id), segments: segments
         rescue ActiveRecord::RecordNotUnique
         end
       end
