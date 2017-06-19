@@ -41,7 +41,9 @@ class MailchimpTestTriggerLetter
     test_campaign = api.duplicate_campaign(native_campaign['id'])
 
     sleep 5
-    api.send_campaign(test_campaign['id'])
+    send_result = api.send_campaign(test_campaign['id'])
+
+    raise NotImplementedError.new(JSON.parse(send_result)['detail']) if send_result.is_a?(String)
 
     waiting_times = 0
     while (api.get_campaign(test_campaign['id'],'status')['status'] != 'sent')
@@ -54,7 +56,7 @@ class MailchimpTestTriggerLetter
     rescue NotImplementedError => ex
       api.delete_campaign(test_campaign['id']) if test_campaign.present?
       api.delete_list(test_list['id']) if test_list.present?
-      Rollbar.warning(ex, shop_id: trigger.shop.id)
+      Rollbar.warning("MailchimpTestTriggerLetter: #{ex}", shop_id: trigger.shop.id)
     rescue => e
       api.delete_campaign(test_campaign['id']) if test_campaign.present?
       api.delete_list(test_list['id']) if test_list.present?
