@@ -46,6 +46,8 @@ module Recommendations
     attr_accessor :industrial_kids
     # @return [Boolean] track_recommender Нужно ли трекать вызов рекомендера (включен по умолчанию)
     attr_accessor :track_recommender
+    # Список сегментов
+    attr_accessor :segments
 
     # Проверяет и обрабатывает параметры
     #
@@ -133,6 +135,10 @@ module Recommendations
       @discount = raw[:discount].present?
       @resize_image = raw[:resize_image] if TriggerMailing.valid_image_size?(raw[:resize_image])
 
+      # Формируем сегменты
+      if raw[:segments].present?
+        self.segments = raw[:segments].map { |s| "#{s[0]}_#{s[1]}" }
+      end
     end
 
     # Извлекает магазин
