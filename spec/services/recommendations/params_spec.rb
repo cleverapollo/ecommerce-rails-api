@@ -20,7 +20,7 @@ describe Recommendations::Params do
         shop_id: shop.uniqid,
         recommender_type: 'interesting',
         resize_image: '120'
-      } 
+      }
     end
 
     include_examples "raise error without param", :ssid
@@ -150,6 +150,22 @@ describe Recommendations::Params do
       expect(subject.user).not_to eq(user)
     end
 
+  end
+
+  context '.segments' do
+    let(:params) do
+      {
+        ssid: session.code,
+        shop_id: shop.uniqid,
+        recommender_type: 'interesting',
+        resize_image: '120',
+        segments: {'1' => '3'}
+      }
+    end
+
+    it '.extract' do
+      expect(subject.segments).to eq(['1_3'])
+    end
   end
 
 
