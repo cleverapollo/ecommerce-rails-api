@@ -140,7 +140,7 @@ module Recommender
 
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
-            result += items_relation.where.not(id: result).limit(limit - result.size).pluck(:id)
+            result += items_relation.where.not(id: result).limit(limit - result.size).order(price: :asc).pluck(:id)
           end
         end
         # если делаем промо по монобренду, то взвешивать по SR не надо (уже отсортирован)
