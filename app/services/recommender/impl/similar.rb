@@ -13,7 +13,7 @@ module Recommender
       # PRICE_DOWN = 0.85
       PRICE_DOWN = 1.0
 
-      K_SR = 1.0
+      K_SR = 0.5
       K_CF = 1.0
 
       def initialize(params)
