@@ -28,12 +28,15 @@ class RecommendationsController < ApplicationController
 
     # Эксперимент для 725 - вместо also_bought запускаем similar
     if @shop.id == 725 && extracted_params.type == 'also_bought'
-      # Если текущий товар не в корзине, показываем similar
-      if extracted_params.cart_item_ids && extracted_params.item_id && !extracted_params.cart_item_ids.include?(extracted_params.item_id)
+      # Если сегмент 0 и # Если текущий товар не в корзине, показываем similar
+      if extracted_params.segments && extracted_params.segments.first == '1_0' && extracted_params.cart_item_ids && extracted_params.item_id && !extracted_params.cart_item_ids.include?(extracted_params.item_id)
         extracted_params.type = 'similar'
         extracted_params.track_recommender = false
         recommendations = Recommendations::Processor.process(extracted_params)
+      else
+        # Показываем also bought
       end
+
     end
 
     # if @shop.id == 725 && extracted_params.type == 'interesting'
