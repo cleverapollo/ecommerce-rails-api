@@ -46,7 +46,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'contains unsubscribe URL' do
-      expect(letter_body.to_s).to include(client.reload.digest_unsubscribe_url)
+      expect(letter_body.to_s).to include(client.reload.digest_unsubscribe_url.gsub('&', '&amp;'))
     end
 
     it 'contains encoded email' do
@@ -98,12 +98,12 @@ describe DigestMailingBatchWorker do
   describe '#liquid_letter_body' do
     let!(:liquid_shop) { create(:shop, customer: customer) }
     let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop) }
-    let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}{{item.url}}{% endfor%}') }
+    let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}<a href="{{item.url}}">test</a>{% endfor%}') }
     let!(:liquid_segment) { create(:segment, shop: shop) }
     let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@rees46demo.com', segment_ids: [liquid_segment.id]) }
     let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_client.id, end_id: liquid_client.id, shop: liquid_shop) }
     let!(:liquid_digest_mail) { create(:digest_mail, client: liquid_client, shop: liquid_shop, mailing: liquid_mailing, batch: liquid_batch).reload }
-    let!(:liquid_item) { create(:item, :widgetable, shop: liquid_shop) }
+    let!(:liquid_item) { create(:item, :widgetable, shop: liquid_shop, url: 'http://test.com') }
     subject do
       s = DigestMailingBatchWorker.new
       s.current_client = liquid_client
@@ -111,6 +111,11 @@ describe DigestMailingBatchWorker do
       s.mailing = liquid_mailing
       s.perform(liquid_batch.id)
       s.liquid_letter_body([liquid_item], 'test@rees46demo.com', nil)
+    end
+
+    it 'utm_link_map present?' do
+      content = subject
+      expect(content).to include('utm_link_map=0')
     end
 
     it 'returns string' do

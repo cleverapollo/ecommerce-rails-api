@@ -32,6 +32,7 @@ class DigestMail < ActiveRecord::Base
   # Отметить факт перехода по письму (и соответственно просмотра)
   def mark_as_clicked!
     update_columns(clicked: true, opened: true) unless clicked?
+    self
   end
 
   def tracking_url

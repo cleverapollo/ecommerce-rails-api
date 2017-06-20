@@ -203,9 +203,11 @@ describe InitController do
       let!(:web_push_digest_message) { create(:web_push_digest_message, shop: shop, client: client, web_push_digest_id: 1) }
 
       it 'clicks digest mail' do
-        init_params.merge!(from: 'digest_mail', code: digest_mail.code)
+        init_params.merge!(from: 'digest_mail', code: digest_mail.code, map: '2')
         get :init_script, init_params
+        digest_mail = DigestMail.first
         expect(DigestMail.first.clicked).to be_truthy
+        expect(digest_mail.click_map).to eq([2])
       end
 
       it 'clicks incorrect digest mail' do

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170619115255) do
+ActiveRecord::Schema.define(version: 20170620091917) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -288,6 +288,7 @@ ActiveRecord::Schema.define(version: 20170619115255) do
     t.integer  "client_id",               limit: 8,                                null: false
     t.boolean  "bounced",                           default: false,                null: false
     t.date     "date"
+    t.integer  "click_map",                                                                     array: true
   end
 
   add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
@@ -498,6 +499,7 @@ ActiveRecord::Schema.define(version: 20170619115255) do
     t.boolean  "compensated"
     t.string   "reputation_key"
     t.string   "segments",                                                   array: true
+    t.string   "segment_ds"
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree

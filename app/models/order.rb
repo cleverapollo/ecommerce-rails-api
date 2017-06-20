@@ -25,14 +25,15 @@ class Order < ActiveRecord::Base
 
   class << self
     # Сохранить заказ
-    # @param shop [Shop]
-    # @param user [User]
-    # @param uniqid [String]
-    # @param items [Item[]]
-    # @param source [Hash]
-    # @param order_price [Decimal]
-    # @param segments [Array]
-    def persist(shop, user, uniqid, items, source = {}, order_price = nil, segments = nil)
+    # @param [ActionPush::Params] params
+    def persist(params)
+      shop = params.shop
+      user = params.user
+      uniqid = params.order_id
+      items = params.items
+      source = params.source
+      order_price = params.order_price
+      segments = params.segments
 
       # Иногда событие заказа приходит несколько раз
       return nil if duplicate?(shop, user, uniqid, items)
@@ -91,6 +92,8 @@ class Order < ActiveRecord::Base
                    recommended: (values[:recommended_value] > 0),
                    ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
                    source: source,
+                   # Трекаем сегменты DS
+                   segment_ds: params.raw.present? && params.raw['segment2'].present? ? params.raw['segment2'] : nil,
                    segments: segments)
       order.atomic_save if order.changed?
 
