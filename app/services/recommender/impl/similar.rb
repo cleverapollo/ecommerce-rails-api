@@ -134,7 +134,8 @@ module Recommender
           # result += items_relation_with_price_condition.order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id).uniq
           if result.size < limit
             # Расширяем границы поиска
-            result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+            # result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
+            result += items_relation_with_larger_price_condition.where.not(id: result).order(price: :asc).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
           end
 
           # снова не добрали, берем уже все подряд из категории
