@@ -10,7 +10,7 @@ module Actions
       # Сохранение объекта заказа
       # @param [ActionPush::Params] params
       def mass_process(params)
-        Order.persist(params.shop, params.user, params.order_id, params.items, params.source, params.order_price, params.segments)
+        Order.persist(params)
       end
     end
 

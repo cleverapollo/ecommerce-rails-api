@@ -60,7 +60,15 @@ class InitController < ApplicationController
 
     # Отмечаем источник перехода, если есть
     if params[:from].present? && params[:code].present?
-      LeadSourceProcessor.new(params[:from], params[:code]).process
+      lead = LeadSourceProcessor.new(params[:from], params[:code]).process
+
+      # Детектим переход из дайджестного письма для карты кликов
+      if lead.is_a?(DigestMail) && params[:map].present?
+        lead.click_map = [] if lead.click_map.nil?
+        lead.click_map << params[:map].to_i
+        lead.click_map.uniq!
+        lead.atomic_save! if lead.changed?
+      end
     end
 
     # Трекаем изменение сессии для DS

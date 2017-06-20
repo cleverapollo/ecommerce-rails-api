@@ -7,6 +7,7 @@ class LeadSourceProcessor
     @id = id
   end
 
+  # @return [TriggerMail|DigestMail|RtbImpression|WebPushTriggerMessage|WebPushDigestMessage|nil]
   def process
     if @channel && @id && @id != 'test'
       case @channel
@@ -20,6 +21,8 @@ class LeadSourceProcessor
           WebPushTriggerMessage.find_by(code: @id).try(:mark_as_clicked!)
         when 'web_push_digest'
           WebPushDigestMessage.find_by(code: @id).try(:mark_as_clicked!)
+        else
+          nil
       end
     end
   end

@@ -10,7 +10,7 @@ describe Order do
       allow(OrderItem).to receive(:persist)
     end
 
-    subject { Order.persist(shop, user, '123', [sample_item], nil, 18000 ) }
+    subject { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', items: [sample_item], source: nil, order_price: 18000 })) }
 
     it 'creates order' do
       expect{ subject }.to change(Order, :count).from(0).to(1)

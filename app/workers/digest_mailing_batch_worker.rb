@@ -128,7 +128,22 @@ class DigestMailingBatchWorker
     data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
     template = Liquid::Template.parse template
-    template.render data.deep_stringify_keys
+    html = template.render data.deep_stringify_keys
+
+    # Добавляем к ссылкам уникальные ключи для отслеживания карты переходов
+    doc = Nokogiri::HTML.parse(html)
+    i = 0
+    doc.css('a[href]').each do |a|
+      uri = URI.parse(a.attribute('href').value)
+      if /^http/.match(uri.scheme)
+        uri_params = Rack::Utils.parse_nested_query(uri.query)
+        uri_params[:utm_link_map] = i
+        uri.query = uri_params.to_query
+        i += 1
+        a.attribute('href').value = uri.to_s
+      end
+    end
+    doc.to_html
   end
 
 
