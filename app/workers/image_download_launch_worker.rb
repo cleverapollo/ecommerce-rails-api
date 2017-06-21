@@ -16,7 +16,6 @@ class ImageDownloadLaunchWorker
   def perform(shop_id, items_images = nil, delete_before_download =  false)
     @shop = Shop.find(shop_id)
     @delete_before_download = delete_before_download
-    connect!
 
     if items_images
       send_batch(items_images)
@@ -24,7 +23,7 @@ class ImageDownloadLaunchWorker
       fetch_and_send_baches
     end
 
-    @connection.close
+
   ensure
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close
@@ -44,6 +43,10 @@ class ImageDownloadLaunchWorker
     @queue = @channel.queue('resize', durable: true)
   end
 
+  def disconnect!
+    @connection.close
+  end
+
   def fetch_and_send_baches
     items_images = []
 
@@ -60,11 +63,13 @@ class ImageDownloadLaunchWorker
   end
 
   def send_batch(items_images)
+    connect!
     @channel.default_exchange.publish({ shop_uniqid: @shop.uniqid,
                                         items_images: items_images,
                                         delete_before_download: @delete_before_download
                                       }.to_json,
                                       durable: true,
                                       routing_key: @queue.name)
+    disconnect!
   end
 end
