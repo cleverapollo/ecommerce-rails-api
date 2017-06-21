@@ -134,7 +134,7 @@ class DigestMailingBatchWorker
     doc = Nokogiri::HTML.parse(html)
     i = 0
     doc.css('a[href]').each do |a|
-      uri = URI.parse(a.attribute('href').value)
+      uri = Addressable::URI.parse(a.attribute('href').value)
       if /^http/.match(uri.scheme)
         uri_params = Rack::Utils.parse_nested_query(uri.query)
         uri_params[:utm_link_map] = i
