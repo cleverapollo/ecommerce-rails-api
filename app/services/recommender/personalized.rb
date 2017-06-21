@@ -27,12 +27,12 @@ module Recommender
         # Рассчитываем финальную оценку
         result = rescore(i_w, cf_weighted).sort do |x, y|
           # сортируем по вычисленной оценке
-          # x= x[1].to_i
-          # y= y[1].to_i
+          x= x[1].to_i
+          y= y[1].to_i
 
           # временно оставляем во float, для более точной сортировки
-          x= x[1]
-          y= y[1]
+          # x= x[1]
+          # y= y[1]
           y<=>x
         end
       end
