@@ -1,4 +1,4 @@
-class UserProfile::Date
+class UserProfile::DateParser
 
   FORMAT = "%Y-%m-%d"
 

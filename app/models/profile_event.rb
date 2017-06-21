@@ -372,7 +372,7 @@ class ProfileEvent < ActiveRecord::Base
             next unless children.is_a?(Hash) && (children[:gender].present? || children[:birthday].present?)
             value = ''
             value = "gender:#{children[:gender]}" if UserProfile::Gender.valid_gender?(children[:gender])
-            value = "#{value};birthday:#{children[:birthday]}" if UserProfile::Date.valid_child_date?(children[:birthday])
+            value = "#{value};birthday:#{children[:birthday]}" if UserProfile::DateParser.valid_child_date?(children[:birthday])
 
             next if value.blank?
             kids_by_push_attribute << ProfileEvent.find_or_create_by(user_id: user.id,
