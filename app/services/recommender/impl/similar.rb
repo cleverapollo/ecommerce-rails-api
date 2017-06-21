@@ -113,7 +113,8 @@ module Recommender
 
 
       # Выборка товаров, которые необходимо взвесить (отсортировать по CF).
-      # @return ActiveRecord::Relation
+      # Возвращает хеш { ITEMID => SCORE, ITEMID => SCORE }
+      # @return Hash
       def items_to_weight
 
         result = []
@@ -143,7 +144,9 @@ module Recommender
             result += items_relation.where.not(id: result).limit(limit - result.size).order(price: :asc).pluck(:id)
           end
         end
-        # если делаем промо по монобренду, то взвешивать по SR не надо (уже отсортирован)
+
+        # Если делаем промо по монобренду, то взвешивать по SR не надо (уже отсортирован)
+        # Конвертируем товарную выборку в хеш
         if @only_one_promo
           index_weight(result)
         else
@@ -152,6 +155,9 @@ module Recommender
 
       end
 
+
+      # Сортирует товары по связке sales rate и CF weight и возвращает хеш ID=>score
+      # @return Hash
       def rescore(i_w, cf_weight)
         result = i_w.merge(cf_weight) do |key, sr, cf|
           # подмешиваем оценку SR
