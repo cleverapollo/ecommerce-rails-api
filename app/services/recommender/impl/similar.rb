@@ -192,8 +192,8 @@ module Recommender
       end
 
       def items_relation
-        # relation = items_to_recommend.by_sales_rate
-        relation = items_to_recommend
+        relation = items_to_recommend.by_sales_rate
+        # relation = items_to_recommend
         if @only_one_promo
           relation = relation.where(brand_downcase: @only_one_promo).where.not(brand_downcase: nil)
         end
