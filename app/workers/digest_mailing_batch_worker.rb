@@ -16,11 +16,20 @@ class DigestMailingBatchWorker
     @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
     unless @settings.enabled?
-      raise DigestMailing::DisabledError, "Рассылки отключены для магазина #{@shop.id}"
+      Rollbar.warn "Mailings disabled for shop #{@shop.id}"
+      return
     end
 
     # Не обрабатываем новые пачки, если рассылка ранее дохла.
     if @mailing.failed?
+      return
+    end
+
+    # Проверяем количество писем в спаме перед началом пачки, минимальное для вхождения 5000
+    if @mailing.sent_mails_count >= 5000 && @mailing.mails.bounced.count.to_f / @mailing.sent_mails_count.to_f * 100.0 >= 5
+      @mailing.update(state: 'spam')
+      @shop.update(mailings_restricted: true)
+      Rollbar.warn "Spam bounced detect #{@shop.id}"
       return
     end
 

@@ -12,6 +12,7 @@ class DigestMailing < ActiveRecord::Base
   belongs_to :shop
   belongs_to :segment
 
+  has_many :mails, class_name: 'DigestMail'
   has_many :batches, class_name: 'DigestMailingBatch'
 
   # Отметить рассылку как прерванную.
@@ -20,7 +21,7 @@ class DigestMailing < ActiveRecord::Base
   end
 
   def failed?
-    self.state == 'failed'
+    self.state == 'failed' || self.state == 'spam'
   end
 
   def started?

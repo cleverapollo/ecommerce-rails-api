@@ -17,6 +17,7 @@ class DigestMail < ActiveRecord::Base
 
   scope :clicked, -> { where(clicked: true) }
   scope :opened, -> { where(opened: true) }
+  scope :bounced, -> { where(bounced: true) }
 
   # Отметить факт открытия письма
   def mark_as_opened!

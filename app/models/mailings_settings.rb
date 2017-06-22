@@ -19,7 +19,7 @@ class MailingsSettings < ActiveRecord::Base
   validates :send_from, presence: true
 
   def enabled?
-    !shop.restricted?
+    !shop.restricted? && !shop.mailings_restricted?
   end
 
   # Проверяет, настроен ли внешний сервис рассылок GetResponse
