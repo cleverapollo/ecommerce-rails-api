@@ -34,6 +34,9 @@ class InitController < ApplicationController
                             language: sanitized_header(:language))
 
     cookies.delete([Rees46::COOKIE_NAME])
+    cookies.delete([Rees46::COOKIE_NAME], domain: ".#{request.domain}")
+    cookies.delete([Rees46::COOKIE_NAME], domain: "api.rees46.com")
+    cookies.delete([Rees46::COOKIE_NAME], domain: "rees46.com")
     cookies.permanent[Rees46::COOKIE_NAME] = session.code
     cookies[Rees46::COOKIE_NAME] = {
       value: session.code,
