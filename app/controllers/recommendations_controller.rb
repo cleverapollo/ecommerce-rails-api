@@ -29,8 +29,8 @@ class RecommendationsController < ApplicationController
     # Эксперимент для 725 - вместо also_bought запускаем similar
     if @shop.id == 725 && extracted_params.type == 'also_bought'
       extracted_params.limit = 8
-      # Если сегмент 0 и текущий товар не в корзине, показываем also_bought
-      if extracted_params.segments && extracted_params.segments.first == '1_0' && extracted_params.cart_item_ids && extracted_params.item_id && !extracted_params.cart_item_ids.include?(extracted_params.item_id)
+      # Нулевой сегмент - показываемся сопутствующие товары, если этот товар в корзине.
+      if extracted_params.segments && extracted_params.segments.first == '1_0' && extracted_params.cart_item_ids && extracted_params.item_id && extracted_params.cart_item_ids.include?(extracted_params.item_id)
         # extracted_params.type = 'similar'
         # extracted_params.track_recommender = false
         # recommendations = Recommendations::Processor.process(extracted_params)
