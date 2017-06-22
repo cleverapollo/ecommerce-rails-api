@@ -141,8 +141,6 @@ module ActionPush
             @web_push_trigger_code = @source['code']
           when 'web_push_digest'
             @web_push_digest_code = @source['code']
-          else
-            @web_push_digest_code = nil
         end
       end
 

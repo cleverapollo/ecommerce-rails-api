@@ -24,8 +24,13 @@ class OrderItem < ActiveRecord::Base
       end
 
       # Если recommended_by не указан, но в Action был recommended_by и он не устарел, то используем его
-      if recommended_by.nil? && action.recommended_by && action.recommended_at.present? && action.recommended_at >= Order::RECOMMENDED_BY_DECAY.ago
-        recommended_by = action.recommended_by
+      # Для триггеров и дайджестов это 2 дня, для всех остальных 2 недели
+      if recommended_by.nil? && action.recommended_by && action.recommended_at.present?
+        if %w(trigger_mail digest_mail).include?(action.recommended_by)
+          recommended_by = action.recommended_by if action.recommended_at <= 2.day.ago
+        elsif action.recommended_at >= Order::RECOMMENDED_BY_DECAY.ago
+          recommended_by = action.recommended_by
+        end
       end
 
       result = OrderItem.atomic_create!(order_id: order.id,
