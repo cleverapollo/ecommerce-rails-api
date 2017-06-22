@@ -50,7 +50,7 @@ class ImageDownloadLaunchWorker
   def fetch_and_send_baches
     items_images = []
 
-    Item.recommendable.widgetable.where(shop_id: @shop.id).select(:id, :image_url).find_each do |item|
+    Item.widgetable.where(shop_id: @shop.id).select(:id, :image_url).find_each do |item|
       items_images << { id: item.id, image_url: item.image_url }
 
       if items_images.size == BATCH_SIZE
