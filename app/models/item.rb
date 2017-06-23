@@ -197,6 +197,7 @@ class Item < ActiveRecord::Base
         barcode: ValuesHelper.present_one(new_item, self, :barcode),
         is_child: ValuesHelper.present_one(new_item, self, :is_child),
         is_fashion: ValuesHelper.present_one(new_item, self, :is_fashion),
+        is_cosmetic: ValuesHelper.present_one(new_item, self, :is_cosmetic),
         seasonality: ValuesHelper.present_one(new_item, self, :seasonality),
     }
 

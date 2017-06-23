@@ -188,7 +188,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -259,11 +259,13 @@ module ActionPush
 
         # Добавляем пол косметики из автоопределялки
         if raw[:cosmetics_gender].present? && raw[:cosmetics_gender][i].present? && item_attributes.cosmetic_gender.blank?
+          item_attributes.is_cosmetic = true if item_attributes.is_cosmetic.nil?
           item_attributes.cosmetic_gender = raw[:cosmetics_gender][i]
         end
 
         # Добавляем пол одежды из автоопределялки
         if raw[:fashion_gender].present? && raw[:fashion_gender][i].present? && item_attributes.fashion_gender.blank?
+          item_attributes.is_fashion = true if item_attributes.is_fashion.nil?
           item_attributes.fashion_gender = raw[:fashion_gender][i]
         end
 
