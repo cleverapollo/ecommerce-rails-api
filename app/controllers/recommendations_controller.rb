@@ -49,8 +49,11 @@ class RecommendationsController < ApplicationController
     if @shop.id == 725 && extracted_params.type == 'see_also'
       if extracted_params.segments && extracted_params.segments.first == '1_0'
         extracted_params.type = 'recently_viewed'
+        _extracted = extracted_params.exclude
+        extracted_params.exclude += extracted_params.cart_item_ids if extracted_params.cart_item_ids
         extracted_params.track_recommender = false
         recommendations = Recommendations::Processor.process(extracted_params)
+        extracted_params.exclude = _extracted
 
         if recommendations.count < extracted_params.limit
           extracted_params.max_price_filter = 1500
