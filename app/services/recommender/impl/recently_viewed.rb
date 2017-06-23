@@ -19,7 +19,9 @@ module Recommender
 
         item_ids = relation.order('view_date DESC').limit(limit*5).pluck(:item_id)
 
-        result = items_in_shop.where(id: item_ids).pluck(:id)
+        # Сохраняем сортировку
+        available_ids = items_in_shop.where(id: item_ids).pluck(:id)
+        result = item_ids - (item_ids - available_ids)
 
         item_ids.delete_if { |item_id| !result.include?(item_id)}
         item_ids.take(limit)
