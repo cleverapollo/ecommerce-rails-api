@@ -16,7 +16,7 @@
 			<option cost="250" days="1-2"/>
 		</delivery-options>
 		<offers>
-			<offer id="3613372537448" type="vendor.model" available="true">
+			<offer id="3613372537448" type="vendor.model" available="true" leftovers="one">
 				<url>http://www.quiksilver.ru/3613372537448.html</url>
 				<price>4290</price>
 				<currencyId>RUR</currencyId>
@@ -73,7 +73,7 @@
 				<name>Купальные шорты</name>
 				<model>Купальные шорты Inlay</model>
 			</offer>
-			<offer id="5546328" available="true">
+			<offer id="5546328" available="true" leftovers="typo">
 				<url>
 					http://www.krasotkapro.ru/catalog/sophin/sophin_tsvet_0338_summer_12_ml/
 				</url>

@@ -18,6 +18,7 @@ describe YmlImporter do
 
     # Fashion
     item = Item.find_by uniqid: '3613372537448', shop_id: shop.id
+    expect(item.leftovers).to eq('one')
     expect(item.present?).to be_truthy
     expect(item.price).to eq(4290)
     expect(item.is_available).to be_truthy
@@ -48,6 +49,7 @@ describe YmlImporter do
 
     # Blank
     item = Item.find_by uniqid: '1', shop_id: shop.id
+    expect(item.leftovers).to be_nil
     expect(item.present?).to be_truthy
     expect(item.price).to eq(10)
     expect(item.is_available).to be_truthy
@@ -64,6 +66,7 @@ describe YmlImporter do
 
     # Cosmetic
     item = Item.find_by uniqid: '5546328', shop_id: shop.id
+    expect(item.leftovers).to be_nil
     expect(item.present?).to be_truthy
     expect(item.is_available).to be_truthy
     expect(item.is_cosmetic).to eq(true)

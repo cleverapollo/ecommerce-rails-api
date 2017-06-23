@@ -43,6 +43,7 @@ describe "check rees.xml" do
     offer = file.lazy.detect{ |element| element.is_a?(Rees46ML::Offer) }
 
     expect(offer.id).to eq('abc1')
+    expect(offer.leftovers).to eq('one')
     expect(offer.name).to eq("Наручные часы Casio A1234567B")
     expect(offer.type).to eq("vendor.model")
     expect(offer.group_id).to eq("10")

@@ -294,6 +294,7 @@ class Item < ActiveRecord::Base
   # @return [Item]
   def self.build_by_offer(offer, category, wear_types)
     new do |item|
+      item.leftovers = offer.leftovers if offer.leftovers.present? && %w(lot few one).include?(offer.leftovers)
       item.uniqid = offer.id
       item.name = offer.name
       if !item.name.present? && (offer.model.present? || offer.type_prefix.present? || offer.vendor.present?)
