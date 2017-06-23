@@ -188,7 +188,8 @@ class DigestMailingBatchWorker
       id: item.uniqid.to_s,
       barcode: item.barcode.to_s,
       brand: item.brand.to_s,
-      amount: 1
+      amount: 1,
+      leftovers: item.leftovers,
     }
   end
 end
