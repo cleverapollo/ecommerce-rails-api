@@ -257,6 +257,16 @@ module ActionPush
           end
         end
 
+        # Добавляем пол косметики из автоопределялки
+        if raw[:cosmetics_gender].present? && raw[:cosmetics_gender][i].present? && item_attributes.cosmetic_gender.blank?
+          item_attributes.cosmetic_gender = raw[:cosmetics_gender][i]
+        end
+
+        # Добавляем пол одежды из автоопределялки
+        if raw[:fashion_gender].present? && raw[:fashion_gender][i].present? && item_attributes.fashion_gender.blank?
+          item_attributes.fashion_gender = raw[:fashion_gender][i]
+        end
+
         @items << Item.fetch(shop.id, item_attributes)
       end
     rescue JSON::ParserError => e

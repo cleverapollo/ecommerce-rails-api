@@ -18,12 +18,14 @@ describe ActionPush::Params do
           event: action,
           shop_id: shop.uniqid,
           rating: rating,
-          item_id: [item_with_slash.id, item_without_slash.id],
+          item_id: [item_with_slash.uniqid, item_without_slash.uniqid],
           url: [item_with_slash.url, item_without_slash.url],
           price: [300, 499],
           image_url: [item_with_slash.image_url, item_without_slash.image_url],
           order_id: 111,
-          order_price: 333
+          order_price: 333,
+          cosmetics_gender: ['m'],
+          fashion_gender: ['f'],
         }
       end
 
@@ -46,6 +48,14 @@ describe ActionPush::Params do
       it { expect(subject.items[1].price).to eq(499) }
       it { expect(subject.order_id).to eq(111) }
       it { expect(subject.order_price).to eq(333) }
+
+      it 'item with save genders' do
+        subject
+        expect(item_with_slash.reload.cosmetic_gender).to eq('m')
+        expect(item_with_slash.reload.fashion_gender).to eq('f')
+        expect(item_without_slash.reload.cosmetic_gender).to be_nil
+        expect(item_without_slash.reload.fashion_gender).to be_nil
+      end
 
       context 'without ssid' do
         subject { ActionPush::Params.extract(params.except(:ssid)) }
@@ -84,7 +94,7 @@ describe ActionPush::Params do
             event: 'purchase',
             shop_id: shop.uniqid,
             rating: rating,
-            item_id: [item_with_slash.id, item_without_slash.id],
+            item_id: [item_with_slash.uniqid, item_without_slash.uniqid],
             amount: [100000000000000.00, 1],
             url: [item_with_slash.url, item_without_slash.url],
             price: [300, 499],
@@ -120,7 +130,7 @@ describe ActionPush::Params do
             event: action,
             shop_id: shop.uniqid,
             rating: rating,
-            item_id: [item_with_slash.id, item_without_slash.id],
+            item_id: [item_with_slash.uniqid, item_without_slash.uniqid],
             url: [item_with_slash.url, item_without_slash.url],
             price: [300, 499],
             image_url: [item_with_slash.image_url, item_without_slash.image_url],
