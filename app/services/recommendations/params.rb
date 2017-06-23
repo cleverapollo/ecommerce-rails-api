@@ -42,12 +42,14 @@ module Recommendations
     attr_accessor :discount
     # Нужно ли ресайзить изображения? Если да, то до какого размера
     attr_accessor :resize_image
-    # @return [Boolean] industrial_kids Включен ли отраслевой режим для детей (включен по умолчанию)
-    attr_accessor :industrial_kids
+    # @return [Boolean] skip_niche_algorithms Включен ли отраслевой режим (выключен по умолчанию)
+    attr_accessor :skip_niche_algorithms
     # @return [Boolean] track_recommender Нужно ли трекать вызов рекомендера (включен по умолчанию)
     attr_accessor :track_recommender
     # Список сегментов
     attr_accessor :segments
+    # @return [Float] max_price_filter ограничитель максимальной цены рекомендуемых товаров. По-умолчанию отсутствует
+    attr_accessor :max_price_filter
 
     # Проверяет и обрабатывает параметры
     #
@@ -106,7 +108,7 @@ module Recommendations
         @recommend_only_widgetable = true
       end
       @exclude                   = []
-      @industrial_kids           = true
+      @skip_niche_algorithms     = false
       @track_recommender         = true
       check
     end

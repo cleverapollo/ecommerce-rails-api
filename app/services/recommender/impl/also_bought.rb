@@ -11,16 +11,14 @@ module Recommender
       def items_to_recommend
         result = super
 
-        # Только если есть дети с полом и пол только один (чтобы исключить товары противоположного пола)
-        # Тест на дочках показывает снижение продаж. Проверка.
-        if shop.id != 725
-          if params.industrial_kids && shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
-            result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
-          end
+        if !params.skip_niche_algorithms && shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
+          result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
         end
 
         # Основная фильтрация
-        result = apply_jewelry_industrial_filter result
+        unless params.skip_niche_algorithms
+          result = apply_jewelry_industrial_filter result
+        end
 
         result
       end
@@ -44,6 +42,15 @@ module Recommender
           result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
           result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
           ids = result.pluck(:item_id)
+        end
+
+        # Если указан фильтр максимальной цены, оставляем только те ID, которые соответствуют этой цене
+        if params.max_price_filter
+          appropriate_ids = items_to_recommend.where(id: ids).where('price IS NOT NULL AND price > ?', params.max_price_filter).pluck(:id)
+          if appropriate_ids.any?
+            # Сохраняя сортировку
+            ids = ids - (ids - appropriate_ids)
+          end
         end
 
         # Исключаем товары, которые находятся ровно в том же наборе категорий

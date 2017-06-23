@@ -27,7 +27,7 @@ describe Recommender::Impl::SeeAlso do
           locations: [],
           limit:7,
           type: 'also_bought',
-          industrial_kids: true,
+          skip_niche_algorithms: false,
       )
 
       recommender = Recommender::Impl::SeeAlso.new(params)
@@ -48,7 +48,7 @@ describe Recommender::Impl::SeeAlso do
         order.save!
       }
 
-      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'see_also', industrial_kids: true) }
+      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'see_also', skip_niche_algorithms: false) }
 
       context 'kids' do
 
@@ -63,7 +63,7 @@ describe Recommender::Impl::SeeAlso do
         end
 
         it 'skip industrial filter for disabled' do
-          params.industrial_kids = false
+          params.skip_niche_algorithms = true
           item3.update is_child: true, child_gender: 'f'
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
         end

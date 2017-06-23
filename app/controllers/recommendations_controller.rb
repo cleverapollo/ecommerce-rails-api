@@ -26,17 +26,18 @@ class RecommendationsController < ApplicationController
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)
 
-    # Эксперимент для 725 - вместо also_bought запускаем similar
+    # Дочки - если запра
     if @shop.id == 725 && extracted_params.type == 'also_bought'
       extracted_params.limit = 8
-      # Нулевой сегмент - показываемся сопутствующие товары
-      if extracted_params.segments && extracted_params.segments.first == '1_0'
-        # extracted_params.type = 'similar'
-        # extracted_params.track_recommender = false
-        # recommendations = Recommendations::Processor.process(extracted_params)
-        # Оставляем рекомендации, которые были получены сверху
+      if extracted_params.cart_item_ids && extracted_params.item_id && extracted_params.cart_item_ids.include?(extracted_params.item_id)
+        # Показываем also_bought
+        extracted_params.max_price_filter = 1500
+        extracted_params.type = 'also_bought'
+        extracted_params.track_recommender = false
+        recommendations = Recommendations::Processor.process(extracted_params)
+        extracted_params.max_price_filter = nil
       else
-        # Показываем только similar
+        # Показываем similar
         extracted_params.type = 'similar'
         extracted_params.track_recommender = false
         recommendations = Recommendations::Processor.process(extracted_params)
@@ -44,18 +45,37 @@ class RecommendationsController < ApplicationController
 
     end
 
-    # if @shop.id == 725 && extracted_params.type == 'interesting'
-    #   extracted_params.type = 'recently_viewed'
-    #   extracted_params.track_recommender = false
-    #   recommendations = Recommendations::Processor.process(extracted_params)
-    # end
+    # Эксперимент в корзине дочек - A - показываем recently_viewed, B - показываем see_also с ограничением по цене
+    if @shop.id == 725 && extracted_params.type == 'see_also'
+      if extracted_params.segments && extracted_params.segments.first == '1_0'
+        extracted_params.type = 'recently_viewed'
+        extracted_params.track_recommender = false
+        recommendations = Recommendations::Processor.process(extracted_params)
+
+        if recommendations.count < extracted_params.limit
+          extracted_params.max_price_filter = 1500
+          extracted_params.type = 'see_also'
+          extracted_params.track_recommender = false
+          recommendations += Recommendations::Processor.process(extracted_params)
+          extracted_params.max_price_filter = nil
+        end
+      else
+        extracted_params.max_price_filter = 1500
+        extracted_params.type = 'see_also'
+        extracted_params.track_recommender = false
+        recommendations += Recommendations::Processor.process(extracted_params)
+        extracted_params.max_price_filter = nil
+      end
+
+    end
+
 
     if @shop.id == 725
       extracted_params.track_recommender = false
 
       # Если нашли меньше, чем нужно для see_also, also_bought
       if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-        extracted_params.industrial_kids = false
+        extracted_params.skip_niche_algorithms = true
         extracted_params.exclude += recommendations
 
         # Запускаем процессор с извлеченными данными
@@ -78,7 +98,7 @@ class RecommendationsController < ApplicationController
 
       # Если нашли меньше, чем нужно для see_also, also_bought
       if recommendations.count < extracted_params.limit && %w(see_also also_bought).include?(extracted_params.type)
-        extracted_params.industrial_kids = false
+        extracted_params.skip_niche_algorithms = true
         extracted_params.exclude += recommendations
 
         # Создаем рекомендер

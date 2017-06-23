@@ -40,72 +40,76 @@ module Recommender
         # Если же не указаны, то точное соответствие категорий.
         result = super.in_categories(categories_for_query, any: (params.categories.try(:any?) ? true : false) ).where.not(id: excluded_items_ids)
 
-        # Если товар для авто
-        # @type item [Item]
-        if item.is_auto?
-          result = result.where(is_auto: true)
+        unless params.skip_niche_algorithms
 
-          # (auto_compatibility @> '[{"brand": "BMW"}]' OR auto_compatibility IS NULL)
-          if item.auto_compatibility.present?
-            result = result.where("(auto_compatibility->'brands' ?| ARRAY[:brand] #{item.auto_compatibility['models'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''})", brand: item.auto_compatibility['brands'], model: item.auto_compatibility['models'])
-          end
+          # Если товар для авто
+          # @type item [Item]
+          if item.is_auto?
+            result = result.where(is_auto: true)
 
-          if item.auto_vds.present?
-            result = result.where('auto_vds && ARRAY[?] OR array_length(auto_vds, 1) IS NULL', item.auto_vds)
-          end
-        end
+            # (auto_compatibility @> '[{"brand": "BMW"}]' OR auto_compatibility IS NULL)
+            if item.auto_compatibility.present?
+              result = result.where("(auto_compatibility->'brands' ?| ARRAY[:brand] #{item.auto_compatibility['models'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''})", brand: item.auto_compatibility['brands'], model: item.auto_compatibility['models'])
+            end
 
-        # Если товар детский
-        # Тест на дочках показывает снижение продаж. Проверка.
-        if item.is_child?
-
-          result = result.where('is_child IS TRUE')
-          if item.child_gender.present?
-            result = result.where('(child_gender = ? OR child_gender IS NULL)', item.child_gender)
-          end
-          if item.child_age_min.present?
-            result = result.where('(child_age_max >= ? OR child_age_max IS NULL)', item.child_age_min)
-          end
-          if item.child_age_max.present?
-            result = result.where('(child_age_min <= ? OR child_age_min IS NULL)', item.child_age_max)
-          end
-
-        end
-
-        if item.is_jewelry?
-
-          subconditions = []
-          subconditions << " jewelry_color IS NOT NULL AND jewelry_color = $$#{item.jewelry_color}$$ " if item.jewelry_color.present?
-          subconditions << " jewelry_metal IS NOT NULL AND jewelry_metal = $$#{item.jewelry_metal}$$ " if item.jewelry_metal.present?
-          subconditions << " jewelry_gem IS NOT NULL AND jewelry_gem = $$#{item.jewelry_gem}$$ " if item.jewelry_gem.present?
-
-          if subconditions.any?
-            result = result.where("is_jewelry IS TRUE AND ( #{subconditions.join('OR')} ) ")
-          end
-
-        end
-
-        if item.is_cosmetic?
-          result = result.where(is_cosmetic: true)
-
-          # Фильтруем похожие ароматы
-          if item.cosmetic_perfume_aroma.present?
-            result = result.where('cosmetic_perfume_aroma && ARRAY[?]::varchar[] OR cosmetic_perfume_aroma IS NULL', item.cosmetic_perfume_aroma)
-          end
-
-          # Ногти
-          if item.cosmetic_nail?
-            result = result.where(cosmetic_nail: true)
-
-            # Фильтруем по типу
-            result = result.where(cosmetic_nail_type: item.cosmetic_nail_type) if item.cosmetic_nail_type.present?
-
-            # Для лака добавляет фильтр цвета
-            # todo так то лак выбирают близкого по цвету, а не такого же. Спросить у знающих (спросили, вроде как по большой палитре норм).
-            if item.cosmetic_nail_type.present? && item.cosmetic_nail_type == 'polish' && item.cosmetic_nail_color.present?
-              result = result.where(cosmetic_nail_color: item.cosmetic_nail_color)
+            if item.auto_vds.present?
+              result = result.where('auto_vds && ARRAY[?] OR array_length(auto_vds, 1) IS NULL', item.auto_vds)
             end
           end
+
+          # Если товар детский
+          # Тест на дочках показывает снижение продаж. Проверка.
+          if item.is_child?
+
+            result = result.where('is_child IS TRUE')
+            if item.child_gender.present?
+              result = result.where('(child_gender = ? OR child_gender IS NULL)', item.child_gender)
+            end
+            if item.child_age_min.present?
+              result = result.where('(child_age_max >= ? OR child_age_max IS NULL)', item.child_age_min)
+            end
+            if item.child_age_max.present?
+              result = result.where('(child_age_min <= ? OR child_age_min IS NULL)', item.child_age_max)
+            end
+
+          end
+
+          if item.is_jewelry?
+
+            subconditions = []
+            subconditions << " jewelry_color IS NOT NULL AND jewelry_color = $$#{item.jewelry_color}$$ " if item.jewelry_color.present?
+            subconditions << " jewelry_metal IS NOT NULL AND jewelry_metal = $$#{item.jewelry_metal}$$ " if item.jewelry_metal.present?
+            subconditions << " jewelry_gem IS NOT NULL AND jewelry_gem = $$#{item.jewelry_gem}$$ " if item.jewelry_gem.present?
+
+            if subconditions.any?
+              result = result.where("is_jewelry IS TRUE AND ( #{subconditions.join('OR')} ) ")
+            end
+
+          end
+
+          if item.is_cosmetic?
+            result = result.where(is_cosmetic: true)
+
+            # Фильтруем похожие ароматы
+            if item.cosmetic_perfume_aroma.present?
+              result = result.where('cosmetic_perfume_aroma && ARRAY[?]::varchar[] OR cosmetic_perfume_aroma IS NULL', item.cosmetic_perfume_aroma)
+            end
+
+            # Ногти
+            if item.cosmetic_nail?
+              result = result.where(cosmetic_nail: true)
+
+              # Фильтруем по типу
+              result = result.where(cosmetic_nail_type: item.cosmetic_nail_type) if item.cosmetic_nail_type.present?
+
+              # Для лака добавляет фильтр цвета
+              # todo так то лак выбирают близкого по цвету, а не такого же. Спросить у знающих (спросили, вроде как по большой палитре норм).
+              if item.cosmetic_nail_type.present? && item.cosmetic_nail_type == 'polish' && item.cosmetic_nail_color.present?
+                result = result.where(cosmetic_nail_color: item.cosmetic_nail_color)
+              end
+            end
+          end
+
         end
 
         result

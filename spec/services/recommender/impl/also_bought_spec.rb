@@ -48,7 +48,7 @@ describe Recommender::Impl::AlsoBought do
         order.save!
       }
 
-      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought', industrial_kids: true) }
+      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'also_bought', skip_niche_algorithms: false) }
 
       # Тест на дочках показывает снижение продаж. Проверка.
       context 'kids' do
@@ -64,7 +64,7 @@ describe Recommender::Impl::AlsoBought do
         end
 
         it 'skip industrial filter for disabled' do
-          params.industrial_kids = false
+          params.skip_niche_algorithms = true
           item3.update is_child: true, child_gender: 'f'
           expect(Recommender::Impl::AlsoBought.new(params).recommendations).to include(item3.uniqid)
         end
