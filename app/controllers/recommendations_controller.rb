@@ -72,7 +72,6 @@ class RecommendationsController < ApplicationController
 
     end
 
-
     if @shop.id == 725
       extracted_params.track_recommender = false
 

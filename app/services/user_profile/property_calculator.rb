@@ -1,6 +1,6 @@
 # IMPORTANT: в качесвте ключей для хешей, которые пойдут в БД, всегда используйте строки. Во избежание путаницы.
 class UserProfile::PropertyCalculator
-
+  include ChildrenCalculator
 
   # Вычисляет пол пользователя по историческим данным
   # @param user [User]
@@ -183,102 +183,7 @@ class UserProfile::PropertyCalculator
     perfumes
   end
 
-  # Рассчитывает детей покупателя
-  # Структура возвращаемого массива:
-  # [
-  #   { age: {min: 0.25, max: 2}, gender: 'm' }
-  #   { age: {min: 0.5} }
-  #   { age: {max: 2} }
-  #   { gender: 'f' }
-  # ]
-  # @param user User
-  # @return Hash[]
-  def calculate_children(user)
 
-    genders_raw_data = {'m' => {}, 'f' => {}, 'u' => {} }
-    kids = []
-
-    ProfileEvent.where(user_id: user.id, industry: 'child', property: 'age').each do |event|
-
-      age_min, age_max, gender = event.value.split('_', 3)
-      gender = 'u' unless %w(m f).include?(gender)
-
-      # TODO: не совсем правильный подсчет. Нужно разбить минимум и максимум по интервалу и суммировать их
-
-      if age_min.present? || age_max.present?
-
-
-        # Если не указана одна из границ, определяем ее как вдвое больше/меньше от присутствующей
-        age_min = age_min.to_f if age_min.present?
-        age_max = age_max.to_f if age_max.present?
-
-        age_min = age_max / 2.0 unless age_min.present?
-        age_max = age_min * 2.0 unless age_max.present?
-
-        # Костыль: У MyToys бывает максимальный возраст в 178956970, поэтому делаем дополнительную проверку
-        # И бывают еще отрицательные возрасты.
-        age_min = 0 if age_min < 0
-        age_max = 0 if age_max < 0
-        age_min = 0 if age_min  > 20
-        age_max = 16 if age_max > 20
-
-        # Приводим возраст к целочисленным индексам. Так как возраст кратен 0.25, умножаем его на 4, чтобы получить
-        # целый индекс для будущих массивов
-        age_min = (age_min * 4).to_i
-        age_max = (age_max * 4).to_i
-
-        # Расчетная числовая оценка
-        score = event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-
-        # Формируем векторы оценок по возрастам
-        (age_min..age_max).map do |x|
-          if genders_raw_data[gender].key?(x)
-            genders_raw_data[gender][x] += score
-          else
-            genders_raw_data[gender][x] = score
-          end
-        end
-
-      else
-
-        # Возраста нет, пытаемся определить только пол
-
-      end
-
-    end
-
-    # Для каждого пола убираем низкоприоритетные возрасты, оставляя отрезки
-    genders_raw_data.keys.each do |_gender|
-      if genders_raw_data[_gender].any?
-        genders_raw_data[_gender] = genders_raw_data[_gender].sort
-        median = genders_raw_data[_gender].map { |x| x[1] }.sum / genders_raw_data[_gender].count.to_f
-        genders_raw_data[_gender] = genders_raw_data[_gender].map { |x| x[1] > median ? x : nil }.uniq
-
-        # Делим на отрезки
-        genders_raw_data[_gender] = genders_raw_data[_gender].chunk { |x| x.nil? }.select { |x| x[0] == false }.map { |x| x[1] }
-      end
-    end
-
-    # Формируем список детей
-    genders_raw_data.each do |gender, parts|
-      parts.each do |element|
-        kid = { gender: gender }
-        if element.any?
-          if element.length == 1
-            kid[:age_min] = element.first[0].to_f / 4.0
-            kid[:age_max] = element.first[0].to_f / 4.0
-          else
-            kid[:age_min] = element.sort.first[0] / 4.0
-            kid[:age_max] = element.sort.reverse.first[0].to_f / 4.0
-          end
-        end
-        kids << kid
-      end
-    end
-
-    kids
-
-  end
 
   # Определяет возможные марки автомобиля
   # @param user User

@@ -160,12 +160,27 @@ describe UserProfile::PropertyCalculator do
     let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '3_5_', carts: 2 ) }
     let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '0.5__m', carts: 2 ) }
 
-    subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
+    describe 'without "push_attributes_children (birthdays)"' do
+      subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
 
-    it 'calculates children' do
-      expect(subject.count).to eq 2
-      expect(subject.first).to eq ({gender: "m", age_min: 0.5, age_max: 1.0})
-      expect(subject.last).to eq ({gender: "f", age_min: 1.5, age_max: 3.0})
+      it 'calculates children' do
+        expect(subject.count).to eq 2
+        expect(subject.first).to eq ({gender: "m", age_min: 0.5, age_max: 1.0})
+        expect(subject.last).to eq ({gender: "f", age_min: 1.5, age_max: 3.0})
+      end
+    end
+
+    describe 'with "push_attributes_children (birthdays)"' do
+      let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2010-01-01' ) }
+      let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2016-11-01' ) }
+
+      subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
+
+      it 'calculates children' do
+        expect(subject.count).to eq 3
+        expect(subject.first).to eq ({ gender: "m", age_min: 0.5, age_max: 1.0, birthday: "2016-11-01" })
+        expect(subject.last).to eq ({ gender: "f", age_min: 1.5, age_max: 3.0 })
+      end
     end
 
   end

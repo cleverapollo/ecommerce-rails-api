@@ -80,6 +80,10 @@ module UserProfile
         client.update location: shop_location.external_id if shop_location.present?
       end
 
+      if attributes['kids'].present?
+        ProfileEvent.track_push_attributes(user, shop, 'push_attributes_children', attributes)
+      end
+
       user.save if user.changed?
     end
   end

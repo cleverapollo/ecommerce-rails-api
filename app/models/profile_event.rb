@@ -348,9 +348,45 @@ class ProfileEvent < ActiveRecord::Base
       profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
     end
 
+    # Записывает пользователю для каждого EventsController.push_attributes отраслевые характеристики
+    # в историю действий, для последующего изменения свойств профиля.
+    # @param user [User]
+    # @param shop [Shop]
+    # @param event [String]
+    # @param attributes [Hash] - push_attributes
+    # @return Boolean
+    def track_push_attributes(user, shop, event, attributes)
+      # Check
+      return unless %w[push_attributes_children].include?(event)
+      raise Exception.new('Attributes collection is empty') if attributes.blank?
+      raise Exception.new('User is not provided') if user.class != User
 
+
+      if event == 'push_attributes_children'
+        # attributes[:kids] [Array<Hash>] Array of hashes { gender: 'm|f', birthday: "YYYY-mm-DD"}
+
+        if attributes[:kids].present? && attributes[:kids].is_a?(Array)
+          kids_by_push_attribute = []
+
+          attributes[:kids].each do |children|
+            next unless children.is_a?(Hash) && (children[:gender].present? || children[:birthday].present?)
+            value = ''
+            value = "gender:#{children[:gender]}" if UserProfile::Gender.valid_gender?(children[:gender])
+            value = "#{value};birthday:#{children[:birthday]}" if UserProfile::DateParser.valid_child_date?(children[:birthday])
+
+            next if value.blank?
+            kids_by_push_attribute << ProfileEvent.find_or_create_by(user_id: user.id,
+              shop_id: shop.id,
+              industry: 'child',
+              property: event,
+              value: value)
+          end
+        end
+      end
+    end
 
   end
+
 
   # Перенос объекта к указанному юзеру
   # @param [User] user
