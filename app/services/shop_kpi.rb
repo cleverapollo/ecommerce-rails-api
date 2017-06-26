@@ -32,7 +32,7 @@ class ShopKPI
     def recalculate_for_today
       Shop.on_current_shard.connected.active.unrestricted.each do |shop|
         Time.use_zone(shop.customer.time_zone) do
-          new(shop).calculate_statistics
+          new(shop).calculate_statistics.calculate_products
         end
       end
     end
