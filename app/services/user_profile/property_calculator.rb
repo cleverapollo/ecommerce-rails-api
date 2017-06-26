@@ -1,6 +1,6 @@
 # IMPORTANT: в качесвте ключей для хешей, которые пойдут в БД, всегда используйте строки. Во избежание путаницы.
 class UserProfile::PropertyCalculator
-  include ChildrenCalculator
+  include UserProfile::ChildrenCalculator
 
   # Вычисляет пол пользователя по историческим данным
   # @param user [User]
