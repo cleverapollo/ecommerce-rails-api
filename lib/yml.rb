@@ -16,6 +16,11 @@ class Yml < Struct.new(:path, :locale)
   def io
     @io ||= begin
       file = download
+
+      if file.nil?
+        fail NotRespondingError.new(I18n.t('yml_errors.unavailable_file'))
+      end
+
       if gzip_archive?(file)
         file = Zlib::GzipReader.new(file.tap(&:rewind))
         fail NoXMLFileInArchiveError unless is_xml?(file)
