@@ -78,7 +78,11 @@ class DigestMailingLaunchWorker
           end
         end
         # Запоминаем, сколько пользователей попало в рассылку
-        digest_mailing.update(total_mails_count: audience_relation.count)
+        digest_mailing.update(total_mails_count: audience_relation.size)
+
+        if audience_relation.size == 0
+          digest_mailing.finish!
+        end
 
       end
 
