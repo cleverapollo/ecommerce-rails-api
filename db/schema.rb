@@ -827,48 +827,6 @@ ActiveRecord::Schema.define(version: 20170627125619) do
     t.jsonb   "cosmetic_perfume"
   end
 
-  create_table "users_0_100", id: :bigserial, force: :cascade do |t|
-    t.string  "gender",           limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children"
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
-    t.jsonb   "cosmetic_perfume"
-  end
-
-  create_table "users_100_200", id: :bigserial, force: :cascade do |t|
-    t.string  "gender",           limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children"
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
-    t.jsonb   "cosmetic_perfume"
-  end
-
-  create_table "users_200_300", id: :bigserial, force: :cascade do |t|
-    t.string  "gender",           limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children"
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
-    t.jsonb   "cosmetic_perfume"
-  end
-
   create_table "visits", id: :bigserial, force: :cascade do |t|
     t.date    "date",                          null: false
     t.integer "user_id", limit: 8,             null: false
