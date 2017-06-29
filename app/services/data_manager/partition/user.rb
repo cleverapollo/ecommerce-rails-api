@@ -29,7 +29,7 @@ class DataManager::Partition::User
           DECLARE i int;
           DECLARE result bigint;
           BEGIN
-            i := floor(NEW.id::float / #{PACK}) * 100;
+            i := (ceil(NEW.id::float / #{PACK}) - 1) * 100;
             in_table := format('users_%s_%s', i, i + 100);
             EXECUTE 'INSERT INTO ' || in_table || ' VALUES ( ($1).* ) ' USING NEW;
             RETURN NEW.id;
