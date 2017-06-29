@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170627120701) do
+ActiveRecord::Schema.define(version: 20170627125619) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20170627120701) do
   enable_extension "dblink"
   enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -813,6 +814,48 @@ ActiveRecord::Schema.define(version: 20170627120701) do
   add_index "trigger_mails", ["trigger_mailing_id", "date"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
   create_table "users", id: :bigserial, force: :cascade do |t|
+    t.string  "gender",           limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
+    t.jsonb   "children"
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
+    t.jsonb   "jewelry"
+    t.jsonb   "cosmetic_perfume"
+  end
+
+  create_table "users_0_100", id: :bigserial, force: :cascade do |t|
+    t.string  "gender",           limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
+    t.jsonb   "children"
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
+    t.jsonb   "jewelry"
+    t.jsonb   "cosmetic_perfume"
+  end
+
+  create_table "users_100_200", id: :bigserial, force: :cascade do |t|
+    t.string  "gender",           limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
+    t.jsonb   "children"
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
+    t.jsonb   "jewelry"
+    t.jsonb   "cosmetic_perfume"
+  end
+
+  create_table "users_200_300", id: :bigserial, force: :cascade do |t|
     t.string  "gender",           limit: 1
     t.jsonb   "fashion_sizes"
     t.boolean "allergy"

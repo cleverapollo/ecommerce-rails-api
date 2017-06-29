@@ -270,3 +270,11 @@ puts file.lazy.select{ |element| element.is_a?(Rees46ML::Offer) }.take(1).map(&:
 
 ### Postgres
 Отслеживание текущих транзакций `select * from pg_stat_activity ;`
+
+#### Структура таблиц users, sessions
+
+Таблицы `users`, `sessions` созданы как партицируемые. Для создания дополнительных партиций, выполнять скрипты: `DataManager::Partition::User.check`.
+
+!!! Сделан жесткий костыль с переопределением вставки в модуле `DatabaseStatements`
+
+Описание на [хабре](https://habrahabr.ru/company/oleg-bunin/blog/309330/).

@@ -1,0 +1,3 @@
+module DataManager::Partition
+
+end

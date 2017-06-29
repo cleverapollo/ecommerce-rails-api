@@ -1,7 +1,7 @@
 ##
 # Пользователь.
 #
-class User < MasterTable
+class User < ActiveRecord::Base
   include RequestLogger
   include Redis::Objects
 
@@ -17,6 +17,9 @@ class User < MasterTable
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
   has_many :client_carts
+
+  # Для партицируемых таблиц необходимо сначала получить ID, а потом создавать запись
+  before_create :fetch_nextval
 
   # Редисовая блокировка. Используется при слиянии пользователей
   lock :merging, expiration: 60, timeout: 1
@@ -44,6 +47,12 @@ class User < MasterTable
         allergy: allergy
 
     }.to_json
+  end
+
+  private
+
+  def fetch_nextval
+    self.id = User.connection.select_value("SELECT nextval('users_id_seq')")
   end
 
 end
