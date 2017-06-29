@@ -52,6 +52,17 @@ class DataManager::Partition::User
       end
     end
 
+    # Переносит юзеров с мастера на шард
+    def move_users_from_master
+      min = User.connection.select_value('SELECT min(id) FROM users_1').to_i
+      max = User.connection.select_value('SELECT max(id) FROM users_1').to_i
+      (min..max).step(10000) do |n|
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from users_1 where id < #{(n + 10000)} returning * ) insert into users select * from moved_rows;"
+        STDOUT.write "\r#{n}"
+      end
+      STDOUT.write "\n"
+    end
+
     private
 
     # Сколько должно быть партиций
