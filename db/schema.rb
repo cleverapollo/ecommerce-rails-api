@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170630065719) do
+ActiveRecord::Schema.define(version: 20170630073019) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -570,6 +570,86 @@ ActiveRecord::Schema.define(version: 20170630065719) do
   add_index "reputations", ["entity_type", "entity_id"], name: "index_reputations_on_entity_type_and_entity_id", using: :btree
   add_index "reputations", ["parent_id"], name: "index_reputations_on_parent_id", using: :btree
   add_index "reputations", ["shop_id"], name: "index_reputations_on_shop_id", using: :btree
+
+  create_table "rtb_bid_requests", force: :cascade do |t|
+    t.string   "ssp"
+    t.string   "ssid"
+    t.string   "bid_id"
+    t.string   "imp_id"
+    t.string   "site_domain"
+    t.string   "site_page"
+    t.float    "bidfloor"
+    t.string   "bidfloorcur"
+    t.float    "bid_price"
+    t.integer  "rtb_job_id"
+    t.boolean  "bid_done"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.boolean  "win"
+  end
+
+  add_index "rtb_bid_requests", ["bid_done"], name: "index_rtb_bid_requests_on_bid_done", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["created_at", "ssp"], name: "index_rtb_bid_requests_on_created_at_and_ssp", where: "(bid_done IS TRUE)", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp", using: :btree
+  add_index "rtb_bid_requests", ["ssp"], name: "index_rtb_bid_requests_on_ssp_conditioned", where: "(bid_done IS TRUE)", using: :btree
+
+  create_table "rtb_impressions", id: :bigserial, force: :cascade do |t|
+    t.string   "code"
+    t.string   "bid_id",              null: false
+    t.string   "ad_id",               null: false
+    t.float    "price",               null: false
+    t.string   "currency",            null: false
+    t.integer  "shop_id",             null: false
+    t.integer  "item_id",   limit: 8, null: false
+    t.integer  "user_id",   limit: 8, null: false
+    t.boolean  "clicked"
+    t.boolean  "purchased"
+    t.datetime "date"
+    t.string   "domain"
+    t.string   "page"
+    t.string   "banner"
+    t.string   "ssp"
+  end
+
+  add_index "rtb_impressions", ["code"], name: "index_rtb_impressions_on_code", unique: true, using: :btree
+
+  create_table "rtb_internal_impressions", force: :cascade do |t|
+    t.string   "code"
+    t.string   "bid_id",              null: false
+    t.string   "banner"
+    t.float    "price",               null: false
+    t.string   "currency",            null: false
+    t.integer  "user_id",   limit: 8, null: false
+    t.boolean  "clicked"
+    t.boolean  "purchased"
+    t.datetime "date"
+    t.string   "domain"
+    t.string   "page"
+  end
+
+  create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
+    t.integer "shop_id",                           null: false
+    t.integer "user_id",  limit: 8,                null: false
+    t.integer "item_id",  limit: 8,                null: false
+    t.integer "counter",            default: 0,    null: false
+    t.date    "date"
+    t.string  "image"
+    t.float   "price"
+    t.string  "url"
+    t.string  "currency"
+    t.string  "name"
+    t.boolean "active",             default: true, null: false
+    t.string  "logo"
+    t.jsonb   "products"
+  end
+
+  add_index "rtb_jobs", ["active", "date", "user_id"], name: "index_rtb_jobs_on_active_and_date_and_user_id", where: "(active IS TRUE)", using: :btree
+  add_index "rtb_jobs", ["date", "counter"], name: "index_rtb_jobs_on_date_and_counter", where: "(counter = 0)", using: :btree
+  add_index "rtb_jobs", ["shop_id", "date"], name: "index_rtb_jobs_on_shop_id_and_date", using: :btree
+  add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
+  add_index "rtb_jobs", ["shop_id", "user_id"], name: "index_rtb_jobs_on_shop_id_and_user_id", using: :btree
+  add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
+  add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
 
   create_table "search_queries", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",           null: false

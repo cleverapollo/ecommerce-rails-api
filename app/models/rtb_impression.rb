@@ -1,4 +1,4 @@
-class RtbImpression < MasterTable
+class RtbImpression < ActiveRecord::Base
   validates :code, :bid_id, :ad_id, :price, :currency, :shop_id, :item_id, :user_id, presence: true
 
   belongs_to :shop

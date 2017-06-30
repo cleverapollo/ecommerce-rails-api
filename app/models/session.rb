@@ -1,7 +1,7 @@
 ##
 # Сессия.
 #
-class Session < MasterTable
+class Session < ActiveRecord::Base
   include RequestLogger
 
   # Хуки на запись сессии
@@ -26,6 +26,9 @@ class Session < MasterTable
 
 
   include UserLinkable
+
+  # Для партицируемых таблиц необходимо сначала получить ID, а потом создавать запись
+  before_create :fetch_nextval
 
   validates :code, presence: true
   attr_accessor :segment_changed
@@ -83,4 +86,11 @@ class Session < MasterTable
       s
     end
   end
+
+  private
+
+  def fetch_nextval
+    self.id = Session.connection.select_value("SELECT nextval('sessions_id_seq')")
+  end
+
 end

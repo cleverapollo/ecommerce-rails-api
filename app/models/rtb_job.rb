@@ -1,4 +1,4 @@
-class RtbJob < MasterTable
+class RtbJob < ActiveRecord::Base
   validates :user_id, :item_id, :shop_id, presence: true
   belongs_to :user
   belongs_to :item
