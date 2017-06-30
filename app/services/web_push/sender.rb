@@ -35,6 +35,11 @@ class WebPush::Sender
           else
             Rollbar.error e, web_push_token
           end
+        rescue SocketError => e
+          # save response error message
+          WebPushTokenError.create(client_id: web_push_token.client_id, shop_id: shop.id, message: { error: e.message, token: web_push_token.token })
+          Rollbar.error e, web_push_token
+          web_push_token.destroy
         end
       end
 
