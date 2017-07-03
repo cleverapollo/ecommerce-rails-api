@@ -14,7 +14,8 @@ module UserLinkable
     def relink_user(options = {})
       where(user_id: options.fetch(:from).id).each do |entity|
         begin
-          entity.update_columns(user_id: options.fetch(:to).id)
+          entity.user_id = options.fetch(:to).id
+          entity.atomic_save!
         rescue ActiveRecord::RecordNotUnique
           entity.delete
         end
@@ -28,7 +29,8 @@ module UserLinkable
     def relink_user_remnants(master, slave_id)
       where(user_id: slave_id).each do |entity|
         begin
-          entity.update_columns(user_id: master.id)
+          entity.user_id = master.id
+          entity.atomic_save!
         rescue ActiveRecord::RecordNotUnique
           entity.delete
         end

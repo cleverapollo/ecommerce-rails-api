@@ -56,7 +56,7 @@ class DataManager::Partition::Session
       min = Session.connection.select_value('SELECT min(id) FROM sessions_master WHERE updated_at IS NOT NULL').to_i
       max = Session.connection.select_value('SELECT max(id) FROM sessions_master WHERE updated_at IS NOT NULL').to_i
       (min..max).step(10000) do |n|
-        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + 10000)} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + 10000)} AND id >= #{n} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
         STDOUT.write "\r#{n}"
       end
       STDOUT.write "\n"
