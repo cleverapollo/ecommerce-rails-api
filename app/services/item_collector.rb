@@ -9,7 +9,7 @@ class ItemCollector
 
   def collect
     result = { categories: [], items: [] }
-    children_categories = ItemCategory.where(external_id: children_categories_collector(@item_category.external_id).flatten)
+    children_categories = ItemCategory.where(external_id: children_categories_collector(@item_category.external_id).flatten, shop_id: shop.id)
     result[:categories] << item_category
     result[:categories] << children_categories
     result[:categories] = result[:categories].flatten
