@@ -33,12 +33,13 @@ class EventsController < ApplicationController
     # Трекаем изменение сессии для DS
     if params[:segment1].present? && params[:segment2].present?
       if extracted_params.session.segment.nil?
-        extracted_params.session.update segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}]
+        extracted_params.session.assign_attributes(segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}])
+        extracted_params.session.atomic_save! if extracted_params.session.changed?
       else
         last = extracted_params.session.segment.last
         if last['s1'] != params[:segment1] && last['s2'] != params[:segment2]
           extracted_params.session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
-          extracted_params.session.save!
+          extracted_params.session.atomic_save!
 
           # Отправляем в слак
           if Rails.env == 'production'
