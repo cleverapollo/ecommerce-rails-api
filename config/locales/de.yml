@@ -39,6 +39,7 @@ de:
     unavailable_file: File is unavailable.
     wrong_url: Wrong XML-file URL.
     no_files_in_archive: Archive contains no XML-files
+    no_xml_file: File is not a XML format.
     no_uniq_ids: File contains two or more identical Product IDs. Each product must have its own unique Product ID.
 
   email_settings:

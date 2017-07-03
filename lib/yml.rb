@@ -25,7 +25,7 @@ class Yml < Struct.new(:path, :locale)
         file = Zlib::GzipReader.new(file.tap(&:rewind))
         fail NoXMLFileInArchiveError unless is_xml?(file)
       else
-        fail NotXMLFile unless is_xml?(file)
+        fail NotXMLFile.new(I18n.t('yml_errors.no_xml_file')) unless is_xml?(file)
       end
 
       fail NoXMLFileInArchiveError unless is_xml?(file)

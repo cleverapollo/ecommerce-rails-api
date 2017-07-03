@@ -194,6 +194,8 @@ class Shop < MasterTable
       Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
     rescue Yml::NoXMLFileInArchiveError => e
       import_error(e, 'Incorrect YML archive')
+    rescue Yml::NotXMLFile => e
+      import_error(e, I18n.t('yml_errors.no_xml_file'))
     rescue ActiveRecord::RecordNotUnique => e
       import_error(e, I18n.t('yml_errors.no_uniq_ids'))
     rescue Interrupt => e
