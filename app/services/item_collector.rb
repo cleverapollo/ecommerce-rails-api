@@ -31,7 +31,7 @@ class ItemCollector
   private
 
   def children_categories_collector(parent_id)
-    children_ids = ItemCategory.where(parent_external_id: parent_id).pluck(:external_id)
+    children_ids = ItemCategory.where(parent_external_id: parent_id, shop_id: shop.id).pluck(:external_id)
     children_ids.map { |children_id| children_categories_collector(children_id) } + children_ids
   end
 end
