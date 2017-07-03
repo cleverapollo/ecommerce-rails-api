@@ -9,7 +9,7 @@ class ItemCollector
 
   def collect
     result = { categories: [], items: [] }
-    children_categories = ItemCategory.where(external_id: children_categories_collector(@item_category.external_id).flatten, shop_id: shop.id)
+    children_categories = ItemCategory.where(external_id: children_categories_collector(item_category.external_id).flatten, shop_id: shop.id)
     result[:categories] << item_category
     result[:categories] << children_categories
     result[:categories] = result[:categories].flatten
@@ -19,7 +19,7 @@ class ItemCollector
     children_categories.each do |category|
       result[:items] << shop.items.widgetable.where("? = ANY (category_ids)", category.external_id)
     end
-    result[:items] = result[:items].flatten.uniq!{ |i| i[:name] }
+    result[:items] = result[:items].flatten
 
     file = File.open("category-#{item_category.external_id}.txt", 'w')
     file.write(result.to_json)
