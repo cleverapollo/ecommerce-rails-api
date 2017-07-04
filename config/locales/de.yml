@@ -33,6 +33,8 @@ de:
       locations_import_error: 'Locations import error'
       categories_import_error: 'Categories import error'
       products_import_error: 'Products import error'
+      orders_import_error: ' Orders import error'
+      orders_sync_error: ' Orders sync error'
 
   yml_errors:
     time_limit_exceeded: Download time limit exceeded (30m).

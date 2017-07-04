@@ -64,4 +64,16 @@ class ErrorsMailerPreview < ActionMailer::Preview
     shop.customer.language = 'ru'
     ErrorsMailer.products_import_error(shop, 'MESSAGE')
   end
+
+  def orders_import_error_en
+    shop = Shop.first
+    shop.customer.language = 'en'
+    ErrorsMailer.orders_import_error('test@test.com', 'Test', {'shop' => shop})
+  end
+
+  def orders_import_error_ru
+    shop = Shop.first
+    shop.customer.language = 'ru'
+    ErrorsMailer.orders_import_error('test@test.com', 'Test', {'shop' => shop})
+  end
 end

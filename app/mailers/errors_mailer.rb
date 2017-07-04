@@ -84,10 +84,25 @@ class ErrorsMailer < ActionMailer::Base
   ## Orders Import Errors
 
   def orders_import_error(email, message, params)
-    mail(to: email, bcc: [], subject: "Ошибка при импорте заказов") do |format|
-      format.text { render text: "#{message}\n\n\n#{params.inspect}" }
-      format.html { render text: "#{message}<hr/>#{params.inspect}" }
-    end
+    @shop = params['shop']
+    @message = message
+    I18n.locale = @shop.customer.language || 'en'
+
+    m = mail(to: email, bcc: [], subject: I18n.t('errors_mailer.subject.orders_import_error'))
+    m.header['List-Id'] = '<notification errors_mailer:orders_import_error>'
+    m.header['Feedback-ID'] = 'orders_import_error:errors_mailer:rees46mailer'
+    m
+  end
+
+  def orders_sync_error(email, message, params)
+    @shop = params['shop']
+    @message = message
+    I18n.locale = @shop.customer.language || 'en'
+
+    m = mail(to: email, bcc: [], subject: I18n.t('errors_mailer.subject.orders_sync_error'))
+    m.header['List-Id'] = '<notification errors_mailer:orders_sync_error>'
+    m.header['Feedback-ID'] = 'orders_sync_error:errors_mailer:rees46mailer'
+    m
   end
 
   # Сообщаем о полной или частичной обработке импорта заказов

@@ -69,7 +69,8 @@ class OrdersSyncWorker
 
     rescue OrdersSyncError => e
       email = opts['errors_to'] || current_shop.customer.email
-      ErrorsMailer.orders_import_error(email, e.message, opts).deliver_now
+      opts['shop'] = current_shop
+      ErrorsMailer.orders_sync_error(email, e.message, opts).deliver_now
     end
 
   ensure

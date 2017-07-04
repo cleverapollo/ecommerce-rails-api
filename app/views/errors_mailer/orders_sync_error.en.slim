@@ -1,0 +1,8 @@
+h2 Dear customer,
+
+p Last order statuses sync request for your store #{@shop.name} has failed to be processed due to syntax error(s).
+p Details: #{@message}
+
+p Please review the syntax in your request and send it one more time.
+
+= render 'shared/errors_mailer_footer'
