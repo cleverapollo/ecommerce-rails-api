@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170704100834) do
+ActiveRecord::Schema.define(version: 20170704113517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -295,8 +295,7 @@ ActiveRecord::Schema.define(version: 20170704100834) do
   add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
   add_index "digest_mails", ["date", "shop_id"], name: "index_digest_mails_on_date_and_shop_id", using: :btree
-  add_index "digest_mails", ["date"], name: "index_digest_mails_on_date", using: :btree
-  add_index "digest_mails", ["digest_mailing_id"], name: "index_digest_mails_on_digest_mailing_id", using: :btree
+  add_index "digest_mails", ["digest_mailing_id", "date"], name: "index_digest_mails_on_digest_mailing_id", using: :btree
 
   create_table "events", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false
@@ -889,7 +888,6 @@ ActiveRecord::Schema.define(version: 20170704100834) do
 
   add_index "trigger_mails", ["code"], name: "index_trigger_mails_on_code", unique: true, using: :btree
   add_index "trigger_mails", ["date", "shop_id"], name: "index_trigger_mails_on_date_and_shop_id", using: :btree
-  add_index "trigger_mails", ["date"], name: "index_trigger_mails_on_date", using: :btree
   add_index "trigger_mails", ["shop_id", "trigger_mailing_id", "opened"], name: "index_trigger_mails_on_shop_id_and_trigger_mailing_id", using: :btree
   add_index "trigger_mails", ["trigger_mailing_id", "date"], name: "index_trigger_mails_on_trigger_mailing_id", using: :btree
 
@@ -945,11 +943,10 @@ ActiveRecord::Schema.define(version: 20170704100834) do
 
   add_index "web_push_digest_messages", ["code"], name: "index_web_push_digest_messages_on_code", unique: true, using: :btree
   add_index "web_push_digest_messages", ["date", "shop_id"], name: "index_web_push_digest_messages_on_date_and_shop_id", using: :btree
-  add_index "web_push_digest_messages", ["date"], name: "index_web_push_digest_messages_on_date", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_and_showed", where: "(showed IS TRUE)", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_unsubscribed", where: "(unsubscribed = false)", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
-  add_index "web_push_digest_messages", ["web_push_digest_id"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
+  add_index "web_push_digest_messages", ["web_push_digest_id", "date"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
 
   create_table "web_push_digests", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                             null: false
@@ -1049,11 +1046,10 @@ ActiveRecord::Schema.define(version: 20170704100834) do
 
   add_index "web_push_trigger_messages", ["code"], name: "index_web_push_trigger_messages_on_code", unique: true, using: :btree
   add_index "web_push_trigger_messages", ["date", "shop_id"], name: "index_web_push_trigger_messages_on_date_and_shop_id", using: :btree
-  add_index "web_push_trigger_messages", ["date"], name: "index_web_push_trigger_messages_on_date", using: :btree
   add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_and_trigger_unsubscribed", where: "(unsubscribed = true)", using: :btree
   add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_trigger_id_and_showed", where: "(showed = true)", using: :btree
   add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked = true)", using: :btree
-  add_index "web_push_trigger_messages", ["web_push_trigger_id"], name: "index_web_push_trigger_messages_on_web_push_trigger_id", using: :btree
+  add_index "web_push_trigger_messages", ["web_push_trigger_id", "date"], name: "index_web_push_trigger_messages_on_web_push_trigger_id", using: :btree
 
   create_table "web_push_triggers", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                  null: false
