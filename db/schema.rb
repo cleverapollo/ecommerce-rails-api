@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170630120449) do
+ActiveRecord::Schema.define(version: 20170704100834) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1050,8 +1050,9 @@ ActiveRecord::Schema.define(version: 20170630120449) do
   add_index "web_push_trigger_messages", ["code"], name: "index_web_push_trigger_messages_on_code", unique: true, using: :btree
   add_index "web_push_trigger_messages", ["date", "shop_id"], name: "index_web_push_trigger_messages_on_date_and_shop_id", using: :btree
   add_index "web_push_trigger_messages", ["date"], name: "index_web_push_trigger_messages_on_date", using: :btree
-  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_trigger_id_and_showed", where: "(showed IS TRUE)", using: :btree
-  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
+  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_and_trigger_unsubscribed", where: "(unsubscribed = true)", using: :btree
+  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_trigger_id_and_showed", where: "(showed = true)", using: :btree
+  add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked = true)", using: :btree
   add_index "web_push_trigger_messages", ["web_push_trigger_id"], name: "index_web_push_trigger_messages_on_web_push_trigger_id", using: :btree
 
   create_table "web_push_triggers", id: :bigserial, force: :cascade do |t|
@@ -1062,6 +1063,7 @@ ActiveRecord::Schema.define(version: 20170630120449) do
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
     t.string   "message",      limit: 125
+    t.jsonb    "statistic"
   end
 
 end
