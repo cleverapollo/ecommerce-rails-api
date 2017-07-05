@@ -17,6 +17,8 @@ class DigestMailing < ActiveRecord::Base
   has_many :mails, class_name: 'DigestMail'
   has_many :batches, class_name: 'DigestMailingBatch'
 
+  scope :finished, -> { where(state: 'finished') }
+
   # Отметить рассылку как прерванную.
   def fail!
     update(state: 'failed')
@@ -55,8 +57,28 @@ class DigestMailing < ActiveRecord::Base
     if super.present?
       super
     else
-      {sent: 0, open: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchased: 0}
+      {sent: 0, opened: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchased: 0}
     end
+  end
+
+  # Запускает перерасчет статистики дайджеста
+  def recalculate_statistic
+    Slavery.on_slave do
+      self.statistic = {
+          sent: self.mails.count,
+          opened: self.mails.opened.count,
+          clicked: self.mails.clicked.count,
+          bounced: self.mails.bounced.count,
+          unsubscribed: 0,
+          purchases: self.with_orders_count
+      }
+    end
+
+    self.atomic_save! if self.changed?
+  end
+
+  def with_orders_count
+    Order.joins('INNER JOIN digest_mails on orders.source_id = digest_mails.id').where('orders.source_type = ?', 'DigestMail').where('digest_mails.digest_mailing_id = ?', self.id).count
   end
 
 end

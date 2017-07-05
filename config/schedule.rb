@@ -22,6 +22,10 @@ end
 every '5 0 1 * *' do
   runner "RunnerWrapper.run('WebPush::Statistics.recalculate_prev_all')"
 end
+# Статистика по завершенным дайджестам
+every '6 0 * * *' do
+  runner "RunnerWrapper.run('DigestMailings::Statistics.recalculate_all')"
+end
 
 # Каждые сутки синхронизируем YML
 every 26.minutes do
