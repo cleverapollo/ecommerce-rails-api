@@ -21,7 +21,10 @@ class InitController < ApplicationController
     end
 
     # Строим массив кук, для поиска первой существующей сессии
-    session_id = CGI::Cookie::parse(request.env['HTTP_COOKIE'])['rees46_session_id']
+    session_id = CGI::Cookie::parse(request.env['HTTP_COOKIE'])['rees46_session_id'].uniq
+    if session_id.count > 1
+      File.open("#{Rails.root}/log/ssid.log", 'a+') {|f| f << "#{Date.current}: #{session_id.join(', ')}\n" }
+    end
     ssid = params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
     session_id << ssid if ssid.present?
 

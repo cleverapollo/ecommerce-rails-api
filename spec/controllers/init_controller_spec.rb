@@ -167,7 +167,7 @@ describe InitController do
 
     context 'with cookie' do
       before {
-        request.env['HTTP_COOKIE'] = "#{Rees46::COOKIE_NAME}=12345"
+        request.env['HTTP_COOKIE'] = "#{Rees46::COOKIE_NAME}=12345; #{Rees46::COOKIE_NAME}=12345"
       }
 
       it_behaves_like 'an api initializer with data'
