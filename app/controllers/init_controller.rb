@@ -40,12 +40,10 @@ class InitController < ApplicationController
                             country: sanitized_header(:country),
                             language: sanitized_header(:language))
 
-    cookies.delete([Rees46::COOKIE_NAME])
-    cookies.permanent[Rees46::COOKIE_NAME] = session.code
     cookies[Rees46::COOKIE_NAME] = {
       value: session.code,
       expires: 1.year.from_now,
-      domain: request.host
+      domain: [request.host, ".#{request.domain}"][rand(0..1)]
     }
 
     # Поиск связки пользователя и магазина
