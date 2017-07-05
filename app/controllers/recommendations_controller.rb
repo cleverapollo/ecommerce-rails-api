@@ -28,38 +28,38 @@ class RecommendationsController < ApplicationController
 
 
     # Эксперимент для Красотки - главная страница
-    if @shop.id == 2413 && extracted_params.type == 'popular' && extracted_params.categories.empty?
-
-      # Оставляем только 3 популярных товара
-      recommendations = recommendations[0..2]
-
-      experiment_params = extracted_params
-
-      # Добавляем 3 популярных лака
-      experiment_params.track_recommender = false
-      experiment_params.limit = 3
-      experiment_params.categories = ['514']
-      experiment_params.exclude += recommendations
-      recommendations += Recommendations::Processor.process(experiment_params)
-      recommendations.uniq!
-
-      # Добавляем 3 сопутствующих к корзине
-      experiment_params.categories = []
-      experiment_params.limit = 3
-      experiment_params.exclude += recommendations
-      experiment_params.type = 'see_also'
-      recommendations += Recommendations::Processor.process(experiment_params)
-      recommendations.uniq!
-
-      # Добиваем популярными
-      if recommendations.count < extracted_params.limit
-        extracted_params.limit = extracted_params.limit - recommendations.count
-        extracted_params.exclude += recommendations
-        recommendations += Recommendations::Processor.process(extracted_params)
-      end
-
-
-    end
+    # if @shop.id == 2413 && extracted_params.type == 'popular' && extracted_params.categories.empty?
+    #
+    #   # Оставляем только 3 популярных товара
+    #   recommendations = recommendations[0..2]
+    #
+    #   experiment_params = extracted_params.dup
+    #
+    #   # Добавляем 3 популярных лака
+    #   experiment_params.track_recommender = false
+    #   experiment_params.limit = 3
+    #   experiment_params.categories = ['514']
+    #   experiment_params.exclude += recommendations
+    #   recommendations += Recommendations::Processor.process(experiment_params)
+    #   recommendations.uniq!
+    #
+    #   # Добавляем 3 сопутствующих к корзине
+    #   experiment_params.categories = []
+    #   experiment_params.limit = 3
+    #   experiment_params.exclude += recommendations
+    #   experiment_params.type = 'see_also'
+    #   recommendations += Recommendations::Processor.process(experiment_params)
+    #   recommendations.uniq!
+    #
+    #   # Добиваем популярными
+    #   if recommendations.count < extracted_params.limit
+    #     extracted_params.limit = extracted_params.limit - recommendations.count
+    #     extracted_params.exclude += recommendations
+    #     recommendations += Recommendations::Processor.process(extracted_params)
+    #   end
+    #
+    #
+    # end
 
     # # Дочки - если запра
     # if @shop.id == 725 && extracted_params.type == 'also_bought'
