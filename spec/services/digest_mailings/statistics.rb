@@ -19,7 +19,7 @@ describe DigestMailings::Statistics do
   let!(:order_1) { create(:order, shop: shop, user: client.user, source_id: digest_mail_1.id, source_type: 'DigestMail', value: 100, date: 1.hour.ago) }
 
 
-  subject { DigestMailings::Statistics.new(shop).recalculate }
+  subject { DigestMailings::Statistics.recalculate_all; DigestMailings::Statistics.recalculate_today }
 
   it 'works' do
     subject
