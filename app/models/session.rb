@@ -31,14 +31,30 @@ class Session < ActiveRecord::Base
   before_create :fetch_nextval
 
   validates :code, presence: true
-  attr_accessor :segment_changed
 
   class << self
     # Получить подходящую по параметрам сессию.
     def fetch(params = {})
+      session = nil
+
+      # Если указан код
+      if params[:code].present?
+
+        # Если код в массиве
+        if params[:code].is_a?(Array)
+
+          # Ищем первую существующую сессию
+          params[:code].each do |code|
+            session = find_by(code: code)
+            break if session.present?
+          end
+        else
+          # Просто находим по коду
+          session = find_by(code: params[:code])
+        end
+      end
 
       # Найти сессию по коду.
-      session = params[:code].present? ? find_by(code: params[:code]) : nil
       if session.present?
 
         # Убедиться, что у сессии есть юзер.

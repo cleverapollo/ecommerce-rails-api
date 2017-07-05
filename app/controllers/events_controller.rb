@@ -30,25 +30,6 @@ class EventsController < ApplicationController
         Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user, extracted_params.items)
     end
 
-    # Трекаем изменение сессии для DS
-    if params[:segment1].present? && params[:segment2].present?
-      if extracted_params.session.segment.nil?
-        extracted_params.session.assign_attributes(segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}])
-        extracted_params.session.atomic_save! if extracted_params.session.changed?
-      else
-        last = extracted_params.session.segment.last
-        if last['s1'] != params[:segment1] && last['s2'] != params[:segment2]
-          extracted_params.session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
-          extracted_params.session.atomic_save!
-
-          # Отправляем в слак
-          if Rails.env == 'production'
-            SlackNotifierWorker.perform_async('DS', "Segment changed for session `<https://rees46.com/admin/clients?code=#{extracted_params.session.code}|#{extracted_params.session.code}>`: `#{last['s2']}` -> `#{params[:segment2]}`. Referer: #{request.referer}. Action: #{extracted_params.action}, recommended_by: #{extracted_params.recommended_by}, order_id: #{extracted_params.order_id}. User-Agent: #{request.user_agent}.", 'https://hooks.slack.com/services/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')
-          end
-        end
-      end
-    end
-
     respond_with_success
 
   rescue Finances::Error => e

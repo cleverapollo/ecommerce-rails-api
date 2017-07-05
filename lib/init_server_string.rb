@@ -201,10 +201,6 @@ module InitServerString
         session.atomic_save! if session.changed?
       end
 
-      if shop && shop.id == 725 && session.segment_changed
-        pixels << '//api.rees46.com/pix/auditory.png'
-      end
-
       pixels
     end
 

@@ -20,7 +20,11 @@ class InitController < ApplicationController
       return
     end
 
-    session_id = cookies[Rees46::COOKIE_NAME] || params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
+    # Строим массив кук, для поиска первой существующей сессии
+    session_id = CGI::Cookie::parse(request.env['HTTP_COOKIE'])['rees46_session_id']
+    ssid = params[params[:v].present? && params[:v] == '3' ? Rees46::SSID_NAME : Rees46::COOKIE_NAME]
+    session_id << ssid if ssid.present?
+
     email = nil
     if params[:user_email].present?
       email = IncomingDataTranslator.email(params[:user_email])
@@ -38,7 +42,7 @@ class InitController < ApplicationController
     cookies[Rees46::COOKIE_NAME] = {
       value: session.code,
       expires: 1.year.from_now,
-      domain: ".#{request.domain}"
+      domain: request.host
     }
 
     # Поиск связки пользователя и магазина
@@ -68,32 +72,6 @@ class InitController < ApplicationController
         lead.click_map << params[:map].to_i
         lead.click_map.uniq!
         lead.atomic_save! if lead.changed?
-      end
-    end
-
-    # Трекаем изменение сессии для DS
-    if params[:segment1].present? && params[:segment2].present?
-      if session.segment.nil?
-        session.assign_attributes(segment: [{s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}])
-        CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: '', session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'initial'
-      else
-        last = session.segment.last
-        if last['s1'] != params[:segment1] && last['s2'] != params[:segment2]
-          session.segment << {s1: params[:segment1], s2: params[:segment2], date: Time.now.strftime('%d-%m-%Y %H:%M:%S')}
-          session.segment_changed = true
-
-          first = session.segment.first
-          if first['s2'] == params[:segment2]
-            CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'restored'
-          else
-            CreateSegmentChangesLog.create segment: params[:segment2], segment_previous: last['s2'], session_id: session.id, ssid: session.code, page: request.referer.to_s[0..200], user_agent: request.user_agent.to_s, label: 'changed'
-          end
-
-          # Отправляем в слак
-          if Rails.env == 'production'
-            SlackNotifierWorker.perform_async('DS', "Segment changed for session `<https://rees46.com/admin/clients?code=#{session.code}|#{session.code}>`: `#{last['s2']}` -> `#{params[:segment2]}`. Referer: #{request.referer}. User-Agent: #{request.user_agent}.", 'https://hooks.slack.com/services/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')
-          end
-        end
       end
     end
 
