@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170704113517) do
+ActiveRecord::Schema.define(version: 20170705104826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -272,6 +272,7 @@ ActiveRecord::Schema.define(version: 20170704113517) do
     t.string   "intro_text"
     t.integer  "segment_id"
     t.datetime "planing_at"
+    t.jsonb    "statistic"
   end
 
   add_index "digest_mailings", ["shop_id", "theme_id", "theme_type"], name: "index_digest_mailings_theme", using: :btree

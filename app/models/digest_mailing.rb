@@ -5,6 +5,8 @@ class DigestMailing < ActiveRecord::Base
 
   class DisabledError < StandardError; end
 
+  serialize :statistic, HashSerializer
+
   enum images_dimension: ActiveSupport::OrderedHash[{ '120x120': 0, '140x140': 1, '160x160': 2, '180x180': 3, '200x200': 4, '220x220': 5 }]
 
   include Redis::Objects
@@ -47,6 +49,14 @@ class DigestMailing < ActiveRecord::Base
   # Проверяет, валидный ли размер картинки
   def self.valid_image_size?(size)
     images_dimensions.key?("#{size}x#{size}")
+  end
+
+  def statistic
+    if super.present?
+      super
+    else
+      {sent: 0, open: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchased: 0}
+    end
   end
 
 end
