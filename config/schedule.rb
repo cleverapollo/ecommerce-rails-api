@@ -26,6 +26,9 @@ end
 every '6 0 * * *' do
   runner "RunnerWrapper.run('DigestMailings::Statistics.recalculate_all')"
 end
+every '7 * * * *' do
+  runner "RunnerWrapper.run('DigestMailings::Statistics.recalculate_today')"
+end
 
 # Каждые сутки синхронизируем YML
 every 26.minutes do
