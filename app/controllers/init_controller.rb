@@ -40,17 +40,6 @@ class InitController < ApplicationController
       expires: 1.year.from_now,
       domain: ".#{request.domain}"
     }
-    # Помечаем домены на удаление, т.к. удаление работает через одно место
-    cookies[Rees46::COOKIE_NAME] = {
-      value: session.code,
-      expires: 1.second.ago,
-      domain: request.domain
-    }
-    cookies[Rees46::COOKIE_NAME] = {
-      value: session.code,
-      expires: 1.second.ago,
-      domain: 'api.rees46.com'
-    }
 
     # Поиск связки пользователя и магазина
     begin
