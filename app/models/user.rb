@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
   private
 
   def fetch_nextval
-    self.id = User.connection.select_value("SELECT nextval('users_id_seq')")
+    self.id = User.connection.select_value("SELECT nextval('users_id_seq')") unless self.id
   end
 
 end

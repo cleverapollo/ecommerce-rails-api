@@ -90,7 +90,7 @@ class Session < ActiveRecord::Base
   private
 
   def fetch_nextval
-    self.id = Session.connection.select_value("SELECT nextval('sessions_id_seq')")
+    self.id = Session.connection.select_value("SELECT nextval('sessions_id_seq')") unless self.id
   end
 
 end

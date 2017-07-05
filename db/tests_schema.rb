@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170630121642) do
+ActiveRecord::Schema.define(version: 20170703081446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -600,6 +600,7 @@ ActiveRecord::Schema.define(version: 20170630121642) do
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
+  add_index "sessions", ["id"], name: "index_sessions_on_updated_at", where: "(updated_at IS NOT NULL)", using: :btree
   add_index "sessions", ["segment"], name: "index_sessions_on_segment", where: "(segment IS NOT NULL)", using: :gin
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 

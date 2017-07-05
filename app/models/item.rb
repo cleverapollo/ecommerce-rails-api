@@ -140,7 +140,7 @@ class Item < ActiveRecord::Base
 
     begin
       image_changed = image_url_changed?
-      save! if changed?
+      atomic_save! if changed?
       if widgetable? && image_changed && persisted?
         ImageDownloadLaunchWorker.perform_async(self.shop_id, [{ id: self.id, image_url: self.image_url }])
       end
