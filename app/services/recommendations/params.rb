@@ -64,6 +64,7 @@ module Recommendations
     # @raise  [Recommendations::IncorrectParams] исключение с сообщением
     # @return [Recommendations::Params] обработанные параметры
     def extract
+      extract_exclude
       extract_static_attributes
       extract_shop
       extract_user
@@ -73,7 +74,6 @@ module Recommendations
       extract_categories
       extract_locations
       extract_brands
-      extract_exclude
       extract_search_query
       self
     end
@@ -87,7 +87,7 @@ module Recommendations
 
     # Получает список Item id
     def exclude_item_ids
-      @exclude_item_ids ||= (raw[:exclude].present? ? shop.items.where(uniqid: exclude).pluck(:id) : [])
+      @exclude_item_ids ||= (self.exclude.present? ? shop.items.where(uniqid: exclude).pluck(:id) : [])
     end
 
     private
