@@ -159,7 +159,7 @@ describe Recommender::Impl::Similar do
       context 'cosmetic' do
         context 'perfume' do
           before {
-            test_item.update is_cosmetic: true, cosmetic_perfume_aroma: %w(citrus spicy)
+            test_item.update is_cosmetic: true, cosmetic_perfume_aroma: 'citrus', cosmetic_perfume_family: 'woody'
           }
           it 'includes item without data' do
             item2.update is_cosmetic: true
@@ -168,13 +168,13 @@ describe Recommender::Impl::Similar do
           end
 
           it 'excludes item with wrong aroma' do
-            item2.update is_cosmetic: true, cosmetic_perfume_aroma: ['woody']
+            item2.update is_cosmetic: true, cosmetic_perfume_aroma: 'woody'
             recommender = Recommender::Impl::Similar.new(params)
             expect(recommender.recommendations).to_not include(test_item.uniqid)
           end
 
           it 'includes item with one fit' do
-            item2.update is_cosmetic: true, cosmetic_perfume_aroma: %w(citrus woody)
+            item2.update is_cosmetic: true, cosmetic_perfume_aroma: 'citrus', cosmetic_perfume_family: 'woody'
             recommender = Recommender::Impl::Similar.new(params)
             expect(recommender.recommendations).to include(test_item.uniqid)
           end

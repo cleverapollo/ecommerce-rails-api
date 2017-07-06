@@ -155,10 +155,9 @@ class ProfileEvent < ActiveRecord::Base
             end
 
             # Парфюмерия
-            if item.cosmetic_perfume_aroma.present?
-              item.cosmetic_perfume_aroma.each do |aroma|
-                ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_aroma', aroma, counter_field_name)
-              end
+            ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_aroma', item.cosmetic_perfume_aroma, counter_field_name) if item.cosmetic_perfume_aroma.present?
+            ProfileEvent.track_event(user, shop, 'cosmetic', 'perfume_family', item.cosmetic_perfume_family, counter_field_name) if item.cosmetic_perfume_family.present?
+            if item.cosmetic_perfume_aroma.present? || item.cosmetic_perfume_family.present?
               properties_to_update[:cosmetic_perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
             end
 

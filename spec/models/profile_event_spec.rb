@@ -38,7 +38,7 @@ describe ProfileEvent do
     let!(:item_25) { create(:item, shop: shop, is_jewelry: true, jewelry_color: 'white', jewelry_metal: 'silver', jewelry_gem: 'ruby', ring_sizes: [3,4,5], bracelet_sizes: [4,5,6], chain_sizes: [6,7,8], jewelry_gender: 'm') }
 
     let!(:item_26) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'tool') }
-    let!(:item_27) { create(:item, shop: shop, is_cosmetic: true, cosmetic_perfume_aroma: ['citrus', 'green']) }
+    let!(:item_27) { create(:item, shop: shop, is_cosmetic: true, cosmetic_perfume_aroma: 'citrus', cosmetic_perfume_family: 'wood') }
     let!(:item_28) { create(:item, shop: shop, is_cosmetic: true, cosmetic_professional: true) }
 
 
@@ -145,9 +145,9 @@ describe ProfileEvent do
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').views).to eq 1
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').carts).to eq 1
         expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').purchases).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'green').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'green').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'green').purchases).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').views).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').purchases).to eq 1
       end
 
       it 'saves professional for cosmetic' do

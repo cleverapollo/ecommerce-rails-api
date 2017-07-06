@@ -43,7 +43,8 @@ describe YmlImporter do
     expect(item.cosmetic_nail).to eq(true)
     expect(item.cosmetic_nail_type).to eq('polish')
     expect(item.cosmetic_nail_color).to eq('red')
-    expect(item.cosmetic_perfume_aroma).to eq(%w(woody fruity))
+    expect(item.cosmetic_perfume_family).to eq('woody')
+    expect(item.cosmetic_perfume_aroma).to eq('fruity')
     expect(item.cosmetic_periodic).to eq(true)
     expect(item.cosmetic_professional).to eq(true)
 

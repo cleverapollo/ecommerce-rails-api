@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170705104826) do
+ActiveRecord::Schema.define(version: 20170706081048) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -423,9 +423,10 @@ ActiveRecord::Schema.define(version: 20170705104826) do
     t.boolean "cosmetic_nail"
     t.string  "cosmetic_nail_type"
     t.string  "cosmetic_nail_color"
-    t.string  "cosmetic_perfume_aroma",                                            array: true
     t.boolean "cosmetic_professional"
     t.string  "leftovers"
+    t.string  "cosmetic_perfume_family"
+    t.string  "cosmetic_perfume_aroma"
   end
 
   add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin

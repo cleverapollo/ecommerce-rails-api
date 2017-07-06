@@ -105,7 +105,8 @@ class ItemsImportWorker
           item_struct.cosmetic_nail_color = item_params[:cosmetic][:nail][:polish_color] if item_params[:cosmetic][:nail][:type].present? && item_params[:cosmetic][:nail][:type] == 'polish'
         end
         if item_params[:cosmetic][:perfume].present?
-          item_struct.cosmetic_perfume_aroma = item_params[:cosmetic][:perfume][:aroma] if item_params[:cosmetic][:perfume][:aroma].is_a?(Array)
+          item_struct.cosmetic_perfume_aroma = item_params[:cosmetic][:perfume][:aroma] if item_params[:cosmetic][:perfume][:aroma].present?
+          item_struct.cosmetic_perfume_family = item_params[:cosmetic][:perfume][:family] if item_params[:cosmetic][:perfume][:family].present?
         end
         item_struct.cosmetic_professional = item_params[:cosmetic][:professional] || nil
       end

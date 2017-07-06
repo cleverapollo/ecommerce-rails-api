@@ -189,6 +189,7 @@ class Item < ActiveRecord::Base
         cosmetic_nail_type: ValuesHelper.present_one(new_item, self, :cosmetic_nail_type),
         cosmetic_nail_color: ValuesHelper.present_one(new_item, self, :cosmetic_nail_color),
         cosmetic_perfume_aroma: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_aroma),
+        cosmetic_perfume_family: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_family),
         cosmetic_professional: ValuesHelper.present_one(new_item, self, :cosmetic_professional),
         part_type: ValuesHelper.present_one(new_item, self, :part_type),
         skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
@@ -396,7 +397,8 @@ class Item < ActiveRecord::Base
         end
         # Парфюмерия
         if offer.cosmetic.perfume.present?
-          item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma.to_a if offer.cosmetic.perfume.aroma.present? && offer.cosmetic.perfume.aroma.to_a.any?
+          item.cosmetic_perfume_aroma = offer.cosmetic.perfume.aroma if offer.cosmetic.perfume.aroma.present?
+          item.cosmetic_perfume_family = offer.cosmetic.perfume.family if offer.cosmetic.perfume.family.present?
         end
         # Для профессионалов
         item.cosmetic_professional = offer.cosmetic.professional || nil

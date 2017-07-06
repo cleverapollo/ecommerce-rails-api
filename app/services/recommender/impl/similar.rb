@@ -92,7 +92,10 @@ module Recommender
 
             # Фильтруем похожие ароматы
             if item.cosmetic_perfume_aroma.present?
-              result = result.where('cosmetic_perfume_aroma && ARRAY[?]::varchar[] OR cosmetic_perfume_aroma IS NULL', item.cosmetic_perfume_aroma)
+              result = result.where('cosmetic_perfume_aroma = ? OR cosmetic_perfume_aroma IS NULL', item.cosmetic_perfume_aroma)
+            end
+            if item.cosmetic_perfume_family.present?
+              result = result.where('cosmetic_perfume_family = ? OR cosmetic_perfume_family IS NULL', item.cosmetic_perfume_family)
             end
 
             # Ногти

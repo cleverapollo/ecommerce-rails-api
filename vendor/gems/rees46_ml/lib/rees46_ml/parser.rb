@@ -76,6 +76,7 @@ module Rees46ML
       state :polish_color
       state :perfume
       state :aroma
+      state :family
       state :professional
       state :part
       state :type
@@ -686,6 +687,14 @@ module Rees46ML
 
       event :end_aroma do
         transitions from: :aroma,   to: :perfume
+      end
+
+      event :start_family do
+        transitions from: :perfume,   to: :family
+      end
+
+      event :end_family do
+        transitions from: :family,   to: :perfume
       end
 
       event :start_pet_size do
@@ -1405,7 +1414,9 @@ module Rees46ML
           when 'chain_size'
             self.current_element.value = safe_buffer
           when 'aroma'
-            self.current_element.aroma << safe_buffer
+            self.current_element.aroma = safe_buffer
+          when 'family'
+            self.current_element.family = safe_buffer
           when "currencies"
           else
             if self.current_element.respond_to?(attibute)
