@@ -57,7 +57,7 @@ class DigestMailing < ActiveRecord::Base
     if super.present?
       super
     else
-      {sent: 0, opened: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchased: 0}
+      {sent: 0, opened: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchases: 0}
     end
   end
 
