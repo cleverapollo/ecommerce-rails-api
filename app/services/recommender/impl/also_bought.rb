@@ -29,9 +29,13 @@ module Recommender
 
       def items_to_weight
         return [] if items_which_cart_to_analyze.none?
+        ids = []
+
+        # Добавляем рекомендуемые товары самим магазином в выборку
+        ids += Item.where(shop_id: params.shop.id, uniqid: params.item.shop_recommend).widgetable.recommendable.pluck(:id) if params.item.present? && params.item.shop_recommend.present?
 
         if use_cart
-          ids = ClientCart.connection.select_values(ActiveRecord::Base.send(:sanitize_sql_array, [
+          ids += ClientCart.connection.select_values(ActiveRecord::Base.send(:sanitize_sql_array, [
               'SELECT item_id FROM client_carts, jsonb_array_elements_text(items) AS item_id WHERE shop_id = :shop_id AND item_id::bigint != :item_id AND items @> \'[:item_id]\'::jsonb GROUP BY 1',
               shop_id: params.shop.id, item_id: params.item_id
           ]))
@@ -41,7 +45,9 @@ module Recommender
           result = result.joins(:item).merge(items_to_recommend) # Эта конструкция подгружает фильтрацию relation для того, чтобы оставить только те товары, которые можно рекомендовать. То есть item_to_recommend тут не добавляет массив товаров
           result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
           result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
-          ids = result.pluck(:item_id)
+
+          # Получаем товары из заказов
+          ids += result.pluck(:item_id)
         end
 
         # Если указан фильтр максимальной цены, оставляем только те ID, которые соответствуют этой цене

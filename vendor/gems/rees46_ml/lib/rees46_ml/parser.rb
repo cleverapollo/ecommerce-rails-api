@@ -139,6 +139,7 @@ module Rees46ML
       state :is_premiere
       state :is_kids
       state :seasonality
+      state :rec
 
       event :start_yml_catalog do
         transitions from: :root, to: :yml_catalog
@@ -1263,6 +1264,14 @@ module Rees46ML
       event :end_is_kids do
         transitions from: :is_kids, to: :offer
       end
+
+      event :start_rec do
+        transitions from: :offer, to: :rec
+      end
+
+      event :end_rec do
+        transitions from: :rec, to: :offer
+      end
     end
 
     aasm.states.map(&:name).each do |state_name|
@@ -1382,6 +1391,8 @@ module Rees46ML
             self.current_element.category_id << safe_buffer
           when 'seasonality'
             self.current_element.seasonality << safe_buffer
+          when 'rec'
+            self.current_element.rec = safe_buffer.split(',').uniq
           when "barcode"
             self.current_element.barcodes << safe_buffer
           when "picture"

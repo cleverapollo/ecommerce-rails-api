@@ -109,6 +109,7 @@ describe "check rees.xml" do
     expect(offer.date).to eq("2012-02-25 12:03:14")
     expect(offer.is_premiere).to eq(false)
     expect(offer.is_kids).to eq(false)
+    expect(offer.rec).to eq(Set.new(%w(127101 127802)))
 
     expect(offer.child.age.min).to eq("0.25")
     expect(offer.child.age.max).to eq("1")

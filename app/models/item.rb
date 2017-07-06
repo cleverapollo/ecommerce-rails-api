@@ -475,6 +475,9 @@ class Item < ActiveRecord::Base
       # item.brand = offer.vendor_code.mb_chars.downcase.strip.normalize.to_s if !item.brand.present? && offer.vendor_code.present? && offer.vendor_code.present? && offer.vendor_code.scan(/^[a-zA-Z0-9 ]+$/).any? # Костыль для KotoFoto, которые бренд передают в vendorCode
       item.brand_downcase = item.brand.mb_chars.downcase if item.brand.present?
 
+      # Товарные рекомендации самого магазина
+      item.shop_recommend = offer.rec.to_a if offer.rec.present? && offer.rec.to_a.any?
+
       # TODO : item.volume = offer.volume
 
       item.is_available = !!offer.available

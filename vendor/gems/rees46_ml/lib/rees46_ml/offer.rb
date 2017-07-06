@@ -89,6 +89,7 @@ module Rees46ML
 
     attribute :locations, Set, lazy: true
     attribute :accessories, Set, lazy: true
+    attribute :rec, Set[String], lazy: true
 
     validates :id, presence: true
 

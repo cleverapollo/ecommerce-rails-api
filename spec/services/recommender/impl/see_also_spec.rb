@@ -37,6 +37,26 @@ describe Recommender::Impl::SeeAlso do
       expect(result).to include(item3.uniqid)
     end
 
+    it 'shop_recommend' do
+      order = build(:order, shop: shop, user: other_user)
+      [item1, item2, item3].each do |i|
+        order.order_items.build(item: i, action_id: 123, shop_id: shop.id)
+      end
+      order.save!
+
+      params = OpenStruct.new(
+          shop: shop,
+          user: user,
+          item: item1,
+          cart_item_ids: [item2.id],
+          limit: 7,
+          type: 'see_also',
+      )
+
+      item1.update(shop_recommend: [item4.uniqid])
+      item4.update(widgetable: true, is_available: true, ignored: false)
+      expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item4.uniqid)
+    end
 
     context 'industrial' do
 

@@ -110,6 +110,8 @@
         <weight>2.07</weight>
         <price_margin>33</price_margin>
 
+        <rec>127101,127802,127101,127802</rec>
+
         <delivery-options>
           <option cost="1300" days="2"/>
           <option cost="1300" days="2-3"/>

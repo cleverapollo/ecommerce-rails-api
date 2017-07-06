@@ -31,7 +31,13 @@ module Recommender
         result = result.joins(:item).merge(items_to_recommend) # Эта конструкция подгружает фильтрацию relation для того, чтобы оставить только те товары, которые можно рекомендовать. То есть item_to_recommend тут не добавляет массив товаров
         result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров
         result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
-        ids = result.pluck(:item_id)
+        ids = []
+
+        # Добавляем рекомендуемые товары самим магазином в выборку
+        ids += Item.where(shop_id: params.shop.id, uniqid: params.item.shop_recommend).widgetable.recommendable.pluck(:id) if params.item.present? && params.item.shop_recommend.present?
+
+        # Получаем товары из заказов
+        ids += result.pluck(:item_id)
 
         # Если указан фильтр максимальной цены, оставляем только те ID, которые соответствуют этой цене
         if params.max_price_filter

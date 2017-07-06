@@ -47,6 +47,7 @@ describe YmlImporter do
     expect(item.cosmetic_perfume_aroma).to eq('fruity')
     expect(item.cosmetic_periodic).to eq(true)
     expect(item.cosmetic_professional).to eq(true)
+    expect(item.shop_recommend).to eq(%w(127101 127802))
 
     # Blank
     item = Item.find_by uniqid: '1', shop_id: shop.id
