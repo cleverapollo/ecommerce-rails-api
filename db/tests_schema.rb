@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170703081446) do
+ActiveRecord::Schema.define(version: 20170707150101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "postgres_fdw"
+  enable_extension "pg_trgm"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -59,98 +59,6 @@ ActiveRecord::Schema.define(version: 20170703081446) do
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
-
-  create_table "advertising_platform_purchases", force: :cascade do |t|
-    t.integer  "advertising_platform_id"
-    t.integer  "shop_id"
-    t.integer  "order_id"
-    t.float    "price"
-    t.date     "date"
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "status",                  default: 0, null: false
-    t.date     "status_date"
-  end
-
-  create_table "advertising_platform_shops", force: :cascade do |t|
-    t.integer  "advertising_platform_id"
-    t.integer  "shop_id"
-    t.date     "last_event_at"
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.integer  "min_price",               default: 0,    null: false
-    t.boolean  "active",                  default: true, null: false
-  end
-
-  create_table "advertising_platform_statistics", force: :cascade do |t|
-    t.integer  "advertising_platform_id"
-    t.integer  "views",                   default: 0,   null: false
-    t.integer  "purchases",               default: 0,   null: false
-    t.float    "cost",                    default: 0.0, null: false
-    t.date     "date",                                  null: false
-    t.integer  "clicks",                  default: 0,   null: false
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
-  end
-
-  create_table "advertising_platform_statistics_events", force: :cascade do |t|
-    t.integer  "advertising_platform_shop_id"
-    t.string   "event",                             null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
-    t.integer  "advertising_platform_statistic_id"
-  end
-
-  create_table "advertising_platform_transactions", force: :cascade do |t|
-    t.integer  "advertising_platform_id"
-    t.integer  "advertising_platform_shop_id"
-    t.integer  "amount"
-    t.integer  "transaction_type"
-    t.integer  "status"
-    t.text     "comment"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-  end
-
-  create_table "advertising_platforms", force: :cascade do |t|
-    t.string   "email"
-    t.string   "encrypted_password",     default: "",  null: false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,   null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.inet     "current_sign_in_ip"
-    t.inet     "last_sign_in_ip"
-    t.string   "first_name"
-    t.string   "last_name"
-    t.string   "company"
-    t.string   "website"
-    t.string   "mobile_phone"
-    t.string   "work_phone"
-    t.string   "country"
-    t.string   "city"
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.integer  "balance",                default: 0,   null: false
-    t.decimal  "ctr",                    default: 0.0, null: false
-    t.decimal  "btr",                    default: 0.0, null: false
-    t.decimal  "commission",             default: 0.0, null: false
-  end
-
-  create_table "beacon_offers", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.string   "uuid",                         null: false
-    t.string   "major",                        null: false
-    t.string   "image_url",                    null: false
-    t.string   "title",                        null: false
-    t.string   "notification",                 null: false
-    t.boolean  "enabled",      default: false, null: false
-    t.text     "description",                  null: false
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-  end
 
   create_table "brand_campaign_item_categories", force: :cascade do |t|
     t.integer  "item_category_id",  limit: 8
@@ -291,11 +199,11 @@ ActiveRecord::Schema.define(version: 20170703081446) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -319,31 +227,6 @@ ActiveRecord::Schema.define(version: 20170703081446) do
   add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
-
-  create_table "dummy", id: false, force: :cascade do |t|
-    t.integer "id",            limit: 8
-    t.string  "gender",        limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children",                array: true
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
-  end
-
-  create_table "e_komi_requests", force: :cascade do |t|
-    t.integer  "shop_id"
-    t.string   "country"
-    t.string   "city"
-    t.string   "postal_code"
-    t.string   "address"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.boolean  "confirmed",   default: false
-  end
 
   create_table "industries", force: :cascade do |t|
     t.string   "code",       null: false
@@ -676,7 +559,6 @@ ActiveRecord::Schema.define(version: 20170703081446) do
     t.boolean  "export_to_ct",                              default: false
     t.integer  "manager_id"
     t.boolean  "enable_nda",                                default: false
-    t.boolean  "available_ibeacon",                         default: false
     t.boolean  "gives_rewards",                             default: true,  null: false
     t.boolean  "hopeless",                                  default: false, null: false
     t.boolean  "restricted",                                default: false, null: false
@@ -701,9 +583,6 @@ ActiveRecord::Schema.define(version: 20170703081446) do
     t.boolean  "remarketing_enabled",                       default: false
     t.decimal  "remarketing_cpa",                           default: 4.6,   null: false
     t.decimal  "remarketing_cpa_cap",                       default: 300.0, null: false
-    t.boolean  "ekomi_enabled"
-    t.string   "ekomi_id"
-    t.string   "ekomi_key"
     t.boolean  "match_users_with_dmp",                      default: true
     t.integer  "web_push_balance",                          default: 100,   null: false
     t.datetime "last_orders_sync"

@@ -41,7 +41,6 @@ class Shop < MasterTable
   has_many :order_items
   has_many :subscriptions
   has_many :digest_mailings
-  has_many :beacon_messages
   has_many :trigger_mailings
   has_many :item_categories
   has_many :events
@@ -51,7 +50,6 @@ class Shop < MasterTable
   has_one :web_push_subscriptions_settings
   has_one :search_setting
   has_one :mailings_settings
-  has_many :beacon_offers
   has_many :shop_metrics
   has_many :search_queries
   has_many :subscribe_for_categories

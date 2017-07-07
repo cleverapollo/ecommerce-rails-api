@@ -138,8 +138,4 @@ Rees46Api::Application.routes.draw do
   # Картинка трекинга писем
   get 'track/:type/:code.png', to: 'subscriptions#track', as: 'track_mail'
 
-  # iBeacons
-  get 'geo/notify', to: 'beacons#notify'
-  get 'geo/track',  to: 'beacons#track'
-
 end
