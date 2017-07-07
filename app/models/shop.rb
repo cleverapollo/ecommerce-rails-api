@@ -49,6 +49,7 @@ class Shop < MasterTable
   has_one :digest_mailing_setting
   has_one :subscriptions_settings
   has_one :web_push_subscriptions_settings
+  has_one :search_setting
   has_one :mailings_settings
   has_many :beacon_offers
   has_many :shop_metrics
