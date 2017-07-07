@@ -114,8 +114,5 @@ end
 
 # Расписание для проверки и создания новых партиций
 every 1.month do
-  runner "RunnerWrapper.run('DataManager::Partition::Session.check')"
-end
-every 1.month do
   runner "RunnerWrapper.run('DataManager::Partition::User.check')"
 end

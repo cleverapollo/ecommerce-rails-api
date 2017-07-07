@@ -1,5 +1,6 @@
 # Класс отвечающий за партиции таблиц: sessions
 # @see https://habrahabr.ru/company/oleg-bunin/blog/309330/
+# @deprecated
 class DataManager::Partition::Session
 
   # Количество строк в партиции
@@ -57,6 +58,22 @@ class DataManager::Partition::Session
       max = Session.connection.select_value('SELECT max(id) FROM sessions_master WHERE updated_at IS NOT NULL').to_i
       (min..max).step(10000) do |n|
         ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + 10000)} AND id >= #{n} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
+        STDOUT.write "\r#{n}"
+      end
+      STDOUT.write "\n"
+    end
+
+    # Перемещает данные обратно в основную таблицу
+    # @param [String] table Таблица, из которой нужно перенести
+    def move_to_root(table)
+      # Удаляем правило вставки в партиции (если оно есть)
+      ActiveRecord::Base.connection.execute 'DROP RULE IF EXISTS sessions_insert ON sessions'
+
+      min = Session.connection.select_value("SELECT min(id) FROM #{table}").to_i
+      max = Session.connection.select_value("SELECT max(id) FROM #{table}").to_i
+      step = 5000
+      (min..max).step(step) do |n|
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from #{table} where id < #{(n + step)} AND id >= #{n} returning * ) insert into sessions select * from moved_rows;"
         STDOUT.write "\r#{n}"
       end
       STDOUT.write "\n"
