@@ -3,10 +3,6 @@
 # @deprecated
 class DataManager::Partition::Session
 
-  # Количество строк в партиции
-  # !!! НЕ ИЗМЕНЯТЬ !!! Если на проде уже созданы партиции
-  PACK = 100_000_000
-
   class << self
 
     # Проверяет партиции таблицы sessions. При необходимости создает новые партиции.
@@ -18,7 +14,7 @@ class DataManager::Partition::Session
         ActiveRecord::Base.connection.execute <<-SQL
           CREATE TABLE IF NOT EXISTS #{table_name(i)} (
             LIKE sessions INCLUDING ALL,
-            CHECK ( id > #{i * PACK} AND id <= #{(i + 1) * PACK} )
+            CHECK ( abs(hashtext(code)) % 10 = #{i} )
           ) INHERITS (sessions);
         SQL
       end
@@ -30,8 +26,8 @@ class DataManager::Partition::Session
           DECLARE i int;
           DECLARE result bigint;
           BEGIN
-            i := (ceil(NEW.id::float / #{PACK}) - 1) * 100;
-            in_table := format('sessions_%s_%s', i, i + 100);
+            i := abs(hashtext(NEW.code)) % 10;
+            in_table := format('sessions_%s', i);
             EXECUTE 'INSERT INTO ' || in_table || ' VALUES ( ($1).* ) ' USING NEW;
             RETURN NEW.id;
           END;
@@ -56,9 +52,11 @@ class DataManager::Partition::Session
     def move_from_master
       min = Session.connection.select_value('SELECT min(id) FROM sessions_master WHERE updated_at IS NOT NULL').to_i
       max = Session.connection.select_value('SELECT max(id) FROM sessions_master WHERE updated_at IS NOT NULL').to_i
-      (min..max).step(10000) do |n|
-        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + 10000)} AND id >= #{n} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
+      step = 10000
+      (((min / step).to_i * step)..max).step(step) do |n|
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + step)} AND id >= #{n} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
         STDOUT.write "\r#{n}"
+        sleep(5) if n % 100000 == 0
       end
       STDOUT.write "\n"
     end
@@ -83,12 +81,12 @@ class DataManager::Partition::Session
 
     # Сколько должно быть партиций
     def partitions_size
-      (Session.maximum(:id).to_f / PACK).ceil.to_i + 1
+      10
     end
 
     # Имя таблицы для партиции
     def table_name(i)
-      "sessions_#{(i.to_f * PACK / (PACK / 100)).round.to_i}_#{(((i + 1).to_f * PACK) / (PACK / 100)).round.to_i}"
+      "sessions_#{i % 10}"
     end
 
   end

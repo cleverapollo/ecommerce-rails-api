@@ -33,6 +33,17 @@ class Session < ActiveRecord::Base
   validates :code, presence: true
 
   class << self
+
+    # Поиск сессии по коду
+    # @return [Session]
+    def find_by_code(code)
+      with_partition(code).find_by(code: code)
+    end
+    # @return [Session]
+    def find_by_code!(code)
+      find_by_code(code) or raise RecordNotFound.new("Couldn't find session")
+    end
+
     # Получить подходящую по параметрам сессию.
     def fetch(params = {})
       session = nil
@@ -45,12 +56,12 @@ class Session < ActiveRecord::Base
 
           # Ищем первую существующую сессию
           params[:code].each do |code|
-            session = find_by(code: code)
+            session = find_by_code(code)
             break if session.present?
           end
         else
           # Просто находим по коду
-          session = find_by(code: params[:code])
+          session = find_by_code(params[:code])
         end
       end
 
@@ -83,7 +94,7 @@ class Session < ActiveRecord::Base
       loop do
         code = SecureRandom.uuid
 
-        if Session.find_by(code: code).blank?
+        if find_by_code(code).blank?
           return self.new(code: code)
         end
       end
@@ -100,6 +111,27 @@ class Session < ActiveRecord::Base
                           language: params[:language] ? params[:language] : nil)
       s.atomic_save!
       s
+    end
+
+
+    # Дополнительное условие нужно именно для того, чтобы планировщик знал, в какой партиции искать
+    def with_partition(code)
+      where('abs(hashtext(code)) % 10 = abs(hashtext(?)) % 10', code)
+    end
+  end
+
+  # Обновление текущей сессии с дополнительным фильтром для нужной партиции
+  def atomic_save!
+    if new_record?
+      super
+    else
+      attrs = {}
+      changed.each do |c|
+        attrs[c] = self[c]
+      end
+      status = Session.with_partition(self.code).where(id: self.id).update_all(attrs)
+      raise ActiveRecordError.new('Session save not updated') unless status
+      status
     end
   end
 

@@ -43,7 +43,7 @@ class EventsController < ApplicationController
 
   # Отправка значений кастомных аттрибутов пользователей
   def push_attributes
-    session = Session.find_by(code: params[:session_id])
+    session = Session.find_by_code(params[:session_id])
     return respond_with_client_error('Session not found') if session.blank?
 
     user = session.user

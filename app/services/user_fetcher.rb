@@ -22,7 +22,7 @@ class UserFetcher
 
   def fetch
     # Сессия должна существовать
-    self.session = Session.find_by(code: session_code)
+    self.session = Session.find_by_code(session_code)
     raise SessionNotFoundError if self.session.blank?
 
     # Находим или создаем связку пользователя с магазином

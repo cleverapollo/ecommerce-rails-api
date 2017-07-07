@@ -23,11 +23,16 @@ module ActiveRecord
   module Transactions
 
     def atomic_save!(*)
-      super
+      super.tap do
+        changes_applied
+      end
     end
 
     def atomic_save(*)
-      super
+      if status = super
+        changes_applied
+      end
+      status
     end
   end
 end

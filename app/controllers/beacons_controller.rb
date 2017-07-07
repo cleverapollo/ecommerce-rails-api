@@ -2,7 +2,7 @@ class BeaconsController < ApplicationController
   def notify
     if shop = Shop.find_by(uniqid: params[:shop_id])
 
-      session = Session.find_by(code: params[:ssid])
+      session = Session.find_by_code(params[:ssid])
       if session.blank?
         return respond_with_client_error('Session not found')
       end
@@ -47,7 +47,7 @@ class BeaconsController < ApplicationController
   def track
     if shop = Shop.find_by(uniqid: params[:shop_id])
 
-      session = Session.find_by(code: params[:ssid])
+      session = Session.find_by_code(params[:ssid])
       if session.blank?
         return respond_with_client_error('Session not found')
       end

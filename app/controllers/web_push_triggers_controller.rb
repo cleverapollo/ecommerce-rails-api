@@ -8,7 +8,7 @@ class WebPushTriggersController < ApplicationController
     # todo тестовый триггер отправляется с мастера. Убираем, потому, что тестовые триггеры шлются как от магазина REES46
     raise NotImplementedError
 
-    session = Session.find_by code: params[:ssid]
+    session = Session.find_by_code(params[:ssid])
     client = Client.find_by(shop_id: @shop.id, user_id: session.user_id)
 
     trigger = "WebPush::Triggers::#{params[:id].camelize}".constantize.new(client)

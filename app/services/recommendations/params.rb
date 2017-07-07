@@ -180,7 +180,7 @@ module Recommendations
           @session = Session.create user_id: client.user_id
         end
       else
-        @session = Session.find_by(code: raw[:ssid])
+        @session = Session.find_by_code(raw[:ssid])
         raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
       end
       # Убедиться, что у сессии есть юзер.
