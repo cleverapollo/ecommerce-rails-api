@@ -7,11 +7,11 @@ class Client < ActiveRecord::Base
 
   belongs_to :shop
   belongs_to :user
-  has_many :trigger_mails
-  has_many :digest_mails
-  has_many :web_push_trigger_messages
-  has_many :web_push_digest_messages
-  has_many :web_push_tokens
+  has_many :trigger_mails, dependent: :destroy
+  has_many :digest_mails, dependent: :destroy
+  has_many :web_push_trigger_messages, dependent: :destroy
+  has_many :web_push_digest_messages, dependent: :destroy
+  has_many :web_push_tokens, dependent: :destroy
   has_many :reputations
   has_many :orders, foreign_key: :user_id, primary_key: :user_id
 

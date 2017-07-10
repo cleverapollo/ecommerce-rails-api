@@ -114,7 +114,6 @@ module InitServerString
           profile: session.user.profile_to_json,
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
           has_email: client.email.present?,
-          shop_debug: shop.debug_order,
           sync: get_sync_pixels(session, shop),
           emailSubscription: {
             settings: email_settings,

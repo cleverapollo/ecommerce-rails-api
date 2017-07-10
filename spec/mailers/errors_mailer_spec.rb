@@ -26,8 +26,19 @@ RSpec.describe ErrorsMailer, type: :mailer do
 
       let(:mail) { ErrorsMailer.yml_import_error(shop, 'REASON') }
       it 'renders' do
+        expect(mail.to).to eq [customer.email]
         expect(mail.subject).to eq 'Неправильно указан YML файл'
         expect(mail.body.raw_source).to match 'К сожалению мы не смогли обработать YML-файл вашего интернет-магазина'
+      end
+    end
+
+    context 'not notify for CMS' do
+      let(:customer) { create(:customer, language: 'ru') }
+      let(:shop) { create(:shop, customer: customer, yml_notification: false) }
+
+      let(:mail) { ErrorsMailer.yml_import_error(shop, 'REASON') }
+      it 'renders' do
+        expect(mail.to).to eq ['support@rees46.com']
       end
     end
   end

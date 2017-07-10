@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170707194058) do
+ActiveRecord::Schema.define(version: 20170710084942) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -136,7 +136,7 @@ ActiveRecord::Schema.define(version: 20170707194058) do
 
   add_index "client_carts", ["date"], name: "index_client_carts_on_date", using: :btree
   add_index "client_carts", ["shop_id", "user_id"], name: "index_client_carts_on_shop_id_and_user_id", unique: true, using: :btree
-  add_index "client_carts", ["shop_id"], name: "index_client_carts_on_shop_id", using: :btree
+  add_index "client_carts", ["user_id"], name: "index_client_carts_on_user_id", using: :btree
 
   create_table "client_errors", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
@@ -649,6 +649,7 @@ ActiveRecord::Schema.define(version: 20170707194058) do
 
   add_index "search_queries", ["shop_id", "date", "user_id"], name: "index_search_queries_on_shop_id_and_date_and_user_id", using: :btree
   add_index "search_queries", ["shop_id", "query"], name: "index_search_queries_on_shop_id_and_query", using: :btree
+  add_index "search_queries", ["user_id"], name: "index_search_queries_on_user_id", using: :btree
 
   create_table "search_settings", force: :cascade do |t|
     t.integer  "shop_id"

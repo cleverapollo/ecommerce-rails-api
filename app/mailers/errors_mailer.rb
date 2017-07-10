@@ -1,13 +1,14 @@
 class ErrorsMailer < ActionMailer::Base
-  default from: 'REES46 <support@rees46.com>',
+  default from: Rails.configuration.support_email,
           bcc: ['mk@rees46.com', 'av@rees46.com', 'dz@rees46.com']
 
   def yml_import_error(shop, reason)
     @shop = shop
     @reason = reason
     I18n.locale = @shop.customer.language || 'en'
+    email = shop.yml_notification ? shop.customer.email : Rails.configuration.support_email
 
-    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_import_error'))
+    m = mail(to: email, subject: I18n.t('errors_mailer.subject.yml_import_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_import_error>"
     m.header['Feedback-ID'] = "yml_import_error:errors_mailer:rees46mailer"
     m
@@ -16,8 +17,9 @@ class ErrorsMailer < ActionMailer::Base
   def yml_url_not_respond(shop)
     @shop = shop
     I18n.locale = @shop.customer.language || 'en'
+    email = shop.yml_notification ? shop.customer.email : Rails.configuration.support_email
 
-    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_url_not_respond'))
+    m = mail(to: email, subject: I18n.t('errors_mailer.subject.yml_url_not_respond'))
     m.header['List-Id'] = "<notification errors_mailer:yml_url_not_respond>"
     m.header['Feedback-ID'] = "yml_url_not_respond:errors_mailer:rees46mailer"
     m
@@ -27,8 +29,9 @@ class ErrorsMailer < ActionMailer::Base
     @shop = shop
     @message = message
     I18n.locale = @shop.customer.language || 'en'
+    email = shop.yml_notification ? shop.customer.email : Rails.configuration.support_email
 
-    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_syntax_error'))
+    m = mail(to: email, subject: I18n.t('errors_mailer.subject.yml_syntax_error'))
     m.header['List-Id'] = "<notification errors_mailer:yml_syntax_error>"
     m.header['Feedback-ID'] = "yml_syntax_error:errors_mailer:rees46mailer"
     m
@@ -37,8 +40,9 @@ class ErrorsMailer < ActionMailer::Base
   def yml_off(shop)
     @shop = shop
     I18n.locale = @shop.customer.language || 'en'
+    email = shop.yml_notification ? shop.customer.email : Rails.configuration.support_email
 
-    m = mail(from: Rails.configuration.support_email, to: @shop.customer.email, subject: I18n.t('errors_mailer.subject.yml_off'))
+    m = mail(to: email, subject: I18n.t('errors_mailer.subject.yml_off'))
     m.header['List-Id'] = "<notification errors_mailer:yml_off>"
     m.header['Feedback-ID'] = "yml_off:errors_mailer:rees46mailer"
     m

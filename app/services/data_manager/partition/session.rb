@@ -56,7 +56,20 @@ class DataManager::Partition::Session
       (((min / step).to_i * step)..max).step(step) do |n|
         ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from sessions_master where id < #{(n + step)} AND id >= #{n} AND updated_at IS NOT NULL returning * ) insert into sessions select * from moved_rows;"
         STDOUT.write "\r#{n}"
-        sleep(5) if n % 100000 == 0
+        sleep(1) if n % 10000000 == 0
+      end
+      STDOUT.write "\n"
+    end
+
+    # Переносит юзеров с мастера на шард
+    def move_from_root
+      min = Session.connection.select_value('SELECT min(id) FROM ONLY sessions').to_i
+      max = Session.connection.select_value('SELECT max(id) FROM ONLY sessions').to_i
+      step = 1000
+      (((min / step).to_i * step)..max).step(step) do |n|
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete FROM ONLY sessions where id < #{(n + step)} AND id >= #{n} returning * ) insert into sessions select * from moved_rows;"
+        STDOUT.write "\r#{n}"
+        sleep(2) if n % 10000000 == 0 && n <= 200000000 || n % 5000000 == 0 && n > 200000000
       end
       STDOUT.write "\n"
     end
@@ -73,6 +86,46 @@ class DataManager::Partition::Session
       (min..max).step(step) do |n|
         ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from #{table} where id < #{(n + step)} AND id >= #{n} returning * ) insert into sessions select * from moved_rows;"
         STDOUT.write "\r#{n}"
+      end
+      STDOUT.write "\n"
+    end
+
+    # Удаляет пустые сессии без истории и профилей
+    def clean_empty(level = 1)
+      ActiveRecord::Base.logger.level = level
+
+      min = Session.connection.select_value('SELECT min(id) FROM sessions_master WHERE updated_at IS NULL').to_i
+      max = Session.connection.select_value('SELECT max(id) FROM sessions_master WHERE updated_at IS NULL').to_i
+      puts "min: #{min}, max: #{max}"
+      count = 0
+      step = 1000
+      (((min / step).to_i * step)..max).step(step) do |n|
+        users = Session.from('sessions_master').where('sessions_master.updated_at IS NULL')
+                       .joins('LEFT JOIN users ON users.id = sessions_master.user_id')
+                       .joins('LEFT JOIN orders ON orders.user_id = sessions_master.user_id')
+                       .where(users: {gender: nil, fashion_sizes: nil, children: nil, allergy: nil, cosmetic_hair: nil, compatibility: nil, vds: nil, pets: nil, jewelry: nil})
+                       .where(orders: {id: nil})
+                       .where('sessions_master.id >= ? AND sessions_master.id < ?', n, n + step)
+                       .pluck('sessions_master.user_id')
+        next if users.count == 0
+
+        # Удаляем все связи
+        Client.where(user_id: users).destroy_all
+        Visit.where(user_id: users).delete_all
+        Action.where(user_id: users).delete_all
+        SearchQuery.where(user_id: users).delete_all
+        UserTaxonomy.where(user_id: users).delete_all
+        ProfileEvent.where(user_id: users).delete_all
+        SubscribeForCategory.where(user_id: users).delete_all
+        SubscribeForProductPrice.where(user_id: users).delete_all
+        SubscribeForProductAvailable.where(user_id: users).delete_all
+        ClientCart.where(user_id: users).delete_all
+        User.where(id: users).delete_all
+        Session.where(user_id: users).delete_all
+        count += users.count
+
+        STDOUT.write "\r#{n}, count: #{count}"
+        sleep(1) if n % 50000 == 0
       end
       STDOUT.write "\n"
     end

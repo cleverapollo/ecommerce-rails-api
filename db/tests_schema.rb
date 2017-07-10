@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170707150101) do
+ActiveRecord::Schema.define(version: 20170710094257) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -421,14 +421,6 @@ ActiveRecord::Schema.define(version: 20170707150101) do
 
   add_index "rewards", ["manager_id"], name: "index_rewards_on_manager_id", using: :btree
 
-  create_table "saas_requests", force: :cascade do |t|
-    t.string   "name"
-    t.string   "url"
-    t.string   "contact"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "schema_version", id: false, force: :cascade do |t|
     t.integer  "version_rank",                                  null: false
     t.integer  "installed_rank",                                null: false
@@ -593,7 +585,6 @@ ActiveRecord::Schema.define(version: 20170707150101) do
     t.datetime "logo_updated_at"
     t.string   "plan",                                      default: "s"
     t.boolean  "plan_fixed",                                default: false
-    t.boolean  "debug_order",                               default: false, null: false
     t.string   "currency_code"
     t.integer  "js_sdk"
     t.boolean  "reputations_enabled",                       default: false, null: false
@@ -610,6 +601,7 @@ ActiveRecord::Schema.define(version: 20170707150101) do
     t.datetime "yml_load_start_at"
     t.string   "yml_state"
     t.boolean  "mailings_restricted",                       default: false, null: false
+    t.boolean  "yml_notification",                          default: true,  null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
