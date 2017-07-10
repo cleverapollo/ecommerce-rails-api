@@ -83,7 +83,7 @@ class Shop < MasterTable
   def item_ids_bought_or_carted_by(user)
     return [] if user.nil?
     carted_list = ClientCart.find_by(shop_id: id, user_id: user.id).try(:items) || []
-    purchased_list = items.where(id: order_items.where(order_id: user.orders).select(:item_id)).not_periodic.pluck(:id)
+    purchased_list = items.where(id: OrderItem.where(order_id: user.orders.where(shop_id: self.id)).select(:item_id)).not_periodic.pluck(:id)
     carted_list + purchased_list
   end
 
