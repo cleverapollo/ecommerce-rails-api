@@ -40,7 +40,8 @@ module Recommender
               shop_id: params.shop.id, item_id: params.item_id
           ]))
         else
-          result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM order_items WHERE item_id IN (?) limit 100)', items_which_cart_to_analyze)
+          # DISTINCT вынесен в отдельный подзапрос, т.к. для 100 записей он работает в 1000 раз быстрее, чем для всей таблицы
+          result = OrderItem.where('order_id IN (SELECT DISTINCT(order_id) FROM (SELECT order_id FROM order_items WHERE item_id IN (?) limit 100) AS t)', items_which_cart_to_analyze)
           result = result.where.not(item_id: excluded_items_ids)
           result = result.joins(:item).merge(items_to_recommend) # Эта конструкция подгружает фильтрацию relation для того, чтобы оставить только те товары, которые можно рекомендовать. То есть item_to_recommend тут не добавляет массив товаров
           result = result.where(item_id: Item.in_categories(categories, any: true)) if categories.present? # Рекомендации аксессуаров

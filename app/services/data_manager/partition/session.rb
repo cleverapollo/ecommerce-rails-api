@@ -120,6 +120,7 @@ class DataManager::Partition::Session
         SubscribeForProductPrice.where(user_id: users).delete_all
         SubscribeForProductAvailable.where(user_id: users).delete_all
         ClientCart.where(user_id: users).delete_all
+        ProfileEvent.where(user_id: users).delete_all
         User.where(id: users).delete_all
         Session.where(user_id: users).delete_all
         count += users.count
