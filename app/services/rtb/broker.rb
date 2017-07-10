@@ -23,7 +23,7 @@ module Rtb
         recommender_params = OpenStruct.new(
             shop: shop,
             user: user,
-            limit: (8 - items.count),
+            limit: (6 - items.count),
             recommend_only_widgetable: true,
             recommender_type: 'similar',
             item: items.first,
