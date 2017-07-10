@@ -145,7 +145,7 @@ class DigestMailingBatchWorker
     doc.css('a[href]').each do |a|
       uri = Addressable::URI.parse(a.attribute('href').value)
       if /^http/.match(uri.scheme)
-        uri_params = Rack::Utils.parse_nested_query(uri.query)
+        uri_params = Rack::Utils.parse_nested_query(uri.query.gsub(/[%]{1}/, '%25'))
         uri_params[:utm_link_map] = i
         uri.query = uri_params.to_query
         i += 1

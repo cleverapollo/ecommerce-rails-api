@@ -269,7 +269,7 @@ puts file.lazy.select{ |element| element.is_a?(Rees46ML::Offer) }.take(1).map(&:
 
 
 ### Postgres
-Отслеживание текущих транзакций `select * from pg_stat_activity ;`
+Отслеживание текущих транзакций `select now() - query_start,state,query from pg_stat_activity where query_start < now() - interval '30 second';`
 
 #### Структура таблиц users, sessions
 
