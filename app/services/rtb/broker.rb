@@ -18,6 +18,24 @@ module Rtb
       # Оставляем товары, с которыми можно работать
       items = items.select { |item| item.price && item.price >= @customer.currency.min_payment && item.widgetable? && item.is_available? && item.name.to_s.length < 1024 && item.image_url.to_s.length < 1024 && item.url.to_s.length < 1024 }.compact
 
+      # Если товаров меньше 4, дополняем похожими
+      if items.count > 0 && items.count < 4
+        recommender_params = OpenStruct.new(
+            shop: shop,
+            user: user,
+            limit: (8 - items.count),
+            recommend_only_widgetable: true,
+            recommender_type: 'similar',
+            item: items.first,
+            exclude: items.map(&:uniqid),
+            locations: items.first.locations
+        )
+        recommended_ids = Recommender::Impl::Interesting.new(recommender_params).recommended_ids
+        recommended_ids.each do |recommended_id|
+          items << Item.find(recommended_id)
+        end
+      end
+
       # Переводим в массив с нужными данными
       items = items.map { |item| {id: item.id, uniqid: item.uniqid, price: item.price.round, oldprice:  item.oldprice.present? ? item.oldprice.round : nil, image: item.resized_image_by_dimension('200x200'), url: item.url, name: item.name, currency: shop.currency } }
 
