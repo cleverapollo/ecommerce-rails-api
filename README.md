@@ -273,8 +273,14 @@ puts file.lazy.select{ |element| element.is_a?(Rees46ML::Offer) }.take(1).map(&:
 
 #### Структура таблиц users, sessions
 
-Таблицы `users`, `sessions` созданы как партицируемые. Для создания дополнительных партиций, выполнять скрипты: `DataManager::Partition::User.check`.
+Таблицы `users`, `sessions`, `clients` созданы как партицируемые. Для создания дополнительных партиций, выполнять скрипты: `DataManager::Partition::<MODEL>.check`.
 
 !!! Сделан жесткий костыль с переопределением вставки в модуле `DatabaseStatements`
 
 Описание на [хабре](https://habrahabr.ru/company/oleg-bunin/blog/309330/).
+
+`users` - разбиваются по ID
+
+`sessions` - разбиваются по CODE
+
+`clients` - разбиваются по SHOP_ID
