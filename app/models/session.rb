@@ -41,7 +41,7 @@ class Session < ActiveRecord::Base
     end
     # @return [Session]
     def find_by_code!(code)
-      find_by_code(code) or raise RecordNotFound.new("Couldn't find session")
+      find_by_code(code) or raise ActiveRecord::RecordNotFound.new("Couldn't find session")
     end
 
     # Получить подходящую по параметрам сессию.
@@ -121,18 +121,21 @@ class Session < ActiveRecord::Base
   end
 
   # Обновление текущей сессии с дополнительным фильтром для нужной партиции
-  def atomic_save!
+  def atomic_save
     if new_record?
       super
-    else
+    elsif changed?
       attrs = {}
       changed.each do |c|
         attrs[c] = self[c]
       end
-      status = Session.with_partition(self.code).where(id: self.id).update_all(attrs)
-      raise ActiveRecordError.new('Session save not updated') unless status
-      status
+      Session.with_partition(self.code).where(id: self.id).update_all(attrs)
+    else
+      true
     end
+  end
+  def atomic_save!
+    atomic_save or raise ActiveRecordError.new('Session save not updated')
   end
 
   private

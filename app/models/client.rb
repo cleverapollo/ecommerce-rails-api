@@ -15,6 +15,9 @@ class Client < ActiveRecord::Base
   has_many :reputations
   has_many :orders, foreign_key: :user_id, primary_key: :user_id
 
+  # Для партицируемых таблиц необходимо сначала получить ID, а потом создавать запись
+  before_create :fetch_nextval
+
   before_create :assign_ab_testing_group
   before_save :fix_empty_segment
 
@@ -146,7 +149,7 @@ class Client < ActiveRecord::Base
       self.web_push_trigger_messages.update_all(client_id: master_client.id)
       self.web_push_digest_messages.update_all(client_id: master_client.id)
 
-      self.delete
+      Client.where(shop_id: self.shop_id, id: self.id).delete_all
     else
       self.update_columns(user_id: user.id)
     end
@@ -259,6 +262,29 @@ class Client < ActiveRecord::Base
     self
   end
 
+  # Обновление текущего клиента с дополнительным фильтром для нужной партиции
+  def atomic_save
+    if new_record?
+      super
+    elsif changed?
+      attrs = {}
+      changed.each do |c|
+        attrs[c] = self[c]
+      end
+      Client.where(shop_id: self.shop_id, id: self.id).update_all(attrs)
+    else
+      true
+    end
+  end
+  def atomic_save!
+    atomic_save or raise ActiveRecordError.new('Client save not updated')
+  end
+
+  # Обновление текущего клиента с дополнительным фильтром для нужной партиции
+  def update_columns(attributes)
+    Client.where(shop_id: self.shop_id, id: self.id).update_all(attributes)
+  end
+
   protected
   def assign_ab_testing_group
     return if self.ab_testing_group.present?
@@ -276,4 +302,9 @@ class Client < ActiveRecord::Base
   def fix_empty_segment
     self.segment_ids = nil if !self.segment_ids.nil? && self.segment_ids.empty?
   end
+
+  def fetch_nextval
+    self.id = Client.connection.select_value("SELECT nextval('clients_id_seq')") unless self.id
+  end
+
 end

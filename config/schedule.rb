@@ -116,3 +116,6 @@ end
 every 1.month do
   runner "RunnerWrapper.run('DataManager::Partition::User.check')"
 end
+every 1.month do
+  runner "RunnerWrapper.run('DataManager::Partition::Client.check')"
+end

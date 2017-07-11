@@ -14,7 +14,7 @@ class DataManager::Partition::Session
         ActiveRecord::Base.connection.execute <<-SQL
           CREATE TABLE IF NOT EXISTS #{table_name(i)} (
             LIKE sessions INCLUDING ALL,
-            CHECK ( abs(hashtext(code)) % 10 = #{i} )
+            CHECK ( abs(hashtext(code)) % #{partitions_size} = #{i} )
           ) INHERITS (sessions);
         SQL
       end
@@ -24,9 +24,8 @@ class DataManager::Partition::Session
         CREATE OR REPLACE FUNCTION sessions_insert_to(new sessions) RETURNS bigint AS $$
           DECLARE in_table text;
           DECLARE i int;
-          DECLARE result bigint;
           BEGIN
-            i := abs(hashtext(NEW.code)) % 10;
+            i := abs(hashtext(NEW.code)) % #{partitions_size};
             in_table := format('sessions_%s', i);
             EXECUTE 'INSERT INTO ' || in_table || ' VALUES ( ($1).* ) ' USING NEW;
             RETURN NEW.id;
@@ -120,7 +119,6 @@ class DataManager::Partition::Session
         SubscribeForProductPrice.where(user_id: users).delete_all
         SubscribeForProductAvailable.where(user_id: users).delete_all
         ClientCart.where(user_id: users).delete_all
-        ProfileEvent.where(user_id: users).delete_all
         User.where(id: users).delete_all
         Session.where(user_id: users).delete_all
         count += users.count
@@ -140,7 +138,7 @@ class DataManager::Partition::Session
 
     # Имя таблицы для партиции
     def table_name(i)
-      "sessions_#{i % 10}"
+      "sessions_#{i % partitions_size}"
     end
 
   end

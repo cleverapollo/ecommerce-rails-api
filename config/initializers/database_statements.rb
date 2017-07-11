@@ -9,7 +9,7 @@ module ActiveRecord
           table_ref = extract_table_ref_from_insert_sql(sql)
 
           # Только для таблиц с партицированием
-          if ['"users"', '"sessions"'].include?(table_ref)
+          if ['"users"', '"sessions"', '"clients"'].include?(table_ref)
             return [sql, binds]
           end
 
