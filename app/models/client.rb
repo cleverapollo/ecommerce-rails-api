@@ -26,9 +26,9 @@ class Client < ActiveRecord::Base
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) do
     if shop.double_opt_in_by_law?
-      email_confirmed.where('triggers_enabled = true AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+      with_email.email_confirmed.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', 5.weeks.ago.to_date).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     else
-      with_email.where('triggers_enabled = true AND ((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago).where('last_activity_at is not null and last_activity_at >= ?', 5.weeks.ago.to_date)
+      with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', 5.weeks.ago.to_date).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     end
   end
   scope :with_segment, -> (segment_id) { where('segment_ids IS NOT NULL AND segment_ids @> ARRAY[?]', segment_id) }
