@@ -11,7 +11,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
       it 'renders' do
         expect(mail.subject).to eq 'Wrong XML-file URL'
         expect(mail.to).to eq [customer.email]
-        expect(mail.from).to eq ['support@rees46.com']
+        expect(mail.from).to eq ['desk@rees46.com']
         expect(mail.header['List-Id'].value).to eq '<notification errors_mailer:yml_import_error>'
         expect(mail.header['Feedback-ID'].value).to eq 'yml_import_error:errors_mailer:rees46mailer'
         expect(mail.body.raw_source).to match 'Unfortunately, we could not process your XML Product Feed due to the following reason'
@@ -38,7 +38,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
 
       let(:mail) { ErrorsMailer.yml_import_error(shop, 'REASON') }
       it 'renders' do
-        expect(mail.to).to eq ['support@rees46.com']
+        expect(mail.to).to eq ['desk@rees46.com']
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
       it 'renders' do
         expect(mail.subject).to eq 'Error in XML-file Load'
         expect(mail.to).to eq [customer.email]
-        expect(mail.from).to eq ['support@rees46.com']
+        expect(mail.from).to eq ['desk@rees46.com']
         expect(mail.header['List-Id'].value).to eq '<notification errors_mailer:yml_url_not_respond>'
         expect(mail.header['Feedback-ID'].value).to eq 'yml_url_not_respond:errors_mailer:rees46mailer'
         expect(mail.body.raw_source).to match 'Unfortunately, we could not load your XML Product Feed'
@@ -86,7 +86,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
       it 'renders' do
         expect(mail.subject).to eq 'XML-file Syntax Error'
         expect(mail.to).to eq [customer.email]
-        expect(mail.from).to eq ['support@rees46.com']
+        expect(mail.from).to eq ['desk@rees46.com']
         expect(mail.header['List-Id'].value).to eq '<notification errors_mailer:yml_syntax_error>'
         expect(mail.header['Feedback-ID'].value).to eq 'yml_syntax_error:errors_mailer:rees46mailer'
         expect(mail.body.raw_source).to match 'XML-file due to error in syntax below'
@@ -119,7 +119,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
       it 'renders' do
         expect(mail.subject).to eq 'XML-file Load Is Off'
         expect(mail.to).to eq [customer.email]
-        expect(mail.from).to eq ['support@rees46.com']
+        expect(mail.from).to eq ['desk@rees46.com']
         expect(mail.header['List-Id'].value).to eq '<notification errors_mailer:yml_off>'
         expect(mail.header['Feedback-ID'].value).to eq 'yml_off:errors_mailer:rees46mailer'
         expect(mail.body.raw_source).to match ' we have not been able to load'
@@ -151,7 +151,7 @@ RSpec.describe ErrorsMailer, type: :mailer do
       it 'renders' do
         expect(mail.subject).to eq 'Products import error'
         expect(mail.to).to eq [customer.email]
-        expect(mail.from).to eq ['support@rees46.com']
+        expect(mail.from).to eq ['desk@rees46.com']
         expect(mail.header['List-Id'].value).to eq '<notification errors_mailer:products_import_error>'
         expect(mail.header['Feedback-ID'].value).to eq 'products_import_error:errors_mailer:rees46mailer'
         expect(mail.body.raw_source).to match 'Be sure to check your syntax against'

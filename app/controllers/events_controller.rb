@@ -9,7 +9,7 @@ class EventsController < ApplicationController
 
     # Если магазин в ограниченном режиме
     if @shop.restricted?
-      raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at support@rees46.com')
+      raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
     end
 
     # Извлекаем данные из входящих параметров
