@@ -3,7 +3,7 @@
 #
 class WebPushDigestBatchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 5, queue: 'mailing'
+  sidekiq_options retry: 5, queue: 'default'
 
   attr_accessor :mailing, :current_client, :current_web_push_digest_message
 
@@ -43,10 +43,10 @@ class WebPushDigestBatchWorker
       @mailing.sent_messages_count.increment
 
     end
-  
+
     # Отмечаем пачку как завершенную.
     @batch.complete!
-  
+
     # Завершаем рассылку, если все пачки завершены.
     @mailing.finish! if @mailing.web_push_digest_batches.incomplete.none?
 
