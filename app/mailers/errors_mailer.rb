@@ -1,6 +1,6 @@
 class ErrorsMailer < ActionMailer::Base
   default from: Rails.configuration.support_email,
-          bcc: ['support@rees46.com']
+          bcc: ['notify@rees46.com']
 
   def yml_import_error(shop, reason)
     @shop = shop
