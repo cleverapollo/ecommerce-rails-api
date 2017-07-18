@@ -3,7 +3,7 @@
 #
 class WebPushDigestLaunchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'mailing'
+  sidekiq_options retry: false, queue: 'default'
 
   attr_reader :shop
 
