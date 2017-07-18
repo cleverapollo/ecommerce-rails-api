@@ -175,15 +175,15 @@ module InitServerString
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
         # if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
-        #   pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.code}"
+        #   pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.user_id}"
         #   session.synced_with_relapio_at = Date.current
         # end
         if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
-          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.code}&dnr=1"
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.user_id}&dnr=1"
           session.synced_with_republer_at = Date.current
         end
         if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
-          pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.code}"
+          pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.user_id}"
           session.synced_with_advmaker_at = Date.current
         end
         if session.synced_with_doubleclick_at.nil? || session.synced_with_doubleclick_at < Date.current
