@@ -36,9 +36,12 @@ class WebPushSubscriptionsController < ApplicationController
   #   shop_id [String]
   #   ssid [String]
   def decline
-    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    # @type [Client] client
+    client = shop.clients.find_by!(user_id: @user.id)
     client.web_push_subscription_popup_showed = true
     client.accepted_web_push_subscription = nil
+    client.web_push_enabled = nil
+    client.web_push_tokens.delete_all
     client.atomic_save!
     render json: {}
   end

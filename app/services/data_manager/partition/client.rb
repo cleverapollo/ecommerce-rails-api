@@ -53,13 +53,13 @@ class DataManager::Partition::Client
 
     # Переносит юзеров с мастер таблицы в партиции
     def move_from_root
-      min = Client.connection.select_value('SELECT min(id) FROM ONLY clients').to_i
-      max = Client.connection.select_value('SELECT max(id) FROM ONLY clients').to_i
-      step = 1000
-      (((min / step).to_i * step)..max).step(step) do |n|
-        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete FROM ONLY clients where id < #{(n + step)} AND id >= #{n} returning * ) insert into clients select * from moved_rows;"
+      n = 0
+      Client.from('only clients').select(:id).find_in_batches(batch_size: 1000) do |group|
+        ids = group.map(&:id)
+        n += ids.size
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete FROM ONLY clients where id IN (#{ids.join(', ')}) returning * ) insert into clients select * from moved_rows;"
         STDOUT.write "\r#{n}"
-        sleep(2) if n % 5000000 == 0
+        sleep(1) if n % 50000 == 0
       end
       STDOUT.write "\n"
     end
@@ -69,13 +69,13 @@ class DataManager::Partition::Client
     def move_to_root(table)
       # Удаляем правило вставки в партиции (если оно есть)
       ActiveRecord::Base.connection.execute 'DROP RULE IF EXISTS clients_insert ON clients'
-
-      min = Client.connection.select_value("SELECT min(id) FROM #{table}").to_i
-      max = Client.connection.select_value("SELECT max(id) FROM #{table}").to_i
-      step = 1000
-      (min..max).step(step) do |n|
-        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from #{table} where id < #{(n + step)} AND id >= #{n} returning * ) insert into clients select * from moved_rows;"
+      n = 0
+      Client.from(table).select(:id).find_in_batches(batch_size: 1000) do |group|
+        ids = group.map(&:id)
+        n += ids.size
+        ActiveRecord::Base.connection.execute "with moved_rows AS ( delete from #{table} where id IN (#{ids.join(', ')}) returning * ) insert into clients select * from moved_rows;"
         STDOUT.write "\r#{n}"
+        sleep(1) if n % 500000 == 0
       end
       STDOUT.write "\n"
     end
