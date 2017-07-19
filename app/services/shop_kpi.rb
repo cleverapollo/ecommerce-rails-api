@@ -30,6 +30,7 @@ class ShopKPI
     end
 
     def recalculate_for_today
+      return if Slavery.disabled
       Shop.on_current_shard.connected.active.unrestricted.each do |shop|
         Time.use_zone(shop.customer.time_zone) do
           new(shop).calculate_statistics.calculate_products

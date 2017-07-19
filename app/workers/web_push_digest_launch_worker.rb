@@ -5,9 +5,7 @@ class WebPushDigestLaunchWorker
   include Sidekiq::Worker
   sidekiq_options retry: false, queue: 'default'
 
-  attr_reader :shop
-
-  BATCH_SIZE = 20
+  BATCH_SIZE = 50
 
   # Запустить дайджестную рассылку.
   # Содержимое входящих параметров:

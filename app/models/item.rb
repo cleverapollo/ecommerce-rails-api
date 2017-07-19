@@ -122,6 +122,7 @@ class Item < ActiveRecord::Base
       bracelet_sizes
       chain_sizes
       seasonality
+      leftovers
     ].sort
   end
 
@@ -200,6 +201,7 @@ class Item < ActiveRecord::Base
         is_fashion: ValuesHelper.present_one(new_item, self, :is_fashion),
         is_cosmetic: ValuesHelper.present_one(new_item, self, :is_cosmetic),
         seasonality: ValuesHelper.present_one(new_item, self, :seasonality),
+        leftovers: ValuesHelper.present_one(new_item, self, :leftovers),
     }
 
     # Downcased brand for brand campaign manage
@@ -278,6 +280,7 @@ class Item < ActiveRecord::Base
             ;
 
             DROP TABLE temp_#{ shop_id }_items;
+            ANALYZE items;
           SQL
         rescue Exception => e
           table.connection.execute <<-SQL

@@ -26,7 +26,7 @@ class WebPushSubscriptionsController < ApplicationController
   def showed
     client = shop.clients.find_or_create_by!(user_id: @user.id)
     client.web_push_subscription_popup_showed = true
-    client.save
+    client.atomic_save!
     render json: {}
   end
 
@@ -39,7 +39,7 @@ class WebPushSubscriptionsController < ApplicationController
     client = shop.clients.find_or_create_by!(user_id: @user.id)
     client.web_push_subscription_popup_showed = true
     client.accepted_web_push_subscription = nil
-    client.save
+    client.atomic_save!
     render json: {}
   end
 
