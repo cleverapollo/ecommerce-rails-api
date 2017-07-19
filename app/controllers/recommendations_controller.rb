@@ -51,12 +51,12 @@ class RecommendationsController < ApplicationController
       # recommendations += Recommendations::Processor.process(experiment_params)
       # recommendations.uniq!
       #
-      # # Добиваем популярными
-      # if recommendations.count < extracted_params.limit
-      #   extracted_params.limit = extracted_params.limit - recommendations.count
-      #   extracted_params.exclude += recommendations
-      #   recommendations += Recommendations::Processor.process(extracted_params)
-      # end
+      # Добиваем популярными
+      if recommendations.count < extracted_params.limit
+        extracted_params.limit = extracted_params.limit - recommendations.count
+        extracted_params.exclude += recommendations
+        recommendations += Recommendations::Processor.process(extracted_params)
+      end
 
 
     end
