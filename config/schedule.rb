@@ -5,7 +5,7 @@ every '0 3 * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_all_for_last_period')"
 end
 # Пересчитываем статистику за сегодня
-every '5 * * * *' do
+every '35 * * * *' do
   runner "RunnerWrapper.run('ShopKPI.recalculate_for_today')"
 end
 every '2 * * * *' do
