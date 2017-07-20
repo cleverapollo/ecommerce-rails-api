@@ -31,10 +31,11 @@ describe 'Pushing an event for rtb' do
       expect(response.body).to eq({ status: 'success' }.to_json)
       rtb_jobs = RtbJob.where(user_id: @user.id)
       expect(rtb_jobs.count).to eq(1)
-      expect(rtb_jobs.first.item_id).to eq(@item1.id)
       expect(rtb_jobs.first.shop_id).to eq(@shop.id)
       expect(rtb_jobs.first.user_id).to eq(@user.id)
       expect(rtb_jobs.first.logo).to eq(@shop.fetch_logo_url)
+      expect(rtb_jobs.first.products.count).to eq(1)
+      expect(rtb_jobs.first.products.first['id']).to eq @item1.id
     end
 
 

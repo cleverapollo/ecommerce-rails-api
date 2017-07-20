@@ -23,11 +23,11 @@ class EventsController < ApplicationController
     # Сообщаем брокеру брошенных корзин RTB
     case extracted_params.action.to_sym
       when :cart
-         Rtb::Broker.new(extracted_params.shop).notify(extracted_params.user, extracted_params.items)
+         Rtb::Broker.new(extracted_params.shop).notify(extracted_params.user, ClientCart.find_by(user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current).try(:items) )
       when :purchase
         Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user)
       when :remove_from_cart
-        Rtb::Broker.new(extracted_params.shop).clear(extracted_params.user, extracted_params.items)
+        Rtb::Broker.new(extracted_params.shop).notify(extracted_params.user, ClientCart.find_by(user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current).try(:items) )
     end
 
     respond_with_success

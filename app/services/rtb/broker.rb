@@ -3,6 +3,16 @@ module Rtb
 
     attr_reader :shop, :customer
 
+    class << self
+
+      def cleanup_expired
+        # Считаем, что через два дня после брошенной корзины покупатель уже где-то купил этот товар
+        RtbJob.where('date < ?', 2.days.ago.beginning_of_day).where('counter = 0').delete_all
+      end
+
+    end
+
+
     def initialize(shop)
       @shop = shop
       @customer = shop.customer
@@ -11,9 +21,12 @@ module Rtb
 
     # TODO: использовать цену в локации покупателя
     # @return Boolean
-    def notify(user, items)
+    def notify(user, item_ids)
       return false unless feature_available?
-      return false unless items.respond_to? :each
+      return false unless item_ids.respond_to? :each
+
+      items = Item.find(item_ids)
+      return false unless items.any?
 
       min_remarketing_product_price = Currency.find_by(code: @shop.currency_code).remarketing_min_price
 
@@ -52,31 +65,21 @@ module Rtb
       end
 
       if job = RtbJob.active_for_user(user).where(shop_id: shop.id).first
-        job.update counter: 0, date: Date.current, price: item[:price], image: item[:image], name: item[:name], currency: item[:currency], url: item[:url], products: items
+        job.update counter: 0, date: Date.current, currency: item[:currency], url: item[:url], active: true, products: items
       else
-        begin
-          job = RtbJob.create! shop_id: shop.id, user_id: user.id, source_user_id: user.id, item_id: item[:id], date: Date.current, counter: 0, price: item[:price], image: item[:image], name: item[:name], currency: item[:currency], url: item[:url], logo: shop.fetch_logo_url, products: items
-        rescue  ActiveRecord::RecordNotUnique
-          job = RtbJob.active_for_user(user).where(shop_id: shop.id).first
-        end
+        RtbJob.create! shop_id: shop.id, user_id: user.id, source_user_id: user.id, date: Date.current, counter: 0, currency: item[:currency], url: item[:url], logo: shop.fetch_logo_url, products: items
       end
       true
     end
 
 
     # Очищает задачи по брошенным корзинам.
-    # Если items != nil, удаляет только те задачи, которые про эти товары
-    # Если items.nil?, то удаляет все брошенные корзины этого клиента
-    # Возвращает nil
-    def clear(user, items = nil)
+    # param user [User]
+    # @return nil
+    def clear(user)
       return false unless feature_available?
-      if items.is_a? Array
-        RtbJob.where(shop_id: shop.id, user_id: user.id, item_id: items.map(&:id)).where('active IS TRUE').update_all active: false
-        RtbJob.where(shop_id: shop.id, source_user_id: user.id, item_id: items.map(&:id)).where('active IS TRUE').update_all active: false
-      else
-        RtbJob.where(shop_id: shop.id, user_id: user.id).where('active IS TRUE').update_all active: false
-        RtbJob.where(shop_id: shop.id, source_user_id: user.id).where('active IS TRUE').update_all active: false
-      end
+      RtbJob.where(shop_id: shop.id, user_id: user.id).where('active IS TRUE').update_all active: false
+      RtbJob.where(shop_id: shop.id, source_user_id: user.id).where('active IS TRUE').update_all active: false
       nil
     end
 

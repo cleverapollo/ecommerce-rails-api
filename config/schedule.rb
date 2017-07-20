@@ -90,6 +90,16 @@ every 18.minutes do
   runner "RunnerWrapper.run('WebPush::TriggersProcessor.process_all')"
 end
 
+
+# RTB JOBS
+
+# Remove expired jobs
+every '50 23 * * *', roles: :production_cron do
+  runner "RunnerWrapper.run('Rtb::Broker.cleanup_expired')"
+end
+
+
+
 # Каждую ночь в 3 часа пересчитываем SalesRate
 every '0 3 * * *' do
   runner "RunnerWrapper.run('SalesRateCalculator.perform')"
