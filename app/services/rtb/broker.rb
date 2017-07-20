@@ -15,8 +15,10 @@ module Rtb
       return false unless feature_available?
       return false unless items.respond_to? :each
 
+      min_remarketing_product_price = Currency.find_by(code: @shop.currency_code).remarketing_min_price
+
       # Оставляем товары, с которыми можно работать
-      items = items.select { |item| item.price && item.price >= @customer.currency.min_payment && item.widgetable? && item.is_available? && item.name.to_s.length < 1024 && item.image_url.to_s.length < 1024 && item.url.to_s.length < 1024 }.compact
+      items = items.select { |item| item.price && item.price >= min_remarketing_product_price && item.widgetable? && item.is_available? && item.name.to_s.length < 1024 && item.image_url.to_s.length < 1024 && item.url.to_s.length < 1024 }.compact
 
       # Если товаров меньше 4, дополняем похожими
       if items.count > 0 && items.count < 4
