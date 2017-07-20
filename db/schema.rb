@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170720100805) do
+ActiveRecord::Schema.define(version: 20170720145204) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "intarray"
   enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
@@ -242,14 +242,14 @@ ActiveRecord::Schema.define(version: 20170720100805) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -612,14 +612,10 @@ ActiveRecord::Schema.define(version: 20170720100805) do
   create_table "rtb_jobs", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",                                 null: false
     t.integer "user_id",        limit: 8,                null: false
-    t.integer "item_id",        limit: 8,                null: false
     t.integer "counter",                  default: 0,    null: false
     t.date    "date"
-    t.string  "image"
-    t.float   "price"
     t.string  "url"
     t.string  "currency"
-    t.string  "name"
     t.boolean "active",                   default: true, null: false
     t.string  "logo"
     t.jsonb   "products"
@@ -631,7 +627,6 @@ ActiveRecord::Schema.define(version: 20170720100805) do
   add_index "rtb_jobs", ["date", "counter"], name: "index_rtb_jobs_on_date_and_counter", where: "(counter = 0)", using: :btree
   add_index "rtb_jobs", ["shop_id", "date"], name: "index_rtb_jobs_on_shop_id_and_date", using: :btree
   add_index "rtb_jobs", ["shop_id", "source_user_id"], name: "index_rtb_jobs_on_shop_id_and_source_user_id", using: :btree
-  add_index "rtb_jobs", ["shop_id", "user_id", "item_id"], name: "index_rtb_jobs_on_shop_id_and_user_id_and_item_id", unique: true, using: :btree
   add_index "rtb_jobs", ["shop_id", "user_id"], name: "index_rtb_jobs_on_shop_id_and_user_id", using: :btree
   add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
   add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
@@ -851,10 +846,10 @@ ActiveRecord::Schema.define(version: 20170720100805) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
