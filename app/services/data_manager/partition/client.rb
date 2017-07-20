@@ -80,8 +80,6 @@ class DataManager::Partition::Client
       STDOUT.write "\n"
     end
 
-    private
-
     # Сколько должно быть партиций
     def partitions_size
       (Shop.maximum(:id).to_f / PACK).ceil.to_i + 1
