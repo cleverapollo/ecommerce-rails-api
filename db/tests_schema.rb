@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170720065510) do
+ActiveRecord::Schema.define(version: 20170720092941) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "postgres_fdw"
+  enable_extension "pg_trgm"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -141,14 +141,15 @@ ActiveRecord::Schema.define(version: 20170720065510) do
   add_index "cpa_invoices", ["shop_id", "date"], name: "index_cpa_invoices_on_shop_id_and_date", using: :btree
 
   create_table "currencies", force: :cascade do |t|
-    t.string   "code",                          null: false
-    t.string   "symbol",                        null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "min_payment",   default: 500,   null: false
-    t.float    "exchange_rate", default: 1.0,   null: false
-    t.boolean  "payable",       default: false
-    t.boolean  "stripe_paid",   default: false, null: false
+    t.string   "code",                                  null: false
+    t.string   "symbol",                                null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.integer  "min_payment",           default: 500,   null: false
+    t.float    "exchange_rate",         default: 1.0,   null: false
+    t.boolean  "payable",               default: false
+    t.boolean  "stripe_paid",           default: false, null: false
+    t.float    "remarketing_min_price", default: 0.0,   null: false
   end
 
   add_index "currencies", ["stripe_paid"], name: "index_currencies_on_stripe_paid", using: :btree
@@ -199,11 +200,11 @@ ActiveRecord::Schema.define(version: 20170720065510) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -227,20 +228,6 @@ ActiveRecord::Schema.define(version: 20170720065510) do
   add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
-
-  create_table "dummy", id: false, force: :cascade do |t|
-    t.integer "id",            limit: 8
-    t.string  "gender",        limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children",                array: true
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
-  end
 
   create_table "industries", force: :cascade do |t|
     t.string   "code",       null: false

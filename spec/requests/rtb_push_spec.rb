@@ -2,9 +2,9 @@ require 'rails_helper'
 describe 'Pushing an event for rtb' do
 
   before do
-    @currency = create(:currency)
+    @currency = create(:currency, remarketing_min_price: 150.0, code: 'usd')
     @customer = create(:customer, balance: 300, currency: @currency)
-    @shop = create(:shop, customer: @customer, remarketing_enabled: true, active: true, connected: true, restricted: false, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
+    @shop = create(:shop, customer: @customer, remarketing_enabled: true, currency_code: 'usd', active: true, connected: true, restricted: false, logo: fixture_file_upload(Rails.root.join('spec/fixtures/files/rees46.png'), 'image/png'))
     @user = create(:user)
     @session = create(:session, user: @user, code: SecureRandom.uuid)
     @client = create(:client, shop: @shop, user: @user, supply_trigger_sent: true)
