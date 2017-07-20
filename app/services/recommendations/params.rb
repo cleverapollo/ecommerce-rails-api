@@ -195,7 +195,7 @@ module Recommendations
     # @private
     def extract_item
       if raw[:item_id].present?
-        @item = Item.find_by(uniqid: raw[:item_id].to_s, shop_id: @shop.id)
+        @item = Slavery.on_slave { Item.find_by(uniqid: raw[:item_id].to_s, shop_id: @shop.id) }
       # CRUTCH: Ссаный костыль для древней версии JS SDK, которая в некоторых случаях товар передает как корзину.
       elsif @cart_item_ids.any?
         @item = Item.find(@cart_item_ids.first)
@@ -251,6 +251,11 @@ module Recommendations
     #
     # @private
     def extract_cart
+
+      # Выходим, если корзина пустая
+      if raw[:cart_item_id].nil?
+        return
+      end
 
       # Конвертируем хеш в массив
       if raw[:cart_item_id].is_a?(Hash)

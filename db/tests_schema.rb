@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170710094257) do
+ActiveRecord::Schema.define(version: 20170720065510) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "pg_trgm"
+  enable_extension "postgres_fdw"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -199,11 +199,11 @@ ActiveRecord::Schema.define(version: 20170710094257) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -227,6 +227,20 @@ ActiveRecord::Schema.define(version: 20170710094257) do
   add_index "digest_mail_statistics", ["date"], name: "index_digest_mail_statistics_on_date", using: :btree
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
+
+  create_table "dummy", id: false, force: :cascade do |t|
+    t.integer "id",            limit: 8
+    t.string  "gender",        limit: 1
+    t.jsonb   "fashion_sizes"
+    t.boolean "allergy"
+    t.jsonb   "cosmetic_hair"
+    t.jsonb   "cosmetic_skin"
+    t.jsonb   "children",                array: true
+    t.jsonb   "compatibility"
+    t.jsonb   "vds"
+    t.jsonb   "pets"
+    t.jsonb   "jewelry"
+  end
 
   create_table "industries", force: :cascade do |t|
     t.string   "code",       null: false
@@ -452,32 +466,6 @@ ActiveRecord::Schema.define(version: 20170710094257) do
   end
 
   add_index "segments", ["shop_id"], name: "index_segments_on_shop_id", using: :btree
-
-  create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",                         limit: 8,   null: false
-    t.string  "code",                            limit: 255, null: false
-    t.string  "city",                            limit: 255
-    t.string  "country",                         limit: 255
-    t.string  "language",                        limit: 255
-    t.date    "synced_with_amber_at"
-    t.date    "synced_with_dca_at"
-    t.date    "synced_with_aidata_at"
-    t.date    "synced_with_auditorius_at"
-    t.date    "synced_with_mailru_at"
-    t.date    "synced_with_relapio_at"
-    t.date    "synced_with_republer_at"
-    t.date    "synced_with_advmaker_at"
-    t.string  "useragent"
-    t.jsonb   "segment"
-    t.date    "updated_at"
-    t.date    "synced_with_doubleclick_at"
-    t.date    "synced_with_doubleclick_cart_at"
-  end
-
-  add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree
-  add_index "sessions", ["id"], name: "index_sessions_on_updated_at", where: "(updated_at IS NOT NULL)", using: :btree
-  add_index "sessions", ["segment"], name: "index_sessions_on_segment", where: "(segment IS NOT NULL)", using: :gin
-  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "shop_days_statistics", force: :cascade do |t|
     t.integer "shop_id"

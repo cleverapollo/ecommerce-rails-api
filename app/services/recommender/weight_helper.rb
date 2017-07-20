@@ -45,7 +45,7 @@ module Recommender
     end
 
     def sr_weight(items)
-      items_to_recommend.where(id: items).pluck(:id, :sales_rate).to_h
+      Slavery.on_slave { items_to_recommend.where(id: items).pluck(:id, :sales_rate).to_h }
     end
 
   end

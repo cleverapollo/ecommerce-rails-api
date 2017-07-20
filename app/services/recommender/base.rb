@@ -45,17 +45,19 @@ module Recommender
 
       if params.try(:extended)
         items_data = {}
-        shop.items.where(id: ids).each do |item|
-          items_data[item.id] =
-              {
-                  id: item.uniqid,
-                  name: item.name,
-                  url: item.url,
-                  image_url: params.resize_image.nil? ? item.image_url : item.resized_image_by_dimension("#{params.resize_image}x#{params.resize_image}"),
-                  price: item.price.to_s,
-                  currency: shop.currency,
-                  _id: item.id
-              }
+        Slavery.on_slave do
+          shop.items.where(id: ids).each do |item|
+            items_data[item.id] =
+                {
+                    id: item.uniqid,
+                    name: item.name,
+                    url: item.url,
+                    image_url: params.resize_image.nil? ? item.image_url : item.resized_image_by_dimension("#{params.resize_image}x#{params.resize_image}"),
+                    price: item.price.to_s,
+                    currency: shop.currency,
+                    _id: item.id
+                }
+          end
         end
 
         result = []
@@ -100,10 +102,12 @@ module Recommender
     # @return Int[]
     def translate_to_external_ids(array_of_internal_ids)
       result = []
-      # Эта проверка экономит 2ms на запросы к БД, когда результирующий массив пустой и ActiveRecord делает запросы в SQL типа "where 0=1"
-      if array_of_internal_ids.length > 0
-        array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
-        return array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
+      Slavery.on_slave do
+        # Эта проверка экономит 2ms на запросы к БД, когда результирующий массив пустой и ActiveRecord делает запросы в SQL типа "where 0=1"
+        if array_of_internal_ids.length > 0
+          array_of_items = Item.where(shop_id: params.shop.id).where(id: array_of_internal_ids).select([:id, :uniqid])
+          return array_of_internal_ids.map{|i_id| array_of_items.select{|i| i.id == i_id}.try(:first).try(:uniqid) }.compact
+        end
       end
       result
     end
@@ -276,7 +280,7 @@ module Recommender
       end
 
       # Не использовать order RANDOM()
-      additional_ids = relation.where.not(id: (given_ids + excluded_items_ids)).limit(RANDOM_LIMIT_MULTIPLY * limit).pluck(:id)
+      additional_ids = Slavery.on_slave { relation.where.not(id: (given_ids + excluded_items_ids)).limit(RANDOM_LIMIT_MULTIPLY * limit).pluck(:id) }
 
 
       given_ids + additional_ids.shuffle.sample(limit - given_ids.count)
