@@ -178,9 +178,9 @@ module InitServerString
         #   pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.user_id}"
         #   session.synced_with_relapio_at = Date.current
         # end
-        if session.synced_with_republer_at.nil? || session.synced_with_republer_at < Date.current
-          pixels << "//sync.republer.com/match?dsp=rees46&id=#{session.user_id}&dnr=1"
-          session.synced_with_republer_at = Date.current
+        if session.synced_with_facebook_at.nil? || session.synced_with_facebook_at < Date.current
+          pixels << "https://www.facebook.com/tr?id=295297477540385&ev=PageView&noscript=1"
+          session.synced_with_facebook_at = Date.current
         end
         if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
           pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.user_id}"
@@ -195,6 +195,10 @@ module InitServerString
         if shop.remarketing_enabled? && (session.synced_with_doubleclick_cart_at.nil? || session.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
           pixels << "//googleads.g.doubleclick.net/pagead/viewthroughconversion/855802464/?guid=ON&script=0"
           session.synced_with_doubleclick_cart_at = Date.current
+        end
+        if shop.remarketing_enabled? && (session.synced_with_facebook_cart_at.nil? || session.synced_with_facebook_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
+          pixels << "https://www.facebook.com/tr?id=295297477540385&ev=AddToCart&noscript=1"
+          session.synced_with_facebook_cart_at = Date.current
         end
 
         session.atomic_save! if session.changed?
