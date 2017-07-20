@@ -17,8 +17,8 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
+  enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
@@ -44,8 +44,6 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
   add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
-  add_index "actions", ["shop_id", "timestamp"], name: "buying_now_index", using: :btree
-  add_index "actions", ["shop_id"], name: "index_actions_on_shop_id", using: :btree
   add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
@@ -181,18 +179,19 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
-  add_index "clients", ["email"], name: "index_clients_on_email", using: :btree
+  add_index "clients", ["email", "shop_id", "id"], name: "index_clients_on_email", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "email", "digests_enabled", "id"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "email", "triggers_enabled", "id"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
+  add_index "clients", ["shop_id", "id"], name: "index_client_on_shop_id_and_email_present", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_activity_at", "last_trigger_mail_sent_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled = true) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "segment_ids"], name: "index_clients_on_shop_id_and_segment_ids", where: "(segment_ids IS NOT NULL)", using: :gin
   add_index "clients", ["shop_id", "subscription_popup_showed", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((subscription_popup_showed = true) AND (accepted_subscription = true))", using: :btree
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
+  add_index "clients", ["shop_id", "vk_id", "fb_id"], name: "index_clients_on_social_merge", where: "((vk_id IS NOT NULL) OR (fb_id IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "web_push_enabled"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
-  add_index "clients", ["shop_id"], name: "index_client_on_shop_id_and_email_present", where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
   create_table "create_segment_changes_logs", force: :cascade do |t|
@@ -243,14 +242,14 @@ ActiveRecord::Schema.define(version: 20170718100539) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -437,6 +436,7 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   add_index "items", ["shop_id", "brand", "id"], name: "index_items_on_shop_and_brand", where: "((is_available = true) AND (ignored = false) AND (widgetable = true) AND (brand IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "fashion_gender"], name: "index_items_on_shop_id_and_fashion_gender", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id", "id"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
   add_index "items", ["shop_id", "ignored"], name: "index_items_on_shop_id_and_ignored", where: "(ignored = true)", using: :btree
   add_index "items", ["shop_id", "image_downloading_error"], name: "index_items_on_shop_id_and_image_downloading_error", where: "(image_downloading_error IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "is_available", "ignored", "id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
@@ -444,8 +444,6 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((is_available = true) AND (ignored = false) AND (sales_rate IS NOT NULL) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid_and_is_available", where: "(is_available = true)", using: :btree
-  add_index "items", ["shop_id", "widgetable", "is_available", "ignored"], name: "widgetable_shop", where: "((widgetable = true) AND (is_available = true) AND (ignored = false))", using: :btree
-  add_index "items", ["shop_id"], name: "index_items_on_shop_id", using: :btree
 
   create_table "mailings_settings", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                     null: false
@@ -496,7 +494,6 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   add_index "orders", ["shop_id", "source_type", "date"], name: "index_orders_on_shop_id_and_source_type_and_date", where: "(source_type IS NOT NULL)", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
-  add_index "orders", ["shop_id"], name: "index_orders_on_shop_id", using: :btree
   add_index "orders", ["source_type", "source_id"], name: "index_orders_on_source_type_and_source_id", using: :btree
   add_index "orders", ["uniqid"], name: "index_orders_on_uniqid", using: :btree
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
@@ -514,10 +511,8 @@ ActiveRecord::Schema.define(version: 20170718100539) do
     t.datetime "updated_at"
   end
 
-  add_index "profile_events", ["user_id", "industry", "property"], name: "index_profile_events_on_user_id_and_industry_and_property", using: :btree
   add_index "profile_events", ["user_id", "shop_id", "industry", "property"], name: "index_profile_events_all_columns", using: :btree
   add_index "profile_events", ["user_id", "shop_id"], name: "index_profile_events_on_user_id_and_shop_id", using: :btree
-  add_index "profile_events", ["user_id"], name: "index_profile_events_on_user_id", using: :btree
 
   create_table "recommendations_requests", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id",                                           null: false
@@ -786,6 +781,7 @@ ActiveRecord::Schema.define(version: 20170718100539) do
   add_index "subscribe_for_categories", ["shop_id", "subscribed_at"], name: "index_category_subscription_for_cleanup", using: :btree
   add_index "subscribe_for_categories", ["shop_id", "user_id", "item_category_id"], name: "index_category_subscription_uniq", unique: true, using: :btree
   add_index "subscribe_for_categories", ["shop_id", "user_id"], name: "index_category_subscription_for_triggers", using: :btree
+  add_index "subscribe_for_categories", ["user_id"], name: "index_subscribe_for_categories_on_user_id", using: :btree
 
   create_table "subscribe_for_product_availables", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
@@ -859,10 +855,10 @@ ActiveRecord::Schema.define(version: 20170718100539) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -944,11 +940,12 @@ ActiveRecord::Schema.define(version: 20170718100539) do
     t.boolean  "showed",                             default: false,                null: false
   end
 
+  add_index "web_push_digest_messages", ["client_id"], name: "index_web_push_digest_messages_on_client_id", using: :btree
   add_index "web_push_digest_messages", ["code"], name: "index_web_push_digest_messages_on_code", unique: true, using: :btree
   add_index "web_push_digest_messages", ["date", "shop_id"], name: "index_web_push_digest_messages_on_date_and_shop_id", using: :btree
-  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_and_showed", where: "(showed IS TRUE)", using: :btree
+  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_and_showed", where: "(showed = true)", using: :btree
   add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_digest_id_unsubscribed", where: "(unsubscribed = false)", using: :btree
-  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked IS TRUE)", using: :btree
+  add_index "web_push_digest_messages", ["shop_id", "web_push_digest_id"], name: "index_web_push_digest_msg_on_shop_id_and_web_push_trigger_id", where: "(clicked = true)", using: :btree
   add_index "web_push_digest_messages", ["web_push_digest_id", "date"], name: "index_web_push_digest_messages_on_web_push_digest_id", using: :btree
 
   create_table "web_push_digests", id: :bigserial, force: :cascade do |t|
@@ -1047,6 +1044,7 @@ ActiveRecord::Schema.define(version: 20170718100539) do
     t.boolean  "showed",                        default: false,                null: false
   end
 
+  add_index "web_push_trigger_messages", ["client_id"], name: "index_web_push_trigger_messages_on_client_id", using: :btree
   add_index "web_push_trigger_messages", ["code"], name: "index_web_push_trigger_messages_on_code", unique: true, using: :btree
   add_index "web_push_trigger_messages", ["date", "shop_id"], name: "index_web_push_trigger_messages_on_date_and_shop_id", using: :btree
   add_index "web_push_trigger_messages", ["shop_id", "web_push_trigger_id"], name: "index_web_push_trigger_msg_on_shop_and_trigger_unsubscribed", where: "(unsubscribed = true)", using: :btree
