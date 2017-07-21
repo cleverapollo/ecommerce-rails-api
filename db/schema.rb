@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170720145204) do
+ActiveRecord::Schema.define(version: 20170721074546) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -490,7 +490,7 @@ ActiveRecord::Schema.define(version: 20170720145204) do
   end
 
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
-  add_index "orders", ["shop_id", "date"], name: "index_orders_on_shop_id_and_date", using: :btree
+  add_index "orders", ["shop_id", "date", "user_id"], name: "index_orders_on_shop_id_and_date_and_user_id", using: :btree
   add_index "orders", ["shop_id", "source_type", "date"], name: "index_orders_on_shop_id_and_source_type_and_date", where: "(source_type IS NOT NULL)", using: :btree
   add_index "orders", ["shop_id", "status", "status_date"], name: "index_orders_on_shop_id_and_status_and_status_date", using: :btree
   add_index "orders", ["shop_id", "uniqid"], name: "index_orders_on_shop_id_and_uniqid", unique: true, using: :btree
