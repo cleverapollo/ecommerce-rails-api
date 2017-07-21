@@ -18,7 +18,10 @@ module TriggerMailings
       end
 
       def condition_happened?
-        Slavery.on_slave do
+        # todo Здесь нужно читать только когда будет синхронный слейв, т.к. когда асинхронный отстанет, пропустит созданный заказ.
+        # @see http://y.mkechinov.ru/issue/REES-4219
+        # Slavery.on_slave do
+
           # Если в это время был заказ, то не отправлять письмо
           return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
@@ -32,7 +35,7 @@ module TriggerMailings
               return true
             end
           end
-        end
+        # end
 
         false
       end
