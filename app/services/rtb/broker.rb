@@ -25,6 +25,7 @@ module Rtb
       return false unless feature_available?
       return false unless item_ids.respond_to? :each
 
+      # @type [Array] items
       items = Item.find(item_ids)
       return false unless items.any?
 
