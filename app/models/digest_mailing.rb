@@ -57,7 +57,7 @@ class DigestMailing < ActiveRecord::Base
     if super.present?
       super
     else
-      {sent: 0, opened: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchases: 0}
+      {sent: 0, opened: 0, clicked: 0, bounced: 0, unsubscribed: 0, purchases: 0, revenue: 0}
     end
   end
 
@@ -70,7 +70,8 @@ class DigestMailing < ActiveRecord::Base
           clicked: self.mails.clicked.count,
           bounced: self.mails.bounced.count,
           unsubscribed: 0,
-          purchases: self.with_orders_count
+          purchases: self.with_orders_count,
+          revenue: self.with_orders_value,
       }
     end
 
@@ -79,6 +80,10 @@ class DigestMailing < ActiveRecord::Base
 
   def with_orders_count
     Order.joins('INNER JOIN digest_mails on orders.source_id = digest_mails.id').where('orders.source_type = ?', 'DigestMail').where('digest_mails.digest_mailing_id = ?', self.id).count
+  end
+
+  def with_orders_value
+    Order.joins('INNER JOIN digest_mails on orders.source_id = digest_mails.id').where('orders.source_type = ?', 'DigestMail').where('digest_mails.digest_mailing_id = ?', self.id).sum(:value)
   end
 
 end
