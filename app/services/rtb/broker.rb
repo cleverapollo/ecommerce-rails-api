@@ -7,7 +7,7 @@ module Rtb
 
       def cleanup_expired
         # Считаем, что через два дня после брошенной корзины покупатель уже где-то купил этот товар
-        RtbJob.where('date < ?', 2.days.ago.beginning_of_day).where('counter = 0').delete_all
+        RtbJob.where('date < ?', 5.days.ago.beginning_of_day).where('counter = 0').delete_all
       end
 
     end
