@@ -18,7 +18,7 @@ module InitServerString
       result += "  currency: '#{shop.currency}',"
       result += "  showPromotion: false,"
       result += "  segments: [],"
-      result += "  sync: #{get_sync_pixels(session, shop).to_json},"
+      result += "  sync: #{get_sync_pixels(client, shop).to_json},"
 
       # Настройки сбора e-mail
       result += "  subscriptions: {"
@@ -114,7 +114,7 @@ module InitServerString
           profile: session.user.profile_to_json,
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
           has_email: client.email.present?,
-          sync: get_sync_pixels(session, shop),
+          sync: get_sync_pixels(client, shop),
           emailSubscription: {
             settings: email_settings,
             status: if client.accepted_subscription == true
@@ -167,10 +167,10 @@ module InitServerString
 
 
     # Get array of syncronization pixels for DMP.
-    # @param session [Session]
+    # @param client [Client]
     # @param shop [Shop]
     # @return Array
-    def get_sync_pixels(session, shop)
+    def get_sync_pixels(client, shop)
       # return [] # Отключено, потому что смущают магазины. А массивных продаж данных пока нет.
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
@@ -178,30 +178,30 @@ module InitServerString
         #   pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.user_id}"
         #   session.synced_with_relapio_at = Date.current
         # end
-        if session.synced_with_facebook_at.nil? || session.synced_with_facebook_at < Date.current
+        if client.synced_with_facebook_at.nil? || client.synced_with_facebook_at < Date.current
           pixels << "https://www.facebook.com/tr?id=295297477540385&ev=PageView&noscript=1"
-          session.synced_with_facebook_at = Date.current
+          client.synced_with_facebook_at = Date.current
         end
-        if session.synced_with_advmaker_at.nil? || session.synced_with_advmaker_at < Date.current
-          pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{session.user_id}"
-          session.synced_with_advmaker_at = Date.current
+        if client.synced_with_advmaker_at.nil? || client.synced_with_advmaker_at < Date.current
+          pixels << "//rtb.am15.net/aux/sync?advm_nid=68280&uid=#{client.user_id}"
+          client.synced_with_advmaker_at = Date.current
         end
-        if session.synced_with_doubleclick_at.nil? || session.synced_with_doubleclick_at < Date.current
+        if client.synced_with_doubleclick_at.nil? || client.synced_with_doubleclick_at < Date.current
           # Используем ID, потому что гугл не может работать со строками длиннее 24 байт.
-          pixels << "//cm.g.doubleclick.net/pixel?google_nid=rees46&google_sc&google_cm&google_hm=#{Base64.encode64(session.user_id.to_s).strip}"
-          session.synced_with_doubleclick_at = Date.current
+          pixels << "//cm.g.doubleclick.net/pixel?google_nid=rees46&google_sc&google_cm&google_hm=#{Base64.encode64(client.user_id.to_s).strip}"
+          client.synced_with_doubleclick_at = Date.current
         end
         # Трекаем добавление в корзину
-        if shop.remarketing_enabled? && (session.synced_with_doubleclick_cart_at.nil? || session.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
+        if shop.remarketing_enabled? && (client.synced_with_doubleclick_cart_at.nil? || client.synced_with_doubleclick_cart_at < Date.current) && ClientCart.find_by(user_id: client.user_id, shop: shop, date: Date.current).present?
           pixels << "//googleads.g.doubleclick.net/pagead/viewthroughconversion/855802464/?guid=ON&script=0"
-          session.synced_with_doubleclick_cart_at = Date.current
+          client.synced_with_doubleclick_cart_at = Date.current
         end
-        if shop.remarketing_enabled? && (session.synced_with_facebook_cart_at.nil? || session.synced_with_facebook_cart_at < Date.current) && ClientCart.find_by(user_id: session.user_id, shop: shop, date: Date.current).present?
+        if shop.remarketing_enabled? && (client.synced_with_facebook_cart_at.nil? || client.synced_with_facebook_cart_at < Date.current) && ClientCart.find_by(user_id: client.user_id, shop: shop, date: Date.current).present?
           pixels << "https://www.facebook.com/tr?id=295297477540385&ev=AddToCart&noscript=1"
-          session.synced_with_facebook_cart_at = Date.current
+          client.synced_with_facebook_cart_at = Date.current
         end
 
-        session.atomic_save! if session.changed?
+        client.atomic_save! if client.changed?
       end
 
       pixels
