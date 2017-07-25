@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170721074546) do
+ActiveRecord::Schema.define(version: 20170725090104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "intarray"
   enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
@@ -176,6 +176,12 @@ ActiveRecord::Schema.define(version: 20170721074546) do
     t.boolean  "email_confirmed"
     t.integer  "segment_ids",                                                                                array: true
     t.boolean  "digest_opened"
+    t.date     "synced_with_republer_at"
+    t.date     "synced_with_advmaker_at"
+    t.date     "synced_with_doubleclick_at"
+    t.date     "synced_with_doubleclick_cart_at"
+    t.date     "synced_with_facebook_at"
+    t.date     "synced_with_facebook_cart_at"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
@@ -242,14 +248,14 @@ ActiveRecord::Schema.define(version: 20170721074546) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -846,10 +852,10 @@ ActiveRecord::Schema.define(version: 20170721074546) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
