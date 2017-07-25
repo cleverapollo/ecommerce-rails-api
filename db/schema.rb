@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170725090104) do
+ActiveRecord::Schema.define(version: 20170725105725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -659,20 +659,14 @@ ActiveRecord::Schema.define(version: 20170725090104) do
   add_index "search_settings", ["shop_id"], name: "index_search_settings_on_shop_id", unique: true, using: :btree
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
-    t.integer "user_id",                         limit: 8,   null: false
-    t.string  "code",                            limit: 255, null: false
-    t.string  "city",                            limit: 255
-    t.string  "country",                         limit: 255
-    t.string  "language",                        limit: 255
-    t.date    "synced_with_republer_at"
-    t.date    "synced_with_advmaker_at"
+    t.integer "user_id",    limit: 8,   null: false
+    t.string  "code",       limit: 255, null: false
+    t.string  "city",       limit: 255
+    t.string  "country",    limit: 255
+    t.string  "language",   limit: 255
     t.string  "useragent"
     t.jsonb   "segment"
     t.date    "updated_at"
-    t.date    "synced_with_doubleclick_at"
-    t.date    "synced_with_doubleclick_cart_at"
-    t.date    "synced_with_facebook_at"
-    t.date    "synced_with_facebook_cart_at"
   end
 
   add_index "sessions", ["code"], name: "sessions_uniqid_key", unique: true, using: :btree

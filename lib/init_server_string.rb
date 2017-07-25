@@ -174,10 +174,10 @@ module InitServerString
       # return [] # Отключено, потому что смущают магазины. А массивных продаж данных пока нет.
       pixels = []
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
-        # if session.synced_with_relapio_at.nil? || session.synced_with_relapio_at < Date.current
-        #   pixels << "//relap.io/api/partners/rscs.gif?uid=#{session.user_id}"
-        #   session.synced_with_relapio_at = Date.current
-        # end
+        if client.synced_with_republer_at.nil? || client.synced_with_republer_at < Date.current
+          pixels << "//sync.republer.com/match?dsp=rees46&id=#{client.user_id}"
+          client.update synced_with_republer_at: Date.current
+        end
         if client.synced_with_facebook_at.nil? || client.synced_with_facebook_at < Date.current
           pixels << "https://www.facebook.com/tr?id=295297477540385&ev=PageView&noscript=1"
           client.synced_with_facebook_at = Date.current
