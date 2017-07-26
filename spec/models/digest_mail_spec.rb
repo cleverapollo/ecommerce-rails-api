@@ -34,10 +34,12 @@ describe DigestMail do
     end
 
     describe '#mark_as_bounced!' do
-      subject { digest_mail.mark_as_bounced! }
+      subject { digest_mail.mark_as_bounced!(DigestMail::BOUNCE_ABUSE) }
 
       it 'marks mailing as bounced' do
+        expect(digest_mail.bounce_reason).to be_nil
         expect{ subject }.to change{ digest_mail.bounced }.from(false).to(true)
+        expect(digest_mail.bounce_reason).to eq DigestMail::BOUNCE_ABUSE
       end
 
       it 'purges client email' do

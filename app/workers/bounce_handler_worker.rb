@@ -76,7 +76,7 @@ class BounceHandlerWorker
                          TriggerMail.find_by(code: code)
                        end
 
-              entity.mark_as_bounced! if entity.present?
+              entity.mark_as_bounced!(DigestMail::BOUNCE_MAILING_SYSTEM) if entity.present?
             end
 
           end
@@ -114,8 +114,8 @@ class BounceHandlerWorker
           email = element.xpath('//email').text
 
           if email
-            DigestMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced! }
-            TriggerMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced! }
+            DigestMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced!(DigestMail::BOUNCE_ABUSE) }
+            TriggerMail.where(client_id: Client.where(email: email) ).where(date: Date.current).map { |x| x.mark_as_bounced!(DigestMail::BOUNCE_ABUSE) }
           end
 
         end
@@ -168,7 +168,7 @@ class BounceHandlerWorker
                        TriggerMail.find_by(code: code)
                      end
 
-            entity.mark_as_bounced! if entity.present?
+            entity.mark_as_bounced!(DigestMail::BOUNCE_ABUSE) if entity.present?
           end
 
         end

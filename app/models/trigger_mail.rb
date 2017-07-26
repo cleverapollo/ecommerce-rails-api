@@ -22,6 +22,10 @@ class TriggerMail < ActiveRecord::Base
 
   store :trigger_data, coder: JSON
 
+  BOUNCE_UNSUBSCRIBED = 1
+  BOUNCE_ABUSE = 2
+  BOUNCE_MAILING_SYSTEM = 3
+
 
   # Отметить факт открытия письма
   def mark_as_opened!
@@ -37,8 +41,9 @@ class TriggerMail < ActiveRecord::Base
     Routes.track_mail_url(code: self.code, type: 'trigger', host: Rees46::HOST, shop_id: self.shop.uniqid)
   end
 
-  def mark_as_bounced!
-    update_columns(bounced: true)
+  # @param reason [Integer] Reason of bounce, one of ::BOUNCE_MAILING_SYSTEM, ::BOUNCE_ABUSE, ::BOUNCE_UNSUBSCRIBED
+  def mark_as_bounced!(reason = nil)
+    update_columns(bounced: true, bounce_reason: reason)
 
     self.client.try(:purge_email!)
   end
