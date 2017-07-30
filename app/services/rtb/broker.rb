@@ -68,8 +68,16 @@ module Rtb
       if job = RtbJob.active_for_user(user).where(shop_id: shop.id).first
         job.update counter: 0, date: Date.current, currency: item[:currency], url: item[:url], active: true, products: items
       else
-        RtbJob.create! shop_id: shop.id, user_id: user.id, source_user_id: user.id, date: Date.current, counter: 0, currency: item[:currency], url: item[:url], logo: shop.fetch_logo_url, products: items
+        job = RtbJob.create! shop_id: shop.id, user_id: user.id, source_user_id: user.id, date: Date.current, counter: 0, currency: item[:currency], url: item[:url], logo: shop.fetch_logo_url, products: items
       end
+
+      # Сохраняем в редис
+      begin
+        Redis.rtb.setex("RMRK:#{user.id}:#{shop.id}", 432000, {id: job.id, counter: 0, shop_id: shop.id, user_id: user.id, currency: job.currency, url: job.url, logo: job.logo, products: job.products}.to_json )
+      rescue => e
+        Rollbar.error e
+      end
+
       true
     end
 
@@ -81,6 +89,11 @@ module Rtb
       return false unless feature_available?
       RtbJob.where(shop_id: shop.id, user_id: user.id).where('active IS TRUE').update_all active: false
       RtbJob.where(shop_id: shop.id, source_user_id: user.id).where('active IS TRUE').update_all active: false
+      begin
+        Redis.rtb.del("RMRK:#{user.id}:#{shop.id}")
+      rescue => e
+        Rollbar.error e
+      end
       nil
     end
 

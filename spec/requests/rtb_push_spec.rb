@@ -36,6 +36,16 @@ describe 'Pushing an event for rtb' do
       expect(rtb_jobs.first.logo).to eq(@shop.fetch_logo_url)
       expect(rtb_jobs.first.products.count).to eq(1)
       expect(rtb_jobs.first.products.first['id']).to eq @item1.id
+
+      from_redis = JSON.parse(Redis.rtb.get("RMRK:#{@user.id}:#{@shop.id}"))
+      expect(from_redis['id']).to eq rtb_jobs.first.id
+      expect(from_redis['logo']).to eq rtb_jobs.first.logo
+      expect(from_redis['url']).to eq rtb_jobs.first.url
+      expect(from_redis['products']).to eq rtb_jobs.first.products
+      expect(from_redis['currency']).to eq rtb_jobs.first.currency
+      expect(from_redis['shop_id']).to eq @shop.id
+      expect(from_redis['user_id']).to eq @user.id
+
     end
 
 
