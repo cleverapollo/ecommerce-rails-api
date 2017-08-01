@@ -223,6 +223,26 @@ describe Recommender::Impl::Similar do
         end
       end
 
+
+
+      context 'fashion'  do
+
+        it 'shows apparel of same type and sizes and excludes apparel from same type and wrong size and does not exclude apparel another type and size' do
+          test_item.update is_fashion: true, fashion_gender: 'm', fashion_wear_type: 'shoe', fashion_sizes: ['2'], category_ids: [1]
+          item1.update is_fashion: true, fashion_gender: 'm', fashion_wear_type: 'shoe', fashion_sizes: ['1', '2', '3'], category_ids: [1]
+          item2.update is_fashion: true, fashion_gender: 'm', fashion_wear_type: 'show', fashion_sizes: nil, category_ids: [1]
+          item3.update is_fashion: true, fashion_gender: 'm', fashion_wear_type: 'shoe', fashion_sizes: ['1', '3'], category_ids: [1]
+          item4.update is_fashion: true, fashion_gender: 'm', fashion_wear_type: 'coat', fashion_sizes: ['1', '3'], category_ids: [1]
+          params[:item] = test_item
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(item1.uniqid)
+          expect(recommender.recommendations).to include(item2.uniqid)
+          expect(recommender.recommendations).to_not include(item3.uniqid)
+          expect(recommender.recommendations).to include(item4.uniqid)
+        end
+
+      end
+
     end
 
 

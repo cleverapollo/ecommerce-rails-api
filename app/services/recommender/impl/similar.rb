@@ -74,6 +74,14 @@ module Recommender
 
           end
 
+
+          # Если товар не детский и при этом это одежда, оставляем только ту одежду того же типа, что и размеры этой одежды
+          if item.is_fashion? && !item.is_child?
+            if item.fashion_wear_type && item.fashion_sizes.is_a?(Array) && item.fashion_sizes.any?
+              result = result.where('is_fashion IS NULL OR (is_fashion IS TRUE AND (fashion_wear_type IS NULL OR fashion_wear_type != ? OR fashion_sizes IS NULL OR (fashion_wear_type = ? AND fashion_sizes && ARRAY[?]::varchar[])) )', item.fashion_wear_type, item.fashion_wear_type, item.fashion_sizes)
+            end
+          end
+
           if item.is_jewelry?
 
             subconditions = []
