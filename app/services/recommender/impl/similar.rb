@@ -140,6 +140,7 @@ module Recommender
 
         # Подмешивание брендов, заполняем по полной, если товар брендовый.
         brand_campaign = Promoting::Brand.brand_campaign_for_item(item, false)
+
         if brand_campaign
           @only_one_promo = item.brand_downcase
         end
@@ -153,7 +154,6 @@ module Recommender
             # result += items_relation_with_larger_price_condition.where.not(id: result).limit(LIMIT_CF_ITEMS - result.size).pluck(:id)
             result += Slavery.on_slave { items_relation_with_larger_price_condition.where.not(id: result).order(price: :asc).limit(LIMIT_CF_ITEMS - result.size).pluck(:id) }
           end
-
           # снова не добрали, берем уже все подряд из категории
           if result.size < limit
             result += Slavery.on_slave { items_relation.where.not(id: result).limit(limit - result.size).order(price: :asc).pluck(:id) }

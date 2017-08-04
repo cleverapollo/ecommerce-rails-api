@@ -41,7 +41,7 @@ module Promoting
       # @param expansion_only [Boolean]
       # @return BrandCampaign::ActiveRecord_Relation
       def brand_campaigns_for_categories(shop_id, categories, expansion_only)
-        relation = BrandCampaign.active.prioritized
+        relation = BrandCampaign.active.prioritized.where(id: BrandCampaignShop.where(shop_id: shop_id).pluck('brand_campaign_id'))
         relation = relation.expansion if expansion_only
         ids_by_categories = BrandCampaignItemCategory.where( item_category_id: Slavery.on_slave { ItemCategory.where(shop_id: shop_id, external_id: categories).pluck(:id) } ).pluck(:brand_campaign_id).uniq
         relation.where('in_all_categories IS TRUE OR id IN (?)', ids_by_categories)

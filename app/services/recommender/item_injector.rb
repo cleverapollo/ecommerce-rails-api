@@ -66,6 +66,7 @@ module Recommender
     end
 
     def inject_items(result)
+
       if result.size < params.limit && !shop.strict_recommendations?
         # Если товаров недостаточно - рандом
         result = inject_random_items(result)
