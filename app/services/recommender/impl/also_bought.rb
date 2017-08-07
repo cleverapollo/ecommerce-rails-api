@@ -11,13 +11,31 @@ module Recommender
       def items_to_recommend
         result = super
 
-        if !params.skip_niche_algorithms && shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any? && user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
-          result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
-        end
-
-        # Основная фильтрация
         unless params.skip_niche_algorithms
+
+          # Детский алгоритм
+          if shop.has_products_kids?
+
+            # Если у юзера есть дети
+            if user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
+
+              # Если у юзера дети одного пола, тогда имеет смысл исключать товары противоположного пола
+              if user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
+                result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
+              end
+            end
+          end
+
+
+          # Взрослая одежда
+          if shop.has_products_fashion?
+
+          end
+
+
+          # Ювелирка
           result = apply_jewelry_industrial_filter result
+
         end
 
         result

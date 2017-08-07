@@ -89,6 +89,53 @@ describe Recommender::Impl::Popular do
       end
 
 
+      context 'fashion_sizes' do
+
+        context 'fit sizes' do
+          before {
+            test_item.update is_fashion: true, fashion_gender: 'f', fashion_wear_type: 'shoe', fashion_sizes: ['1', '2', '3', '4']
+            user.update fashion_sizes: {shoe: ['1', '2']}, gender: 'f'
+          }
+          it 'includes product of correct size' do
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+
+        end
+
+        context 'not fit sizes' do
+          before {
+            test_item.update is_fashion: true, fashion_gender: 'f', fashion_wear_type: 'shoe', fashion_sizes: ['3', '4']
+            user.update fashion_sizes: {shoe: ['1', '2']}, gender: 'f'
+          }
+          it 'skips female products of wrong size' do
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to_not include(test_item.uniqid)
+          end
+        end
+
+        context 'includes because data absent' do
+          before {
+            test_item.update is_fashion: true, fashion_gender: 'f', fashion_wear_type: 'shoe', fashion_sizes: ['3', '4']
+            user.update fashion_sizes: {shoe: ['1', '2']}, gender: 'f'
+          }
+          it 'without wear type' do
+            test_item.update fashion_wear_type: nil
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+          it 'without wear gender' do
+            test_item.update fashion_gender: nil
+            recommender = Recommender::Impl::Popular.new(params)
+            expect(recommender.recommendations).to include(test_item.uniqid)
+          end
+        end
+
+
+
+      end
+
+
 
       context 'pets' do
 

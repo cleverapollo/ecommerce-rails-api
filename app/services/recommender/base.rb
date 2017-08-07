@@ -166,91 +166,97 @@ module Recommender
     # @return ActiveRecord::Relation
     def apply_industrial_filter(relation)
 
-      # Если известен пол покупателя и у магазина включен решим отраслевого
-      # if shop.subscription_plans.product_recommendations.paid.exists?
+      # Фильтрация по полу
+      if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
+        # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
+        relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
+      end
 
-        # Фильтрация по полу
-        if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
-          # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
-          # Сброс не работает, т.к. дополнительные фильтры отдельных рекомендеров (например, популярные в категориях) еще не применены.
-          # if relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender ).exists?
-          relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
-          # end
+      # Фильтрация по размеру взрослой одежды
+      if user.try(:gender).present? && user.fashion_sizes.is_a?(Hash) && user.fashion_sizes.keys.any?
+        conditions = []
+        conditions << '(is_fashion IS NOT TRUE OR fashion_gender IS NULL OR fashion_wear_type IS NULL)'
+        user.fashion_sizes.each do |type, sizes|
+          conditions << "(is_fashion IS TRUE AND fashion_gender = '#{user.gender}' AND fashion_wear_type = '#{type}' AND fashion_sizes && ARRAY['#{sizes.join("','")}']::varchar[])"
+        end
+        # TODO Не забыть добавить условие про детские товары, что к ним не применяются эти ограничения
+        if conditions.count > 1
+          relation = relation.where(conditions.join(' OR '))
+        end
+      end
+
+      if shop.has_products_auto?
+
+        # Фильтрация по маркам авто
+        if user.try(:compatibility).present?
+          relation = relation.where("
+              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
+              OR
+              (is_auto = true AND auto_compatibility IS NULL)
+              OR is_auto IS NULL
+          ", brand: user.compatibility['brand'], model: user.compatibility['model'])
         end
 
-        if shop.has_products_auto?
+        # Фильтрация по VIN авто
+        if user.try(:vds).present?
+          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+        end
 
-          # Фильтрация по маркам авто
-          if user.try(:compatibility).present?
-            relation = relation.where("
-                (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
-                OR
-                (is_auto = true AND auto_compatibility IS NULL)
-                OR is_auto IS NULL
-            ", brand: user.compatibility['brand'], model: user.compatibility['model'])
+      end
+
+      # Фильтрация по животным.
+      if shop.has_products_pets? && user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
+        subconditions = user.pets.map do |pet|
+          if pet['type'] && pet['breed']
+            " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
+          elsif pet['type']
+            " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed IS NULL)"
+          else
+            nil
           end
+        end.compact.join("")
+        relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
+      end
 
-          # Фильтрация по VIN авто
-          if user.try(:vds).present?
-            relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+      # Фильтрация по ювелирке
+      relation = apply_jewelry_industrial_filter relation
+
+      # Фильтрация по детям
+      # Оставляем:
+      # - не детские товары
+      # - детские товары без указания пола
+      if shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
+        subconditions = user.children.map do |kid|
+          if kid.is_a?(Hash) && kid.keys.any?
+          partial_subcondition = ' OR ( is_child IS TRUE '
+          if kid['gender'].present?
+            partial_subcondition += " AND (child_gender = '#{kid['gender']}' OR child_gender IS NULL) "
           end
+          if kid['age_max'].present? && kid['age_min'].present?
+            # Есть интервал возрастов
+            # Терминология: N - нижняя граница, M - верхняя граница. Без 1 - ребенок. С 1 - товар.
+            # (N ≥ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
+            # (N ≥ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
+            # (N ≤ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
+            # (N ≤ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
+            # N > M1 - BAD
+            # M < N1 - BAD
+            partial_subcondition += " AND (child_age_max >= '#{kid['age_min'].to_f}' OR child_age_max IS NULL) "
+            partial_subcondition += " AND (child_age_min <= '#{kid['age_max'].to_f}' OR child_age_min IS NULL) "
+          elsif kid['age_max'].present? && kid['age_min']
+            # Какой-то из возрастов отсутствует, поэтому оперируем одним возрастом
+            kid['age'] = kid['age_max'] || kid['age_min']
+            partial_subcondition += " AND (child_age_max <= '#{kid['age'].to_f}' OR child_age_max IS NULL) "
+            partial_subcondition += " AND (child_age_min >= '#{kid['age'].to_f}' OR child_age_min IS NULL) "
+          end
+          partial_subcondition + ' ) ' # Возвращаем это
+          else
+            nil
+          end
+        end.compact.join("")
+        relation = relation.where("is_child IS NULL #{subconditions}")
+      end
 
-        end
-
-        # Фильтрация по животным.
-        if shop.has_products_pets? && user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
-          subconditions = user.pets.map do |pet|
-            if pet['type'] && pet['breed']
-              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
-            elsif pet['type']
-              " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed IS NULL)"
-            else
-              nil
-            end
-          end.compact.join("")
-          relation = relation.where("is_pets IS NULL OR (is_pets IS TRUE AND pets_type IS NULL) #{subconditions}")
-        end
-
-        # Фильтрация по ювелирке
-        relation = apply_jewelry_industrial_filter relation
-
-        # Фильтрация по детям
-        # Оставляем:
-        # - не детские товары
-        # - детские товары без указания пола
-        if shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
-          subconditions = user.children.map do |kid|
-            if kid.is_a?(Hash) && kid.keys.any?
-            partial_subcondition = ' OR ( is_child IS TRUE '
-            if kid['gender'].present?
-              partial_subcondition += " AND (child_gender = '#{kid['gender']}' OR child_gender IS NULL) "
-            end
-            if kid['age_max'].present? && kid['age_min'].present?
-              # Есть интервал возрастов
-              # Терминология: N - нижняя граница, M - верхняя граница. Без 1 - ребенок. С 1 - товар.
-              # (N ≥ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
-              # (N ≥ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
-              # (N ≤ N1 or N1 IS NULL) && (M ≤ M1 OR M1 IS NULL) - OK
-              # (N ≤ N1 or N1 IS NULL) && (M ≥ M1 OR M1 IS NULL) - OK
-              # N > M1 - BAD
-              # M < N1 - BAD
-              partial_subcondition += " AND (child_age_max >= '#{kid['age_min'].to_f}' OR child_age_max IS NULL) "
-              partial_subcondition += " AND (child_age_min <= '#{kid['age_max'].to_f}' OR child_age_min IS NULL) "
-            elsif kid['age_max'].present? && kid['age_min']
-              # Какой-то из возрастов отсутствует, поэтому оперируем одним возрастом
-              kid['age'] = kid['age_max'] || kid['age_min']
-              partial_subcondition += " AND (child_age_max <= '#{kid['age'].to_f}' OR child_age_max IS NULL) "
-              partial_subcondition += " AND (child_age_min >= '#{kid['age'].to_f}' OR child_age_min IS NULL) "
-            end
-            partial_subcondition + ' ) ' # Возвращаем это
-            else
-              nil
-            end
-          end.compact.join("")
-          relation = relation.where("is_child IS NULL #{subconditions}")
-        end
-
-      # end
 
       relation
 
