@@ -1,4 +1,4 @@
-module Recommendations
+module SearchEngine
 
   ##
   # Класс, проверяющий и извлекающий нужные объекты из параметров, которые приходят от магазинов при запросе рекомендаций
@@ -12,44 +12,24 @@ module Recommendations
     attr_accessor :session
     # @return [Shop] shop Магазин
     attr_accessor :shop
-    # Тип вызываемого рекомендера
+    # Тип вызываемого поиска
     attr_accessor :type
-    # Массив категорий
-    # @return [Array] categories
-    attr_accessor :categories
-    # Текущий просматриваемый товар
-    # TODO: переименовать в current_item
-    # @return [Item] item
-    attr_accessor :item
+
     # Массив ID товаров в корзине
     attr_accessor :cart_item_ids
+
     # Максимальное количество рекомендаций
     attr_accessor :limit
-    # Массив местоположений, для которых получаем рекомендации
-    attr_accessor :locations
-    attr_accessor :brands
-    # Массив товаров, для ранжирования
-    attr_accessor :items
-    # Рекомендовать только товары с параметрами для отображения
-    attr_accessor :recommend_only_widgetable
+
     # Товары, которые нужно исключить из рекомендаций
     attr_accessor :exclude
-    # Расширенный режим ответа (передавать аттрибуты товаров)
-    attr_accessor :extended
-    # Маркет отраслевого алгоритма
+
+    # Поисковый запрос
     attr_accessor :search_query
-    # В рекомендациях участвуют только акционные товары со скидкой
-    attr_accessor :discount
-    # Нужно ли ресайзить изображения? Если да, то до какого размера
-    attr_accessor :resize_image
+
     # @return [Boolean] skip_niche_algorithms Включен ли отраслевой режим (выключен по умолчанию)
     attr_accessor :skip_niche_algorithms
-    # @return [Boolean] track_recommender Нужно ли трекать вызов рекомендера (включен по умолчанию)
-    attr_accessor :track_recommender
-    # Список сегментов
-    attr_accessor :segments
-    # @return [Float] max_price_filter ограничитель максимальной цены рекомендуемых товаров. По-умолчанию отсутствует
-    attr_accessor :max_price_filter
+
 
     # Проверяет и обрабатывает параметры
     #
@@ -69,20 +49,8 @@ module Recommendations
       extract_shop
       extract_user
       extract_cart
-      extract_item
-      extract_items
-      extract_categories
-      extract_locations
-      extract_brands
       extract_search_query
       self
-    end
-
-    # Метод-сокращалка до ID текущего товара
-    #
-    # @return [Integer] ID текущего товара (если есть)
-    def item_id
-      item.try(:id)
     end
 
     # Получает список Item id
@@ -98,18 +66,10 @@ module Recommendations
     # @param params [Hash] входящие параметры
     def initialize(params)
       @raw                       = params
-      @categories                = []
-      @locations                 = []
-      @brands                    = []
       @cart_item_ids             = []
-      @limit                     = 8
-      @recommend_only_widgetable = false
-      if params[:extended].present?
-        @recommend_only_widgetable = true
-      end
+      @limit                     = 20
       @exclude                   = []
-      @skip_niche_algorithms     = false
-      @track_recommender         = true
+      type                       = nil
       check
     end
 
@@ -118,29 +78,21 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] исключение с сообщением
     def check
-      raise Recommendations::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank? && raw[:email].blank?
-      raise Recommendations::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
-      raise Recommendations::IncorrectParams.new('Recommender type not provided') if raw[:recommender_type].blank?
-      raise Recommendations::IncorrectParams.new("Unknown recommender: #{raw[:recommender_type]}") unless Recommender::Base::TYPES.include?(raw[:recommender_type])
-      raise Recommendations::IncorrectParams.new("Empty search query: #{raw[:search_query]}") if raw[:recommender_type] == 'search' && StringHelper.encode_and_truncate(raw[:search_query].to_s.mb_chars.downcase.strip).blank?
+      raise SearchEngine::IncorrectParams.new('Search type not provided') if raw[:type].blank?
+      raise SearchEngine::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank? && raw[:email].blank?
+      raise SearchEngine::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
+      raise SearchEngine::IncorrectParams.new("Unknown search type: #{raw[:type]}") unless SearchEngine::Base::TYPES.include?(raw[:type])
+      raise SearchEngine::IncorrectParams.new("Empty search query: #{raw[:search_query]}") if StringHelper.encode_and_truncate(raw[:search_query].to_s.mb_chars.downcase.strip).blank?
     end
 
     # Извлекает статичные поля из параметров
     #
     # @private
     def extract_static_attributes
-      @type = raw[:recommender_type]
+      @type = raw[:type] if raw[:type].present?
       @limit = raw[:limit].to_i if raw[:limit].present?
       @limit = 500 if @limit > 500 # Ограничиваем 500 рекомендаций максимум. В будущем разрешить больше для особых клиентов
       @limit = 1 if @limit < 1
-      @extended = raw[:extended].present?
-      @discount = raw[:discount].present?
-      @resize_image = raw[:resize_image] if TriggerMailing.valid_image_size?(raw[:resize_image])
-
-      # Формируем сегменты
-      if raw[:segments].present?
-        self.segments = raw[:segments].map { |s| "#{s[0]}_#{s[1]}" }
-      end
     end
 
     # Извлекает магазин
@@ -187,27 +139,6 @@ module Recommendations
       @user = @session.user
     end
 
-    # Извлекает текущий товар
-    #
-    # @private
-    def extract_item
-      if raw[:item_id].present?
-        @item = Slavery.on_slave { Item.find_by(uniqid: raw[:item_id].to_s, shop_id: @shop.id) }
-      # CRUTCH: Ссаный костыль для древней версии JS SDK, которая в некоторых случаях товар передает как корзину.
-      elsif @cart_item_ids.any?
-        @item = Item.find(@cart_item_ids.first)
-      end
-    end
-
-    # Извлекает массив ID товаров для рескоринга
-    #
-    # @private
-    def extract_items
-      if raw[:items].present?
-        @items = raw[:items].split(',').map(&:to_s)
-      end
-    end
-
     # Извлекает массив ID товаров, которые нужно исключить из рекомендаций
     #
     # @private
@@ -215,33 +146,6 @@ module Recommendations
       if raw[:exclude].present?
         @exclude = raw[:exclude].split(',').map(&:to_s)
       end
-    end
-
-    # Извлекает категории: могут быть переданы скалярным значением или массивом
-    #
-    # @private
-    def extract_categories
-      @categories << raw[:category].to_s if raw[:category].present?
-
-      if raw[:categories].present?
-        @categories += raw[:categories].to_s.split(',')
-      end
-    end
-
-    # Извлекает местоположения: приходят массивом
-    #
-    # @private
-    def extract_locations
-      if raw[:locations].present?
-        @locations += raw[:locations].split(',')
-      end
-    end
-
-    # Извлекает бренды: приходят массивом
-    #
-    # @private
-    def extract_brands
-      @brands += raw[:brands].split(',').map{ |s| StringHelper.encode_and_truncate(s.mb_chars.downcase.strip) } if raw[:brands].present?
     end
 
     # Извлекает содержимое корзины
@@ -278,7 +182,6 @@ module Recommendations
         q = StringHelper.encode_and_truncate(raw[:search_query].to_s.mb_chars.downcase.strip)
         if q.present?
           @search_query = q
-          SearchQuery.find_or_create_by user_id: @user.id, shop_id: @shop.id, date: Date.current, query: @search_query
         end
       end
     end

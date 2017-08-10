@@ -42,6 +42,7 @@ gem 'god'
 gem 'webpush'
 gem 'slack-notifier'
 gem 'grocer' # webpush safari
+gem 'elasticsearch'
 
 # Tools
 gem 'foreman', '~> 0.63.0'
@@ -53,6 +54,7 @@ gem 'addressable', '~> 2.3', '>= 2.3.8'
 gem 'open_uri_redirections'
 gem 'liquid'
 gem 'russian', '~> 0.6.0'
+gem 'jbuilder'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false
