@@ -16,14 +16,32 @@ module Retailer
         if items
           items.each { |item| sync_item(item) }
         else
-          shop.items.recommendable.widgetable.find_each { |item| sync_item(item) }
-          # TODO: удалить неактивные товары
+
+          # Не забыть удалить неактивные товары
           # Делается примерно так: https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-reindex.html
           # Создаем новый индекс, грузим в него данные, потом удаляем старый индекс, тут же его создаем и копируем в него данные из нового индекса
-          # Либо подумать про алиасы - после каждой переиндексации создавать новый индекс и перенаправлять на него алиас.
+          temporary_index = "shop-#{shop.id}-#{rand(100)}"
+          real_index = "shop-#{shop.id}"
+          shop.items.recommendable.widgetable.find_each { |item| sync_item(item, temporary_index) }
 
+          # TODO: не забыть, что при этой операции уничтожается также
+          client.indices.delete index: real_index
+          client.indices.create index: real_index
+          body = Jbuilder.encode do |json|
+            json.source do |json|
+              json.index  temporary_index
+            end
+            json.dest do |json|
+              json.index  real_index
+            end
+          end
+          client.reindex body: body
+
+
+          # Либо подумать про алиасы - после каждой переиндексации создавать новый индекс и перенаправлять на него алиас.
           # Альтернативно, использовать https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-delete-by-query.html
           # для того, чтобы удалить все документы, не входящие в список ID
+
         end
 
         true
@@ -40,7 +58,12 @@ module Retailer
       # Index item
       # @param [Item] item
       # @return Boolean
-      def sync_item(item)
+      def sync_item(item, index = nil)
+
+        # Если индекс не указан, используем дефолтный
+        unless index
+          index = "shop-#{item.shop_id}"
+        end
 
         body = Jbuilder.encode do |json|
           json.name             item.name
@@ -50,7 +73,7 @@ module Retailer
           json.brand            item.brand
         end
 
-        client.index index: "shop-#{item.shop_id}", type: 'product', id: item.id, body: body
+        client.index index: index, type: 'product', id: item.id, body: body
       end
 
     end
