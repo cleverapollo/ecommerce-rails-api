@@ -68,7 +68,7 @@ module ActionPush
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров
       if params.items.any?
-        ProfileEvent.track_items params.user, params.shop, params.action, params.items
+        ProfileEvent.track_items params.user, params.shop, params.action, params.items, params.niche_attributes
       end
 
       # Сообщаем, что от магазина пришло событие

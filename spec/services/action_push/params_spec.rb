@@ -113,6 +113,45 @@ describe ActionPush::Params do
     end
 
 
+    context 'process fashion_size' do
+
+      let(:session)            { create(:session_with_user, code: rand(1000)) }
+      let(:user)               { session.user }
+      let!(:customer)          { create(:customer) }
+      let!(:shop)              { create(:shop, customer: customer, url:'http://example.com/', yml_file_url: 'http://ya.ru', yml_loaded: true, yml_errors: 0) }
+      let(:action)             { 'view' }
+      let(:rating)             { 3 }
+      let(:item)               { create(:item, shop: shop, url:'/item_01', image_url:'/image_01', price: 500, is_fashion: true, fashion_gender: 'f', fashion_wear_type: 'shoe') }
+
+      let(:params) do
+        {
+            ssid: session.code,
+            event: action,
+            shop_id: shop.uniqid,
+            rating: rating,
+            item_id: [item.uniqid],
+            url: [item.url],
+            price: [300],
+            image_url: [item.image_url],
+            fashion_size: ['41']
+        }
+      end
+
+      subject { ActionPush::Params.extract(params) }
+
+      it 'extracts russian fashion size' do
+        expect(subject.niche_attributes[item.id][:fashion_size]).to eq '41'
+      end
+
+
+      it 'extracts american fashion size' do
+        params[:fashion_size][0] = 'XS'
+        expect(subject.niche_attributes[item.id][:fashion_size].to_s).to eq '30'
+      end
+
+    end
+
+
     context 'process source' do
 
       let(:session)            { create(:session_with_user, code: rand(1000)) }

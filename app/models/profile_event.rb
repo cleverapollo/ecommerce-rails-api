@@ -40,9 +40,10 @@ class ProfileEvent < ActiveRecord::Base
     # @param shop [Shop]
     # @param action [Action]
     # @param items [Array<Item>] Array of items
+    # @param niche_attributes [Hash] Niche attributes from tracking to override products values (sizes, etc) on cart or purchase
     # @return Boolean
     # @throws Exception
-    def track_items(user, shop, action, items)
+    def track_items(user, shop, action, items, niche_attributes = nil)
 
       # Check
       return unless %w(view cart purchase).include?(action)
@@ -193,9 +194,16 @@ class ProfileEvent < ActiveRecord::Base
 
             # Размеры одежды
             if item.fashion_wear_type.present? && item.fashion_sizes.present? && item.fashion_sizes.any?
-              item.fashion_sizes.each do |size|
+              # Если есть override размера одежды из корзины или покупки, используем его, иначе берем все размеры
+              if niche_attributes && niche_attributes.key?(item.id) && niche_attributes[item.id].present?
+                size = niche_attributes[item.id]
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+              else
+                item.fashion_sizes.each do |size|
+                  profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
+                  profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+                end
               end
               properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
             end

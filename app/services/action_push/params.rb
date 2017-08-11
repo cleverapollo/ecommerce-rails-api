@@ -54,6 +54,9 @@ module ActionPush
     # Список сегментов
     attr_accessor :segments
 
+    # Кастомные параметры отраслевых
+    attr_accessor :niche_attributes
+
     # Проверяет и обрабатывает параметры
     #
     # @param params [Hash] входящие параметры
@@ -114,6 +117,7 @@ module ActionPush
     #
     # @private
     def extract_static_attributes
+      @niche_attributes = {} # Нишевые атрибуты товаров - ключ - ID товара, значение - хеш
       @action = raw[:event]
       @rating = raw[:rating].present? ? raw[:rating].to_i : nil
       @recommended_by = raw[:recommended_by]
@@ -190,7 +194,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender, :fashion_size].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -228,6 +232,28 @@ module ActionPush
               item_attributes.is_available = cur_item.is_available
             end
             item_attributes.price = raw_price if !cur_item.price && raw_price.to_i > 0
+
+            # Добавляем размер одежды из корзины и заказа, если товар есть в YML и это одежда и пр.
+            if raw[:fashion_size].present? && raw[:fashion_size][i].present?
+              if cur_item.is_fashion? && cur_item.fashion_gender.present? && cur_item.fashion_wear_type.present?
+                # Конвертируем размер в русский
+                size_table = "SizeTables::#{ cur_item.fashion_wear_type.camelcase }".safe_constantize
+                if size_table
+                  table = size_table.new
+                  size = Rees46ML::Size.new(value: raw[:fashion_size][i])
+                  converted_size = size.ru? ? size.num : table.value(cur_item.fashion_gender, size.region, :adult, size.num)
+                  if converted_size
+                    niche_attributes[cur_item.id] = { fashion_size: converted_size }
+                  end
+                end
+              end
+
+              item_attributes.is_fashion = true if item_attributes.is_fashion.nil?
+              item_attributes.fashion_gender = raw[:fashion_gender][i]
+            end
+
+
+
           else
             item_attributes.price = raw_price if raw_price.to_i > 0
             item_attributes.is_available = raw_is_available if available_present
