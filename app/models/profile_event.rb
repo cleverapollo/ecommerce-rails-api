@@ -195,8 +195,8 @@ class ProfileEvent < ActiveRecord::Base
             # Размеры одежды
             if item.fashion_wear_type.present? && item.fashion_sizes.present? && item.fashion_sizes.any?
               # Если есть override размера одежды из корзины или покупки, используем его, иначе берем все размеры
-              if niche_attributes && niche_attributes.key?(item.id) && niche_attributes[item.id].present?
-                size = niche_attributes[item.id]
+              if niche_attributes && niche_attributes.key?(item.id) && niche_attributes[item.id].present? && niche_attributes[item.id][:fashion_size]
+                size = niche_attributes[item.id][:fashion_size]
                 profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: 'fashion', property: "size_#{item.fashion_wear_type}", value: size
                 profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
               else
