@@ -19,6 +19,9 @@ Rees46Api::Application.routes.draw do
   get 'recommend', to: 'recommendations#get'
   post 'recommendations/batch'
 
+  # Поиск
+  get 'search', to: 'search#get'
+
   # Товары
   get 'products/get'
   patch 'products/set_not_widgetable'
