@@ -26,7 +26,21 @@ class SearchController < ApplicationController
     # Запускаем процессор с извлеченными данными
     result = SearchEngine::Processor.process(extracted_params)
 
-    render json: result
+    # JSON body
+    body = Jbuilder.encode do |json|
+      json.products result[:products] do |item|
+        json.name     item.name
+        json.url      item.url
+        json.picture  item.resized_image_by_dimension('100x100')
+        json.price    ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: " ")
+        json.currency shop.currency
+      end
+      json.categories []
+      json.virtual_categories []
+      json.keywords []
+    end
+
+    render json: body
 
   rescue Finances::Error => e
     respond_with_payment_error(e)
