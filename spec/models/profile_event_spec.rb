@@ -200,7 +200,7 @@ describe ProfileEvent do
 
       it 'saves overrided value if exists' do
         niche_attributes = {}
-        niche_attributes[item_5.id] = '30'
+        niche_attributes[item_5.id] = { fashion_size: '30' }
         expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5], niche_attributes) }.to change(ProfileEvent, :count).by 1
         expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '30', carts: 1).count ).to eq 1
         expect(user.reload.fashion_sizes['shoe']).to eq [30]
