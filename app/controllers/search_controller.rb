@@ -9,7 +9,7 @@ class SearchController < ApplicationController
   def get
 
     # Проверяем подписки. Если нет оплаченных и активных, то кидаем код 402 Payment Needed
-    if !shop.subscription_plans.search.active.paid.exists?
+    if !shop.subscription_plans.product_search.active.paid.exists?
       raise Finances::Error.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
     end
 
