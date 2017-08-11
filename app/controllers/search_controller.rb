@@ -26,7 +26,7 @@ class SearchController < ApplicationController
     # Запускаем процессор с извлеченными данными
     result = SearchEngine::Processor.process(extracted_params)
 
-    render json: recommendations
+    render json: result
 
   rescue Finances::Error => e
     respond_with_payment_error(e)

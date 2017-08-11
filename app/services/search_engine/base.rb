@@ -3,15 +3,6 @@
 #
 module SearchEngine
 
-  ##
-  # Базовый класс ошибки при работе с рекомендациями
-  #
-  class Error < StandardError; end
-
-  ##
-  # Ошибка входящих параметров при запросе рекомендаций
-  #
-  class IncorrectParams < Error; end
 
   class Base
 
@@ -30,7 +21,7 @@ module SearchEngine
       end
 
       def search_engine_implementation_class_name(search_type)
-        "SearchEngine::#{recommender_type.camelize}"
+        "SearchEngine::#{search_type.camelize}"
       end
 
     end
