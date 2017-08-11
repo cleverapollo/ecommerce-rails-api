@@ -41,9 +41,9 @@ class SearchEngine::InstantSearch < SearchEngine::Base
       if params.user
         ms = MahoutService.new(shop.brb_address)
         ms.open
-        result = ms.item_based_weight(params.user.id, params.shop.id, weight: score_semantic.keys, limit: score_semantic.count)
+        mahout_result = ms.item_based_weight(params.user.id, params.shop.id, weight: score_semantic.keys, limit: score_semantic.count)
         ms.close
-        scores = result.map { |item| [item[:item], item[:rating].to_f] }.to_h
+        scores = mahout_result.map { |item| [item[:item], item[:rating].to_f] }.to_h
         score_semantic.keys.each { |id| score_cf[id] = (scores[id] || 0.0) }
       end
     else

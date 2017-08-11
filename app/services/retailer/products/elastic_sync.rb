@@ -69,7 +69,6 @@ module Retailer
         end
 
         body = Jbuilder.encode do |json|
-          json.id               item.id
           json.name             item.name
           json.price            item.price.to_f
           json.category_ids     item.category_ids
