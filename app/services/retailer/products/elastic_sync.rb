@@ -25,7 +25,9 @@ module Retailer
           shop.items.recommendable.widgetable.find_each { |item| sync_item(item, temporary_index) }
 
           # TODO: не забыть, что при этой операции уничтожается также
-          client.indices.delete index: real_index
+          if client.indices.exists index: real_index
+            client.indices.delete index: real_index
+          end
           client.indices.create index: real_index
           body = Jbuilder.encode do |json|
             json.source do |json|
@@ -36,6 +38,7 @@ module Retailer
             end
           end
           client.reindex body: body
+          client.indices.delete index: temporary_index
 
 
           # Либо подумать про алиасы - после каждой переиндексации создавать новый индекс и перенаправлять на него алиас.
