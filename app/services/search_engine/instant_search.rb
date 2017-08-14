@@ -4,7 +4,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     check_params!
     {
         products: recommended_products,
-        categories: [],
+        categories: recommended_categories,
         virtual_categories: [],
         keywords: [],
     }
@@ -80,5 +80,33 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     sorted.compact
 
   end
+
+
+
+  def recommended_categories
+
+    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
+    return [] if Rails.env.test?
+
+    # Build Elastic request
+    body = Jbuilder.encode do |json|
+      json.query do
+        json.match do
+          json.name  params.search_query
+        end
+      end
+      json.size      params.limit
+    end
+
+    # Find in Elastic
+    result = elastic_client.search index: "shop-#{shop.id}", type: 'category', body: body
+    return [] unless result['hits']['hits'].any?
+
+    # Return found categories
+    result['hits']['hits'].map { |category| {id: category['_id'], name: category['_source']['name']} }
+
+
+  end
+
 
 end

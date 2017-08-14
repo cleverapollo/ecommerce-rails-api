@@ -128,6 +128,11 @@ class YmlImporter
       # Пересчитываем наличие отраслевых товаров
       current_shop.check_industrial_products
 
+      # Переиндексируем полнотекстовый индекс, если у магазина есть соответствующая подписка
+      if current_shop.subscription_plans.product_search.active.paid.exists?
+        Retailer::Products::ElasticSync.new(current_shop).perform
+      end
+
       current_shop.items.where.not(image_downloading_error: nil).update_all(image_downloading_error: nil)
       ImageDownloadLaunchWorker.perform_async(current_shop.id)
     end

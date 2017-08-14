@@ -12,7 +12,7 @@ module Retailer
 
       # @param [Item[]] items Optional list of items to sync. If not set, sync all active shop's items
       # @return Boolean
-      def sync(items = nil)
+      def perform(items = nil)
         if items
           items.each { |item| sync_item(item) }
 
