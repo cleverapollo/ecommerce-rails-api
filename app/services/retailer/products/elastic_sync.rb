@@ -29,22 +29,23 @@ module Retailer
           real_index = "shop-#{shop.id}"
 
           # Массив действующих категорий
-          category_ids = []
+          active_category_ids = []
 
           # Индексируем товары
           shop.items.recommendable.widgetable.find_each do |item|
             sync_item(item, temporary_index)
             if item.category_ids
-              category_ids += item.category_ids.flatten.compact
+              active_category_ids += item.category_ids.flatten.compact
             end
           end
 
           # Индексируем категории
-          shop.item_categories.where(external_id: category_ids.flatten.compact).find_each do |category|
+          shop.item_categories.where(external_id: active_category_ids.flatten.compact).find_each do |category|
             body = Jbuilder.encode do |json|
               json.name             category.name
             end
             client.index index: temporary_index, type: 'category', id: category.id, body: body
+            puts category.name
           end
 
 
@@ -72,9 +73,6 @@ module Retailer
         true
       end
 
-
-      def sync_categories
-      end
 
 
 
