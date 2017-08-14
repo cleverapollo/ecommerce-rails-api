@@ -124,7 +124,7 @@ class Session < ActiveRecord::Base
   def create_user
     transaction do
       user = super
-      atomic_save! if changed?
+      atomic_save! if changed? && !new_record?
       user
     end
   end
