@@ -15,6 +15,11 @@ module Retailer
       def sync(items = nil)
         if items
           items.each { |item| sync_item(item) }
+
+          # Почистить удаленные продукты
+          # Альтернативно, использовать https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-delete-by-query.html
+          # для того, чтобы удалить все документы, не входящие в список ID
+
         else
 
           # Не забыть удалить неактивные товары
@@ -22,9 +27,29 @@ module Retailer
           # Создаем новый индекс, грузим в него данные, потом удаляем старый индекс, тут же его создаем и копируем в него данные из нового индекса
           temporary_index = "shop-#{shop.id}-#{rand(100)}"
           real_index = "shop-#{shop.id}"
-          shop.items.recommendable.widgetable.find_each { |item| sync_item(item, temporary_index) }
 
-          # TODO: не забыть, что при этой операции уничтожается также
+          # Массив действующих категорий
+          category_ids = []
+
+          # Индексируем товары
+          shop.items.recommendable.widgetable.find_each do |item|
+            sync_item(item, temporary_index)
+            if item.category_ids
+              category_ids += item.category_ids.flatten.compact
+            end
+          end
+
+          # Индексируем категории
+          shop.item_categories.where(external_id: category_ids.flatten.compact).find_each do |category|
+            body = Jbuilder.encode do |json|
+              json.name             category.name
+            end
+            client.index index: temporary_index, type: 'category', id: category.id, body: body
+          end
+
+
+          # Переносим данные в рабочий индекс.
+          # Не забыть, что при этой операции уничтожается также индексация категорий, тегов и прочего
           if client.indices.exists index: real_index
             client.indices.delete index: real_index
           end
@@ -41,9 +66,6 @@ module Retailer
           client.indices.delete index: temporary_index
 
 
-          # Либо подумать про алиасы - после каждой переиндексации создавать новый индекс и перенаправлять на него алиас.
-          # Альтернативно, использовать https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-delete-by-query.html
-          # для того, чтобы удалить все документы, не входящие в список ID
 
         end
 
