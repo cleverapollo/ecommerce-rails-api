@@ -14,26 +14,28 @@ module Retailer
       # @return Boolean
       def perform(items = nil)
         if items
-          items.each { |item| sync_item(item) }
-
+          raise 'Not implemented'
+          # items.each { |item| sync_item(item) }
           # Почистить удаленные продукты
           # Альтернативно, использовать https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-delete-by-query.html
           # для того, чтобы удалить все документы, не входящие в список ID
-
         else
 
           # Не забыть удалить неактивные товары
           # Делается примерно так: https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docs-reindex.html
-          # Создаем новый индекс, грузим в него данные, потом удаляем старый индекс, тут же его создаем и копируем в него данные из нового индекса
-          temporary_index = "shop-#{shop.id}-#{rand(100)}"
-          real_index = "shop-#{shop.id}"
+          # Создаем новый индекс
+          # Удаляем алиас, направленный на старый индекс
+          # Создаем алиас на новый индекс
+
+          new_index_name = "shop-#{shop.id}-#{DateTime.current.strftime('%Y-%m-%d-%H-%M')}"
+          alias_name = "shop-#{shop.id}"
 
           # Массив действующих категорий
           active_category_ids = []
 
           # Индексируем товары
           shop.items.recommendable.widgetable.find_each do |item|
-            sync_item(item, temporary_index)
+            sync_item(item, new_index_name)
             if item.category_ids
               active_category_ids += item.category_ids.flatten.compact
             end
@@ -44,31 +46,27 @@ module Retailer
             body = Jbuilder.encode do |json|
               json.name             category.name
             end
-            _r = client.index index: temporary_index, type: 'category', id: category.external_id, body: body
-            puts body
-            puts category.external_id
-            puts _r
+            client.index index: new_index_name, type: 'category', id: category.external_id, body: body
           end
 
+          # Находим индексы, от которых нужно отцепить алиас
+          indices_to_delete = []
+          client.cat.aliases(name: alias_name).split("\n").each do |als|
+            indices_to_delete << als.split(" ")[1]
+          end; nil
 
-          # Переносим данные в рабочий индекс.
-          # Не забыть, что при этой операции уничтожается также индексация категорий, тегов и прочего
-          if client.indices.exists index: real_index
-            client.indices.delete index: real_index
+          # Удаляем алиас и добавляем новый
+          body = {actions: []}
+          indices_to_delete.each do |idx|
+            body[:actions] << { remove: { index: idx, alias: alias_name } }
           end
-          client.indices.create index: real_index
-          body = Jbuilder.encode do |json|
-            json.source do |json|
-              json.index  temporary_index
-            end
-            json.dest do |json|
-              json.index  real_index
-            end
+          body[:actions] << { add: { index: new_index_name, alias: alias_name } }
+          client.indices.update_aliases body: body
+
+          # Удаляем старые индексы
+          indices_to_delete.each do |idx|
+            client.indices.delete index: idx
           end
-          client.reindex body: body
-          client.indices.delete index: temporary_index
-
-
 
         end
 
@@ -83,12 +81,7 @@ module Retailer
       # Index item
       # @param [Item] item
       # @return Boolean
-      def sync_item(item, index = nil)
-
-        # Если индекс не указан, используем дефолтный
-        unless index
-          index = "shop-#{item.shop_id}"
-        end
+      def sync_item(item, index)
 
         body = Jbuilder.encode do |json|
           json.name             item.name
