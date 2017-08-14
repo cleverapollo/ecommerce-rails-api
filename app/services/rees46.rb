@@ -6,7 +6,7 @@ class Rees46
   class << self
     def site_url
       if Rails.env.production?
-        'https://rees46.com'
+        'https://app.rees46.com'
       else
         Rails.env.staging? ? 'http://stage.rees46.com' : 'http://localhost:3000'
       end
