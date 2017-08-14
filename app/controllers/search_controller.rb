@@ -35,7 +35,10 @@ class SearchController < ApplicationController
         json.price    ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: " ")
         json.currency shop.currency
       end
-      json.categories []
+      json.categories result[:categories] do |category|
+        json.name     category[:name]
+        json.id       category[:id]
+      end
       json.virtual_categories []
       json.keywords []
     end
