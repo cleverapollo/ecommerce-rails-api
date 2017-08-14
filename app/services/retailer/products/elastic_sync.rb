@@ -44,8 +44,9 @@ module Retailer
             body = Jbuilder.encode do |json|
               json.name             category.name
             end
-            client.index index: temporary_index, type: 'category', id: category.id, body: body
-            puts category.name
+            _r = client.index index: temporary_index, type: 'category', id: category.id, body: body
+            puts body
+            puts _r
           end
 
 
