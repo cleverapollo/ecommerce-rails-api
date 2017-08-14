@@ -120,6 +120,15 @@ class Session < ActiveRecord::Base
     end
   end
 
+  # Переопределяем метод, т.к. при создании нового юзера, сессия не обновляется
+  def create_user
+    transaction do
+      user = super
+      atomic_save! if changed?
+      user
+    end
+  end
+
   # Обновление текущей сессии с дополнительным фильтром для нужной партиции
   def atomic_save
     if new_record?

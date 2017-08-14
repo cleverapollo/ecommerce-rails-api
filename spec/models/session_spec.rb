@@ -54,4 +54,13 @@ describe Session do
     end
 
   end
+
+  describe '.create_user' do
+    it 'updated session user_id' do
+      session = Session.create! user_id: 999999999, code: 'fakecode'
+      expect(session.user.blank?).to be_truthy
+      session.create_user
+      expect(Session.find_by(code: 'fakecode').user_id).not_to eq(999999999)
+    end
+  end
 end
