@@ -85,26 +85,16 @@ class SearchEngine::InstantSearch < SearchEngine::Base
 
   def recommended_categories
 
-    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
-    return [] if Rails.env.test?
-
-    # Build Elastic request
-    body = Jbuilder.encode do |json|
-      json.query do
-        json.match do
-          json.name  params.search_query
-        end
-      end
-      json.size      params.limit
+    # Пока не используем ES
+    # Важно: сейчас старые категории магазина не удаляются при обновлении YML, это будет нагружать объем данных в этом коде
+    # Поэтому нужно придумать, как не выгружать старые категории, в которых нет активных товаров.
+    categories = params.shop.item_categories.pluck(:id, :name, :parent_external_id).select { |category| category[1].present? && category[1].downcase.include?(params.search_query) }.take(params.limit)
+    return categories.map do |c|
+      {
+          id: c[0],
+          name: ( c[2] ? "#{ItemCategory.find_by(external_id: c[2], shop_id: shop.id).name} - #{c[1]}" : c[1] ),
+      }
     end
-
-    # Find in Elastic
-    result = elastic_client.search index: "shop-#{shop.id}", type: 'category', body: body
-    return [] unless result['hits']['hits'].any?
-
-    # Return found categories
-    result['hits']['hits'].map { |category| {id: category['_id'], name: category['_source']['name']} }
-
 
   end
 
