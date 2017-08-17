@@ -11,5 +11,8 @@ class UserMergerInShopWorker
         UserMerger.merge_by_mail(shop, client, client_email.email)
       end
     end
+  ensure
+    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection.close
   end
 end

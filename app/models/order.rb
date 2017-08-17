@@ -92,8 +92,6 @@ class Order < ActiveRecord::Base
                    recommended: (values[:recommended_value] > 0),
                    ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
                    source: source,
-                   # Трекаем сегменты DS
-                   segment_ds: params.raw.present? && params.raw['segment2'].present? ? params.raw['segment2'] : nil,
                    segments: segments)
       order.atomic_save if order.changed?
 
