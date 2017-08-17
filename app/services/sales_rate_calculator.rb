@@ -52,13 +52,13 @@ class SalesRateCalculator
       # sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).group(:item_id).sum('COALESCE(purchase_count, 0) + COALESCE(rating, 0)')
       # sales_data = shop.actions.where('timestamp > ?', 3.month.ago.to_date.to_time.to_i).where('purchase_count > 0').group(:item_id).sum('COALESCE(purchase_count, 0)')
       # Работаем с историей заказов, а не actions, т.к. actions не учитывает историю заказов.
-      sales_data = OrderItem.where(order_id: Order.select(:id).where(shop_id: shop.id).where('date >= ?', 3.months.ago)).group(:item_id).sum('COALESCE(amount, 0)')
+      sales_data = Slavery.on_slave { OrderItem.where(order_id: Order.select(:id).where(shop_id: shop.id).where('date >= ?', 3.months.ago)).group(:item_id).sum('COALESCE(amount, 0)') }
 
       # Делаем массив хешей информации о товарах
       items = sales_data.map { |k, v| {item_id: k, purchases: v, price: 0.0, sales_rate: 0.0} }
 
       # Ищем цены товаров и создаем хеш ID => PRICE
-      items_prices = Hash[shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price)]
+      items_prices = Hash[Slavery.on_slave { shop.items.where(id: items.map {|e| e[:item_id]}).pluck(:id, :price) }]
 
       # Добавляем цены в информацию о товарах
       items.each_with_index  do |v, k|
