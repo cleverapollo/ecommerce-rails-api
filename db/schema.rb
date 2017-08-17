@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170813200512) do
+ActiveRecord::Schema.define(version: 20170817143537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -191,7 +191,7 @@ ActiveRecord::Schema.define(version: 20170813200512) do
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "index_client_on_shop_id_and_email_present", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_activity_at", "last_trigger_mail_sent_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled = true) AND (last_activity_at IS NOT NULL))", using: :btree
-  add_index "clients", ["shop_id", "last_web_push_sent_at"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
+  add_index "clients", ["shop_id", "last_web_push_sent_at", "id"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "segment_ids"], name: "index_clients_on_shop_id_and_segment_ids", where: "(segment_ids IS NOT NULL)", using: :gin
   add_index "clients", ["shop_id", "subscription_popup_showed", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((subscription_popup_showed = true) AND (accepted_subscription = true))", using: :btree
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed = true)", using: :btree
@@ -224,6 +224,7 @@ ActiveRecord::Schema.define(version: 20170813200512) do
     t.integer "mailchimp_count"
     t.integer "mailchimp_offset"
     t.integer "segment_id"
+    t.integer "client_ids",        limit: 8,                                array: true
   end
 
   add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree
@@ -922,6 +923,7 @@ ActiveRecord::Schema.define(version: 20170813200512) do
     t.boolean "completed",                    default: false, null: false
     t.integer "start_id",           limit: 8
     t.integer "shop_id"
+    t.integer "client_ids",         limit: 8,                              array: true
   end
 
   add_index "web_push_digest_batches", ["shop_id"], name: "index_web_push_digest_batches_on_shop_id", using: :btree

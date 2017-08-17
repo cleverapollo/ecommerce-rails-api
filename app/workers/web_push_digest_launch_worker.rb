@@ -29,8 +29,9 @@ class WebPushDigestLaunchWorker
     end
 
     if web_push_digest.web_push_digest_batches.incomplete.none?
-      audience_relation.each_batch_with_start_end_id(BATCH_SIZE) do |start_id, end_id|
-        web_push_digest.web_push_digest_batches.create!(start_id: start_id, end_id: end_id, shop_id: shop.id)
+      audience_relation.select(:id).find_in_batches(batch_size: BATCH_SIZE) do |group|
+        ids = group.map(&:id)
+        web_push_digest.web_push_digest_batches.create!(start_id: ids.min, end_id: ids.max, shop_id: shop.id, client_ids: ids)
       end
     end
 

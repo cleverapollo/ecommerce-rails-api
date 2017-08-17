@@ -51,6 +51,11 @@ class DigestMailingBatchWorker
         # Проходим по всей доступной аудитории
         relation = @shop.clients.suitable_for_digest_mailings.includes(:user).where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id)
         relation = relation.with_segment(@batch.segment_id) if @batch.segment_id.present?
+
+        # Добавляем список id в выборку из пачки (увеличивет скорость выборки в 24 раза)
+        relation = relation.where(id: @batch.client_ids) if @batch.client_ids.present?
+
+        # Проходим по пачке клиентов
         relation.each do |client|
 
           # Каждый раз запоминаем текущий обрабатываемый ID
