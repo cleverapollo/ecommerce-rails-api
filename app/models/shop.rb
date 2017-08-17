@@ -259,6 +259,11 @@ class Shop < MasterTable
     subscriptions_settings.present? && subscriptions_settings.enabled? && @subscriptions_plan.present? && @subscriptions_plan.paid?
   end
 
+  # Включен ли поисковый движок?
+  def search_enabled?
+    subscription_plans.product_search.paid.exists?
+  end
+
   # Check if shop has enabled web push subscriptions
   # @return Boolean
   def web_push_subscriptions_enabled?

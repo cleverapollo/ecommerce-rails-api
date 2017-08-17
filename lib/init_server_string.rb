@@ -20,6 +20,7 @@ module InitServerString
       result += "  segments: [],"
       result += "  sync: #{get_sync_pixels(client, shop).to_json},"
 
+
       # Настройки сбора e-mail
       result += "  subscriptions: {"
       if shop.subscriptions_enabled? && client.email.blank?
@@ -85,6 +86,16 @@ module InitServerString
         end
       end
 
+
+      if shop.search_enabled? && shop.search_setting
+        search_settings = {
+            enabled: true,
+            landing: shop.search_setting.landing_page
+        }
+      else
+        search_settings = nil
+      end
+
       email_settings = {
           enabled: shop.subscriptions_enabled?,
       }
@@ -125,6 +136,7 @@ module InitServerString
                       nil
                     end
           },
+          search: search_settings,
           webPushSubscription: {
               settings: if shop.web_push_subscriptions_enabled?
                           {
