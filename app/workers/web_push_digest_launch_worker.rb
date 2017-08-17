@@ -3,7 +3,7 @@
 #
 class WebPushDigestLaunchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'default'
+  sidekiq_options retry: false, queue: 'webpush'
 
   BATCH_SIZE = 50
 
@@ -23,7 +23,7 @@ class WebPushDigestLaunchWorker
     web_push_digest.start!
 
     # Если недостаточно аудитории, отмечаем рассылку проваленной и прекращаем работу
-    if audience_relation.count > shop.web_push_balance
+    if audience_relation.count - web_push_digest.sent_messages_count.to_i > shop.web_push_balance
       web_push_digest.fail!
       return
     end

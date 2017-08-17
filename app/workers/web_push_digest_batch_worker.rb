@@ -3,7 +3,7 @@
 #
 class WebPushDigestBatchWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 5, queue: 'default'
+  sidekiq_options retry: 5, queue: 'webpush'
 
   attr_accessor :mailing, :current_client, :current_web_push_digest_message
 
@@ -55,6 +55,7 @@ class WebPushDigestBatchWorker
     sleep 5
     retry
   rescue Exception => e
+    Rollbar.error e
     @mailing.fail! if @mailing
     raise e
 

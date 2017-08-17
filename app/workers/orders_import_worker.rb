@@ -21,6 +21,9 @@ class OrdersImportWorker
 
     begin
       @current_shop = Shop.find_by!(uniqid: opts['shop_id'], secret: opts['shop_secret'])
+      if @current_shop.deactivated?
+        return false
+      end
 
       if opts['orders'].nil? || !opts['orders'].is_a?(Array)
         raise OrdersImportError.new('Не передан массив заказов')
