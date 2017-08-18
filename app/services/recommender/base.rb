@@ -29,7 +29,7 @@ module Recommender
     end
 
     # Методы-сокращалки
-    [:shop, :item, :user, :categories, :locations, :brands, :cart_item_ids, :limit, :search_query, :discount].each do |accessor|
+    [:shop, :item, :user, :categories, :locations, :brands, :cart_item_ids, :limit, :search_query, :discount, :exclude].each do |accessor|
       define_method accessor do
         params.public_send(accessor)
       end
