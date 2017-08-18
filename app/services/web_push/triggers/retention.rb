@@ -53,7 +53,8 @@ module WebPush
         if result.count < count
           result += Recommender::Impl::Popular.new(params.tap { |p|
             p.limit = (count - result.count)
-            p.exclude += result
+            # todo оно все равно не используется, т.к. везде используется метод excluded_items_ids который заполняется при первом вызове
+            # p.exclude += result
           }).recommended_ids
         end
 
