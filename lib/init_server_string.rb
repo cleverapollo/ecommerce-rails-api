@@ -188,7 +188,7 @@ module InitServerString
       if shop && (shop.remarketing_enabled? || shop.match_users_with_dmp?)
         if client.synced_with_republer_at.nil? || client.synced_with_republer_at < Date.current
           pixels << "//sync.republer.com/match?dsp=rees46&id=#{client.user_id}"
-          client.update synced_with_republer_at: Date.current
+          client.synced_with_republer_at = Date.current
         end
         if client.synced_with_facebook_at.nil? || client.synced_with_facebook_at < Date.current
           pixels << "https://www.facebook.com/tr?id=295297477540385&ev=PageView&noscript=1"

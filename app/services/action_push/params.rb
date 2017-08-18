@@ -223,8 +223,8 @@ module ActionPush
 
         # У товара есть YML
         if shop.has_imported_yml?
-          cur_item = Item.find_by(shop_id:shop.id, uniqid: item_id)
-          if cur_item
+          cur_item = Slavery.on_slave { Item.find_by(shop_id: shop.id, uniqid: item_id) }
+          if cur_item.present?
             # товар есть в базе
             if available_present
               item_attributes.is_available = raw_is_available

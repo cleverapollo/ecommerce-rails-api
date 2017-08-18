@@ -65,7 +65,7 @@ class WebPush::TriggersProcessor
     def detect_trigger(trigger_detector, client, safari_pusher)
       begin
         trigger = trigger_detector.detect(client)
-        if trigger
+        if trigger && trigger.items.present?
           WebPush::TriggerMessage.new(trigger, client, safari_pusher).send
           client.update_columns(last_web_push_sent_at: Time.now)
           client.update_columns(supply_trigger_sent: true) if trigger.class == WebPush::Triggers::LowOnSupply

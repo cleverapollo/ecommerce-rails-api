@@ -129,7 +129,7 @@ class Item < ActiveRecord::Base
   class << self
     # Найти или создать товар с аттрибутами
     def fetch(shop_id, item_proxy)
-      item = find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s)
+      item = Slavery.on_slave { find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s) }
       item.apply_attributes(item_proxy)
     end
   end
