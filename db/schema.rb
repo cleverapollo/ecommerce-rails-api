@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170821123651) do
+ActiveRecord::Schema.define(version: 20170821143655) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -662,11 +662,14 @@ ActiveRecord::Schema.define(version: 20170821123651) do
   create_table "search_settings", force: :cascade do |t|
     t.integer  "shop_id"
     t.string   "landing_page"
-    t.string   "filter_position", default: "none"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
+    t.string   "filter_position",           default: "none"
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.integer  "theme_id",        limit: 8
+    t.string   "theme_type"
   end
 
+  add_index "search_settings", ["shop_id", "theme_id", "theme_type"], name: "index_search_settings_theme", using: :btree
   add_index "search_settings", ["shop_id"], name: "index_search_settings_on_shop_id", unique: true, using: :btree
 
   create_table "sessions", id: :bigserial, force: :cascade do |t|
