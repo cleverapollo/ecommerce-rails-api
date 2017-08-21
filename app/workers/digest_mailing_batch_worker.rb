@@ -113,7 +113,7 @@ class DigestMailingBatchWorker
                                   body: liquid_letter_body(recommendations, email, location),
                                   type: 'digest',
                                   code: @current_digest_mail.try(:code),
-                                  unsubscribe_url: current_client.digest_unsubscribe_url(@current_digest_mail),
+                                  unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
                                   list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                   feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
   end
