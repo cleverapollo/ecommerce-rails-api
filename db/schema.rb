@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170821103131) do
+ActiveRecord::Schema.define(version: 20170821123651) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -440,7 +440,6 @@ ActiveRecord::Schema.define(version: 20170821103131) do
   add_index "items", ["pets_breed"], name: "index_items_on_pets_breed", where: "((is_pets IS TRUE) AND (pets_breed IS NOT NULL))", using: :btree
   add_index "items", ["pets_size"], name: "index_items_on_pets_size", where: "((is_pets IS TRUE) AND (pets_size IS NOT NULL))", using: :btree
   add_index "items", ["pets_type"], name: "index_items_on_pets_type", where: "((is_pets IS TRUE) AND (pets_type IS NOT NULL))", using: :btree
-  add_index "items", ["price", "shop_id"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL))", using: :gin
   add_index "items", ["shop_id", "brand", "id"], name: "index_items_on_shop_and_brand", where: "((is_available = true) AND (ignored = false) AND (widgetable = true) AND (brand IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "discount"], name: "index_items_on_shop_id_and_discount", where: "(discount IS NOT NULL)", using: :btree
@@ -449,6 +448,7 @@ ActiveRecord::Schema.define(version: 20170821103131) do
   add_index "items", ["shop_id", "ignored"], name: "index_items_on_shop_id_and_ignored", where: "(ignored = true)", using: :btree
   add_index "items", ["shop_id", "image_downloading_error"], name: "index_items_on_shop_id_and_image_downloading_error", where: "(image_downloading_error IS NOT NULL)", using: :btree
   add_index "items", ["shop_id", "is_available", "ignored", "id"], name: "shop_available_index", where: "((is_available = true) AND (ignored = false))", using: :btree
+  add_index "items", ["shop_id", "price"], name: "index_items_on_price", where: "((is_available = true) AND (ignored = false) AND (price IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "price_margin", "sales_rate"], name: "index_items_on_shop_id_and_price_margin_and_sales_rate", where: "((price_margin IS NOT NULL) AND (is_available IS TRUE) AND (ignored IS FALSE))", using: :btree
   add_index "items", ["shop_id", "sales_rate"], name: "available_items_with_sales_rate", where: "((is_available = true) AND (ignored = false) AND (sales_rate IS NOT NULL) AND (sales_rate > 0))", using: :btree
   add_index "items", ["shop_id", "uniqid"], name: "index_items_on_shop_id_and_uniqid", unique: true, using: :btree
