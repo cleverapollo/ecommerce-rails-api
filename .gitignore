@@ -34,9 +34,11 @@ config/unicorn.rb
 
 /.ruby-gemset
 /.idea
+*.iml
 /.rubocop.yml
 20150609125754_readd_brand_to_advertiser.rb
 shards.yml
+.generators
 
 .DS_Store
 
