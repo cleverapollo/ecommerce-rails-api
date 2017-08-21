@@ -111,9 +111,9 @@ class Client < ActiveRecord::Base
       # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
       if master_client.shop_id == self.shop_id
         master_client.bought_something = true if self.bought_something?
-        master_client.digests_enabled = false if !self.digests_enabled? || !master_client.digests_enabled?
+        master_client.digests_enabled = self.digests_enabled? && master_client.digests_enabled?
         master_client.subscription_popup_showed = true if self.subscription_popup_showed?
-        master_client.triggers_enabled = false if !self.triggers_enabled? || !master_client.triggers_enabled?
+        master_client.triggers_enabled = self.triggers_enabled? && master_client.triggers_enabled?
         master_client.accepted_subscription = true if self.accepted_subscription?
         master_client.ab_testing_group = self.ab_testing_group if master_client.ab_testing_group != self.ab_testing_group && !self.ab_testing_group.nil?
         master_client.external_id = self.external_id if !self.external_id.blank? && master_client.external_id.blank?
@@ -155,22 +155,27 @@ class Client < ActiveRecord::Base
     end
   end
 
-  def digest_unsubscribe_url
-    Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid)
+  # @param [DigestMail] digest_mail
+  def digest_unsubscribe_url(digest_mail)
+    Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid, mail_code: digest_mail.try(:code))
   end
 
-  def trigger_unsubscribe_url
-    Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid)
+  # @param [TriggerMail] trigger_mail
+  def trigger_unsubscribe_url(trigger_mail)
+    Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid, mail_code: trigger_mail.code)
   end
 
   # @param [Symbol] mailings_type Тип отписки / подписки
   # @param [Boolean] subscribe Подписываемся / Отписываемся
-  def unsubscribe_from(mailings_type, subscribe)
+  # @param [String] mail_code Код письма
+  def unsubscribe_from(mailings_type, subscribe, mail_code = nil)
     case mailings_type.to_sym
       when :digest
         update_columns(digests_enabled: subscribe)
+        DigestMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
       when :trigger
         update_columns(triggers_enabled: subscribe)
+        TriggerMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
     end
   end
 

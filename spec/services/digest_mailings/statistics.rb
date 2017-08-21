@@ -14,7 +14,7 @@ describe DigestMailings::Statistics do
 
   # Today
   let!(:digest_mail_1) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: batch, opened: true, clicked: true, created_at: 1.hour.ago) }
-  let!(:digest_mail_2) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: batch, opened: true, clicked: false, created_at: 2.hour.ago) }
+  let!(:digest_mail_2) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: batch, opened: true, clicked: false, unsubscribed: true, created_at: 2.hour.ago) }
   let!(:digest_mail_3) { create(:digest_mail, shop: shop, client: client, mailing: digest_mailing, batch: batch, opened: false, clicked: false, bounced: true, created_at: 3.hour.ago) }
   let!(:order_1) { create(:order, shop: shop, user: client.user, source_id: digest_mail_1.id, source_type: 'DigestMail', value: 100, date: 1.hour.ago) }
 
@@ -28,6 +28,7 @@ describe DigestMailings::Statistics do
     expect(digest_mailing.statistic[:opened]).to eq(2)
     expect(digest_mailing.statistic[:clicked]).to eq(1)
     expect(digest_mailing.statistic[:bounced]).to eq(1)
+    expect(digest_mailing.statistic[:unsubscribed]).to eq(1)
     expect(digest_mailing.statistic[:purchases]).to eq(1)
   end
 end

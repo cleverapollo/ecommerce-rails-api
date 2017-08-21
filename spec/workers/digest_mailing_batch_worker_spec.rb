@@ -46,7 +46,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'contains unsubscribe URL' do
-      expect(letter_body.to_s).to include(client.reload.digest_unsubscribe_url.gsub('&', '&amp;'))
+      expect(letter_body.to_s).to include('subscriptions/unsubscribe')
     end
 
     it 'contains encoded email' do

@@ -54,6 +54,7 @@ class TriggerMailings::Statistics
             opened: trigger_mailing.trigger_mails.this_month.opened.count,
             clicked: trigger_mailing.trigger_mails.this_month.clicked.count,
             bounced: trigger_mailing.trigger_mails.this_month.bounced.count,
+            unsubscribed: trigger_mailing.trigger_mails.this_month.unsubscribed.count,
             purchases: trigger_mailing.with_orders_count(Date.current.beginning_of_month..Time.current),
             purchases_value: trigger_mailing.with_orders_value(Date.current.beginning_of_month..Time.current),
         }
@@ -64,6 +65,7 @@ class TriggerMailings::Statistics
             opened: trigger_mailing.trigger_mails.opened.count,
             clicked: trigger_mailing.trigger_mails.clicked.count,
             bounced: trigger_mailing.trigger_mails.bounced.count,
+            unsubscribed: trigger_mailing.trigger_mails.unsubscribed.count,
             purchases: trigger_mailing.with_orders_count,
             purchases_value: trigger_mailing.with_orders_value,
         }
@@ -88,6 +90,7 @@ class TriggerMailings::Statistics
             opened: trigger_mailing.trigger_mails.previous_month.opened.count,
             clicked: trigger_mailing.trigger_mails.previous_month.clicked.count,
             bounced: trigger_mailing.trigger_mails.previous_month.bounced.count,
+            unsubscribed: trigger_mailing.trigger_mails.previous_month.unsubscribed.count,
             purchases: trigger_mailing.with_orders_count(1.month.ago.beginning_of_month..1.month.ago.end_of_month),
             purchases_value: trigger_mailing.with_orders_value(1.month.ago.beginning_of_month..1.month.ago.end_of_month),
         }

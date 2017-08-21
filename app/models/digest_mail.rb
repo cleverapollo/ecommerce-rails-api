@@ -18,6 +18,7 @@ class DigestMail < ActiveRecord::Base
   scope :clicked, -> { where(clicked: true) }
   scope :opened, -> { where(opened: true) }
   scope :bounced, -> { where(bounced: true) }
+  scope :unsubscribed, -> { where(unsubscribed: true) }
 
   BOUNCE_UNSUBSCRIBED = 1
   BOUNCE_ABUSE = 2

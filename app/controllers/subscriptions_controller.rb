@@ -29,7 +29,7 @@ class SubscriptionsController < ApplicationController
   def unsubscribe
     client = Client.find_by(code: params[:code])
     if client.present?
-      client.unsubscribe_from(params[:type], false)
+      client.unsubscribe_from(params[:type], false, params[:mail_code])
     end
 
     redirect_to "#{Rees46.site_url}/mailings/unsubscribed?code=#{params[:code]}&type=#{params[:type]}"

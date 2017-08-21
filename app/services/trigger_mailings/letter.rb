@@ -8,7 +8,12 @@ module TriggerMailings
 
     # @return [Shop]
     attr_accessor :shop
-    attr_accessor :client, :trigger, :trigger_mail, :body
+    # @return [Client]
+    attr_accessor :client
+    attr_accessor :trigger, :body
+
+    # @return [TriggerMail]
+    attr_accessor :trigger_mail
 
     # Конструктор
     # @param client [Client] пользователь магазина
@@ -37,6 +42,7 @@ module TriggerMailings
                                     body: @body,
                                     type: 'trigger',
                                     code: trigger_mail.code,
+                                    unsubscribe_url: client.trigger_unsubscribe_url(trigger_mail),
                                     list_id: "<trigger shop-#{@shop.id} type-#{trigger.mailing.trigger_type} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                     feedback_id: "shop#{@shop.id}:mailing_#{trigger.mailing.trigger_type}:trigger:rees46mailer").deliver_now
     end
@@ -80,10 +86,10 @@ module TriggerMailings
       end
 
       data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)
-      data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: client.trigger_unsubscribe_url)
+      data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: client.trigger_unsubscribe_url(trigger_mail))
       data[:email] = client.email
       data[:tracking_url] = trigger_mail.tracking_url
-      data[:unsubscribe_url] = client.trigger_unsubscribe_url
+      data[:unsubscribe_url] = client.trigger_unsubscribe_url(trigger_mail)
       data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
       if trigger.code == 'RecentlyPurchased' && liquid_template.scan('{% if reputation %}').any?

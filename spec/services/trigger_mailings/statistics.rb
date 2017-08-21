@@ -28,7 +28,7 @@ describe TriggerMailings::Statistics do
   let!(:trigger_mail_8) { create(:trigger_mail, shop: shop, client: client, mailing: trigger_mailing, opened: false, clicked: false, created_at: 3.day.ago, date: 3.day.ago) }
 
   # Prev month
-  let!(:trigger_mail_9) { create(:trigger_mail, shop: shop, client: client, mailing: trigger_mailing, opened: false, clicked: false, created_at: 33.day.ago, date: 33.day.ago) }
+  let!(:trigger_mail_9) { create(:trigger_mail, shop: shop, client: client, mailing: trigger_mailing, opened: false, clicked: false, unsubscribed: true, created_at: 33.day.ago, date: 33.day.ago) }
 
   subject { TriggerMailings::Statistics.new(shop).recalculate; TriggerMailings::Statistics.new(shop).recalculate_prev_month }
 
@@ -48,18 +48,21 @@ describe TriggerMailings::Statistics do
     expect(trigger_mailing.statistic[:this_month][:sent]).to eq(8)
     expect(trigger_mailing.statistic[:this_month][:opened]).to eq(5)
     expect(trigger_mailing.statistic[:this_month][:clicked]).to eq(3)
+    expect(trigger_mailing.statistic[:this_month][:unsubscribed]).to eq(0)
     expect(trigger_mailing.statistic[:this_month][:purchases]).to eq(2)
     expect(trigger_mailing.statistic[:this_month][:purchases_value]).to eq(300)
 
     expect(trigger_mailing.statistic[:previous_month][:sent]).to eq(1)
     expect(trigger_mailing.statistic[:previous_month][:opened]).to eq(0)
     expect(trigger_mailing.statistic[:previous_month][:clicked]).to eq(0)
+    expect(trigger_mailing.statistic[:previous_month][:unsubscribed]).to eq(1)
     expect(trigger_mailing.statistic[:previous_month][:purchases]).to eq(0)
     expect(trigger_mailing.statistic[:previous_month][:purchases_value]).to eq(0)
 
     expect(trigger_mailing.statistic[:all][:sent]).to eq(9)
     expect(trigger_mailing.statistic[:all][:opened]).to eq(5)
     expect(trigger_mailing.statistic[:all][:clicked]).to eq(3)
+    expect(trigger_mailing.statistic[:all][:unsubscribed]).to eq(1)
     expect(trigger_mailing.statistic[:all][:purchases]).to eq(2)
     expect(trigger_mailing.statistic[:all][:purchases_value]).to eq(300)
   end

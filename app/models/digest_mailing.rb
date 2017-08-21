@@ -69,7 +69,7 @@ class DigestMailing < ActiveRecord::Base
           opened: self.mails.opened.count,
           clicked: self.mails.clicked.count,
           bounced: self.mails.bounced.count,
-          unsubscribed: 0,
+          unsubscribed: self.mails.unsubscribed.count,
           purchases: self.with_orders_count,
           revenue: self.with_orders_value,
       }
