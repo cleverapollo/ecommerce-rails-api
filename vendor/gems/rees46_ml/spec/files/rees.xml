@@ -30,7 +30,7 @@
       <category id="4" parentId="3">Категория 4</category>
       <category id="3" parentId="2">Категория 3</category>
       <category id="2" parentId="1">Категория 2</category>
-      <category id="1" parentId="0">Категория 1</category>
+      <category id="1" parentId="0" url="http://example.com/category1">Категория 1</category>
       <category id="0">Корень категорий</category>
     </categories>
 

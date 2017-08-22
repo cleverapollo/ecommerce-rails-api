@@ -9,12 +9,17 @@ describe YmlImporter do
 
   subject { YmlImporter.new.perform(shop.id) }
 
+  it 'categories' do
+    subject
+    expect(ItemCategory.count).to eq(3)
+    expect(ItemCategory.find_by(external_id: 2).url).to eq('http://example.com/category1')
+  end
+
   it 'import' do
     subject
     expect(shop.reload.yml_loaded).to be_truthy
     expect(shop.reload.yml_state).to be_nil
     expect(Item.count).to eq(3)
-    expect(ItemCategory.count).to eq(3)
 
     # Fashion
     item = Item.find_by uniqid: '3613372537448', shop_id: shop.id

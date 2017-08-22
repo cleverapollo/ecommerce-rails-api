@@ -34,7 +34,7 @@ describe "check rees.xml" do
       expect(shop.categories).to include(Rees46ML::Category.new(id: "4", name: "Категория 4", parentId: "3"))
       expect(shop.categories).to include(Rees46ML::Category.new(id: "3", name: "Категория 3", parentId: "2"))
       expect(shop.categories).to include(Rees46ML::Category.new(id: "2", name: "Категория 2", parentId: "1"))
-      expect(shop.categories).to include(Rees46ML::Category.new(id: "1", name: "Категория 1", parentId: "0"))
+      expect(shop.categories).to include(Rees46ML::Category.new(id: "1", name: "Категория 1", parentId: "0", url: 'http://example.com/category1'))
       expect(shop.categories).to include(Rees46ML::Category.new(id: "0", name: "Корень категорий"))
     end
   end

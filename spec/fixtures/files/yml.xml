@@ -8,7 +8,7 @@
 			<currency rate="1" id="RUR"/>
 		</currencies>
 		<categories>
-			<category id="2">Скидки</category>
+			<category id="2" url="http://example.com/category1">Скидки</category>
 			<category id="8">Мужчинам</category>
 			<category id="13" parentId="8">Бордшорты</category>
 		</categories>

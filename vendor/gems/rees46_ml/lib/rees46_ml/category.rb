@@ -3,6 +3,7 @@ module Rees46ML
     attribute :id, String, default: "", lazy: true
     attribute :parentId, String, default: "", lazy: true
     attribute :name, String, default: "", lazy: true
+    attribute :url, String, default: "", lazy: true
 
     validates :id, :name, presence: true
 

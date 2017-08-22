@@ -38,10 +38,16 @@ class ItemCategory < ActiveRecord::Base
     end
 
     # @param [Integer] shop_id
-    # @param [Rees46ML::ShopLocation] yml_category
+    # @param [Rees46ML::Category] yml_category
     # @return [Integer]
     def yml_insert(shop_id, yml_category)
-      insert_or_update(shop_id: shop_id, external_id: yml_category.id, name: yml_category.name, parent_external_id: yml_category.parent_id.present? ? yml_category.parent_id : nil)
+      insert_or_update(
+          shop_id: shop_id,
+          external_id: yml_category.id,
+          name: yml_category.name,
+          parent_external_id: yml_category.parent_id.present? ? yml_category.parent_id : nil,
+          url: yml_category.url.present? ? yml_category.url : nil,
+      )
     end
 
     # Вставка строки или обновление при уникальности
