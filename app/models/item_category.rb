@@ -12,6 +12,8 @@ class ItemCategory < ActiveRecord::Base
   # has_many :item_categories, through: :brand_campaign_item_categories
   has_many :subscribe_for_categories
 
+  scope :widgetable,     -> { where('url is not null and name is not null') }
+
   class << self
 
     def bulk_update(shop_id, categories_tree)
