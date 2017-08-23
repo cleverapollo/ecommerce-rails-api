@@ -61,14 +61,12 @@ module ActionPush
         # todo тестируем вставку в Clickhouse
         if params.action == 'view'
           begin
-            t = Benchmark.ms do
-              query = "INSERT INTO rees46.actions (session_id, uniqid, shop_id, event_type, event_id, recommended_by)
-                         VALUES (#{params.session.id}, '#{params.session_uniqid}', #{params.shop.id}, '#{params.action}', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'})"
-              if Rails.env.production?
-                HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query)
-              else
-                Rails.logger.debug "ClickHouse: #{query}"
-              end
+            query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by)
+                       VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', 'Item', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'})"
+            if Rails.env.production?
+              HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query)
+            else
+              Rails.logger.debug "ClickHouse: #{query}"
             end
           rescue StandardError => e
             Rollbar.error 'Clickhouse action insert error', e

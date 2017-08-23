@@ -26,7 +26,7 @@ module ActionPush
     # @return [Session]
     attr_accessor :session
     # @return [String] Уникальный код сессии хранимый до закрытия браузера
-    attr_accessor :session_uniqid
+    attr_accessor :current_session_code
     # Название действия
     attr_accessor :action
     # Рейтинг (только для действия rate)

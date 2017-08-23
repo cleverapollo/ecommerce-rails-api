@@ -16,7 +16,7 @@ class EventsController < ApplicationController
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.new(params)
     extracted_params.shop = @shop
-    extracted_params.session_uniqid = cookies['rees46_session_uniqid'] if cookies['rees46_session_uniqid'].present?
+    extracted_params.current_session_code = cookies['rees46_session_code'] if cookies['rees46_session_code'].present?
     extracted_params = extracted_params.extract
 
     # Запускаем процессор с извлеченными данными
