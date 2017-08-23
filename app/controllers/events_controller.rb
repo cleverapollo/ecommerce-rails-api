@@ -1,4 +1,5 @@
 class EventsController < ApplicationController
+  include ActionController::Cookies
   include ShopFetcher
 
   before_action :fetch_active_shop
@@ -15,6 +16,7 @@ class EventsController < ApplicationController
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.new(params)
     extracted_params.shop = @shop
+    extracted_params.session_uniqid = cookies['rees46_session_uniqid'] if cookies['rees46_session_uniqid'].present?
     extracted_params = extracted_params.extract
 
     # Запускаем процессор с извлеченными данными

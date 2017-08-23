@@ -20,6 +20,11 @@ class InitController < ApplicationController
       return
     end
 
+    # Генерируем уникальный код для сессии
+    if cookies['rees46_session_uniqid'].blank?
+      cookies['rees46_session_uniqid'] = SecureRandom.uuid
+    end
+
     # Строим массив кук, для поиска первой существующей сессии
     session_id = CGI::Cookie::parse(request.env['HTTP_COOKIE'])['rees46_session_id'].uniq
     if session_id.count > 1
