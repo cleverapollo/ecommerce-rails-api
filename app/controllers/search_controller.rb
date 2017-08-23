@@ -38,6 +38,7 @@ class SearchController < ApplicationController
       json.categories result[:categories] do |category|
         json.name     category[:name]
         json.id       category[:id]
+        json.url      category[:url]
       end
       json.virtual_categories []
       json.keywords []
