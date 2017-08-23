@@ -65,7 +65,7 @@ module ActionPush
               query = "INSERT INTO rees46.actions (session_id, uniqid, shop_id, event_type, event_id, recommended_by)
                          VALUES (#{params.session.id}, '#{params.session_uniqid}', #{params.shop.id}, '#{params.action}', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'})"
               if Rails.env.production?
-                Clickhouse.connection.query(query)
+                HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query)
               else
                 Rails.logger.debug "ClickHouse: #{query}"
               end
