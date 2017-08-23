@@ -63,6 +63,22 @@ module ActionPush
 
       end
 
+      # todo тестируем вставку в Clickhouse
+      if Rails.env.production? && params.action == 'view'
+        begin
+          t = Benchmark.ms do
+            Clickhouse.connection.insert_rows('rees46.actions', names: %w(session_id uniqid shop_id event_type event_id recommended_by)) do |rows|
+              params.items.each do |item|
+                rows << [params.session.id, '', params.shop.id, params.action, item.uniqid, params.recommended_by]
+              end
+            end
+          end
+          CustomLogger.logger.info("Clickhouse: Action #{params.action} inserted #{t.round(2)} ms")
+        rescue StandardError => e
+          Rollbar.error 'Clickhouse action insert error', e
+        end
+      end
+
       # Это используется в покупках и при передаче полного содержимого корзины
       concrete_action_class.mass_process(params)
 
