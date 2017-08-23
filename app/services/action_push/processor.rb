@@ -70,7 +70,6 @@ module ActionPush
                 Rails.logger.debug "ClickHouse: #{query}"
               end
             end
-            CustomLogger.logger.info("Clickhouse: Action #{params.action} inserted #{t.round(2)} ms")
           rescue StandardError => e
             Rollbar.error 'Clickhouse action insert error', e
           end
