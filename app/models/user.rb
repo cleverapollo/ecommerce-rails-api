@@ -46,12 +46,12 @@ class User < ActiveRecord::Base
       end
       json.allergy allergy
       json.jewelry do
-        json.gem jewelry.try('gem')
-        json.metal jewelry.try('metal')
-        json.color jewelry.try('color')
-        json.ring_sizes jewelry.try('ring_size')
-        json.bracelet_sizes jewelry.try('bracelet_size')
-        json.chain_sizes jewelry.try('chain_size')
+        json.gem (jewelry && jewelry['gem'] ? jewelry['gem'] : nil)
+        json.metal (jewelry && jewelry['metal'] ? jewelry['metal'] : nil)
+        json.color (jewelry && jewelry['color'] ? jewelry['color'] : nil)
+        json.ring_size (jewelry && jewelry['ring_size'] ? jewelry['ring_size'] : nil)
+        json.bracelet_size (jewelry && jewelry['bracelet_size'] ? jewelry['bracelet_size'] : nil)
+        json.chain_size (jewelry && jewelry['chain_size'] ? jewelry['chain_size'] : nil)
       end
     end
   end
