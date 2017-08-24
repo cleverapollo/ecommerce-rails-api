@@ -14,7 +14,15 @@ module Recommender
         # пустой результат.
         # Поэтому нужно доработать так, что в случае отсутствия категорий работают все фильтры, а в случае наличия категории
         # работают только избранный набор, не приводящий к исключению всех товаров категории.
-        categories.try(:any?)? super : apply_industrial_filter(super)
+
+        # Для демо-магазина костыль - не отменяем отраслевые для популярных в категории
+        if shop.id == 1464
+          apply_industrial_filter(super)
+        else
+          categories.try(:any?)? super : apply_industrial_filter(super)
+        end
+
+
       end
 
 
