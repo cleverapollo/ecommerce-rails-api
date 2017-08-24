@@ -134,13 +134,14 @@ module Recommender
     # Применяет ювелирный отраслевой фильтр (общий)
     # @return ActiveRecord::Relation
     def apply_jewelry_industrial_filter(relation)
+
       if shop.has_products_jewelry? && user.try(:jewelry).present? && user.jewelry.is_a?(Hash) && user.jewelry.keys.any?
 
         # Физические характеристики по ИЛИ
         materials = []
         materials << " (jewelry_metal IS NOT NULL AND jewelry_metal = $$#{user.jewelry['metal']}$$) " if user.jewelry['metal'].present?
         materials << " (jewelry_color IS NOT NULL AND jewelry_color = $$#{user.jewelry['color']}$$) " if user.jewelry['color'].present?
-        materials << " (jewelry_gem IS NOT NULL AND jewelry_gem = $$#{user.jewelry['gem']}$$) " if user.jewelry['color'].present?
+        materials << " (jewelry_gem IS NOT NULL AND jewelry_gem = $$#{user.jewelry['gem']}$$) " if user.jewelry['gem'].present?
 
         # Размеры
         sizes = []
@@ -256,7 +257,6 @@ module Recommender
         end.compact.join("")
         relation = relation.where("is_child IS NULL #{subconditions}")
       end
-
 
       relation
 

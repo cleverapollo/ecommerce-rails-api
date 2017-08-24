@@ -21,8 +21,6 @@ module Recommender
         else
           categories.try(:any?)? super : apply_industrial_filter(super)
         end
-
-
       end
 
 
