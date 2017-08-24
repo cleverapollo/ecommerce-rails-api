@@ -183,6 +183,8 @@ describe ShopKPI do
     it 'calculates correct today' do
       get '/recommend', params
 
+      expect(response.code).to eq '200'
+
       subject
       shop_metric = ShopMetric.first
 
