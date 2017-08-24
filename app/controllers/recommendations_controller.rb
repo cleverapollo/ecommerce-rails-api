@@ -26,6 +26,15 @@ class RecommendationsController < ApplicationController
     # Запускаем процессор с извлеченными данными
     recommendations = Recommendations::Processor.process(extracted_params)
 
+    if @shop.id = 1464 && extracted_params.type == 'popular' && recommendations.count < extracted_params.limit
+      experiment_params = extracted_params.dup
+      experiment_params.track_recommender = false
+      experiment_params.limit = extracted_params.count - extracted_params.limit
+      experiment_params.skip_niche_algorithms = true
+      recommendations += Recommendations::Processor.process(experiment_params)
+      recommendations.uniq!
+    end
+
 
     # # Эксперимент для Красотки - главная страница
     if @shop.id == 2413 && extracted_params.type == 'popular' && extracted_params.categories.empty?
