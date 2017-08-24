@@ -22,7 +22,7 @@ class InitController < ApplicationController
 
     # Генерируем уникальный код для сессии
     if cookies['rees46_session_code'].blank?
-      cookies['rees46_session_code'] = SecureRandom.uuid
+      cookies['rees46_session_code'] = params[:seance] || SecureRandom.uuid
     end
 
     # Строим массив кук, для поиска первой существующей сессии
@@ -85,9 +85,9 @@ class InitController < ApplicationController
     session.atomic_save! if session.changed?
 
     if params[:v] == '3'
-      render json: InitServerString.make_v3(shop: shop, session: session, client: client)
+      render json: InitServerString.make_v3(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'])
     else
-      render js: InitServerString.make(shop: shop, session: session, client: client)
+      render js: InitServerString.make(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'])
     end
   end
 

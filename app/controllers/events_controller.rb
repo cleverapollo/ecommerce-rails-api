@@ -16,7 +16,7 @@ class EventsController < ApplicationController
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.new(params)
     extracted_params.shop = @shop
-    extracted_params.current_session_code = cookies['rees46_session_code']
+    extracted_params.current_session_code = cookies['rees46_session_code'] || params[:seance]
     extracted_params.request = request
     extracted_params = extracted_params.extract
 

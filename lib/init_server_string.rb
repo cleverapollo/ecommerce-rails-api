@@ -13,6 +13,7 @@ module InitServerString
 
       result  = "REES46.initServer({"
       result += "  ssid: '#{session.code}',"
+      result += "  seance: '#{options.fetch(:seance)}',"
       result += "  baseURL: 'http://#{Rees46::HOST}',"
       result += "  testingGroup: #{shop.ab_testing? ? session.user.ab_testing_group_in(shop) : 0},"
       result += "  currency: '#{shop.currency}',"
@@ -121,6 +122,7 @@ module InitServerString
 
       result = {
           ssid: session.code,
+          seance: options.fetch(:seance),
           currency: shop.currency,
           profile: session.user.profile_to_json,
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
