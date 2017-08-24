@@ -13,10 +13,15 @@ class EventsController < ApplicationController
       raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
     end
 
+    # Генерируем уникальный код для сессии
+    if cookies['rees46_session_code'].blank?
+      cookies['rees46_session_code'] = SecureRandom.uuid
+    end
+
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.new(params)
     extracted_params.shop = @shop
-    extracted_params.current_session_code = cookies['rees46_session_code'] if cookies['rees46_session_code'].present?
+    extracted_params.current_session_code = cookies['rees46_session_code']
     extracted_params = extracted_params.extract
 
     # Запускаем процессор с извлеченными данными
