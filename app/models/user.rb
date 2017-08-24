@@ -35,18 +35,25 @@ class User < ActiveRecord::Base
 
   # Готовит данные профиля в JSON для передачи в JS SDK
   def profile_to_json
-    {
-        gender: gender,
-        fashion: {
-            sizes: fashion_sizes
-        },
-        cosmetic: {
-            hair: cosmetic_hair,
-            skin: cosmetic_skin
-        },
-        allergy: allergy
-
-    }.to_json
+    Jbuilder.encode do |json|
+      json.gender gender
+      json.fashion do
+        json.sizes fashion_sizes
+      end
+      json.cosmetic do
+        json.hair cosmetic_hair
+        json.skin cosmetic_skin
+      end
+      json.allergy allergy
+      json.jewelry do
+        json.gem jewelry.try('gem')
+        json.metal jewelry.try('metal')
+        json.color jewelry.try('color')
+        json.ring_sizes jewelry.try('ring_size')
+        json.bracelet_sizes jewelry.try('bracelet_size')
+        json.chain_sizes jewelry.try('chain_size')
+      end
+    end
   end
 
   private
