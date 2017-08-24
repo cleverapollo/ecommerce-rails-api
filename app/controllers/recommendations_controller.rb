@@ -29,7 +29,7 @@ class RecommendationsController < ApplicationController
     if extracted_params.shop.id == 1464 && extracted_params.type == 'popular' && recommendations.count < extracted_params.limit
       experiment_params = extracted_params.dup
       experiment_params.track_recommender = false
-      experiment_params.limit = recommendations.count - extracted_params.limit
+      experiment_params.limit = extracted_params.limit - recommendations.count
       experiment_params.skip_niche_algorithms = true
       recommendations += Recommendations::Processor.process(experiment_params)
       recommendations.uniq!
