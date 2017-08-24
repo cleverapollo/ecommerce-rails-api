@@ -60,8 +60,8 @@ module ActionPush
 
         # todo тестируем вставку в Clickhouse
         begin
-          query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by)
-                     VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', 'Item', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'})"
+          query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by, referer, useragent)
+                     VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', 'Item', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'}, '#{params.request.referer}', '#{params.request.user_agent}')"
           if Rails.env.production?
             Thread.new { HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query) }
           else
