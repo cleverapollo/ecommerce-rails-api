@@ -16,7 +16,7 @@ module Recommender
         # работают только избранный набор, не приводящий к исключению всех товаров категории.
 
         # Для демо-магазина костыль - не отменяем отраслевые для популярных в категории
-        if shop.id == 1464
+        if shop.id == 1464 && !params.skip_niche_algorithms
           apply_industrial_filter(super)
         else
           categories.try(:any?)? super : apply_industrial_filter(super)
