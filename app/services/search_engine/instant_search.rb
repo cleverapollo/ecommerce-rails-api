@@ -21,7 +21,11 @@ class SearchEngine::InstantSearch < SearchEngine::Base
       json.set! "product" do
         json.prefix params.search_query
         json.completion do
+          json.size  8
           json.field "suggest_product"
+          json.contexts do
+            json.set! 'widgetable', true
+          end
           json.fuzzy do
             json.fuzziness 1
           end
