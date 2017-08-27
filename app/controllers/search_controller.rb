@@ -26,6 +26,7 @@ class SearchController < ApplicationController
     # Запускаем процессор с извлеченными данными
     result = SearchEngine::Processor.process(extracted_params)
 
+
     # JSON body
     body = Jbuilder.encode do |json|
       json.products result[:products] do |item|
@@ -42,6 +43,11 @@ class SearchController < ApplicationController
       end
       json.virtual_categories []
       json.keywords []
+    end
+
+    # Для полного поиска запоминаем для юзера запрос
+    if extracted_params.search_query && extracted_params.type == 'full_search'
+      SearchQuery.find_or_create_by user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current, query: extracted_params.search_query
     end
 
     render json: body
