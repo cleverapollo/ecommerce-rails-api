@@ -19,7 +19,8 @@ describe SearchEngine::Params do
         ssid: session.code,
         shop_id: shop.uniqid,
         type: 'instant_search',
-        search_query: 'laque'
+        search_query: 'laque',
+        categories: '33,45,,113,113'
       }
     end
 
@@ -32,6 +33,7 @@ describe SearchEngine::Params do
     it { expect(subject.shop).to eq(shop) }
     it { expect(subject.type).to eq(params[:type]) }
     it { expect(subject.search_query).to eq(params[:search_query]) }
+    it { expect(subject.category_ids).to eq(['33', '45', '113']) }
 
   end
 

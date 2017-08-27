@@ -21,6 +21,9 @@ module SearchEngine
     # Максимальное количество рекомендаций
     attr_accessor :limit
 
+    # Категории, в которых выполнять поиск
+    attr_accessor :category_ids
+
     # Товары, которые нужно исключить из рекомендаций
     attr_accessor :exclude
 
@@ -50,6 +53,7 @@ module SearchEngine
       extract_user
       extract_cart
       extract_search_query
+      extract_categories
       self
     end
 
@@ -69,6 +73,7 @@ module SearchEngine
       @cart_item_ids             = []
       @limit                     = 20
       @exclude                   = []
+      @category_ids              = []
       type                       = nil
       check
     end
@@ -176,6 +181,12 @@ module SearchEngine
       end
     end
 
+    # Извлекает категории: могут быть переданы строкой через запятую
+    def extract_categories
+      if raw[:categories].present?
+        @category_ids = raw[:categories].to_s.split(',').select { |x| !x.blank? }.uniq
+      end
+    end
 
     def extract_search_query
       if raw[:search_query].present?

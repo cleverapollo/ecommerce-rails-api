@@ -7,7 +7,7 @@ module SearchEngine
   class Base
 
     # Массив реализаций
-    TYPES = %w(instant_search)
+    TYPES = %w(instant_search full_search)
 
     # @return [SearchEngine::Params] params
     attr_accessor :params, :elastic_client
