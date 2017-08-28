@@ -26,7 +26,7 @@ class Actions::Tracker
       query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by, recommended_code, referer, useragent)
                  VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', '#{type}', '#{id}',
                          #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'},
-                         #{params.source['code'].present? ? "'#{params.source['code']}'" : 'NULL'},
+                         #{params.source.present? && params.source['code'].present? ? "'#{params.source['code']}'" : 'NULL'},
                          '#{params.request.referer}', '#{params.request.user_agent}')"
       if Rails.env.production?
         Thread.new { HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query) }
