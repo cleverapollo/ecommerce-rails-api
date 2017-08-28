@@ -202,6 +202,13 @@ module Retailer
       # @return String
       def index_structure
         Jbuilder.encode do |json|
+
+          json.settings do
+            json.analysis do
+              json.analyzer 'english'
+            end
+          end
+
           json.mappings do
             json.product do
               json.properties do
@@ -211,6 +218,7 @@ module Retailer
 
                 json.name do
                   json.type "text"
+                  json.analyzer 'english'
                 end
                 json.suggest_product do
                   json.type "completion"
@@ -455,6 +463,7 @@ module Retailer
                 end
                 json.name do
                   json.type "text"
+                  json.analyzer 'english'
                 end
                 json.url do
                   json.enabled false
