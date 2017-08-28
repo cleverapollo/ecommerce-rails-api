@@ -31,7 +31,7 @@ class SearchController < ApplicationController
     body = Jbuilder.encode do |json|
       json.products result[:products] do |item|
         json.name     item.name
-        json.url      item.url
+        json.url      UrlParamsHelper.add_params_to(item.url, recommended_by: extracted_params.type, r46_search_query: extracted_params.search_query)
         json.picture  item.resized_image_by_dimension('100x100')
         json.price    ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: " ")
         json.currency shop.currency
@@ -39,7 +39,7 @@ class SearchController < ApplicationController
       json.categories result[:categories] do |category|
         json.name     category[:name]
         json.id       category[:id]
-        json.url      category[:url]
+        json.url      UrlParamsHelper.add_params_to(category[:url], recommended_by: extracted_params.type, r46_search_query: extracted_params.search_query)
       end
       json.virtual_categories []
       json.keywords []
