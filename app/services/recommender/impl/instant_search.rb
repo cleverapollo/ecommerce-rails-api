@@ -1,7 +1,7 @@
 # typo Добавлен для валидации ActionPush::Params
 module Recommender
   module Impl
-    class Search
+    class InstantSearch
 
     end
   end
