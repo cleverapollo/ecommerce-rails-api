@@ -21,7 +21,7 @@ describe SearchController do
 
     it 'responds with json array of results' do
       get :get, params
-      expect(response.body).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], }).to_json
+      expect(response.body).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: []}).to_json
     end
   end
 

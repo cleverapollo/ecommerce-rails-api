@@ -7,6 +7,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
         categories: recommended_categories,
         virtual_categories: [],
         keywords: [],
+        queries: []
     }
   end
 
@@ -121,6 +122,5 @@ class SearchEngine::FullSearch < SearchEngine::Base
     result.values
 
   end
-
 
 end

@@ -14,7 +14,7 @@ describe SearchEngine::FullSearch do
     context 'default instant search' do
       it 'returns empty response' do
         recommender = SearchEngine::InstantSearch.new(params)
-        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], })
+        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: [] })
       end
     end
   end

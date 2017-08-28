@@ -26,6 +26,9 @@ class SearchController < ApplicationController
     # Запускаем процессор с извлеченными данными
     result = SearchEngine::Processor.process(extracted_params)
 
+    # Настройки поиска магазина
+    search_setting = shop.search_setting
+
 
     # JSON body
     body = Jbuilder.encode do |json|
@@ -43,6 +46,10 @@ class SearchController < ApplicationController
       end
       json.virtual_categories []
       json.keywords []
+      json.queries result[:queries] do |query|
+        json.name     query
+        json.url      UrlParamsHelper.add_params_to(search_setting.landing_page, recommended_by: extracted_params.type, r46_search_query: query)
+      end
     end
 
     # Для полного поиска запоминаем для юзера запрос

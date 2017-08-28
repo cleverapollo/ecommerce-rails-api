@@ -14,7 +14,23 @@ describe SearchEngine::InstantSearch do
     context 'default instant search' do
       it 'returns empty response' do
         recommender = SearchEngine::InstantSearch.new(params)
-        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], })
+        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: [] })
+      end
+    end
+
+
+    context 'when have search queries history' do
+      # Важно - поисковые запросы, запрошенные один раз, игнорируются
+      let!(:search_query_1) { create(:search_query, shop: shop, user: user, date: Date.current, query: 'popular') }
+      let!(:search_query_2) { create(:search_query, shop: shop, user: user, date: Date.current, query: 'popular') }
+      let!(:search_query_3) { create(:search_query, shop: shop, user: user, date: Date.current, query: 'popular') }
+      let!(:search_query_4) { create(:search_query, shop: shop, user: user, date: Date.current, query: 'non popular') }
+      let!(:search_query_5) { create(:search_query, shop: shop, user: user, date: Date.current, query: 'non popular') }
+
+      it 'returns queries in specific order' do
+        params[:search_query] = 'pop'
+        recommender = SearchEngine::InstantSearch.new(params)
+        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: ['popular', 'non popular'] })
       end
     end
   end

@@ -28,6 +28,9 @@ module Retailer
         # Массив действующих категорий
         active_category_ids = []
 
+        # Массив идентификаторов товаров, чтобы потом удалить те, которые отсутствуют в этом списке
+        # active_item_ids = []
+
         # Индексируем товары пачками по 2000 штук
         shop.items.recommendable.widgetable.find_in_batches(batch_size: 2000) do |items|
 
@@ -38,6 +41,9 @@ module Retailer
 
             # Пополняем список категорий для индексации
             active_category_ids += item.category_ids.flatten.compact if item.category_ids
+
+            # Добавляем в массив активный товар
+            # active_item_ids << item.id
 
             # Добавляем товар для индексации
             bulk << { index: { _index: new_index_name, _type: 'product', _id: item.id } }
