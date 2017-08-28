@@ -25,7 +25,7 @@ class Actions::Tracker
     begin
       query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by, recommended_code, referer, useragent)
                  VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', '#{type}', '#{id}',
-                         #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'},
+                         #{params.recommended_by.present? ? "'#{params.recommended_by}'" : 'NULL'},
                          #{params.source.present? && params.source['code'].present? ? "'#{params.source['code']}'" : 'NULL'},
                          '#{params.request.referer}', '#{params.request.user_agent}')"
       if Rails.env.production?
