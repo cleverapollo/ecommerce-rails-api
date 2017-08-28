@@ -58,18 +58,8 @@ module ActionPush
         # Запускаем обработку действия
         action.process params
 
-        # todo тестируем вставку в Clickhouse
-        begin
-          query = "INSERT INTO rees46.actions (session_id, current_session_code, shop_id, event, object_type, object_id, recommended_by, referer, useragent)
-                     VALUES (#{params.session.id}, '#{params.current_session_code}', #{params.shop.id}, '#{params.action}', 'Item', '#{item.uniqid}', #{params.recommended_by ? "'#{params.recommended_by}'" : 'NULL'}, '#{params.request.referer}', '#{params.request.user_agent}')"
-          if Rails.env.production?
-            Thread.new { HTTParty.post("http://#{ Rails.application.secrets.clickhouse_host}:8123",body: query) }
-          else
-            Rails.logger.debug "ClickHouse: #{query}"
-          end
-        rescue StandardError => e
-          Rollbar.error 'Clickhouse action insert error', e
-        end
+        # Трекаем событие
+        Actions::Tracker.new(params).track(item)
 
         # Логгируем событие
         Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by, segments: params.segments)
