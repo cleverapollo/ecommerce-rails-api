@@ -24,7 +24,7 @@ set :rollbar_role, Proc.new { :app }
 
 set :rvm_type, :user
 # set :rvm_custom_path, '~/.rvm'  # only needed if not detected
-set :rvm_ruby_string, '2.3.0'
+set :rvm_ruby_version, '2.3.1'
 
 # Whenever
 set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }

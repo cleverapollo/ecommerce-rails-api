@@ -3,14 +3,14 @@ LC_ALL="en_US.UTF-8"
 LANGUAGE="en_US.UTF-8"
 
 source 'https://rubygems.org'
-ruby '2.3.0'
+ruby '2.3.1'
 
 # Rails
 gem 'rails', '4.2.6'
 gem 'rails-api', '0.4.1'
 gem 'rake', '< 11.0'
 gem "sinatra", require: false # for sidekiq
-gem 'slavery', github: 'PNixx/slavery' # support read from slave server
+gem 'slavery' # support read from slave server
 
 # Хороший гем, но не дружит с Octopus
 # gem 'active_record_slave'
