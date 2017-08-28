@@ -22,7 +22,7 @@ class InitController < ApplicationController
 
     # Генерируем уникальный код для сессии
     if cookies['rees46_session_code'].blank?
-      cookies['rees46_session_code'] = params[:seance] || SecureRandom.uuid
+      cookies['rees46_session_code'] = params[:seance].present? ? params[:seance] : SecureRandom.uuid
     end
 
     # Строим массив кук, для поиска первой существующей сессии
