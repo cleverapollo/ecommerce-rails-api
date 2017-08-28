@@ -280,8 +280,11 @@ class Item < ActiveRecord::Base
             ;
 
             DROP TABLE temp_#{ shop_id }_items;
-            ANALYZE items;
+            VACUUM ANALYZE items;
           SQL
+          # обязательно делаем вакум после большого изменения данных таблицы
+          # если не делать, автовакум через некоторое время будет делать его
+          # с блокировкой таблицы
         rescue Exception => e
           table.connection.execute <<-SQL
             DROP TABLE IF EXISTS temp_#{ shop_id }_items;
