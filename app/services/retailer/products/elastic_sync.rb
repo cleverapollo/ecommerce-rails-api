@@ -218,7 +218,7 @@ module Retailer
 
                 json.name do
                   json.type "text"
-                  json.analyzer 'english'
+                  json.analyzer shop.search_setting.language
                 end
                 json.suggest_product do
                   json.type "completion"
@@ -463,7 +463,7 @@ module Retailer
                 end
                 json.name do
                   json.type "text"
-                  json.analyzer 'english'
+                  json.analyzer shop.search_setting.language
                 end
                 json.url do
                   json.enabled false
