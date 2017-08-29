@@ -97,15 +97,6 @@ class SearchEngine::FullSearch < SearchEngine::Base
       json.size      params.limit
     end
 
-    body = Jbuilder.encode do |json|
-      json.query do
-        json.match do
-          json.name  'coat'
-        end
-      end
-      json.size      10
-    end
-
     # Find in Elastic
     result = elastic_client.search index: "shop-#{shop.id}", type: 'category', body: body
     return [] unless result['hits']['hits'].any?
