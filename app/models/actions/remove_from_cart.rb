@@ -7,13 +7,13 @@ module Actions
     RATING = 3.7
 
     def mass_process
-
-      # Убираем из корзины удаленные товары
-      if params.items.any?
-        if cart = ClientCart.find_by(shop_id: params.shop.id, user_id: params.user.id)
-          cart.remove_from_cart(params.items.map(&:id))
-        end
-      end
+      # todo move to [Actions::Tracker]
+      # # Убираем из корзины удаленные товары
+      # if params.items.any?
+      #   if cart = ClientCart.find_by(shop_id: params.shop.id, user_id: params.user.id)
+      #     cart.remove_from_cart(params.items.map(&:id))
+      #   end
+      # end
     end
 
     def update_rating_and_last_action(rating)

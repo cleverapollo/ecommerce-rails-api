@@ -56,17 +56,19 @@ module ActionPush
         action = fetch_action_for item
 
         # Запускаем обработку действия
+        # @deprecated
         action.process params
-
-        # Трекаем событие
-        Actions::Tracker.new(params).track(item)
 
         # Логгируем событие
         Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by, segments: params.segments)
 
       end
 
+      # Трекаем событие
+      Actions::Tracker.new(params).track
+
       # Это используется в покупках и при передаче полного содержимого корзины
+      # @deprecated
       concrete_action_class.mass_process(params)
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров

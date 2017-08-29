@@ -25,10 +25,11 @@ module Actions
       super(params)
 
       if item
-        # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
-        Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
-          BrandLogger.track_click brand_campaign_id, params.shop.id, recommended_by
-        end
+        # todo move to [Actions::Tracker]
+        # # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
+        # Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
+        #   BrandLogger.track_click brand_campaign_id, params.shop.id, recommended_by
+        # end
       end
 
     end

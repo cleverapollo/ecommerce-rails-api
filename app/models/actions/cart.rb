@@ -24,8 +24,9 @@ module Actions
           end
         end
 
-        # Track client's cart
-        ClientCart.track(params.shop, params.user, params.items, params.segments)
+        # todo move to [Actions::Tracker]
+        # # Track client's cart
+        # ClientCart.track(params.shop, params.user, params.items, params.segments)
 
       end
     end

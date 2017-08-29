@@ -10,7 +10,8 @@ module Actions
       # Сохранение объекта заказа
       # @param [ActionPush::Params] params
       def mass_process(params)
-        Order.persist(params)
+        # todo move to [Actions::Tracker]
+        # Order.persist(params)
       end
     end
 
@@ -24,10 +25,11 @@ module Actions
 
     # @param [ActionPush::Params] params
     def post_process(params)
-      params.client.bought_something = true
-      params.client.supply_trigger_sent = nil
-      params.client.save if params.client.changed?
-      params.user.client_carts.destroy_all
+      # todo move to [Actions::Tracker]
+      # params.client.bought_something = true
+      # params.client.supply_trigger_sent = nil
+      # params.client.save if params.client.changed?
+      # params.user.client_carts.destroy_all
     end
 
     def needs_to_update_rating?

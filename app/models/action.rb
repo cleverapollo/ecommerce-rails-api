@@ -1,7 +1,7 @@
 ##
 # "Действие". Связка пользователь-товар.
 # Конкретные действия наследуются от этого класса
-#
+# @deprecated
 class Action < ActiveRecord::Base
 
   belongs_to :user
@@ -67,6 +67,7 @@ class Action < ActiveRecord::Base
 
   # Точка входа при обработке события. Вся работа происходит здесь.
   # @param [ActionPush::Params] params
+  # @deprecated
   def process(params)
     # Обновить параметры, специфичные для конкретного класса действий
     update_concrete_action_attrs
@@ -144,10 +145,11 @@ class Action < ActiveRecord::Base
 
   # @param [ActionPush::Params] params
   def save_to_mahout(params)
-    if params.shop.present? && params.shop.use_brb? && params.user && item
-      mahout_service = MahoutService.new(params.shop.brb_address)
-      mahout_service.set_preference(params.shop.id, params.user.id, item.id, self.rating)
-    end
+    # todo move to [Actions::Tracker]
+    # if params.shop.present? && params.shop.use_brb? && params.user && item
+    #   mahout_service = MahoutService.new(params.shop.brb_address)
+    #   mahout_service.set_preference(params.shop.id, params.user.id, item.id, self.rating)
+    # end
   end
 
 
