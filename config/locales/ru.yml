@@ -48,6 +48,9 @@ ru:
     products_title: Вы недавно смотрели
     buy: В корзину
 
+  search:
+    results: 'Показать все результаты: %query%'
+
   activerecord:
     attributes:
       item_category:

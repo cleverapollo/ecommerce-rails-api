@@ -91,7 +91,8 @@ module InitServerString
       if shop.search_enabled? && shop.search_setting
         search_settings = {
             enabled: true,
-            landing: shop.search_setting.landing_page
+            landing: shop.search_setting.landing_page,
+            results_title: I18n.t('search.results', locale: shop.customer.language || 'en'),
         }
       else
         search_settings = nil

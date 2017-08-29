@@ -48,6 +48,9 @@ en:
     products_title: Recently viewed
     buy: Cart
 
+  search:
+    results: 'Show all possible matches: %query%'
+
   activerecord:
     attributes:
       item_category:
