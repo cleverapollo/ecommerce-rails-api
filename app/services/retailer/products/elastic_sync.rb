@@ -6,6 +6,9 @@ module Retailer
 
       # @param [Shop] shop
       def initialize(shop)
+        if shop.class == Fixnum
+          shop = Shop.find(shop)
+        end
         self.shop = shop
         self.client = ElasticSearchConnector.get_connection
       end
@@ -147,9 +150,10 @@ module Retailer
           bulk = []
 
           categories.each do |category|
-            bulk << { index: { _index: new_index_name, _type: 'category', _id: category.external_id } }
+            bulk << { index: { _index: new_index_name, _type: 'category', _id: category.id } }
             bulk << {
                 name:               category.name,
+                uniqid:             category.external_id,
                 suggest_category:   category.name.split("\s").delete_if{|x| x.length <= 2 },
                 url:                category.url
             }
@@ -466,6 +470,9 @@ module Retailer
                   json.analyzer shop.search_setting.language
                 end
                 json.url do
+                  json.enabled false
+                end
+                json.uniqid do
                   json.enabled false
                 end
               end
