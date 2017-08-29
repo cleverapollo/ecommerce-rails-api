@@ -58,7 +58,7 @@ class Actions::Tracker
   def save_to_mahout(item)
     if params.shop.present? && params.shop.use_brb? && params.user && item && %w(cart purchase remove_from_cart).include?(params.action)
       mahout_service = MahoutService.new(params.shop.brb_address)
-      mahout_service.set_preference(params.shop.id, params.user.id, item.id, self.rating)
+      mahout_service.set_preference(params.shop.id, params.user.id, item.id, rating)
     end
   end
 
