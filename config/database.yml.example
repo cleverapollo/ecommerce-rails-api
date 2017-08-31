@@ -32,10 +32,15 @@ production_master:
   port: 5432
 
 production_clickhouse:
-  database: rees46
+  adapter: postgresql
+  encoding: unicode
+  database: rees46_clickhouse
+  pool: 5
+  username: rees46
+  password: rees46
   host: localhost
-  adapter: clickhouse
-  pool: 1
+  port: 5432
+  timeout: 5000
 
 development:
   adapter: postgresql
