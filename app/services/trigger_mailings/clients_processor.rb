@@ -10,8 +10,7 @@ module TriggerMailings
         Shop.connected.active.unrestricted.mailings_unrestricted.with_yml_processed_recently.with_enabled_triggers.each do |shop|
 
           # Запрещаем отправку сообщений при не настроенном DNS
-          # todo пока отключили, ждем отмашки от Кечинова
-          # next unless shop.mailing_dig_verify?
+          next unless shop.mailing_dig_verify?
 
           # Клиент на MailChimp временно отключен
           next if shop.id == 2442
