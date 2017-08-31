@@ -33,6 +33,13 @@ RSpec.configure do |config|
 
     ActiveRecord::Base.establish_connection
 
+    ActiveRecord::Base.establish_connection(:"#{Rails.env}_clickhouse")
+    conn = ActiveRecord::Base.connection
+    tables = conn.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';").map { |r| r['table_name'] }
+    tables.each { |t| conn.execute("TRUNCATE TABLE #{t}") }
+
+    ActiveRecord::Base.establish_connection
+
     # Disable slave gem for tests
     Slavery.disabled = true
   end

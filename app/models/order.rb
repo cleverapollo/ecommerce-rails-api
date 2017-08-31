@@ -149,6 +149,8 @@ class Order < ActiveRecord::Base
   end
 
   # Удаляет все товары из корзины для текущего пользователя и магазина
+  # @deprecated
+  # todo it used anywhere?
   def expire_carts
     user.actions.where(shop: shop).where('rating::numeric = ?', Actions::Cart::RATING).update_all(rating: Actions::RemoveFromCart::RATING)
   end
