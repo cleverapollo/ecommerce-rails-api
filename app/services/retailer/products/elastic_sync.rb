@@ -215,7 +215,13 @@ module Retailer
 
           json.mappings do
             json.product do
+
+              json._all do
+                json.enabled false
+              end
+
               json.properties do
+
                 json.widgetable do
                   json.type "boolean"
                 end
@@ -461,6 +467,11 @@ module Retailer
             end
 
             json.category do
+
+              json._all do
+                json.enabled false
+              end
+
               json.properties do
                 json.suggest_category do
                   json.type "completion"
