@@ -35,37 +35,7 @@ module SearchEngine
 
     # Точка входа
     def recommendations
-      # Проверка, валидны ли параметры для конкретного рекомендера
-      check_params!
-
-      # Получить рекомендованные внутренние ID товаров
-      ids = recommended_ids
-
-      items_data = {}
-      Slavery.on_slave do
-        shop.items.where(id: ids).each do |item|
-          items_data[item.id] =
-              {
-                  id: item.uniqid,
-                  name: item.name,
-                  url: item.url,
-                  image_url: params.resize_image.nil? ? item.image_url : item.resized_image_by_dimension("#{params.resize_image}x#{params.resize_image}"),
-                  price: item.price.to_s,
-                  currency: shop.currency,
-                  _id: item.id
-              }
-        end
-
-        result = []
-
-        # Сохраним оригинальный порядок
-        ids.each do |id|
-          result.push(items_data[id])
-        end
-
-      end
-
-      result
+      raise NotImplementedError.new('This should be implemented in specific search engine class')
     end
 
     # Проверка, валидны ли параметры для конкретного рекомендера
