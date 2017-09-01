@@ -165,6 +165,14 @@ describe InitController do
       end
     end
 
+    context 'with recommendations plans' do
+      let!(:subscription_plan) { create(:subscription_plan, shop: shop, product: 'product.recommendations', paid_till: 1.day.from_now, price: 1) }
+      it 'exists' do
+        get :init_script, init_params
+        expect(JSON.parse(response.body)['recommendations']).to be_truthy
+      end
+    end
+
     context 'with cookie' do
       before {
         request.env['HTTP_COOKIE'] = "#{Rees46::COOKIE_NAME}=12345; #{Rees46::COOKIE_NAME}=12345"

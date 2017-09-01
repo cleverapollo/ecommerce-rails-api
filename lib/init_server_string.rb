@@ -20,6 +20,7 @@ module InitServerString
       result += "  showPromotion: false,"
       result += "  segments: [],"
       result += "  sync: #{get_sync_pixels(client, shop).to_json},"
+      result += "  recommendations: #{options.fetch(:recommendations)},"
 
 
       # Настройки сбора e-mail
@@ -129,6 +130,7 @@ module InitServerString
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
           has_email: client.email.present?,
           sync: get_sync_pixels(client, shop),
+          recommendations: options.fetch(:recommendations),
           emailSubscription: {
             settings: email_settings,
             status: if client.accepted_subscription == true

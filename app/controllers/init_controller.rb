@@ -84,10 +84,12 @@ class InitController < ApplicationController
     session.updated_at = Date.current
     session.atomic_save! if session.changed?
 
+    recommendations = shop.subscription_plans.product_recommendations.active.paid.exists?
+
     if params[:v] == '3'
-      render json: InitServerString.make_v3(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'])
+      render json: InitServerString.make_v3(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'], recommendations: recommendations)
     else
-      render js: InitServerString.make(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'])
+      render js: InitServerString.make(shop: shop, session: session, client: client, seance: cookies['rees46_session_code'], recommendations: recommendations)
     end
   end
 
