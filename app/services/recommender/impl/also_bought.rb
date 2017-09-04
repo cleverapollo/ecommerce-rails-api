@@ -67,12 +67,12 @@ module Recommender
           result = result.group(:item_id).order('COUNT(item_id) DESC').limit(LIMIT_CF_ITEMS)
 
           # Получаем товары из заказов
-          ids += result.pluck(:item_id)
+          ids += Slavery.on_slave { result.pluck(:item_id) }
         end
 
         # Если указан фильтр максимальной цены, оставляем только те ID, которые соответствуют этой цене
         if params.max_price_filter
-          appropriate_ids = items_to_recommend.where(id: ids).where('price IS NOT NULL AND price > ?', params.max_price_filter).pluck(:id)
+          appropriate_ids = Slavery.on_slave { items_to_recommend.where(id: ids).where('price IS NOT NULL AND price > ?', params.max_price_filter).pluck(:id) }
           if appropriate_ids.any?
             # Сохраняя сортировку
             ids = ids - (ids - appropriate_ids)
@@ -83,10 +83,12 @@ module Recommender
         # TODO: в будущем учитывать FMCG и подобные вещи, где товары из одной категории часто покупают вместе, а пока исключаем. Видимо, нужно будет это убрать для отраслевого алгоритма
         if ids.any? && item && item.category_ids
           _ids = []
-          Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
-            if _element[1].nil? || _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
-            # unless (item.category_ids - _element[1]).empty?
-              _ids << _element[0]
+          Slavery.on_slave do
+            Item.recommendable.where(id: ids).pluck(:id, :category_ids).each do |_element|
+              if _element[1].nil? || _element[1].is_a?(Array) && item.category_ids.is_a?(Array) && !(item.category_ids - _element[1]).empty?
+              # unless (item.category_ids - _element[1]).empty?
+                _ids << _element[0]
+              end
             end
           end
           ids = _ids
@@ -94,7 +96,7 @@ module Recommender
 
         # Рекомендации аксессуаров
         if categories.present? && ids.size < limit
-          ids += items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id)
+          ids += Slavery.on_slave { items_to_recommend.in_categories(categories, any: true).where.not(id: ids).limit(LIMIT_CF_ITEMS - ids.size).pluck(:id) }
         end
 
         sr_weight(ids)

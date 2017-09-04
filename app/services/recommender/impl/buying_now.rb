@@ -28,7 +28,7 @@ module Recommender
       def items_to_weight
         result = shop.order_items.where(item: items_to_recommend.where.not(id: excluded_items_ids))
         result = result.where(order: shop.orders.where('date >= ?', 1.day.ago))
-        result = result.group(:item_id).count(:item_id)
+        result = Slavery.on_slave { result.group(:item_id).count(:item_id) }
         # Вытаскиваем маржинальность
         margins = items_to_recommend.where(id: result.map { |k,v| k }).pluck(:id, :price_margin, :category_ids)
         # Накладываем маржинальность на продаваемость

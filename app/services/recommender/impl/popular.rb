@@ -49,7 +49,7 @@ module Recommender
                    end
 
         # Находим отсортированные товары
-        result = relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :category_ids)
+        result = Slavery.on_slave { relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :category_ids) }
 
 
         result.to_a.map { |value| [value[0], { sales_rate: value[1], category_ids: (value[2] || []) }] }.to_h
