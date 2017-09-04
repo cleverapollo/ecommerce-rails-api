@@ -25,10 +25,10 @@ class OrderItem < ActiveRecord::Base
 
       # Ищем действие с товаром в кликхаус
       if recommended_by.nil?
-        action_cl = ActionCl.where(shop_id: order.shop_id, session: session).where.not(recommended_by: nil).where.not(recommended_by: %w(trigger_mail digest_mail)).where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date).limit(1).first
-        if action_cl.present?
-          recommended_by = action_cl.recommended_by
-        end
+        # action_cl = ActionCl.where(shop_id: order.shop_id, session: session).where.not(recommended_by: nil).where.not(recommended_by: %w(trigger_mail digest_mail)).where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date).limit(1).first
+        # if action_cl.present?
+        #   recommended_by = action_cl.recommended_by
+        # end
       end
 
       # todo @deprecated, удалить Action, брать из Clickhouse
