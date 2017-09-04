@@ -285,7 +285,7 @@ class Item < ActiveRecord::Base
           # обязательно делаем вакум после большого изменения данных таблицы
           # если не делать, автовакум через некоторое время будет делать его
           # с блокировкой таблицы
-          table.connection.execute 'VACUUM ANALYZE items;' unless Rails.env.test?
+          #table.connection.execute 'VACUUM ANALYZE items;' unless Rails.env.test?
 
         rescue Exception => e
           table.connection.execute <<-SQL

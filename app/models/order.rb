@@ -41,6 +41,20 @@ class Order < ActiveRecord::Base
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
+      # Если источник пустой, пробудем найти в Clickhouse
+      if source.blank? || source['from'].blank?
+        action_cl = ActionCL.where(shop_id: shop.id,
+                                   session_id: params.session.id,
+                                   event: 'view',
+                                   object_type: 'Item',
+                                   object_id: items.map { |i| i.uniqid },
+                                   recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger)
+        ).where('date >= ?', 2.days.ago.to_date).limit(1).first
+        if action_cl.present?
+          source = { 'from' => action_cl.recommended_by, 'code' => action_cl.recommended_code }
+        end
+      end
+
       # Привязка заказа к письму
       if source.present? && source['from'].present?
         klass = if source['from'] == 'trigger_mail'

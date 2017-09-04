@@ -13,7 +13,7 @@ class Redis
   # Хз зачем было сделано так
   def self.configure
     redis_db = 0
-    if SHARD_ID == '01'
+    if Rails.env.production?
       # На 01 шарде редис перенесен на сервер с крон тасками
       host = '88.99.193.211:7000'
     else

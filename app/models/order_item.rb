@@ -23,6 +23,7 @@ class OrderItem < ActiveRecord::Base
         end
       end
 
+      # todo @deprecated, удалить Action, брать из Clickhouse
       # Если recommended_by не указан, но в Action был recommended_by и он не устарел, то используем его
       # Для триггеров и дайджестов это 2 дня, для всех остальных 2 недели
       if recommended_by.nil? && action.recommended_by && action.recommended_at.present?
