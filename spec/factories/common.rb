@@ -41,6 +41,12 @@ FactoryGirl.define do
   factory :action do
   end
 
+  factory :action_cl do
+    current_session_code { SecureRandom.uuid }
+    useragent { Faker::Lorem.word }
+    referer { Faker::Lorem.word }
+  end
+
   factory :mahout_action do
   end
 

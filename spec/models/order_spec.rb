@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Order do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
   let!(:sample_item) { OpenStruct.new(amount: 1) }
 
   describe '.persist' do
@@ -10,7 +11,7 @@ describe Order do
       allow(OrderItem).to receive(:persist)
     end
 
-    subject { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', items: [sample_item], source: nil, order_price: 18000 })) }
+    subject { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, items: [sample_item], source: nil, order_price: 18000 })) }
 
     it 'creates order' do
       expect{ subject }.to change(Order, :count).from(0).to(1)
@@ -57,6 +58,19 @@ describe Order do
     it 'removes all user carts in current shop' do
       subject
       expect(action.reload.rating).to eq(Actions::RemoveFromCart::RATING)
+    end
+  end
+
+  describe '#recommender' do
+    let!(:item) { create(:item, shop: shop, amount: 1) }
+    let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item.uniqid, recommended_by: 'popular') }
+
+    subject { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, items: [item], source: nil, order_price: 18000 })) }
+
+    it 'generate with recommended' do
+      subject
+      expect(Order.first.recommended?).to be_truthy
+      expect(OrderItem.first.recommended_by).to eq('popular')
     end
   end
 end

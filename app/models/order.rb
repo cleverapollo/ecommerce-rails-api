@@ -41,15 +41,26 @@ class Order < ActiveRecord::Base
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
+      # Используем вставку UPSET для предотвращения конфиктов уникальных значений
+      Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
+          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO NOTHING', shop.id, uniqid, user.id, Time.now
+      ]))
+      order = Order.find_by shop_id: shop.id, uniqid: uniqid
+
+      # Выходим, если заказ было создан не сегодня
+      return nil if order.date.to_date < Date.current
+
       # Если источник пустой, пробудем найти в Clickhouse
       if source.blank? || source['from'].blank?
-        action_cl = ActionCL.where(shop_id: shop.id,
+        relation = ActionCl.where(shop_id: shop.id,
                                    session_id: params.session.id,
                                    event: 'view',
                                    object_type: 'Item',
-                                   object_id: items.map { |i| i.uniqid },
-                                   recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger)
-        ).where('date >= ?', 2.days.ago.to_date).limit(1).first
+                                   object_id: items.map { |i| i.uniqid }
+        )
+
+        # Ищем для CPA
+        action_cl = relation.where(recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger)).where('date >= ?', 2.days.ago.to_date).limit(1).first
         if action_cl.present?
           source = { 'from' => action_cl.recommended_by, 'code' => action_cl.recommended_code }
         end
@@ -75,29 +86,7 @@ class Order < ActiveRecord::Base
       end
 
       # Расчитываем суммы по заказу. Если заказ из нашего канала, то все товары рекомендованные.
-      values = order_values(shop, user, items, source.present?, order_price)
-
-      # Используем вставку UPSET для предотвращения конфиктов уникальных значений
-      Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO NOTHING', shop.id, uniqid, user.id, Time.now
-      ]))
-      order = Order.find_by shop_id: shop.id, uniqid: uniqid
-
-      # Выходим, если заказ было создан не сегодня
-      return nil if order.date < Date.current
-
-      # todo если вставка upset будет работать корректно, удалить
-      # # Проверка: если два запроса придут одновременно, то еще раз проверим дубликаты. Да, тупо, но как иначе, если вторая строка этого метода не успевает отловить дубликат?
-      # return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
-      #
-      # # Ищем заказ или создаем новый
-      # order = Order.find_or_initialize_by(shop_id: shop.id, uniqid: uniqid)
-      #
-      # # Если новый заказ, указываем юзера и сохраняем его
-      # if order.new_record?
-      #   order.user_id = user.id
-      #   order.save!
-      # end
+      values = order_values(shop, user, params.session, items, source.present?, order_price)
 
       # Обновляем данные заказа
       order.assign_attributes(common_value: values[:common_value],
@@ -117,18 +106,20 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
-        OrderItem.persist(order, item, item.amount, recommended_by_expicit)
+        OrderItem.persist(order, item, params.session, item.amount, recommended_by_expicit)
       end
 
       order
     end
 
     # Расчет сумм по заказу
-    def order_values(shop, user, items, force_recommended = false, remote_order_price = nil)
+    def order_values(shop, user, session, items, force_recommended = false, remote_order_price = nil)
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
-        if force_recommended || shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DECAY.ago).exists?
+        if force_recommended || ActionCl.where(shop: shop, session: session).where.not(recommended_by: nil).where('date >= ?', RECOMMENDED_BY_DECAY.ago.to_date).exists? ||
+           # todo выпилить, когда перейдем окончательно на кликхаус
+           Slavery.on_slave { shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DECAY.ago).exists? }
           result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
         else
           result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)

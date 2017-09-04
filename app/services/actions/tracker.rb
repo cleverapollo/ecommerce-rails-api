@@ -40,7 +40,7 @@ class Actions::Tracker
   def track_object(type, id)
     begin
       thread = Thread.new do
-        ActionCL.create!(
+        ActionCl.create!(
             session_id: params.session.id,
             current_session_code: params.current_session_code,
             shop_id: params.shop.id,

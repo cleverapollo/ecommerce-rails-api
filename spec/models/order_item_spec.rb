@@ -4,6 +4,7 @@ describe OrderItem do
   describe '.persist' do
     before do
       @user = create(:user)
+      @session = create(:session, user: @user)
       @shop = create(:shop)
       @order = create(:order, shop: @shop, user: @user)
       @item = create(:item, shop: @shop)
@@ -11,7 +12,7 @@ describe OrderItem do
       @action = create(:action, user: @user, shop: @shop, item: @item)
     end
 
-    subject { OrderItem.persist(@order, @item, @amount) }
+    subject { OrderItem.persist(@order, @item, @session, @amount) }
 
     it 'persists order_item' do
       expect{ subject }.to change(OrderItem, :count).from(0).to(1)

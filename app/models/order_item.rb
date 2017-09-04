@@ -12,7 +12,7 @@ class OrderItem < ActiveRecord::Base
 
   class << self
     # Сохранить товар заказа
-    def persist(order, item, amount, recommended_by = nil)
+    def persist(order, item, session, amount, recommended_by = nil)
 
       action = Action.find_by(item_id: item.id, user_id: order.user_id)
       if action.nil?
@@ -20,6 +20,14 @@ class OrderItem < ActiveRecord::Base
           action = Action.atomic_create!(item_id: item.id, user_id: order.user_id, shop_id: order.shop_id, rating: Actions::Purchase::RATING, recommended_by: recommended_by, recommended_at: recommended_by.present? ? Time.current : nil)
         rescue
           action = Action.find_by(item_id: item.id, user_id: order.user_id)
+        end
+      end
+
+      # Ищем действие с товаром в кликхаус
+      if recommended_by.nil?
+        action_cl = ActionCl.where(shop_id: order.shop_id, session: session).where.not(recommended_by: nil).where.not(recommended_by: %w(trigger_mail digest_mail)).where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date).limit(1).first
+        if action_cl.present?
+          recommended_by = action_cl.recommended_by
         end
       end
 
