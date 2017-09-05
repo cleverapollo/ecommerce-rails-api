@@ -198,7 +198,7 @@ GEM
       mimemagic (~> 0.3.0)
     parser (2.4.0.0)
       ast (~> 2.2)
-    pg (0.18.4)
+    pg (0.21.0)
     postgres-copy (1.0.0)
       activerecord (>= 4.0)
       pg (>= 0.17)
@@ -399,7 +399,7 @@ DEPENDENCIES
   newrelic_rpm
   open_uri_redirections
   paperclip
-  pg (~> 0.18.1)
+  pg (~> 0.21.0)
   postgres-copy
   pry
   pry-byebug

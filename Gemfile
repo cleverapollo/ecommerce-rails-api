@@ -21,7 +21,7 @@ gem 'request_store_rails'
 gem 'rack-utf8_sanitizer', '~> 1.2.3'
 
 # Database
-gem 'pg', '~> 0.18.1'
+gem 'pg', '~> 0.21.0'
 gem 'redis-objects'
 gem 'redis-namespace'
 gem 'postgres-copy'
