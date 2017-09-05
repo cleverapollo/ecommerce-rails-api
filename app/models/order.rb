@@ -117,7 +117,8 @@ class Order < ActiveRecord::Base
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
       items.each do |item|
-        if force_recommended || ActionCl.where(shop: shop, session: session).where.not(recommended_by: nil).where('date >= ?', RECOMMENDED_BY_DECAY.ago.to_date).exists? ||
+        if force_recommended ||
+           #ActionCl.where(shop: shop, session: session).where.not(recommended_by: nil).where('date >= ?', RECOMMENDED_BY_DECAY.ago.to_date).exists? ||
            # todo выпилить, когда перейдем окончательно на кликхаус
            Slavery.on_slave { shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DECAY.ago).exists? }
           result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
