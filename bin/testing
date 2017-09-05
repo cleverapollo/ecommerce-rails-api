@@ -1,3 +1,3 @@
 #!/bin/bash
 
-RAILS_ENV=test bundle exec rake db:reset && RAILS_ENV=test bundle exec rake db:test:load_schema && redis-cli flushall && rspec
+RAILS_ENV=test bundle exec rake db:reset && RAILS_ENV=test bundle exec rake db:test:load_schema && RAILS_ENV=test bundle exec rake clickhouse:schema:load && redis-cli flushall && rspec

@@ -19,15 +19,15 @@ describe Actions::Tracker do
 
     subject { Actions::Tracker.new(params).track }
 
-    # it 'track' do
-    #   subject
-    #   action = ActionCl.first
-    #   expect(action.session_id).to eq(session.id)
-    #   expect(action.shop_id).to eq(shop.id)
-    #   expect(action.current_session_code).to eq('1')
-    #   expect(action.event).to eq('view')
-    #   expect(action.object_type).to eq('Item')
-    #   expect(action.object_id).to eq(item.uniqid)
-    # end
+    it 'track' do
+      subject
+      action = ActionCl.first
+      expect(action.session_id).to eq(session.id)
+      expect(action.shop_id).to eq(shop.id)
+      expect(action.current_session_code).to eq('1')
+      expect(action.event).to eq('view')
+      expect(action.object_type).to eq('Item')
+      expect(action.object_id).to eq(item.uniqid)
+    end
   end
 end
