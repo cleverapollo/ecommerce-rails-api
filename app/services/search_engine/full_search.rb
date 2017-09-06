@@ -102,7 +102,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
     return [] unless result['hits']['hits'].any?
 
     ids = result['hits']['hits'].map{|x| x['_id']}
-    categories = shop.item_categories.where(external_id: ids )
+    categories = shop.item_categories.where(id: ids )
 
     # Сортируем категории в соответствии с ID из поисковика
     result = Hash[ids.map { |id| [id, nil] }]
