@@ -39,6 +39,8 @@ class VisitTracker
       end
       date = date + 1.day
     end
+
+    ActiveRecord::Base.connection.execute 'VACUUM ANALYZE visits'
   end
 
 end
