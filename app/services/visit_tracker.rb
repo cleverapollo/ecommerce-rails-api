@@ -32,9 +32,10 @@ class VisitTracker
 
     while date < date_max
       puts date
-      Visit.where(date: date).where('date < ?', date_max).find_in_batches(batch_size: 5000).with_index do |group, n|
-        ids = group.map(&:id)
+      loop do
+        ids = Visit.where(date: date).where('date < ?', date_max).limit(5000).pluck(:id)
         Visit.where(id: ids).delete_all
+        break if ids.count == 0
       end
       date = date + 1.day
     end

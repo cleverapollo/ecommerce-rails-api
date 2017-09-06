@@ -44,10 +44,10 @@ module DigestMailings
                   threads = []
                   group.each do |client|
                     i += 1
-                    if ActiveRecord::Base.logger.level > 0
-                      STDOUT.write "\r".rjust(i.to_s.length + size)
-                      STDOUT.write "\r#{i} "
-                    end
+                    # if ActiveRecord::Base.logger.level > 0
+                    #   STDOUT.write "\r".rjust(i.to_s.length + size)
+                    #   STDOUT.write "\r#{i} "
+                    # end
 
                     # Проверяем валидность email
                     if IncomingDataTranslator.email_valid?(client.email)
@@ -72,7 +72,7 @@ module DigestMailings
                           file_source.flock(File::LOCK_UN)
                         end
 
-                        STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
+                        # STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
                       end
                     end
 
