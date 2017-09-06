@@ -33,6 +33,7 @@ class SearchController < ApplicationController
     # JSON body
     body = Jbuilder.encode do |json|
       json.products result[:products] do |item|
+        json.id       item.uniqid
         json.name     item.name
         json.url      UrlParamsHelper.add_params_to(item.url, recommended_by: extracted_params.type, r46_search_query: extracted_params.search_query)
         json.picture  item.resized_image_by_dimension('100x100')
