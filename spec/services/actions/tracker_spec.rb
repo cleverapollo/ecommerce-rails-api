@@ -21,9 +21,7 @@ describe Actions::Tracker do
 
     it 'track' do
       subject
-      action = ActionCl.first
-      expect(action.session_id).to eq(session.id)
-      expect(action.shop_id).to eq(shop.id)
+      action = ActionCl.find_by(shop: shop, session: session)
       expect(action.current_session_code).to eq('1')
       expect(action.event).to eq('view')
       expect(action.object_type).to eq('Item')
