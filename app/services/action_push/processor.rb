@@ -87,9 +87,11 @@ module ActionPush
       # Отмечаем, что пользователь был активен
       params.client.track_last_activity
 
-      # Трекаем таксономию в DMP
-      UserTaxonomy.track params.user, params.items, params.shop, params.action
-
+      # Пропускаем для категории, пока Кечинов не расскажет, что тут творится
+      unless params.action == 'category'
+        # Трекаем таксономию в DMP
+        UserTaxonomy.track params.user, params.items, params.shop, params.action
+      end
     end
 
 
