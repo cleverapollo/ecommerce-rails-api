@@ -23,7 +23,7 @@ development:
   trigger: 10
   mailing: 10
   mailing_test: 1
-  yml: 2
+  yml: 4
   long: 5
   default: 5
   webpush: 5

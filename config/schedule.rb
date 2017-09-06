@@ -67,6 +67,10 @@ every 1.week do
   runner "RunnerWrapper.run('BounceHandlerWorker.cleanup')"
 end
 
+every 1.week do
+  runner "RunnerWrapper.run('VisitTracker.cleanup')"
+end
+
 # Drop outdated abandoned carts
 every '50 23 * * *' do
   runner "RunnerWrapper.run('ClientCart.clear_outdated')"

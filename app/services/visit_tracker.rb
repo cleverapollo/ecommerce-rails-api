@@ -25,5 +25,19 @@ class VisitTracker
     end
   end
 
+  # Удаление старых данных
+  def self.cleanup
+    date = Visit.minimum(:date)
+    date_max = 2.months.ago.to_date
+
+    while date < date_max
+      puts date
+      Visit.where(date: date).where('date < ?', date_max).find_in_batches(batch_size: 5000).with_index do |group, n|
+        ids = group.map(&:id)
+        Visit.where(id: ids).delete_all
+      end
+      date = date + 1.day
+    end
+  end
 
 end
