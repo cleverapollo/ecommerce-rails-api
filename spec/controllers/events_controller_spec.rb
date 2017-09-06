@@ -115,6 +115,23 @@ describe EventsController do
     end
   end
 
+  describe 'POST push category' do
+    let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
+    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:item_category) { create(:item_category, shop: shop, external_id: '1') }
+    let(:params) { { shop_id: shop.uniqid, ssid: session.code, seance: SecureRandom.uuid, event: 'category', category_id: '1', request: { useragent: 'test' } } }
+
+    it 'default' do
+      @request.env['HTTP_REFERER'] = 'http://test.com/sessions/new'
+      post :push, params
+
+      action = ActionCl.first
+      expect(action.event).to eq('category')
+      expect(action.object_type).to eq('ItemCategory')
+      expect(action.object_id).to eq('1')
+    end
+  end
+
   describe 'POST push purchase' do
     let!(:session) { create(:session, user: user, code: SecureRandom.uuid) }
     let!(:client) { create(:client, user: user, shop: shop) }

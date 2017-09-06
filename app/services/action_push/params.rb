@@ -37,6 +37,8 @@ module ActionPush
     attr_accessor :recommended_by
     # Массив товаров
     attr_accessor :items
+    # @return [ItemCategory]
+    attr_accessor :category
     # ID заказа в магазине (только для действия purchase)
     attr_accessor :order_id
     # Цена заказа
@@ -78,6 +80,7 @@ module ActionPush
       extract_user
       track_mytoys_trigger
       normalize_item_arrays and extract_items
+      extract_category
       self
     end
 
@@ -305,6 +308,13 @@ module ActionPush
       end
     rescue JSON::ParserError => e
       raise ActionPush::IncorrectParams.new(e.message)
+    end
+
+    def extract_category
+      if raw[:category_id].present?
+        self.category = ItemCategory.find_by(shop: self.shop, external_id: raw[:category_id])
+        raise ActionPush::IncorrectParams.new('Unknown category') if self.category.nil?
+      end
     end
 
     def correct_url_joiner(shop_url, uri)

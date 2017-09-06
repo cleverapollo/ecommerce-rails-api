@@ -29,6 +29,10 @@ class Actions::Tracker
       end
     end
 
+    if params.action == 'category' && params.category.present?
+      track_object(params.category.class, params.category.external_id)
+    end
+
     process
   end
 
