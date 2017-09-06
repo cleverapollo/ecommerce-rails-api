@@ -36,7 +36,7 @@ class SearchController < ApplicationController
         json.id       item.uniqid
         json.name     item.name
         json.url      UrlParamsHelper.add_params_to(item.url, recommended_by: extracted_params.type, r46_search_query: extracted_params.search_query)
-        json.picture  item.resized_image_by_dimension('100x100')
+        json.picture  item.resized_image_by_dimension('160x160')
         json.price    ActiveSupport::NumberHelper.number_to_rounded(item.price, precision: 0, delimiter: " ")
         json.currency shop.currency
       end
