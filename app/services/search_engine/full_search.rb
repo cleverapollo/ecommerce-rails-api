@@ -66,7 +66,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
     values_sr.normalize!
 
     # Calculate combined scores: sales rate, semantic and CF
-    final_rate = values_semantic.each_with_index.map { |v, k| values_semantic[k] + values_cf[k] + values_sr[k] }
+    final_rate = values_semantic.each_with_index.map { |_, k| values_semantic[k] + values_cf[k] + values_sr[k] }
     scored_ids = score_semantic.keys.each_with_index { |id,k| [id, final_rate[k]] }
 
     # Find items
@@ -105,12 +105,12 @@ class SearchEngine::FullSearch < SearchEngine::Base
     categories = shop.item_categories.where(id: ids )
 
     # Сортируем категории в соответствии с ID из поисковика
-    result = Hash[ids.map { |id| [id, nil] }]
+    result = Hash[ids.map { |id| [id.to_i, nil] }]
     categories.each do |category|
-      result[category.external_id] = category
+      result[category.id] = category
     end
 
-    result.values
+    result.values.map { |x| {id: x.external_id, name: x.name, url: x.url} }
 
   end
 
