@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170907092709) do
+ActiveRecord::Schema.define(version: 20170907131958) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -541,7 +541,7 @@ ActiveRecord::Schema.define(version: 20170907092709) do
 
   add_index "recommendations_requests", ["shop_id"], name: "index_recommendations_requests_on_shop_id", using: :btree
 
-  create_table "recommenders", force: :cascade do |t|
+  create_table "recommender_blocks", force: :cascade do |t|
     t.integer  "shop_id"
     t.string   "name",                       null: false
     t.string   "description"
@@ -553,7 +553,7 @@ ActiveRecord::Schema.define(version: 20170907092709) do
     t.datetime "updated_at",                 null: false
   end
 
-  add_index "recommenders", ["shop_id", "code"], name: "index_recommenders_on_shop_id_and_code", unique: true, using: :btree
+  add_index "recommender_blocks", ["shop_id", "code"], name: "index_recommender_blocks_on_shop_id_and_code", unique: true, using: :btree
 
   create_table "reputations", id: :bigserial, force: :cascade do |t|
     t.string   "name"
