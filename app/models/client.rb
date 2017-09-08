@@ -182,7 +182,7 @@ class Client < ActiveRecord::Base
   def purge_email!
     if self.email.present?
       InvalidEmail.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO invalid_emails (email, reason, created_at) VALUES(?, ?, ?) ON CONFLICT (email) DO NOTHING', self.email, 'mark_as_bounced', Time.now
+          'INSERT INTO invalid_emails (email, reason, created_at, updated_at) VALUES(?, ?, ?, ?) ON CONFLICT (email) DO NOTHING', self.email, 'mark_as_bounced', Time.now, Time.now
       ]))
       update email: nil
       # Client.where(email: self.email).update_all(email: nil)
