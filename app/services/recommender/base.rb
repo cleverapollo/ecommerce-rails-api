@@ -1,7 +1,8 @@
 ##
 # Базовые рекомендер. Все наследуется от него.
-#
+# @deprecated
 module Recommender
+  # @deprecated
   class Base
 
     # Доступные модификации отраслевых алгоритмов

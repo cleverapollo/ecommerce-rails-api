@@ -23,6 +23,11 @@ FactoryGirl.define do
     end
   end
 
+  factory :recommender_block do
+    name { Faker::Lorem.word }
+    code { SecureRandom.uuid }
+  end
+
   factory :invalid_email do
   end
 

@@ -3,6 +3,7 @@
 # Персонализация производится через подмешивание весовой выдачи CF к весовой выдаче рекоммендера
 #
 module Recommender
+  # @deprecated
   class Personalized < Recommender::Weighted
 
     include ItemInjector
