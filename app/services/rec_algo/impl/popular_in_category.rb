@@ -1,12 +1,14 @@
 module RecAlgo
   module Impl
-    class Popular < RecAlgo::Base
+    class PopularInCategory < RecAlgo::Base
 
       def recommendations
+
         check_params!
 
         filter_conditions = []
         filter_conditions << ['term', 'widgetable', true]
+        filter_conditions << ['terms', 'category_ids', params.categories] # Работает по OR
         if params.locations.any?
           # Добавляем global, чтобы находить товары, у которых не указан locations
           filter_conditions << ['terms', 'location_ids', params.locations.map { |x| x.to_s } + ['global'] ]
@@ -40,6 +42,7 @@ module RecAlgo
       # Проверка, валидны ли параметры для конкретного рекомендера
       def check_params!
         raise Recommendations::Error.new('Blank user') if params.user.blank?
+        raise Recommendations::Error.new('Empty categories list') if params.categories.empty?
       end
 
     end

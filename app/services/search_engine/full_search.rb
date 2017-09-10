@@ -19,10 +19,25 @@ class SearchEngine::FullSearch < SearchEngine::Base
     return [] if Rails.env.test?
 
     # Build Elastic request
+    filter_conditions = []
+    filter_conditions << ['term', 'widgetable', true]
+    if params.locations
+      # Добавляем global, чтобы находить товары, у которых не указан locations
+      filter_conditions << ['terms', 'location_ids', params.locations + ['global'] ]
+    end
     body = Jbuilder.encode do |json|
       json.query do
         json.match do
           json.name  params.search_query
+        end
+        json.bool do
+          json.filter do
+            json.array! filter_conditions do |x|
+              json.set! x[0] do
+                json.set! x[1], x[2]
+              end
+            end
+          end
         end
       end
       json.size      params.limit

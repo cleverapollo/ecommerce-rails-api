@@ -77,7 +77,7 @@ module Retailer
                 vendor_code:      item.vendor_code,
                 model:            item.model,
                 widgetable:       item.widgetable,
-                location_ids:     item.location_ids,
+                location_ids:     item.location_ids.is_a?(Array) && item.location_ids.any? ? item.location_ids.map { |x| x.to_s } : ['global'],
                 barcode:          item.barcode,
 
                 is_fashion:       item.is_fashion,
@@ -454,13 +454,13 @@ module Retailer
                   json.type "keyword"
                 end
                 json.ring_sizes do
-                  json.type "byte"
+                  json.type 'keyword'
                 end
                 json.bracelet_sizes do
-                  json.type "byte"
+                  json.type 'keyword'
                 end
                 json.chain_sizes do
-                  json.type "short"
+                  json.type 'keyword'
                 end
 
               end

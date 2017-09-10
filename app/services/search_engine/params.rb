@@ -14,6 +14,9 @@ module SearchEngine
     attr_accessor :shop
     # Тип вызываемого поиска
     attr_accessor :type
+    
+    # Гео
+    attr_accessor :locations
 
     # Массив ID товаров в корзине
     attr_accessor :cart_item_ids
@@ -54,6 +57,7 @@ module SearchEngine
       extract_cart
       extract_search_query
       extract_categories
+      extract_locations
       self
     end
 
@@ -74,6 +78,7 @@ module SearchEngine
       @limit                     = 20
       @exclude                   = []
       @category_ids              = []
+      @locations                 = []
       type                       = nil
       check
     end
@@ -113,6 +118,15 @@ module SearchEngine
 
     end
 
+    # Извлекает местоположения: приходят массивом
+    #
+    # @private
+    def extract_locations
+      if raw[:locations].present?
+        @locations += raw[:locations].split(',')
+      end
+    end
+    
     # Извлекает юзера через сессию
     #
     # @private
