@@ -27,10 +27,17 @@ class SearchEngine::FullSearch < SearchEngine::Base
     end
     body = Jbuilder.encode do |json|
       json.query do
-        json.match do
-          json.name  params.search_query
-        end
+        # json.match do
+        #   json.name  params.search_query
+        # end
         json.bool do
+          json.must do
+            json.array! [ ['match', 'name', params.search_query] ] do |x|
+              json.set! x[0] do
+                json.set! x[1], x[2]
+              end
+            end
+          end
           json.filter do
             json.array! filter_conditions do |x|
               json.set! x[0] do
