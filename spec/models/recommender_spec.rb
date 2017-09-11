@@ -69,7 +69,7 @@ RSpec.describe Recommender, :type => :model do
       end
 
       it 'do it' do
-        expect(subject).to eq([item2.uniqid, item.uniqid])
+        expect(subject).to eq([item.uniqid, item2.uniqid])
       end
 
     end
