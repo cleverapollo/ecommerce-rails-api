@@ -42,7 +42,7 @@ module RecAlgo
       # Проверка, валидны ли параметры для конкретного рекомендера
       def check_params!
         raise Recommendations::Error.new('Blank user') if params.user.blank?
-        raise Recommendations::Error.new('Empty categories list') if params.categories.empty?
+        raise Recommendations::Error.new('Empty categories list') if params.categories.blank?
       end
 
     end
