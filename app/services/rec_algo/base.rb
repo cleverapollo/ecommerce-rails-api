@@ -13,6 +13,7 @@ module RecAlgo
     # @return [Recommendations::Params] params
     attr_accessor :params
     attr_accessor :strict_categories
+    attr_accessor :rule
 
     class << self
       # Получить класс рекомендера по названию
@@ -46,8 +47,10 @@ module RecAlgo
     end
 
     # @param [Recommendations::Params] params
-    def initialize(params)
+    # @param [Hash] rule
+    def initialize(params, rule)
       @params = params
+      self.rule = rule
       @strict_categories = false
       check_params!
     end
