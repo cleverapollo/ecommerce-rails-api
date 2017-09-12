@@ -7,10 +7,12 @@ module Recommendations
     # Входящие параметры
     attr_accessor :raw
     # Пользователь
+    # @return [User]
     attr_accessor :user
     # Сессия
+    # @return [Session]
     attr_accessor :session
-    # @return [Shop] shop Магазин
+    # @return [Shop] Магазин
     attr_accessor :shop
     # Тип вызываемого рекомендера
     attr_accessor :type
@@ -121,7 +123,7 @@ module Recommendations
       raise Recommendations::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank? && raw[:email].blank?
       raise Recommendations::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
       raise Recommendations::IncorrectParams.new('Recommender type not provided') if raw[:recommender_type].blank?
-      raise Recommendations::IncorrectParams.new("Unknown recommender: #{raw[:recommender_type]}") unless Recommender::Base::TYPES.include?(raw[:recommender_type])
+      raise Recommendations::IncorrectParams.new("Unknown recommender: #{raw[:recommender_type]}") unless (Recommender::Base::TYPES + %w(dynamic)).include?(raw[:recommender_type])
       raise Recommendations::IncorrectParams.new("Empty search query: #{raw[:search_query]}") if raw[:recommender_type] == 'search' && StringHelper.encode_and_truncate(raw[:search_query].to_s.mb_chars.downcase.strip).blank?
     end
 

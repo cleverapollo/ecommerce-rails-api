@@ -21,12 +21,12 @@ module RecRule
           # Устанавливаем количество требуемых товаров
           params.limit = limit - recommends.size
 
-          # Выполняем блок правила
-          recommends += RecRule::Base.get(params, OpenStruct.new(rule)).execute
-
           # Набрали нужное количество, выходим
           break if recommends.size == limit
 
+          # Выполняем блок правила
+          recommends += RecRule::Base.get(params, OpenStruct.new(rule)).execute
+          recommends.uniq!
         end
 
         recommends
