@@ -12,14 +12,14 @@ every '2 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::Statistics.recalculate_all')"
 end
 # Высчитываем статистику за прошлый месяц
-every '3 0 1 * *' do
+every '3 8 1 * *' do
   runner "RunnerWrapper.run('TriggerMailings::Statistics.recalculate_prev_all')"
 end
 every '4 * * * *' do
   runner "RunnerWrapper.run('WebPush::Statistics.recalculate_all')"
 end
 # Высчитываем статистику за прошлый месяц
-every '5 0 1 * *' do
+every '5 8 1 * *' do
   runner "RunnerWrapper.run('WebPush::Statistics.recalculate_prev_all')"
 end
 # Статистика по завершенным дайджестам
