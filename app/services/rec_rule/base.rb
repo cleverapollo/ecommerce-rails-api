@@ -9,7 +9,7 @@ module RecRule
     class << self
 
       # Точка входа в запрос блока рекомендаций
-      # @param [Recommendations::Params] params
+      # @param [RecRule::Params] params
       # @param [Array] rules Правила блока рекомендаций
       # @return [Array]
       def process(params, rules)
@@ -32,7 +32,7 @@ module RecRule
         recommends
       end
 
-      # @param [Recommendations::Params] params
+      # @param [RecRule::Params] params
       # @param [OpenStruct] rule
       # @return [RecRule::Base]
       def get(params, rule)
@@ -49,11 +49,11 @@ module RecRule
 
     # --- CLASS METHODS ---
 
-    # @return [Recommendations::Params] params
+    # @return [RecRule::Params] params
     attr_accessor :params
     attr_accessor :rule
 
-    # @param [Recommendations::Params] params
+    # @param [RecRule::Params] params
     # @param [Hash] rule
     def initialize(params, rule)
       self.params = params

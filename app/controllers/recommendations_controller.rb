@@ -18,18 +18,18 @@ class RecommendationsController < ApplicationController
       raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
     end
 
-    # Извлекаем данные из входящих параметров
-    extracted_params = Recommendations::Params.new(params)
-    extracted_params.shop = @shop
-    extracted_params.extract
-
     # Для блоков рекомендаций другая реализация
-    if extracted_params.type == 'dynamic'
+    if params[:recommender_type] == 'dynamic'
       # @type [RecommenderBlock] recommender_block
       recommender_block = @shop.recommender_blocks.find_by(code: params[:recommender_code])
       raise Recommendations::Error.new('Incorrect recommender code') if recommender_block.nil?
-      recommendations = recommender_block.recommends(extracted_params)
+      recommendations = recommender_block.recommends(params)
     else
+
+      # Извлекаем данные из входящих параметров
+      extracted_params = Recommendations::Params.new(params)
+      extracted_params.shop = @shop
+      extracted_params.extract
 
       # Запускаем процессор с извлеченными данными
       recommendations = Recommendations::Processor.process(extracted_params)
@@ -77,12 +77,12 @@ class RecommendationsController < ApplicationController
 
       end
 
-    end
+      # Для триггера "Брошенная категория" отмечаем подписку на категории
+      # Если категории есть, конечно.
+      if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0 && TriggerMailing.where(shop_id: @shop.id, trigger_type: 'abandoned_category', enabled: true).exists?
+        TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
+      end
 
-    # Для триггера "Брошенная категория" отмечаем подписку на категории
-    # Если категории есть, конечно.
-    if extracted_params.type == 'popular' && extracted_params.categories.is_a?(Array) && extracted_params.categories.length > 0 && TriggerMailing.where(shop_id: @shop.id, trigger_type: 'abandoned_category', enabled: true).exists?
-      TriggerMailings::SubscriptionForCategory.subscribe extracted_params.shop, extracted_params.user, ItemCategory.where(shop_id: extracted_params.shop.id).where(external_id: extracted_params.categories).first
     end
 
     if shop.mailings_settings.try(:external_mailganer?)

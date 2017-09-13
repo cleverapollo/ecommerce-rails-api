@@ -32,7 +32,7 @@ class RecRule::Impl::Condition < RecRule::Base
   private
 
   def check_item!
-    raise Recommendations::Error.new('Blank item') if params.item.blank?
+    raise Recommendations::Error.new('Blank item') if params.item.nil?
   end
 
   # Запускает процес в зависимости от выполненных условий
@@ -85,16 +85,19 @@ class RecRule::Impl::Condition < RecRule::Base
 
   # Условие для проверки товара в категории
   def execute_item_category
+    check_item!
     self.result = params.item.category_ids.present? && (rule.categories & params.item.category_ids).any?
   end
 
   # Условие для соотношения товара к бренду
   def execute_item_brand
+    check_item!
     self.result = params.item.brand_downcase.present? && rule.brands.include?(params.item.brand_downcase)
   end
 
   # Условие для категории
   def execute_category
+    check_item!
     self.result = params.item.category_ids.present? && params.item.category_ids.include?(rule.category_id)
   end
 

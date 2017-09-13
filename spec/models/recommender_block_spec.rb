@@ -5,10 +5,11 @@ RSpec.describe RecommenderBlock, :type => :model do
   let!(:item) { create(:item, shop: shop) }
   let!(:item2) { create(:item, shop: shop) }
   let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
   let!(:recommender_block) { create(:recommender_block, shop: shop, rules: []) }
 
   # Часть параметров указывается абстрактно, т.к. создаем mock объекты для рекомендеров.
-  let(:params) { OpenStruct.new(shop: shop, user: user, item: item, categories: %w(test)) }
+  let(:params) { OpenStruct.new(ssid: session.code, categories: %w(test)) }
 
   # Создаем mock объекты, т.к. в этом тесте нам не важно как работает сам рекомендер
   before { allow_any_instance_of(RecAlgo::Impl::Popular).to receive(:recommendations).and_return([item.uniqid]) }
@@ -35,12 +36,13 @@ RSpec.describe RecommenderBlock, :type => :model do
         end
 
         it 'do it true' do
-          params.cart_item_ids = [item.id]
+          params.item_id = item2.uniqid
+          ClientCart.create!(shop: shop, user: user, items: [item2.id])
           expect(subject).to include(item.uniqid)
         end
 
         it 'do it false' do
-          params.cart_item_ids = []
+          params.item_id = item.uniqid
           expect(subject).to include(item2.uniqid)
         end
       end
@@ -122,6 +124,7 @@ RSpec.describe RecommenderBlock, :type => :model do
       # Товар в категории
       context '.item_category' do
         before do
+          params.item_id = item2.uniqid
           recommender_block.update(rules: [
               {
                   type: 'condition',
@@ -134,7 +137,7 @@ RSpec.describe RecommenderBlock, :type => :model do
         end
 
         it 'do it true' do
-          item.update(category_ids: %w(2 3))
+          item2.update(category_ids: %w(2 3))
           expect(subject).to include(item.uniqid)
         end
 
@@ -147,6 +150,7 @@ RSpec.describe RecommenderBlock, :type => :model do
       # Категория
       context '.category' do
         before do
+          params.item_id = item2.uniqid
           recommender_block.update(rules: [
             {
                 type: 'condition',
@@ -159,7 +163,7 @@ RSpec.describe RecommenderBlock, :type => :model do
         end
 
         it 'do it true' do
-          item.update(category_ids: %w(1))
+          item2.update(category_ids: %w(1))
           params.categories = %w(1 3)
           expect(subject).to include(item.uniqid)
         end

@@ -10,10 +10,9 @@ module RecAlgo
     # Массив реализаций рекомендеров
     TYPES = Dir.glob(Rails.root + 'app/services/rec_algo/impl/*').map{|a| a.split('/').last.split('.').first }
 
-    # @return [Recommendations::Params] params
+    # @return [RecAlgo::Params] params
     attr_accessor :params
     attr_accessor :strict_categories
-    attr_accessor :rule
 
     class << self
       # Получить класс рекомендера по названию
@@ -43,14 +42,13 @@ module RecAlgo
 
     # Проверка, валидны ли параметры для конкретного рекомендера
     def check_params!
+      raise Recommendations::Error.new('Shop ID not provided') if params.shop.blank?
       raise Recommendations::Error.new('Blank user') if params.user.blank?
     end
 
-    # @param [Recommendations::Params] params
-    # @param [Hash] rule
-    def initialize(params, rule)
+    # @param [RecAlgo::Params] params
+    def initialize(params)
       @params = params
-      self.rule = rule
       @strict_categories = false
       check_params!
     end

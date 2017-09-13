@@ -4,10 +4,9 @@ class RecommenderBlock < ActiveRecord::Base
   default_scope { where(active: true) }
 
   # Точка входа в рекоммендеры
-  # @param [Recommendations::Params] params
+  # @param [Hash] params
   # @return [Array]
   def recommends(params)
-    params.limit = limit
-    RecRule::Base.process(params, rules)
+    RecRule::Base.process(RecRule::Params.new(self, params), rules)
   end
 end
