@@ -40,7 +40,7 @@ class TriggerMailingWorker
             if trigger_detector.triggers_classes.include?(TriggerMailings::Triggers::SecondAbandonedCart)
 
               # Читаем данные со slave сервера
-              Slavery.on_slave do
+              # Slavery.on_slave do
 
                 # Проходим по списку клиентов магазина
                 shop.clients.ready_for_second_abandoned_cart(shop).find_each do |client|
@@ -66,15 +66,15 @@ class TriggerMailingWorker
 
                 end
 
-              end
+              # end
 
             end
 
             # Читаем данные со slave сервера
-            Slavery.on_slave do
+            # Slavery.on_slave do
               # Затем перебираем обычные триггеры
               shop.clients.ready_for_trigger_mailings(shop).find_each do |client|
-                Slavery.on_master do
+                # Slavery.on_master do
                   begin
                     # @type [TriggerMailings::Triggers::Base] trigger
                     trigger = trigger_detector.detect(client)
@@ -92,9 +92,9 @@ class TriggerMailingWorker
                     Rails.logger.error e
                     Rollbar.error(e, client_id: client.try(:id), detector: trigger_detector.inspect, trigger: (defined?(trigger) ? trigger.inspect : nil)  )
                   end
-                end
+                # end
               end
-            end
+            # end
 
             begin
               Mailings::Mailchimp::TriggersSender.new(triggers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && triggers_to_send.present?
