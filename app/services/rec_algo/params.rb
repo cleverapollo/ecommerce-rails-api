@@ -17,6 +17,7 @@ module RecAlgo
       self.user = params.user
     end
 
+    # Подготавливает основные параметры для запроса рекоммендера
     def search_query
       body = {
           sort: {
