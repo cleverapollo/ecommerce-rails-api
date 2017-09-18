@@ -46,6 +46,7 @@ class YmlImporter
       shop = yml.shop
       wear_types = WearTypeDictionary.index
       brands = Brand.all
+      brands_usage = [] # Это для подсчета используемых брендов в каталоге магазина для модели ShopBrand
       offers_count = 0
 
       # Костыль, пропускаем магазины, в которых не указан available в YML
@@ -94,6 +95,11 @@ class YmlImporter
               end
               new_item.brand_downcase = new_item.brand.downcase if new_item.brand.present? && new_item.brand_downcase.nil?
 
+              # Закоминаем для отчета по используемым брендам
+              if new_item.brand_downcase.present?
+                brands_usage << new_item.brand_downcase
+              end
+
               csv << new_item.csv_row
               STDOUT.write "\rItems: #{ index }"
             end
@@ -107,7 +113,7 @@ class YmlImporter
           Item.bulk_update shop_id, file
           ItemCategory.bulk_update shop_id, shop.categories
           ShopLocation.bulk_update shop_id, shop.locations
-
+          ShopBrand.bulk_update shop_id, brands_usage.reduce(Hash.new(0)) { |a, b| a[b] += 1; a }.map { |k,v| [k,v] }
           # Обновялем статистику по товарам
           ShopKPI.new(current_shop).calculate_products
 
