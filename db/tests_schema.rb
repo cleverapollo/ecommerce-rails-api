@@ -11,11 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170720092941) do
+ActiveRecord::Schema.define(version: 20170920134735) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "pg_trgm"
+  enable_extension "btree_gin"
+  enable_extension "dblink"
+  enable_extension "pg_buffercache"
+  enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -31,6 +35,15 @@ ActiveRecord::Schema.define(version: 20170720092941) do
   add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id", using: :btree
   add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
   add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
+
+  create_table "advertiser_vendors", force: :cascade do |t|
+    t.integer  "advertiser_id"
+    t.integer  "vendor_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "advertiser_vendors", ["vendor_id", "advertiser_id"], name: "index_advertiser_vendors_on_vendor_id_and_advertiser_id", unique: true, using: :btree
 
   create_table "advertisers", force: :cascade do |t|
     t.string   "email"
@@ -59,6 +72,12 @@ ActiveRecord::Schema.define(version: 20170720092941) do
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "brand_campaign_item_categories", force: :cascade do |t|
     t.integer  "item_category_id",  limit: 8
@@ -337,52 +356,6 @@ ActiveRecord::Schema.define(version: 20170720092941) do
     t.datetime "updated_at",          null: false
   end
 
-  create_table "payments", force: :cascade do |t|
-    t.integer  "shop_id",                       null: false
-    t.integer  "plan_id",                       null: false
-    t.string   "paypal_token",      limit: 255
-    t.string   "paypal_payer_id",   limit: 255
-    t.string   "paypal_profile_id", limit: 255
-    t.string   "state",             limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "prospects", force: :cascade do |t|
-    t.string "filename"
-    t.string "domain"
-    t.string "location_on_site"
-    t.string "company"
-    t.string "vertical"
-    t.string "quantcast"
-    t.string "alexa"
-    t.string "telephones"
-    t.string "emails"
-    t.string "twitter"
-    t.string "facebook"
-    t.string "linkedIn"
-    t.string "google"
-    t.string "pinterest"
-    t.string "github"
-    t.string "instagram"
-    t.string "vk"
-    t.string "vimeo"
-    t.string "youtube"
-    t.string "people"
-    t.string "city"
-    t.string "state"
-    t.string "zip"
-    t.string "country"
-    t.string "first_detected"
-    t.string "last_found"
-    t.string "first_indexed"
-    t.string "last_indexed"
-    t.string "first_name"
-    t.string "last_name"
-    t.string "name"
-    t.string "position"
-  end
-
   create_table "recommender_statistics", force: :cascade do |t|
     t.string   "efficiency", limit: 3000
     t.integer  "shop_id"
@@ -472,6 +445,30 @@ ActiveRecord::Schema.define(version: 20170720092941) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.integer  "image_type", default: 0, null: false
+  end
+
+  create_table "shop_inventories", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "inventory_type"
+    t.boolean  "active"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.float    "min_cpc_price",  default: 1.0, null: false
+    t.integer  "currency_id",                  null: false
+    t.string   "name"
+    t.integer  "image_width"
+    t.integer  "image_height"
+  end
+
+  create_table "shop_inventory_banners", force: :cascade do |t|
+    t.integer  "shop_inventory_id",  null: false
+    t.string   "image_file_name",    null: false
+    t.string   "image_content_type", null: false
+    t.integer  "image_file_size",    null: false
+    t.datetime "image_updated_at",   null: false
+    t.string   "url",                null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   create_table "shop_statistics", force: :cascade do |t|
@@ -689,6 +686,43 @@ ActiveRecord::Schema.define(version: 20170720092941) do
   add_index "user_taxonomies", ["user_id", "taxonomy", "date", "brand"], name: "index_user_taxonomies_with_brand", using: :btree
   add_index "user_taxonomies", ["user_id", "taxonomy", "date"], name: "index_user_taxonomies_on_user_id_and_taxonomy_and_date", unique: true, using: :btree
 
+  create_table "vendor_campaigns", force: :cascade do |t|
+    t.integer  "vendor_id"
+    t.integer  "shop_id"
+    t.string   "name"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.integer  "shop_inventory_id",              null: false
+    t.float    "max_cpc_price",                  null: false
+    t.integer  "currency_id",                    null: false
+    t.datetime "launched_at"
+    t.integer  "status",             default: 0
+    t.string   "brand"
+    t.string   "image_file_name"
+    t.string   "image_content_type"
+    t.integer  "image_file_size"
+    t.datetime "image_updated_at"
+    t.string   "url"
+  end
+
+  add_index "vendor_campaigns", ["vendor_id", "shop_id"], name: "index_vendor_campaigns_on_vendor_id_and_shop_id", using: :btree
+
+  create_table "vendor_shops", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "vendor_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "vendor_shops", ["vendor_id", "shop_id"], name: "index_vendor_shops_on_vendor_id_and_shop_id", unique: true, using: :btree
+
+  create_table "vendors", force: :cascade do |t|
+    t.string   "name"
+    t.string   "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "wear_type_dictionaries", force: :cascade do |t|
     t.string "type_name"
     t.string "word"
@@ -715,8 +749,8 @@ ActiveRecord::Schema.define(version: 20170720092941) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.integer  "locations",         default: 0
-    t.jsonb    "products",          default: []
     t.boolean  "subscribers",       default: false
+    t.jsonb    "products",          default: []
   end
 
   add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree
