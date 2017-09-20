@@ -178,6 +178,20 @@ module InitServerString
                       end
           }
       }
+
+      # Добавляем баннер вендора
+      if shop.vendor_campaigns.exists?
+        # @type [VendorCampaign] campaign
+        campaign = shop.vendor_campaigns.order(max_cpc_price: :desc).first
+        if campaign.present?
+          if campaign.image.present?
+            result[:recone] = {id: campaign.id, image: "https://vendor.rees46.com#{campaign.image.url}", url: campaign.url}
+          else
+            inventory = campaign.shop_inventory.shop_inventory_banners.order('random()').first
+            result[:recone] = {id: campaign.id, image: "#{Rees46.site_url}#{inventory.image.url}", url: inventory.url}
+          end
+        end
+      end
       result
     end
 
