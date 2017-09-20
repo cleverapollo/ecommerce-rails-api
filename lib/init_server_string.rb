@@ -188,7 +188,7 @@ module InitServerString
             result[:recone] = {id: campaign.id, image: "https://vendor.rees46.com#{campaign.image.url}", url: campaign.url}
           else
             inventory = campaign.shop_inventory.shop_inventory_banners.order('random()').first
-            result[:recone] = {id: campaign.id, image: "#{Rees46.site_url}#{inventory.image.url}", url: inventory.url}
+            result[:recone] = {id: campaign.id, inventory: inventory.id, image: "#{Rees46.site_url}#{inventory.image.url}", url: inventory.url}
           end
         end
       end

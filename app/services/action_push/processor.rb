@@ -77,7 +77,9 @@ module ActionPush
       end
 
       # Сообщаем, что от магазина пришло событие
-      params.shop.report_event(params.action.to_sym)
+      unless params.action == 'recone_click'
+        params.shop.report_event(params.action.to_sym)
+      end
 
       # Если пришла корзина и она пуста или товаров больше одного (используется массовая корзина), сообщаем о событии "удалено из корзины"
       if params.action.to_sym == :cart && params.items.count != 1

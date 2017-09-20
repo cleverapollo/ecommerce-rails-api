@@ -57,6 +57,14 @@ class EventsController < ApplicationController
     respond_with_success
   end
 
+  def recone
+    # @type [VendorCampaign] campaign
+    campaign = @shop.vendor_campaigns.find(params[:id])
+    if campaign.present?
+
+    end
+  end
+
   private
 
   # Заменяет старый параметр action в запросе на event

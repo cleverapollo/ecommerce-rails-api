@@ -29,6 +29,7 @@ Rees46Api::Application.routes.draw do
   # Отправка событий
   post 'push', to: 'events#push'
   get 'push', to: 'events#push'
+  post 'recone', to: 'events#recone'
 
   # В будущих отраслевых алгоритмах сохраняет текущие выбранные фильтры (контекст)
   post 'push_attributes', to: 'events#push_attributes'

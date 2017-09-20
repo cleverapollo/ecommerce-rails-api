@@ -34,6 +34,14 @@ class Actions::Tracker
       track_object(params.category.class, params.category.external_id)
     end
 
+    if params.action == 'recone_click'
+      if params.raw['inventory'].present?
+        track_object(ShopInventoryBanner, params.raw['inventory'])
+      else
+        track_object(VendorCampaign, params.raw['campaign'])
+      end
+    end
+
     process
   end
 
