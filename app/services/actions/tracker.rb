@@ -35,10 +35,10 @@ class Actions::Tracker
     end
 
     if params.action == 'recone_click'
-      if params.raw['inventory'].present?
-        track_object(ShopInventoryBanner, params.raw['inventory'])
-      else
+      if params.raw['campaign'].present?
         track_object(VendorCampaign, params.raw['campaign'])
+      else
+        track_object(ShopInventoryBanner, params.raw['inventory'])
       end
     end
 
