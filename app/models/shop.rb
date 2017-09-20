@@ -21,6 +21,7 @@ class Shop < MasterTable
   # Состояние подключения
   store :connection_status_last_track, accessors: [:connected_events_last_track, :connected_recommenders_last_track], coder: JSON
 
+  has_many :vendor_campaigns
   has_and_belongs_to_many :users
   belongs_to :customer
   has_many :experiments
