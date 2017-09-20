@@ -182,7 +182,7 @@ module InitServerString
       # Добавляем баннер вендора
       if shop.vendor_campaigns.exists?
         # @type [VendorCampaign] campaign
-        campaign = shop.vendor_campaigns.order(max_cpc_price: :desc).first
+        campaign = shop.vendor_campaigns.joins(:shop_inventory).where(status: 2).where(shop_inventories: {active: true, inventory_type: 0}).order(max_cpc_price: :desc).first
         if campaign.present?
           if campaign.image.present?
             result[:recone] = {id: campaign.id, image: "https://vendor.rees46.com#{campaign.image.url}", url: campaign.url}
