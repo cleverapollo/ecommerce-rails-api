@@ -90,7 +90,7 @@ module ActionPush
       params.client.track_last_activity
 
       # Пропускаем для категории, пока Кечинов не расскажет, что тут творится
-      unless params.action == 'category'
+      unless %w(category recone_click).include?(params.action)
         # Трекаем таксономию в DMP
         UserTaxonomy.track params.user, params.items, params.shop, params.action
       end
