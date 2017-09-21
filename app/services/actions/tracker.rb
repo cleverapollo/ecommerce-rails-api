@@ -137,7 +137,7 @@ class Actions::Tracker
               current_session_code: params.current_session_code,
               shop_id: params.shop.id,
               event: 'recone_click',
-              object_type: 'VendorCampaign',
+              object_type: VendorCampaign,
           ).where('date >= ?', 2.days.ago.to_date).pluck(:object_id)
 
           # если нашлось
@@ -156,7 +156,7 @@ class Actions::Tracker
                       object_type: VendorCampaign,
                       object_id: campaign.id,
                       recommended_by: nil,
-                      recommended_code: nil,
+                      recommended_code: item.uniqid,
                       referer: params.request.referer,
                       useragent: params.request.user_agent,
                   )
