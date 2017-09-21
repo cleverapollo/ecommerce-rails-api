@@ -77,7 +77,7 @@ module ActionPush
       end
 
       # Сообщаем, что от магазина пришло событие
-      unless params.action == 'recone_click'
+      unless %w(recone_view recone_click).include?(params.action)
         params.shop.report_event(params.action.to_sym)
       end
 
@@ -90,7 +90,7 @@ module ActionPush
       params.client.track_last_activity
 
       # Пропускаем для категории, пока Кечинов не расскажет, что тут творится
-      unless %w(category recone_click).include?(params.action)
+      unless %w(category recone_view recone_click).include?(params.action)
         # Трекаем таксономию в DMP
         UserTaxonomy.track params.user, params.items, params.shop, params.action
       end
