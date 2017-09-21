@@ -11,5 +11,13 @@ class Rees46
         Rails.env.staging? ? 'http://stage.rees46.com' : 'http://localhost:3000'
       end
     end
+
+    def vendor_url
+      if Rails.env.production?
+        'https://vendor.rees46.com'
+      else
+        'http://localhost:3333'
+      end
+    end
   end
 end

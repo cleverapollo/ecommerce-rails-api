@@ -185,7 +185,7 @@ module InitServerString
         campaign = shop.vendor_campaigns.joins(:shop_inventory).where(status: 2).where(shop_inventories: {active: true, inventory_type: 0}).order(max_cpc_price: :desc).first
         if campaign.present?
           if campaign.image.present?
-            result[:recone] = {id: campaign.id, inventory: campaign.shop_inventory_id, image: "https://vendor.rees46.com#{campaign.image.url}", url: campaign.url}
+            result[:recone] = {id: campaign.id, inventory: campaign.shop_inventory_id, image: "#{Rees46.vendor_url}#{campaign.image.url}", url: campaign.url}
           else
             inventory = campaign.shop_inventory.shop_inventory_banners.order('random()').first
             result[:recone] = {inventory: inventory.id, image: "#{Rees46.site_url}#{inventory.image.url}", url: inventory.url}

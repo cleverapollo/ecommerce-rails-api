@@ -34,7 +34,7 @@ class Actions::Tracker
       track_object(params.category.class, params.category.external_id)
     end
 
-    if params.action == 'recone_click'
+    if %w(recone_view recone_click).include?(params.action)
       if params.raw['campaign'].present?
         track_object(VendorCampaign, params.raw['campaign'])
       else
@@ -126,6 +126,50 @@ class Actions::Tracker
     params.client.supply_trigger_sent = nil
     params.client.atomic_save if params.client.changed?
     params.user.client_carts.destroy_all
+
+    # Смотрим есть ли в товарах вообще бренды
+    if params.items.map(&:brand).reject { |c| c.blank? }.present?
+      begin
+        thread = Thread.new do
+          # пробуем найти события кликов по кампании вендора за 2 последних дня
+          campaign_ids = ActionCl.where(
+              session_id: params.session.id,
+              current_session_code: params.current_session_code,
+              shop_id: params.shop.id,
+              event: 'recone_click',
+              object_type: 'VendorCampaign',
+          ).where('date >= ?', 2.days.ago.to_date).pluck(:object_id)
+
+          # если нашлось
+          if campaign_ids.present?
+            campaigns = VendorCampaign.where(id: campaign_ids)
+            campaigns.each do |campaign|
+              params.items.each do |item|
+                # Если бренды совпдают
+                if item.brand_downcase == campaign.brand.downcase
+                  # трекаем событие покупки
+                  ActionCl.create!(
+                      session_id: params.session.id,
+                      current_session_code: params.current_session_code,
+                      shop_id: params.shop.id,
+                      event: 'recone_purchase',
+                      object_type: VendorCampaign,
+                      object_id: campaign.id,
+                      recommended_by: nil,
+                      recommended_code: nil,
+                      referer: params.request.referer,
+                      useragent: params.request.user_agent,
+                  )
+                end
+              end
+            end
+          end
+        end
+        thread.join unless Rails.env.production?
+      rescue StandardError => e
+        Rollbar.error 'Clickhouse action insert error', e
+      end
+    end
   end
 
   # Убираем из корзины удаленные товары
