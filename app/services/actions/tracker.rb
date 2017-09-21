@@ -156,7 +156,7 @@ class Actions::Tracker
                       object_type: VendorCampaign,
                       object_id: campaign.id,
                       recommended_by: nil,
-                      recommended_code: item.uniqid,
+                      recommended_code: item.price.to_f,
                       referer: params.request.referer,
                       useragent: params.request.user_agent,
                   )
