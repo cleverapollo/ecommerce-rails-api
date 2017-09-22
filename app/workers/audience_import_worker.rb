@@ -51,7 +51,16 @@ class AudienceImportWorker
       # Добавляем сразу сегмент пользователя
       client.add_segment(segment.id) if segment.present?
 
+      # Проверяем, что запись новая
+      new_record = client.new_record?
+
+      # Сохраняем / создаем
       client.save! if client.changed?
+
+      # Если магазин на Double-Opt In, отправляем письмо
+      if new_record && @shop.send_confirmation_email_trigger?
+        TriggerMailings::Letter.new(client, TriggerMailings::Triggers::DoubleOptIn.new(client)).send
+      end
     end
 
     # Завершаем обновление сегмента, если был указан

@@ -10,7 +10,9 @@ module TriggerMailings
     attr_accessor :shop
     # @return [Client]
     attr_accessor :client
-    attr_accessor :trigger, :body
+    # @return [TriggerMailings::Triggers::Base]
+    attr_accessor :trigger
+    attr_accessor :body
 
     # @return [TriggerMail]
     attr_accessor :trigger_mail
@@ -116,6 +118,8 @@ module TriggerMailings
 
       if trigger.code == 'DoubleOptIn'
         data[:confirmation_email_url] = "#{Rees46.site_url}/confirm-email?shop=#{@shop.uniqid}&client=#{Base16.encode16([@client.id, @client.email].join(' '))} "
+        trigger.client.email_confirmed = false if trigger.client.email_confirmed.nil?
+        trigger.client.save if trigger.client.changed?
       end
 
       template = Liquid::Template.parse liquid_template

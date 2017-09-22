@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170918124814) do
+ActiveRecord::Schema.define(version: 20170922083337) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -188,6 +188,7 @@ ActiveRecord::Schema.define(version: 20170918124814) do
   add_index "clients", ["email", "shop_id", "id"], name: "index_clients_on_email", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "email", "digests_enabled", "id"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
   add_index "clients", ["shop_id", "email", "triggers_enabled", "id"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled = true))", using: :btree
+  add_index "clients", ["shop_id", "email_confirmed", "id"], name: "index_clients_on_shop_id_and_email_confirmed", where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "index_client_on_shop_id_and_email_present", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_activity_at", "last_trigger_mail_sent_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled = true) AND (last_activity_at IS NOT NULL))", using: :btree

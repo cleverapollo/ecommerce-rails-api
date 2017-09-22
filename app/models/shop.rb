@@ -292,8 +292,9 @@ class Shop < MasterTable
     self.geo_law != GEO_LAWS[:none]
   end
 
+  # @return [Boolean]
   def send_confirmation_email_trigger?
-    self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled) && double_opt_in_by_law?
+    @double_opt_in_enabled ||= self.trigger_mailings.find_by(trigger_type: 'double_opt_in').try(:enabled) && double_opt_in_by_law?
   end
 
   # Уменьшает количество веб пушей на балансе на 1 после отправки
