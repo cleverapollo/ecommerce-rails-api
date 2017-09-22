@@ -53,9 +53,8 @@ class WebPush::DigestMessage
         body:   digest.message,
         icon:   digest.fetch_picture_url,
         url:    UrlParamsHelper.add_params_to(digest.url, {
-            utm_source: 'rees46',
-            utm_medium: 'web_push_digest',
-            utm_campaign: "rees46_web_push_#{digest.id}",
+            rees46_source: 'web_push_digest',
+            rees46_campaign: "rees46_web_push_#{digest.id}",
             recommended_by: 'web_push_digest',
             rees46_web_push_digest_code: message.nil? ? 'test' : message.code
         })

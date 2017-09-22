@@ -182,13 +182,13 @@ class DigestMailingBatchWorker
       price_full: item.price_at_location(location).to_f,
       price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 2, delimiter: ' '),
       oldprice: item.oldprice.to_i,
-      url: UrlParamsHelper.add_params_to(item.url, utm_source: 'rees46',
-                                             utm_medium: 'digest_mail',
-                                             utm_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
-                                             recommended_by: 'digest_mail',
-                                             rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test',
-                                             r46_merger: track_email
-                                        ),
+      url: UrlParamsHelper.add_params_to(item.url, {
+           rees46_source: 'digest_mail',
+           rees46_campaign: "digest_mail_#{Time.current.strftime("%d.%m.%Y")}",
+           recommended_by: 'digest_mail',
+           rees46_digest_mail_code: @current_digest_mail.try(:code) || 'test',
+           r46_merger: track_email
+      }),
       image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),
       currency: item.shop.currency,
       id: item.uniqid.to_s,

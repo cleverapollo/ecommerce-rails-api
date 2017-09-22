@@ -20,9 +20,8 @@ module Mailings
         result = nil
         if mail.class.name == 'TriggerMail'
           result = {
-            utm_source: 'rees46',
-            utm_medium: 'trigger_mail',
-            utm_campaign: mail.mailing.trigger_type,
+            rees46_source: 'trigger_mail',
+            rees46_campaign: mail.mailing.trigger_type,
             recommended_by: 'trigger_mail',
             rees46_trigger_mail_code: mail.code
           }

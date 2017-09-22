@@ -54,9 +54,8 @@ class WebPush::TriggerMessage
         body:   trigger.settings[:message],
         icon:   trigger.items.first.resized_image_by_dimension('220x220'),
         url:    UrlParamsHelper.add_params_to(trigger.items.first.url, {
-            utm_source: 'rees46',
-            utm_medium: 'web_push_trigger',
-            utm_campaign: trigger.mailing.trigger_type,
+            rees46_source: 'web_push_trigger',
+            rees46_campaign: trigger.mailing.trigger_type,
             recommended_by: 'web_push_trigger',
             rees46_web_push_trigger_code: message.nil? ? nil : message.code
         })
