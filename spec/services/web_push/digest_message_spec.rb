@@ -24,8 +24,8 @@ describe WebPush::DigestMessage do
       expect(message.body[:title]).to eq web_push_digest.subject
       expect(message.body[:body]).to eq web_push_digest.message
       expect(message.body[:icon]).to eq web_push_digest.fetch_picture_url
-      expect(message.body[:url].scan('utm_source=rees46').any?).to be_truthy
-      expect(message.body[:url].scan('utm_medium=web_push_digest').any?).to be_truthy
+      expect(message.body[:url].scan('rees46_source=web_push_digest').any?).to be_truthy
+      expect(message.body[:url].scan("rees46_campaign=rees46_web_push_#{web_push_digest.id}").any?).to be_truthy
       expect(message.body[:url].scan('recommended_by=web_push_digest').any?).to be_truthy
       expect(message.body[:url].scan("rees46_web_push_digest_code=#{WebPushDigestMessage.first.code}").any?).to be_truthy
       expect(message.body[:url].scan(web_push_digest.url).any?).to be_truthy

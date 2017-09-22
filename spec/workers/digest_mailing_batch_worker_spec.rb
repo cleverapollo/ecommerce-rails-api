@@ -165,7 +165,7 @@ describe DigestMailingBatchWorker do
       end
 
       context 'URL params' do
-        %w(utm_source utm_medium utm_campaign recommended_by).each do |url_param|
+        %w(rees46_source rees46_campaign recommended_by).each do |url_param|
           it "contains #{url_param}" do
             expect(subject[:url]).to include("#{url_param}=")
           end
