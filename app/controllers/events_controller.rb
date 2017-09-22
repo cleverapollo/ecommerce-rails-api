@@ -38,7 +38,9 @@ class EventsController < ApplicationController
   rescue Finances::Error => e
     respond_with_payment_error(e)
   rescue ActionPush::Error => e
-    log_client_error(e)
+    # Гражданин Веприков отказывается пинать веслом говнокодеров,
+    # которые указывают некорректные параметры, отключил
+    # log_client_error(e)
     respond_with_client_error(e)
   rescue UserFetcher::SessionNotFoundError => e
     respond_with_client_error(e)
