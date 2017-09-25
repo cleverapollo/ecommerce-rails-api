@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170922083337) do
+ActiveRecord::Schema.define(version: 20170925133940) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -424,6 +424,11 @@ ActiveRecord::Schema.define(version: 20170922083337) do
     t.string  "cosmetic_perfume_family"
     t.string  "cosmetic_perfume_aroma"
     t.string  "shop_recommend",                                                    array: true
+    t.boolean "is_realty"
+    t.string  "realty_type"
+    t.float   "realty_space_min"
+    t.float   "realty_space_max"
+    t.float   "realty_space_final"
   end
 
   add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin

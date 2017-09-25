@@ -123,6 +123,11 @@ class Item < ActiveRecord::Base
       chain_sizes
       seasonality
       leftovers
+      is_realty
+      realty_type
+      realty_space_min
+      realty_space_max
+      realty_space_final
     ].sort
   end
 
@@ -202,6 +207,11 @@ class Item < ActiveRecord::Base
         is_cosmetic: ValuesHelper.present_one(new_item, self, :is_cosmetic),
         seasonality: ValuesHelper.present_one(new_item, self, :seasonality),
         leftovers: ValuesHelper.present_one(new_item, self, :leftovers),
+        is_realty: ValuesHelper.present_one(new_item, self, :is_realty),
+        realty_type: ValuesHelper.present_one(new_item, self, :realty_type),
+        realty_space_min: ValuesHelper.present_one(new_item, self, :realty_space_min),
+        realty_space_max: ValuesHelper.present_one(new_item, self, :realty_space_max),
+        realty_space_final: ValuesHelper.present_one(new_item, self, :realty_space_final),
     }
 
     # Downcased brand for brand campaign manage
@@ -303,7 +313,9 @@ class Item < ActiveRecord::Base
   # @param [String] category
   # @return [Item]
   def self.build_by_offer(offer, category, wear_types)
-    new do |item|
+    new do
+    # @type [Item] item
+    |item|
       item.leftovers = offer.leftovers if offer.leftovers.present? && %w(lot few one).include?(offer.leftovers)
       item.uniqid = offer.id
       item.name = offer.name
@@ -476,6 +488,15 @@ class Item < ActiveRecord::Base
         item.auto_compatibility = nil
         item.auto_periodic = nil
         item.auto_vds = nil
+      end
+
+      # Недвижимость
+      if offer.realty?
+        item.is_realty = true
+        item.realty_type = offer.realty.type if offer.realty.type.present?
+        item.realty_space_min = offer.realty.space.min.to_f if offer.realty.space.present? && offer.realty.space.min.present?
+        item.realty_space_max = offer.realty.space.max.to_f if offer.realty.space.present? && offer.realty.space.max.present?
+        item.realty_space_final = offer.realty.space.final.to_f if offer.realty.space.present? && offer.realty.space.final.present?
       end
 
       item.brand = offer.vendor

@@ -218,5 +218,10 @@ describe "check rees.xml" do
     expect(offer.ages).to include(Rees46ML::Age.new(value: "18",unit: "year"))
 
     expect(offer.seasonality).to eq(Set.new %w(1 3 4))
+
+    expect(offer.realty.type).to eq('living')
+    expect(offer.realty.space.min).to eq('30')
+    expect(offer.realty.space.max).to eq('100')
+    expect(offer.realty.space.final).to eq('37')
   end
 end

@@ -65,6 +65,16 @@
 					<periodic>1</periodic>
 					<professional>1</professional>
 				</cosmetic>
+
+				<realty>
+					<type>living</type>
+					<space>
+						<min>30</min>
+						<max>100</max>
+						<final>37</final>
+					</space>
+				</realty>
+
 			</offer>
 			<offer id="1" available="true">
 				<url>http://www.quiksilver.ru/1.html</url>

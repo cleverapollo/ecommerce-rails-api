@@ -90,6 +90,7 @@ module Rees46ML
     attribute :locations, Set, lazy: true
     attribute :accessories, Set, lazy: true
     attribute :rec, Set[String], lazy: true
+    attribute :realty, Rees46ML::Realty, lazy: true
 
     validates :id, presence: true
 
@@ -168,6 +169,10 @@ module Rees46ML
 
     def auto?
       auto.present?
+    end
+
+    def realty?
+      realty.present?
     end
 
     def to_xml

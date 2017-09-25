@@ -283,6 +283,15 @@
         </jewelry>
 
 
+        <realty>
+          <type>living</type>
+          <space>
+            <min>30</min>
+            <max>100</max>
+            <final>37</final>
+          </space>
+        </realty>
+
 
       </offer>
     </offers>

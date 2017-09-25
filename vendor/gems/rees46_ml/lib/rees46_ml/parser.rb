@@ -140,6 +140,11 @@ module Rees46ML
       state :is_kids
       state :seasonality
       state :rec
+      state :realty
+      state :space
+      state :min
+      state :max
+      state :final
 
       event :start_yml_catalog do
         transitions from: :root, to: :yml_catalog
@@ -672,6 +677,7 @@ module Rees46ML
         transitions from: :skin, to: :type
         transitions from: :hair, to: :type
         transitions from: :nail, to: :type
+        transitions from: :realty, to: :type
       end
 
       event :end_type do
@@ -680,6 +686,7 @@ module Rees46ML
         transitions from: :type, to: :skin, guard: :in_skin?
         transitions from: :type, to: :hair, guard: :in_hair?
         transitions from: :type, to: :nail, guard: :in_nail?
+        transitions from: :type, to: :realty, guard: :in_realty?
       end
 
       event :start_aroma do
@@ -744,18 +751,22 @@ module Rees46ML
 
       event :start_min do
         transitions from: :age, to: :min
+        transitions from: :space, to: :min
       end
 
       event :end_min do
-        transitions from: :min, to: :age
+        transitions from: :min, to: :age, guard: :in_age?
+        transitions from: :min, to: :space, guard: :in_space?
       end
 
       event :start_max do
         transitions from: :age, to: :max
+        transitions from: :space, to: :max
       end
 
       event :end_max do
-        transitions from: :max, to: :age
+        transitions from: :max, to: :age, guard: :in_age?
+        transitions from: :max, to: :space, guard: :in_space?
       end
 
       event :start_sizes do
@@ -1272,6 +1283,30 @@ module Rees46ML
       event :end_rec do
         transitions from: :rec, to: :offer
       end
+
+      event :start_realty do
+        transitions from: :offer, to: :realty
+      end
+
+      event :end_realty do
+        transitions from: :realty, to: :offer
+      end
+
+      event :start_space do
+        transitions from: :realty, to: :space
+      end
+
+      event :end_space do
+        transitions from: :space, to: :realty, guard: :in_realty?
+      end
+
+      event :start_final do
+        transitions from: :space, to: :final
+      end
+
+      event :end_final do
+        transitions from: :final, to: :space, guard: :in_space?
+      end
     end
 
     aasm.states.map(&:name).each do |state_name|
@@ -1358,6 +1393,10 @@ module Rees46ML
           self.current_element = Rees46ML::Param.new
         when "compatibility"
           self.current_element = Rees46ML::Compatibility.new if in_auto?
+        when "realty"
+          self.current_element = Rees46ML::Realty.new
+        when "space"
+          self.current_element = Rees46ML::Space.new if in_realty?
         end
 
         send event_name
@@ -1411,6 +1450,7 @@ module Rees46ML
             self.current_element.type << safe_buffer if in_skin?
             self.current_element.type << safe_buffer if in_hair?
             self.current_element.type = safe_buffer if in_nail?
+            self.current_element.type = safe_buffer if in_realty?
           when "condition"
             self.current_element.condition << safe_buffer if in_skin?
             self.current_element.condition << safe_buffer if in_hair?
@@ -1522,6 +1562,12 @@ module Rees46ML
           stack.pop
         when "offer"
           @consumer.call self.current_element
+          stack.pop
+        when "realty"
+          self.parent_element.realty = self.current_element
+          stack.pop
+        when "space"
+          self.parent_element.space = self.current_element
           stack.pop
         end
 
