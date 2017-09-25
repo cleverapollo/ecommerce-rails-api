@@ -61,6 +61,7 @@ class Shop < MasterTable
   has_many :segments
   has_many :shop_locations
   has_many :recommender_blocks
+  has_many :shop_inventories
 
   has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :logo, content_type: /\Aimage/

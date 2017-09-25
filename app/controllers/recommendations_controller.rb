@@ -2,6 +2,7 @@
 # Контроллер, обрабатывающий получение рекомендаций
 #
 class RecommendationsController < ApplicationController
+  include ActionController::Cookies
   include ShopFetcher
 
   before_action :fetch_non_restricted_shop
@@ -29,6 +30,8 @@ class RecommendationsController < ApplicationController
       # Извлекаем данные из входящих параметров
       extracted_params = Recommendations::Params.new(params)
       extracted_params.shop = @shop
+      extracted_params.current_session_code = cookies['rees46_session_code'] || params[:seance]
+      extracted_params.request = request
       extracted_params.extract
 
       # Запускаем процессор с извлеченными данными

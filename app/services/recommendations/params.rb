@@ -12,6 +12,8 @@ module Recommendations
     # Сессия
     # @return [Session]
     attr_accessor :session
+    attr_accessor :current_session_code
+    attr_accessor :request
     # @return [Shop] Магазин
     attr_accessor :shop
     # Тип вызываемого рекомендера

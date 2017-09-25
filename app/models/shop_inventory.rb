@@ -9,4 +9,8 @@ class ShopInventory < MasterTable
   TYPES = [:banner, :sponsored, :recommendations, :popup]
   enum inventory_type: TYPES
 
+  scope :active, -> { where(active: true) }
+  scope :recommendations, -> { where(inventory_type: TYPES.index(:recommendations)) }
+
+  default_scope -> { active }
 end

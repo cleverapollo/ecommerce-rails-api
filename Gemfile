@@ -56,6 +56,7 @@ gem 'open_uri_redirections'
 gem 'liquid'
 gem 'russian', '~> 0.6.0'
 gem 'jbuilder'
+gem 'colorize'
 
 # Crontab
 gem 'whenever', '~> 0.9.2', require: false

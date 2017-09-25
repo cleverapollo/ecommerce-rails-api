@@ -14,8 +14,70 @@ module Recommender
     # Вставляет продвигаемые товары
     def inject_promotions(result_ids, expansion_only = false)
       return result_ids if result_ids.empty?
-
       promotions_placed = 0
+
+      # Ищем подходящий инвентарь в магазине
+      shop_inventories = shop.shop_inventories.recommendations.includes(:vendor_campaigns)
+      currencies = Currency.all
+
+      catch :done do
+        Rails.logger.debug '[PROMOTION START] ***'.magenta
+
+        shop_inventories.each do
+        # @type [ShopInventory] shop_inventory
+        |shop_inventory|
+
+          # Проходим по списку кампаний
+          shop_inventory.vendor_campaigns.each do
+          # @type [VendorCampaign] vendor_campaign
+          |vendor_campaign|
+
+            # Берем валюту из массива
+            vendor_campaign.currency = currencies.select {|c| c.id == vendor_campaign.currency_id }.first
+            shop_inventory.currency = currencies.select {|c| c.id == shop_inventory.currency_id }.first
+
+            # Проверяем чтобы минимальная ставка была меньше максимальной ставки вендора (конвертируем в одинаковые валюты)
+            if shop_inventory.min_cpc_price <= vendor_campaign.currency.recalculate_to(shop_inventory.currency, vendor_campaign.max_cpc_price)
+              # проверяем места на занятость
+              throw :done if promotions_placed >= MAX_PROMOTIONS
+
+              # Достаем подходящий товар
+              promoted_item_id = vendor_campaign.first_in_selection(result_ids, params.discount)
+
+              if promoted_item_id.present?
+                # нашли, вставляем на одно из первых мест
+                cur_promo_index = result_ids.index(promoted_item_id)
+                index_to_replace = promotions_placed
+                result_ids.delete_at(cur_promo_index)
+                result_ids.insert(index_to_replace, promoted_item_id)
+                promotions_placed += 1
+              else
+                promoted_item_id = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount)
+                if promoted_item_id.present?
+                  result_ids.insert(promotions_placed, promoted_item_id)
+                  # удаляем последний элемент, для созранения лимита
+                  result_ids.pop
+                  promotions_placed += 1
+                end
+              end
+
+              # Считаем просмотр для бренда
+              if promoted_item_id.present?
+                vendor_campaign.track_view(params)
+              end
+
+            end
+          end
+
+        end
+      end
+      Rails.logger.debug '[PROMOTION END] ***'.magenta
+
+      return result_ids
+
+
+
+      # @deprecated больше не используется, выходит раньше
       in_categories = !categories_for_promo.nil? && categories_for_promo.try(:any?)
 
       if in_categories
