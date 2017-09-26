@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170925133940) do
+ActiveRecord::Schema.define(version: 20170926134130) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -368,9 +368,6 @@ ActiveRecord::Schema.define(version: 20170925133940) do
     t.float   "child_age_min"
     t.float   "child_age_max"
     t.boolean "fmcg_hypoallergenic"
-    t.string  "part_type",                                                         array: true
-    t.string  "skin_type",                                                         array: true
-    t.string  "condition",                                                         array: true
     t.jsonb   "fmcg_volume"
     t.boolean "fmcg_periodic"
     t.string  "barcode",                 limit: 1914

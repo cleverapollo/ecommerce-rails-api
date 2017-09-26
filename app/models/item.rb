@@ -73,9 +73,6 @@ class Item < ActiveRecord::Base
       fashion_feature
       fashion_sizes
       fmcg_hypoallergenic
-      part_type
-      skin_type
-      condition
       fmcg_volume
       fmcg_periodic
       barcode
@@ -197,9 +194,6 @@ class Item < ActiveRecord::Base
         cosmetic_perfume_aroma: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_aroma),
         cosmetic_perfume_family: ValuesHelper.present_one(new_item, self, :cosmetic_perfume_family),
         cosmetic_professional: ValuesHelper.present_one(new_item, self, :cosmetic_professional),
-        part_type: ValuesHelper.present_one(new_item, self, :part_type),
-        skin_type: ValuesHelper.present_one(new_item, self, :skin_type),
-        condition: ValuesHelper.present_one(new_item, self, :condition),
         fmcg_volume: ValuesHelper.present_one(new_item, self, :fmcg_volume),
         barcode: ValuesHelper.present_one(new_item, self, :barcode),
         is_child: ValuesHelper.present_one(new_item, self, :is_child),
@@ -373,9 +367,6 @@ class Item < ActiveRecord::Base
         item.child_gender = offer.child.gender.value if offer.child.gender && offer.child.gender.valid?
         item.child_age_min = offer.child.age.min
         item.child_age_max = offer.child.age.max
-        # item.part_type = offer.child.part_types.map(&:value) if offer.child.part_types
-        # item.skin_type = offer.child.skin_types.map(&:value) if offer.child.skin_types
-        # item.condition = offer.child.conditions.map(&:value) if offer.child.conditions
       else
         item.is_child = nil
       end

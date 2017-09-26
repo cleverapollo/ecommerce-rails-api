@@ -53,9 +53,6 @@ describe Item do
     let(:age_min)        { rand(10) }
     let(:age_max)        { 10 + rand(30) }
     let(:hypoallergenic) { rand(3) > 2 }
-    let(:part_type)      { [] }
-    let(:skin_type)      { [] }
-    let(:condition)      { [] }
     let(:volume)         { nil }
     let(:periodic)       { rand(3) > 2 }
     let(:barcode)        { generate(:barcode) }
@@ -108,9 +105,6 @@ describe Item do
         child_age_min: age_min,
         child_age_max: age_max,
         cosmetic_hypoallergenic: hypoallergenic,
-        part_type: part_type,
-        skin_type: skin_type,
-        condition: condition,
         fmcg_volume: volume,
         cosmetic_periodic: periodic,
         barcode: barcode,
@@ -161,35 +155,32 @@ describe Item do
     it { expect(subject.csv_row[20]).to eq(feature) }
     it { expect(subject.csv_row[21]).to eq(age_min) }
     it { expect(subject.csv_row[22]).to eq(age_max) }
-    it { expect(subject.csv_row[35]).to eq(hypoallergenic) }
-    it { expect(subject.csv_row[24]).to eq("{#{part_type.join(',')}}") }
-    it { expect(subject.csv_row[25]).to eq("{#{skin_type.join(',')}}") }
-    it { expect(subject.csv_row[26]).to eq("{#{condition.join(',')}}") }
-    it { expect(subject.csv_row[27]).to eq(volume) }
-    it { expect(subject.csv_row[42]).to eq(periodic) }
-    it { expect(subject.csv_row[29]).to eq(barcode) }
-    it { expect(subject.csv_row[30]).to eq("{#{category_ids.join(',')}}") }
-    it { expect(subject.csv_row[31]).to eq("{#{location_ids.join(',')}}") }
-    it { expect(subject.csv_row[32]).to eq(price_margin) }
-    it { expect(subject.csv_row[33]).to eq("{#{sizes.join(',')}}") }
-    it { expect(subject.csv_row[49]).to eq(oldprice) }
-    it { expect(subject.csv_row[51]).to eq(true) }
-    it { expect(subject.csv_row[52]).to eq(is_auto) }
-    it { expect(subject.csv_row[54]).to eq(false) }
-    it { expect(subject.csv_row[56]).to eq(is_pets) }
-    it { expect(subject.csv_row[57]).to eq(pets_breed) }
-    it { expect(subject.csv_row[58]).to eq(pets_type) }
-    it { expect(subject.csv_row[59]).to eq(pets_age) }
-    it { expect(subject.csv_row[60]).to eq(pets_periodic) }
-    it { expect(subject.csv_row[61]).to eq(pets_size) }
-    it { expect(subject.csv_row[63]).to eq(is_jewelry) }
-    it { expect(subject.csv_row[64]).to eq(jewelry_gender) }
-    it { expect(subject.csv_row[65]).to eq(jewelry_color) }
-    it { expect(subject.csv_row[66]).to eq(jewelry_metal) }
-    it { expect(subject.csv_row[67]).to eq(jewelry_gem) }
-    it { expect(subject.csv_row[68]).to eq("[#{ring_sizes.join(',')}]") }
-    it { expect(subject.csv_row[69]).to eq("[#{bracelet_sizes.join(',')}]") }
-    it { expect(subject.csv_row[70]).to eq("[#{chain_sizes.join(',')}]") }
+    it { expect(subject.csv_row[32]).to eq(hypoallergenic) }
+    it { expect(subject.csv_row[24]).to eq(volume) }
+    it { expect(subject.csv_row[39]).to eq(periodic) }
+    it { expect(subject.csv_row[26]).to eq(barcode) }
+    it { expect(subject.csv_row[27]).to eq("{#{category_ids.join(',')}}") }
+    it { expect(subject.csv_row[28]).to eq("{#{location_ids.join(',')}}") }
+    it { expect(subject.csv_row[29]).to eq(price_margin) }
+    it { expect(subject.csv_row[30]).to eq("{#{sizes.join(',')}}") }
+    it { expect(subject.csv_row[46]).to eq(oldprice) }
+    it { expect(subject.csv_row[48]).to eq(true) }
+    it { expect(subject.csv_row[49]).to eq(is_auto) }
+    it { expect(subject.csv_row[51]).to eq(false) }
+    it { expect(subject.csv_row[53]).to eq(is_pets) }
+    it { expect(subject.csv_row[54]).to eq(pets_breed) }
+    it { expect(subject.csv_row[55]).to eq(pets_type) }
+    it { expect(subject.csv_row[56]).to eq(pets_age) }
+    it { expect(subject.csv_row[57]).to eq(pets_periodic) }
+    it { expect(subject.csv_row[58]).to eq(pets_size) }
+    it { expect(subject.csv_row[60]).to eq(is_jewelry) }
+    it { expect(subject.csv_row[61]).to eq(jewelry_gender) }
+    it { expect(subject.csv_row[62]).to eq(jewelry_color) }
+    it { expect(subject.csv_row[63]).to eq(jewelry_metal) }
+    it { expect(subject.csv_row[64]).to eq(jewelry_gem) }
+    it { expect(subject.csv_row[65]).to eq("[#{ring_sizes.join(',')}]") }
+    it { expect(subject.csv_row[66]).to eq("[#{bracelet_sizes.join(',')}]") }
+    it { expect(subject.csv_row[67]).to eq("[#{chain_sizes.join(',')}]") }
   end
 
   describe '.fetch' do
