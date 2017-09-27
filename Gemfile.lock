@@ -416,7 +416,7 @@ DEPENDENCIES
   rees46_ml!
   request_store_rails
   rollbar
-  rspec-rails
+  rspec-rails (~> 3.1.0)
   rspec-sidekiq
   rubocop
   russian (~> 0.6.0)

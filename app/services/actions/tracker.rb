@@ -128,28 +128,28 @@ class Actions::Tracker
     params.user.client_carts.destroy_all
 
     # Трекаем заказы товаров в ClickHouse
-    params.items.each do |item|
-      begin
-        thread = Thread.new do
-          OrderItemCl.create!(
-              session_id: params.session.id,
-              shop_id: params.shop.id,
-              amount: item.amount,
-              price: item.price,
-              recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
-              brand: item.brand_downcase
-          )
+    thread = Thread.new do
+      params.items.each do |item|
+        begin
+          # thread = Thread.new do
+            OrderItemCl.create!(
+                session_id: params.session.id,
+                shop_id: params.shop.id,
+                amount: item.amount,
+                price: item.price,
+                recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
+                brand: item.brand_downcase
+            )
+          # end
+          # thread.join unless Rails.env.production?
+        rescue StandardError => e
+          Rollbar.error 'Clickhouse action insert error', e
         end
-        thread.join unless Rails.env.production?
-      rescue StandardError => e
-        Rollbar.error 'Clickhouse action insert error', e
       end
-    end
 
-    # Смотрим есть ли в товарах вообще бренды
-    if params.items.map(&:brand).reject { |c| c.blank? }.present?
-      begin
-        thread = Thread.new do
+      # Смотрим есть ли в товарах вообще бренды
+      if params.items.map(&:brand).reject { |c| c.blank? }.present?
+        begin
           # пробуем найти события кликов по кампании вендора за 2 последних дня
           campaign_ids = ActionCl.where(
               session_id: params.session.id,
@@ -183,12 +183,12 @@ class Actions::Tracker
               end
             end
           end
+        rescue StandardError => e
+          Rollbar.error 'Clickhouse action insert error', e
         end
-        thread.join unless Rails.env.production?
-      rescue StandardError => e
-        Rollbar.error 'Clickhouse action insert error', e
       end
     end
+    thread.join unless Rails.env.production?
   end
 
   # Убираем из корзины удаленные товары
