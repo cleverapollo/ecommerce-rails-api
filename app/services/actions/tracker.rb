@@ -134,21 +134,18 @@ class Actions::Tracker
     thread = Thread.new do
       params.items.each do |item|
         begin
-          # thread = Thread.new do
-            OrderItemCl.create!(
-                session_id: params.session.id,
-                shop_id: params.shop.id,
-                order_id: order.id,
-                item_uniqid: item.uniqid,
-                amount: item.amount,
-                price: item.price,
-                recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
-                brand: item.brand_downcase
-            )
-          # end
-          # thread.join unless Rails.env.production?
+          OrderItemCl.create!(
+              session_id: params.session.id,
+              shop_id: params.shop.id,
+              order_id: order.id,
+              item_uniqid: item.uniqid,
+              amount: item.amount,
+              price: item.price,
+              recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
+              brand: item.brand_downcase
+          )
         rescue StandardError => e
-          Rollbar.error 'Clickhouse action insert error', e
+          Rollbar.error 'Clickhouse order_items insert error', e
         end
       end
 
