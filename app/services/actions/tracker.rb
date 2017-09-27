@@ -138,6 +138,8 @@ class Actions::Tracker
             OrderItemCl.create!(
                 session_id: params.session.id,
                 shop_id: params.shop.id,
+                order_id: order.id,
+                item_uniqid: item.uniqid,
                 amount: item.amount,
                 price: item.price,
                 recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
