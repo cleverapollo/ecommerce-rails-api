@@ -70,8 +70,8 @@ class ShopKPI
       # Пока не придумаем, как на тестах ходить в clickhouse, ставим костыль
       if Rails.env.production?
         Slavery.on_master do
-          shop_metric.product_views_total = InteractionCL.where(shop_id: shop.id, code: '1').where('created_at >= ? AND created_at <= ?', @datetime_interval.first.to_formatted_s(:db), @datetime_interval.last.to_formatted_s(:db)).count
-          shop_metric.product_views_recommended = InteractionCL.where(shop_id: shop.id, code: '1').where.not(recommender_code: '').where('created_at >= ? AND created_at <= ?', @datetime_interval.first.to_formatted_s(:db), @datetime_interval.last.to_formatted_s(:db)).count
+          shop_metric.product_views_total = InteractionCl.where(shop_id: shop.id, code: '1').where('created_at >= ? AND created_at <= ?', @datetime_interval.first.to_formatted_s(:db), @datetime_interval.last.to_formatted_s(:db)).count
+          shop_metric.product_views_recommended = InteractionCl.where(shop_id: shop.id, code: '1').where.not(recommender_code: '').where('created_at >= ? AND created_at <= ?', @datetime_interval.first.to_formatted_s(:db), @datetime_interval.last.to_formatted_s(:db)).count
         end
       else
         shop_metric.product_views_total = Interaction.where(shop_id: shop.id).where(created_at: @datetime_interval).views.count
