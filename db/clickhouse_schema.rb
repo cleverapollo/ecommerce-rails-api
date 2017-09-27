@@ -49,6 +49,17 @@ ActiveRecord::Schema.define(version: 0) do
     t.string   "shard",            limit: 255, null: false
   end
 
+  create_table "order_items", id: false, force: :cascade do |t|
+    t.integer  "session_id",                                   null: false
+    t.integer  "shop_id",                                      null: false
+    t.integer  "amount",                                       null: false
+    t.float    "price",                                        null: false
+    t.string   "recommended_by", limit: 255
+    t.string   "brand",          limit: 255
+    t.datetime "created_at",                 default: "now()", null: false
+    t.date     "date",                       default: "now()", null: false
+  end
+
   create_table "rtb_bid_requests", force: :cascade do |t|
     t.string   "ssp",         limit: 255,             null: false
     t.string   "ssid",        limit: 255,             null: false

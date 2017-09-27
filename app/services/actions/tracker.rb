@@ -119,13 +119,32 @@ class Actions::Tracker
 
   # Создаем заказ
   def process_purchase
-    Order.persist(params)
+    order = Order.persist(params)
 
     # Отмечаем, что юзер что-то уже купил
     params.client.bought_something = true
     params.client.supply_trigger_sent = nil
     params.client.atomic_save if params.client.changed?
     params.user.client_carts.destroy_all
+
+    # Трекаем заказы товаров в ClickHouse
+    params.items.each do |item|
+      begin
+        thread = Thread.new do
+          OrderItemCl.create!(
+              session_id: params.session.id,
+              shop_id: params.shop.id,
+              amount: item.amount,
+              price: item.price,
+              recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
+              brand: item.brand_downcase
+          )
+        end
+        thread.join unless Rails.env.production?
+      rescue StandardError => e
+        Rollbar.error 'Clickhouse action insert error', e
+      end
+    end
 
     # Смотрим есть ли в товарах вообще бренды
     if params.items.map(&:brand).reject { |c| c.blank? }.present?

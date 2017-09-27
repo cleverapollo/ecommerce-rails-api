@@ -26,6 +26,7 @@ class Order < ActiveRecord::Base
   class << self
     # Сохранить заказ
     # @param [ActionPush::Params] params
+    # @return [Order]
     def persist(params)
       shop = params.shop
       user = params.user
