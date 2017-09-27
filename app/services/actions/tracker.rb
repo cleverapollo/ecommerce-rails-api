@@ -121,6 +121,9 @@ class Actions::Tracker
   def process_purchase
     order = Order.persist(params)
 
+    # Если заказ не был создан, нечего и трекать
+    return nil if order.nil?
+
     # Отмечаем, что юзер что-то уже купил
     params.client.bought_something = true
     params.client.supply_trigger_sent = nil
