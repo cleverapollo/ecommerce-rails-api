@@ -134,16 +134,24 @@ class Actions::Tracker
     thread = Thread.new do
       params.items.each do |item|
         begin
-          OrderItemCl.create!(
-              session_id: params.session.id,
-              shop_id: params.shop.id,
-              order_id: order.id,
-              item_uniqid: item.uniqid,
-              amount: item.amount,
-              price: item.price,
-              recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
-              brand: item.brand_downcase
-          )
+
+          # todo говнокод для теста (справится ли кликхаус)
+          connection = Net::HTTP.start('144.76.156.6', '8123')
+          sql = "INSERT INTO order_items (session_id, shop_id, order_id, item_uniqid, amount, price, recommended_by, brand) VALUES(#{params.session.id}, #{params.shop.id}, #{order.id}, '#{item.uniqid}', #{item.amount}, #{item.price}, '#{order.order_items.find_by(item_id: item.id).try(:recommended_by)}', '#{item.brand_downcase}')"
+          res = connection.post("/?database=rees46&query=#{URI.encode(sql)}")
+          raise res.code if res.code.to_i != 200
+
+
+          # OrderItemCl.create!(
+          #     session_id: params.session.id,
+          #     shop_id: params.shop.id,
+          #     order_id: order.id,
+          #     item_uniqid: item.uniqid,
+          #     amount: item.amount,
+          #     price: item.price,
+          #     recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
+          #     brand: item.brand_downcase
+          # )
         rescue StandardError => e
           Rollbar.error 'Clickhouse order_items insert error', e
         end
