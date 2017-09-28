@@ -3,7 +3,7 @@
 #
 module Mailings
   class SignedEmail < ActionMailer::Base
-    # Создать письмо со всеми нужными параметрами и заголовками и подписать его
+    # Создать письмо со всеми нужными параметрами и заголовками
     def compose(shop, options)
       @shop = shop
       @options = options
@@ -32,7 +32,8 @@ module Mailings
         m.header['Precedence'] = 'bulk'
       end
 
-      sign(m)
+      # sign(m)
+      m
     end
 
     private
@@ -44,6 +45,7 @@ module Mailings
       "bounce+shard#{SHARD_ID}+#{type}=#{code}@bounce.rees46.com"
     end
 
+    # @deprecated Перенесено в postfix
     def sign(m)
       private_key = OpenSSL::PKey::RSA.new(Rails.application.secrets.dkim_key)
       signed_mail = Dkim::SignedMail.new(m,
