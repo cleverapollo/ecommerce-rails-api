@@ -138,7 +138,7 @@ class Actions::Tracker
           # todo говнокод для теста (справится ли кликхаус)
           connection = Net::HTTP.start('144.76.156.6', '8123')
           sql = "INSERT INTO order_items (session_id, shop_id, order_id, item_uniqid, amount, price, recommended_by, brand) VALUES(#{params.session.id}, #{params.shop.id}, #{order.id}, '#{item.uniqid}', #{item.amount}, #{item.price}, '#{order.order_items.find_by(item_id: item.id).try(:recommended_by)}', '#{item.brand_downcase}')"
-          res = connection.post("/?database=rees46&query=#{URI.encode(sql)}")
+          res = connection.post('/?database=rees46', sql)
           raise res.code if res.code.to_i != 200
 
 
