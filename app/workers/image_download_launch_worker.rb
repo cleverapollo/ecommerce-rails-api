@@ -33,7 +33,7 @@ class ImageDownloadLaunchWorker
 
   def initialized_connection
     return Bunny.new unless Rails.env.production?
-    Bunny.new(host: '148.251.91.107', user: 'rees46', pass: Rails.application.secrets.bunny_password)
+    Bunny.new(host: Rails.application.secrets.bunny_host, user: Rails.application.secrets.bunny_user, pass: Rails.application.secrets.bunny_password)
   end
 
   def connect!

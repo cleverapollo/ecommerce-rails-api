@@ -130,6 +130,25 @@ class Actions::Tracker
     params.client.atomic_save if params.client.changed?
     params.user.client_carts.destroy_all
 
+    params.items.each do |item|
+      begin
+        ClickhouseQueue.order_items({
+            session_id: params.session.id,
+            shop_id: params.shop.id,
+            user_id: params.user.id,
+            order_id: order.id,
+            item_uniqid: item.uniqid,
+            amount: item.amount,
+            price: item.price,
+            recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
+            brand: item.brand_downcase
+        })
+      rescue Exception => e
+        raise e unless Rails.env.production?
+        Rollbar.error 'Rabbit insert error', e
+      end
+    end
+
     # # Трекаем заказы товаров в ClickHouse
     # thread = Thread.new do
     #   params.items.each do |item|
