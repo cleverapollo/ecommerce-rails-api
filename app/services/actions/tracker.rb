@@ -139,7 +139,7 @@ class Actions::Tracker
             order_id: order.id,
             item_uniqid: item.uniqid,
             amount: item.amount,
-            price: item.price,
+            price: item.price.to_f,
             recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
             brand: item.brand_downcase
         })
