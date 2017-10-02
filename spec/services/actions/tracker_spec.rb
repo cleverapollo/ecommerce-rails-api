@@ -20,12 +20,21 @@ describe Actions::Tracker do
     subject { Actions::Tracker.new(params).track }
 
     it 'track' do
+      allow(ClickhouseQueue).to receive(:push).with('actions', {
+          session_id: params.session.id,
+          current_session_code: params.current_session_code,
+          shop_id: params.shop.id,
+          event: params.action,
+          object_type: Item,
+          object_id: item.uniqid,
+          recommended_by: nil,
+          recommended_code: nil,
+          price: item.price,
+          brand: item.brand,
+          referer: params.request.referer,
+          useragent: params.request.user_agent,
+      })
       subject
-      action = ActionCl.find_by(shop: shop, session: session)
-      expect(action.current_session_code).to eq('1')
-      expect(action.event).to eq('view')
-      expect(action.object_type).to eq('Item')
-      expect(action.object_id).to eq(item.uniqid)
     end
   end
 end

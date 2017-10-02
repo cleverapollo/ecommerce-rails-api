@@ -22,6 +22,8 @@ ActiveRecord::Schema.define(version: 0) do
     t.string   "object_id",            limit: 255,                   null: false
     t.string   "recommended_by",       limit: 255
     t.string   "recommended_code",     limit: 255
+    t.float    "price",                            default: 0.0,     null: false
+    t.string   "brand",                limit: 255
     t.string   "referer",              limit: 255
     t.string   "useragent",            limit: 255,                   null: false
     t.datetime "created_at",                       default: "now()", null: false
@@ -52,6 +54,7 @@ ActiveRecord::Schema.define(version: 0) do
   create_table "order_items", id: false, force: :cascade do |t|
     t.integer  "session_id",     limit: 8,                     null: false
     t.integer  "shop_id",                                      null: false
+    t.integer  "user_id",        limit: 8,                     null: false
     t.integer  "order_id",       limit: 8,                     null: false
     t.string   "item_uniqid",    limit: 255,                   null: false
     t.integer  "amount",                                       null: false

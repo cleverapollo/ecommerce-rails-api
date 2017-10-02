@@ -19,7 +19,7 @@ class Actions::Tracker
     # Если указаны товары, трекаем все товары
     if params.items.present?
       params.items.each do |item|
-        track_object(item.class, item.uniqid)
+        track_object(item.class, item.uniqid, price: item.price.to_f)
         save_to_mahout(item)
 
         # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
@@ -36,7 +36,8 @@ class Actions::Tracker
 
     if %w(recone_view recone_click).include?(params.action)
       if params.raw['campaign'].present?
-        track_object(VendorCampaign, params.raw['campaign'])
+        vendor_campaign = VendorCampaign.find(params.raw['campaign'])
+        track_object(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
       else
         track_object(ShopInventoryBanner, params.raw['inventory'])
       end
@@ -50,10 +51,10 @@ class Actions::Tracker
   # todo тестируем вставку в Clickhouse
   # @param [String] type
   # @param [String] id
-  def track_object(type, id)
+  def track_object(type, id, price: 0, brand: nil)
     begin
       thread = Thread.new do
-        ActionCl.create!(
+        ClickhouseQueue.actions({
             session_id: params.session.id,
             current_session_code: params.current_session_code,
             shop_id: params.shop.id,
@@ -62,9 +63,11 @@ class Actions::Tracker
             object_id: id,
             recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
             recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
+            price: price,
+            brand: brand,
             referer: params.request.referer,
             useragent: params.request.user_agent,
-        )
+        })
       end
       thread.join if Rails.env.test?
     rescue StandardError => e
@@ -139,85 +142,21 @@ class Actions::Tracker
             order_id: order.id,
             item_uniqid: item.uniqid,
             amount: item.amount,
-            price: item.price.to_f,
+            price: item.price,
             recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
             brand: item.brand_downcase
+        }, {
+            current_session_code: params.current_session_code,
+            referer: params.request.try(:referer),
+            useragent: params.request.try(:user_agent),
         })
+
       rescue Exception => e
         raise e unless Rails.env.production?
         Rollbar.error 'Rabbit insert error', e
       end
     end
 
-    # # Трекаем заказы товаров в ClickHouse
-    # thread = Thread.new do
-    #   params.items.each do |item|
-    #     begin
-    #
-    #       # todo говнокод для теста (справится ли кликхаус)
-    #       connection = Net::HTTP.start('144.76.156.6', '8123')
-    #       sql = "INSERT INTO order_items (session_id, shop_id, order_id, item_uniqid, amount, price, recommended_by, brand) VALUES(#{params.session.id}, #{params.shop.id}, #{order.id}, '#{item.uniqid}', #{item.amount}, #{item.price}, '#{order.order_items.find_by(item_id: item.id).try(:recommended_by)}', '#{item.brand_downcase}')"
-    #       res = connection.post('/?database=rees46', sql)
-    #       raise res.code if res.code.to_i != 200
-    #
-    #
-    #       # OrderItemCl.create!(
-    #       #     session_id: params.session.id,
-    #       #     shop_id: params.shop.id,
-    #       #     order_id: order.id,
-    #       #     item_uniqid: item.uniqid,
-    #       #     amount: item.amount,
-    #       #     price: item.price,
-    #       #     recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
-    #       #     brand: item.brand_downcase
-    #       # )
-    #     rescue StandardError => e
-    #       Rollbar.error 'Clickhouse order_items insert error', e
-    #     end
-    #   end
-    #
-    #   # Смотрим есть ли в товарах вообще бренды
-    #   if params.items.map(&:brand).reject { |c| c.blank? }.present?
-    #     begin
-    #       # пробуем найти события кликов по кампании вендора за 2 последних дня
-    #       campaign_ids = ActionCl.where(
-    #           session_id: params.session.id,
-    #           current_session_code: params.current_session_code,
-    #           shop_id: params.shop.id,
-    #           event: 'recone_click',
-    #           object_type: VendorCampaign,
-    #       ).where('date >= ?', 2.days.ago.to_date).pluck(:object_id)
-    #
-    #       # если нашлось
-    #       if campaign_ids.present?
-    #         campaigns = VendorCampaign.where(id: campaign_ids)
-    #         campaigns.each do |campaign|
-    #           params.items.each do |item|
-    #             # Если бренды совпдают
-    #             if item.brand_downcase == campaign.brand.downcase
-    #               # трекаем событие покупки
-    #               ActionCl.create!(
-    #                   session_id: params.session.id,
-    #                   current_session_code: params.current_session_code,
-    #                   shop_id: params.shop.id,
-    #                   event: 'recone_purchase',
-    #                   object_type: VendorCampaign,
-    #                   object_id: campaign.id,
-    #                   recommended_by: nil,
-    #                   recommended_code: item.price.to_f.to_s,
-    #                   referer: params.request.referer,
-    #                   useragent: params.request.user_agent,
-    #               )
-    #             end
-    #           end
-    #         end
-    #       end
-    #     rescue StandardError => e
-    #       Rollbar.error 'Clickhouse action insert error', e
-    #     end
-    #   end
-    # end
-    # thread.join unless Rails.env.production?
   end
 
   # Убираем из корзины удаленные товары

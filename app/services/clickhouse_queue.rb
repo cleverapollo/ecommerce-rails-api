@@ -6,16 +6,22 @@ class ClickhouseQueue
     # todo сделать mock
     # @param [String] table
     # @param [Hash] values
-    def push(table, values = {})
+    def push(table, values = {}, opts = {})
       queue.publish({
           table: table,
-          values: values
-      }.to_json) if Rails.env.production?
+          values: values,
+          opts: opts,
+      }.to_json) unless Rails.env.test?
     end
 
     # @param [Hash] values
-    def order_items(values = {})
-      push('order_items', values)
+    def order_items(values = {}, opts = {})
+      push('order_items', values, opts)
+    end
+
+    # @param [Hash] values
+    def actions(values)
+      push('actions', values)
     end
 
     protected
