@@ -52,6 +52,7 @@ class Actions::Tracker
   # @param [String] type
   # @param [String] id
   def track_object(type, id, price: 0, brand: nil)
+    return
     begin
       thread = Thread.new do
         ClickhouseQueue.actions({
@@ -133,6 +134,7 @@ class Actions::Tracker
     params.client.atomic_save if params.client.changed?
     params.user.client_carts.destroy_all
 
+    return
     params.items.each do |item|
       begin
         ClickhouseQueue.order_items({

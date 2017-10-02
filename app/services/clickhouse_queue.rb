@@ -24,12 +24,12 @@ class ClickhouseQueue
       push('actions', values)
     end
 
-    protected
-
     # @return [Bunny::Session]
     def connection
       @connection ||= Bunny.new(host: Rails.application.secrets.bunny_host, user: Rails.application.secrets.bunny_user, pass: Rails.application.secrets.bunny_password).start
     end
+
+    protected
 
     # @return [Bunny::Channel]
     def channel

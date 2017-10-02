@@ -48,6 +48,8 @@ after_fork do |server, worker|
     # end
   end
 
+  ClickhouseQueue.connection
+
   if defined?(ActiveRecord::Base)
     config = ActiveRecord::Base.configurations[Rails.env] || Rails.application.config.database_configuration[Rails.env]
     config['pool'] = CONCURRENCY
