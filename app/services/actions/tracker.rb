@@ -54,23 +54,20 @@ class Actions::Tracker
   def track_object(type, id, price: 0, brand: nil)
     return
     begin
-      thread = Thread.new do
-        ClickhouseQueue.actions({
-            session_id: params.session.id,
-            current_session_code: params.current_session_code,
-            shop_id: params.shop.id,
-            event: params.action,
-            object_type: type,
-            object_id: id,
-            recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
-            recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
-            price: price,
-            brand: brand,
-            referer: params.request.referer,
-            useragent: params.request.user_agent,
-        })
-      end
-      thread.join if Rails.env.test?
+      ClickhouseQueue.actions({
+          session_id: params.session.id,
+          current_session_code: params.current_session_code,
+          shop_id: params.shop.id,
+          event: params.action,
+          object_type: type,
+          object_id: id,
+          recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
+          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
+          price: price,
+          brand: brand,
+          referer: params.request.referer,
+          useragent: params.request.user_agent,
+      })
     rescue StandardError => e
       Rollbar.error 'Clickhouse action insert error', e
     end
