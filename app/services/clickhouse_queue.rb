@@ -7,11 +7,11 @@ class ClickhouseQueue
     # @param [String] table
     # @param [Hash] values
     def push(table, values = {}, opts = {})
-      queue.publish({
+      queue.publish(JSON.generate({
           table: table,
           values: values,
           opts: opts,
-      }.to_json) unless Rails.env.test?
+      })) unless Rails.env.test?
     end
 
     # @param [Hash] values
