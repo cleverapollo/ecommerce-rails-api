@@ -26,7 +26,7 @@ gem 'redis-objects'
 gem 'redis-namespace'
 gem 'postgres-copy'
 gem 'connection_pool'
-gem 'clickhouse-activerecord', github: 'PNixx/clickhouse-activerecord'
+gem 'clickhouse-activerecord', '~> 0.1.0'
 gem 'tarantool16'
 
 # Workers

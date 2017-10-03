@@ -1,11 +1,3 @@
-GIT
-  remote: git://github.com/PNixx/clickhouse-activerecord.git
-  revision: ac0ffdadc004935caa3611f33208bc131531142c
-  specs:
-    clickhouse-activerecord (0.1.3)
-      bundler (>= 1.13.4)
-      rails (>= 4.1.8)
-
 PATH
   remote: vendor/gems/rees46_ml
   specs:
@@ -100,6 +92,9 @@ GEM
     capistrano3-unicorn (0.2.1)
       capistrano (~> 3.1, >= 3.1.0)
     chronic (0.10.2)
+    clickhouse-activerecord (0.1.3)
+      bundler (>= 1.13.4)
+      rails (>= 4.1.8)
     climate_control (0.0.3)
       activesupport (>= 3.0)
     cocaine (0.5.8)
@@ -381,7 +376,7 @@ DEPENDENCIES
   capistrano-rvm
   capistrano-sidekiq
   capistrano3-unicorn
-  clickhouse-activerecord!
+  clickhouse-activerecord (~> 0.1.0)
   colorize
   connection_pool
   database_cleaner (~> 1.3.0)

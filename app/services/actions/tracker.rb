@@ -19,7 +19,7 @@ class Actions::Tracker
     # Если указаны товары, трекаем все товары
     if params.items.present?
       params.items.each do |item|
-        track_object(item.class, item.uniqid, price: item.price.to_f)
+        track_object(item.class, item.uniqid, price: item.price.to_f, brand: item.brand_downcase)
         save_to_mahout(item)
 
         # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
