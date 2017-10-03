@@ -39,20 +39,17 @@ class VendorCampaign < MasterTable
   # @param [Recommendations::Params] params
   def track_view(params)
     begin
-      thread = Thread.new do
-        ActionCl.create!(
-            session_id: params.session.id,
-            current_session_code: params.current_session_code,
-            shop_id: params.shop.id,
-            event: 'recone_view',
-            object_type: self.class,
-            object_id: id,
-            recommended_by: params.type,
-            referer: params.request.referer,
-            useragent: params.request.user_agent,
-        )
-      end
-      thread.join unless Rails.env.production?
+      ClickhouseQueue.actions({
+          session_id: params.session.id,
+          current_session_code: params.current_session_code,
+          shop_id: params.shop.id,
+          event: 'recone_view',
+          object_type: self.class,
+          object_id: id,
+          recommended_by: params.type,
+          referer: params.request.referer,
+          useragent: params.request.user_agent,
+      })
     rescue StandardError => e
       raise e unless Rails.env.production?
       Rollbar.error 'Clickhouse action insert error', e
