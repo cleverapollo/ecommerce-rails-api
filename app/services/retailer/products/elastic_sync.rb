@@ -489,6 +489,18 @@ module Retailer
               end
             end
 
+            json.thematic_collection do
+              json.properties do
+                json.suggest_collection do
+                  json.type "completion"
+                end
+                json.name do
+                  json.type "text"
+                  json.analyzer shop.search_setting.language
+                end
+              end
+            end
+
           end
         end
       end

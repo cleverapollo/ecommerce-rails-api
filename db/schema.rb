@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171003085418) do
+ActiveRecord::Schema.define(version: 20171003122101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -867,6 +867,15 @@ ActiveRecord::Schema.define(version: 20171003085418) do
   end
 
   add_index "subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_subscriptions_settings_theme", using: :btree
+
+  create_table "thematic_collection_sections", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.integer  "thematic_collection_id"
+    t.text     "rules"
+    t.string   "name"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "thematic_collections", force: :cascade do |t|
     t.integer  "shop_id"
