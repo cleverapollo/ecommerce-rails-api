@@ -20,8 +20,10 @@ module Rtb
 
 
     # TODO: использовать цену в локации покупателя
+    # @param [Session] session
+    # @param [User] user
     # @return Boolean
-    def notify(user, item_ids)
+    def notify(session, user, item_ids)
       return false unless feature_available?
       return false unless item_ids.respond_to? :each
 
@@ -39,6 +41,7 @@ module Rtb
         recommender_params = OpenStruct.new(
             shop: shop,
             user: user,
+            session: session,
             limit: (6 - items.count),
             recommend_only_widgetable: true,
             recommender_type: 'similar',
