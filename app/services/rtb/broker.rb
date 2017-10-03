@@ -47,7 +47,8 @@ module Rtb
             recommender_type: 'similar',
             item: items.first,
             exclude: items.map(&:uniqid),
-            locations: items.first.locations
+            locations: items.first.locations,
+            request: OpenStruct.new(referer: 'Broker', useragent: 'Broker')
         )
         recommended_ids = Recommender::Impl::Interesting.new(recommender_params).recommended_ids
         recommended_ids.each do |recommended_id|
