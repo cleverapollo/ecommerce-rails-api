@@ -38,6 +38,7 @@ class VendorCampaign < MasterTable
   # Записать в статистику информацию о показе за сегодняшнюю дату
   # @param [Recommendations::Params] params
   def track_view(params)
+    return if params.session.nil?
     begin
       ClickhouseQueue.actions({
           session_id: params.session.id,
