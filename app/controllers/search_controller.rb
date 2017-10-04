@@ -51,6 +51,10 @@ class SearchController < ApplicationController
         json.name     query
         json.url      UrlParamsHelper.add_params_to(search_setting.landing_page, recommended_by: extracted_params.type, r46_search_query: query)
       end
+      json.collections result[:collections] do |collection|
+        json.id     collection[:id]
+        json.name   collection[:name]
+      end
     end
 
     # Для полного поиска запоминаем для юзера запрос

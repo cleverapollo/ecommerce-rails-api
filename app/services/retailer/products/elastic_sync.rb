@@ -165,6 +165,21 @@ module Retailer
 
         end
 
+        # Index thematic collections
+        shop.thematic_collections.find_in_batches(batch_size: 2000) do |collections|
+          bulk = []
+          collections.each do |collection|
+            bulk << { index: { _index: new_index_name, _type: 'collection', _id: collection.id } }
+            bulk << {
+                name:               collection.name,
+                suggest_collection:   collection.keywords.split("\n").delete_if{|x| x.length <= 2 }
+            }
+          end
+          if bulk.any?
+            client.bulk body: bulk
+          end
+        end
+
         # Находим индексы, от которых нужно отцепить алиас
         indices_to_delete = []
         client.cat.aliases(name: alias_name).split("\n").each do |als|
@@ -466,12 +481,11 @@ module Retailer
               end
             end
 
-            json.category do
 
+            json.category do
               json._all do
                 json.enabled false
               end
-
               json.properties do
                 json.suggest_category do
                   json.type "completion"
@@ -489,17 +503,17 @@ module Retailer
               end
             end
 
-            # json.thematic_collection do
-            #   json.properties do
-            #     json.suggest_collection do
-            #       json.type "completion"
-            #     end
-            #     json.name do
-            #       json.type "text"
-            #       json.analyzer shop.search_setting.language
-            #     end
-            #   end
-            # end
+            json.thematic_collection do
+              json.properties do
+                json.suggest_collection do
+                  json.type "completion"
+                end
+                json.name do
+                  json.type "text"
+                  json.analyzer shop.search_setting.language
+                end
+              end
+            end
 
           end
         end

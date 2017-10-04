@@ -7,7 +7,8 @@ class SearchEngine::InstantSearch < SearchEngine::Base
         categories: recommended_categories,
         virtual_categories: [],
         keywords: [],
-        queries: recommended_queries
+        queries: recommended_queries,
+        collections: recommended_collections
     }
   end
 
@@ -60,6 +61,33 @@ class SearchEngine::InstantSearch < SearchEngine::Base
           name: ( c[2] ? "#{ItemCategory.find_by(external_id: c[2], shop_id: shop.id).name} - #{c[1]}" : c[1] ),
           url: c[3]
       }
+    end
+
+  end
+
+
+  def recommended_collections
+# Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
+    return [] if Rails.env.test?
+
+    body = Jbuilder.encode do |json|
+      json.set! "thematic_collection" do
+        json.prefix params.search_query
+        json.completion do
+          json.size  8
+          json.field "suggest_collection"
+          json.fuzzy do
+            json.fuzziness 1
+          end
+        end
+      end
+    end
+    result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: body
+
+    if result && result.key?('thematic_collection') && result['thematic_collection'][0]['options'] && result['thematic_collection'][0]['options'].count
+      result['thematic_collection'][0]['options'].map { |x| {id: x['_id'], name: x['_source']['name']} }
+    else
+      []
     end
 
   end
