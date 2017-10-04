@@ -77,6 +77,31 @@ class SearchController < ApplicationController
 
 
 
+  # Get products for search thematic collection
+  def collection
+
+    # Does shop has active subscription? If not, raise 402 Payment Needed
+    if !shop.subscription_plans.product_search.active.paid.exists?
+      raise Finances::Error.new('Subscriptions inactive. Recommendations disabled. Please, contact to your manager.')
+    end
+
+    # Is shop restricted?
+    if shop.restricted?
+      raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
+    end
+
+    # Find user
+    session = Session.find_by_code(raw[:ssid])
+    raise Recommendations::IncorrectParams.new('Invalid session') if session.blank?
+    user = session.user
+
+    # Find collection or raise 404
+    collection = shop.thematic_collections.find(params[:id])
+
+    # Return result
+    render json: SearchEngine::SearchCollection.new(shop, user, collection).recommendations
+
+  end
 
 
 end

@@ -21,6 +21,7 @@ Rees46Api::Application.routes.draw do
 
   # Поиск
   get 'search', to: 'search#get'
+  get 'search/collection', to: 'search#collection'
 
   # Товары
   get 'products/get'
