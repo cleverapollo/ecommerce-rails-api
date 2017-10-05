@@ -48,6 +48,7 @@ class VendorCampaign < MasterTable
           object_type: self.class,
           object_id: id,
           recommended_by: params.type,
+          brand: brand.try(:downcase),
           referer: params.request.referer,
           useragent: params.request.user_agent,
       })
