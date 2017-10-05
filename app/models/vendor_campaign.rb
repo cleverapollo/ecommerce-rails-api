@@ -23,7 +23,7 @@ class VendorCampaign < MasterTable
     Slavery.on_slave do
       relation = Item.recommendable.widgetable.where(id: item_ids, brand: brand).by_sales_rate.limit(1)
       relation = relation.discount if discount
-      relation.pluck(:id).first
+      relation.pluck(:id, :uniqid).first
     end
   end
 
@@ -31,26 +31,26 @@ class VendorCampaign < MasterTable
     Slavery.on_slave do
       relation = Item.recommendable.widgetable.where(shop_id: shop_id, brand: brand).where.not(id: excluded_ids).by_sales_rate.limit(1)
       relation = relation.discount if discount
-      relation.pluck(:id).first
+      relation.pluck(:id, :uniqid).first
     end
   end
 
   # Записать в статистику информацию о показе за сегодняшнюю дату
   # @param [Recommendations::Params] params
-  def track_view(params)
+  # @param [String] uniqid
+  def track_view(params, uniqid)
     return if params.session.nil?
     begin
-      ClickhouseQueue.actions({
+      ClickhouseQueue.recone_actions({
           session_id: params.session.id,
           current_session_code: params.current_session_code,
           shop_id: params.shop.id,
-          event: 'recone_view',
+          event: 'view',
+          item_id: uniqid,
           object_type: self.class,
           object_id: id,
           recommended_by: params.type,
           brand: brand.try(:downcase),
-          referer: params.request.referer,
-          useragent: params.request.user_agent,
       })
     rescue StandardError => e
       raise e unless Rails.env.production?

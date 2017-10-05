@@ -42,7 +42,7 @@ module Recommender
               throw :done if promotions_placed >= MAX_PROMOTIONS
 
               # Достаем подходящий товар
-              promoted_item_id = vendor_campaign.first_in_selection(result_ids, params.discount)
+              promoted_item_id, promoted_uniqid = vendor_campaign.first_in_selection(result_ids, params.discount)
 
               if promoted_item_id.present?
                 # нашли, вставляем на одно из первых мест
@@ -52,7 +52,7 @@ module Recommender
                 result_ids.insert(index_to_replace, promoted_item_id)
                 promotions_placed += 1
               else
-                promoted_item_id = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount)
+                promoted_item_id, promoted_uniqid = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount)
                 if promoted_item_id.present?
                   result_ids.insert(promotions_placed, promoted_item_id)
                   # удаляем последний элемент, для созранения лимита
@@ -63,7 +63,7 @@ module Recommender
 
               # Считаем просмотр для бренда
               if promoted_item_id.present?
-                vendor_campaign.track_view(params)
+                vendor_campaign.track_view(params, promoted_uniqid)
               end
 
             end

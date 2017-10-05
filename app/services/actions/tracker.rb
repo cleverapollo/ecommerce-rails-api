@@ -34,21 +34,20 @@ class Actions::Tracker
       track_object(params.category.class, params.category.external_id)
     end
 
-    if %w(recone_view recone_click).include?(params.action)
-      if params.raw['campaign'].present?
-        vendor_campaign = VendorCampaign.find(params.raw['campaign'])
-        track_object(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
-      else
-        track_object(ShopInventoryBanner, params.raw['inventory'])
-      end
-    end
+    # if %w(recone_view recone_click).include?(params.action)
+    #   if params.raw['campaign'].present?
+    #     vendor_campaign = VendorCampaign.find(params.raw['campaign'])
+    #     track_object(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
+    #   else
+    #     track_object(ShopInventoryBanner, params.raw['inventory'])
+    #   end
+    # end
 
     process
   end
 
   private
 
-  # todo тестируем вставку в Clickhouse
   # @param [String] type
   # @param [String] id
   def track_object(type, id, price: 0, brand: nil)

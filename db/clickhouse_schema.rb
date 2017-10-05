@@ -65,6 +65,22 @@ ActiveRecord::Schema.define(version: 0) do
     t.date     "date",                       default: "now()", null: false
   end
 
+  create_table "recone_actions", id: false, force: :cascade do |t|
+    t.integer  "session_id",           limit: 8,                     null: false
+    t.string   "current_session_code", limit: 255,                   null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "event",                limit: 255,                   null: false
+    t.string   "item_id",              limit: 255
+    t.string   "object_type",          limit: 255,                   null: false
+    t.string   "object_id",            limit: 255,                   null: false
+    t.string   "recommended_by",       limit: 255
+    t.float    "price",                            default: 0.0,     null: false
+    t.integer  "amount",                           default: 0,       null: false
+    t.string   "brand",                limit: 255
+    t.datetime "created_at",                       default: "now()", null: false
+    t.date     "date",                             default: "now()", null: false
+  end
+
   create_table "rtb_bid_requests", force: :cascade do |t|
     t.string   "ssp",         limit: 255,             null: false
     t.string   "ssid",        limit: 255,             null: false
