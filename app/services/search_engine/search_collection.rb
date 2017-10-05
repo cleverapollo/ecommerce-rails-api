@@ -39,7 +39,7 @@ class SearchEngine::SearchCollection
         end
 
         # Remove nils
-        processed_recommendations.compact!
+        processed_recommendations.flatten!(1).compact!
 
         # If recommended products, add it to
         if processed_recommendations.any?
