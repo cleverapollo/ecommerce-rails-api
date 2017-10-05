@@ -91,7 +91,7 @@ class SearchController < ApplicationController
     end
 
     # Find user
-    session = Session.find_by_code(raw[:ssid])
+    session = Session.find_by_code(params[:ssid])
     raise Recommendations::IncorrectParams.new('Invalid session') if session.blank?
     user = session.user
 
