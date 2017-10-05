@@ -70,7 +70,7 @@ class SearchEngine::SearchCollection
             limit: rule.key?('limit') ? rule['limit'] : 8,
             recommend_only_widgetable: true,
             extended: true,
-            category_ids: rule['category']
+            categories: [rule['category']]
         )
 
         # Find popular products
