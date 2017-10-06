@@ -83,11 +83,8 @@ class Actions::Tracker
           object_type: type,
           object_id: id,
           recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
-          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
           price: price,
           brand: brand,
-          referer: params.request.referer,
-          useragent: params.request.user_agent,
       })
     rescue StandardError => e
       Rollbar.error 'Clickhouse action insert error', e
