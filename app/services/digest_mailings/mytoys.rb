@@ -36,52 +36,57 @@ module DigestMailings
               # Для юзера без истории и профиля здесь будем хранить дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
               empty_user_recommendations = nil
 
-              i = 0
-              clients.find_in_batches do |groups|
+              begin
+                i = 0
+                clients.find_in_batches do |groups|
 
-                # Разбиваем массив по группам
-                groups.each_slice(size) do |group|
-                  threads = []
-                  group.each do |client|
-                    i += 1
-                    # if ActiveRecord::Base.logger.level > 0
-                    #   STDOUT.write "\r".rjust(i.to_s.length + size)
-                    #   STDOUT.write "\r#{i} "
-                    # end
+                  # Разбиваем массив по группам
+                  groups.each_slice(size) do |group|
+                    threads = []
+                    group.each do |client|
+                      i += 1
+                      # if ActiveRecord::Base.logger.level > 0
+                      #   STDOUT.write "\r".rjust(i.to_s.length + size)
+                      #   STDOUT.write "\r#{i} "
+                      # end
 
-                    # Проверяем валидность email
-                    if IncomingDataTranslator.email_valid?(client.email)
+                      # Проверяем валидность email
+                      if IncomingDataTranslator.email_valid?(client.email)
 
-                      # Создаем тред
-                      threads << Thread.new(client) do |client|
+                        # Создаем тред
+                        threads << Thread.new(client) do |client|
 
-                        # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
-                        if !client.user.orders.where(shop_id: 828).exists? && (client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?))
-                          if empty_user_recommendations.nil?
-                            empty_user_recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+                          # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
+                          if !client.user.orders.where(shop_id: 828).exists? && (client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?))
+                            if empty_user_recommendations.nil?
+                              empty_user_recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+                            end
+                            recommendations = empty_user_recommendations
+                          else
+                            recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
                           end
-                          recommendations = empty_user_recommendations
-                        else
-                          recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
-                        end
 
-                        # Добавляем строку в файл
-                        File.open(path, 'a') do |file_source|
-                          file_source.flock(File::LOCK_EX)
-                          file_source.puts "#{client.email};#{recommendations.join(',')}"
-                          file_source.flock(File::LOCK_UN)
-                        end
+                          # Добавляем строку в файл
+                          File.open(path, 'a') do |file_source|
+                            file_source.flock(File::LOCK_EX)
+                            file_source.puts "#{client.email};#{recommendations.join(',')}"
+                            file_source.flock(File::LOCK_UN)
+                          end
 
-                        # STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
+                          # STDOUT.write '*' if ActiveRecord::Base.logger.level > 0
+                        end
                       end
+
                     end
 
+                    # Запускаем выполнение тасков
+                    threads.each &:join
                   end
 
-                  # Запускаем выполнение тасков
-                  threads.each &:join
                 end
 
+              rescue Exception => e
+                Rollbar.error('MyToys digest generate error', e)
               end
             end
 
@@ -98,7 +103,7 @@ module DigestMailings
                 sftp.close_channel
                 Rollbar.info('MyToys digest upload success')
               rescue Exception => e
-                Rollbar.error(e)
+                Rollbar.error('MyToys digest upload error', e)
               end
             end
 
