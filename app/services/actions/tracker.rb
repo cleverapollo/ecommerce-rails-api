@@ -34,14 +34,14 @@ class Actions::Tracker
       track_object(params.category.class, params.category.external_id)
     end
 
-    # if %w(recone_view recone_click).include?(params.action)
-    #   if params.raw['campaign'].present?
-    #     vendor_campaign = VendorCampaign.find(params.raw['campaign'])
-    #     track_object(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
-    #   else
-    #     track_object(ShopInventoryBanner, params.raw['inventory'])
-    #   end
-    # end
+    if %w(recone_view recone_click).include?(params.action)
+      if params.raw['campaign'].present?
+        vendor_campaign = VendorCampaign.find(params.raw['campaign'])
+        track_recone(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
+      else
+        track_recone(ShopInventoryBanner, params.raw['inventory'])
+      end
+    end
 
     process
   end
@@ -57,6 +57,29 @@ class Actions::Tracker
           current_session_code: params.current_session_code,
           shop_id: params.shop.id,
           event: params.action,
+          object_type: type,
+          object_id: id,
+          recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
+          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
+          price: price,
+          brand: brand,
+          referer: params.request.referer,
+          useragent: params.request.user_agent,
+      })
+    rescue StandardError => e
+      Rollbar.error 'Clickhouse action insert error', e
+    end
+  end
+
+  # @param [String] type
+  # @param [String] id
+  def track_recone(type, id, price: 0, brand: nil)
+    begin
+      ClickhouseQueue.recone_actions({
+          session_id: params.session.id,
+          current_session_code: params.current_session_code,
+          shop_id: params.shop.id,
+          event: params.action.gsub(/^recone_/, ''),
           object_type: type,
           object_id: id,
           recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
