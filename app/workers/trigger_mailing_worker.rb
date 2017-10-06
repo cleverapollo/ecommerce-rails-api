@@ -103,7 +103,7 @@ class TriggerMailingWorker
             # end
 
             # Если ничего не отправилось, кидаем нотис в роллбар
-            Rollbar.info("Triggers for shop #{shop.id}: nothing to sent") unless any_sent
+            Rollbar.info("Triggers for shop #{shop.id}: nothing to sent") unless any_sent && [2413].include?(shop.id)
 
             begin
               Mailings::Mailchimp::TriggersSender.new(triggers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && triggers_to_send.present?
