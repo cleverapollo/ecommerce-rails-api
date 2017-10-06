@@ -21,7 +21,7 @@ module Recommender
       currencies = Currency.all
 
       catch :done do
-        Rails.logger.debug '[PROMOTION START] ***'.magenta
+        Rails.logger.debug '[PROMOTION START] ***'.magenta if Rails.env.development?
 
         shop_inventories.each do
         # @type [ShopInventory] shop_inventory
@@ -71,7 +71,7 @@ module Recommender
 
         end
       end
-      Rails.logger.debug '[PROMOTION END] ***'.magenta
+      Rails.logger.debug '[PROMOTION END] ***'.magenta if Rails.env.development?
 
       return result_ids
 
