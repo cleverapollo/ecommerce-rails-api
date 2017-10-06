@@ -143,8 +143,6 @@ class Actions::Tracker
             brand: item.brand_downcase
         }, {
             current_session_code: params.current_session_code,
-            referer: params.request.try(:referer),
-            useragent: params.request.try(:user_agent),
         })
 
       rescue Exception => e

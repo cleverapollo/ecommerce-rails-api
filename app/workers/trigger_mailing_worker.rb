@@ -72,6 +72,10 @@ class TriggerMailingWorker
 
             # Читаем данные со slave сервера
             # Slavery.on_slave do
+
+              # Флаг, что мы чего то отправили
+              any_sent = false
+
               # Затем перебираем обычные триггеры
               shop.clients.ready_for_trigger_mailings(shop).find_each do |client|
                 # Slavery.on_master do
@@ -80,6 +84,7 @@ class TriggerMailingWorker
                     trigger = trigger_detector.detect(client)
                     if trigger.present?
                       trigger.letter(client, get_response_client)
+                      any_sent = true
 
                       # Для mailchimp немного другая логика
                       if shop.mailings_settings.external_mailchimp?
@@ -94,7 +99,11 @@ class TriggerMailingWorker
                   end
                 # end
               end
+
             # end
+
+            # Если ничего не отправилось, кидаем нотис в роллбар
+            Rollbar.info("Triggers for shop #{shop.id}: nothing to sent") unless any_sent
 
             begin
               Mailings::Mailchimp::TriggersSender.new(triggers_to_send, shop.mailings_settings.mailchimp_api_key, shop.id).send_all if shop.mailings_settings.external_mailchimp? && triggers_to_send.present?
