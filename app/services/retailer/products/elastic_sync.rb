@@ -217,6 +217,21 @@ module Retailer
 
 
 
+      # Delete thematic collection from index
+      # @param collection ThematicCollection
+      def delete_collection(collection)
+        client.delete index: "shop-#{shop.id}", type: 'collection', id: collection.id
+      end
+
+      # Add thematic collection to index
+      # @param collection ThematicCollection
+      def add_collection(collection)
+        client.index index: "shop-#{shop.id}", type: 'collection', id: collection.id, body: {
+            name:               collection.name,
+            suggest_collection:   collection.keywords.split("\n").delete_if{|x| x.length <= 2 }
+        }
+      end
+
       # Index structure builder
       # @return String
       def index_structure
