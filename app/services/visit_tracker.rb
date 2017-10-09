@@ -1,3 +1,4 @@
+# @deprecated
 class VisitTracker
 
   attr_accessor :shop

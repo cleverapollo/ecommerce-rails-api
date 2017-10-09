@@ -46,6 +46,22 @@ class Actions::Tracker
     process
   end
 
+  # @param [Session] session
+  # @param [Shop] shop
+  # @param [String] seance
+  # @param [ActionDispatch::Request] request
+  def self.track_visit(session, shop, seance, request)
+    ClickhouseQueue.visits({
+        session_id: session.id,
+        current_session_code: seance,
+        user_id: session.user_id,
+        shop_id: shop.id,
+        url: request.referer,
+        useragent: request.user_agent,
+        ip: request.remote_ip,
+    })
+  end
+
   private
 
   # @param [String] type

@@ -98,4 +98,20 @@ ActiveRecord::Schema.define(version: 0) do
     t.date     "date",                                null: false
   end
 
+  create_table "visits", id: false, force: :cascade do |t|
+    t.integer  "session_id",           limit: 8,                     null: false
+    t.string   "current_session_code", limit: 255,                   null: false
+    t.integer  "user_id",              limit: 8,                     null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "url",                  limit: 255,                   null: false
+    t.string   "useragent",            limit: 255,                   null: false
+    t.string   "ip",                   limit: 255,                   null: false
+    t.string   "country",              limit: 255
+    t.string   "city",                 limit: 255
+    t.string   "latitude",             limit: 255
+    t.string   "longitude",            limit: 255
+    t.datetime "created_at",                       default: "now()", null: false
+    t.date     "date",                             default: "now()", null: false
+  end
+
 end
