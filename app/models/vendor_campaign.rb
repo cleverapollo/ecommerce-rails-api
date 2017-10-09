@@ -21,7 +21,7 @@ class VendorCampaign < MasterTable
   # @return Integer
   def first_in_selection(item_ids, discount = false)
     Slavery.on_slave do
-      relation = Item.recommendable.widgetable.where(id: item_ids, brand: brand).by_sales_rate.limit(1)
+      relation = Item.recommendable.widgetable.where(id: item_ids, brand_downcase: brand.try(:downcase)).by_sales_rate.limit(1)
       relation = relation.discount if discount
       relation.pluck(:id, :uniqid).first
     end
@@ -29,7 +29,7 @@ class VendorCampaign < MasterTable
 
   def first_in_shop(excluded_ids = [], discount = false)
     Slavery.on_slave do
-      relation = Item.recommendable.widgetable.where(shop_id: shop_id, brand: brand).where.not(id: excluded_ids).by_sales_rate.limit(1)
+      relation = Item.recommendable.widgetable.where(shop_id: shop_id, brand_downcase: brand.try(:downcase)).where.not(id: excluded_ids).by_sales_rate.limit(1)
       relation = relation.discount if discount
       relation.pluck(:id, :uniqid).first
     end

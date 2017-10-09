@@ -1,4 +1,5 @@
 # @deprecated
+# todo будет уже не актуально после 23.10.17. Данные пишутся в кликхаус.
 class VisitTracker
 
   attr_accessor :shop
