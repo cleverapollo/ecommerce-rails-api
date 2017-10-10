@@ -27,7 +27,8 @@ class SearchController < ApplicationController
     result = SearchEngine::Processor.process(extracted_params)
 
     # Настройки поиска магазина
-    search_setting = shop.search_setting
+    search_setting, search_keyword = shop.search_setting, extracted_params.search_query.downcase.strip
+    NoResultQuery.where(shop_id: extracted_params.shop.id).where('query = ? OR synonym = ?', search_keyword, search_keyword).update_all('query_count = query_count + 1')
 
 
     # JSON body
@@ -60,6 +61,7 @@ class SearchController < ApplicationController
     # Для полного поиска запоминаем для юзера запрос
     if extracted_params.search_query && extracted_params.type == 'full_search'
       SearchQuery.find_or_create_by user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current, query: extracted_params.search_query
+      NoResultQuery.find_or_create_by(shop_id: extracted_params.shop.id, query: search_keyword) unless result.values.flatten.any?
     end
 
     render json: body

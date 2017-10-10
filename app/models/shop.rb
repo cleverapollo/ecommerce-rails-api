@@ -63,6 +63,7 @@ class Shop < MasterTable
   has_many :shop_locations
   has_many :recommender_blocks
   has_many :shop_inventories
+  has_many :no_result_queries
 
   has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :logo, content_type: /\Aimage/
@@ -245,6 +246,12 @@ class Shop < MasterTable
       self.connected_at = Time.current
       Event.connected(self)
     end
+  end
+
+  # returns array of search keyword with synonyms
+  def query_with_synonyms
+    query_with_synonyms = self.no_result_queries.with_synonyms.map{ |no_result_query| "#{no_result_query.query}, #{no_result_query.synonym}" }
+    query_with_synonyms.any? ? query_with_synonyms : [","]
   end
 
   # Проверяет, считается ли магазин подключенным.

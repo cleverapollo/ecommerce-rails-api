@@ -87,5 +87,17 @@ describe SearchController do
 
   end
 
+  context 'saves no result query' do
+
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, type: 'full_search', search_query: 'topcoa' } }
+
+    it 'save no result query for full search' do
+      expect(NoResultQuery.count).to eq 0
+
+      get :get, params
+      expect(NoResultQuery.count).to eq 1
+    end
+
+  end
 
 end

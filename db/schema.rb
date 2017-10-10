@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171009103408) do
+ActiveRecord::Schema.define(version: 20171009123942) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20171009103408) do
   enable_extension "intarray"
   enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -470,6 +471,17 @@ ActiveRecord::Schema.define(version: 20171009103408) do
     t.string   "mailchimp_api_key"
     t.string   "unsubscribe_message"
   end
+
+  create_table "no_result_queries", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "query"
+    t.string   "synonym"
+    t.integer  "query_count", default: 1
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "no_result_queries", ["shop_id", "synonym"], name: "index_no_result_queries_on_shop_id_and_synonym", unique: true, using: :btree
 
   create_table "order_items", id: :bigserial, force: :cascade do |t|
     t.integer "order_id",       limit: 8,               null: false

@@ -239,7 +239,19 @@ module Retailer
 
           json.settings do
             json.analysis do
-              json.analyzer 'english'
+              json.filter do
+                json.shop_synonym_filter do
+                  json.type 'synonym'
+                  json.synonyms shop.query_with_synonyms
+                end
+              end
+
+              json.analyzer do
+                json.shop_synonyms do
+                  json.tokenizer  'standard'
+                  json.filter ['lowercase', 'shop_synonym_filter']
+                end
+              end
             end
           end
 
@@ -258,8 +270,9 @@ module Retailer
 
                 json.name do
                   json.type "text"
-                  json.analyzer shop.search_setting.language
+                  json.analyzer 'shop_synonyms'
                 end
+
                 json.suggest_product do
                   json.type "completion"
                   json.contexts do
@@ -268,6 +281,7 @@ module Retailer
                       json.set! :type, x[1]
                     end
                   end
+                  json.analyzer 'shop_synonyms'
                 end
                 json.description do
                   json.type "text"
@@ -507,7 +521,7 @@ module Retailer
                 end
                 json.name do
                   json.type "text"
-                  json.analyzer shop.search_setting.language
+                  json.analyzer 'shop_synonyms'
                 end
                 json.url do
                   json.enabled false
@@ -525,7 +539,8 @@ module Retailer
                 end
                 json.name do
                   json.type "text"
-                  json.analyzer shop.search_setting.language
+                  # json.analyzer shop.search_setting.language
+                  json.analyzer 'shop_synonyms'
                 end
               end
             end
