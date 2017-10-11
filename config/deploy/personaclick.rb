@@ -2,8 +2,8 @@ role :app, %w{94.130.90.232}
 role :web, %w{94.130.90.232}
 role :db,  %w{94.130.90.232}
 
-set :application, 'api.personalclick.com'
-set :stage, :personalclick
+set :application, 'api.personaclick.com'
+set :stage, :personaclick
 
 set :log_level,   :info
 
