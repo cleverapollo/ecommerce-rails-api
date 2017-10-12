@@ -16,10 +16,12 @@ module Recommender
 
       def recommended_ids
         result = super
-        # inject_items(result)
+        inject_items(result)
       end
 
-
+      def inject_promotions(result, expansion_only = false)
+        result
+      end
 
 
       # Для interesting применяем отраслевую фильрацию
