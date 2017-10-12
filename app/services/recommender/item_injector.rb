@@ -52,7 +52,7 @@ module Recommender
                 result_ids.insert(index_to_replace, promoted_item_id)
                 promotions_placed += 1
               else
-                promoted_item_id, promoted_uniqid = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount)
+                promoted_item_id, promoted_uniqid = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount, categories_for_promo)
                 if promoted_item_id.present?
                   result_ids.insert(promotions_placed, promoted_item_id)
                   # удаляем последний элемент, для созранения лимита
