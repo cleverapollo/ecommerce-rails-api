@@ -17,6 +17,7 @@ Rees46Api::Application.routes.draw do
 
   # Запрос рекомендаций
   get 'recommend', to: 'recommendations#get'
+  get 'popup', to: 'recommendations#popup'
   post 'recommendations/batch'
 
   # Поиск
