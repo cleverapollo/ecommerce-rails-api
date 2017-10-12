@@ -12,14 +12,8 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     }
   end
 
-
-
-  def recommended_products
-
-    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
-    return [] if Rails.env.test?
-
-    body = Jbuilder.encode do |json|
+  def build_body
+    Jbuilder.encode do |json|
       json.set! "product" do
         json.prefix params.search_query
         json.completion do
@@ -34,7 +28,25 @@ class SearchEngine::InstantSearch < SearchEngine::Base
         end
       end
     end
-    result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: body
+  end
+
+  def recommended_products
+
+    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
+    return [] if Rails.env.test?
+
+    result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: build_body
+
+    # double find with synonym for Kechinov
+    if result['hits']['hits'].blank?
+      synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
+      if synonym.present?
+        params.search_query = synonym.synonym
+
+        # Find in Elastic
+        result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: build_body
+      end
+    end
 
     if result && result.key?('product') && result['product'][0]['options'] && result['product'][0]['options'].count
       ids = result['product'][0]['options'].map { |x| x['_id'] }
