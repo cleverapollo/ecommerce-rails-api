@@ -20,6 +20,12 @@ class SearchEngine::FullSearch < SearchEngine::Base
       filter_conditions << ['terms', 'location_ids', params.locations + ['global'] ]
     end
 
+    # Gender filter for apparel
+    must_not_condition = []
+    if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
+      must_not_condition << ['term', 'fashion_gender', UserProfile::Gender.opposite_gender(user.gender) ]
+    end
+
     Jbuilder.encode do |json|
       json.query do
         # json.match do
@@ -28,6 +34,13 @@ class SearchEngine::FullSearch < SearchEngine::Base
         json.bool do
           json.must do
             json.array! [ ['match', 'name', params.search_query] ] do |x|
+              json.set! x[0] do
+                json.set! x[1], x[2]
+              end
+            end
+          end
+          json.must_not do
+            json.array! must_not_condition do |x|
               json.set! x[0] do
                 json.set! x[1], x[2]
               end
