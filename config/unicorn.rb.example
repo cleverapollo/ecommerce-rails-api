@@ -1,4 +1,4 @@
-shared = File.expand_path(File.join(File.dirname(__FILE__), '../../../shared'))
+shared = File.expand_path(File.join(File.dirname(__FILE__), '../../shared'))
 
 worker_processes (ENV["CONCURRENCY"] || 20).to_i
 timeout 10
@@ -30,23 +30,6 @@ end
 
 after_fork do |server, worker|
   CONCURRENCY ||= (ENV["CONCURRENCY"] || 20).to_i
-
-  if defined?(Redis) && defined?(ConnectionPool)
-    # redis_db = 0
-    # Redis.current = ConnectionPool.new(size: CONCURRENCY, timeout: 5) do
-    #   begin
-    #     Redis.new({
-    #       url: "redis://localhost:6379/#{ redis_db }",
-    #       namespace: "rees46_api_#{ Rails.env }"
-    #     })
-    #   rescue
-    #     Redis.new({
-    #       url: "redis://localhost:6379/#{ redis_db }",
-    #       namespace: "rees46_api_#{ Rails.env }"
-    #     })
-    #   end
-    # end
-  end
 
   ClickhouseQueue.connection
 

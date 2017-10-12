@@ -6,12 +6,7 @@ environment = ENV["RAILS_ENV"] || "development"
 require "./config/environment"
 
 redis_db = 0
-if SHARD_ID == '01'
-  # На 01 шарде редис перенесен на сервер с крон тасками
-  host = '88.99.193.211:7000'
-else
-  host = 'localhost:6379'
-end
+host = Rails.application.secrets.redis_host
 Sidekiq.configure_client do |config|
   config.redis = { url: "redis://#{host}/#{ redis_db }", namespace: "rees46_api_#{ Rails.env }" }
 end
