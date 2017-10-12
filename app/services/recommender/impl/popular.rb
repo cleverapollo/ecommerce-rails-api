@@ -30,13 +30,14 @@ module Recommender
       end
 
       def inject_promotions(result, expansion_only = false)
-        if categories.try(:any?)
-          # Промо только в категориях товара выдачи
-          @categories_for_promo = Item.where(id: result).pluck(:category_ids).flatten.compact.uniq
-          super(result)
-        else
+        # Отключили, так захотел @noff
+        # if categories.try(:any?)
+        #   # Промо только в категориях товара выдачи
+        #   @categories_for_promo = Item.where(id: result).pluck(:category_ids).flatten.compact.uniq
+        #   super(result)
+        # else
           result
-        end
+        # end
       end
 
       def items_to_weight
