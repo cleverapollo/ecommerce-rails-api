@@ -11,13 +11,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
     }
   end
 
-
-
-  def recommended_products
-
-    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
-    return [] if Rails.env.test?
-
+  def build_body
     # Build Elastic request
     filter_conditions = []
     filter_conditions << ['term', 'widgetable', true]
@@ -25,7 +19,8 @@ class SearchEngine::FullSearch < SearchEngine::Base
       # Добавляем global, чтобы находить товары, у которых не указан locations
       filter_conditions << ['terms', 'location_ids', params.locations + ['global'] ]
     end
-    body = Jbuilder.encode do |json|
+
+    Jbuilder.encode do |json|
       json.query do
         # json.match do
         #   json.name  params.search_query
@@ -50,8 +45,28 @@ class SearchEngine::FullSearch < SearchEngine::Base
       json.size      params.limit
     end
 
+  end
+
+
+  def recommended_products
+
+    # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
+    return [] if Rails.env.test?
+
     # Find in Elastic
-    result = elastic_client.search index: "shop-#{shop.id}", type: 'product', body: body
+    result = elastic_client.search index: "shop-#{shop.id}", type: 'product', body: build_body
+
+    # double find with synonym for Kechinov
+    if result['hits']['hits'].blank?
+      synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
+      if synonym.present?
+        params.search_query = synonym.synonym
+
+        # Find in Elastic
+        result = elastic_client.search index: "shop-#{shop.id}", type: 'product', body: build_body
+      end
+    end
+
     return [] unless result['hits']['hits'].any?
 
     # Semantic scores
