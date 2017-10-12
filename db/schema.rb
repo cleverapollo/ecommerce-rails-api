@@ -20,7 +20,6 @@ ActiveRecord::Schema.define(version: 20171009123942) do
   enable_extension "intarray"
   enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
-  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
