@@ -32,7 +32,7 @@ namespace :deploy do
   desc 'Stop unicorn'
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "sudo /usr/bin/supervisorctl start api"
+      execute "sudo /usr/bin/supervisorctl stop api"
     end
   end
 end
