@@ -38,7 +38,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: build_body
 
     # double find with synonym for Kechinov
-    if result['hits']['hits'].blank?
+    unless result && result.key?('product') && result['product'][0]['options'] && result['product'][0]['options'].count
       synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
       if synonym.present?
         params.search_query = synonym.synonym
