@@ -13,12 +13,7 @@ class Redis
   # Хз зачем было сделано так
   def self.configure
     redis_db = 0
-    if Rails.env.production?
-      # На 01 шарде редис перенесен на сервер с крон тасками
-      host = '88.99.193.211:7000'
-    else
-      host = 'localhost:6379'
-    end
+    host = Rails.application.secrets.redis_host
     begin
       Redis.new({
         url: "redis://#{host}/#{ redis_db }",
@@ -35,11 +30,7 @@ class Redis
 
   def self.configure_rtb
     redis_db = 0
-    if Rails.env.production?
-      host = '144.76.156.6:6379'
-    else
-      host = 'localhost:6379'
-    end
+    host = Rails.application.secrets.redis_rtb_host
     begin
       Redis.new({
                     url: "redis://#{host}/#{ redis_db }",

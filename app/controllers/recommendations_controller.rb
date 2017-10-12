@@ -111,6 +111,11 @@ class RecommendationsController < ApplicationController
     respond_with_client_error(e)
   end
 
+  # Brand promotion popup
+  def popup
+    render json: {}
+  end
+
 
   # Массовые рекомендации для пачки полутелей.
   # После расчета рекомендаций делает обратный запрос на указанный Callback URL
