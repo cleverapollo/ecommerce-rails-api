@@ -28,6 +28,13 @@ namespace :deploy do
       execute "sudo /usr/bin/supervisorctl start api"
     end
   end
+  desc 'Restart unicorn'
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      execute "sudo /usr/bin/supervisorctl restart api"
+    end
+  end
+
 
   desc 'Stop unicorn'
   task :stop do
