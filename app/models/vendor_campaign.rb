@@ -52,6 +52,7 @@ class VendorCampaign < MasterTable
           object_id: id,
           recommended_by: params.type,
           brand: brand.try(:downcase),
+          referer: params.request.referer,
       })
     rescue StandardError => e
       raise e unless Rails.env.production?
