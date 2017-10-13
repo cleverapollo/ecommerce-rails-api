@@ -54,6 +54,10 @@ module Recommendations
     attr_accessor :segments
     # @return [Float] max_price_filter ограничитель максимальной цены рекомендуемых товаров. По-умолчанию отсутствует
     attr_accessor :max_price_filter
+    # @return [Boolean] Включить подмешивание брендов
+    attr_accessor :brand_promotions
+    # @return [Array<ShopInventory>] Список инвентарей для подмешивания в рекомендации. Используется для popup.
+    attr_accessor :shop_inventories
 
     # Проверяет и обрабатывает параметры
     #
@@ -114,6 +118,7 @@ module Recommendations
       @exclude                   = []
       @skip_niche_algorithms     = false
       @track_recommender         = true
+      self.brand_promotions      = false
       check
     end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170920134735) do
+ActiveRecord::Schema.define(version: 20171012095802) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -468,6 +468,7 @@ ActiveRecord::Schema.define(version: 20170920134735) do
     t.string   "name"
     t.integer  "image_width"
     t.integer  "image_height"
+    t.jsonb    "settings"
   end
 
   create_table "shop_inventory_banners", force: :cascade do |t|
@@ -565,7 +566,7 @@ ActiveRecord::Schema.define(version: 20170920134735) do
     t.string   "logo_content_type"
     t.integer  "logo_file_size"
     t.datetime "logo_updated_at"
-    t.string   "plan",                                      default: "s"
+    t.string   "plan",                                      default: "l"
     t.boolean  "plan_fixed",                                default: false
     t.string   "currency_code"
     t.integer  "js_sdk"
@@ -584,6 +585,7 @@ ActiveRecord::Schema.define(version: 20170920134735) do
     t.string   "yml_state"
     t.boolean  "mailings_restricted",                       default: false, null: false
     t.boolean  "yml_notification",                          default: true,  null: false
+    t.boolean  "dont_disconnect",                           default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
@@ -713,6 +715,9 @@ ActiveRecord::Schema.define(version: 20170920134735) do
     t.integer  "image_file_size"
     t.datetime "image_updated_at"
     t.string   "url"
+    t.string   "categories",                                  array: true
+    t.boolean  "all_categories"
+    t.integer  "item_count"
   end
 
   add_index "vendor_campaigns", ["vendor_id", "shop_id"], name: "index_vendor_campaigns_on_vendor_id_and_shop_id", using: :btree

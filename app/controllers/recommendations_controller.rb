@@ -113,7 +113,31 @@ class RecommendationsController < ApplicationController
 
   # Brand promotion popup
   def popup
-    render json: {}
+
+    # Находим инвентарь магазина
+    shop_inventory = @shop.shop_inventories.popup.active.first
+    return render json: {} if shop_inventory.blank?
+
+    # Извлекаем данные из входящих параметров
+    params[:recommender_type] = 'popular'
+    params[:limit] = shop_inventory.settings[:item_count]
+    params[:extended] = true
+    extracted_params = Recommendations::Params.new(params)
+    extracted_params.shop = @shop
+    extracted_params.current_session_code = cookies['rees46_session_code'] || params[:seance]
+    extracted_params.request = request
+    extracted_params.track_recommender = false
+    extracted_params.brand_promotions = true
+    extracted_params.shop_inventories = [shop_inventory]
+    extracted_params.extract
+
+    # Запускаем процессор с извлеченными данными
+    recommendations = Recommendations::Processor.process(extracted_params)
+
+    render json: {
+        title: shop_inventory.settings[:title],
+        items: recommendations
+    }
   end
 
 

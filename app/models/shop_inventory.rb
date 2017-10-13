@@ -12,5 +12,7 @@ class ShopInventory < MasterTable
   scope :active, -> { where(active: true) }
   scope :recommendations, -> { where(inventory_type: TYPES.index(:recommendations)) }
 
+  serialize :settings, HashSerializer
+
   default_scope -> { active }
 end

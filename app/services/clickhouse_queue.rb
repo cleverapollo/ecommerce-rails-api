@@ -7,11 +7,15 @@ class ClickhouseQueue
     # @param [String] table
     # @param [Hash] values
     def push(table, values = {}, opts = {})
-      queue.publish(JSON.generate({
-          table: table,
-          values: values,
-          opts: opts,
-      })) unless Rails.env.test?
+      begin
+        queue.publish(JSON.generate({
+            table: table,
+            values: values,
+            opts: opts,
+        })) unless Rails.env.test?
+      rescue Bunny::TCPConnectionFailedForAllHosts => e
+        raise e if Rails.env.production?
+      end
     end
 
     # @param [Hash] values

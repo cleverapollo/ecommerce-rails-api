@@ -17,7 +17,7 @@ module Recommender
       promotions_placed = 0
 
       # Ищем подходящий инвентарь в магазине
-      shop_inventories = shop.shop_inventories.recommendations.includes(:vendor_campaigns)
+      shop_inventories = params.shop_inventories || shop.shop_inventories.recommendations.includes(:vendor_campaigns)
       currencies = Currency.all
 
       catch :done do
@@ -32,13 +32,19 @@ module Recommender
           # @type [VendorCampaign] vendor_campaign
           |vendor_campaign|
 
+            # Определяем максимальное количество подмешиваемых товаров
+            max_promotions = [MAX_PROMOTIONS]
+            max_promotions << vendor_campaign.item_count if vendor_campaign.item_count.present?
+            max_promotions = max_promotions.min
+
             # Берем валюту из массива
             vendor_campaign.currency = currencies.select {|c| c.id == vendor_campaign.currency_id }.first
             shop_inventory.currency = currencies.select {|c| c.id == shop_inventory.currency_id }.first
 
             # Проверяем чтобы минимальная ставка была меньше максимальной ставки вендора (конвертируем в одинаковые валюты)
             if shop_inventory.min_cpc_price <= vendor_campaign.currency.recalculate_to(shop_inventory.currency, vendor_campaign.max_cpc_price)
-              # проверяем места на занятость
+
+                # проверяем места на занятость
               throw :done if promotions_placed >= MAX_PROMOTIONS
 
               # Достаем подходящий товар
@@ -52,13 +58,23 @@ module Recommender
                 result_ids.insert(index_to_replace, promoted_item_id)
                 promotions_placed += 1
               else
-                promoted_item_id, promoted_uniqid = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount, categories_for_promo)
-                if promoted_item_id.present?
-                  result_ids.insert(promotions_placed, promoted_item_id)
-                  # удаляем последний элемент, для созранения лимита
-                  result_ids.pop
-                  promotions_placed += 1
+
+                # Повторяем вставку нужное количество раз. Необходимо для подмешивания в popup
+                max_promotions.times do
+
+                  # проверяем места на доступность
+                  if promotions_placed < max_promotions
+
+                    promoted_item_id, promoted_uniqid = vendor_campaign.first_in_shop(excluded_items_ids + result_ids, params.discount, categories_for_promo)
+                    if promoted_item_id.present?
+                      result_ids.insert(promotions_placed, promoted_item_id)
+                      # удаляем последний элемент, для созранения лимита
+                      result_ids.pop
+                      promotions_placed += 1
+                    end
+                  end
                 end
+
               end
 
               # Считаем просмотр для бренда
