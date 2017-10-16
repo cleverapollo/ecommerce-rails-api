@@ -220,7 +220,9 @@ module ActionPush
 
                   # Добавляем 2 события. Сначала view, потом click, т.к. событие view не добавляется в триггерах
                   brand_items.each do |item|
-                    vendor_campaign.track_view(brand_params, item.uniqid)
+                    if item.brand_downcase == vendor_campaign.brand.downcase
+                      vendor_campaign.track_view(brand_params, item.uniqid)
+                    end
                   end
                 end
 
