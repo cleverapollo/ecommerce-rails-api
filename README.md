@@ -20,7 +20,7 @@ Back-end для приема событий и выдачи рекомендац
 3. Импорты. Заказы, товары, yandex market file.
 
 ### Внешние зависимости
-* ruby-2.3.0
+* ruby-2.3.1
 * [PostgreSQL 9.5+](http://docs.rees46.com/pages/viewpage.action?pageId=3735759)
 * [Redis](https://docs.google.com/document/d/1L8NfEB6Jvapt5-ZgdyKuaQpOw7izQvzdHrzmpTiSj6o/edit)
 * [BRB](https://bitbucket.org/mkechinov/rees46_brb)
@@ -39,6 +39,7 @@ Back-end для приема событий и выдачи рекомендац
 ```sh
 $ bundle
 $ bin/rake db:create db:schema:load
+$ bin/rake clickhouse:schema:load
 ```
 
 Запуск сервера

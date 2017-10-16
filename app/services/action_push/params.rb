@@ -78,9 +78,9 @@ module ActionPush
       extract_static_attributes
       extract_shop if shop.nil?
       extract_user
-      track_mytoys_trigger
       normalize_item_arrays and extract_items
       extract_category
+      track_mytoys_trigger
       self
     end
 
@@ -192,6 +192,41 @@ module ActionPush
               'from' => 'trigger_mail',
               'code' => @trigger_mail_code
           }
+
+          if self.action == 'view' && self.items.present?
+
+            # Подготавливаем данные для трекинга
+            brand_items = self.items.select {|i| i.brand_downcase.present? }
+            brand_params = OpenStruct.new({
+                session: self.session,
+                current_session_code: self.current_session_code,
+                shop: self.shop,
+                type: 'trigger_mail',
+                request: self.request,
+            })
+
+            # Если есть в списке брендовые товары
+            if brand_items.present?
+
+              # Добавляем трекинг просмотра всех товаров для рекоммендреров (если это брендовые товары)
+              shop.shop_inventories.recommendations.includes(:vendor_campaigns).each do
+                # @type [ShopInventory] shop_inventory
+                |shop_inventory|
+
+                # Проходим по списку кампаний
+                shop_inventory.vendor_campaigns.where(brand: brand_items.map(&:brand_downcase)).each do
+                  # @type [VendorCampaign] vendor_campaign
+                  |vendor_campaign|
+
+                  # Добавляем 2 события. Сначала view, потом click, т.к. событие view не добавляется в триггерах
+                  brand_items.each do |item|
+                    vendor_campaign.track_view(brand_params, item.uniqid)
+                  end
+                end
+
+              end
+            end
+          end
         end
       end
     end
