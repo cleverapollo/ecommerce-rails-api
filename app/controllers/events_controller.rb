@@ -12,7 +12,6 @@ class EventsController < ApplicationController
     if @shop.restricted?
       raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
     end
-
     # Извлекаем данные из входящих параметров
     extracted_params = ActionPush::Params.new(params)
     extracted_params.shop = @shop
@@ -22,7 +21,6 @@ class EventsController < ApplicationController
 
     # Запускаем процессор с извлеченными данными
     ActionPush::Processor.new(extracted_params).process
-
     # Сообщаем брокеру брошенных корзин RTB
     case extracted_params.action.to_sym
       when :cart

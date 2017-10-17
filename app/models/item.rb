@@ -178,6 +178,7 @@ class Item < ActiveRecord::Base
         fashion_wear_type: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :fashion_wear_type)),
         fashion_feature: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :fashion_feature)),
         fashion_sizes: ValuesHelper.present_one(new_item, self, :fashion_sizes),
+        child_gender: ValuesHelper.present_one(new_item, self, :child_gender),
         child_age_min: ValuesHelper.present_one(new_item, self, :child_age_min),
         child_age_max: ValuesHelper.present_one(new_item, self, :child_age_max),
         cosmetic_gender: ValuesHelper.present_one(new_item, self, :cosmetic_gender),

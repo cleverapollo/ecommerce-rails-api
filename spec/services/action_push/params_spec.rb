@@ -26,6 +26,7 @@ describe ActionPush::Params do
           order_price: 333,
           cosmetics_gender: ['m'],
           fashion_gender: ['f'],
+          child_gender: ['f'],
         }
       end
 
@@ -53,8 +54,10 @@ describe ActionPush::Params do
         subject
         expect(item_with_slash.reload.cosmetic_gender).to eq('m')
         expect(item_with_slash.reload.fashion_gender).to eq('f')
+        expect(item_with_slash.reload.child_gender).to eq('f')
         expect(item_without_slash.reload.cosmetic_gender).to be_nil
         expect(item_without_slash.reload.fashion_gender).to be_nil
+        expect(item_without_slash.reload.child_gender).to be_nil
       end
 
       context 'without ssid' do

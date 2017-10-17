@@ -201,7 +201,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender, :fashion_size].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender, :fashion_size,  :child_gender].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -304,7 +304,14 @@ module ActionPush
           item_attributes.fashion_gender = raw[:fashion_gender][i]
         end
 
+        # Добавляем пол ребенка из автоопределялки
+        if raw[:child_gender].present? && raw[:child_gender][i].present? && item_attributes.child_gender.blank?
+          item_attributes.is_child = true if item_attributes.is_child.nil?
+          item_attributes.child_gender = raw[:child_gender][i]
+        end
+
         @items << Item.fetch(shop.id, item_attributes)
+
       end
     rescue JSON::ParserError => e
       raise ActionPush::IncorrectParams.new(e.message)
