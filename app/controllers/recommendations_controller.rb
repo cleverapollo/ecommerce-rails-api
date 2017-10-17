@@ -168,7 +168,7 @@ class RecommendationsController < ApplicationController
         |vendor_campaign|
 
         # Ищем брендовые товары
-        items = Item.recommendable.by_brands(vendor_campaign.brand.downcase).limit([shop_inventory.settings[:item_count].to_i - ids.size, vendor_campaign.item_count].min).pluck(:uniqid)
+        items = @shop.items.recommendable.by_brands(vendor_campaign.brand.downcase).limit([shop_inventory.settings[:item_count].to_i - ids.size, vendor_campaign.item_count].min).pluck(:uniqid)
         items.each do |item|
           vendor_campaign.track_view(brand_params, item)
           ids << item
