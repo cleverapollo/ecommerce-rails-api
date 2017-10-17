@@ -2,15 +2,15 @@ class WhiteLabel
   class << self
 
     def personaclick?
-      WHITE_LABEL_PLATFORM && WHITE_LABEL_PLATFORM == 'personaclick'
+      defined?(WHITE_LABEL_PLATFORM) && WHITE_LABEL_PLATFORM == 'personaclick'
     end
 
     def kameleoon?
-      WHITE_LABEL_PLATFORM && WHITE_LABEL_PLATFORM == 'kameleoon'
+      defined?(WHITE_LABEL_PLATFORM) && WHITE_LABEL_PLATFORM == 'kameleoon'
     end
 
     def default?
-      WHITE_LABEL_PLATFORM.nil? || WHITE_LABEL_PLATFORM.blank? || WHITE_LABEL_PLATFORM == 'rees46'
+      !defined?(WHITE_LABEL_PLATFORM) || WHITE_LABEL_PLATFORM.blank? || WHITE_LABEL_PLATFORM == 'rees46'
     end
 
     def api_domain
