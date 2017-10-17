@@ -12,7 +12,7 @@ class VendorCampaign < MasterTable
 
   enum status: [:draft, :moderation, :published, :declined, :stopped]
 
-  default_scope -> { where(status: 2) }
+  default_scope -> { where(status: 2).where.not(brand: nil) }
 
   # Ищет продвигаемый товар среди предоставленных и, если такой есть,
   # возвращает его идентификатор для последующей постановки на первое место.
@@ -21,7 +21,7 @@ class VendorCampaign < MasterTable
   # @return Integer
   def first_in_selection(item_ids, discount = false)
     Slavery.on_slave do
-      relation = Item.recommendable.widgetable.where(id: item_ids, brand_downcase: brand.try(:downcase)).by_sales_rate.limit(1)
+      relation = Item.recommendable.widgetable.where(id: item_ids, brand_downcase: brand.downcase).by_sales_rate.limit(1)
       relation = relation.discount if discount
       relation.pluck(:id, :uniqid).first
     end
@@ -29,7 +29,7 @@ class VendorCampaign < MasterTable
 
   def first_in_shop(excluded_ids = [], discount = false, categories = [])
     Slavery.on_slave do
-      relation = Item.recommendable.widgetable.where(shop_id: shop_id, brand_downcase: brand.try(:downcase)).where.not(id: excluded_ids).by_sales_rate.limit(1)
+      relation = Item.recommendable.widgetable.where(shop_id: shop_id, brand_downcase: brand.downcase).where.not(id: excluded_ids).by_sales_rate.limit(1)
       relation = relation.in_categories(categories, { any: true }) if categories.present?
       relation = relation.discount if discount
       relation.pluck(:id, :uniqid).first
@@ -51,7 +51,7 @@ class VendorCampaign < MasterTable
           object_type: self.class,
           object_id: id,
           recommended_by: params.type,
-          brand: brand.try(:downcase),
+          brand: brand.downcase,
           referer: params.request.referer,
       })
     rescue StandardError => e

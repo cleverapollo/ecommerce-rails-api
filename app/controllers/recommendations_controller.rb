@@ -115,7 +115,7 @@ class RecommendationsController < ApplicationController
   def popup
 
     # Находим инвентарь магазина
-    shop_inventory = @shop.shop_inventories.popup.active.first
+    shop_inventory = @shop.shop_inventories.popup.first
     return render json: {} if shop_inventory.blank?
 
     # Извлекаем данные из входящих параметров
@@ -138,6 +138,49 @@ class RecommendationsController < ApplicationController
         title: shop_inventory.settings[:title],
         items: recommendations
     }
+  end
+
+  # Brand sponsored products
+  def sponsored
+
+    # Находим инвентарь магазина
+    shop_inventory = @shop.shop_inventories.sponsored.find(params[:id])
+    return render json: {} if shop_inventory.blank?
+
+    ids = []
+
+    user_fetcher = UserFetcher.new(shop: @shop, session_code: params[:ssid])
+    user = user_fetcher.fetch
+    session = user_fetcher.session
+
+    brand_params = OpenStruct.new({
+        session: session,
+        current_session_code: cookies['rees46_session_code'] || params[:seance],
+        shop: @shop,
+        type: 'sponsored',
+        request: request,
+    })
+
+    catch :done do
+      # Проходим по списку кампаний
+      shop_inventory.vendor_campaigns.each do
+        # @type [VendorCampaign] vendor_campaign
+        |vendor_campaign|
+
+        # Ищем брендовые товары
+        items = Item.recommendable.by_brands(vendor_campaign.brand.downcase).limit([shop_inventory.settings[:item_count].to_i - ids.size, vendor_campaign.item_count].min).pluck(:uniqid)
+        items.each do |item|
+          vendor_campaign.track_view(brand_params, item)
+          ids << item
+        end
+
+        # проверяем места на занятость
+        throw :done if ids.size >= shop_inventory.settings[:item_count].to_i
+
+      end
+    end
+
+    render json: ids
   end
 
 
