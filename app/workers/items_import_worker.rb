@@ -47,7 +47,9 @@ class ItemsImportWorker
 
     # Обновялем статистику по товарам
     ShopKPI.new(shop).calculate_products
-
+  rescue Sidekiq::Shutdown => e
+    Rollbar.info(e, 'Sidekiq shutdown, abort import items processing', shop_id: id)
+    retry
   rescue Exception => e
     ErrorsMailer.products_import_error(self.shop, e.message).deliver_now
   ensure
