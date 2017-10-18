@@ -163,9 +163,10 @@ class Item < ActiveRecord::Base
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
 
-    if new_item.url.present? && !Item.valid_url?(new_item.url)
-      raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
-    end
+    # # Если урл заполнен, проверяем валидность
+    # if new_item.url.present? && !Item.valid_url?(new_item.url)
+    #   raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
+    # end
 
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
