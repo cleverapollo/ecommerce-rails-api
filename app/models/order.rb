@@ -107,7 +107,7 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
-        OrderItem.persist(order, item, params.session, item.amount, recommended_by_expicit)
+        OrderItem.persist(order, item, item.amount, params, recommended_by_expicit)
       end
 
       order

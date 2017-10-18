@@ -23,6 +23,8 @@ class Actions::Tracker
         save_to_mahout(item)
 
         # Если товар входит в список продвижения, то трекаем его событие, если это был клик или покупка
+        # todo Логика брендов перенесена в rees46_clickhouse_queue
+        # @deprecated
         Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
           BrandLogger.track_click brand_campaign_id, params.shop.id, params.recommended_by
         end
@@ -164,29 +166,6 @@ class Actions::Tracker
     params.client.supply_trigger_sent = nil
     params.client.atomic_save if params.client.changed?
     params.user.client_carts.destroy_all
-
-    params.items.each do |item|
-      begin
-        ClickhouseQueue.order_items({
-            session_id: params.session.id,
-            shop_id: params.shop.id,
-            user_id: params.user.id,
-            order_id: order.id,
-            item_uniqid: item.uniqid,
-            amount: item.amount,
-            price: item.price,
-            recommended_by: order.order_items.find_by(item_id: item.id).try(:recommended_by),
-            brand: item.brand_downcase
-        }, {
-            current_session_code: params.current_session_code,
-        })
-
-      rescue Exception => e
-        raise e unless Rails.env.production?
-        Rollbar.error 'Rabbit insert error', e
-      end
-    end
-
   end
 
   # Убираем из корзины удаленные товары
