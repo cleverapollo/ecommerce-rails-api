@@ -134,8 +134,12 @@ class Item < ActiveRecord::Base
       item = Slavery.on_slave { find_or_initialize_by(shop_id: shop_id, uniqid: item_proxy.uniqid.to_s) }
       item.apply_attributes(item_proxy)
     end
+    # Проверка на валидность url
+    def valid_url?(url)
+        url_re = /(^$)|(^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$)/ix
+        !url_re.match(url).nil?
+    end
   end
-
   # Применить аттрибуты товара
   def apply_attributes(item_proxy)
     self.amount = item_proxy.amount
@@ -158,6 +162,11 @@ class Item < ActiveRecord::Base
   # Назначить аттрибуты
   def merge_attributes(new_item)
     new_item.is_available = true if new_item.is_available.nil?
+
+
+    unless Item.valid_url?(new_item.url)
+      raise "Url not valid id: #{new_item.uniqid}, url:#{new_item.url}"
+    end
 
     attrs = {
         price: ValuesHelper.present_one(new_item, self, :price),
@@ -208,6 +217,8 @@ class Item < ActiveRecord::Base
         realty_space_max: ValuesHelper.present_one(new_item, self, :realty_space_max),
         realty_space_final: ValuesHelper.present_one(new_item, self, :realty_space_final),
     }
+
+
 
     # Downcased brand for brand campaign manage
     attrs[:brand_downcase] = (attrs[:brand].present? ? attrs[:brand].mb_chars.downcase : nil)

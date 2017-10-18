@@ -9,6 +9,7 @@ class YmlImporter
   # Точка входа обработки YML
   # @param shop_id [Integer]
   # @param force [Boolean] Флаг, что насильно переимпортировать файл, игнорируя if-modified-since
+
   def perform(shop_id, force = false)
     current_shop = Shop.find(shop_id)
 
@@ -84,6 +85,11 @@ class YmlImporter
               offers_count += 1
 
               new_item = Item.build_by_offer(offer, category, wear_types)
+
+              unless Item.valid_url?(new_item.url)
+                  raise "Url not valid id: #{new_item.uniqid}, url:#{new_item.url}"
+              end
+
               new_item.id = index
               new_item.shop_id = shop_id
               new_item.is_available = offer.available

@@ -15,6 +15,7 @@ describe YmlImporter do
     expect(ItemCategory.find_by(external_id: 2).url).to eq('http://example.com/category1')
   end
 
+
   it 'import' do
     subject
     expect(shop.reload.yml_loaded).to be_truthy

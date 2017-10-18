@@ -53,6 +53,12 @@ describe ItemsImportWorker do
   }
   subject { ItemsImportWorker.new.perform(shop.id, items, 'put') }
 
+  it 'valid url' do
+    items[0][:url] = 'ttp://google.com'
+    allow(ErrorsMailer).to receive(:products_import_error).with(shop, 'Url not valid 1 ttp://google.com').and_call_original
+    subject
+  end
+
   it 'works' do
     subject
 
