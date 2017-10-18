@@ -55,7 +55,7 @@ describe ItemsImportWorker do
 
   it 'valid url' do
     items[0][:url] = 'ttp://google.com'
-    allow(ErrorsMailer).to receive(:products_import_error).with(shop, 'Url not valid 1 ttp://google.com').and_call_original
+    allow(ErrorsMailer).to receive(:products_import_error).with(shop, 'Url not valid id: 1, url: ttp://google.com').and_call_original
     subject
   end
 

@@ -165,7 +165,7 @@ class Item < ActiveRecord::Base
 
 
     unless Item.valid_url?(new_item.url)
-      raise "Url not valid id: #{new_item.uniqid}, url:#{new_item.url}"
+      raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
     end
 
     attrs = {
