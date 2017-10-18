@@ -44,7 +44,7 @@ module Recommender
             # Проверяем чтобы минимальная ставка была меньше максимальной ставки вендора (конвертируем в одинаковые валюты)
             if shop_inventory.min_cpc_price <= vendor_campaign.currency.recalculate_to(shop_inventory.currency, vendor_campaign.max_cpc_price)
 
-                # проверяем места на занятость
+              # проверяем места на занятость
               throw :done if promotions_placed >= MAX_PROMOTIONS
 
               # Достаем подходящий товар
