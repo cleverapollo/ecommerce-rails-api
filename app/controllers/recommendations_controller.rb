@@ -163,7 +163,7 @@ class RecommendationsController < ApplicationController
 
     catch :done do
       # Проходим по списку кампаний
-      shop_inventory.vendor_campaigns.each do
+      shop_inventory.vendor_campaigns.order(max_cpc_price: :desc).each do
         # @type [VendorCampaign] vendor_campaign
         |vendor_campaign|
 
