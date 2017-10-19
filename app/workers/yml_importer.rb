@@ -86,9 +86,9 @@ class YmlImporter
 
               new_item = Item.build_by_offer(offer, category, wear_types)
 
-              if new_item.url.present? && !Item.valid_url?(new_item.url)
-                raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
-              end
+              # if new_item.url.present? && !Item.valid_url?(new_item.url)
+              #   raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
+              # end
 
               new_item.id = index
               new_item.shop_id = shop_id
