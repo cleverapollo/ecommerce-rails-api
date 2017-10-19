@@ -143,6 +143,11 @@ class RecommendationsController < ApplicationController
   # Brand sponsored products
   def sponsored
 
+    if params[:id].blank?
+      render json: { status: 'error', message: 'Incorrect inventory id' }, status: 400
+      return
+    end
+
     # Находим инвентарь магазина
     shop_inventory = @shop.shop_inventories.sponsored.find(params[:id])
     return render json: {} if shop_inventory.blank?
@@ -162,8 +167,10 @@ class RecommendationsController < ApplicationController
     })
 
     catch :done do
+      relation = shop_inventory.vendor_campaigns.order(max_cpc_price: :desc)
+      relation = relation.where('all_categories = TRUE OR ARRAY[?]::varchar[] && categories', params[:category]) if params[:category].present?
       # Проходим по списку кампаний
-      shop_inventory.vendor_campaigns.order(max_cpc_price: :desc).each do
+      relation.each do
         # @type [VendorCampaign] vendor_campaign
         |vendor_campaign|
 
@@ -182,6 +189,11 @@ class RecommendationsController < ApplicationController
     end
 
     render json: ids
+  rescue Exception => e
+    # Костыль
+    raise e if Rails.env.development?
+    log_client_error(e)
+    respond_with_client_error(e)
   end
 
 
