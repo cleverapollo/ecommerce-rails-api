@@ -12,8 +12,7 @@ class VendorCampaign < MasterTable
 
   enum status: [:draft, :moderation, :published, :declined, :stopped]
 
-  scope :with_brand, -> { where.not(brand: nil) }
-  default_scope -> { published }
+  default_scope -> { published.where.not(brand: nil) }
 
   # Ищет продвигаемый товар среди предоставленных и, если такой есть,
   # возвращает его идентификатор для последующей постановки на первое место.
