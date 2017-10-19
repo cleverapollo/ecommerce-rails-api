@@ -28,7 +28,7 @@ module Recommender
         |shop_inventory|
 
           # Проходим по списку кампаний
-          shop_inventory.vendor_campaigns.each do
+          shop_inventory.vendor_campaigns.with_brand.each do
           # @type [VendorCampaign] vendor_campaign
           |vendor_campaign|
 

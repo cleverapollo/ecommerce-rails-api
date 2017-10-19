@@ -17,6 +17,7 @@ development:
   - rollbar
   - long
   - webpush
+  - order
 :limits:
   critical: 1
   rollbar: 1
@@ -27,3 +28,4 @@ development:
   long: 5
   default: 5
   webpush: 5
+  order: 10
