@@ -15,6 +15,7 @@ class OrderPersistWorker
   # @param [Number] order_id
   # @param [Hash<session,order_price,source,segments>] params
   def perform(order_id, params)
+    params = params.with_indifferent_access
 
     # Строим снова параметры
     self.session = Session.find_by_code(params[:session])
