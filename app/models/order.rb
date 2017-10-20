@@ -37,7 +37,7 @@ class Order < ActiveRecord::Base
       segments = params.segments
 
       # Иногда событие заказа приходит несколько раз
-      return nil if duplicate?(shop, user, uniqid, items)
+      return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
 
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid(shop.id) if uniqid.blank?
@@ -67,6 +67,7 @@ class Order < ActiveRecord::Base
       #   end
       # end
 
+      # Переносим в OrderPersistWorker. Оставлено для проверки работы ------------->
       # Привязка заказа к письму
       if source.present? && source['from'].present?
         klass = if source['from'] == 'trigger_mail'
@@ -99,6 +100,8 @@ class Order < ActiveRecord::Base
                    segments: segments)
       order.atomic_save if order.changed?
 
+      # <------------------- END
+
       # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
       if items.size > 0 && order.order_items.count > 0
         order.order_items.destroy_all
@@ -107,13 +110,18 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
+        # todo переделать просто в создание записи
         OrderItem.persist(order, item, item.amount, params, recommended_by_expicit)
       end
+
+      # Отправляем в работу для пересчета рекомендаций
+      OrderPersistWorker.perform_async(order.id, { session: params.session.code, order_price: params.order_price, source: params.source, segments: params.segments })
 
       order
     end
 
     # Расчет сумм по заказу
+    # @deprecated
     def order_values(shop, user, session, items, force_recommended = false, remote_order_price = nil)
       result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 

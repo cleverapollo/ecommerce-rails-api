@@ -8,7 +8,7 @@ class OrderItem < ActiveRecord::Base
   belongs_to :action
   belongs_to :shop
 
-  validates :shop_id, :action_id, presence: true
+  validates :shop_id, presence: true
 
   class << self
     # Сохранить товар заказа

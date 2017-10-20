@@ -28,4 +28,4 @@ development:
   long: 5
   default: 5
   webpush: 5
-  order: 10
+  order: 5
