@@ -176,7 +176,7 @@ class RecommendationsController < ApplicationController
 
         # Ищем брендовые товары
         items = @shop.items.recommendable.by_brands(vendor_campaign.brand.downcase).limit([shop_inventory.settings[:item_count].to_i - ids.size, vendor_campaign.item_count].min)
-        items = items.in_categories(vendor_campaign.categories, { any: false }) if vendor_campaign.categories.present? && !vendor_campaign.all_categories
+        items = items.in_categories((params[:category].present? ? [params[:category]] : []) + (vendor_campaign.categories || []), { any: false }) if vendor_campaign.categories.present? && !vendor_campaign.all_categories || params[:category].present?
         items.pluck(:uniqid).each do |item|
           vendor_campaign.track_view(brand_params, item)
           ids << item
