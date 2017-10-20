@@ -155,6 +155,9 @@ module ActionPush
           else
             @web_push_digest_code = nil
         end
+
+        # Костыль для дайджестов MyToys
+        Rollbar.info('MyToys digest', @source) if shop.id == 828 && @source['from'] == 'digest_mail'
       end
 
       # Формируем сегменты

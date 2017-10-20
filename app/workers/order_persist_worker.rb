@@ -83,9 +83,6 @@ class OrderPersistWorker
         WebPushTriggerMessage
       end
 
-      # Костыль для дайджестов MyToys
-      Rollbar.info('MyToys digest', source) if shop.id == 828
-
       return klass.find_by(code: source['code'])
     end
 
