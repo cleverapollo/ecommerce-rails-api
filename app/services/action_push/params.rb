@@ -75,8 +75,8 @@ module ActionPush
     #
     # @return [ActionPush::Params] обработанные параметры
     def extract
-      extract_static_attributes
       extract_shop if shop.nil?
+      extract_static_attributes
       extract_user
       normalize_item_arrays and extract_items
       extract_category

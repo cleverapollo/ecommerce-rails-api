@@ -83,7 +83,7 @@ class OrderPersistWorker
         WebPushTriggerMessage
       end
 
-      return klass.find_by(code: source['code'])
+      return klass.find_by(code: source['code']) if klass.present?
     end
 
     nil
