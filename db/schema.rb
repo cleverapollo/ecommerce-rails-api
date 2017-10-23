@@ -11,15 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171020090132) do
+ActiveRecord::Schema.define(version: 20171023130329) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
   enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -480,7 +480,8 @@ ActiveRecord::Schema.define(version: 20171020090132) do
     t.datetime "updated_at",              null: false
   end
 
-  add_index "no_result_queries", ["shop_id", "synonym"], name: "index_no_result_queries_on_shop_id_and_synonym", unique: true, using: :btree
+  add_index "no_result_queries", ["shop_id", "query"], name: "index_no_result_queries_on_shop_id_and_query", unique: true, using: :btree
+  add_index "no_result_queries", ["synonym"], name: "index_no_result_queries_on_synonym", using: :btree
 
   create_table "order_items", id: :bigserial, force: :cascade do |t|
     t.integer "order_id",       limit: 8,               null: false
