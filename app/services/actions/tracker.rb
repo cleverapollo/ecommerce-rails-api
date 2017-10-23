@@ -78,7 +78,7 @@ class Actions::Tracker
           object_type: type,
           object_id: id,
           recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
-          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : nil,
+          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : (params.recommended_code || nil),
           price: price,
           brand: brand,
           referer: params.request.referer,
