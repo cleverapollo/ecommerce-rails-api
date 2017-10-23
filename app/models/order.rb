@@ -82,7 +82,11 @@ class Order < ActiveRecord::Base
           WebPushTriggerMessage
         end
 
-        source = klass.find_by(code: source['code'])
+        if klass.present?
+          source = klass.find_by(code: source['code'])
+        else
+          source = nil
+        end
       else
         source = nil
       end
