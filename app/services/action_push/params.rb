@@ -160,8 +160,8 @@ module ActionPush
       end
 
       # Добавляем код рекоммендера, для поиска
-      if raw[:r46_search_query].present?
-        self.recommended_code = raw[:r46_search_query]
+      if raw[:recommended_code].present?
+        self.recommended_code = raw[:recommended_code]
       end
 
       # Формируем сегменты
