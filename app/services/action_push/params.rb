@@ -35,6 +35,7 @@ module ActionPush
     attr_accessor :rating
     # Какой рекомендер привел пользователя на товар
     attr_accessor :recommended_by
+    attr_accessor :recommended_code
     # Массив товаров
     attr_accessor :items
     # @return [ItemCategory]
@@ -152,12 +153,15 @@ module ActionPush
             @web_push_trigger_code = @source['code']
           when 'web_push_digest'
             @web_push_digest_code = @source['code']
-          else
-            @web_push_digest_code = nil
         end
 
         # Костыль для дайджестов MyToys
         Rollbar.info('MyToys digest', @source) if shop.id == 828 && @source['from'] == 'digest_mail'
+      end
+
+      # Добавляем код рекоммендера, для поиска
+      if raw[:r46_search_query].present?
+        self.recommended_code = raw[:r46_search_query]
       end
 
       # Формируем сегменты

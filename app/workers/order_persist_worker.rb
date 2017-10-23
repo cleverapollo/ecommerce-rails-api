@@ -4,6 +4,7 @@ class OrderPersistWorker
 
   # @return [Session]
   attr_accessor :session
+  attr_accessor :current_session_code
   # @return [User]
   attr_accessor :user
   # @return [Shop]
@@ -13,7 +14,7 @@ class OrderPersistWorker
   attr_accessor :order_price
 
   # @param [Number] order_id
-  # @param [Hash<session,order_price,source,segments>] params
+  # @param [Hash<session,order_price,source,segments,current_session_code>] params
   def perform(order_id, params)
     params = params.with_indifferent_access
 
@@ -23,6 +24,7 @@ class OrderPersistWorker
     self.order = Order.find(order_id)
     self.shop = order.shop
     self.order_price = params[:order_price]
+    self.current_session_code = params[:current_session_code]
 
     # Выходим, если у заказа есть source и он уже был сохранен
     # todo временно, когда заказы будут обрабатыватся только в воркере, удалить
@@ -93,18 +95,19 @@ class OrderPersistWorker
   def order_values
     result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
 
+    # Проходим по списку созданных товаров в заказе
     order.order_items.each do |order_item|
 
       # Пробуем найти в истории, что товар был рекомендован
-      if order_item.recommended_by.blank?
-        action = ActionCl.where(shop: shop, session: session, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
-                                 .where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date)
-                                 .order(date: :desc).limit(1)
-                                 .select(:recommended_by)[0]
-        if action.present? && action.recommended_by.present?
-          order_item.recommended_by = action.recommended_by
-          order_item.atomic_save
-        end
+      action = ActionCl.where(shop: shop, session: session, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
+                       .where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date)
+                       .order(date: :desc).limit(1)
+                       .select(:recommended_by, :recommended_code)[0]
+
+      # Если у товара пустой рекоммендер и было рекомендованное действие
+      if order_item.recommended_by.blank? && action.present? && action.recommended_by.present?
+        order_item.recommended_by = action.recommended_by
+        order_item.atomic_save if order_item.changed?
       end
 
       # Если у товара уже стоит флаг рекомендованного или он есть в истории как рекомендованный
@@ -112,6 +115,27 @@ class OrderPersistWorker
         result[:recommended_value] += (order_item.item.price.try(:to_f) || 0.0) * (order_item.amount.try(:to_f) || 1.0)
       else
         result[:common_value] += (order_item.item.price.try(:to_f) || 0.0) * (order_item.amount.try(:to_f) || 1.0)
+      end
+
+      begin
+        # Трекаем список заказов в CL для статистики вендоров
+        ClickhouseQueue.order_items({
+            session_id: session.id,
+            shop_id: shop.id,
+            user_id: user.id,
+            order_id: order.id,
+            item_uniqid: order_item.item.uniqid,
+            amount: order_item.amount || 1,
+            price: order_item.item.price || 0,
+            recommended_by: order_item.recommended_by,
+            recommended_code: action.present? ? action.recommended_code : nil,
+            brand: order_item.item.brand_downcase
+        }, {
+            current_session_code: current_session_code,
+        })
+      rescue Exception => e
+        raise e unless Rails.env.production?
+        Rollbar.error 'Rabbit insert error', e
       end
     end
 

@@ -13,6 +13,7 @@ class OrderItem < ActiveRecord::Base
   class << self
     # Сохранить товар заказа
     # @param [ActionPush::Params] params
+    # @deprecated
     def persist(order, item, amount, params, recommended_by = nil)
 
       action = Action.find_by(item_id: item.id, user_id: order.user_id)
@@ -52,25 +53,6 @@ class OrderItem < ActiveRecord::Base
 
       action.recalculate_purchase_count_and_date! if action.persisted?
 
-      begin
-        # Трекаем список заказов в CL для статистики вендоров
-        ClickhouseQueue.order_items({
-            session_id: params.session.id,
-            shop_id: params.shop.id,
-            user_id: params.user.id,
-            order_id: order.id,
-            item_uniqid: item.uniqid,
-            amount: amount,
-            price: item.price,
-            recommended_by: recommended_by,
-            brand: item.brand_downcase
-        }, {
-            current_session_code: params.current_session_code,
-        })
-      rescue Exception => e
-        raise e unless Rails.env.production?
-        Rollbar.error 'Rabbit insert error', e
-      end
 
       # Если товар входит в список продвижения
       Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|

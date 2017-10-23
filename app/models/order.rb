@@ -119,7 +119,7 @@ class Order < ActiveRecord::Base
       end
 
       # Отправляем в работу для пересчета рекомендаций
-      OrderPersistWorker.perform_async(order.id, { session: params.session.code, order_price: params.order_price, source: params.source, segments: params.segments })
+      OrderPersistWorker.perform_async(order.id, { session: params.session.code, current_session_code: params.current_session_code, order_price: params.order_price, source: params.source, segments: params.segments })
 
       order
     end

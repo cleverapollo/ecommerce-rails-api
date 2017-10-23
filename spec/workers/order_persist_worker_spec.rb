@@ -21,7 +21,7 @@ describe OrdersImportWorker do
     let!(:digest_mail) { create(:digest_mail, shop: shop, client: client, mailing: mailing, batch: batch) }
 
     it 'recommended by with source params' do
-      OrderPersistWorker.new.perform(order.id, { session: session.code, order_price: 450, source: {'from' => 'digest_mail', 'code' => digest_mail.code } })
+      OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test', order_price: 450, source: {'from' => 'digest_mail', 'code' => digest_mail.code } })
       order.reload
       expect(order.recommended).to be_truthy
       expect(order.value).to eq(450)
@@ -37,7 +37,7 @@ describe OrdersImportWorker do
 
     it 'recommended by without source params' do
       ActionCl.create!(shop: shop, session: session, current_session_code: 'test', event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'digest_mail', recommended_code: digest_mail.code, date: 1.day.ago.to_date, useragent: 'test')
-      OrderPersistWorker.new.perform(order.id, { session: session.code, order_price: 450 })
+      OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test', order_price: 450 })
       order.reload
       expect(order.recommended).to be_truthy
       expect(order.value).to eq(450)
@@ -56,7 +56,7 @@ describe OrdersImportWorker do
     let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'similar', date: 1.day.ago.to_date) }
 
     it 'change item recommended_by' do
-      OrderPersistWorker.new.perform(order.id, { session: session.code })
+      OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test' })
       order.reload
       expect(order.recommended).to be_truthy
       expect(order.value).to eq(400)
@@ -68,6 +68,35 @@ describe OrdersImportWorker do
       expect(order_item_1.reload.recommended_by).to eq('similar')
       expect(order_item_2.reload.recommended_by).to be_nil
       expect(order_item_3.reload.recommended_by).to eq('popular')
+    end
+  end
+
+  context 'search' do
+    let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'instant_search', recommended_code: 'coat', date: 1.day.ago.to_date) }
+
+    it 'change item recommended_by' do
+      order_item_2.delete
+      order_item_3.delete
+      allow(ClickhouseQueue).to receive(:push).with('order_items', {
+          session_id: session.id,
+          shop_id: shop.id,
+          user_id: user.id,
+          order_id: order.id,
+          item_uniqid: item_1.uniqid,
+          amount: 1,
+          price: item_1.price,
+          recommended_by: 'instant_search',
+          recommended_code: 'coat',
+          brand: nil
+      }, {
+          current_session_code: 'test'
+      })
+
+      OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test' })
+
+      order.reload
+      expect(order.recommended).to be_truthy
+      expect(order_item_1.reload.recommended_by).to eq('instant_search')
     end
   end
 end

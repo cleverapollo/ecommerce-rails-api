@@ -52,17 +52,18 @@ ActiveRecord::Schema.define(version: 0) do
   end
 
   create_table "order_items", id: false, force: :cascade do |t|
-    t.integer  "session_id",     limit: 8,                     null: false
-    t.integer  "shop_id",                                      null: false
-    t.integer  "user_id",        limit: 8,                     null: false
-    t.integer  "order_id",       limit: 8,                     null: false
-    t.string   "item_uniqid",    limit: 255,                   null: false
-    t.integer  "amount",                                       null: false
-    t.float    "price",                                        null: false
-    t.string   "recommended_by", limit: 255
-    t.string   "brand",          limit: 255
-    t.datetime "created_at",                 default: "now()", null: false
-    t.date     "date",                       default: "now()", null: false
+    t.integer  "session_id",       limit: 8,                     null: false
+    t.integer  "shop_id",                                        null: false
+    t.integer  "user_id",          limit: 8,                     null: false
+    t.integer  "order_id",         limit: 8,                     null: false
+    t.string   "item_uniqid",      limit: 255,                   null: false
+    t.integer  "amount",                                         null: false
+    t.float    "price",                                          null: false
+    t.string   "recommended_by",   limit: 255
+    t.string   "recommended_code", limit: 255
+    t.string   "brand",            limit: 255
+    t.datetime "created_at",                   default: "now()", null: false
+    t.date     "date",                         default: "now()", null: false
   end
 
   create_table "recone_actions", id: false, force: :cascade do |t|
@@ -77,6 +78,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.float    "price",                            default: 0.0,     null: false
     t.integer  "amount",                           default: 0,       null: false
     t.string   "brand",                limit: 255
+    t.string   "referer",              limit: 255
     t.datetime "created_at",                       default: "now()", null: false
     t.date     "date",                             default: "now()", null: false
   end
