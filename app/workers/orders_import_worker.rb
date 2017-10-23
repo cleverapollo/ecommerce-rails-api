@@ -84,8 +84,6 @@ class OrdersImportWorker
       ErrorsMailer.orders_import_processed(@current_shop, @import_status_messages)
 
       @current_shop.update(last_orders_import_at: Time.now)
-      # Report complited imported resoults
-      # CompletesMailer.orders_import_completed(@current_shop, @orders_count).deliver_now if @orders_count > 0
     rescue OrdersImportError => e
       email = opts['errors_to'] || @current_shop.customer.email
       opts['shop'] = current_shop

@@ -10,20 +10,6 @@ de:
       offers_less_than_five: Оферов меньше чем 5 штук
       invalid_offer: Невалидный офер
 
-  complete_mailers:
-    orders_import:
-      subject: 'Successful import of orders list'
-      body_text: 'Import of your orders has been completed.'
-      body_count: 'Number of imported orders: %{orders_count}'
-      tail: 'Best regards,'
-      team: 'REES46 team.'
-    audiance_import:
-      subject: 'Successful import of subscriber list'
-      body_text: 'Import of your subscribers has been completed.'
-      body_count: 'Number of imported subscribers: %{audiance_count}'
-      tail: 'Best regards,'
-      team: 'REES46 team.'
-
   errors_mailer:
     subject:
       yml_import_error: Wrong XML-file URL

@@ -1,5 +1,9 @@
 class HomeController < ApplicationController
   def index
-    render text: 'Battlecruiser operational.'
+    if WhiteLabel.personaclick?
+      render text: 'PersonaClick'
+    else
+      render text: 'Battlecruiser operational.'
+    end
   end
 end
