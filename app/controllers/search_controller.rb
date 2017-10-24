@@ -30,6 +30,8 @@ class SearchController < ApplicationController
     search_setting, search_keyword = shop.search_setting, extracted_params.search_query.downcase.strip
     NoResultQuery.where(shop_id: extracted_params.shop.id).where('query = ? OR synonym = ?', search_keyword, search_keyword).update_all('query_count = query_count + 1')
 
+    # Get search query redirect 
+    search_query_redirect = @shop.search_query_redirects.by_query(search_keyword).first
 
     # JSON body
     body = Jbuilder.encode do |json|
@@ -56,6 +58,10 @@ class SearchController < ApplicationController
         json.id     collection[:id]
         json.name   collection[:name]
       end
+      json.search_query_redirects do 
+        json.query search_query_redirect.query
+        json.redirect_link "#{search_query_redirect.redirect_link}?recommended_by=full_search&r46_search_query=#{search_keyword}"
+      end if search_query_redirect.present?
     end
 
     # Для полного поиска запоминаем для юзера запрос

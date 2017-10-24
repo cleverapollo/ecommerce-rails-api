@@ -691,6 +691,16 @@ ActiveRecord::Schema.define(version: 20171023130329) do
   add_index "search_queries", ["shop_id", "query"], name: "index_search_queries_on_shop_id_and_query", using: :btree
   add_index "search_queries", ["user_id"], name: "index_search_queries_on_user_id", using: :btree
 
+  create_table "search_query_redirects", force: :cascade do |t|
+    t.integer  "shop_id"
+    t.string   "query"
+    t.string   "redirect_link"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "search_query_redirects", ["shop_id", "query"], name: "index_search_query_redirects_on_shop_id_and_query", unique: true, using: :btree
+
   create_table "search_settings", force: :cascade do |t|
     t.integer  "shop_id"
     t.string   "landing_page"

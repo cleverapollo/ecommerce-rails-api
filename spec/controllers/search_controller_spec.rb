@@ -100,4 +100,22 @@ describe SearchController do
 
   end
 
+  context 'check search query redirect' do
+
+    let!(:params) { { shop_id: shop.uniqid, ssid: session.code, type: 'full_search', search_query: 'coat' } }
+
+    it 'does not show search query redirect' do
+      get :get, params
+      expect(response.body).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: [], collections: []}).to_json
+    end
+
+    it 'shows search query redirect' do
+      shop.search_query_redirects.create(query: 'coat', redirect_link: 'http://demo.rees46.com')
+      get :get, params
+      expect(response.body).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: [], collections: [], search_query_redirects: {query: 'coat', redirect_link: 'http://demo.rees46.com?recommended_by=full_search&r46_search_query=coat'}}).to_json
+    end
+
+  end
+
 end
+
