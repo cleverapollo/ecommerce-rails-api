@@ -18,6 +18,16 @@ class SubscriptionsController < ApplicationController
     client.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
     client.subscription_popup_showed = true
 
+    begin
+      # Находим настроки подписки
+      if shop.subscriptions_settings.segment_id.present?
+        # Добавляем клиента в указаный сегмент
+        client.add_segment(shop.subscriptions_settings.segment_id)
+      end
+    rescue Exception => e
+      Rollbar.error e
+    end
+
     if client.atomic_save && client.real_accepted_subscription? && @shop.send_confirmation_email_trigger?
       TriggerMailings::Letter.new(client, TriggerMailings::Triggers::DoubleOptIn.new(client)).send
     end

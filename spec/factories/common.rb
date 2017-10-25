@@ -99,4 +99,15 @@ FactoryGirl.define do
     external_type { 'city' }
     name { Faker::Lorem.word }
   end
+
+  factory :subscriptions_settings do
+    header { Faker::Lorem.word }
+    text { Faker::Lorem.word }
+    button { Faker::Lorem.word }
+    agreement { Faker::Lorem.word }
+    popup_type { 0 }
+    timer { 90 }
+    pager { 0 }
+    cursor { 50 }
+  end
 end

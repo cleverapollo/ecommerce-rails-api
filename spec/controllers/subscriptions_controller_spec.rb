@@ -89,6 +89,16 @@ describe SubscriptionsController do
         subject
         expect(client.reload.accepted_subscription).to eq(true)
       end
+
+      context 'attach to segment' do
+        let!(:segment) { create(:segment, shop: shop) }
+        let!(:subscriptions_settings) { create(:subscriptions_settings, shop: shop, segment: segment) }
+
+        it 'saves segment_id' do
+          subject
+          expect(client.reload.segment_ids).to eq([segment.id])
+        end
+      end
     end
 
     context 'if shop legislation it requires double opt-in' do

@@ -2,6 +2,8 @@
 # Позволяет получать магазин различными методами
 #
 module ShopFetcher
+
+  # @return [Shop]
   attr_reader :shop
 
   def fetch_active_shop

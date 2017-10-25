@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171023130329) do
+ActiveRecord::Schema.define(version: 20171025123838) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -887,6 +887,7 @@ ActiveRecord::Schema.define(version: 20171023130329) do
     t.text     "successfully"
     t.integer  "theme_id",             limit: 8
     t.string   "theme_type"
+    t.integer  "segment_id"
   end
 
   add_index "subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_subscriptions_settings_theme", using: :btree
