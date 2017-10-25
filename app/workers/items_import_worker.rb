@@ -22,6 +22,8 @@ class ItemsImportWorker
 
     # Вставка, обновление
     if %w(post put).include?(method)
+      raise 'Items array blank' if items.blank?
+      raise "Items must be a hash for a #{method.upcase} method, but you send #{items.inspect}" unless items.first.is_a?(Hash)
       process_items(items.map{|item| item.deep_symbolize_keys})
     end
 
