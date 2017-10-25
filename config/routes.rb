@@ -73,6 +73,7 @@ Rees46Api::Application.routes.draw do
     post :job_worker
 
     # Импорт товаров через HTTP API
+    patch :products
     post :products
     put :products
     delete :products
