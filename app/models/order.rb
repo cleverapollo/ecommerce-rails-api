@@ -67,6 +67,7 @@ class Order < ActiveRecord::Base
       #   end
       # end
 
+      if shop.id != 1464
       # Переносим в OrderPersistWorker. Оставлено для проверки работы ------------->
       # Привязка заказа к письму
       if source.present? && source['from'].present?
@@ -105,6 +106,7 @@ class Order < ActiveRecord::Base
       order.atomic_save if order.changed?
 
       # <------------------- END
+      end
 
       # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
       if items.size > 0 && order.order_items.count > 0
@@ -114,8 +116,12 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
+        if shop.id == 1464
+          OrderItem.atomic_create!(order_id: order.id, item_id: item.id, shop_id: shop.id, amount: item.amount)
+        else
         # todo переделать просто в создание записи
         OrderItem.persist(order, item, item.amount, params, recommended_by_expicit)
+        end
       end
 
       # Отправляем в работу для пересчета рекомендаций
