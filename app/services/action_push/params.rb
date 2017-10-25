@@ -156,7 +156,8 @@ module ActionPush
         end
 
         # Костыль для дайджестов MyToys
-        Rollbar.info('MyToys digest', @source) if shop.id == 828 && @source['from'] == 'digest_mail'
+        Rollbar.info('MyToys digest', raw) if shop.id == 828 && @source['from'] == 'digest_mail'
+        Rollbar.info('MyToys digest recommended_by', raw) if shop.id == 828 && raw[:recommended_by] == 'digest_mail'
       end
 
       # Добавляем код рекоммендера, для поиска
