@@ -67,7 +67,7 @@ class Order < ActiveRecord::Base
       #   end
       # end
 
-      if shop.id != 1464
+      if shop.id != 1464 && shop.id != 828
       # Переносим в OrderPersistWorker. Оставлено для проверки работы ------------->
       # Привязка заказа к письму
       if source.present? && source['from'].present?
@@ -116,7 +116,7 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
-        if shop.id == 1464
+        if shop.id == 1464 || shop.id == 828
           OrderItem.atomic_create!(order_id: order.id, item_id: item.id, shop_id: shop.id, amount: item.amount)
         else
         # todo переделать просто в создание записи
