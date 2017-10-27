@@ -4,6 +4,8 @@ class OrderPersistWorker
 
   # @return [Session]
   attr_accessor :session
+  # @return [Array<Session>]
+  attr_accessor :sessions
   attr_accessor :current_session_code
   # @return [User]
   attr_accessor :user
@@ -15,13 +17,16 @@ class OrderPersistWorker
 
   # @param [Number] order_id
   # @param [Hash<session,order_price,source,segments,current_session_code>] params
-  def perform(order_id, params)
+  def perform(order_id, params = {})
     params = params.with_indifferent_access
 
     # Строим снова параметры
-    self.session = Session.find_by_code(params[:session])
-    self.user = session.user
     self.order = Order.find(order_id)
+    self.session = Session.find_by_code(params[:session]) if params[:session].present?
+    self.sessions = []
+    self.sessions << session if session.present?
+    self.sessions += order.user.sessions.where.not(updated_at: nil).order(updated_at: :desc)
+    self.user = order.user
     self.shop = order.shop
     self.order_price = params[:order_price]
     self.current_session_code = params[:current_session_code]
@@ -35,7 +40,7 @@ class OrderPersistWorker
 
     # Если source в параметрах нет, ищем в истории посещения
     if source.nil?
-      action = ActionCl.where(shop: shop, session: session, event: 'view', object_type: 'Item', recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger))
+      action = ActionCl.where(shop: shop, session: sessions, event: 'view', object_type: 'Item', recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger))
                        .where('date >= ?', 2.days.ago.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
@@ -99,7 +104,7 @@ class OrderPersistWorker
     order.order_items.each do |order_item|
 
       # Пробуем найти в истории, что товар был рекомендован
-      action = ActionCl.where(shop: shop, session: session, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
+      action = ActionCl.where(shop: shop, session: sessions, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
                        .where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
@@ -118,21 +123,25 @@ class OrderPersistWorker
       end
 
       begin
-        # Трекаем список заказов в CL для статистики вендоров
-        ClickhouseQueue.order_items({
-            session_id: session.id,
-            shop_id: shop.id,
-            user_id: user.id,
-            order_id: order.id,
-            item_uniqid: order_item.item.uniqid,
-            amount: order_item.amount || 1,
-            price: order_item.item.price || 0,
-            recommended_by: order_item.recommended_by,
-            recommended_code: action.present? ? action.recommended_code : nil,
-            brand: order_item.item.brand_downcase
-        }, {
-            current_session_code: current_session_code,
-        })
+        # Если сессия была указана, значит вокрер пришел из пуша
+        # Условие добавлено специально, чтобы при дебаге не трекать повторно заказ
+        if session.present?
+          # Трекаем список заказов в CL для статистики вендоров
+          ClickhouseQueue.order_items({
+              session_id: session.id,
+              shop_id: shop.id,
+              user_id: user.id,
+              order_id: order.id,
+              item_uniqid: order_item.item.uniqid,
+              amount: order_item.amount || 1,
+              price: order_item.item.price || 0,
+              recommended_by: order_item.recommended_by,
+              recommended_code: action.present? ? action.recommended_code : nil,
+              brand: order_item.item.brand_downcase
+          }, {
+              current_session_code: current_session_code,
+          })
+        end
       rescue Exception => e
         raise e unless Rails.env.production?
         Rollbar.error 'Rabbit insert error', e

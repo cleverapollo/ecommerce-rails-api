@@ -36,6 +36,7 @@ describe OrdersImportWorker do
     end
 
     it 'recommended by without source params' do
+      allow(ClickhouseQueue).to receive(:order_items).exactly(3).times
       ActionCl.create!(shop: shop, session: session, current_session_code: 'test', event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'digest_mail', recommended_code: digest_mail.code, date: 1.day.ago.to_date, useragent: 'test')
       OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test', order_price: 450 })
       order.reload
@@ -46,6 +47,19 @@ describe OrdersImportWorker do
       expect(order.source_id).to eq(digest_mail.id)
       expect(order.source_type).to eq('DigestMail')
 
+      expect(order_item_1.reload.recommended_by).to eq('digest_mail')
+      expect(order_item_2.reload.recommended_by).to eq('digest_mail')
+      expect(order_item_3.reload.recommended_by).to eq('digest_mail')
+    end
+
+    it 'recommended by without params' do
+      allow(ClickhouseQueue).to receive(:order_items).exactly(0).times
+      ActionCl.create!(shop: shop, session: session, current_session_code: 'test', event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'digest_mail', recommended_code: digest_mail.code, date: 1.day.ago.to_date, useragent: 'test')
+      OrderPersistWorker.new.perform(order.id)
+      order.reload
+      expect(order.recommended).to be_truthy
+      expect(order.source_id).to eq(digest_mail.id)
+      expect(order.source_type).to eq('DigestMail')
       expect(order_item_1.reload.recommended_by).to eq('digest_mail')
       expect(order_item_2.reload.recommended_by).to eq('digest_mail')
       expect(order_item_3.reload.recommended_by).to eq('digest_mail')
