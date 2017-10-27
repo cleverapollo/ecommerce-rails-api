@@ -31,17 +31,13 @@ class OrderPersistWorker
     self.order_price = params[:order_price]
     self.current_session_code = params[:current_session_code]
 
-    # Выходим, если у заказа есть source и он уже был сохранен
-    # todo временно, когда заказы будут обрабатыватся только в воркере, удалить
-    return if order.source_type.present?
-
     # Строим источник
     source = make_source_class(params[:source])
 
     # Если source в параметрах нет, ищем в истории посещения
     if source.nil?
       action = ActionCl.where(shop: shop, session: sessions, event: 'view', object_type: 'Item', recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger))
-                       .where('date >= ?', 2.days.ago.to_date)
+                       .where('date >= ? AND date <= ?', (order.date - 2.day).to_date, order.date.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
 
@@ -105,7 +101,7 @@ class OrderPersistWorker
 
       # Пробуем найти в истории, что товар был рекомендован
       action = ActionCl.where(shop: shop, session: sessions, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
-                       .where('date >= ?', Order::RECOMMENDED_BY_DECAY.ago.to_date)
+                       .where('date >= ? AND date <= ?', (order.date - Order::RECOMMENDED_BY_DECAY).to_date, order.date.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
 
