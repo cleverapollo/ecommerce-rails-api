@@ -19,7 +19,10 @@ describe AudienceImportWorker do
 
     context 'works with audience' do
       context 'when client does not exists' do
-        let(:audience_raw) { { 'id' => '123', 'email' => 'test@rees46demo.com' } }
+        let(:audience_raw) { { 'id' => '123',
+                               'email' => 'test@rees46demo.com', 
+                               'audience_sources'  => ["registration_from"],
+                               'external_audience_sources' => {'url' => 'www.example.com'} } }
         before { params['audience'] << audience_raw }
 
         it 'creates new client' do
@@ -61,7 +64,11 @@ describe AudienceImportWorker do
         end
 
         context 'when id is blank' do
-          let(:audience_raw) { { 'id' => '', 'email' => 'test@rees46demo.com', 'name' => 'Test' } }
+          let(:audience_raw) { { 'id' => '',
+                                 'email' => 'test@rees46demo.com',
+                                 'name' => 'Test',
+                                 'audience_sources'  => ["registration_from"],
+                                 'external_audience_sources' => {'url' => 'www.example.com'} } }
           before { params['audience'] << audience_raw }
 
           it 'save new user if user not exists' do
@@ -79,8 +86,16 @@ describe AudienceImportWorker do
         end
 
         context 'when two clients with same email with different external_id' do
-          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
-          let(:audience_raw_next) {{ 'id' => '321', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw) {{ 'id' => '123',
+                                'email' => 'test@rees46demo.com',
+                                'name' => 'Test',
+                                'audience_sources'  => ["registration_from"],
+                                'external_audience_sources' => {'url' => 'www.example.com'} } }
+          let(:audience_raw_next) {{ 'id' => '321',
+                                      'email' => 'test@rees46demo.com',
+                                      'name' => 'Test',
+                                      'audience_sources'  => ["registration_from"],
+                                      'external_audience_sources' => {'url' => 'www.example.com'} } }
           before :each do
             params['audience'] << audience_raw
             params['audience'] << audience_raw_next
@@ -92,8 +107,15 @@ describe AudienceImportWorker do
         end
 
         context 'can not create two users with same email with different external_id' do
-          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
-          let(:audience_raw_next) {{ 'id' => '123', 'email' => 'test2@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw) {{ 'id' => '123',
+                                'email' => 'test@rees46demo.com',
+                                'name' => 'Test',
+                                'audience_sources'  => ["registration_from"],
+                                'external_audience_sources' => {'url' => 'www.example.com'} }}
+          let(:audience_raw_next) {{ 'id' => '123',
+                                     'email' => 'test2@rees46demo.com',
+                                     'name' => 'Test', 'audience_sources'  => ["registration_from"],
+                                     'external_audience_sources' => {'url' => 'www.example.com'} }}
           before :each do
             params['audience'] << audience_raw
             params['audience'] << audience_raw_next
@@ -106,8 +128,16 @@ describe AudienceImportWorker do
 
         context 'can create users with segment id' do
           let!(:segment) { create(:segment, shop: shop) }
-          let(:audience_raw) {{ 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' }}
-          let(:audience_raw_next) {{ 'id' => '123', 'email' => 'test2@rees46demo.com', 'name' => 'Test' }}
+          let(:audience_raw) {{ 'id' => '123',
+                                'email' => 'test@rees46demo.com',
+                                'name' => 'Test',
+                                'audience_sources'  => ["registration_from"],
+                                'external_audience_sources' => {'url' => 'www.example.com'} } }
+          let(:audience_raw_next) {{ 'id' => '123',
+                                     'email' => 'test2@rees46demo.com',
+                                     'name' => 'Test',
+                                     'audience_sources'  => ["registration_from"],
+                                    'external_audience_sources' => {'url' => 'www.example.com'} } }
           before :each do
             params['segment_id'] = segment.id
             params['audience'] << audience_raw

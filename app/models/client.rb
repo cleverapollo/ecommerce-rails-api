@@ -23,6 +23,9 @@ class Client < ActiveRecord::Base
 
   validates :shop, presence: true
 
+  serialize :audience_sources, Array
+  serialize :external_audience_sources, Hash
+  
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :email_confirmed, -> { with_email.where('email_confirmed = true') }
