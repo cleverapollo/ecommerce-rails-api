@@ -50,6 +50,7 @@ class VendorCampaign < MasterTable
           item_id: uniqid,
           object_type: self.class,
           object_id: id,
+          object_price: self.max_cpc_price,
           recommended_by: params.type,
           brand: brand.downcase,
           referer: params.request.referer,
