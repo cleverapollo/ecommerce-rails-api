@@ -23,9 +23,13 @@ module TriggerMailings
 
     def send
       Timeout::timeout(2) {
-        response = self.class.post("#{HOOK_URL}",
-          headers: {'content-type' => 'application/json'},
-          body: generate_letter_body
+        response = self.class.post(
+          "#{HOOK_URL}",
+          body: generate_letter_body,
+          headers: {
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'REES46 Fetcher 1.0'
+          }
         )
         true
       }

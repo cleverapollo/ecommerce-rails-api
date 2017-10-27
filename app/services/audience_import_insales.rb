@@ -27,9 +27,14 @@ class AudienceImportInsales
 
     page = 1; per_page = 25
     loop do
-      resp = HTTParty.get("#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}",
-                          basic_auth: @auth,
-                          headers: { 'Content-Type' => 'application/xml' })
+      resp = HTTParty.get(
+        "#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}",
+        basic_auth: @auth,
+        headers: {
+          'Content-Type' => 'application/xml',
+          'User-Agent' => 'REES46 Fetcher 1.0'
+        }
+      )
 
       @users = resp['orders']
 

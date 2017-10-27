@@ -24,9 +24,14 @@ class InsalesWorker
 
     page = 1; per_page = 25
     loop do
-      resp = HTTParty.get("#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}",
-                          basic_auth: @auth,
-                          headers: { 'Content-Type' => 'application/xml' })
+      resp = HTTParty.get(
+        "#{@url}/admin/orders.xml?per_page=#{per_page}&page=#{page}",
+        basic_auth: @auth,
+        headers: {
+          'Content-Type' => 'application/xml',
+          'User-Agent' => 'REES46 Fetcher 1.0'
+        }
+      )
 
       @orders = resp['orders']
 
@@ -53,9 +58,14 @@ class InsalesWorker
 
     page = 1; per_page = 250
     loop do
-      resp = HTTParty.get("#{@url}/admin/products.xml?per_page=#{per_page}&page=#{page}",
-                          basic_auth: @auth,
-                          headers: { 'Content-Type' => 'application/xml' })
+      resp = HTTParty.get(
+        "#{@url}/admin/products.xml?per_page=#{per_page}&page=#{page}",
+        basic_auth: @auth,
+        headers: {
+          'Content-Type' => 'application/xml',
+          'User-Agent' => 'REES46 Fetcher 1.0'
+        }
+      )
 
       items = resp['products']
 
@@ -103,9 +113,13 @@ class InsalesWorker
           'errors_to' => 'av@rees46.com'
         };
 
-        resp = HTTParty.post("http://#{Rees46::HOST}/import/orders",
-            body: body.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+        resp = HTTParty.post(
+          "http://#{Rees46::HOST}/import/orders",
+          body: body.to_json,
+          headers: {
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'REES46 Fetcher 1.0'
+          }
         );
       end
     end
