@@ -28,14 +28,12 @@ class SearchEngine::FullSearch < SearchEngine::Base
 
     Jbuilder.encode do |json|
       json.query do
-        # json.match do
-        #   json.name  params.search_query
-        # end
         json.bool do
           json.must do
-            json.array! [ ['match', 'name', params.search_query] ] do |x|
+            json.array! [ ['multi_match', 'query', params.search_query] ] do |x|
               json.set! x[0] do
                 json.set! x[1], x[2]
+                json.fields ['name', 'brand']              
               end
             end
           end
