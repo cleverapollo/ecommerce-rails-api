@@ -99,8 +99,10 @@ class OrderPersistWorker
     # Проходим по списку созданных товаров в заказе
     order.order_items.each do |order_item|
 
-      # Пробуем найти в истории, что товар был рекомендован
-      action = ActionCl.where(shop: shop, session: sessions, object_type: 'Item', object_id: order_item.item.uniqid).where.not(recommended_by: nil)
+      # Пробуем найти в истории, что товар был рекомендован (исключаем триггеры, дайджесты и т.п.)
+      action = ActionCl.where(shop: shop, session: sessions, object_type: 'Item', object_id: order_item.item.uniqid)
+                       .where.not(recommended_by: nil)
+                       .where.not(recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger))
                        .where('date >= ? AND date <= ?', (order.date - Order::RECOMMENDED_BY_DECAY).to_date, order.date.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
