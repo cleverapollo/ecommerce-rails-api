@@ -39,7 +39,7 @@ class Actions::Tracker
     if %w(recone_view recone_click).include?(params.action)
       if params.raw['campaign'].present?
         vendor_campaign = VendorCampaign.find(params.raw['campaign'])
-        track_recone(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase) if vendor_campaign.present? && vendor_campaign.brand.present?
+        track_recone(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase, object_price: vendor_campaign.max_cpc_price) if vendor_campaign.present? && vendor_campaign.brand.present?
       else
         track_recone(ShopInventoryBanner, params.raw['inventory'])
       end
@@ -91,7 +91,7 @@ class Actions::Tracker
 
   # @param [String] type
   # @param [String] id
-  def track_recone(type, id, price: 0, brand: nil)
+  def track_recone(type, id, price: 0, brand: nil, object_price: 0)
     begin
       ClickhouseQueue.recone_actions({
           session_id: params.session.id,
@@ -100,6 +100,7 @@ class Actions::Tracker
           event: params.action.gsub(/^recone_/, ''),
           object_type: type,
           object_id: id,
+          object_price: object_price,
           recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
           price: price,
           brand: brand,
