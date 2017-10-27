@@ -25,7 +25,7 @@ class OrderPersistWorker
     self.session = Session.find_by_code(params[:session]) if params[:session].present?
     self.sessions = []
     self.sessions << session if session.present?
-    self.sessions += order.user.sessions.where.not(updated_at: nil).order(updated_at: :desc)
+    self.sessions += order.user.sessions.where('updated_at >= ?', 2.days.ago.to_date).order(updated_at: :desc)
     self.user = order.user
     self.shop = order.shop
     self.order_price = params[:order_price]
