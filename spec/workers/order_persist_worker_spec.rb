@@ -113,4 +113,16 @@ describe OrdersImportWorker do
       expect(order_item_1.reload.recommended_by).to eq('instant_search')
     end
   end
+
+  context 'for older date' do
+    let!(:order) { create(:order, shop: shop, user: user, date: Date.parse('2017-10-02')) }
+    let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'instant_search', recommended_code: 'coat', date: Date.parse('2017-10-01')) }
+
+    it 'change recommended' do
+      OrderPersistWorker.new.perform(order.id)
+      order.reload
+      expect(order.recommended).to be_truthy
+      expect(order_item_1.reload.recommended_by).to eq('instant_search')
+    end
+  end
 end

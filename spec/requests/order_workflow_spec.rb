@@ -65,29 +65,23 @@ describe 'Order workflow' do
     expect(@action.rating).to eq(4.2)
     expect(@action.recommended_by).to eql('interesting')
 
-    # Purchase
-    post '/push', {
-      event: 'purchase',
-      shop_id: @shop.uniqid,
-      ssid: @session.code,
-      order_id: 157,
-      item_id: [100],
-      amount: [1],
-      user_id: '555',
-      source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
-    }
+    Sidekiq::Testing.inline! do
+      # Purchase
+      post '/push', {
+        event: 'purchase',
+        shop_id: @shop.uniqid,
+        ssid: @session.code,
+        order_id: 157,
+        item_id: [100],
+        amount: [1],
+        user_id: '555',
+        source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
+      }
+    end
 
     # Session and user should be same count
     expect(Session.count).to eq(1)
     expect(User.count).to eq(1)
-
-    # Action should modyfied
-    expect(Action.count).to eq(1)
-    @action = Action.first
-    expect(@action.item_id).to eq(@item.id)
-    expect(@action.rating).to eq(5)
-    expect(@action.recommended_by).to eql('interesting')
-    expect(@action.purchase_count).to eq(1)
 
     # Order
     expect(Order.count).to eq(1)

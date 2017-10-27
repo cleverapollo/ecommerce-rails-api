@@ -51,76 +51,24 @@ class Order < ActiveRecord::Base
       # Выходим, если заказ было создан не сегодня
       return nil if order.date.to_date < Date.current
 
-      # Если источник пустой, пробудем найти в Clickhouse
-      # if source.blank? || source['from'].blank?
-      #   relation = ActionCl.where(shop_id: shop.id,
-      #                              session_id: params.session.id,
-      #                              event: 'view',
-      #                              object_type: 'Item',
-      #                              object_id: items.map { |i| i.uniqid }
-      #   )
-      #
-      #   # Ищем для CPA
-      #   action_cl = relation.where(recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger)).where('date >= ?', 2.days.ago.to_date).limit(1).first
-      #   if action_cl.present?
-      #     source = { 'from' => action_cl.recommended_by, 'code' => action_cl.recommended_code }
-      #   end
-      # end
-
-      if shop.id != 1464 && shop.id != 828
-      # Переносим в OrderPersistWorker. Оставлено для проверки работы ------------->
-      # Привязка заказа к письму
-      if source.present? && source['from'].present?
-        klass = if source['from'] == 'trigger_mail'
-          TriggerMail
-        elsif source['from'] == 'digest_mail'
-          DigestMail
-        elsif source['from'] == 'r46_returner'
-          RtbImpression
-        elsif source['from'] == 'web_push_digest'
-          WebPushDigestMessage
-        elsif source['from'] == 'web_push_trigger'
-          WebPushTriggerMessage
-        end
-
-        if klass.present?
-          source = klass.find_by(code: source['code'])
-        else
-          source = nil
-        end
-      else
-        source = nil
-      end
-
-      # Расчитываем суммы по заказу. Если заказ из нашего канала, то все товары рекомендованные.
-      values = order_values(shop, user, params.session, items, source.present?, order_price)
-
-      # Обновляем данные заказа
-      order.assign_attributes(common_value: values[:common_value],
-                   recommended_value: values[:recommended_value],
-                   value: values[:value],
-                   recommended: (values[:recommended_value] > 0),
-                   ab_testing_group: Client.where(user_id: user.id, shop_id: shop.id).limit(1)[0].try(:ab_testing_group),
-                   source: source,
-                   segments: segments)
-      order.atomic_save if order.changed?
-
-      # <------------------- END
-      end
-
       # Если получили список товаров и у заказа товары уже есть, значит заказ старый, можно удалить товары
       if items.size > 0 && order.order_items.count > 0
-        order.order_items.destroy_all
+        order.order_items.delete_all
       end
 
       # Сохраняем позиции заказа
       items.each do |item|
-        recommended_by_expicit = source.present? ? source.class.to_s.underscore : nil
-        if shop.id == 1464 || shop.id == 828
-          OrderItem.atomic_create!(order_id: order.id, item_id: item.id, shop_id: shop.id, amount: item.amount)
-        else
-        # todo переделать просто в создание записи
-        OrderItem.persist(order, item, item.amount, params, recommended_by_expicit)
+        OrderItem.atomic_create!(order_id: order.id, item_id: item.id, shop_id: shop.id, amount: item.amount)
+
+        # Если товар входит в список продвижения
+        # todo перенесено из OrderItem.persist - удалить, когда будут выпилены старые бренды
+        Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
+
+          # В ежедневную статистику
+          BrandLogger.track_purchase brand_campaign_id, order.shop_id, recommended_by
+
+          # В продажи бренда
+          BrandCampaignPurchase.create! order_id: order.id, item_id: item.id, shop_id: order.shop_id, brand_campaign_id: brand_campaign_id, date: Date.current, price: (item.price || 0), recommended_by: recommended_by
         end
       end
 

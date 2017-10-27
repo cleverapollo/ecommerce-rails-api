@@ -156,8 +156,10 @@ describe ActionPush::Processor do
 
     it 'segments purchase' do
       @sample_params.action = 'purchase'
-      @instance = ActionPush::Processor.new(@sample_params)
-      @instance.process
+      Sidekiq::Testing.inline! do
+        @instance = ActionPush::Processor.new(@sample_params)
+        @instance.process
+      end
       expect(Order.first.segments).to eq(['1_3'])
     end
 

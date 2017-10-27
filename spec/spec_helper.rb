@@ -42,6 +42,8 @@ RSpec.configure do |config|
 
     # Disable slave gem for tests
     Slavery.disabled = true
+
+    Sidekiq::Worker.clear_all
   end
 
 
