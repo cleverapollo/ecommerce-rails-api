@@ -29,7 +29,7 @@ class InsalesWorker
         basic_auth: @auth,
         headers: {
           'Content-Type' => 'application/xml',
-          'User-Agent' => 'REES46 Fetcher 1.0'
+          'User-Agent' => Rees46::USER_AGENT
         }
       )
 
@@ -63,7 +63,7 @@ class InsalesWorker
         basic_auth: @auth,
         headers: {
           'Content-Type' => 'application/xml',
-          'User-Agent' => 'REES46 Fetcher 1.0'
+          'User-Agent' => Rees46::USER_AGENT
         }
       )
 
@@ -118,7 +118,7 @@ class InsalesWorker
           body: body.to_json,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         );
       end

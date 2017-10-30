@@ -79,7 +79,7 @@ module Mailings
     def send_request(method, params)
       uri = URI.parse("#{MailingsSettings::GETRESPONSE_API_URL}#{method}")
       uri.query = URI.encode_www_form(params)
-      req = Net::HTTP::Get.new(uri, initheader = {'Content-Type' =>'application/json', 'User-Agent' => 'REES46 Fetcher 1.0', 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
+      req = Net::HTTP::Get.new(uri, initheader = {'Content-Type' =>'application/json', 'User-Agent' => Rees46::USER_AGENT, 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
 
       res = Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -95,7 +95,7 @@ module Mailings
 
     def send_post(method, params)
       uri = URI.parse("#{MailingsSettings::GETRESPONSE_API_URL}#{method}")
-      req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json', 'User-Agent' => 'REES46 Fetcher 1.0', 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
+      req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json', 'User-Agent' => Rees46::USER_AGENT, 'X-Auth-Token' => "api-key #{@mailing_settings.getresponse_api_key}"})
       req.body = params.to_json
 
       res = Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|

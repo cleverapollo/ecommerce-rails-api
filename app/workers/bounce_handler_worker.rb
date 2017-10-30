@@ -107,7 +107,7 @@ class BounceHandlerWorker
 
       # Пока шлем через get-n-post, забираем отлупы с их сервера для Яндекса
 
-      xml = Nokogiri::XML HTTParty.get('http://api.get-n-post.ru/api/v1/get_fbl_report', query: { key: Rails.application.secrets.fbl_secret_key }, headers: { 'User-Agent' => 'REES46 Fetcher 1.0' }).response.body
+      xml = Nokogiri::XML HTTParty.get('http://api.get-n-post.ru/api/v1/get_fbl_report', query: { key: Rails.application.secrets.fbl_secret_key }, headers: { 'User-Agent' => Rees46::USER_AGENT }).response.body
 
       if xml.xpath('//item').any?
         xml.xpath('//item').each do |element|

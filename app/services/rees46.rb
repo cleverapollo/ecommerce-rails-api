@@ -2,6 +2,7 @@ class Rees46
   COOKIE_NAME = 'rees46_session_id'
   SSID_NAME = 'ssid'
   HOST = Rails.env.production? ? WhiteLabel.api_domain : Rails.env.staging? ? 'stage.api.rees46.com' : '127.0.0.1:8080'
+  USER_AGENT = 'REES46 Fetcher 1.0'
 
   class << self
     def site_url

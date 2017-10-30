@@ -19,7 +19,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -30,7 +30,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           },
           timeout: 60
         )
@@ -53,7 +53,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -64,7 +64,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -75,7 +75,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -108,7 +108,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -119,7 +119,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -130,7 +130,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -146,7 +146,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -157,7 +157,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -177,7 +177,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -189,7 +189,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -200,7 +200,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -216,7 +216,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end
@@ -227,7 +227,7 @@ module Mailings
           basic_auth: auth,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
       end

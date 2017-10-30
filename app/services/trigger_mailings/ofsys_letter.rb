@@ -28,7 +28,7 @@ module TriggerMailings
           body: generate_letter_body,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'REES46 Fetcher 1.0'
+            'User-Agent' => Rees46::USER_AGENT
           }
         )
         true
