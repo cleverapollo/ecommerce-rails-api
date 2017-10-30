@@ -85,7 +85,7 @@ class People::Segmentation::DynamicCalculateWorker
             users_relation = users_relation.where(event: 'view').where('date >= ?', filter[:category_view_period].to_i.days.ago.to_date)
 
             # Добавляем стоимость товара
-            users_relation = users_relation.where('price >= ? AND price <= ?', filter[:category_view_price][:from], filter[:category_view_price][:to])
+            users_relation = users_relation.where('price >= ? AND price <= ?', filter[:category_view_price][:from].to_f, filter[:category_view_price][:to].to_f)
 
             # Достаем список сессий
             sessions += users_relation.pluck('DISTINCT session_id')
