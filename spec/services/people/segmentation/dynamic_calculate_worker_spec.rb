@@ -13,6 +13,7 @@ describe People::Segmentation::DynamicCalculateWorker do
       children: [{gender: 'm', age_min: 6, age_max: 8}],
       compatibility: { brand: %w(audi bmw), model: %w(a5 a1) }
   ) }
+  let!(:session1) { create(:session, user: user1, code: 'c1') }
   let!(:client1) { create(:client, user: user1, shop: shop,
       email: 'test@test.com', bought_something: true, location: 'spb', digest_opened: true
   ) }
@@ -23,12 +24,14 @@ describe People::Segmentation::DynamicCalculateWorker do
       children: [{gender: 'm', age_min: 1.5, age_max: 2}],
       compatibility: { brand: %w(bmw), model: %w(x5) }
   ) }
+  let!(:session2) { create(:session, user: user2, code: 'c2') }
   let!(:client2) { create(:client, user: user2, shop: shop,
       email: 'test2@test.com', bought_something: true, web_push_enabled: true, location: 'spb', digest_opened: true
   ) }
 
   # User 3
   let!(:user3) { create(:user) }
+  let!(:session3) { create(:session, user: user3, code: 'c3') }
   let!(:client3) { create(:client, user: user3, shop: shop, email: 'test3@test.com') }
 
   # Items
@@ -36,13 +39,15 @@ describe People::Segmentation::DynamicCalculateWorker do
   let!(:item2) { create(:item, :recommendable, :widgetable, shop: shop, price: 50, category_ids: ['3']) }
 
   # Orders
-  let!(:action1) { create(:action, shop: shop, user: user1, item: item1, view_date: 2.hour.ago, purchase_date: 1.hour.ago) }
+  let!(:action1) { create(:action_cl, shop: shop, session: session1, object_type: 'Item', object_id: item1.uniqid, event: 'view', date: 2.hour.ago.to_date, price: item1.price, brand: item1.brand.downcase) }
+  let!(:action1_p) { create(:action_cl, shop: shop, session: session1, object_type: 'Item', object_id: item1.uniqid, event: 'purchase', date: 1.hour.ago.to_date, price: item1.price, brand: item1.brand.downcase) }
   let!(:order1) { create(:order, shop: shop, user: user1, value: 150, date: 1.hour.ago) }
-  let!(:order_item1) { create(:order_item, shop: shop, order: order1, item: item1, action: action1) }
+  let!(:order_item1) { create(:order_item, shop: shop, order: order1, item: item1) }
 
-  let!(:action2) { create(:action, shop: shop, user: user2, item: item2, view_date: 1.month.ago, purchase_date: 1.month.ago) }
+  let!(:action2) { create(:action_cl, shop: shop, session: session2, object_type: 'Item', object_id: item2.uniqid, event: 'view', date: 1.month.ago.to_date, price: item2.price) }
+  let!(:action2_p) { create(:action_cl, shop: shop, session: session2, object_type: 'Item', object_id: item2.uniqid, event: 'purchase', date: 1.month.ago.to_date, price: item2.price) }
   let!(:order2) { create(:order, shop: shop, user: user2, value: 50, date: 1.month.ago) }
-  let!(:order_item2) { create(:order_item, shop: shop, order: order2, item: item2, action: action2) }
+  let!(:order_item2) { create(:order_item, shop: shop, order: order2, item: item2) }
 
   # Digest
   let!(:digest_mailing) { create(:digest_mailing, shop: shop, state: 'finished') }

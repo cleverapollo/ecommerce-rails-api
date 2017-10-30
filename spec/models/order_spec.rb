@@ -50,18 +50,6 @@ describe Order do
     end
   end
 
-  describe '#expire_carts' do
-    let!(:item) { create(:item, shop: shop) }
-    let!(:action) { create(:action, shop: shop, user: user, item: item, rating: Actions::Cart::RATING) }
-    let!(:order) { create(:order, shop: shop, user: user) }
-    subject { order.expire_carts }
-
-    it 'removes all user carts in current shop' do
-      subject
-      expect(action.reload.rating).to eq(Actions::RemoveFromCart::RATING)
-    end
-  end
-
   # describe '#recommender' do
   #   let!(:item) { create(:item, shop: shop, amount: 1) }
   #   let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item.uniqid, recommended_by: 'popular') }

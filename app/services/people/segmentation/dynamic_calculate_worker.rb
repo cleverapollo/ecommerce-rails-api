@@ -70,37 +70,50 @@ class People::Segmentation::DynamicCalculateWorker
 
         # Если есть фильтры по просмотрам или покупкам
         if filter[:category_viewed].present? && filter[:category_viewed].to_i == 1 || filter[:category_purchased].present? && filter[:category_purchased].to_i == 1
-          users_relation = Action.where(shop_id: shop.id, user_id: users).joins(:item)
+          sessions = []
 
           # Просмотр в категории
           if filter[:category_viewed].present? && filter[:category_viewed].to_i == 1
+            users_relation = ActionCl.where(shop_id: shop.id, object_type: 'Item')
             # Если указаны категории
-            users_relation = users_relation.where('category_ids IS NOT NULL AND category_ids && ARRAY[?]::varchar[]', filter[:category_view]) if filter[:category_view].present?
+            users_relation = users_relation.where(object_id: shop.items.recommendable.in_categories(filter[:category_view], { any: true }).pluck(:uniqid)) if filter[:category_view].present?
 
             # Если указаны бренды
-            users_relation = users_relation.where(items: { brand: filter[:category_view_brand] }) if filter[:category_view_brand].present?
+            users_relation = users_relation.where(brand: filter[:category_view_brand].map(&:downcase)) if filter[:category_view_brand].present?
 
             # Добавляем дату просмотра
-            users_relation = users_relation.where('view_date >= ?', Time.current - filter[:category_view_period].to_i.days)
+            users_relation = users_relation.where(event: 'view').where('date >= ?', filter[:category_view_period].to_i.days.ago.to_date)
 
             # Добавляем стоимость товара
-            users_relation = users_relation.joins(:item).where('items.price >= ? AND items.price <= ?', filter[:category_view_price][:from], filter[:category_view_price][:to])
+            users_relation = users_relation.where('price >= ? AND price <= ?', filter[:category_view_price][:from], filter[:category_view_price][:to])
+
+            # Достаем список сессий
+            sessions += users_relation.pluck('DISTINCT session_id')
           end
 
           # Покупка в категории
           if filter[:category_purchased].present? && filter[:category_purchased].to_i == 1
+            users_relation = ActionCl.where(shop_id: shop.id, object_type: 'Item')
             # Если указаны категории
-            users_relation = users_relation.where('category_ids IS NOT NULL AND category_ids && ARRAY[?]::varchar[]', filter[:category_purchase]) if filter[:category_purchase].present?
+            users_relation = users_relation.where(object_id: shop.items.recommendable.in_categories(filter[:category_purchase], { any: true }).pluck(:uniqid)) if filter[:category_purchase].present?
 
             # Если указаны бренды
-            users_relation = users_relation.where(items: { brand: filter[:category_purchase_brand] }) if filter[:category_purchase_brand].present?
+            users_relation = users_relation.where(brand: filter[:category_purchase_brand].map(&:downcase)) if filter[:category_purchase_brand].present?
 
             # Добавляем дату просмотра
-            users_relation = users_relation.where('purchase_date >= ?', Time.current - filter[:category_purchase_period].to_i.days)
+            users_relation = users_relation.where(event: 'purchase').where('date >= ?', filter[:category_purchase_period].to_i.days.ago.to_date)
+
+            # Достаем список сессий
+            if sessions.present?
+              # Если массив уже был добавлен в выборке view делаем пересечение массивов
+              sessions = sessions & users_relation.pluck('DISTINCT session_id')
+            else
+              sessions += users_relation.pluck('DISTINCT session_id')
+            end
           end
 
           # Достаем список юзеров
-          users = Slavery.on_slave { users_relation.pluck('DISTINCT "actions".user_id') }
+          users = Slavery.on_slave { Session.where(id: sessions.uniq, user_id: users).pluck('DISTINCT user_id') }
         end
       end
 

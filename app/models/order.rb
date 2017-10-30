@@ -32,9 +32,6 @@ class Order < ActiveRecord::Base
       user = params.user
       uniqid = params.order_id
       items = params.items
-      source = params.source
-      order_price = params.order_price
-      segments = params.segments
 
       # Иногда событие заказа приходит несколько раз
       return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
@@ -78,31 +75,6 @@ class Order < ActiveRecord::Base
       order
     end
 
-    # Расчет сумм по заказу
-    # @deprecated
-    def order_values(shop, user, session, items, force_recommended = false, remote_order_price = nil)
-      result = { value: 0.0, common_value: 0.0, recommended_value: 0.0 }
-
-      items.each do |item|
-        if force_recommended ||
-           #ActionCl.where(shop: shop, session: session).where.not(recommended_by: nil).where('date >= ?', RECOMMENDED_BY_DECAY.ago.to_date).exists? ||
-           # todo выпилить, когда перейдем окончательно на кликхаус
-           Slavery.on_slave { shop.actions.where(item_id: item.id, user_id: user.id).where('recommended_by is not null').where('recommended_at >= ?', RECOMMENDED_BY_DECAY.ago).exists? }
-          result[:recommended_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
-        else
-          result[:common_value] += (item.price.try(:to_f) || 0.0) * (item.amount.try(:to_f) || 1.0)
-        end
-      end
-
-      if remote_order_price && remote_order_price > 0
-        result[:value] = remote_order_price
-      else
-        result[:value] = result[:common_value] + result[:recommended_value]
-      end
-
-      result
-    end
-
     def duplicate?(shop, user, uniqid, items)
       if uniqid.present?
         # Добавили разницу в 1 месяц для предотвращения пропажи заказов, когда магазин сбросил uniqid
@@ -120,14 +92,6 @@ class Order < ActiveRecord::Base
       end
     end
   end
-
-  # Удаляет все товары из корзины для текущего пользователя и магазина
-  # @deprecated
-  # todo it used anywhere?
-  def expire_carts
-    user.actions.where(shop: shop).where('rating::numeric = ?', Actions::Cart::RATING).update_all(rating: Actions::RemoveFromCart::RATING)
-  end
-
 
   # Изменить статус заказа, если статус валиден и изменился
   def change_status(new_status)
