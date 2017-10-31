@@ -22,18 +22,6 @@ module TriggerMailings
         # Если в это время был заказ, то не отправлять письмо
         return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
-        # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-        # todo опять кликхаус тупит, после того, как придумаем, убрать
-        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-        if actions.exists?
-          @happened_at = actions.first.cart_date
-          @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
-          @source_item = @source_items.first
-          if @source_item
-            return true
-          end
-        end
-
         # Смотрим, были ли события добавления в корзину в указанный промежуток
         action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
                      .where('date >= ?', trigger_time_range.first.to_date)
