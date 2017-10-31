@@ -17,7 +17,7 @@ module Retailer
         self.recommendable = Item.where(shop_id: @shop.id).recommendable.count
         self.widgetable = Item.where(shop_id: @shop.id).recommendable.widgetable.count
         self.ignored = Item.where(shop_id: @shop.id).where(ignored: true).count
-        self.industrial = Item.where(shop_id: @shop.id).where('is_fashion IS TRUE OR is_child IS TRUE OR is_cosmetic IS TRUE OR is_fmcg IS TRUE OR is_auto IS TRUE OR is_pets = true OR is_realty = true').recommendable.count
+        self.industrial = Item.where(shop_id: @shop.id).where('is_fashion IS TRUE OR is_child IS TRUE OR is_cosmetic IS TRUE OR is_fmcg IS TRUE OR is_auto IS TRUE OR is_pets = true OR is_realty = true OR is_jewelry = true').recommendable.count
 
         if extended
           self.is_fashion = Item.where(shop_id: @shop.id).where('is_fashion').available.recommendable.widgetable.count
