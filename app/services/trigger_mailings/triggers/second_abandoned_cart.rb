@@ -19,25 +19,41 @@ module TriggerMailings
 
       def condition_happened?
         Slavery.on_slave do
+
           # Если в это время был заказ, то не отправлять письмо
           return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
           # Проверка что последное письмо отправили киленту 1 дня назад
-          return false if !trigger_time_range.cover?(client.last_trigger_mail_sent_at)
+          return false unless trigger_time_range.cover?(client.last_trigger_mail_sent_at)
 
           # Находим вчерашную не открытую брошеную корзину
-          unopened_abandoned_cart =  TriggerMail.where(shop: shop).where(created_at: trigger_time_range).where(opened: false).where(trigger_mailing_id: shop.trigger_abandoned_cart_id).where(client_id: client.id)
-          return false if !unopened_abandoned_cart
+          return false unless TriggerMail.where(shop: shop, opened: false, created_at: trigger_time_range, trigger_mailing_id: shop.trigger_second_abandoned_cart_id, client_id: client.id).exists?
 
-          # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-          actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-          if actions.exists?
-            @happened_at = actions.first.cart_date
-            @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
-            @source_item = @source_items.first
-            if @source_item
-              return true
+          # Смотрим, были ли события добавления / удаление в корзине в указанный промежуток
+          actions = ActionCl.where(event: %w(cart remove_from_cart), shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
+                        .where('date >= ?', trigger_time_range.first.to_date)
+                        .order('date DESC, created_at DESC')
+                        .select(:event, :object_id, :created_at)
+                        .limit(100)
+          return false if actions.blank?
+
+          # Собираем массив товаров. Воспроизводим очередность событий, которая оставит то, что было в корзине
+          items = []
+          actions.reverse.each do |action|
+            if action.event == 'cart'
+              items << action.object_id
             end
+            if action.event == 'remove_from_cart'
+              items -= [action.object_id]
+            end
+          end
+
+          # Достаем товары
+          @happened_at = actions.first.created_at
+          @source_items = shop.items.widgetable.available.where(uniqid: items)
+          @source_item = @source_items.first
+          if @source_item.present?
+            return true
           end
 
           false

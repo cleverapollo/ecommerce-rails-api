@@ -344,6 +344,12 @@ class Shop < MasterTable
     @trigger_abandoned_cart_id ||= TriggerMailing.where(shop_id: self.id).where(trigger_type: 'abandoned_cart').pluck(:id).first
   end
 
+  # Trigger mailing cache ids
+  # @return [Integer]
+  def trigger_second_abandoned_cart_id
+    @trigger_second_abandoned_cart_id ||= TriggerMailing.where(shop_id: self.id).where(trigger_type: 'second_abandoned_cart').pluck(:id).first
+  end
+
   # Web push trigger cache ids
   # @return [Integer]
   def web_push_trigger_abandoned_cart_id

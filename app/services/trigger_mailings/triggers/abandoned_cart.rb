@@ -18,24 +18,28 @@ module TriggerMailings
       end
 
       def condition_happened?
-        # todo Здесь нужно читать только когда будет синхронный слейв, т.к. когда асинхронный отстанет, пропустит созданный заказ.
-        # @see http://y.mkechinov.ru/issue/REES-4219
-        # Slavery.on_slave do
 
-          # Если в это время был заказ, то не отправлять письмо
-          return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
+        # Если в это время был заказ, то не отправлять письмо
+        return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
-          # А теперь сразу несколько товаров – промежуточный шаг при переходе на Liquid-шаблонизатор
-          actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-          if actions.exists?
-            @happened_at = actions.first.cart_date
-            @source_items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? }.compact
-            @source_item = @source_items.first
-            if @source_item
-              return true
-            end
-          end
-        # end
+        # Смотрим, были ли события добавления в корзину в указанный промежуток
+        action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
+                     .where('date >= ?', trigger_time_range.first.to_date)
+                     .order('date DESC, created_at DESC')
+                     .limit(1).first
+        return false if action.blank?
+
+        # Ищем текущую корзину
+        cart = ClientCart.find_by(shop: shop, user: user)
+        return false if cart.blank?
+
+        # Достаем товары из корзины
+        @happened_at = action.created_at
+        @source_items = shop.items.widgetable.available.where(id: cart.items)
+        @source_item = @source_items.first
+        if @source_item.present?
+          return true
+        end
 
         false
       end
