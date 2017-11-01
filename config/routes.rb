@@ -46,9 +46,6 @@ Rees46Api::Application.routes.draw do
   get 'reputation/product', to: 'reputations#item_reputation'
   get 'reputation/widget', to: 'reputations#reputation_widget'
 
-  #Update shop
-  put 'shops/update', to: 'shops#update'
-  
   # Импорты
   resource :import, only: :none do
     # Заказы
