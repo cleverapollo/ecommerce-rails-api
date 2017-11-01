@@ -24,55 +24,44 @@ describe 'Pushing an event' do
   context 'default' do
 
     it 'persists a new view event' do
+      allow(ClickhouseQueue).to receive(:actions) do |args|
+        expect(args[:event]).to eq('view')
+        expect(args[:recommended_by]).to eq('similar')
+      end.twice
+
       post '/push', @params
 
       expect(response.body).to eq({ status: 'success' }.to_json)
 
-      @action = Action.first
-
-      expect(@action.shop_id).to eq(@shop.id)
-      expect(@action.user_id).to eq(@user.id)
-      expect(@action.rating).to eq(3.2)
-      expect(@action.recommended_by).to eq('similar')
-
-      item = Item.first!
-
     end
 
-    it 'updates view event to cart' do
-      post '/push', @params
-
+    it 'persists a new cart event' do
       @params[:event] = 'cart'
 
-      expect(Action.all.map(&:rating)).to match_array([3.2, 3.2])
+      allow(ClickhouseQueue).to receive(:actions) do |args|
+        expect(args[:event]).to eq('cart')
+        expect(args[:recommended_by]).to eq('similar')
+      end.twice
 
       post '/push', @params
 
-      expect(Action.count).to eq(2)
+      expect(response.body).to eq({ status: 'success' }.to_json)
 
-      @action = Action.last
-
-      expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
-
-      expect(@action.shop_id).to eq(@shop.id)
-      expect(@action.user_id).to eq(@user.id)
-      expect(@action.rating).to eq(4.2)
-      expect(@action.last_action).to eq(2)
-      expect(@action.recommended_by).to eq('similar')
-
-      @params[:event] = 'view'
-      @params[:user_email]='test@rees46demo.com'
-      post '/push', @params
-
-      expect(Action.all.map(&:rating)).to match_array([4.2, 4.2])
-      expect { @user.clients.first.email = 'test@rees46demo.com' }
-
-      @params[:event] = 'remove_from_cart'
-      post '/push', @params
-
-      expect(Action.all.map(&:rating)).to match_array([3.7, 3.7])
     end
 
+    it 'persists a new remove_from_cart event' do
+      @params[:event] = 'remove_from_cart'
+
+      allow(ClickhouseQueue).to receive(:actions) do |args|
+        expect(args[:event]).to eq('remove_from_cart')
+        expect(args[:recommended_by]).to eq('similar')
+      end.twice
+
+      post '/push', @params
+
+      expect(response.body).to eq({ status: 'success' }.to_json)
+
+    end
 
     it 'clears supply_trigger_sent for client' do
       @params[:event] = 'purchase'

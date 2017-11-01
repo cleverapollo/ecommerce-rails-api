@@ -15,7 +15,8 @@ class MahoutPreferences
       result << @item_id
     end
 
-    result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(limit).pluck(:item_id)
+    # Отключили, разобраться для чего это вообще и придумать как использовать кликхаус
+    #result += Action.where(user_id: @user_id, shop_id: @shop_id).order('rating desc').order('timestamp desc').limit(limit).pluck(:item_id)
 
     result.uniq
   end

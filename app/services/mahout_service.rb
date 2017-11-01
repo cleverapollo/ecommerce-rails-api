@@ -80,10 +80,11 @@ class MahoutService
 
   def item_based_weight(user_id, shop_id, options)
     unless Rails.env.test?
-      preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
-      options.merge!(preferences: preferences)
+      # Отключили, разобраться для чего это вообще и придумать как использовать кликхаус
+      # preferences = Action.where(user_id: user_id).order('id desc').limit(10).pluck(:item_id)
+      # options.merge!(preferences: preferences)
       res = nil
-      if socket_active? && preferences.any?
+      if socket_active? && options[:preferences].present?
         query = options
         query.merge!(function: 'item_based', shop_id: shop_id)
         begin
