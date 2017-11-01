@@ -133,7 +133,7 @@ class OrderPersistWorker
             BrandLogger.track_purchase brand_campaign_id, order.shop_id, order_item.recommended_by
 
             # В продажи бренда
-            BrandCampaignPurchase.create! order_id: order.id, item_id: item.id, shop_id: order.shop_id, brand_campaign_id: brand_campaign_id, date: Date.current, price: (order_item.item.price || 0), recommended_by: order_item.recommended_by
+            BrandCampaignPurchase.create! order_id: order.id, item_id: order_item.item.id, shop_id: order.shop_id, brand_campaign_id: brand_campaign_id, date: Date.current, price: (order_item.item.price || 0), recommended_by: order_item.recommended_by
           end
 
           # Трекаем список заказов в CL для статистики вендоров
