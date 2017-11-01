@@ -242,11 +242,11 @@ class ShopKPI
   end
 
   def visitors_count
-    VisitCl.where(shop_id: @shop.id, date: @datetime_interval.first.to_date).count
+    VisitCl.where(shop_id: @shop.id, date: date).count
   end
 
   def products_viewed
-    ActionCl.where(shop_id: @shop.id, event: 'view', object_type: 'Item', date: @datetime_interval.first.to_date..@datetime_interval.last.to_date).count
+    ActionCl.where(shop_id: @shop.id, event: 'view', object_type: 'Item', date: date).count
   end
 
   def triggers_enabled_count
