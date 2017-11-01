@@ -23,7 +23,10 @@ class OrderPersistWorker
     # Строим снова параметры
     self.order = Order.find(order_id)
     self.user = order.user
-    self.session = Session.find_by_code(params[:session]) if params[:session].present?
+    if params[:session].present?
+      self.session = Session.find_by_code(params[:session])
+      self.user = session.user if self.user.nil?
+    end
     self.sessions = []
     self.sessions << session if session.present?
     self.sessions += user.sessions.where('updated_at >= ?', 2.days.ago.to_date).order(updated_at: :desc).limit(20)
