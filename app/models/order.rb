@@ -56,17 +56,6 @@ class Order < ActiveRecord::Base
       # Сохраняем позиции заказа
       items.each do |item|
         OrderItem.atomic_create!(order_id: order.id, item_id: item.id, shop_id: shop.id, amount: item.amount)
-
-        # Если товар входит в список продвижения
-        # todo перенесено из OrderItem.persist - удалить, когда будут выпилены старые бренды
-        Promoting::Brand.find_by_item(item, false).each do |brand_campaign_id|
-
-          # В ежедневную статистику
-          BrandLogger.track_purchase brand_campaign_id, order.shop_id, recommended_by
-
-          # В продажи бренда
-          BrandCampaignPurchase.create! order_id: order.id, item_id: item.id, shop_id: order.shop_id, brand_campaign_id: brand_campaign_id, date: Date.current, price: (item.price || 0), recommended_by: recommended_by
-        end
       end
 
       # Отправляем в работу для пересчета рекомендаций

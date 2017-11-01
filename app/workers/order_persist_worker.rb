@@ -124,6 +124,18 @@ class OrderPersistWorker
         # Если сессия была указана, значит вокрер пришел из пуша
         # Условие добавлено специально, чтобы при дебаге не трекать повторно заказ
         if session.present?
+
+          # Если товар входит в список продвижения
+          # todo перенесено из OrderItem.persist - удалить, когда будут выпилены старые бренды
+          Promoting::Brand.find_by_item(order_item.item, false).each do |brand_campaign_id|
+
+            # В ежедневную статистику
+            BrandLogger.track_purchase brand_campaign_id, order.shop_id, order_item.recommended_by
+
+            # В продажи бренда
+            BrandCampaignPurchase.create! order_id: order.id, item_id: item.id, shop_id: order.shop_id, brand_campaign_id: brand_campaign_id, date: Date.current, price: (order_item.item.price || 0), recommended_by: order_item.recommended_by
+          end
+
           # Трекаем список заказов в CL для статистики вендоров
           ClickhouseQueue.order_items({
               session_id: session.id,
