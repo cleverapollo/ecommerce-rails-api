@@ -57,11 +57,12 @@ module Recommender
 
         # Если результатов нет, то показываем затронутые сегодня товары, покупавшиеся ранее
         unless result.any?
-          result = shop.actions.where('timestamp >= ?', 1.day.ago.to_i).select(:item_id)
-          result = result.where(item_id: items_to_recommend.where.not(id: excluded_items_ids))
-          result = result.group(:item_id)
-          result = result.order('SUM(purchase_count) DESC, SUM(view_count) DESC')
-          result = result.limit(params.limit).pluck(:item_id)
+          uniqid = ActionCl.where(event: 'purchase', shop_id: shop.id, object_type: 'Item')
+                       .where('date >= ?', Date.yesterday)
+                       .group(:object_id).order('count(*) DESC')
+                       .limit(params.limit)
+                       .pluck(:object_id)
+          result = Slavery.on_slave { shop.items.recommendable.where(uniqid: uniqid).where.not(id: excluded_items_ids).limit(params.limit).pluck(:id) }
         end
 
         result

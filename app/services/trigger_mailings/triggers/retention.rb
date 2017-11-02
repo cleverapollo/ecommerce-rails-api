@@ -6,7 +6,7 @@ module TriggerMailings
     class Retention < Base
       # Увязываем на действие, выполненное месяц назад.
       def trigger_time_range
-        (1.month.ago.beginning_of_day.to_i..1.month.ago.end_of_day.to_i)
+        (1.month.ago.beginning_of_day.to_date..1.month.ago.end_of_day.to_date)
       end
 
       def priority
@@ -21,8 +21,13 @@ module TriggerMailings
       # 1. Последнее действие было месяц назад.
       # 2. После этого не было действий вообще.
       def condition_happened?
-        Slavery.on_slave do
-          if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
+        sessions = user.sessions.where('updated_at >= ?', trigger_time_range.first).limit(100).pluck(:id)
+        actions_in_range = ActionCl.where(shop_id: shop.id, session_id: sessions, date: trigger_time_range).exists?
+        actions_over_range = ActionCl.where(shop_id: shop.id, session_id: sessions).where('date > ?', trigger_time_range.last).exists?
+
+        if actions_in_range && !actions_over_range
+          Slavery.on_slave do
+
             @happened_at = 1.month.ago
             @source_items = []
 
@@ -33,10 +38,11 @@ module TriggerMailings
               @bought_item << Item.where(id: order.order_items.pluck(:item_id)).pluck(:uniqid)
             end
 
-            return true
           end
-          false
+
+          return true
         end
+        false
       end
 
       # Рекомендации для долгой неактивности:

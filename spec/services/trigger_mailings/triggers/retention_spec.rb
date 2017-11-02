@@ -6,6 +6,7 @@ describe TriggerMailings::Triggers::Retention do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer, supply_available: true) }
     let!(:client) { create(:client, user: user, shop: shop) }
@@ -17,7 +18,7 @@ describe TriggerMailings::Triggers::Retention do
     let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
     let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
 
-    let!(:action) { create(:action, shop: shop, user: user, item: item_1, timestamp: 1.month.ago.to_i) }
+    let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 1.month.ago.to_date) }
 
 
     subject { TriggerMailings::Triggers::Retention.new client  }
@@ -32,7 +33,7 @@ describe TriggerMailings::Triggers::Retention do
     end
 
     context 'not happened if there was actions earlier than 1 month' do
-      let!(:action_1) { create(:action, shop: shop, user: user, item: item_2, timestamp: 1.day.ago.to_i) }
+      let!(:action_1) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_2.uniqid, date: 1.day.ago.to_date) }
       it {
         expect( subject.condition_happened? ).to be_falsey
       }
@@ -44,6 +45,7 @@ describe TriggerMailings::Triggers::Retention do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
     let!(:client) { create(:client, user: user, shop: shop) }
@@ -62,7 +64,7 @@ describe TriggerMailings::Triggers::Retention do
     let!(:item_12) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
     let!(:item_13) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
 
-    let!(:action) { create(:action, shop: shop, user: user, item: item_1, timestamp: 1.month.ago.to_i) }
+    let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 1.month.ago.to_date) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'retention', subject: 'haha', liquid_template: '^{% tablerow item in recommended_items cols:3 %}{{ item.url }}{% endtablerow %}', enabled: true) }
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
@@ -77,8 +79,8 @@ describe TriggerMailings::Triggers::Retention do
 
     context 'exclude bought items' do
       let!(:order) { create(:order, user: user, shop: shop) }
-      let!(:order_item_1) { create(:order_item, order: order, shop: shop, action: action, item: item_1 )}
-      let!(:order_item_2) { create(:order_item, order: order, shop: shop, action: action, item: item_2 )}
+      let!(:order_item_1) { create(:order_item, order: order, shop: shop, item: item_1 )}
+      let!(:order_item_2) { create(:order_item, order: order, shop: shop, item: item_2 )}
 
       it 'not in recommended items' do
         trigger = subject

@@ -8,9 +8,6 @@ describe Order do
   let!(:sample_item) { item.amount = 1; item }
 
   describe '.persist' do
-    before do
-      allow(OrderItem).to receive(:persist)
-    end
 
     subject { Sidekiq::Testing.inline! { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, items: [sample_item], source: nil, order_price: 18000 })) } }
 
@@ -49,17 +46,4 @@ describe Order do
       expect(subject).to be_an_instance_of(String)
     end
   end
-
-  # describe '#recommender' do
-  #   let!(:item) { create(:item, shop: shop, amount: 1) }
-  #   let!(:action) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item.uniqid, recommended_by: 'popular') }
-  #
-  #   subject { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, items: [item], source: nil, order_price: 18000 })) }
-  #
-  #   it 'generate with recommended' do
-  #     subject
-  #     expect(Order.first.recommended?).to be_truthy
-  #     expect(OrderItem.first.recommended_by).to eq('popular')
-  #   end
-  # end
 end

@@ -11,7 +11,6 @@ module ActionPush
     # @param [ActionPush::Params] params
     def initialize(params)
       @params = params
-      # @concrete_action_class = Action.get_implementation_for params.action
     end
 
 
@@ -51,13 +50,6 @@ module ActionPush
 
       # Для каждого переданного товара запускаем процессинг действия
       params.items.each do |item|
-
-        # # Находим действие по отношению к товару.
-        # action = fetch_action_for item
-        #
-        # # Запускаем обработку действия
-        # # @deprecated
-        # action.process params
 
         # Логгируем событие
         Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: params.action, recommended_by: params.recommended_by, segments: params.segments)

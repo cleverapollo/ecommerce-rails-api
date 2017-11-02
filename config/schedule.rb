@@ -45,11 +45,6 @@ every 14.minutes do
   runner "RunnerWrapper.run('ReputationPublisher.perform')"
 end
 
-# Каждую ночь в 4 часа выключаем корзины
-every '0 4 * * *' do
-  runner "RunnerWrapper.run('CartsExpirer.perform')"
-end
-
 # Выгружаем триггерные рассылки в Optivo для MyToys
 every '0 * * * *' do
   runner "RunnerWrapper.run('TriggerMailings::OptivoMytoysLetter.sync')"
