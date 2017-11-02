@@ -17,6 +17,8 @@ describe 'Order workflow' do
     @session = Session.first
     @user = @session.user
 
+    expect(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'view', object_id: '100', recommended_by: 'interesting'))
+
     # First view of first item
     post '/push', {
       event: 'view',
@@ -31,19 +33,13 @@ describe 'Order workflow' do
     }
 
     # Item should be created
-    expect(@shop.items.count).to eq(1)
     @item = @shop.items.first
     expect(@item.uniqid).to eq('100')
     expect(@item.price.to_i).to eq(99)
     expect(@item.is_available).to eq(true)
     expect(@item.category_ids).to eq(['5'])
 
-    # Action should be created
-    expect(@user.actions.count).to eq(1)
-    @action = @user.actions.first
-    expect(@action.item_id).to eq(@item.id)
-    expect(@action.rating).to eq(3.2)
-    expect(@action.recommended_by).to eql('interesting')
+    expect(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'cart', object_id: '100', recommended_by: 'interesting'))
 
     # Cart
     post '/push', {
@@ -58,14 +54,10 @@ describe 'Order workflow' do
       source: { 'from' => 'trigger_mail', 'code' => @trigger_mail.code }.to_json
     }
 
-    # Action should modyfied
-    expect(@user.actions.count).to eq(1)
-    @action = @user.actions.first
-    expect(@action.item_id).to eq(@item.id)
-    expect(@action.rating).to eq(4.2)
-    expect(@action.recommended_by).to eql('interesting')
-
     Sidekiq::Testing.inline! do
+
+      expect(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'purchase', object_id: '100', recommended_by: nil))
+
       # Purchase
       post '/push', {
         event: 'purchase',

@@ -20,6 +20,7 @@ describe ActionPush::Processor do
     @items = [ @item ]
 
     @sample_params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'view', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}, segments: {'1' => '3'}}).extract
+    @sample_params.request = OpenStruct.new({referer: 'test', useragent: 'test'})
   end
 
   describe '.new' do
@@ -27,10 +28,6 @@ describe ActionPush::Processor do
 
     it 'stores accepted params and stores it in @params' do
       expect(subject.params).to eq(@sample_params)
-    end
-
-    it 'fetches concrete action class and stores it in @concrete_action_class' do
-      expect(subject.concrete_action_class).to eq(Actions::View)
     end
   end
 
@@ -47,23 +44,30 @@ describe ActionPush::Processor do
       expect(UserTaxonomy.where(user_id: @user.id).count).to eq(2)
     end
 
+  end
 
-    it 'disables cart if items array is empty' do
+  context '#cart' do
+    it 'add cart' do
+
+      expect(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'cart', object_id: @item.uniqid, recommended_by: nil))
+
       params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'cart', item_id: {'0': @item.uniqid}, is_available: {'0': '1'}}).extract
+      params.request = OpenStruct.new({referer: 'test', useragent: 'test'})
       instance = ActionPush::Processor.new(params)
       instance.process
-      expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::Cart::RATING
+
+      expect(ClientCart.count).to eq(1)
+    end
+
+    it 'disables cart if items array is empty' do
+
       params = ActionPush::Params.new({shop_id: @shop.uniqid, ssid: @session.code, event: 'cart'}).extract
       instance = ActionPush::Processor.new(params)
       instance.process
-      expect(@user.actions.where(item_id: @items.first.id).first.rating).to eq Actions::RemoveFromCart::RATING
+
+      expect(ClientCart.count).to eq(0)
     end
-
-
-
   end
-
-
 
   describe '#process track clicks' do
 

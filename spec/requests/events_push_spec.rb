@@ -24,10 +24,7 @@ describe 'Pushing an event' do
   context 'default' do
 
     it 'persists a new view event' do
-      allow(ClickhouseQueue).to receive(:actions) do |args|
-        expect(args[:event]).to eq('view')
-        expect(args[:recommended_by]).to eq('similar')
-      end.twice
+      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'view', recommended_by: 'similar')).twice
 
       post '/push', @params
 
@@ -38,10 +35,7 @@ describe 'Pushing an event' do
     it 'persists a new cart event' do
       @params[:event] = 'cart'
 
-      allow(ClickhouseQueue).to receive(:actions) do |args|
-        expect(args[:event]).to eq('cart')
-        expect(args[:recommended_by]).to eq('similar')
-      end.twice
+      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'cart', recommended_by: 'similar')).twice
 
       post '/push', @params
 
@@ -52,10 +46,7 @@ describe 'Pushing an event' do
     it 'persists a new remove_from_cart event' do
       @params[:event] = 'remove_from_cart'
 
-      allow(ClickhouseQueue).to receive(:actions) do |args|
-        expect(args[:event]).to eq('remove_from_cart')
-        expect(args[:recommended_by]).to eq('similar')
-      end.twice
+      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'remove_from_cart', recommended_by: 'similar')).twice
 
       post '/push', @params
 

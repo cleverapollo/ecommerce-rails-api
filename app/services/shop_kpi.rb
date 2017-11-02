@@ -246,7 +246,7 @@ class ShopKPI
   end
 
   def products_viewed
-    ActionCl.where(shop_id: @shop.id, event: 'view', object_type: 'Item', date: date).count
+    Slavery.on_master { ActionCl.where(shop_id: @shop.id, event: 'view', object_type: 'Item', date: date).count }
   end
 
   def triggers_enabled_count

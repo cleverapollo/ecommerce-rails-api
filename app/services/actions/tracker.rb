@@ -86,6 +86,7 @@ class Actions::Tracker
       })
     rescue StandardError => e
       Rollbar.error 'Clickhouse action insert error', e
+      raise e unless Rails.env.production?
     end
   end
 

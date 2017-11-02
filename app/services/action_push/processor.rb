@@ -6,12 +6,12 @@ module ActionPush
 
     # @return [ActionPush::Params]
     attr_reader :params
-    attr_reader :concrete_action_class
+    # attr_reader :concrete_action_class
 
     # @param [ActionPush::Params] params
     def initialize(params)
       @params = params
-      @concrete_action_class = Action.get_implementation_for params.action
+      # @concrete_action_class = Action.get_implementation_for params.action
     end
 
 
@@ -52,15 +52,15 @@ module ActionPush
       # Для каждого переданного товара запускаем процессинг действия
       params.items.each do |item|
 
-        # Находим действие по отношению к товару.
-        action = fetch_action_for item
-
-        # Запускаем обработку действия
-        # @deprecated
-        action.process params
+        # # Находим действие по отношению к товару.
+        # action = fetch_action_for item
+        #
+        # # Запускаем обработку действия
+        # # @deprecated
+        # action.process params
 
         # Логгируем событие
-        Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: action.name_code, recommended_by: params.recommended_by, segments: params.segments)
+        Interaction.push(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id, type: params.action, recommended_by: params.recommended_by, segments: params.segments)
 
       end
 
@@ -69,7 +69,7 @@ module ActionPush
 
       # Это используется в покупках и при передаче полного содержимого корзины
       # @deprecated
-      concrete_action_class.mass_process(params)
+      # concrete_action_class.mass_process(params)
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров
       if params.items.any?
@@ -103,6 +103,7 @@ module ActionPush
     # Находит или создает действие пользователя по отношению к товару.
     # @param item [Item] Объект товара
     # @return Action
+    # @deprecated
     def fetch_action_for(item)
       a = concrete_action_class.find_or_initialize_by(user_id: params.user.id, shop_id: params.shop.id, item_id: item.id)
       a.assign_attributes(timestamp: (params.date || Date.current.to_time.to_i))
