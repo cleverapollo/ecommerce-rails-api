@@ -8,7 +8,7 @@ module TriggerMailings
       # Интервал целочисленных значений (timestamp), в котором должно произойти ожидаемое событие для триггера.
       # @return Range
       def trigger_time_range
-        (48.hours.ago.to_i..60.minutes.ago.to_i)
+        (48.hours.ago..60.minutes.ago)
       end
 
       def priority
@@ -33,7 +33,7 @@ module TriggerMailings
             # Не было покупок за сутки?
             unless user.orders.where(shop: shop).where('date > ? ', 2.days.ago).exists?
               # Были действия за указанный указанный промежуток времени?
-              if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists?
+              if ActionCl.where(shop_id: shop.id, session_id: user.active_session_ids(trigger_time_range.first.to_date), created_at: trigger_time_range).where('date >= ?', trigger_time_range.first.to_date).exists?
                 @source_items = []
                 return true
               end

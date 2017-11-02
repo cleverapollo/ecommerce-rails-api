@@ -9,6 +9,7 @@ FactoryGirl.define do
 
   factory :session do
     code '12345'
+    updated_at { Date.current }
 
     factory :session_with_user do
       user

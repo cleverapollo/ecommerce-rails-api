@@ -6,6 +6,7 @@ describe TriggerMailings::Triggers::AbandonedSearch do
   describe '.condition_happened?' do
 
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
     let!(:user_old) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
@@ -16,14 +17,14 @@ describe TriggerMailings::Triggers::AbandonedSearch do
     let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100) }
     let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil) }
 
-    let!(:action) { create(:action, user: user, shop: shop, item: item_1, timestamp: 3.hours.ago.to_i) }
+    let!(:action) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 3.hours.ago.to_date, created_at: 3.hours.ago) }
 
     let!(:order_1) { create(:order, shop: shop, user: user_old, uniqid: '123', date: Date.current) }
-    let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1, action: action) }
-    let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2, action: action) }
+    let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1) }
+    let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2) }
     let!(:order_2) { create(:order, shop: shop, user: user_old, uniqid: '456', date: Date.current) }
-    let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2, action: action) }
-    let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3, action: action) }
+    let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2) }
+    let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3) }
 
     let!(:search_query) { create(:search_query, shop: shop, date: Date.current, user: user, query: '123123') }
     let!(:search_query_old) { create(:search_query, shop: shop, date: Date.current, user: user_old, query: '123123') }
@@ -38,15 +39,17 @@ describe TriggerMailings::Triggers::AbandonedSearch do
     end
 
     context 'not happened there was no action in time range' do
+      let!(:action) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 72.hours.ago.to_date, created_at: 72.hours.ago) }
+
       it {
-        action.update! timestamp: 72.hours.ago.to_i
         expect( subject.condition_happened? ).to be_falsey
       }
     end
 
     context 'not happened there was no search query today' do
+      let!(:action) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 2.days.ago.to_date, created_at: 2.days.ago) }
+
       it {
-        search_query.update! date: 2.days.ago
         expect( subject.condition_happened? ).to be_falsey
       }
     end
@@ -64,6 +67,7 @@ describe TriggerMailings::Triggers::AbandonedSearch do
   describe '.recommended_ids' do
 
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
     let!(:user_old) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
@@ -74,14 +78,14 @@ describe TriggerMailings::Triggers::AbandonedSearch do
     let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100, widgetable: true) }
     let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil, widgetable: true) }
 
-    let!(:action) { create(:action, user: user, shop: shop, item: item_1, timestamp: 3.hours.ago.to_i) }
+    let!(:action) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item_1.uniqid, date: 3.hours.ago.to_date, created_at: 3.hours.ago) }
 
     let!(:order_1) { create(:order, shop: shop, user: user_old, uniqid: '123', date: Date.current) }
-    let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1, action: action) }
-    let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2, action: action) }
+    let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1) }
+    let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2) }
     let!(:order_2) { create(:order, shop: shop, user: user_old, uniqid: '456', date: Date.current) }
-    let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2, action: action) }
-    let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3, action: action) }
+    let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2) }
+    let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3) }
 
     let!(:search_query) { create(:search_query, shop: shop, date: Date.current, user: user, query: '123123') }
     let!(:search_query_old) { create(:search_query, shop: shop, date: Date.current, user: user_old, query: '123123') }

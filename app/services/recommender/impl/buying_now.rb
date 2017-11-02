@@ -62,7 +62,7 @@ module Recommender
                        .group(:object_id).order('count(*) DESC')
                        .limit(params.limit)
                        .pluck(:object_id)
-          result = Slavery.on_slave { shop.items.recommendable.where(uniqid: uniqid).where.not(id: excluded_items_ids).limit(params.limit).pluck(:id) }
+          result = Slavery.on_slave { items_to_recommend.where(uniqid: uniqid).where.not(id: excluded_items_ids).limit(params.limit).pluck(:id) }
         end
 
         result

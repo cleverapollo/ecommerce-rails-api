@@ -6,7 +6,7 @@ module WebPush
     class Retention < Base
       # Увязываем на действие, выполненное месяц назад.
       def trigger_time_range
-        (1.month.ago.beginning_of_day.to_i..1.month.ago.end_of_day.to_i)
+        (1.month.ago.beginning_of_day.to_date..1.month.ago.end_of_day.to_date)
       end
 
       def priority
@@ -17,7 +17,11 @@ module WebPush
       # 1. Последнее действие было месяц назад.
       # 2. После этого не было действий вообще.
       def condition_happened?
-        if user.actions.where(shop: shop).where(timestamp: trigger_time_range).exists? && !user.actions.where(shop: shop).where('timestamp > ?', trigger_time_range.last).exists?
+        sessions = user.sessions.where('updated_at >= ?', trigger_time_range.first).limit(100).pluck(:id)
+        actions_in_range = ActionCl.where(shop_id: shop.id, session_id: sessions, date: trigger_time_range).exists?
+        actions_over_range = ActionCl.where(shop_id: shop.id, session_id: sessions).where('date > ?', trigger_time_range.last).exists?
+
+        if actions_in_range && !actions_over_range
           @happened_at = 1.month.ago
           @items = Item.where(id: recommended_ids(1))
 

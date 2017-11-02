@@ -3,6 +3,7 @@ require 'rails_helper'
 describe WebPush::Triggers::SecondAbandonedCart do
 
   let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
   let!(:shop) { create(:shop) }
   let!(:client) { create(:client, user: user, shop: shop, last_web_push_sent_at: 26.hours.ago ) }
 
@@ -13,7 +14,7 @@ describe WebPush::Triggers::SecondAbandonedCart do
   let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
   let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
 
-  let!(:action) { create(:action, shop: shop, user: user, item: item_1, rating: Actions::Cart::RATING, cart_date: 26.hours.ago, cart_count: 2) }
+  let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: 26.hours.ago.to_date, created_at: 26.hours.ago) }
 
   let!(:web_push_subscriptions_settings) { create(:web_push_subscriptions_settings, shop: shop) }
   let!(:old_web_push_trigger) { create(:web_push_trigger, shop: shop, trigger_type: 'abandoned_cart', subject: 'test test test', message: 'test message for trigger', enabled: true ) }
@@ -33,7 +34,6 @@ describe WebPush::Triggers::SecondAbandonedCart do
       expect( trigger.condition_happened? ).to be_truthy
       expect( trigger.items.count ).to eq 1
       expect( trigger.items.first ).to eq item_1
-      expect( trigger.items.first.amount ).to eq 2
     end
 
   end

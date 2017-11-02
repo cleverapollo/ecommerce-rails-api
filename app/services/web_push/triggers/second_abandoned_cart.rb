@@ -25,11 +25,29 @@ module WebPush
         trigger_mailing = WebPushTrigger.where(shop: shop).find_by(trigger_type: 'abandoned_cart')
         return false unless WebPushTriggerMessage.where(shop: shop).where(created_at: trigger_time_range).where(clicked: false).where(web_push_trigger_id: trigger_mailing.id).where(client_id: client.id).exists?
 
-        actions = user.actions.where(shop: shop).carts.where(cart_date: trigger_time_range).order(cart_date: :desc).limit(10)
-        if actions.exists?
-          @happened_at = actions.first.cart_date
-          @items = actions.map { |a| a.item.amount = a.cart_count; a.item }.map { |item| item if item.widgetable? && item.is_available? }.compact
-          return true if @items.any?
+        actions = ActionCl.where(event: %w(cart remove_from_cart), shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
+                      .where('date >= ?', trigger_time_range.first.to_date)
+                      .order('date DESC, created_at DESC')
+                      .select(:event, :object_id, :created_at)
+                      .limit(100)
+        return false if actions.blank?
+
+        # Собираем массив товаров. Воспроизводим очередность событий, которая оставит то, что было в корзине
+        items = []
+        actions.reverse.each do |action|
+          if action.event == 'cart'
+            items << action.object_id
+          end
+          if action.event == 'remove_from_cart'
+            items -= [action.object_id]
+          end
+        end
+
+        # Достаем товары
+        @happened_at = actions.first.created_at
+        @items = shop.items.widgetable.available.where(uniqid: items)
+        if @items.present?
+          return true
         end
 
         false
