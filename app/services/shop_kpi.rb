@@ -154,8 +154,8 @@ class ShopKPI
       shop_metric.remarketing_carts = client_carts.length
       shop_metric.remarketing_impressions = Slavery.on_master { RtbImpression.where(shop_id: shop.id, date: @datetime_interval).count }
       shop_metric.remarketing_clicks = Slavery.on_master { RtbImpression.clicks.where(shop_id: shop.id, date: @datetime_interval).count }
-      shop_metric.remarketing_orders = Order.where(shop_id: shop.id, source_type: 'RtbImpression', date: @datetime_interval).count
-      shop_metric.remarketing_revenue = Order.where(shop_id: shop.id, source_type: 'RtbImpression', date: @datetime_interval).sum(:value)
+      shop_metric.remarketing_orders = Order.where(shop_id: shop.id, source_type: ['RtbImpression', 'RtbPropeller'], date: @datetime_interval).count
+      shop_metric.remarketing_revenue = Order.where(shop_id: shop.id, source_type: ['RtbImpression', 'RtbPropeller'], date: @datetime_interval).sum(:value)
 
       shop_metric.abandoned_products = client_carts.map {|x| x.items }.flatten.uniq.count
       shop_metric.abandoned_money = 0

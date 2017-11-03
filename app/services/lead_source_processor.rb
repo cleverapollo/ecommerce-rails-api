@@ -7,7 +7,7 @@ class LeadSourceProcessor
     @id = id
   end
 
-  # @return [TriggerMail|DigestMail|RtbImpression|WebPushTriggerMessage|WebPushDigestMessage|nil]
+  # @return [TriggerMail|DigestMail|RtbImpression|RtbPropeller|WebPushTriggerMessage|WebPushDigestMessage|nil]
   def process
     if @channel && @id && @id != 'test'
       case @channel
