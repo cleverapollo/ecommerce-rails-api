@@ -136,6 +136,7 @@ module ActionPush
       @r46_returner_code = raw[:returner_code]
       @web_push_trigger_code = raw[:web_push_trigger_code]
       @web_push_digest_code = raw[:web_push_digest_code]
+      @propeller_code = raw[:propeller_code]
 
       @source = raw[:source].present? ? JSON.parse(raw[:source]) : nil
 
@@ -153,6 +154,8 @@ module ActionPush
             @web_push_trigger_code = @source['code']
           when 'web_push_digest'
             @web_push_digest_code = @source['code']
+          when 'propeller'
+            @propeller_code = @source['code']
         end
 
         # Костыль для дайджестов MyToys

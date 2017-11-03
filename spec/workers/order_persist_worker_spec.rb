@@ -35,6 +35,21 @@ describe OrdersImportWorker do
       expect(order_item_3.reload.recommended_by).to eq('digest_mail')
     end
 
+    it 'recommended by with source params for propeller' do
+      OrderPersistWorker.new.perform(order.id, { session: session.code, current_session_code: 'test', order_price: 450, source: {'from' => 'propeller', 'code' => '1' } })
+      order.reload
+      expect(order.recommended).to be_truthy
+      expect(order.value).to eq(450)
+      expect(order.recommended_value).to eq(400)
+      expect(order.common_value).to eq(0)
+      expect(order.source_id).to eq(1)
+      expect(order.source_type).to eq('RtbPropeller')
+
+      expect(order_item_1.reload.recommended_by).to eq('rtb_propeller')
+      expect(order_item_2.reload.recommended_by).to eq('rtb_propeller')
+      expect(order_item_3.reload.recommended_by).to eq('rtb_propeller')
+    end
+
     it 'recommended by without source params' do
       allow(ClickhouseQueue).to receive(:order_items).exactly(3).times
       ActionCl.create!(shop: shop, session: session, current_session_code: 'test', event: 'view', object_type: 'Item', object_id: item_1.uniqid, recommended_by: 'digest_mail', recommended_code: digest_mail.code, date: 1.day.ago.to_date, useragent: 'test')

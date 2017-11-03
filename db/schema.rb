@@ -11,15 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171025123838) do
+ActiveRecord::Schema.define(version: 20171102150225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
+  enable_extension "uuid-ossp"
   enable_extension "intarray"
   enable_extension "postgres_fdw"
-  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -681,6 +681,14 @@ ActiveRecord::Schema.define(version: 20171025123838) do
   add_index "rtb_jobs", ["shop_id", "user_id"], name: "index_rtb_jobs_on_shop_id_and_user_id", using: :btree
   add_index "rtb_jobs", ["shop_id"], name: "index_rtb_jobs_on_shop_id", using: :btree
   add_index "rtb_jobs", ["user_id"], name: "index_rtb_jobs_on_user_id", using: :btree
+
+  create_table "rtb_propellers", force: :cascade do |t|
+    t.string   "code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "rtb_propellers", ["code"], name: "index_rtb_propellers_on_code", unique: true, using: :btree
 
   create_table "search_queries", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id",           null: false

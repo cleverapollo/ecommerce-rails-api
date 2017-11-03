@@ -39,7 +39,7 @@ class OrderPersistWorker
 
     # Если source в параметрах нет, ищем в истории посещения
     if source.nil?
-      action = ActionCl.where(shop: shop, session: sessions, event: 'view', object_type: 'Item', recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger))
+      action = ActionCl.where(shop: shop, session: sessions, event: 'view', object_type: 'Item', recommended_by: %w(trigger_mail digest_mail r46_returner web_push_digest web_push_trigger rtb_propeller))
                        .where('date >= ? AND date <= ?', (order.date - 2.day).to_date, order.date.to_date)
                        .order(date: :desc).limit(1)
                        .select(:recommended_by, :recommended_code)[0]
@@ -87,6 +87,9 @@ class OrderPersistWorker
         WebPushDigestMessage
       elsif source['from'] == 'web_push_trigger'
         WebPushTriggerMessage
+      elsif source['from'] == 'propeller'
+        RtbPropeller.find_or_create_by!(code: source['code']) # because this source works without DB, create stub row
+        RtbPropeller
       end
 
       return klass.find_by(code: source['code']) if klass.present?
