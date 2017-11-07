@@ -249,6 +249,32 @@ class Shop < MasterTable
     end
   end
 
+  
+  def suggested_keywords(query) 
+    return [] if query.blank?
+    
+    popular_queries = self.search_queries.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
+                        .search_by_query(query).group(:query)
+                        .order('count(*) DESC').select('query, count(*)')
+
+    top_perform_queries = top_purchase_queries(popular_queries.collect(&:query))
+    
+    keywords = popular_queries.inject({}) { |hash, popular_query|
+                 hash[popular_query.query] = popular_query.count + top_perform_queries[popular_query.query].to_f
+                 hash
+               }.sort_by(&:last).reverse.collect(&:first)
+    
+    synonyms = self.no_result_queries.with_synonyms.where(query: keywords).pluck(:query, :synonym).to_h
+    keywords.map { |keyword| synonyms[keyword] || keyword }.uniq
+  end
+
+  def top_purchase_queries(queries)
+    OrderItemCl.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
+      .shop(self.id).by_recommended_code(queries)
+      .group('recommended_code')
+      .order('sum_price desc').sum('price')
+  end
+
   # returns array of search keyword with synonyms
   def query_with_synonyms
     query_with_synonyms = self.no_result_queries.with_synonyms.map{ |no_result_query| "#{no_result_query.query}, #{no_result_query.synonym}" }

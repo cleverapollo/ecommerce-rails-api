@@ -8,5 +8,7 @@ class SearchQuery < ActiveRecord::Base
 
   include UserLinkable
 
+  scope :created_within_days, ->(duration) { where('date >= ?', duration.days.ago.to_date) }
+  scope :search_by_query, -> (query) { where('query LIKE ?', "%#{query.downcase}%") }
 
 end
