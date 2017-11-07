@@ -48,13 +48,14 @@ module Retailer
             # Добавляем в массив активный товар
             # active_item_ids << item.id
 
+            item_keywords = (item.name.to_s + ' ' + item.type_prefix.to_s + ' ' +  item.model.to_s + ' ' +  item.vendor_code.to_s).split("\s").delete_if{|x| x.length <= 2 }.uniq.compact
+
             # Добавляем товар для индексации
             bulk << { index: { _index: new_index_name, _type: 'product', _id: item.id } }
-
             bulk << {
                 name:             item.name,
                 suggest_product:  {
-                    input: (item.name.to_s + ' ' + item.type_prefix.to_s + ' ' +  item.model.to_s + ' ' +  item.vendor_code.to_s).split("\s").delete_if{|x| x.length <= 2 }.uniq.compact,
+                    input: item_keywords << item.name,
                     contexts: {
                         widgetable: item.widgetable
                     }

@@ -15,19 +15,21 @@ class SearchEngine::InstantSearch < SearchEngine::Base
   def build_body
     Jbuilder.encode do |json|
       json.set! "product" do
-        json.prefix params.search_query
+        json.regex search_query_regex
         json.completion do
           json.size  8
           json.field "suggest_product"
           json.contexts do
             json.set! 'widgetable', true
           end
-          json.fuzzy do
-            json.fuzziness 1
-          end
         end
       end
     end
+  end
+
+
+  def search_query_regex
+    params.search_query.split(' ').map{ |word| ".*#{word}" }.join
   end
 
   def recommended_products
