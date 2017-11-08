@@ -21,6 +21,9 @@ Rees46Api::Application.routes.draw do
   get 'sponsored', to: 'recommendations#sponsored'
   post 'recommendations/batch'
 
+  # Rec One
+  get 'banner', to: 'banners#get'
+
   # Поиск
   get 'search', to: 'search#get'
   get 'search/collection', to: 'search#collection'

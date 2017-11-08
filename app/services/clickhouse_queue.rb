@@ -8,6 +8,7 @@ class ClickhouseQueue
     # @param [Hash] values
     def push(table, values = {}, opts = {})
       begin
+        Rails.logger.debug "TABLE: #{table}, #{values}, #{opts}" if Rails.env.development?
         queue.publish(JSON.generate({
             table: table,
             values: values,

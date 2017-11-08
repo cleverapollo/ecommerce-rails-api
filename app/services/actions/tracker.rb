@@ -39,9 +39,9 @@ class Actions::Tracker
     if %w(recone_view recone_click).include?(params.action)
       if params.raw['campaign'].present?
         vendor_campaign = VendorCampaign.find(params.raw['campaign'])
-        track_recone(VendorCampaign, params.raw['campaign'], brand: vendor_campaign.brand.downcase, object_price: vendor_campaign.max_cpc_price) if vendor_campaign.present? && vendor_campaign.brand.present?
+        track_recone('VendorCampaign', params.raw['campaign'], brand: vendor_campaign.brand.downcase, object_price: vendor_campaign.max_cpc_price) if vendor_campaign.present? && vendor_campaign.brand.present?
       else
-        track_recone(ShopInventoryBanner, params.raw['inventory'])
+        track_recone('ShopInventoryBanner', params.raw['inventory'])
       end
     end
 

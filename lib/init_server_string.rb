@@ -81,6 +81,7 @@ module InitServerString
       # @type [Client] client
       client = options.fetch(:client)
       products = nil
+      # @deprecated перенести в отдельный запрос на получение товаров
       if shop.subscriptions_enabled? && shop.subscriptions_settings.products?
         recommender_ids = shop.actions.where(user: session.user).where('view_count > 0').order('view_date DESC').limit(5).pluck(:item_id)
         if recommender_ids.count > 0
@@ -181,16 +182,7 @@ module InitServerString
 
       # Добавляем баннер вендора
       if shop.vendor_campaigns.exists?
-        # @type [VendorCampaign] campaign
-        campaign = shop.vendor_campaigns.joins(:shop_inventory).where(shop_inventories: {active: true, inventory_type: 0}).order(max_cpc_price: :desc).first
-        if campaign.present?
-          if campaign.image.present?
-            result[:recone] = {id: campaign.id, inventory: campaign.shop_inventory_id, image: "#{Rees46.vendor_url}#{campaign.image.url}", url: campaign.url}
-          else
-            inventory = campaign.shop_inventory.shop_inventory_banners.order('random()').first
-            result[:recone] = {inventory: inventory.id, image: "#{Rees46.site_url}#{inventory.image.url}", url: inventory.url}
-          end
-        end
+        result[:recone] = true
       end
       result
     end
