@@ -9,6 +9,9 @@ class ShopInventory < MasterTable
   TYPES = [:banner, :sponsored, :recommendations, :popup]
   enum inventory_type: TYPES
 
+  PAYMENT_TYPES = { cpc: 0, cpm: 1 }
+  enum payment_type: PAYMENT_TYPES
+
   scope :active, -> { where(active: true) }
   scope :recommendations, -> { where(inventory_type: TYPES.index(:recommendations)) }
 
