@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.string   "object_type",          limit: 255,                   null: false
     t.string   "object_id",            limit: 255,                   null: false
     t.float    "object_price",                     default: 0.0,     null: false
+    t.integer  "object_payment_type",              default: 0,       null: false
     t.string   "recommended_by",       limit: 255
     t.float    "price",                            default: 0.0,     null: false
     t.integer  "amount",                           default: 0,       null: false
