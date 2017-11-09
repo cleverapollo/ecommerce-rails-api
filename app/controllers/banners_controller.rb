@@ -43,6 +43,6 @@ class BannersController < ApplicationController
       banners << banner
     end
 
-    render json: { settings: { width: shop_inventory.image_width, height: shop_inventory.image_height }, banners: banners }
+    render json: { settings: { width: shop_inventory.image_width, height: shop_inventory.image_height, timeout: (shop_inventory.settings['timeout'] || 5).to_i }, banners: banners }
   end
 end
