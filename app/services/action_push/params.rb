@@ -351,6 +351,11 @@ module ActionPush
         if raw[:fashion_gender].present? && raw[:fashion_gender][i].present? && item_attributes.fashion_gender.blank?
           item_attributes.is_fashion = true if item_attributes.is_fashion.nil?
           item_attributes.fashion_gender = raw[:fashion_gender][i]
+
+          if item_attributes.is_fashion
+            shop.has_products_fashion = true
+            shop.atomic_save if shop.changed?
+          end
         end
 
         # Добавляем пол ребенка из автоопределялки

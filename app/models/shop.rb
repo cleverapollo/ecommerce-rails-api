@@ -249,21 +249,21 @@ class Shop < MasterTable
     end
   end
 
-  
-  def suggested_keywords(query) 
+
+  def suggested_keywords(query)
     return [] if query.blank?
-    
+
     popular_queries = self.search_queries.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
                         .search_by_query(query).group(:query)
                         .order('count(*) DESC').select('query, count(*)')
 
     top_perform_queries = top_purchase_queries(popular_queries.collect(&:query))
-    
+
     keywords = popular_queries.inject({}) { |hash, popular_query|
                  hash[popular_query.query] = popular_query.count + top_perform_queries[popular_query.query].to_f
                  hash
                }.sort_by(&:last).reverse.collect(&:first)
-    
+
     synonyms = self.no_result_queries.with_synonyms.where(query: keywords).pluck(:query, :synonym).to_h
     keywords.map { |keyword| synonyms[keyword] || keyword }.uniq
   end
@@ -349,13 +349,14 @@ class Shop < MasterTable
 
   # Проверяет наличие отраслевых товаров разных категорий и отмечает их флаги
   def check_industrial_products
-    update has_products_jewelry: items.recommendable.where('is_jewelry IS TRUE').exists?
-    update has_products_kids: items.recommendable.where('is_child IS TRUE').exists?
-    update has_products_fashion: items.recommendable.where('is_fashion IS TRUE').exists?
-    update has_products_pets: items.recommendable.where('is_pets IS TRUE').exists?
-    update has_products_cosmetic: items.recommendable.where('is_cosmetic IS TRUE').exists?
-    update has_products_fmcg: items.recommendable.where('is_fmcg IS TRUE').exists?
-    update has_products_auto: items.recommendable.where('is_auto IS TRUE').exists?
+    self.has_products_jewelry = items.recommendable.where('is_jewelry IS TRUE').exists?
+    self.has_products_kids = items.recommendable.where('is_child IS TRUE').exists?
+    self.has_products_fashion = items.recommendable.where('is_fashion IS TRUE').exists?
+    self.has_products_pets = items.recommendable.where('is_pets IS TRUE').exists?
+    self.has_products_cosmetic = items.recommendable.where('is_cosmetic IS TRUE').exists?
+    self.has_products_fmcg = items.recommendable.where('is_fmcg IS TRUE').exists?
+    self.has_products_auto = items.recommendable.where('is_auto IS TRUE').exists?
+    atomic_save if changed?
   end
 
   # Все необходимые записи установлены в DNS домена?
