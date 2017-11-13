@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171112104207) do
+ActiveRecord::Schema.define(version: 20171113111449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "uuid-ossp"
   enable_extension "intarray"
+  enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
@@ -726,6 +726,7 @@ ActiveRecord::Schema.define(version: 20171112104207) do
     t.integer  "theme_id",        limit: 8
     t.string   "theme_type"
     t.string   "language",                  default: "english"
+    t.string   "search_type",               default: "full",    null: false
   end
 
   add_index "search_settings", ["shop_id", "theme_id", "theme_type"], name: "index_search_settings_theme", using: :btree

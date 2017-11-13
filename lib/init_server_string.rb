@@ -94,6 +94,7 @@ module InitServerString
         search_settings = {
             enabled: true,
             landing: shop.search_setting.landing_page,
+            type: shop.search_setting.search_type,
             results_title: I18n.t('search.results', locale: shop.customer.language || 'en'),
         }
       else
