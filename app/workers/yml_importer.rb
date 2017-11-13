@@ -141,7 +141,9 @@ class YmlImporter
       current_shop.check_industrial_products
 
       # Переиндексируем полнотекстовый индекс, теперь для всех
-      Retailer::Products::ElasticSync.new(current_shop).perform
+      unless Rails.env.test?
+        Retailer::Products::ElasticSync.new(current_shop).perform
+      end
 
       current_shop.items.where.not(image_downloading_error: nil).update_all(image_downloading_error: nil)
       ImageDownloadLaunchWorker.perform_async(current_shop.id)
