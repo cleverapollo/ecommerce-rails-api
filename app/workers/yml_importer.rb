@@ -142,7 +142,9 @@ class YmlImporter
 
       # Переиндексируем полнотекстовый индекс, теперь для всех
       unless Rails.env.test?
-        Retailer::Products::ElasticSync.new(current_shop).perform
+        if current_shop.subscription_plans.product_search.active.paid.exists?
+          Retailer::Products::ElasticSync.new(current_shop).perform
+        end
       end
 
       current_shop.items.where.not(image_downloading_error: nil).update_all(image_downloading_error: nil)
