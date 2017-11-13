@@ -171,15 +171,15 @@ module Recommender
       # Фильтрация по полу
       if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
         # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
-        relation = relation.where("is_child IS TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
+        relation = relation.where("is_child = TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
       end
 
       # Фильтрация по размеру взрослой одежды
       if user.try(:gender).present? && user.fashion_sizes.is_a?(Hash) && user.fashion_sizes.keys.any?
         conditions = []
-        conditions << '(is_fashion IS NOT TRUE OR fashion_gender IS NULL OR fashion_wear_type IS NULL)'
+        conditions << '(is_fashion != TRUE OR fashion_gender IS NULL OR fashion_wear_type IS NULL)'
         user.fashion_sizes.each do |type, sizes|
-          conditions << "(is_fashion IS TRUE AND fashion_gender = '#{user.gender}' AND fashion_wear_type = '#{type}' AND fashion_sizes && ARRAY['#{sizes.join("','")}']::varchar[])"
+          conditions << "(is_fashion = TRUE AND fashion_gender = '#{user.gender}' AND (fashion_wear_type = '#{type}' OR fashion_wear_type IS NULL) AND (fashion_sizes && ARRAY['#{sizes.join("','")}']::varchar[] OR fashion_sizes IS NULL))"
         end
         # TODO Не забыть добавить условие про детские товары, что к ним не применяются эти ограничения
         if conditions.count > 1
