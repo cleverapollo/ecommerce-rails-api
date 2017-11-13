@@ -6,7 +6,7 @@ source 'https://rubygems.org'
 ruby '2.3.1'
 
 # Rails
-gem 'rails', '4.2.6'
+gem 'rails', '4.2.10'
 gem 'rails-api', '0.4.1'
 gem 'rake', '< 11.0'
 gem "sinatra", require: false # for sidekiq

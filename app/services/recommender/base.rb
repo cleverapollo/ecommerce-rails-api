@@ -175,7 +175,7 @@ module Recommender
       end
 
       # Фильтрация по размеру взрослой одежды
-      if user.try(:gender).present? && user.fashion_sizes.is_a?(Hash) && user.fashion_sizes.keys.any?
+      if shop.has_products_fashion? && user.try(:gender).present? && user.fashion_sizes.is_a?(Hash) && user.fashion_sizes.keys.any?
         conditions = []
         conditions << '(is_fashion != TRUE OR fashion_gender IS NULL OR fashion_wear_type IS NULL)'
         user.fashion_sizes.each do |type, sizes|
