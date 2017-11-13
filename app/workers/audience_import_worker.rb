@@ -4,7 +4,7 @@
 #
 class AudienceImportWorker
   include Sidekiq::Worker
-  sidekiq_options retry: false, queue: 'long'
+  sidekiq_options retry: false, queue: 'import'
 
   attr_accessor :shop
 
@@ -71,6 +71,10 @@ class AudienceImportWorker
     # Запускаем перерасчет аудитории
     People::Segmentation::ActivityWorker.new(@shop).update_overall
 
+  rescue Sidekiq::Shutdown => e
+    Rollbar.warn e
+    sleep 5
+    retry
   ensure
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close
