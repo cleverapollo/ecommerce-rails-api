@@ -5,6 +5,7 @@ class DigestMailingBatchWorker
   include Sidekiq::Worker
   sidekiq_options retry: 5, queue: 'mailing'
 
+  attr_accessor :shop
   attr_accessor :mailing, :current_client, :current_digest_mail
 
   # Запустить рассылку пачки.

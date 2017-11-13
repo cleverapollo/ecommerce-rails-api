@@ -150,6 +150,7 @@ describe DigestMailingBatchWorker do
       let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
       subject do
         d_m_b_w = DigestMailingBatchWorker.new
+        d_m_b_w.shop = shop
         d_m_b_w.current_digest_mail = digest_mail
         d_m_b_w.item_for_letter(item, nil)
       end
