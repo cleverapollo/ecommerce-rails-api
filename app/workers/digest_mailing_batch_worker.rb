@@ -75,7 +75,9 @@ class DigestMailingBatchWorker
             if @current_client.bought_something?
               recommendations = calculator.recommendations_for(@current_client.user)
             else
-              empty_user_recommendations = calculator.recommendations_for(@current_client.user)
+              if empty_user_recommendations.nil?
+                empty_user_recommendations = calculator.recommendations_for(@current_client.user)
+              end
               recommendations = empty_user_recommendations
             end
 
