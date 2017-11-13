@@ -68,6 +68,7 @@
 
 				<realty>
 					<type>living</type>
+					<action>rent</action>
 					<space>
 						<min>30</min>
 						<max>100</max>

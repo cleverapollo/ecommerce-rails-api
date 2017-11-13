@@ -136,6 +136,12 @@ module Retailer
                 bracelet_sizes: item.bracelet_sizes,
                 chain_sizes:    item.chain_sizes,
 
+                is_realty:          item.is_realty,
+                realty_type:        item.realty_type,
+                realty_space_min:   item.realty_space_min,
+                realty_space_max:   item.realty_space_max,
+                realty_space_final: item.realty_space_final,
+
             }
           end
 
@@ -506,6 +512,25 @@ module Retailer
                 end
                 json.chain_sizes do
                   json.type 'keyword'
+                end
+
+                json.is_realty do
+                  json.type "boolean"
+                end
+                json.realty_type do
+                  json.type 'keyword'
+                end
+                json.realty_space_min do
+                  json.type "scaled_float"
+                  json.scaling_factor 100
+                end
+                json.realty_space_max do
+                  json.type "scaled_float"
+                  json.scaling_factor 100
+                end
+                json.realty_space_final do
+                  json.type "scaled_float"
+                  json.scaling_factor 100
                 end
 
               end

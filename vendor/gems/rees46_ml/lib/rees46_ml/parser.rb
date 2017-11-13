@@ -145,6 +145,7 @@ module Rees46ML
       state :min
       state :max
       state :final
+      state :action
 
       event :start_yml_catalog do
         transitions from: :root, to: :yml_catalog
@@ -687,6 +688,14 @@ module Rees46ML
         transitions from: :type, to: :hair, guard: :in_hair?
         transitions from: :type, to: :nail, guard: :in_nail?
         transitions from: :type, to: :realty, guard: :in_realty?
+      end
+
+      event :start_action do
+        transitions from: :realty, to: :action
+      end
+
+      event :end_action do
+        transitions from: :action, to: :realty, guard: :in_realty?
       end
 
       event :start_aroma do

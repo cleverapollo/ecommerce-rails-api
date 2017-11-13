@@ -223,5 +223,6 @@ describe "check rees.xml" do
     expect(offer.realty.space.min).to eq('30')
     expect(offer.realty.space.max).to eq('100')
     expect(offer.realty.space.final).to eq('37')
+    expect(offer.realty.action).to eq('rent')
   end
 end

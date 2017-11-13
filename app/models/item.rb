@@ -125,6 +125,7 @@ class Item < ActiveRecord::Base
       realty_space_min
       realty_space_max
       realty_space_final
+      realty_action
     ].sort
   end
 
@@ -216,6 +217,7 @@ class Item < ActiveRecord::Base
         realty_space_min: ValuesHelper.present_one(new_item, self, :realty_space_min),
         realty_space_max: ValuesHelper.present_one(new_item, self, :realty_space_max),
         realty_space_final: ValuesHelper.present_one(new_item, self, :realty_space_final),
+        realty_action: ValuesHelper.present_one(new_item, self, :realty_action),
     }
 
 
@@ -493,10 +495,11 @@ class Item < ActiveRecord::Base
         item.auto_vds = nil
       end
 
-      # Недвижимость
-      if offer.realty?
+      # Недвижимость, не отмечаем нишевым без обязательных параметров
+      if offer.realty? && offer.realty.type.present? && offer.realty.action.present?
         item.is_realty = true
         item.realty_type = offer.realty.type if offer.realty.type.present?
+        item.realty_action = offer.realty.action if offer.realty.action.present?
         item.realty_space_min = offer.realty.space.min.to_f if offer.realty.space.present? && offer.realty.space.min.present?
         item.realty_space_max = offer.realty.space.max.to_f if offer.realty.space.present? && offer.realty.space.max.present?
         item.realty_space_final = offer.realty.space.final.to_f if offer.realty.space.present? && offer.realty.space.final.present?

@@ -243,6 +243,44 @@ describe Recommender::Impl::Similar do
 
       end
 
+
+
+      context 'realty', :realty do
+
+        it 'shows similar real estate according to type, action and final space' do
+          test_item.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_final: 33
+          item0.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_final: 34
+          item1.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_min: 29, realty_space_max: 35
+          item2.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_min: 30, realty_space_max: 34
+          item3.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_final: 100
+          item4.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'sell', realty_space_final: 33
+          params[:item] = test_item
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(item0.uniqid)
+          expect(recommender.recommendations).to include(item1.uniqid)
+          expect(recommender.recommendations).to include(item2.uniqid)
+          expect(recommender.recommendations).to_not include(item3.uniqid)
+          expect(recommender.recommendations).to_not include(item4.uniqid)
+        end
+
+        it 'shows similar real estate according to type, action and min/max space', :realty_min_max do
+          test_item.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_min: 27, realty_space_max: 40
+          item0.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_final: 34
+          item1.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_min: 29, realty_space_max: 35
+          item2.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_min: 30, realty_space_max: 34
+          item3.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'rent', realty_space_final: 100
+          item4.update category_ids: [1], is_realty: true, realty_type: 'flat', realty_action: 'sell', realty_space_final: 33
+          params[:item] = test_item
+          recommender = Recommender::Impl::Similar.new(params)
+          expect(recommender.recommendations).to include(item0.uniqid)
+          expect(recommender.recommendations).to include(item1.uniqid)
+          expect(recommender.recommendations).to include(item2.uniqid)
+          expect(recommender.recommendations).to_not include(item3.uniqid)
+          expect(recommender.recommendations).to_not include(item4.uniqid)
+        end
+
+      end
+
     end
 
 

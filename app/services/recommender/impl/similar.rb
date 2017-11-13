@@ -121,6 +121,30 @@ module Recommender
             end
           end
 
+          if item.is_realty?
+            result = result.where(is_realty: true)
+
+            result = result.where(realty_type: item.realty_type, realty_action: item.realty_action)
+
+            space_min = if !item.realty_space_final.nil?
+                          item.realty_space_final * 0.85
+                        elsif !item.realty_space_min.nil?
+                          item.realty_space_min
+                        else
+                          0
+                        end
+            space_max = if !item.realty_space_final.nil?
+                          item.realty_space_final * 1.15
+                        elsif !item.realty_space_max.nil?
+                          item.realty_space_max
+                        else
+                          10000000
+                        end
+
+            result = result.where("((realty_space_min IS NOT NULL AND realty_space_max IS NOT NULL AND realty_space_min <= ? AND realty_space_max >= ?)) OR (realty_space_final IS NOT NULL AND realty_space_final <= ? AND realty_space_final >= ?)", space_max, space_min, space_max, space_min)
+
+          end
+
         end
 
         result

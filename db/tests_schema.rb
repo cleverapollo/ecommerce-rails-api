@@ -11,11 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171012095802) do
+ActiveRecord::Schema.define(version: 20171112115905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "btree_gin"
+  enable_extension "dblink"
   enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -215,11 +218,11 @@ ActiveRecord::Schema.define(version: 20171012095802) do
     t.string   "api_secret",             limit: 255
     t.string   "quick_sign_in_token"
     t.datetime "confirmed_at"
-    t.string   "time_zone",                          default: "Moscow", null: false
     t.string   "stripe_customer_id"
     t.string   "stripe_card_last4"
     t.string   "stripe_card_id"
     t.string   "country_code"
+    t.string   "time_zone",                          default: "Moscow", null: false
     t.boolean  "shopify",                            default: false,    null: false
   end
 
@@ -244,18 +247,12 @@ ActiveRecord::Schema.define(version: 20171012095802) do
   add_index "digest_mail_statistics", ["shop_id", "date"], name: "index_digest_mail_statistics_on_shop_id_and_date", unique: true, using: :btree
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
 
-  create_table "dummy", id: false, force: :cascade do |t|
-    t.integer "id",            limit: 8
-    t.string  "gender",        limit: 1
-    t.jsonb   "fashion_sizes"
-    t.boolean "allergy"
-    t.jsonb   "cosmetic_hair"
-    t.jsonb   "cosmetic_skin"
-    t.jsonb   "children",                array: true
-    t.jsonb   "compatibility"
-    t.jsonb   "vds"
-    t.jsonb   "pets"
-    t.jsonb   "jewelry"
+  create_table "employees", force: :cascade do |t|
+    t.integer  "customer_id",      null: false
+    t.integer  "shop_id",          null: false
+    t.integer  "head_customer_id", null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
   end
 
   create_table "industries", force: :cascade do |t|
@@ -461,25 +458,29 @@ ActiveRecord::Schema.define(version: 20171012095802) do
     t.integer  "shop_id"
     t.integer  "inventory_type"
     t.boolean  "active"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.float    "min_cpc_price",  default: 1.0, null: false
-    t.integer  "currency_id",                  null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.float    "min_cpc_price",  default: 1.0,   null: false
+    t.integer  "currency_id",                    null: false
     t.string   "name"
     t.integer  "image_width"
     t.integer  "image_height"
     t.jsonb    "settings"
+    t.boolean  "archive",        default: false, null: false
+    t.integer  "payment_type",   default: 0,     null: false
   end
 
   create_table "shop_inventory_banners", force: :cascade do |t|
-    t.integer  "shop_inventory_id",  null: false
-    t.string   "image_file_name",    null: false
-    t.string   "image_content_type", null: false
-    t.integer  "image_file_size",    null: false
-    t.datetime "image_updated_at",   null: false
-    t.string   "url",                null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.integer  "shop_inventory_id",                null: false
+    t.string   "image_file_name",                  null: false
+    t.string   "image_content_type",               null: false
+    t.integer  "image_file_size",                  null: false
+    t.datetime "image_updated_at",                 null: false
+    t.string   "url",                              null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.float    "ratio",              default: 1.0, null: false
+    t.integer  "position",           default: 1,   null: false
   end
 
   create_table "shop_statistics", force: :cascade do |t|
@@ -549,7 +550,6 @@ ActiveRecord::Schema.define(version: 20171012095802) do
     t.datetime "last_try_to_load_yml_at"
     t.boolean  "supply_available",                          default: false, null: false
     t.boolean  "use_brb",                                   default: false
-    t.boolean  "merchandising_enabled",                     default: true,  null: false
     t.integer  "scoring",                                   default: 0,     null: false
     t.decimal  "triggers_cpa",                              default: 4.6,   null: false
     t.decimal  "digests_cpa",                               default: 2.0,   null: false
@@ -586,12 +586,12 @@ ActiveRecord::Schema.define(version: 20171012095802) do
     t.boolean  "mailings_restricted",                       default: false, null: false
     t.boolean  "yml_notification",                          default: true,  null: false
     t.boolean  "dont_disconnect",                           default: false, null: false
+    t.boolean  "has_products_realty",                       default: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree
   add_index "shops", ["customer_id"], name: "index_shops_on_customer_id", using: :btree
   add_index "shops", ["manager_id"], name: "index_shops_on_manager_id", using: :btree
-  add_index "shops", ["merchandising_enabled"], name: "index_shops_on_merchandising_enabled", where: "(merchandising_enabled IS TRUE)", using: :btree
   add_index "shops", ["uniqid"], name: "shops_uniqid_key", unique: true, using: :btree
 
   create_table "styles", force: :cascade do |t|
@@ -764,8 +764,8 @@ ActiveRecord::Schema.define(version: 20171012095802) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.integer  "locations",         default: 0
-    t.jsonb    "products",          default: []
     t.boolean  "subscribers",       default: false
+    t.jsonb    "products",          default: []
   end
 
   add_index "wizard_configurations", ["shop_id"], name: "index_wizard_configurations_on_shop_id", unique: true, using: :btree

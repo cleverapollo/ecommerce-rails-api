@@ -356,6 +356,7 @@ class Shop < MasterTable
     self.has_products_cosmetic = items.recommendable.where('is_cosmetic IS TRUE').exists?
     self.has_products_fmcg = items.recommendable.where('is_fmcg IS TRUE').exists?
     self.has_products_auto = items.recommendable.where('is_auto IS TRUE').exists?
+    self.has_products_realty = items.recommendable.where('is_realty IS TRUE').exists?
     atomic_save if changed?
   end
 

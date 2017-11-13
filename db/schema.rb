@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171102150225) do
+ActiveRecord::Schema.define(version: 20171112104207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
-  enable_extension "intarray"
   enable_extension "uuid-ossp"
+  enable_extension "intarray"
   enable_extension "postgres_fdw"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
@@ -252,14 +252,14 @@ ActiveRecord::Schema.define(version: 20171102150225) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -428,6 +428,7 @@ ActiveRecord::Schema.define(version: 20171102150225) do
     t.float   "realty_space_min"
     t.float   "realty_space_max"
     t.float   "realty_space_final"
+    t.string  "realty_action"
   end
 
   add_index "items", ["bracelet_sizes"], name: "index_items_on_bracelet_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (bracelet_sizes IS NOT NULL))", using: :gin
@@ -447,6 +448,11 @@ ActiveRecord::Schema.define(version: 20171102150225) do
   add_index "items", ["pets_breed"], name: "index_items_on_pets_breed", where: "((is_pets IS TRUE) AND (pets_breed IS NOT NULL))", using: :btree
   add_index "items", ["pets_size"], name: "index_items_on_pets_size", where: "((is_pets IS TRUE) AND (pets_size IS NOT NULL))", using: :btree
   add_index "items", ["pets_type"], name: "index_items_on_pets_type", where: "((is_pets IS TRUE) AND (pets_type IS NOT NULL))", using: :btree
+  add_index "items", ["realty_action"], name: "index_items_on_realty_action", where: "((is_available = true) AND (ignored = false) AND (is_realty IS TRUE) AND (realty_action IS NOT NULL))", using: :btree
+  add_index "items", ["realty_space_final"], name: "index_items_on_realty_space_final", where: "((is_available = true) AND (ignored = false) AND (is_realty IS TRUE) AND (realty_space_final IS NOT NULL))", using: :btree
+  add_index "items", ["realty_space_max"], name: "index_items_on_realty_space_max", where: "((is_available = true) AND (ignored = false) AND (is_realty IS TRUE) AND (realty_space_max IS NOT NULL))", using: :btree
+  add_index "items", ["realty_space_min"], name: "index_items_on_realty_space_min", where: "((is_available = true) AND (ignored = false) AND (is_realty IS TRUE) AND (realty_space_min IS NOT NULL))", using: :btree
+  add_index "items", ["realty_type"], name: "index_items_on_realty_type", where: "((is_available = true) AND (ignored = false) AND (is_realty IS TRUE) AND (realty_type IS NOT NULL))", using: :btree
   add_index "items", ["ring_sizes"], name: "index_items_on_ring_sizes", where: "((is_available = true) AND (ignored = false) AND (is_jewelry IS TRUE) AND (ring_sizes IS NOT NULL))", using: :gin
   add_index "items", ["shop_id", "brand", "id"], name: "index_items_on_shop_and_brand", where: "((is_available = true) AND (ignored = false) AND (widgetable = true) AND (brand IS NOT NULL))", using: :btree
   add_index "items", ["shop_id", "brand_downcase", "id"], name: "index_items_on_shop_and_brand_downcase", where: "((is_available = true) AND (ignored = false) AND (widgetable = true) AND (brand_downcase IS NOT NULL))", using: :btree
@@ -941,10 +947,10 @@ ActiveRecord::Schema.define(version: 20171102150225) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

@@ -79,6 +79,14 @@ describe Item do
     let(:ring_sizes)     { (1..4).map{ rand 10 } }
     let(:bracelet_sizes) { (1..4).map{ rand 10 } }
     let(:chain_sizes)    { (1..4).map{ rand 10 } }
+    let(:seasonality)    { [1,2] }
+    let(:leftovers)      { 'few' }
+    let(:is_realty)      { true }
+    let(:realty_type)    { 'flat' }
+    let(:realty_space_min)  { 33 }
+    let(:realty_space_max)  { 66 }
+    let(:realty_space_final){ 50 }
+    let(:realty_action)  { 'rent' }
 
     subject do
       build(:item, {
@@ -129,7 +137,15 @@ describe Item do
         jewelry_gem: jewelry_gem,
         ring_sizes: ring_sizes,
         bracelet_sizes: bracelet_sizes,
-        chain_sizes: chain_sizes
+        chain_sizes: chain_sizes,
+        seasonality: seasonality,
+        leftovers: leftovers,
+        is_realty: is_realty,
+        realty_type: realty_type,
+        realty_space_min: realty_space_min,
+        realty_space_max: realty_space_max,
+        realty_space_final: realty_space_final,
+        realty_action: realty_action,
       })
     end
 
@@ -181,6 +197,14 @@ describe Item do
     it { expect(subject.csv_row[65]).to eq("[#{ring_sizes.join(',')}]") }
     it { expect(subject.csv_row[66]).to eq("[#{bracelet_sizes.join(',')}]") }
     it { expect(subject.csv_row[67]).to eq("[#{chain_sizes.join(',')}]") }
+    it { expect(subject.csv_row[68]).to eq("{#{seasonality.join(',')}}") }
+    it { expect(subject.csv_row[73]).to eq(leftovers) }
+    it { expect(subject.csv_row[77]).to eq(is_realty) }
+    it { expect(subject.csv_row[78]).to eq(realty_type) }
+    it { expect(subject.csv_row[79]).to eq(realty_space_min) }
+    it { expect(subject.csv_row[80]).to eq(realty_space_max) }
+    it { expect(subject.csv_row[81]).to eq(realty_space_final) }
+    it { expect(subject.csv_row[82]).to eq(realty_action) }
   end
 
   describe '.fetch' do

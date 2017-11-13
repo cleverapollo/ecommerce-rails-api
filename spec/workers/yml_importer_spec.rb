@@ -55,8 +55,10 @@ describe YmlImporter do
     expect(item.cosmetic_professional).to eq(true)
     expect(item.shop_recommend).to eq(%w(127101 127802))
 
+    # Realty
     expect(item.is_realty).to be_truthy
     expect(item.realty_type).to eq('living')
+    expect(item.realty_action).to eq('rent')
     expect(item.realty_space_min).to eq(30)
     expect(item.realty_space_max).to eq(100)
     expect(item.realty_space_final).to eq(37)
