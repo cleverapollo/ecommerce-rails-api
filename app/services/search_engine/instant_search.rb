@@ -2,13 +2,14 @@ class SearchEngine::InstantSearch < SearchEngine::Base
 
   def recommendations
     check_params!
+    products, categories, collections = recommended_products, recommended_categories, recommended_collections
     {
-        products: recommended_products,
-        categories: recommended_categories,
-        virtual_categories: [],
-        keywords: [],
-        queries: recommended_queries,
-        collections: recommended_collections
+      products: products,
+      categories: categories,
+      virtual_categories: [],
+      keywords: [],
+      queries: products.any? || categories.any? || collections.any? ? recommended_queries : [],
+      collections: collections
     }
   end
 
@@ -106,16 +107,11 @@ class SearchEngine::InstantSearch < SearchEngine::Base
 
   end
 
-
-
   # Важно - поисковые запросы, запрошенные один раз, игнорируются
   def recommended_queries
-    queries = params.shop.search_queries.where('date >= ?', 7.days.ago.to_date).pluck(:query)
-    aggregated = queries.inject(Hash.new(0)) { |h,e| h[e] += 1; h }.select { |k,v| v > 1 }.inject({}) { |r, e| r[e.first] = e.last; r }
-    words = params.search_query.split(' ')
-    filtered = aggregated.select { |key, value| words.all? { |x| key.include?(x) }  }
-    return filtered.each { |key, value| [key, value] }.sort { |a,b| a[1] <=> b[1] }.map { |x| x[0] }.reverse
+    words = params.search_query.downcase.split(' ')
+    suggested_keywords = params.shop.suggested_queries.search_by_keywords(words).order_by_score.limit(10).select(:keyword, :synonym)
+    suggested_keywords.map{ |suggested_keyword| suggested_keyword.synonym || suggested_keyword.keyword }
   end
-
 
 end

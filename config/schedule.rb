@@ -129,3 +129,7 @@ end
 every 1.month do
   runner "RunnerWrapper.run('DataManager::Partition::Client.check')"
 end
+
+every 1.hour do
+  rake "suggested_keywords:generate"
+end

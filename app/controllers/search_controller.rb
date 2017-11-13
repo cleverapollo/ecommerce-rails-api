@@ -49,7 +49,7 @@ class SearchController < ApplicationController
         json.url      UrlParamsHelper.add_params_to(category[:url], recommended_by: extracted_params.type, r46_search_query: extracted_params.search_query)
       end
       json.virtual_categories []
-      json.keywords result.values.flatten.any? ? @shop.suggested_keywords(search_keyword) : []
+      json.keywords []
       json.queries result[:queries] do |query|
         json.name     query
         json.url      UrlParamsHelper.add_params_to(search_setting.landing_page, recommended_by: extracted_params.type, r46_search_query: query)

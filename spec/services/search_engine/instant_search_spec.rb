@@ -30,7 +30,7 @@ describe SearchEngine::InstantSearch do
       it 'returns queries in specific order' do
         params[:search_query] = 'pop'
         recommender = SearchEngine::InstantSearch.new(params)
-        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: ['popular', 'non popular'], collections: [] })
+        expect(recommender.recommendations).to eq ({ products: [], categories: [], virtual_categories: [], keywords: [], queries: [], collections: [] })
       end
     end
   end

@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20171113111449) do
   enable_extension "intarray"
   enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
 
   create_table "actions", id: :bigserial, force: :cascade do |t|
     t.integer  "user_id",          limit: 8,                 null: false
@@ -252,14 +253,14 @@ ActiveRecord::Schema.define(version: 20171113111449) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -909,6 +910,17 @@ ActiveRecord::Schema.define(version: 20171113111449) do
 
   add_index "subscriptions_settings", ["shop_id", "theme_id", "theme_type"], name: "index_subscriptions_settings_theme", using: :btree
 
+  create_table "suggested_queries", force: :cascade do |t|
+    t.string   "keyword"
+    t.string   "synonym"
+    t.float    "score"
+    t.integer  "shop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "suggested_queries", ["shop_id", "keyword"], name: "index_suggested_queries_on_shop_id_and_keyword", unique: true, using: :btree
+
   create_table "thematic_collection_sections", force: :cascade do |t|
     t.integer  "shop_id"
     t.integer  "thematic_collection_id"
@@ -948,10 +960,10 @@ ActiveRecord::Schema.define(version: 20171113111449) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
