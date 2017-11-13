@@ -35,17 +35,20 @@ class DigestMailingRecommendationsCalculator
   def recommendations_for(user)
     @current_user = user
 
-    params_interesting = OpenStruct.new(
-        shop: @shop,
-        user: @current_user,
-        limit: @limit,
-        recommend_only_widgetable: true,
-        recommender_type: 'interesting',
-        exclude: []
-    )
+    item_ids = []
+    if @shop.use_brb?
+      params_interesting = OpenStruct.new(
+          shop: @shop,
+          user: @current_user,
+          limit: @limit,
+          recommend_only_widgetable: true,
+          recommender_type: 'interesting',
+          exclude: []
+      )
 
-    # Сначала получаем рекомендации "Вам это будет интересно".
-    item_ids = Recommender::Impl::Interesting.new(params_interesting).recommended_ids
+      # Сначала получаем рекомендации "Вам это будет интересно".
+      item_ids += Recommender::Impl::Interesting.new(params_interesting).recommended_ids
+    end
 
     # Если их недостаточно, то добавляем "Популярных".
     if item_ids.count < @limit
@@ -99,7 +102,7 @@ class DigestMailingRecommendationsCalculator
   def items_of(ids)
 
     # Помещаем в кеш товары, которых там еще нет
-    Item.recommendable.widgetable.where(id: (ids - @items_cache.keys)).each { |item| @items_cache[item.id] = item } if (ids - @items_cache.keys).any?
+    Slavery.on_slave { Item.recommendable.widgetable.where(id: (ids - @items_cache.keys)).each { |item| @items_cache[item.id] = item } } if (ids - @items_cache.keys).any?
 
     # Оставляем идентификаторы только тех товаров, которые все же были в БД
     ids = ids - (ids - @items_cache.keys)
@@ -109,7 +112,7 @@ class DigestMailingRecommendationsCalculator
 
     if result.size < @limit
       Rollbar.info('Недостаточно рекомендаций', shop_id: @shop.id, user_id: @current_user.try(:id))
-      result += @shop.items.recommendable.widgetable.where.not(id: ids).limit(@limit - result.size)
+      result += Slavery.on_slave { @shop.items.recommendable.widgetable.where.not(id: ids).limit(@limit - result.size) }
     end
 
     result
