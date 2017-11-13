@@ -22,7 +22,7 @@ development:
   critical: 1
   rollbar: 1
   trigger: 10
-  mailing: 10
+  mailing: 30
   mailing_test: 1
   yml: 4
   long: 5
