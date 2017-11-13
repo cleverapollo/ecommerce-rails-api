@@ -66,18 +66,10 @@ class DigestMailingBatchWorker
 
           recommendations = []
           if IncomingDataTranslator.email_valid?(@current_client.email)
-            RecommendationsRequest.report do |r|
+            recommendations = calculator.recommendations_for(@current_client.user)
 
-              recommendations = calculator.recommendations_for(@current_client.user)
-
-              send_mail(@current_client.email, recommendations, @current_client.location)
-              #STDOUT.write " #{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
-
-              r.shop = @shop
-              r.recommender_type = 'digest_mail'
-              r.recommendations = recommendations.map(&:uniqid)
-              r.user_id = @current_client.user.present? ? @current_client.user.id : 0
-            end
+            send_mail(@current_client.email, recommendations, @current_client.location)
+            # STDOUT.write " #{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
           end
           @mailing.sent_mails_count.increment
         end
@@ -132,7 +124,6 @@ class DigestMailingBatchWorker
 
     template = @mailing.liquid_template.dup
     data = {
-      recommended_items: items.map { |item| item_for_letter(item, location, track_email, @mailing.images_dimension) },
       utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
       logo_url: (@shop.fetch_logo_url.blank? ? '' : @shop.fetch_logo_url),
       footer: Mailings::Composer.footer(email: @current_client.try(:email) || email, tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url, unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail)),
@@ -140,6 +131,10 @@ class DigestMailingBatchWorker
       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
       unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail)
     }
+    # b = Benchmark.ms {
+      data[:recommended_items] = items.map { |item| item_for_letter(item, location, track_email, @mailing.images_dimension) }
+    # }
+    # STDOUT.write " #{@current_client.user.id}: items: #{b.round(2)} ms, count: #{items.count}\n"
     data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
     template = Liquid::Template.parse template
@@ -172,15 +167,16 @@ class DigestMailingBatchWorker
   # @raise [Mailings::NotWidgetableItemError] исключение, если у товара нет необходимых параметров.
   # @return [Hash] обертка.
   def item_for_letter(item, location, track_email = "", images_dimension = nil)
+    price = item.price_at_location(location)
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
       description: item.description,
-      price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),
+      price_formatted: ActiveSupport::NumberHelper.number_to_rounded(price, precision: 0, delimiter: " "),
       oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
-      price: item.price_at_location(location).to_i,
-      price_full: item.price_at_location(location).to_f,
-      price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 2, delimiter: ' '),
+      price: price.to_i,
+      price_full: price.to_f,
+      price_full_formatted: ActiveSupport::NumberHelper.number_to_rounded(price, precision: 2, delimiter: ' '),
       oldprice: item.oldprice.to_i,
       url: UrlParamsHelper.add_params_to(item.url, {
            rees46_source: 'digest_mail',
@@ -190,7 +186,7 @@ class DigestMailingBatchWorker
            r46_merger: track_email
       }),
       image_url: (images_dimension ? item.resized_image_by_dimension(images_dimension) : item.image_url),
-      currency: item.shop.currency,
+      currency: @shop.currency,
       id: item.uniqid.to_s,
       barcode: item.barcode.to_s,
       brand: item.brand.to_s,
