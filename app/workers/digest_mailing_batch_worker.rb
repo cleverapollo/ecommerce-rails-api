@@ -48,6 +48,9 @@ class DigestMailingBatchWorker
           @batch.current_processed_client_id = @batch.start_id
         end
 
+        # Для юзера без истории и профиля здесь будем хранить дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
+        empty_user_recommendations = nil
+
         # Проходим по всей доступной аудитории
         relation = @shop.clients.suitable_for_digest_mailings.includes(:user).where(id: @batch.current_processed_client_id.value.to_i..@batch.end_id).order(:id)
         relation = relation.with_segment(@batch.segment_id) if @batch.segment_id.present?
@@ -66,7 +69,14 @@ class DigestMailingBatchWorker
 
           recommendations = []
           if IncomingDataTranslator.email_valid?(@current_client.email)
-            recommendations = calculator.recommendations_for(@current_client.user)
+
+            # TODO: Временно. Для юзера без истории будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
+            if @current_client.bought_something?
+              recommendations = calculator.recommendations_for(@current_client.user)
+            else
+              empty_user_recommendations = calculator.recommendations_for(@current_client.user)
+              recommendations = empty_user_recommendations
+            end
 
             send_mail(@current_client.email, recommendations, @current_client.location)
             # STDOUT.write " #{@current_client.user.id}: mail: #{t_m.round(2)} ms, recommendations: #{t_r.round(2)} ms\n"
