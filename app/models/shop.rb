@@ -189,8 +189,8 @@ class Shop < MasterTable
 
   # @return [Boolean]
   def import
-    begin
-      # Указываем время начала
+    # begin
+      Указываем время начала
       update_attribute(:yml_load_start_at, Time.now)
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil)
@@ -203,6 +203,8 @@ class Shop < MasterTable
       import_error(e, I18n.t('yml_errors.no_xml_file'))
     rescue ActiveRecord::RecordNotUnique => e
       import_error(e, I18n.t('yml_errors.no_uniq_ids'))
+    rescue Errno::ECONNREFUSED => e
+      import_error(e, e.message)
     rescue Interrupt => e
       Rollbar.info(e, 'Sidekiq shutdown, abort YML processing', shop_id: id)
     rescue Sidekiq::Shutdown => e
