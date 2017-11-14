@@ -4,7 +4,7 @@
 # Происходит перелинковка связанных сущностей.
 #
 class UserMerger
-  DEPENDENCIES = [Client, Action, MahoutAction, Session, Order, Interaction, ProfileEvent, SubscribeForCategory, SubscribeForProductAvailable, SubscribeForProductPrice, Visit, ClientCart]
+  DEPENDENCIES = [Client, Action, MahoutAction, Session, Order, Interaction, ProfileEvent, SubscribeForCategory, SubscribeForProductAvailable, SubscribeForProductPrice, ClientCart]
 
   class << self
     # @param [User] master

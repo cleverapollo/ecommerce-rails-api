@@ -117,7 +117,6 @@ class DataManager::Partition::Session
         WebPushDigestMessage.where(client_id: clients).delete_all
         WebPushToken.where(client_id: clients).delete_all
         Client.where(id: clients).delete_all
-        Visit.where(user_id: users).delete_all
         SearchQuery.where(user_id: users).delete_all
         UserTaxonomy.where(user_id: users).delete_all
         ProfileEvent.where(user_id: users).delete_all

@@ -67,8 +67,6 @@ class InitController < ApplicationController
 
     # Сохраняем визит
     Actions::Tracker.track_visit(session, shop, cookies['rees46_session_code'], request)
-    # todo deprecated
-    VisitTracker.new(shop).track(session.user)
 
     # Отмечаем источник перехода, если есть
     if params[:from].present? && params[:code].present?
