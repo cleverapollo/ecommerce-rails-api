@@ -190,7 +190,7 @@ class Shop < MasterTable
   # @return [Boolean]
   def import
     begin
-      Указываем время начала
+      # Указываем время начала
       update_attribute(:yml_load_start_at, Time.now)
       yield yml if block_given?
       update(last_valid_yml_file_loaded_at: Time.now, yml_errors: 0, yml_state: nil)
