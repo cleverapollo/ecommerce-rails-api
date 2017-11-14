@@ -41,7 +41,7 @@ describe WebPush::TriggerDetector do
   let!(:action_4) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_5.uniqid, event: 'view', date: 1.month.ago.to_date, created_at: 1.month.ago) }
 
   # For LowOnSupply
-  let!(:action_3) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'view') }
+  let!(:action_3) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'view', date: Date.current) }
   let!(:order_1) { create(:order, user: user, shop: shop, date: 4.weeks.ago)}
   let!(:order_2) { create(:order, user: user, shop: shop, date: 3.weeks.ago)}
   let!(:order_3) { create(:order, user: user, shop: shop, date: 2.weeks.ago)}
