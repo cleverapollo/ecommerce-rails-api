@@ -21,9 +21,11 @@ describe DigestMailingLaunchWorker do
       end
 
       it 'launches that batch' do
+        allow(DigestMailingBatchWorker).to receive(:set).and_return(DigestMailingBatchWorker)
         subject
 
         batch_id = mailing.batches.first.id
+        expect(DigestMailingBatchWorker).to have_received(:set).with(queue: 'mailing_test').once
         expect(DigestMailingBatchWorker).to have_received(:perform_async).with(batch_id).once
       end
     end

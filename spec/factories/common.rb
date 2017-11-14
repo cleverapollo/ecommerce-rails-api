@@ -51,6 +51,7 @@ FactoryGirl.define do
     current_session_code { SecureRandom.uuid }
     useragent { Faker::Lorem.word }
     referer { Faker::Lorem.word }
+    date { Date.current }
   end
 
   factory :mahout_action do

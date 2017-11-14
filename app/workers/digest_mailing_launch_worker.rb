@@ -112,6 +112,7 @@ class DigestMailingLaunchWorker
     begin
       Mailings::Mailchimp::DigestSender.new(digest_mailing, settings.mailchimp_api_key).send if settings.external_mailchimp? && params['test_email'].blank? && !digest_mailing.failed?
     rescue => e
+      raise e unless Rails.env.production?
       digest_mailing.fail!
       Rollbar.warn('Mailchimp ERROR', e, params)
     end
