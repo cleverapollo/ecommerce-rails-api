@@ -291,11 +291,11 @@ GEM
     ruby-progressbar (1.8.1)
     russian (0.6.0)
       i18n (>= 0.5.0)
-    sidekiq (5.0.5)
+    sidekiq (4.2.10)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
-      redis (>= 3.3.4, < 5)
+      redis (~> 3.2, >= 3.2.1)
     sidekiq-failures (0.4.5)
       sidekiq (>= 2.16.0)
     sidekiq-limit_fetch (3.3.0)
@@ -414,7 +414,7 @@ DEPENDENCIES
   rspec-sidekiq
   rubocop
   russian (~> 0.6.0)
-  sidekiq
+  sidekiq (< 5)
   sidekiq-failures
   sidekiq-limit_fetch
   simplecov (~> 0.7.1)

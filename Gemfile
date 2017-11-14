@@ -30,7 +30,7 @@ gem 'clickhouse-activerecord', '~> 0.1.0'
 gem 'tarantool16'
 
 # Workers
-gem 'sidekiq'
+gem 'sidekiq', '< 5'
 gem 'sidekiq-limit_fetch'
 gem 'sidekiq-failures'
 gem "bunny", ">= 2.6.1"
