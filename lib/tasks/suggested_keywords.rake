@@ -1,7 +1,9 @@
 namespace :suggested_keywords do
   desc 'Generate suggested keywords'
   task generate: :environment do
-    Shop.find_each(batch_size: 100) do |shop|
+    Shop.active.connected.find_each(batch_size: 100) do |shop|
+      next unless shop.subscription_plans.product_search.active.paid.exists?
+
       popular_queries = shop.search_queries.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
                         .group(:query)
                         .order('count(*) DESC').select('query, count(*)')
