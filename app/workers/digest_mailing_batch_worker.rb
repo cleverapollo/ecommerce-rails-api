@@ -125,7 +125,7 @@ class DigestMailingBatchWorker
                                   feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
     }
     t_d = Benchmark.ms { mail.deliver_now }
-    STDOUT.write " shop: #{@shop.id}, user: #{@current_client.user.id}: mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
+    STDOUT.write " shop: #{@shop.id}, user: #{@current_client.user_id}: mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
   end
 
 
