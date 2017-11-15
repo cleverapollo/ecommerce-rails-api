@@ -16,6 +16,7 @@ module Mailings
           subject     options.fetch(:subject)
 
           text_part do
+            content_type 'text/plain; charset=utf-8'
             body ActionView::Base.full_sanitizer.sanitize(options.fetch(:body))
           end
 
@@ -24,6 +25,7 @@ module Mailings
             body options.fetch(:body).html_safe
           end
         end
+        m.charset = 'UTF-8'
         m.return_path = generate_return_path
         m.delivery_method Rails.application.config.action_mailer.delivery_method
         m.transport_encoding = 'base64'

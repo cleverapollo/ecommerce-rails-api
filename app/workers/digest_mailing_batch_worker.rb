@@ -113,7 +113,8 @@ class DigestMailingBatchWorker
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
     m = nil
-    if @current_client.present? && @current_client.user_id % 2 == 0 && Rails.env.production?
+    # тупо, но чтобы не удалять, временно
+    if @current_client.present? && (@current_client.user_id % 2 == 0 || true) && Rails.env.production?
       t_m = Benchmark.ms {
       m = Mailings::DefaultMail.compose(@shop, to: email,
                                     subject: @mailing.subject,
