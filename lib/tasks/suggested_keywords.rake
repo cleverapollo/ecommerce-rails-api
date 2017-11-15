@@ -5,15 +5,19 @@ namespace :suggested_keywords do
       next unless shop.subscription_plans.product_search.active.paid.exists?
 
       popular_queries = shop.search_queries.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
-                        .group(:query)
-                        .order('count(*) DESC').select('query, count(*)')
+                        .group(:query).order('count(*) DESC')
+                        .select('query, count(*)')
+                        .reject{ |search_query| search_query.query.length > 50 }
 
       next if popular_queries.compact.blank?
 
       top_perform_queries, recommended_codes = {}, popular_queries.collect(&:query)
 
       recommended_codes.each_slice(200) do |codes|
-        perform_queries = OrderItemCl.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS).shop(shop.id).by_recommended_code(codes).group('recommended_code').order('sum_price desc').sum('price')
+        perform_queries = OrderItemCl.created_within_days(OrderItemCl::TOP_QUERY_LIST_DAYS)
+                          .shop(shop.id).by_recommended_code(codes)
+                          .group('recommended_code').order('sum_price desc').sum('price')
+
         top_perform_queries.merge!(perform_queries)
       end
 
