@@ -142,6 +142,7 @@ GEM
     god (0.13.7)
     grocer (0.7.0)
     hkdf (0.2.0)
+    htmlentities (4.3.4)
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
@@ -388,6 +389,7 @@ DEPENDENCIES
   foreman (~> 0.63.0)
   god
   grocer
+  htmlentities
   httparty
   jbuilder
   letter_opener (~> 1.2.0)

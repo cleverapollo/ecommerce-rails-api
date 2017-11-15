@@ -43,6 +43,8 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.yml.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing1.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing3.service'
+      execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing4.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.service'
     end
   end
@@ -51,6 +53,8 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.yml.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing1.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing3.service'
+      execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing4.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.service'
     end
   end
@@ -59,6 +63,8 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.yml.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing1.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing2.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing3.service'
+      execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing4.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.service'
     end
   end

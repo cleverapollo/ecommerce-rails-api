@@ -13,6 +13,7 @@ class DigestMailingBatchWorker
   # @param id [Integer] ID пачки рассылки.
   def perform(id)
     @batch = DigestMailingBatch.find(id)
+    return if @batch.completed?
     @mailing = @batch.mailing
     @shop = Shop.find(@mailing.shop_id)
     @settings = @shop.mailings_settings
@@ -112,11 +113,9 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
-    m = nil
-    # тупо, но чтобы не удалять, временно
-    if @current_client.present? && (@current_client.user_id % 2 == 0 || true) && Rails.env.production?
-      t_m = Benchmark.ms {
-      m = Mailings::DefaultMail.compose(@shop, to: email,
+    if Rails.env.production?
+      # t_m = Benchmark.ms {
+        m = Mailings::DefaultMail.compose(@shop, to: email,
                                     subject: @mailing.subject,
                                     from: @settings.send_from,
                                     body: liquid_letter_body(recommendations, email, location),
@@ -125,12 +124,12 @@ class DigestMailingBatchWorker
                                     unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
                                     list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                     feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
-      }
-      t_d = Benchmark.ms { m.deliver! }
-      type = 'mail'
+      # }
+      m.deliver!
+      #t_d = Benchmark.ms { m.deliver! }
+      #STDOUT.write " shop: #{@shop.id}, user: #{email}, mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
     else
-      t_m = Benchmark.ms {
-      m = Mailings::SignedEmail.compose(@shop, to: email,
+      Mailings::SignedEmail.compose(@shop, to: email,
                                     subject: @mailing.subject,
                                     from: @settings.send_from,
                                     body: liquid_letter_body(recommendations, email, location),
@@ -138,12 +137,8 @@ class DigestMailingBatchWorker
                                     code: @current_digest_mail.try(:code),
                                     unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
                                     list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                    feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
-      }
-      t_d = Benchmark.ms { m.deliver_now }
-      type = 'action mailer'
+                                    feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
     end
-    STDOUT.write " shop: #{@shop.id}, user: #{@current_client.try(:user_id)}: mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms, type: #{type}\n"
   end
 
 
@@ -167,10 +162,7 @@ class DigestMailingBatchWorker
       tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
       unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail)
     }
-    # b = Benchmark.ms {
-      data[:recommended_items] = items.map { |item| item_for_letter(item, location, track_email, @mailing.images_dimension) }
-    # }
-    # STDOUT.write " #{@current_client.user.id}: items: #{b.round(2)} ms, count: #{items.count}\n"
+    data[:recommended_items] = items.map { |item| item_for_letter(item, location, track_email, @mailing.images_dimension) }
     data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
     template = Liquid::Template.parse template

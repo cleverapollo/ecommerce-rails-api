@@ -44,6 +44,7 @@ gem 'webpush'
 gem 'slack-notifier'
 gem 'grocer' # webpush safari
 gem 'elasticsearch'
+gem 'htmlentities'
 
 # Tools
 gem 'foreman', '~> 0.63.0'
