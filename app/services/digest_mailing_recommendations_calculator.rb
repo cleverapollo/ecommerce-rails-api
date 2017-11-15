@@ -91,9 +91,7 @@ class DigestMailingRecommendationsCalculator
   # @return [Array] массив доступных локаций.
   def locations_for_current_user
     if @current_user.present?
-      @current_user.actions.where(shop_id: @shop.id).map(&:item).map(&:locations).select do |l|
-        l.present? && l != []
-      end.first || []
+      [@current_user.clients.find_by(shop: @shop).try(:location)].compact.reject(&:empty?)
     else
       []
     end

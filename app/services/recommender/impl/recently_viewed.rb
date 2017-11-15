@@ -14,17 +14,20 @@ module Recommender
       end
 
       def recommended_ids
-        relation = shop.actions.where(user: user).where('view_count > 0')
-        relation = relation.where.not(item_id: excluded_items_ids)
-
-        item_ids = relation.order('view_date DESC').limit(limit*5).pluck(:item_id)
+        # Достаем недавно просмотренные товары
+        items = ActionCl.where(shop_id: shop.id, object_type: 'Item', event: 'view', session_id: params.session.id)
+                    .order(date: :desc, created_at: :desc)
+                    .limit(limit * 5)
+                    .pluck(:object_id)
 
         # Сохраняем сортировку
-        available_ids = items_in_shop.where(id: item_ids).pluck(:id)
-        result = item_ids - (item_ids - available_ids)
+        available_ids = Hash[items_in_shop.where(uniqid: items).where.not(item_id: excluded_items_ids).pluck(:uniqid, :id)]
+        result = []
+        items.each do |item|
+          result << available_ids[item] if available_ids[item].present?
+        end
 
-        item_ids.delete_if { |item_id| !result.include?(item_id)}
-        item_ids.take(limit)
+        result
       end
     end
   end

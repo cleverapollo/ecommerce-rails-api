@@ -66,7 +66,6 @@ class OrdersImportWorker
         begin
           order['items'].each do |i|
             item = fetch_item(i, @current_shop.id)
-            item.action_id = fetch_actions(item, @current_shop.id, @current_user.id)
             item.amount = i['amount'].to_i
             items << item
           end
@@ -152,34 +151,12 @@ class OrdersImportWorker
     item
   end
 
-  def fetch_actions(item, shop_id, user_id)
-    begin
-      action = Action.find_or_initialize_by(shop_id: shop_id, item_id: item.id, user_id: user_id)
-
-      if action.persisted?
-        action.increment!(:purchase_count)
-      else
-        action.update(rating: 5.0, purchase_count: 1)
-
-        # Send rate to BRB
-        mahout_service.set_preference(shop_id, user_id, item.id, action.rating) if @current_shop.use_brb?
-
-      end
-    rescue PG::UniqueViolation => e
-      retry
-    rescue ActiveRecord::RecordNotUnique => e
-      retry
-    end
-
-    action.id
-  end
-
   def order_already_saved?(order, shop_id)
     Order.where(uniqid: order['id'].to_s, shop_id: shop_id).exists?
   end
 
   def persist_order(order, items, shop_id, user_id)
-    order = Order.create(shop_id: shop_id,
+    order = Order.create!(shop_id: shop_id,
                          user_id: user_id,
                          uniqid: order['id'],
                          date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current,
@@ -191,7 +168,6 @@ class OrdersImportWorker
       OrderItem.create!(order_id: order.id,
                        item_id: item.id,
                        shop_id: shop_id,
-                       action_id: item.action_id,
                        amount: item.amount)
     end
   rescue

@@ -14,33 +14,7 @@ describe Recommender::Impl::Similar do
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type:'similar', item: item2) }
 
-  def create_action(user_data, item, is_buy = false)
-    a = item.actions.new(user: user_data,
-                         shop: shop,
-                         timestamp: 1.day.ago.to_i,
-                         rating: Actions::View::RATING)
-
-    if is_buy
-      a.purchase_count = 1
-      a.rating = Actions::Purchase::RATING
-    end
-    a.save!
-  end
-
   describe '#recommend' do
-    before { create_action(user, item2, true) }
-    before { create_action(user, item3, true) }
-
-    before { create_action(user2, test_item, true) }
-    before { create_action(user2, cheap_item, true) }
-    before { create_action(user2, item2, true) }
-    before { create_action(user2, item3, true) }
-
-    before { create_action(user3, test_item, true) }
-    before { create_action(user3, cheap_item, true) }
-    before { create_action(user3, item2, true) }
-    before { create_action(user3, item3, true) }
-    before { create_action(user3, item4, true) }
 
     context 'when category not provided' do
       context 'when there is enough purchases' do

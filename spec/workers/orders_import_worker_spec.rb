@@ -45,12 +45,6 @@ describe OrdersImportWorker do
     expect(item.category_ids).to eq(item_raw['categories'])
     expect(item.is_available).to eq(item_raw['is_available'] == '1')
 
-    # Check actions
-    action = shop.actions.first!
-    expect(action.item_id).to eq(item.id)
-    expect(action.purchase_count).to eq(1)
-    expect(action.rating).to eq(5.0)
-
     expect(shop.clients.where(external_id: '457').first.email).to eq(nil)
     expect(Client.where(email: 'test@test.te').count).to eq(1)
     expect(shop.reload.last_orders_import_at.present?).to eq(true)

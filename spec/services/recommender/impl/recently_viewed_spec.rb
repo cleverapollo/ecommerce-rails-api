@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Recommender::Impl::RecentlyViewed do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, category_ids: '{3}', name:nil) }
   let!(:item2) { create(:item, shop: shop, category_ids: '{3,5}') }
@@ -11,17 +12,7 @@ describe Recommender::Impl::RecentlyViewed do
 
 
   def create_action(user_data, item, is_buy = false)
-    a = item.actions.new(user: user_data,
-                         shop: shop,
-                         timestamp: 1.day.ago.to_i,
-                         rating: Actions::View::RATING,
-                        view_count: 1)
-
-    if is_buy
-      a.purchase_count = 1
-      a.rating = Actions::Purchase::RATING
-    end
-    a.save
+    ActionCl.create!(shop: shop, session: user_data.sessions.first, current_session_code: 'test', event: is_buy ? 'purchase' : 'view', object_type: 'Item', object_id: item.uniqid, date: 1.day.ago.to_date, created_at: 1.day.ago, useragent: 'test')
   end
 
 
@@ -37,6 +28,7 @@ describe Recommender::Impl::RecentlyViewed do
       params = OpenStruct.new(
           shop: shop,
           user: user,
+          session: session,
           locations: [],
           limit:7,
           type: 'recently_viewed',
