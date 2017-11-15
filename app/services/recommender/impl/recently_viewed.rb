@@ -21,7 +21,7 @@ module Recommender
                     .pluck(:object_id)
 
         # Сохраняем сортировку
-        available_ids = Hash[items_in_shop.where(uniqid: items).where.not(item_id: excluded_items_ids).pluck(:uniqid, :id)]
+        available_ids = Hash[items_in_shop.where(uniqid: items).where.not(id: excluded_items_ids).pluck(:uniqid, :id)]
         result = []
         items.each do |item|
           result << available_ids[item] if available_ids[item].present?
