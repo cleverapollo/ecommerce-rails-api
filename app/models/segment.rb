@@ -1,5 +1,6 @@
 class Segment < MasterTable
   belongs_to :shop
+  has_many :subscriptions_settings, dependent: :nullify, class_name: 'SubscriptionsSettings'
 
   TYPE_CALCULATE = 0
   TYPE_DYNAMIC = 1
