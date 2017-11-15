@@ -112,20 +112,37 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
-    mail = nil
-    t_m = Benchmark.ms {
-    mail = Mailings::SignedEmail.compose(@shop, to: email,
-                                  subject: @mailing.subject,
-                                  from: @settings.send_from,
-                                  body: liquid_letter_body(recommendations, email, location),
-                                  type: 'digest',
-                                  code: @current_digest_mail.try(:code),
-                                  unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
-                                  list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                  feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
-    }
-    t_d = Benchmark.ms { mail.deliver_now }
-    STDOUT.write " shop: #{@shop.id}, user: #{@current_client.try(:user_id)}: mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
+    m = nil
+    if @current_client.present? && @current_client.user_id % 2 == 0 && Rails.env.production?
+      t_m = Benchmark.ms {
+      m = Mailings::DefaultMail.compose(@shop, to: email,
+                                    subject: @mailing.subject,
+                                    from: @settings.send_from,
+                                    body: liquid_letter_body(recommendations, email, location),
+                                    type: 'digest',
+                                    code: @current_digest_mail.try(:code),
+                                    unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
+                                    list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
+                                    feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
+      }
+      t_d = Benchmark.ms { m.deliver! }
+      type = 'mail'
+    else
+      t_m = Benchmark.ms {
+      m = Mailings::SignedEmail.compose(@shop, to: email,
+                                    subject: @mailing.subject,
+                                    from: @settings.send_from,
+                                    body: liquid_letter_body(recommendations, email, location),
+                                    type: 'digest',
+                                    code: @current_digest_mail.try(:code),
+                                    unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
+                                    list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
+                                    feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
+      }
+      t_d = Benchmark.ms { m.deliver_now }
+      type = 'action mailer'
+    end
+    STDOUT.write " shop: #{@shop.id}, user: #{@current_client.try(:user_id)}: mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms, type: #{type}\n"
   end
 
 

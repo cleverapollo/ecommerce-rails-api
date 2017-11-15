@@ -15,7 +15,7 @@ class DigestMailing < ActiveRecord::Base
   belongs_to :segment
 
   has_many :mails, class_name: 'DigestMail'
-  has_many :batches, class_name: 'DigestMailingBatch'
+  has_many :batches, class_name: 'DigestMailingBatch', dependent: :destroy
 
   scope :finished, -> { where(state: 'finished') }
 

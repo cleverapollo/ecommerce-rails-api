@@ -8,7 +8,7 @@ class DigestMailingBatch < ActiveRecord::Base
 
   belongs_to :shop
   belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'
-  has_many :digest_mails
+  has_many :digest_mails, dependent: :destroy
 
   scope :incomplete, -> { where(completed: false) }
   scope :not_test, -> { where(test_email: nil) }

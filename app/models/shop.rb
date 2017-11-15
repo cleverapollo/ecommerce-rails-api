@@ -36,7 +36,6 @@ class Shop < MasterTable
   belongs_to :category
   belongs_to :manager, -> { admins }, class_name: 'Customer'
   has_many :clients
-  has_many :actions
   has_many :items
   has_many :orders
   has_many :order_items

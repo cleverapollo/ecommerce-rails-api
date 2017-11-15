@@ -7,7 +7,6 @@ class User < ActiveRecord::Base
 
   has_many :clients
   has_many :sessions
-  has_many :actions
   has_many :orders
   has_many :search_queries
   has_many :user_taxonomies

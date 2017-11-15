@@ -8,7 +8,6 @@ class Item < ActiveRecord::Base
 
   belongs_to :shop
 
-  has_many :actions, dependent: :delete_all
   has_many :interactions, dependent: :delete_all
   has_many :order_items
   has_many :brand_campaign_purchases
