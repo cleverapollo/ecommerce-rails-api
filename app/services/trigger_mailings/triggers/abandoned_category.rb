@@ -27,7 +27,7 @@ module TriggerMailings
         return false if user.orders.where('date >= ?', 7.days.ago).exists?
 
         # Получаем недавно просмотренные категории
-        additional_info[:categories] = ActionCl.where(shop_id: shop.id, object_type: ItemCategory, event: 'view').in_date(trigger_time_range).pluck(:object_id)
+        additional_info[:categories] = ActionCl.where(shop_id: shop.id, object_type: ItemCategory, event: 'view', session_id: user.active_session_ids(trigger_time_range.first.to_date)).in_date(trigger_time_range).pluck(:object_id)
         return false if additional_info[:categories].blank?
 
         # Ищем товары, которые смотрел юзер
