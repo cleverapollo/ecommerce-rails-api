@@ -242,7 +242,7 @@ class ShopKPI
   end
 
   def visitors_count
-    VisitCl.where(shop_id: @shop.id, date: date).count
+    Slavery.on_master { VisitCl.where(shop_id: @shop.id, date: date).count }
   end
 
   def products_viewed
