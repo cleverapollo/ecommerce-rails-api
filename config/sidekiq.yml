@@ -21,7 +21,7 @@ development:
 :limits:
   critical: 1
   rollbar: 1
-  trigger: 10
+  trigger: 15
   mailing: 20
   mailing_test: 1
   yml: 4
