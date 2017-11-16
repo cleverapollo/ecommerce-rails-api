@@ -21,8 +21,8 @@ module TriggerMailings
       # 1. Последнее действие было месяц назад.
       # 2. После этого не было действий вообще.
       def condition_happened?
-        sessions = user.sessions.where('updated_at >= ?', trigger_time_range.first).limit(100).pluck(:id)
-        actions_in_range = ActionCl.where(shop_id: shop.id, session_id: sessions, date: trigger_time_range).exists?
+        sessions = user.active_session_ids(trigger_time_range.first.to_date)
+        actions_in_range = ActionCl.where(shop_id: shop.id, session_id: sessions, date: trigger_time_range.first).exists?
         actions_over_range = ActionCl.where(shop_id: shop.id, session_id: sessions).where('date > ?', trigger_time_range.last).exists?
 
         if actions_in_range && !actions_over_range

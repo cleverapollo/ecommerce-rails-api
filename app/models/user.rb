@@ -58,7 +58,7 @@ class User < ActiveRecord::Base
   # @param [Date] from_date
   # @return [Integer]
   def active_session_ids(from_date)
-    self.sessions.where('updated_at >= ?', from_date).limit(200).pluck(:id)
+    @active_session_ids ||= self.sessions.where('updated_at >= ?', from_date).order(updated_at: :desc).limit(50).pluck(:id)
   end
 
   private
