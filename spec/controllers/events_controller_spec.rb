@@ -164,8 +164,7 @@ describe EventsController do
     context 'when existing old order' do
       let!(:order) { create(:order, shop: shop, uniqid: params[:order_id], date: 1.day.ago.to_date, user: create(:user), value: 100) }
       let!(:item) { create(:item, shop: shop, uniqid: 10) }
-      let!(:action) { create(:action, user: order.user, item: item, shop: shop) }
-      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item, action: action) }
+      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item) }
 
       it 'default' do
         post :push, params

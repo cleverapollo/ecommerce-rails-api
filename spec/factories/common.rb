@@ -44,9 +44,6 @@ FactoryGirl.define do
   factory :brand_campaign_shop do
   end
 
-  factory :action do
-  end
-
   factory :action_cl do
     current_session_code { SecureRandom.uuid }
     useragent { Faker::Lorem.word }

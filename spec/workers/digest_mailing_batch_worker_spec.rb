@@ -14,7 +14,6 @@ describe DigestMailingBatchWorker do
 
   describe '#perform' do
     let!(:item) { create(:item, :widgetable, shop: shop) }
-    let!(:action) { create(:action, shop: shop, item: item, user: client.user) }
     let!(:letter) do
       batch.current_processed_client_id = nil
       ActionMailer::Base.deliveries = []

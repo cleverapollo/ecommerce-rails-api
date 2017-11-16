@@ -104,7 +104,7 @@ module ActionPush
       raise ActionPush::IncorrectParams.new('Session ID not provided') if raw[:ssid].blank?
       raise ActionPush::IncorrectParams.new('Shop ID not provided') if raw[:shop_id].blank?
       raise ActionPush::IncorrectParams.new('Action not provided') if raw[:event].blank?
-      raise ActionPush::IncorrectParams.new('Unknown action') unless Action::TYPES.include?(raw[:event])
+      raise ActionPush::IncorrectParams.new('Unknown action') unless ActionCl::TYPES.include?(raw[:event])
       raise ActionPush::IncorrectParams.new('Incorrect item id') if raw[:event] == 'view' && (raw[:item_id].nil? || !raw[:item_id].present?)
       raise ActionPush::IncorrectParams.new('Unsupported action') if raw[:event] == 'rate'
       raise ActionPush::IncorrectParams.new('Incorrect rating') if raw[:rating].present? && !(1..5).include?(raw[:rating].to_i)

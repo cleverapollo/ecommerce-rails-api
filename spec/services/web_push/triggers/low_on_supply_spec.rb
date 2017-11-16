@@ -14,22 +14,21 @@ describe WebPush::Triggers::LowOnSupply do
   let!(:item_5) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
   let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: true) }
 
-  let!(:action) { create(:action, shop: shop, user: user, item: item_1) }
 
   let!(:order_1) { create(:order, user: user, shop: shop, date: 4.weeks.ago)}
   let!(:order_2) { create(:order, user: user, shop: shop, date: 3.weeks.ago)}
   let!(:order_3) { create(:order, user: user, shop: shop, date: 2.weeks.ago)}
   let!(:order_4) { create(:order, user: user, shop: shop, date: 1.week.ago)}
 
-  let!(:order_item_1) { create(:order_item, order: order_1, shop: shop, action: action, item: item_1 )}
-  let!(:order_item_2) { create(:order_item, order: order_1, shop: shop, action: action, item: item_2 )}
-  let!(:order_item_3) { create(:order_item, order: order_1, shop: shop, action: action, item: item_4 )}
-  let!(:order_item_4) { create(:order_item, order: order_2, shop: shop, action: action, item: item_1 )}
-  let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, action: action, item: item_2 )}
-  let!(:order_item_6) { create(:order_item, order: order_3, shop: shop, action: action, item: item_4 )}
-  let!(:order_item_7) { create(:order_item, order: order_4, shop: shop, action: action, item: item_1 )}
-  let!(:order_item_8) { create(:order_item, order: order_4, shop: shop, action: action, item: item_4 )}
-  
+  let!(:order_item_1) { create(:order_item, order: order_1, shop: shop, item: item_1 )}
+  let!(:order_item_2) { create(:order_item, order: order_1, shop: shop, item: item_2 )}
+  let!(:order_item_3) { create(:order_item, order: order_1, shop: shop, item: item_4 )}
+  let!(:order_item_4) { create(:order_item, order: order_2, shop: shop, item: item_1 )}
+  let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, item: item_2 )}
+  let!(:order_item_6) { create(:order_item, order: order_3, shop: shop, item: item_4 )}
+  let!(:order_item_7) { create(:order_item, order: order_4, shop: shop, item: item_1 )}
+  let!(:order_item_8) { create(:order_item, order: order_4, shop: shop, item: item_4 )}
+
 
   let!(:web_push_subscriptions_settings) { create(:web_push_subscriptions_settings, shop: shop) }
   let!(:web_push_trigger) { create(:web_push_trigger, shop: shop, trigger_type: 'low_on_supply', subject: 'test test test', message: 'test message for trigger', enabled: true ) }

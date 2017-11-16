@@ -23,8 +23,8 @@ module TriggerMailings
         return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
         # Смотрим, были ли события добавления в корзину в указанный промежуток
-        action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
-                     .where('date >= ?', trigger_time_range.first.to_date)
+        action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.active_session_ids(trigger_time_range.first.to_date))
+                     .in_date(trigger_time_range)
                      .order('date DESC, created_at DESC')
                      .limit(1).first
         return false if action.blank?

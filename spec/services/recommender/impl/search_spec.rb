@@ -9,14 +9,13 @@ describe Recommender::Impl::Search do
   let!(:item_2) { create(:item, shop: shop, is_available: true, sales_rate: 100, pets_periodic: true) }
   let!(:item_3) { create(:item, shop: shop, is_available: true, sales_rate: nil, pets_periodic: true) }
 
-  let!(:action) { create(:action, user: user, shop: shop, item: item_1) }
 
   let!(:order_1) { create(:order, shop: shop, user: user, uniqid: '123', date: Date.current) }
-  let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1, action: action) }
-  let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2, action: action) }
+  let!(:order_item_1_1) { create(:order_item, shop: shop, order: order_1, item: item_1) }
+  let!(:order_item_1_2) { create(:order_item, shop: shop, order: order_1, item: item_2) }
   let!(:order_2) { create(:order, shop: shop, user: user, uniqid: '456', date: Date.current) }
-  let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2, action: action) }
-  let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3, action: action) }
+  let!(:order_item_2_1) { create(:order_item, shop: shop, order: order_2, item: item_2) }
+  let!(:order_item_2_2) { create(:order_item, shop: shop, order: order_2, item: item_3) }
 
   let!(:search_query) { create(:search_query, shop: shop, date: Date.current, user: user) }
 

@@ -33,8 +33,7 @@ describe TriggerMailings::Triggers::ProductAvailable do
 
     context 'not happened there was order with this item' do
       let!(:order) { create(:order, user: user, date: 7.months.ago, shop: shop)}
-      let!(:action) { create(:action, user: user, shop: shop, item: item, timestamp: 72.hours.ago.to_i) }
-      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item, action: action)}
+      let!(:order_item) { create(:order_item, order: order, shop: shop, item: item)}
       it {
         expect( subject.condition_happened? ).to be_falsey
       }

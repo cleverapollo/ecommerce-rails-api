@@ -22,16 +22,15 @@ describe TriggerMailings::OptivoMytoysLetter do
     let!(:item_11) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
     let!(:item_12) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
 
-    let!(:action) { create(:action, shop: shop, user: user, item: item_1) }
 
     let!(:order_1) { create(:order, user: user, shop: shop, date: 7.days.ago)}
     let!(:order_2) { create(:order, user: user, shop: shop, date: 10.weeks.ago)}
 
-    let!(:order_item_1) { create(:order_item, order: order_1, shop: shop, action: action, item: item_1 )}
-    let!(:order_item_2) { create(:order_item, order: order_1, shop: shop, action: action, item: item_2 )}
-    let!(:order_item_3) { create(:order_item, order: order_1, shop: shop, action: action, item: item_4 )}
-    let!(:order_item_4) { create(:order_item, order: order_2, shop: shop, action: action, item: item_1 )}
-    let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, action: action, item: item_2 )}
+    let!(:order_item_1) { create(:order_item, order: order_1, shop: shop, item: item_1 )}
+    let!(:order_item_2) { create(:order_item, order: order_1, shop: shop, item: item_2 )}
+    let!(:order_item_3) { create(:order_item, order: order_1, shop: shop, item: item_4 )}
+    let!(:order_item_4) { create(:order_item, order: order_2, shop: shop, item: item_1 )}
+    let!(:order_item_5) { create(:order_item, order: order_2, shop: shop, item: item_2 )}
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'recently_purchased', subject: 'haha', enabled: true) }
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
