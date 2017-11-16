@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171113111449) do
+ActiveRecord::Schema.define(version: 20171116083337) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1009,17 +1009,6 @@ ActiveRecord::Schema.define(version: 20171113111449) do
     t.jsonb   "jewelry"
     t.jsonb   "cosmetic_perfume"
   end
-
-  create_table "visits", id: :bigserial, force: :cascade do |t|
-    t.date    "date",                          null: false
-    t.integer "user_id", limit: 8,             null: false
-    t.integer "shop_id",                       null: false
-    t.integer "pages",             default: 1, null: false
-  end
-
-  add_index "visits", ["date", "user_id", "shop_id"], name: "index_visits_on_date_and_user_id_and_shop_id", unique: true, using: :btree
-  add_index "visits", ["shop_id", "date"], name: "index_visits_on_shop_id_and_date", using: :btree
-  add_index "visits", ["user_id"], name: "index_visits_on_user_id", using: :btree
 
   create_table "web_push_digest_batches", id: :bigserial, force: :cascade do |t|
     t.integer "web_push_digest_id", limit: 8,                 null: false
