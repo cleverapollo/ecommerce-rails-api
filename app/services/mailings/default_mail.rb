@@ -15,10 +15,10 @@ module Mailings
           from        options.fetch(:from).gsub('"',"'")
           subject     options.fetch(:subject)
 
-          text_part do
-            content_type 'text/plain; charset=utf-8'
-            body HtmlToPlainText.convert_to_text(options.fetch(:body))
-          end
+          # text_part do
+          #   content_type 'text/plain; charset=utf-8'
+          #   body HtmlToPlainText.convert_to_text(options.fetch(:body))
+          # end
 
           html_part do
             content_type 'text/html; charset=UTF-8'
