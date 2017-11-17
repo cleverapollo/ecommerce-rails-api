@@ -111,7 +111,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
   def recommended_queries
     words = params.search_query.downcase.split(' ')
     suggested_keywords = params.shop.suggested_queries.search_by_keywords(words).order_by_score.limit(10).select(:keyword, :synonym)
-    suggested_keywords.map{ |suggested_keyword| suggested_keyword.synonym || suggested_keyword.keyword }
+    suggested_keywords.map{ |suggested_keyword| suggested_keyword.synonym || suggested_keyword.keyword }.uniq
   end
 
 end
