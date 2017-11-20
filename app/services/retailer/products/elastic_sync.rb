@@ -251,12 +251,18 @@ module Retailer
                   json.type 'synonym'
                   json.synonyms shop.query_with_synonyms
                 end
+
+                json.english_stemmer do
+                  json.type "stemmer"
+                  json.language "english"
+                end
+
               end
 
               json.analyzer do
                 json.shop_synonyms do
                   json.tokenizer  'standard'
-                  json.filter ['lowercase', 'shop_synonym_filter']
+                  json.filter ['lowercase', 'shop_synonym_filter', 'english_stemmer']
                 end
               end
             end
