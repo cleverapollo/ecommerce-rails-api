@@ -101,7 +101,7 @@ class DigestMailingBatchWorker
     sleep 5
     retry
   rescue Exception => e
-    @mailing.fail! if @mailing
+    @mailing.fail! if @mailing && !@batch.test_mode?
     raise e
   ensure
     ActiveRecord::Base.clear_active_connections!
@@ -113,32 +113,34 @@ class DigestMailingBatchWorker
   # @param email [String] e-mail.
   # @param recommendations [Array] массив рекомендаций.
   def send_mail(email, recommendations, location)
-    if Rails.env.production?
-      # t_m = Benchmark.ms {
-        m = Mailings::DefaultMail.compose(@shop, to: email,
-                                    subject: @mailing.subject,
-                                    from: @settings.send_from,
-                                    body: liquid_letter_body(recommendations, email, location),
-                                    type: 'digest',
-                                    code: @current_digest_mail.try(:code),
-                                    unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
-                                    list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                    feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
-      # }
-      m.deliver!
-      #t_d = Benchmark.ms { m.deliver! }
-      #STDOUT.write " shop: #{@shop.id}, user: #{email}, mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
-    else
+    # if Rails.env.production?
+    #   # t_m = Benchmark.ms {
+    #     m = Mailings::DefaultMail.compose(@shop, to: email,
+    #                                 subject: @mailing.subject,
+    #                                 from: @settings.send_from,
+    #                                 body: liquid_letter_body(recommendations, email, location),
+    #                                 text: text_version(recommendations, email, location),
+    #                                 type: 'digest',
+    #                                 code: @current_digest_mail.try(:code),
+    #                                 unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
+    #                                 list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
+    #                                 feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer")
+    #   # }
+    #   m.deliver!
+    #   #t_d = Benchmark.ms { m.deliver! }
+    #   #STDOUT.write " shop: #{@shop.id}, user: #{email}, mail compose: #{t_m.round(2)} ms, mail deliver_now: #{t_d.round(2)} ms\n"
+    # else
       Mailings::SignedEmail.compose(@shop, to: email,
                                     subject: @mailing.subject,
                                     from: @settings.send_from,
                                     body: liquid_letter_body(recommendations, email, location),
+                                    text: text_version(recommendations, email, location),
                                     type: 'digest',
                                     code: @current_digest_mail.try(:code),
                                     unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail),
                                     list_id: "<digest shop-#{@shop.id} id-#{@mailing.id} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                     feedback_id: "mailing#{@mailing.id}:shop#{@shop.id}:digest:rees46mailer").deliver_now
-    end
+    # end
   end
 
 
@@ -182,6 +184,27 @@ class DigestMailingBatchWorker
       end
     end
     doc.to_html
+  end
+
+  # Формирует текстовую версию
+  def text_version(items, email, location)
+
+    # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
+    track_email = Base64.encode64( (@current_client.try(:email) || email).to_s ).strip
+
+    template = @mailing.text_template.dup
+    data = {
+      utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{@current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
+      logo_url: (@shop.fetch_logo_url.blank? ? '' : @shop.fetch_logo_url),
+      footer: Mailings::Composer.footer(email: @current_client.try(:email) || email, tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url, unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail)),
+      email: @current_client.try(:email) || email,
+      tracking_url: @current_digest_mail.try(:tracking_url) || DigestMail.new(shop_id: @shop.id).tracking_url,
+      unsubscribe_url: (@current_client || Client.new(shop_id: @shop.id)).digest_unsubscribe_url(@current_digest_mail)
+    }
+    data[:recommended_items] = items.map { |item| item_for_letter(item, location, track_email, @mailing.images_dimension) }
+
+    template = Liquid::Template.parse template
+    template.render(data.deep_stringify_keys)
   end
 
 

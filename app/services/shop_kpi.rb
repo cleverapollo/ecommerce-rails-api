@@ -45,7 +45,11 @@ class ShopKPI
   def initialize(shop, date = Date.current)
     @shop = shop
     @date = date
-    @shop_metric = ShopMetric.find_or_create_by date: date, shop_id: shop.id
+    begin
+      @shop_metric = ShopMetric.find_or_create_by date: date, shop_id: shop.id
+    rescue PG::UniqueViolation => e
+      @shop_metric = ShopMetric.find_by date: date, shop_id: shop.id
+    end
   end
 
   # Считает общую статистику

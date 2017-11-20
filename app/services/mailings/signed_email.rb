@@ -12,7 +12,7 @@ module Mailings
            subject: options.fetch(:subject),
            from: options.fetch(:from).gsub('"',"'"),
            return_path: generate_return_path) do |format|
-        format.text { render text: ActionView::Base.full_sanitizer.sanitize(options.fetch(:body)) }
+        format.text { render text: options.fetch(:text) }
         format.html { render text: options.fetch(:body).html_safe }
       end
       m.transport_encoding = 'base64'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171116083337) do
+ActiveRecord::Schema.define(version: 20171120111717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -259,7 +259,7 @@ ActiveRecord::Schema.define(version: 20171116083337) do
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
     t.string   "header",                                  default: "",       null: false
-    t.text     "text",                                    default: "",       null: false
+    t.text     "text_template",                           default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -969,6 +969,7 @@ ActiveRecord::Schema.define(version: 20171116083337) do
     t.boolean  "simple_editor",                           default: true,  null: false
     t.string   "intro_text"
     t.jsonb    "statistic"
+    t.text     "text_template",                           default: "",    null: false
   end
 
   add_index "trigger_mailings", ["shop_id", "theme_id", "theme_type"], name: "index_trigger_mailings_theme", using: :btree

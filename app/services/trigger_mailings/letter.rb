@@ -13,9 +13,12 @@ module TriggerMailings
     # @return [TriggerMailings::Triggers::Base]
     attr_accessor :trigger
     attr_accessor :body
+    attr_accessor :text
 
     # @return [TriggerMail]
     attr_accessor :trigger_mail
+    # @return [Hash]
+    attr_accessor :data
 
     # Конструктор
     # @param client [Client] пользователь магазина
@@ -33,6 +36,7 @@ module TriggerMailings
         }
       ).reload
       @body = generate_liquid_letter_body
+      self.text = text_version
     end
 
     # Отправить сформированное письмо
@@ -42,6 +46,7 @@ module TriggerMailings
                                     subject: trigger.settings[:subject],
                                     from: trigger.settings[:send_from],
                                     body: @body,
+                                    text: text,
                                     type: 'trigger',
                                     code: trigger_mail.code,
                                     unsubscribe_url: client.trigger_unsubscribe_url(trigger_mail),
@@ -53,7 +58,7 @@ module TriggerMailings
 
     def generate_liquid_letter_body
 
-      data = {
+      self.data = {
           shop_url: @shop.url,
           feedback_button_link: nil,
           utm_params: '',
@@ -123,6 +128,12 @@ module TriggerMailings
       end
 
       template = Liquid::Template.parse liquid_template
+      template.render data.deep_stringify_keys
+    end
+
+    # Формирует текстовую версию
+    def text_version
+      template = Liquid::Template.parse trigger.settings[:text_template].dup
       template.render data.deep_stringify_keys
     end
 

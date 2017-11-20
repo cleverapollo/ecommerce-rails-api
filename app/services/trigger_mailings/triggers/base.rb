@@ -35,6 +35,7 @@ module TriggerMailings
             send_from: shop.mailings_settings.send_from,
             subject: mailing.subject,
             liquid_template: mailing.liquid_template,
+            text_template: mailing.text_template,
             amount_of_recommended_items: mailing.amount_of_recommended_items,
             images_dimension: mailing.images_dimension
           }
