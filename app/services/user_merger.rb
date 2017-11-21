@@ -42,7 +42,7 @@ class UserMerger
 
             # Запускаем дополнительную проверку, для слияния пользователей,
             # т.к. в одно время может придти запрос при котором запуститься слияние и запрос с заказом
-            UserMergeRemnantsWorker.perform_at(15.seconds.from_now, master.id, slave.id)
+            # UserMergeRemnantsWorker.perform_at(15.seconds.from_now, master.id, slave.id)
 
           end
 
