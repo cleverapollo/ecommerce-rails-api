@@ -26,8 +26,8 @@ module Recommender
         if search_query.present?
           relation = items_to_recommend.where.not(id: excluded_items_ids)
           item_ids = []
-          SearchQuery.where(query: search_query).where('date >= ?', 3.months.ago).each do |query|
-            item_ids << OrderItem.where(order_id: Order.where(user_id: query.user_id).where(date: query.date.beginning_of_day..query.date.end_of_day).pluck(:id).uniq ).pluck(:item_id).uniq
+          SearchQuery.where(query: search_query).where('date >= ?', 1.months.ago).order(date: :desc).limit(100).each do |query|
+            item_ids << OrderItem.where(order_id: Order.where(user_id: query.user_id).where(date: query.date.beginning_of_day..query.date.end_of_day) ).pluck(:item_id).uniq
           end
           item_ids.flatten!
           return items_to_recommend.where.not(id: excluded_items_ids).where(id: item_ids).where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc)

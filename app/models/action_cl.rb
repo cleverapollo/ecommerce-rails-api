@@ -1,5 +1,5 @@
 class ActionCl < ActiveRecord::Base
-  self.table_name = 'actions'
+  self.table_name = 'actions_sharded'
   establish_connection "#{Rails.env}_clickhouse".to_sym
 
   belongs_to :shop

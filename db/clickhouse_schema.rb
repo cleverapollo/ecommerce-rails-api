@@ -30,6 +30,23 @@ ActiveRecord::Schema.define(version: 0) do
     t.date     "date",                             default: "now()", null: false
   end
 
+  create_table "actions_sharded", id: false, force: :cascade do |t|
+    t.integer  "session_id",           limit: 8,                     null: false
+    t.string   "current_session_code", limit: 255,                   null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "event",                limit: 255,                   null: false
+    t.string   "object_type",          limit: 255,                   null: false
+    t.string   "object_id",            limit: 255,                   null: false
+    t.string   "recommended_by",       limit: 255
+    t.string   "recommended_code",     limit: 255
+    t.float    "price",                            default: 0.0,     null: false
+    t.string   "brand",                limit: 255
+    t.string   "referer",              limit: 255
+    t.string   "useragent",            limit: 255,                   null: false
+    t.datetime "created_at",                       default: "now()", null: false
+    t.date     "date",                             default: "now()", null: false
+  end
+
   create_table "brand_campaign_statistics_events", force: :cascade do |t|
     t.integer  "brand_campaign_statistic_id", limit: 8,               null: false
     t.integer  "brand_campaign_shop_id",      limit: 8,               null: false
