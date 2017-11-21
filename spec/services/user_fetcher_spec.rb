@@ -31,6 +31,7 @@ describe UserFetcher do
         expect(client.shop).to eq(shop)
         expect(client.user).to eq(session.user)
         expect(client.external_id).to eq(nil)
+        expect(client.email).to eq(nil)
       end
 
       it 'saves client location' do
@@ -94,25 +95,26 @@ describe UserFetcher do
       end
     end
 
-    context 'when external_id is passed and another link exists' do
-      let!(:external_id) { '256' }
-      let!(:old_user) { create(:user) }
-      let!(:old_session) { create(:session, code: '1234567890', user: old_user) }
-      let!(:old_client) { create(:client, shop: shop, user: old_user, external_id: external_id) }
-      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
-
-      it "returns old session's user" do
-        expect(subject).to eq(old_session.user)
-      end
-
-      it 'calls merger' do
-        allow(UserMerger).to receive(:merge)
-
-        subject
-
-        expect(UserMerger).to have_received(:merge).with(old_user, user)
-      end
-    end
+    # Удалить после 01.01.2018, если не будем клеить по external_id
+    # context 'when external_id is passed and another link exists' do
+    #   let!(:external_id) { '256' }
+    #   let!(:old_user) { create(:user) }
+    #   let!(:old_session) { create(:session, code: '1234567890', user: old_user) }
+    #   let!(:old_client) { create(:client, shop: shop, user: old_user, external_id: external_id) }
+    #   let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
+    #
+    #   it "returns old session's user" do
+    #     expect(subject).to eq(old_session.user)
+    #   end
+    #
+    #   it 'calls merger' do
+    #     allow(UserMerger).to receive(:merge)
+    #
+    #     subject
+    #
+    #     expect(UserMerger).to have_received(:merge).with(old_user, user)
+    #   end
+    # end
 
 
     context 'when had mail' do

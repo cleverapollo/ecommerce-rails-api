@@ -17,7 +17,7 @@ describe AudienceImportWorker do
       expect(subject.shop).to eq(shop)
     end
 
-    context 'works with audience' do
+    context 'works with audience', :user_merge do
       context 'when client does not exists' do
         let(:audience_raw) { { 'id' => '123',
                                'email' => 'test@rees46demo.com', 
@@ -40,10 +40,10 @@ describe AudienceImportWorker do
         end
       end
 
-      context 'when client exists by external_id' do
+      context 'when client exists by email' do
         let(:audience_raw) { { 'id' => '123', 'email' => 'test@rees46demo.com', 'name' => 'Test' } }
         let!(:user) { create(:user) }
-        let!(:client) { create(:client, shop: shop, external_id: audience_raw['id'], user: user) }
+        let!(:client) { create(:client, shop: shop, email: audience_raw['email'], user: user) }
         before { params['audience'] << audience_raw }
 
         it 'update client email' do

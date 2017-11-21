@@ -67,12 +67,10 @@ class AudienceImportInsales
         email = a['user_email']
         next if id.blank? || email.blank?
 
-        s_u = @shop.clients.find_by(external_id: id)
+        s_u = @shop.clients.find_by(email: email)
         if s_u.blank?
-          s_u = @shop.clients.build(external_id: id, user: User.create)
+          s_u = @shop.clients.build(external_id: id, email: email, user: User.create)
         end
-
-        s_u.email = email || s_u.email
 
         s_u.save!
       end

@@ -13,7 +13,7 @@ class UserFetcher
 
   def initialize(params)
     # Если external_id указан, он корректный
-    @external_id = params[:external_id].to_s if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i >= 0
+    @external_id = params[:external_id].to_s if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i > 0
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
     @email = IncomingDataTranslator.email(params[:email])
@@ -48,21 +48,25 @@ class UserFetcher
       end
     end
 
+    # Удалить после 01.01.2018, если не будем клеить по external_id
     # Если известен ID пользователя в магазине
-    if external_id.present? && (client.external_id.nil? || client.external_id != external_id)
-      old_client = shop.clients.where.not(id: client.id).find_by(external_id: external_id)
-      if old_client.present?
-        # И при этом этот ID есть у другой связки
-        # Значит, нужно сливать этих двух пользователей
-        user = UserMerger.merge(old_client.user, client.user)
-      else
-        # И при этом этого ID больше нигде нет
-        # Запоминаем его для текущего пользователя
-        # Адовый способ не ломать транзакцию
-        exclude_query = 'NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and external_id = ?)'
-        shop.clients.where(id: client.id).where(exclude_query, shop.id, external_id).update_all(external_id: external_id)
-        user = client.user
-      end
+    # if external_id.present? && (client.external_id.nil? || client.external_id != external_id)
+    #   old_client = shop.clients.where.not(id: client.id).find_by(external_id: external_id)
+    #   if old_client.present?
+    #     # И при этом этот ID есть у другой связки
+    #     # Значит, нужно сливать этих двух пользователей
+    #     user = UserMerger.merge(old_client.user, client.user)
+    #   else
+    #     # И при этом этого ID больше нигде нет
+    #     # Запоминаем его для текущего пользователя
+    #     # Адовый способ не ломать транзакцию
+    #     exclude_query = 'NOT EXISTS (SELECT 1 FROM clients WHERE shop_id = ? and external_id = ?)'
+    #     shop.clients.where(id: client.id).where(exclude_query, shop.id, external_id).update_all(external_id: external_id)
+    #     user = client.user
+    #   end
+    # end
+    if @external_id.present? && self.client.external_id.nil?
+      self.client.update external_id: @external_id
     end
 
 

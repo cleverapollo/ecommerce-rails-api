@@ -29,14 +29,15 @@ class AudienceImportWorker
       # @type [Client] client
       client = @shop.clients.find_by(email: email)
       if client.blank?
-        if id.present?
-          client = @shop.clients.find_by(external_id: id)
-          if client.blank? || client.email.present? && client.email != email
-            client = @shop.clients.build(external_id: id, user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
-          end
-        else
+        # Удалить после 01.01.2018, если не будем клеить юзеров по external_id
+        # if id.present?
+        #   client = @shop.clients.find_by(external_id: id)
+        #   if client.blank? || client.email.present? && client.email != email
+        #     client = @shop.clients.build(external_id: id, user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
+        #   end
+        # else
           client = @shop.clients.build(user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
-        end
+        # end
       end
 
       client.email = email || client.email
