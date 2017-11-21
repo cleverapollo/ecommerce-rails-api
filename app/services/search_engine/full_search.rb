@@ -20,6 +20,10 @@ class SearchEngine::FullSearch < SearchEngine::Base
       filter_conditions << ['terms', 'location_ids', params.locations + ['global'] ]
     end
 
+    if params.category_ids.present?
+      filter_conditions << ['terms', 'category_ids', params.category_ids ]
+    end
+
     # Gender filter for apparel
     must_not_condition = []
     if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
@@ -33,7 +37,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
             json.array! [ ['multi_match', 'query', params.search_query] ] do |x|
               json.set! x[0] do
                 json.set! x[1], x[2]
-                json.fields ['name', 'brand']              
+                json.fields ['name', 'brand']
               end
             end
           end
