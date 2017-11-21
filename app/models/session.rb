@@ -139,6 +139,8 @@ class Session < ActiveRecord::Base
         attrs[c] = self[c]
       end
       Session.with_partition(self.code).where(id: self.id).update_all(attrs)
+      changes_applied
+      true
     else
       true
     end
