@@ -63,4 +63,17 @@ describe Session do
       expect(Session.find_by(code: 'fakecode').user_id).not_to eq(999999999)
     end
   end
+
+  describe '.atomic_save' do
+    let!(:session) { create(:session, user_id: 1, code: 'fakecode') }
+    it '.works' do
+      expect(session.user_id).to eq(1)
+      session.user_id = 2
+      expect(session.atomic_save).to be_truthy
+      expect(Session.find_by_code('fakecode').user_id).to eq(2)
+      session.user_id = 1
+      expect(session.atomic_save).to be_truthy
+      expect(Session.find_by_code('fakecode').user_id).to eq(1)
+    end
+  end
 end
