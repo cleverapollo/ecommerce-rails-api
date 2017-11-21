@@ -20,7 +20,7 @@ describe Actions::Tracker do
     subject { Actions::Tracker.new(params).track }
 
     it 'track' do
-      allow(ClickhouseQueue).to receive(:push).with('actions', {
+      allow(ClickhouseQueue).to receive(:actions).with({
           session_id: params.session.id,
           current_session_code: params.current_session_code,
           shop_id: params.shop.id,
