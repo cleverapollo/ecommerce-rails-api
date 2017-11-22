@@ -16,9 +16,10 @@ module Recommender
       def recommended_ids
         # Достаем недавно просмотренные товары
         items = ActionCl.where(shop_id: shop.id, object_type: 'Item', event: 'view', session_id: params.session.id)
+                    .in_date(1.month.ago..Time.current)
                     .order(date: :desc, created_at: :desc)
                     .limit(limit * 5)
-                    .pluck(:object_id)
+                    .pluck(:object_id).uniq
 
         # Сохраняем сортировку
         available_ids = Hash[items_in_shop.where(uniqid: items).where.not(id: excluded_items_ids).pluck(:uniqid, :id)]
