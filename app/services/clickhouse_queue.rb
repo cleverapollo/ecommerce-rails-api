@@ -26,7 +26,7 @@ class ClickhouseQueue
 
     # @param [Hash] values
     def actions(values)
-      push('actions_sharded', values)
+      push('actions', values)
     end
 
     # @param [Hash] values
