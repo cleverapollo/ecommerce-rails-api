@@ -43,6 +43,7 @@ class RecommendationsController < ApplicationController
         experiment_params.track_recommender = false
         experiment_params.limit = extracted_params.limit - recommendations.count
         experiment_params.skip_niche_algorithms = true
+        extracted_params.brand_promotions = false
         recommendations += Recommendations::Processor.process(experiment_params)
         recommendations.uniq!
       end
