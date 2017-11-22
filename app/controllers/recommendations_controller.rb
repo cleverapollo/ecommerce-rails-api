@@ -32,6 +32,7 @@ class RecommendationsController < ApplicationController
       extracted_params.shop = @shop
       extracted_params.current_session_code = cookies['rees46_session_code'] || params[:seance]
       extracted_params.request = request
+      extracted_params.brand_promotions = true
       extracted_params.extract
 
       # Запускаем процессор с извлеченными данными
