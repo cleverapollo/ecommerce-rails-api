@@ -4,6 +4,13 @@ module Retailer
 
       attr_accessor :shop, :client
 
+      STEMMING_LANGUAGES = %w[
+                                arabic armenian basque brazilian bulgarian catalan czech
+                                danish dutch finnish french galician
+                                german greek hindi hungarian indonesian irish italian
+                                latvian lithuanian norwegian portuguese romanian russian
+                                spanish swedish turkish
+                              ]
       # @param [Shop] shop
       def initialize(shop)
         if shop.class == Fixnum
@@ -257,12 +264,19 @@ module Retailer
                   json.language "english"
                 end
 
+                STEMMING_LANGUAGES.map do |language|
+                  json.set! "#{language}_stemmer" do
+                    json.type "stemmer"
+                    json.language language
+                  end
+                end
+
               end
 
               json.analyzer do
                 json.shop_synonyms do
                   json.tokenizer  'standard'
-                  json.filter ['lowercase', 'shop_synonym_filter', 'english_stemmer']
+                  json.filter ['lowercase', 'shop_synonym_filter', 'english_stemmer', language_stemmer].compact
                 end
               end
             end
@@ -581,6 +595,11 @@ module Retailer
         end
       end
 
+      private
+
+      def language_stemmer
+        return "#{shop.search_setting.language}_stemmer" if STEMMING_LANGUAGES.include? shop.search_setting.language
+      end
 
     end
   end
