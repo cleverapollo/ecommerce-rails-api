@@ -120,7 +120,6 @@ class DataManager::Partition::Session
         SearchQuery.where(user_id: users).delete_all
         UserTaxonomy.where(user_id: users).delete_all
         ProfileEvent.where(user_id: users).delete_all
-        SubscribeForCategory.where(user_id: users).delete_all
         SubscribeForProductPrice.where(user_id: users).delete_all
         SubscribeForProductAvailable.where(user_id: users).delete_all
         ClientCart.where(user_id: users).delete_all

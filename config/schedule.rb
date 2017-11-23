@@ -72,11 +72,6 @@ every '50 23 * * *' do
   runner "RunnerWrapper.run('ClientCart.clear_outdated')"
 end
 
-# Удаляем просроченные подписки на брошенные категории для триггеров
-every '55 23 * * *' do
-  runner "RunnerWrapper.run('TriggerMailings::SubscriptionForCategory.cleanup')"
-end
-
 # Удаляем просроченные подписки на товары для триггеров
 every 1.month do
   runner "RunnerWrapper.run('TriggerMailings::SubscriptionForProduct.cleanup')"

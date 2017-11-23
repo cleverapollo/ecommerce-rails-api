@@ -52,7 +52,6 @@ class Shop < MasterTable
   has_one :mailings_settings
   has_many :shop_metrics
   has_many :search_queries
-  has_many :subscribe_for_categories
   has_many :subscribe_for_product_prices
   has_many :subscribe_for_product_availables
   has_many :reputations

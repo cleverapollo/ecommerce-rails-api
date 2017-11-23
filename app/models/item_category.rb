@@ -10,7 +10,6 @@ class ItemCategory < ActiveRecord::Base
 
   # has_many :brand_campaign_item_categories
   # has_many :item_categories, through: :brand_campaign_item_categories
-  has_many :subscribe_for_categories
 
   scope :widgetable,     -> { where('url is not null and name is not null') }
 
