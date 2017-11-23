@@ -76,7 +76,7 @@ module TriggerMailings
       {
         id: item.uniqid.to_s,
         name: item.name,
-        description: item.description.to_s,
+        description: '',
         barcode: item.barcode.to_s,
         price: item.price_at_location(location).to_i,
         price_formatted: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: " "),

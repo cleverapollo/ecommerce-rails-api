@@ -158,7 +158,7 @@ describe DigestMailingBatchWorker do
         expect(subject).to be_a(Hash)
       end
 
-      %i(name url image_url description).each do |key|
+      %i(name url image_url).each do |key|
         it "contains #{key}" do
           expect(subject[key].nil?).to be_falsey
         end

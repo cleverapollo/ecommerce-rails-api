@@ -175,7 +175,7 @@ class Item < ActiveRecord::Base
         location_ids: ValuesHelper.with_contents(new_item, self, :location_ids),
         locations: ValuesHelper.with_contents(new_item, self, :locations),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
-        description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
+        description: '',
         url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
@@ -331,8 +331,7 @@ class Item < ActiveRecord::Base
       end
       item.name = item.name.gsub("\u00A0", "") unless item.name.nil? # Убираем неразрывные пробелы, если есть
       item.name = item.name.truncate(250) if item.name.length > 250
-      item.description = offer.description
-      item.description = item.description.gsub("\u00A0", "").truncate(500) unless item.description.nil? # Убираем неразрывные пробелы, если есть
+      item.description = ''
       item.model = offer.model
       item.price = offer.price
       item.price_margin = offer.price_margin

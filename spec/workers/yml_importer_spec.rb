@@ -29,7 +29,6 @@ describe YmlImporter do
     expect(item.price).to eq(4290)
     expect(item.is_available).to be_truthy
     expect(item.name).to eq('Купальные шорты Inlay 17"')
-    expect(item.description).to eq('Купальные шорты Inlay 17" классика')
     expect(item.url).to eq('http://www.quiksilver.ru/3613372537448.html')
     expect(item.image_url).to eq('http://static.quiksilver.com/www/store.quiksilver.eu/html/images/catalogs/global/quiksilver-products/all/default/large/eqyjv03198_inlayvolley17,w_bjb6_frt1.jpg')
     expect(item.widgetable).to eq(true)
@@ -70,7 +69,6 @@ describe YmlImporter do
     expect(item.price).to eq(10)
     expect(item.is_available).to be_truthy
     expect(item.name).to eq('Купальные шорты')
-    expect(item.description).to eq('')
     expect(item.model).to eq('Купальные шорты Inlay')
     expect(item.seasonality).to be_nil
     expect(item.is_cosmetic).to be_nil

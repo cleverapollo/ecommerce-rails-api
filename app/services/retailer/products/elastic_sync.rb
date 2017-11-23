@@ -67,7 +67,6 @@ module Retailer
                         widgetable: item.widgetable
                     }
                 },
-                description:      item.description,
                 price:            item.price.to_f,
                 oldprice:         item.oldprice.to_f,
                 price_margin:     item.price_margin.to_f,

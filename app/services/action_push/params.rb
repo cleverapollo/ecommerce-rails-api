@@ -250,7 +250,7 @@ module ActionPush
     #
     # @private
     def normalize_item_arrays
-      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :description, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender, :fashion_size,  :child_gender].each do |key|
+      [:item_id, :category, :price, :is_available, :amount, :locations, :name, :url, :image_url, :brand, :categories, :priority, :attributes, :cosmetics_gender, :fashion_gender, :fashion_size,  :child_gender].each do |key|
         unless raw[key].is_a?(Array)
           raw[key] = raw[key].to_a.map(&:last)
         end
@@ -326,7 +326,6 @@ module ActionPush
           item_attributes.category_ids = (item_attributes.category_ids + [item_attributes.category_id]).uniq.compact
 
           item_attributes.name = raw[:name][i] ? StringHelper.encode_and_truncate(raw[:name][i]) : ''
-          item_attributes.description = raw[:description][i] ? StringHelper.encode_and_truncate(raw[:description][i]) : ''
 
           item_attributes.barcode = raw[:barcode].present? && raw[:barcode][i].present? ? StringHelper.encode_and_truncate(raw[:barcode][i]) : nil
 

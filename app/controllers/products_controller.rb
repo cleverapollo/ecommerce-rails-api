@@ -8,7 +8,7 @@ class ProductsController < ApplicationController
     if item = shop.items.available.widgetable.find_by(uniqid: params[:item_id])
       render json: {
         name: item.name,
-        description: item.description,
+        description: '',
         price: item.price,
         currency: shop.currency,
         url: item.url,
