@@ -35,6 +35,9 @@ class RecommendationsController < ApplicationController
       extracted_params.brand_promotions = true
       extracted_params.extract
 
+      # Отключил на черную пятницу
+      extracted_params.skip_niche_algorithms = false
+
       # Запускаем процессор с извлеченными данными
       recommendations = Recommendations::Processor.process(extracted_params)
 
