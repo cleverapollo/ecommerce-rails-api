@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171120111717) do
+ActiveRecord::Schema.define(version: 20171123074807) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,31 +20,6 @@ ActiveRecord::Schema.define(version: 20171120111717) do
   enable_extension "intarray"
   enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
-
-  create_table "actions", id: :bigserial, force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                 null: false
-    t.integer  "item_id",          limit: 8,                 null: false
-    t.integer  "view_count",                   default: 0,   null: false
-    t.datetime "view_date"
-    t.integer  "cart_count",                   default: 0,   null: false
-    t.datetime "cart_date"
-    t.integer  "purchase_count",               default: 0,   null: false
-    t.datetime "purchase_date"
-    t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",                                    null: false
-    t.integer  "timestamp",                    default: 0,   null: false
-    t.string   "recommended_by",   limit: 255
-    t.integer  "last_action",      limit: 2,   default: 1,   null: false
-    t.integer  "rate_count",                   default: 0,   null: false
-    t.datetime "rate_date"
-    t.integer  "last_user_rating"
-    t.datetime "recommended_at"
-  end
-
-  add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
-  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
