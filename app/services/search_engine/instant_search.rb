@@ -13,10 +13,12 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     }
   end
 
-  def build_body
+  def build_body(keyword=nil)
+    keyword ||= params.search_query
     Jbuilder.encode do |json|
       json.set! "product" do
-        json.regex search_query_regex
+        # json.regex search_query_regex
+        json.prefix keyword
         json.completion do
           json.size  6
           json.field "suggest_product"
@@ -38,29 +40,21 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     # Пока не придумал, как тестировать на Codeship, поэтому не пропускаем обработку на тесте
     return [] if Rails.env.test?
 
-    result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: build_body
+    # Find in Elastic
+    product_ids = get_recommended_products_ids
 
     # double find with synonym for Kechinov
-    unless result && result.key?('product') && result['product'][0]['options'] && result['product'][0]['options'].count
-      synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
+    unless product_ids.any?
+      synonym = params.shop.no_result_queries.with_synonyms.find_by(query: params.search_query)
       if synonym.present?
         params.search_query = synonym.synonym
 
         # Find in Elastic
-        result = ElasticSearchConnector.get_connection.suggest index: "shop-#{shop.id}", body: build_body
+        product_ids = get_recommended_products_ids
       end
     end
 
-    if result && result.key?('product') && result['product'][0]['options'] && result['product'][0]['options'].count
-      ids = result['product'][0]['options'].map { |x| x['_id'] }
-      # Получаем объекты в порядке сортировки
-      products = {}
-      Item.where(id: ids).each { |item| products[item.id] = item }
-      products.values
-    else
-      []
-    end
-
+    product_ids.any? ? Item.where(id: product_ids).limit(6).to_a : []
   end
 
 
@@ -112,6 +106,33 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     words = params.search_query.downcase.split(' ')
     suggested_keywords = params.shop.suggested_queries.search_by_keywords(words).order_by_score.limit(10).select(:keyword, :synonym)
     suggested_keywords.map{ |suggested_keyword| suggested_keyword.synonym || suggested_keyword.keyword }.uniq
+  end
+
+  private
+
+  def get_recommended_products_ids
+    keywords = params.search_query.split.sort_by(&:length).last(3)
+
+    # return product ids if only one keyword is present
+    if keywords.count == 1
+      result = elastic_client.suggest index: "shop-#{shop.id}", body: build_body
+      return result_have_products?(result) ? result['product'][0]['options'].map{ |x| x['_id'] } : []
+    end
+
+    # Find in Elastic with each keyword
+    results = keywords.inject([]) do |results, keyword|
+      results << elastic_client.suggest(index: "shop-#{shop.id}", body: build_body(keyword))
+      results
+    end
+
+    # Get common product ids by comparing results
+    ids_collection = results.map{ |result| result['product'][0]['options'].map{ |x| x['_id'] } }
+    common_ids = ids_collection[0] & ids_collection[1]
+    ids_collection[2].present? ? (common_ids & ids_collection[2]) : common_ids
+  end
+
+  def result_have_products? result
+    result && result.key?('product') && result['product'][0]['options'] && result['product'][0]['options'].count
   end
 
 end
