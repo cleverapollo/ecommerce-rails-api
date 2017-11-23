@@ -22,6 +22,7 @@ FactoryGirl.define do
     name 'Test'
     subject 'Test'
     liquid_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{footer}}'
+    text_template 'test {% for item in recommended_items %}{{item.url}}{% endfor %}{{footer}}'
     state 'started'
   end
 
