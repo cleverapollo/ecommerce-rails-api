@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171124103909) do
+ActiveRecord::Schema.define(version: 20171124115012) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1391,18 +1391,6 @@ ActiveRecord::Schema.define(version: 20171124103909) do
   add_index "styles", ["shop_id", "theme_id", "theme_type"], name: "index_styles_theme", using: :btree
   add_index "styles", ["shop_id"], name: "index_styles_on_shop_id", unique: true, using: :btree
   add_index "styles", ["shop_uniqid"], name: "index_styles_on_shop_uniqid", unique: true, using: :btree
-
-  create_table "subscribe_for_categories", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id"
-    t.integer  "user_id",          limit: 8
-    t.integer  "item_category_id", limit: 8
-    t.datetime "subscribed_at"
-  end
-
-  add_index "subscribe_for_categories", ["shop_id", "subscribed_at"], name: "index_category_subscription_for_cleanup", using: :btree
-  add_index "subscribe_for_categories", ["shop_id", "user_id", "item_category_id"], name: "index_category_subscription_uniq", unique: true, using: :btree
-  add_index "subscribe_for_categories", ["shop_id", "user_id"], name: "index_category_subscription_for_triggers", using: :btree
-  add_index "subscribe_for_categories", ["user_id"], name: "index_subscribe_for_categories_on_user_id", using: :btree
 
   create_table "subscribe_for_product_availables", id: :bigserial, force: :cascade do |t|
     t.integer  "shop_id"
