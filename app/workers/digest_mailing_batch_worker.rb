@@ -177,7 +177,7 @@ class DigestMailingBatchWorker
       begin
         uri = Addressable::URI.parse(a.attribute('href').value)
       rescue Addressable::URI::InvalidURIError => e
-        Rollbar.error(e, href: a.attribute('href').value)
+        Rollbar.error(e, href: a.attribute('href').value, shop: @shop.id)
         raise e
       end
       if /^http/.match(uri.scheme)

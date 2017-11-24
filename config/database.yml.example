@@ -20,17 +20,6 @@ production_slave:
   port: 5432
   timeout: 5000
 
-production_master:
-  database: master_database
-  host: localhost
-  username: rees46
-  password: rees46
-  adapter: postgresql
-  encoding: unicode
-  pool: 50
-  timeout: 5000
-  port: 5432
-
 production_clickhouse:
   adapter: postgresql
   encoding: unicode
@@ -64,30 +53,9 @@ development_slave:
   port: 5432
   timeout: 5000
 
-development_master:
-  database: rees46_development_master
-  host: localhost
-  username:  <%= ENV['PG_USER'] %>
-  password: <%= ENV['PG_PASSWORD'] %>
-  adapter: postgresql
-  encoding: unicode
-  pool: 50
-  timeout: 5000
-  port: 5432
 
 development_clickhouse:
   database: rees46_clickhouse
-  host: localhost
-  username:  <%= ENV['PG_USER'] %>
-  password: <%= ENV['PG_PASSWORD'] %>
-  adapter: postgresql
-  encoding: unicode
-  pool: 50
-  timeout: 5000
-  port: 5432
-
-test_master:
-  database: rees46_test
   host: localhost
   username:  <%= ENV['PG_USER'] %>
   password: <%= ENV['PG_PASSWORD'] %>

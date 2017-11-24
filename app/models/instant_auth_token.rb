@@ -1,6 +1,6 @@
 # Токены мгновенной авторизации пользователя из ссылок в сервисных письмах.
 # Ежедневно удаляем токены, которые были просрочены
-class InstantAuthToken < MasterTable
+class InstantAuthToken < ActiveRecord::Base
   before_create :set_date
 
   validates :token, uniqueness: true

@@ -1,4 +1,4 @@
-class ShopInventory < MasterTable
+class ShopInventory < ActiveRecord::Base
   belongs_to :shop
   belongs_to :currency
   has_many :shop_inventory_banners

@@ -1,7 +1,7 @@
-class BrandCampaign < MasterTable
+class BrandCampaign < ActiveRecord::Base
 
   # Prevent from changes
-  after_find :protect_it
+  after_find :readonly!
 
   scope :active, -> { where(campaign_launched: true).where('balance > 0') }
   scope :prioritized, -> { order(priority: :desc) }

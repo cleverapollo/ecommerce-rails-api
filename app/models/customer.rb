@@ -1,7 +1,7 @@
 ##
 # Клиент (тот, кто регается на rees46.com)
 #
-class Customer < MasterTable
+class Customer < ActiveRecord::Base
 
   has_many :shops
   belongs_to :currency

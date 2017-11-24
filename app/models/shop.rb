@@ -3,7 +3,7 @@ require 'addressable/uri'
 ##
 # Магазин
 #
-class Shop < MasterTable
+class Shop < ActiveRecord::Base
 
   include Redis::Objects
 

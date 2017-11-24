@@ -1,7 +1,7 @@
-class Advertiser < MasterTable
+class Advertiser < ActiveRecord::Base
 
   # Prevent from changes
-  after_find :protect_it
+  after_find :readonly!
 
   has_many :brand_campaigns
 
@@ -22,7 +22,7 @@ class Advertiser < MasterTable
   def first_in_shop(shop_id, excluded_ids=[])
     Item.where(shop_id:shop_id, brand:downcase_brand).where.not(id:excluded_ids, brand:nil)
         .by_sales_rate.limit(1)[0].try(:id)
-    
+
   end
 
 end

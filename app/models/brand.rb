@@ -1,4 +1,4 @@
-class Brand < MasterTable
+class Brand < ActiveRecord::Base
 
   before_save :lowercase_keyword
 

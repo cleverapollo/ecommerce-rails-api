@@ -1,4 +1,4 @@
-class ThemePurchase < MasterTable
+class ThemePurchase < ActiveRecord::Base
   belongs_to :theme
   belongs_to :shop
 end

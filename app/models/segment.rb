@@ -1,4 +1,4 @@
-class Segment < MasterTable
+class Segment < ActiveRecord::Base
   belongs_to :shop
   has_many :subscriptions_settings, dependent: :nullify, class_name: 'SubscriptionsSettings'
 

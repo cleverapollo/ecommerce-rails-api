@@ -1,4 +1,4 @@
-class ShopInventoryBanner < MasterTable
+class ShopInventoryBanner < ActiveRecord::Base
   belongs_to :shop_inventory
   validates :image, :url, presence: true
 

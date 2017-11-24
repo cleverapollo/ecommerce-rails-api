@@ -1,4 +1,4 @@
-class VendorCampaign < MasterTable
+class VendorCampaign < ActiveRecord::Base
   belongs_to :shop
   belongs_to :shop_inventory
   belongs_to :currency

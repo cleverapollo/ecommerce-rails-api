@@ -1,4 +1,4 @@
-class SubscriptionPlan < MasterTable
+class SubscriptionPlan < ActiveRecord::Base
 
   AVAILABLE_PRODUCTS = %w(product.recommendations trigger.emails digest.emails subscriptions reputation product.search)
 

@@ -1,5 +1,5 @@
-class Currency < MasterTable
-  after_find :protect_it
+class Currency < ActiveRecord::Base
+  after_find :readonly!
 
   readonly
 

@@ -1,4 +1,4 @@
-class UserTaxonomy < MasterTable
+class UserTaxonomy < ActiveRecord::Base
   belongs_to :user
 
   # Порядок имеет значение по важности

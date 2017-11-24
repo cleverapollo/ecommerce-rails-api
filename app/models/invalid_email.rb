@@ -1,4 +1,4 @@
-class InvalidEmail < MasterTable
+class InvalidEmail < ActiveRecord::Base
 
   validates :email, uniqueness: true, presence: true
 
