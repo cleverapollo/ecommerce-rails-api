@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171123083555) do
+ActiveRecord::Schema.define(version: 20171124094626) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,12 +72,6 @@ ActiveRecord::Schema.define(version: 20171123083555) do
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
-
-  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
-    t.string   "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
@@ -1658,11 +1652,11 @@ ActiveRecord::Schema.define(version: 20171123083555) do
     t.integer  "vendor_id"
     t.integer  "shop_id"
     t.string   "name"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.integer  "shop_inventory_id",              null: false
-    t.float    "max_cpc_price",                  null: false
-    t.integer  "currency_id",                    null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.integer  "shop_inventory_id",               null: false
+    t.float    "max_cpc_price",                   null: false
+    t.integer  "currency_id",                     null: false
     t.datetime "launched_at"
     t.integer  "status",             default: 0
     t.string   "brand"
@@ -1671,9 +1665,10 @@ ActiveRecord::Schema.define(version: 20171123083555) do
     t.integer  "image_file_size"
     t.datetime "image_updated_at"
     t.string   "url"
-    t.string   "categories",                                  array: true
+    t.string   "categories",                                   array: true
     t.boolean  "all_categories"
     t.integer  "item_count"
+    t.jsonb    "filters",            default: {}, null: false
   end
 
   add_index "vendor_campaigns", ["vendor_id", "shop_id"], name: "index_vendor_campaigns_on_vendor_id_and_shop_id", using: :btree
