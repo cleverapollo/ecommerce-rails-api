@@ -118,22 +118,22 @@ class MoveDataFromMaster < ActiveRecord::Migration
     SQL
 
 
-    execute <<-SQL
-    CREATE TABLE ar_internal_metadata (
-        key character varying NOT NULL,
-        value character varying,
-        created_at timestamp without time zone NOT NULL,
-        updated_at timestamp without time zone NOT NULL
-    );
-    ALTER TABLE ONLY ar_internal_metadata
-        ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
-    CREATE FOREIGN TABLE ar_internal_metadata_master (
-        key character varying NOT NULL,
-        value character varying,
-        created_at timestamp without time zone NOT NULL,
-        updated_at timestamp without time zone NOT NULL
-    ) INHERITS(ar_internal_metadata) SERVER master_server OPTIONS(table_name 'ar_internal_metadata');
-    SQL
+    # execute <<-SQL
+    # CREATE TABLE ar_internal_metadata (
+    #     key character varying NOT NULL,
+    #     value character varying,
+    #     created_at timestamp without time zone NOT NULL,
+    #     updated_at timestamp without time zone NOT NULL
+    # );
+    # ALTER TABLE ONLY ar_internal_metadata
+    #     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+    # CREATE FOREIGN TABLE ar_internal_metadata_master (
+    #     key character varying NOT NULL,
+    #     value character varying,
+    #     created_at timestamp without time zone NOT NULL,
+    #     updated_at timestamp without time zone NOT NULL
+    # ) INHERITS(ar_internal_metadata) SERVER master_server OPTIONS(table_name 'ar_internal_metadata');
+    # SQL
 
 
     create_table "brand_campaign_item_categories", force: :cascade do |t|
