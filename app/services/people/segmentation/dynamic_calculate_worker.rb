@@ -73,7 +73,7 @@ class People::Segmentation::DynamicCalculateWorker
 
         # Фильтруем по дате регистрации
         if segment.filters[:marketing][:new_users_period].to_i > 0
-          users_relation = users_relation.where('created_at >= ?', segment.filters[:marketing][:new_users_period].to_i.days.ago)
+          users_relation = users_relation.where('clients.created_at >= ?', segment.filters[:marketing][:new_users_period].to_i.days.ago)
         end
       end
       # ---------->
