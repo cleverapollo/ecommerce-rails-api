@@ -177,8 +177,8 @@ describe UserProfile::PropertyCalculator do
       subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
 
       it 'calculates children' do
-        expect(subject.count).to eq 3
-        expect(subject.first).to eq ({ gender: "m", age_min: 0.5, age_max: 1.0, birthday: "2016-11-01" })
+        expect(subject.count).to eq 4
+        expect(subject.first).to eq ({ gender: "m", age_min: 0.5, age_max: 1.0 })
         expect(subject.last).to eq ({ gender: "f", age_min: 1.5, age_max: 3.0 })
       end
     end
