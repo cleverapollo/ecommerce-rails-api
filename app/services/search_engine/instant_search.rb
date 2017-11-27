@@ -63,7 +63,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     # Пока не используем ES
     # Важно: сейчас старые категории магазина не удаляются при обновлении YML, это будет нагружать объем данных в этом коде
     # Поэтому нужно придумать, как не выгружать старые категории, в которых нет активных товаров.
-    categories = params.shop.item_categories.widgetable.pluck(:id, :name, :parent_external_id, :url).select { |category| category[1].present? && category[1].downcase.include?(params.search_query) }.take(params.limit)
+    categories = params.shop.item_categories.widgetable.pluck(:external_id, :name, :parent_external_id, :url).select { |category| category[1].present? && category[1].downcase.include?(params.search_query) }.take(params.limit)
     return categories.map do |c|
       {
           id: c[0],
