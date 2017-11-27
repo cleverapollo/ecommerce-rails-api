@@ -125,6 +125,7 @@ class Client < ActiveRecord::Base
         master_client.last_activity_at = self.last_activity_at if master_client.last_activity_at.nil? || (!self.last_activity_at.nil? && master_client.last_activity_at < self.last_activity_at)
         master_client.supply_trigger_sent = self.supply_trigger_sent if self.supply_trigger_sent
         master_client.web_push_subscription_popup_showed = true if self.web_push_subscription_popup_showed?
+        master_client.web_push_subscription_permission_showed = true if self.web_push_subscription_permission_showed?
         master_client.accepted_web_push_subscription = true if self.accepted_web_push_subscription?
 
 
@@ -218,7 +219,7 @@ class Client < ActiveRecord::Base
 
   # Сбрасывает историю подписок на веб пуши, чтобы пользователь мог опять получить окно подписки.
   def clear_web_push_subscription!
-    assign_attributes web_push_enabled: false, web_push_subscription_popup_showed: nil, accepted_web_push_subscription: nil
+    assign_attributes web_push_enabled: false, web_push_subscription_popup_showed: nil, web_push_subscription_permission_showed: nil, accepted_web_push_subscription: nil
     atomic_save! if changed?
   end
 
@@ -256,7 +257,7 @@ class Client < ActiveRecord::Base
 
       # create a new token
       web_push_token = self.web_push_tokens.create!(shop_id: self.shop_id, token: token, browser: browser)
-      self.update(web_push_enabled: true, web_push_subscription_popup_showed: true, accepted_web_push_subscription: true)
+      self.update(web_push_enabled: true, web_push_subscription_popup_showed: true, web_push_subscription_permission_showed: true, accepted_web_push_subscription: true)
 
       return web_push_token
     end

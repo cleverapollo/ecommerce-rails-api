@@ -300,7 +300,7 @@ describe UserMerger do
 
       context 'web push re-linking' do
         let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-        let!(:new_client) { create(:client, shop: shop, accepted_web_push_subscription: true, web_push_subscription_popup_showed: true, user: slave, email: 'old@rees46demo.com') }
+        let!(:new_client) { create(:client, shop: shop, accepted_web_push_subscription: true, web_push_subscription_popup_showed: true, web_push_subscription_permission_showed: true, user: slave, email: 'old@rees46demo.com') }
 
         context 'web push triggers' do
           let!(:web_push_trigger_message) { create(:web_push_trigger_message, client: new_client, shop: shop, trigger_data: {sample: true}) }
@@ -321,9 +321,11 @@ describe UserMerger do
         context 'web push subscriptions' do
           it 're-links subscriptions settings' do
             expect(old_client.reload.web_push_subscription_popup_showed).to be_falsey
+            expect(old_client.reload.web_push_subscription_permission_showed).to be_falsey
             expect(old_client.reload.accepted_web_push_subscription).to be_falsey
             subject
             expect(old_client.reload.web_push_subscription_popup_showed).to be_truthy
+            expect(old_client.reload.web_push_subscription_permission_showed).to be_truthy
             expect(old_client.reload.accepted_web_push_subscription).to be_truthy
           end
         end
@@ -581,7 +583,7 @@ describe UserMerger do
 
     context 'web push re-linking' do
       let!(:old_client) { create(:client, shop: shop, user: master, external_id: '256') }
-      let!(:new_client) { create(:client, shop: shop, accepted_web_push_subscription: true, web_push_subscription_popup_showed: true, user: slave, email: 'old@rees46demo.com') }
+      let!(:new_client) { create(:client, shop: shop, accepted_web_push_subscription: true, web_push_subscription_popup_showed: true, web_push_subscription_permission_showed: true, user: slave, email: 'old@rees46demo.com') }
 
       context 'web push triggers' do
         let!(:web_push_trigger_message) { create(:web_push_trigger_message, client: new_client, shop: shop, trigger_data: {sample: true}) }
@@ -602,9 +604,11 @@ describe UserMerger do
       context 'web push subscriptions' do
         it 're-links subscriptions settings' do
           expect(old_client.reload.web_push_subscription_popup_showed).to be_falsey
+          expect(old_client.reload.web_push_subscription_permission_showed).to be_falsey
           expect(old_client.reload.accepted_web_push_subscription).to be_falsey
           subject
           expect(old_client.reload.web_push_subscription_popup_showed).to be_truthy
+          expect(old_client.reload.web_push_subscription_permission_showed).to be_truthy
           expect(old_client.reload.accepted_web_push_subscription).to be_truthy
         end
       end

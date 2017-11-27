@@ -11,15 +11,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171124115012) do
+ActiveRecord::Schema.define(version: 20171127111430) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
   enable_extension "intarray"
-  enable_extension "uuid-ossp"
   enable_extension "postgres_fdw"
+  enable_extension "uuid-ossp"
+
+  create_table "actions", id: :bigserial, force: :cascade do |t|
+    t.integer  "user_id",          limit: 8,                 null: false
+    t.integer  "item_id",          limit: 8,                 null: false
+    t.integer  "view_count",                   default: 0,   null: false
+    t.datetime "view_date"
+    t.integer  "cart_count",                   default: 0,   null: false
+    t.datetime "cart_date"
+    t.integer  "purchase_count",               default: 0,   null: false
+    t.datetime "purchase_date"
+    t.float    "rating",                       default: 0.0
+    t.integer  "shop_id",                                    null: false
+    t.integer  "timestamp",                    default: 0,   null: false
+    t.string   "recommended_by",   limit: 255
+    t.integer  "last_action",      limit: 2,   default: 1,   null: false
+    t.integer  "rate_count",                   default: 0,   null: false
+    t.datetime "rate_date"
+    t.integer  "last_user_rating"
+    t.datetime "recommended_at"
+  end
+
+  add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
+  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
+  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -240,20 +265,20 @@ ActiveRecord::Schema.define(version: 20171124115012) do
   add_index "client_errors", ["shop_id"], name: "index_client_errors_on_shop_id", where: "(resolved = false)", using: :btree
 
   create_table "clients", id: :bigserial, force: :cascade do |t|
-    t.integer  "shop_id",                                                                       null: false
-    t.integer  "user_id",                            limit: 8,                                  null: false
-    t.boolean  "bought_something",                               default: false,                null: false
+    t.integer  "shop_id",                                                                            null: false
+    t.integer  "user_id",                                 limit: 8,                                  null: false
+    t.boolean  "bought_something",                                    default: false,                null: false
     t.integer  "ab_testing_group"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "external_id",                        limit: 255
-    t.string   "email",                              limit: 255
-    t.boolean  "digests_enabled",                                default: true,                 null: false
-    t.uuid     "code",                                           default: "uuid_generate_v4()"
-    t.boolean  "subscription_popup_showed",                      default: false,                null: false
-    t.boolean  "triggers_enabled",                               default: true,                 null: false
+    t.string   "external_id",                             limit: 255
+    t.string   "email",                                   limit: 255
+    t.boolean  "digests_enabled",                                     default: true,                 null: false
+    t.uuid     "code",                                                default: "uuid_generate_v4()"
+    t.boolean  "subscription_popup_showed",                           default: false,                null: false
+    t.boolean  "triggers_enabled",                                    default: true,                 null: false
     t.datetime "last_trigger_mail_sent_at"
-    t.boolean  "accepted_subscription",                          default: false,                null: false
+    t.boolean  "accepted_subscription",                               default: false,                null: false
     t.string   "location"
     t.date     "last_activity_at"
     t.boolean  "supply_trigger_sent"
@@ -261,10 +286,10 @@ ActiveRecord::Schema.define(version: 20171124115012) do
     t.datetime "last_web_push_sent_at"
     t.boolean  "web_push_subscription_popup_showed"
     t.boolean  "accepted_web_push_subscription"
-    t.integer  "fb_id",                              limit: 8
-    t.integer  "vk_id",                              limit: 8
+    t.integer  "fb_id",                                   limit: 8
+    t.integer  "vk_id",                                   limit: 8
     t.boolean  "email_confirmed"
-    t.integer  "segment_ids",                                                                                array: true
+    t.integer  "segment_ids",                                                                                     array: true
     t.boolean  "digest_opened"
     t.date     "synced_with_republer_at"
     t.date     "synced_with_advmaker_at"
@@ -274,6 +299,7 @@ ActiveRecord::Schema.define(version: 20171124115012) do
     t.date     "synced_with_facebook_cart_at"
     t.string   "audience_sources"
     t.text     "external_audience_sources"
+    t.boolean  "web_push_subscription_permission_showed"
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
@@ -290,6 +316,7 @@ ActiveRecord::Schema.define(version: 20171124115012) do
   add_index "clients", ["shop_id", "subscription_popup_showed"], name: "index_clients_on_shop_id_and_subscription_popup_showed", where: "(subscription_popup_showed = true)", using: :btree
   add_index "clients", ["shop_id", "user_id"], name: "index_clients_on_shop_id_and_user_id", using: :btree
   add_index "clients", ["shop_id", "vk_id", "fb_id"], name: "index_clients_on_social_merge", where: "((vk_id IS NOT NULL) OR (fb_id IS NOT NULL))", using: :btree
+  add_index "clients", ["shop_id", "web_push_subscription_permission_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_perm_showed", where: "(web_push_subscription_permission_showed = true)", using: :btree
   add_index "clients", ["shop_id", "web_push_subscription_popup_showed"], name: "index_clients_on_shop_id_and_web_push_subscription_popup_showed", where: "(web_push_subscription_popup_showed = true)", using: :btree
   add_index "clients", ["user_id"], name: "index_clients_on_user_id", using: :btree
 
@@ -448,14 +475,14 @@ ActiveRecord::Schema.define(version: 20171124115012) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.text     "header"
+    t.text     "text_template"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
-    t.string   "header",                                  default: "",       null: false
-    t.text     "text_template",                           default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -1194,59 +1221,60 @@ ActiveRecord::Schema.define(version: 20171124115012) do
 
   create_table "shop_metrics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
-    t.integer "orders",                             default: 0,   null: false
-    t.integer "real_orders",                        default: 0,   null: false
-    t.decimal "revenue",                            default: 0.0, null: false
-    t.decimal "real_revenue",                       default: 0.0, null: false
-    t.integer "visitors",                           default: 0,   null: false
-    t.integer "products_viewed",                    default: 0,   null: false
-    t.integer "triggers_enabled_count",             default: 0,   null: false
-    t.integer "triggers_orders",                    default: 0,   null: false
-    t.decimal "triggers_revenue",                   default: 0.0, null: false
-    t.integer "digests_orders",                     default: 0,   null: false
-    t.decimal "digests_revenue",                    default: 0.0, null: false
-    t.integer "abandoned_products",                 default: 0,   null: false
-    t.decimal "abandoned_money",                    default: 0.0, null: false
-    t.date    "date",                                             null: false
-    t.integer "triggers_sent",                      default: 0,   null: false
-    t.integer "triggers_clicked",                   default: 0,   null: false
-    t.decimal "triggers_revenue_real",              default: 0.0, null: false
-    t.integer "triggers_orders_real",               default: 0,   null: false
-    t.integer "digests_sent",                       default: 0,   null: false
-    t.integer "digests_clicked",                    default: 0,   null: false
-    t.decimal "digests_revenue_real",               default: 0.0, null: false
-    t.integer "digests_orders_real",                default: 0,   null: false
-    t.integer "subscription_popup_showed",          default: 0
-    t.integer "subscription_accepted",              default: 0
-    t.integer "orders_original_count",              default: 0
-    t.decimal "orders_original_revenue",            default: 0.0
-    t.integer "orders_recommended_count",           default: 0
-    t.decimal "orders_recommended_revenue",         default: 0.0
-    t.integer "product_views_total",                default: 0
-    t.integer "product_views_recommended",          default: 0
-    t.jsonb   "top_products",                                                  array: true
+    t.integer "orders",                                  default: 0,   null: false
+    t.integer "real_orders",                             default: 0,   null: false
+    t.decimal "revenue",                                 default: 0.0, null: false
+    t.decimal "real_revenue",                            default: 0.0, null: false
+    t.integer "visitors",                                default: 0,   null: false
+    t.integer "products_viewed",                         default: 0,   null: false
+    t.integer "triggers_enabled_count",                  default: 0,   null: false
+    t.integer "triggers_orders",                         default: 0,   null: false
+    t.decimal "triggers_revenue",                        default: 0.0, null: false
+    t.integer "digests_orders",                          default: 0,   null: false
+    t.decimal "digests_revenue",                         default: 0.0, null: false
+    t.integer "abandoned_products",                      default: 0,   null: false
+    t.decimal "abandoned_money",                         default: 0.0, null: false
+    t.date    "date",                                                  null: false
+    t.integer "triggers_sent",                           default: 0,   null: false
+    t.integer "triggers_clicked",                        default: 0,   null: false
+    t.decimal "triggers_revenue_real",                   default: 0.0, null: false
+    t.integer "triggers_orders_real",                    default: 0,   null: false
+    t.integer "digests_sent",                            default: 0,   null: false
+    t.integer "digests_clicked",                         default: 0,   null: false
+    t.decimal "digests_revenue_real",                    default: 0.0, null: false
+    t.integer "digests_orders_real",                     default: 0,   null: false
+    t.integer "subscription_popup_showed",               default: 0
+    t.integer "subscription_accepted",                   default: 0
+    t.integer "orders_original_count",                   default: 0
+    t.decimal "orders_original_revenue",                 default: 0.0
+    t.integer "orders_recommended_count",                default: 0
+    t.decimal "orders_recommended_revenue",              default: 0.0
+    t.integer "product_views_total",                     default: 0
+    t.integer "product_views_recommended",               default: 0
+    t.jsonb   "top_products",                                                       array: true
     t.jsonb   "products_statistics"
-    t.integer "web_push_subscription_popup_showed", default: 0
-    t.integer "web_push_subscription_accepted",     default: 0
-    t.integer "web_push_triggers_sent",             default: 0,   null: false
-    t.integer "web_push_triggers_clicked",          default: 0,   null: false
-    t.integer "web_push_triggers_orders",           default: 0,   null: false
-    t.integer "web_push_triggers_revenue",          default: 0,   null: false
-    t.integer "web_push_triggers_orders_real",      default: 0,   null: false
-    t.integer "web_push_triggers_revenue_real",     default: 0,   null: false
-    t.integer "orders_with_recommender_count",      default: 0,   null: false
-    t.integer "web_push_digests_sent",              default: 0,   null: false
-    t.integer "web_push_digests_clicked",           default: 0,   null: false
-    t.integer "web_push_digests_orders",            default: 0,   null: false
-    t.integer "web_push_digests_revenue",           default: 0,   null: false
-    t.integer "web_push_digests_orders_real",       default: 0,   null: false
-    t.integer "web_push_digests_revenue_real",      default: 0,   null: false
-    t.integer "remarketing_carts",                  default: 0,   null: false
-    t.integer "remarketing_impressions",            default: 0,   null: false
-    t.integer "remarketing_clicks",                 default: 0,   null: false
-    t.integer "remarketing_orders",                 default: 0,   null: false
-    t.integer "remarketing_revenue",                default: 0,   null: false
+    t.integer "web_push_subscription_popup_showed",      default: 0
+    t.integer "web_push_subscription_accepted",          default: 0
+    t.integer "web_push_triggers_sent",                  default: 0,   null: false
+    t.integer "web_push_triggers_clicked",               default: 0,   null: false
+    t.integer "web_push_triggers_orders",                default: 0,   null: false
+    t.integer "web_push_triggers_revenue",               default: 0,   null: false
+    t.integer "web_push_triggers_orders_real",           default: 0,   null: false
+    t.integer "web_push_triggers_revenue_real",          default: 0,   null: false
+    t.integer "orders_with_recommender_count",           default: 0,   null: false
+    t.integer "web_push_digests_sent",                   default: 0,   null: false
+    t.integer "web_push_digests_clicked",                default: 0,   null: false
+    t.integer "web_push_digests_orders",                 default: 0,   null: false
+    t.integer "web_push_digests_revenue",                default: 0,   null: false
+    t.integer "web_push_digests_orders_real",            default: 0,   null: false
+    t.integer "web_push_digests_revenue_real",           default: 0,   null: false
+    t.integer "remarketing_carts",                       default: 0,   null: false
+    t.integer "remarketing_impressions",                 default: 0,   null: false
+    t.integer "remarketing_clicks",                      default: 0,   null: false
+    t.integer "remarketing_orders",                      default: 0,   null: false
+    t.integer "remarketing_revenue",                     default: 0,   null: false
     t.integer "recommendation_requests"
+    t.integer "web_push_subscription_permission_showed", default: 0
   end
 
   add_index "shop_metrics", ["shop_id", "date"], name: "index_shop_metrics_on_shop_id_and_date", unique: true, using: :btree
@@ -1571,10 +1599,10 @@ ActiveRecord::Schema.define(version: 20171124115012) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
-    t.integer  "images_dimension",                        default: 3,     null: false
+    t.integer  "images_dimension",                        default: 3
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -1676,6 +1704,17 @@ ActiveRecord::Schema.define(version: 20171124115012) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "visits", id: :bigserial, force: :cascade do |t|
+    t.date    "date",                          null: false
+    t.integer "user_id", limit: 8,             null: false
+    t.integer "shop_id",                       null: false
+    t.integer "pages",             default: 1, null: false
+  end
+
+  add_index "visits", ["date", "user_id", "shop_id"], name: "index_visits_on_date_and_user_id_and_shop_id", unique: true, using: :btree
+  add_index "visits", ["shop_id", "date"], name: "index_visits_on_shop_id_and_date", using: :btree
+  add_index "visits", ["user_id"], name: "index_visits_on_user_id", using: :btree
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
     t.string "type_name"

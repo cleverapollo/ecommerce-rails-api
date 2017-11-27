@@ -13,7 +13,7 @@ describe ShopKPI do
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
 
-  let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true, web_push_subscription_popup_showed: true, web_push_enabled: true )}
+  let!(:client) {create(:client, user: user, shop: shop, subscription_popup_showed: true, accepted_subscription: true, web_push_subscription_popup_showed: true, web_push_subscription_permission_showed: true, web_push_enabled: true )}
 
   let!(:item_1) { create(:item, shop: shop, price: 100, is_available: 1) }
   let!(:item_2) { create(:item, shop: shop, price: 200, is_fashion: 1, widgetable: true, is_available: 1) }
@@ -138,6 +138,7 @@ describe ShopKPI do
       expect(shop_metric.subscription_accepted).to eq(1)
 
       expect(shop_metric.web_push_subscription_popup_showed).to eq(1)
+      expect(shop_metric.web_push_subscription_permission_showed).to eq(1)
       expect(shop_metric.web_push_subscription_accepted).to eq(1)
 
       expect(shop_metric.product_views_total).to eq(3)
@@ -194,6 +195,7 @@ describe ShopKPI do
       expect(shop_metric.subscription_accepted).to eq(1)
 
       expect(shop_metric.web_push_subscription_popup_showed).to eq(1)
+      expect(shop_metric.web_push_subscription_permission_showed).to eq(1)
       expect(shop_metric.web_push_subscription_accepted).to eq(1)
 
       expect(shop_metric.recommendation_requests).to eq(1)

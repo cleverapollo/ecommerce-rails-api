@@ -25,7 +25,11 @@ class WebPushSubscriptionsController < ApplicationController
   # Пользователю было показано окно подписки
   def showed
     client = shop.clients.find_or_create_by!(user_id: @user.id)
-    client.web_push_subscription_popup_showed = true
+    if params[:type] == 'permission' && params[:type].present?
+      client.web_push_subscription_permission_showed = true
+    else
+      client.web_push_subscription_popup_showed = true
+    end
     client.atomic_save!
     render json: {}
   end

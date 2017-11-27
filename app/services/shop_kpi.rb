@@ -175,6 +175,7 @@ class ShopKPI
         shop_metric.subscription_popup_showed = Client.where(shop_id: shop.id, subscription_popup_showed: true).count
         shop_metric.subscription_accepted = Client.where(shop_id: shop.id, subscription_popup_showed: true, accepted_subscription: true).count
         shop_metric.web_push_subscription_popup_showed = Client.where(shop_id: shop.id, web_push_subscription_popup_showed: true).count
+        shop_metric.web_push_subscription_permission_showed = Client.where(shop_id: shop.id, web_push_subscription_permission_showed: true).count
         shop_metric.web_push_subscription_accepted = Client.where(shop_id: shop.id, web_push_enabled: true).count
 
       end
