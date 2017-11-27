@@ -3,7 +3,6 @@ class ClickhouseQueue
   class << self
 
     # Добавление в очередь событий
-    # todo сделать mock
     # @param [String] table
     # @param [Hash] values
     def push(table, values = {}, opts = {})

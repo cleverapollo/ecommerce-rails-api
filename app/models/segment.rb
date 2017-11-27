@@ -12,6 +12,8 @@ class Segment < ActiveRecord::Base
 
   after_destroy :remove_segment_from_clients
 
+  scope :visible, -> { where(deleted: false) }
+
   class << self
 
     # Расчетный сегмент: ищет ранее созданный или создает новый

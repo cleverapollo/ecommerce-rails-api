@@ -48,15 +48,32 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Email marketing
       if segment.filters[:marketing].present?
-        # Хоть раз просматривали рассылку
-        users_relation = users_relation.where(digest_opened: true) if segment.filters[:marketing][:letter_open].to_i == 1
+
+        # Просматривали рассылку
+        if segment.filters[:marketing][:letter_open].to_i == 1
+          users_relation = users_relation.where(digest_opened: true)
+
+          # Добавляем период выборки
+          if segment.filters[:marketing][:letter_open_period].present?
+            # Добавляем join с отправленными письмами и указанным переодом
+            users_relation = users_relation.joins('INNER JOIN digest_mails ON digest_mails.client_id = clients.id').where('opened = true AND digest_mails.created_at >= ?', segment.filters[:marketing][:letter_open_period].to_i.days.ago)
+          end
+        end
 
         # Фильтр по последнему дайджесту
         if segment.filters[:marketing][:digest].present?
           last_digest = shop.digest_mailings.where(state: 'finished').order(finished_at: :desc).first
           if last_digest.present?
-            users_relation = users_relation.joins('INNER JOIN digest_mails ON digest_mails.client_id = clients.id').where(digest_mails: { digest_mailing_id: last_digest.id, opened: segment.filters[:marketing][:digest].to_i == 1 })
+            # Добавляем join если он еще не был добавлен ранее
+            users_relation = users_relation.joins('INNER JOIN digest_mails ON digest_mails.client_id = clients.id') unless users_relation.to_sql.include?('INNER JOIN digest_mails')
+            # Фильтруем по последнему дайджесту
+            users_relation = users_relation.where(digest_mails: { digest_mailing_id: last_digest.id, opened: segment.filters[:marketing][:digest].to_i == 1 })
           end
+        end
+
+        # Фильтруем по дате регистрации
+        if segment.filters[:marketing][:new_users_period].to_i > 0
+          users_relation = users_relation.where('created_at >= ?', segment.filters[:marketing][:new_users_period].to_i.days.ago)
         end
       end
       # ---------->
@@ -148,9 +165,30 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Достаем id юзеров
       users = relation.pluck(:id)
-      if users.present?
+      if users.present? || segment.filters[:marketing][:include_from_segments].present?
+        clients = shop.clients
+        values = []
+
+        # Добавляем в выборку список юзеров
+        values << "user_id IN (#{users.join(',')})" if users.present?
+
+        # Добавляем в выборку сегменты
+        if segment.filters[:marketing].present? && segment.filters[:marketing][:include_from_segments].present?
+          segments = shop.segments.visible.where(id: segment.filters[:marketing][:include_from_segments].map(&:to_i)).pluck(:id)
+          values << "segment_ids && ARRAY[#{segments.join(',')}]::int[]" if segments.present?
+        end
+
+        # Добавляем условия выборки
+        clients = clients.where(values.join(' OR ')) if values.present?
+
+        # Добавляем услоие исключения
+        if segment.filters[:marketing].present? && segment.filters[:marketing][:exclude_from_segments].present?
+          segments = shop.segments.visible.where(id: segment.filters[:marketing][:exclude_from_segments].map(&:to_i)).pluck(:id)
+          clients = clients.where('segment_ids IS NULL OR NOT (segment_ids && ARRAY[?]::int[])', segments) if segments.present?
+        end
+
         # Добавляем сегмент к клиентам
-        shop.clients.where(user_id: users).update_all("segment_ids = array_append(segment_ids, #{segment_id})")
+        clients.update_all("segment_ids = array_append(segment_ids, #{segment_id})")
       end
 
       # Обновляем статистику сегмента

@@ -1,3 +1,4 @@
+# todo удалить, когда все разработчики сделают миграции
 class DataManager::MoveData
 
   def self.move(table)

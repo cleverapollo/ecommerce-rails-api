@@ -3,6 +3,8 @@ require 'rails_helper'
 describe People::Segmentation::DynamicCalculateWorker do
   let!(:shop) { create(:shop) }
   let!(:segment) { create(:segment, shop: shop, segment_type: Segment::TYPE_DYNAMIC) }
+  let!(:segment2) { create(:segment, shop: shop, segment_type: Segment::TYPE_STATIC) }
+  let!(:segment3) { create(:segment, shop: shop, segment_type: Segment::TYPE_STATIC) }
   before { %w(hat glove tshirt sock jacket blazer belt shoe underwear trouser shirt).each { |w| WearTypeDictionary.create!(type_name: w, word: Faker::Lorem.word) } }
 
 
@@ -15,7 +17,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   ) }
   let!(:session1) { create(:session, user: user1, code: 'c1') }
   let!(:client1) { create(:client, user: user1, shop: shop,
-      email: 'test@test.com', bought_something: true, location: 'spb', digest_opened: true
+      email: 'test@test.com', bought_something: true, location: 'spb', digest_opened: true, created_at: 1.month.ago
   ) }
 
   # User 2
@@ -52,7 +54,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   # Digest
   let!(:digest_mailing) { create(:digest_mailing, shop: shop, state: 'finished') }
   let!(:digest_mailing_batch) { create(:digest_mailing_batch, mailing: digest_mailing, shop: shop) }
-  let!(:digest_mail1) { create(:digest_mail, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch, client: client1, opened: true) }
+  let!(:digest_mail1) { create(:digest_mail, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch, client: client1, opened: true, created_at: 1.days.ago) }
   let!(:digest_mail2) { create(:digest_mail, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch, client: client2, opened: false) }
 
   subject { People::Segmentation::DynamicCalculateWorker.new.perform segment.id }
@@ -123,8 +125,33 @@ describe People::Segmentation::DynamicCalculateWorker do
       expect(client3.reload.segment_ids).to be_nil
     end
 
+    it 'letter_open in 1 week' do
+      segment.update(filters: { marketing: { letter_open: '1', letter_open_period: '7' } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to be_nil
+      expect(client3.reload.segment_ids).to be_nil
+    end
+
+    it 'letter_open not in 1 week' do
+      segment.update(filters: { marketing: { letter_open: '1', letter_open_period: '7' } })
+      digest_mail1.update(created_at: 10.days.ago, date: 10.days.ago)
+      subject
+      expect(client1.reload.segment_ids).to be_nil
+      expect(client2.reload.segment_ids).to be_nil
+      expect(client3.reload.segment_ids).to be_nil
+    end
+
     it 'letter_open and last digest open' do
       segment.update(filters: { marketing: { letter_open: '1', digest: '1' } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to be_nil
+      expect(client3.reload.segment_ids).to be_nil
+    end
+
+    it 'letter_open in 1 week and last digest open' do
+      segment.update(filters: { marketing: { letter_open: '1', letter_open_period: '7', digest: '1' } })
       subject
       expect(client1.reload.segment_ids).to include(segment.id)
       expect(client2.reload.segment_ids).to be_nil
@@ -137,6 +164,54 @@ describe People::Segmentation::DynamicCalculateWorker do
       expect(client1.reload.segment_ids).to be_nil
       expect(client2.reload.segment_ids).to include(segment.id)
       expect(client3.reload.segment_ids).to be_nil
+    end
+
+    it 'new_users_period' do
+      segment.update(filters: { marketing: { new_users_period: '7' } })
+      subject
+      expect(client1.reload.segment_ids).to be_nil
+      expect(client2.reload.segment_ids).to include(segment.id)
+      expect(client3.reload.segment_ids).to include(segment.id)
+    end
+
+    it 'letter_open and include from segments' do
+      client3.update(segment_ids: [segment2.id])
+      segment.update(filters: { marketing: { letter_open: '1', include_from_segments: [segment2.id.to_s] } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to include(segment.id)
+      expect(client3.reload.segment_ids).to include(segment.id)
+      expect(client3.reload.segment_ids).to include(segment2.id)
+    end
+
+    it 'letter_open not in 1 week and include from segments' do
+      client3.update(segment_ids: [segment2.id])
+      segment.update(filters: { marketing: { letter_open: '1', letter_open_period: '7', include_from_segments: [segment2.id.to_s] } })
+      digest_mail1.update(created_at: 10.days.ago, date: 10.days.ago)
+      subject
+      expect(client1.reload.segment_ids).to be_nil
+      expect(client2.reload.segment_ids).to be_nil
+      expect(client3.reload.segment_ids).to include(segment.id)
+      expect(client3.reload.segment_ids).to include(segment2.id)
+    end
+
+    it 'letter_open and exclude from segments' do
+      client2.update(segment_ids: [segment2.id])
+      segment.update(filters: { marketing: { letter_open: '1', exclude_from_segments: [segment2.id.to_s] } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to_not include(segment.id)
+      expect(client3.reload.segment_ids).to be_nil
+    end
+
+    it 'new_users_period, include from segments and exclude from segments' do
+      client1.update(segment_ids: [segment2.id])
+      client3.update(segment_ids: [segment2.id, segment3.id])
+      segment.update(filters: { marketing: { new_users_period: '7', include_from_segments: [segment2.id.to_s], exclude_from_segments: [segment3.id.to_s] } })
+      subject
+      expect(client1.reload.segment_ids).to include(segment.id)
+      expect(client2.reload.segment_ids).to include(segment.id)
+      expect(client3.reload.segment_ids).to_not include(segment.id)
     end
 
     # View
