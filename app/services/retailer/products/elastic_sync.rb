@@ -2,7 +2,7 @@ module Retailer
   module Products
     class ElasticSync
 
-      attr_accessor :shop, :client
+      attr_accessor :shop, :client, :product_categories_hash
 
       STEMMING_LANGUAGES = %w[
                                 arabic armenian basque brazilian bulgarian catalan czech
@@ -17,6 +17,7 @@ module Retailer
           shop = Shop.find(shop)
         end
         self.shop = shop
+        self.product_categories_hash = shop.item_categories.widgetable.pluck(:external_id, :name).to_h
         self.client = ElasticSearchConnector.get_connection
       end
 
@@ -56,11 +57,14 @@ module Retailer
             # active_item_ids << item.id
 
             item_keywords = (item.name.to_s + ' ' + item.type_prefix.to_s + ' ' +  item.model.to_s + ' ' +  item.vendor_code.to_s).split("\s").delete_if{|x| x.length <= 2 }.uniq.compact
+            category_names = item.category_ids.map{ |category_id| product_categories_hash[category_id] }.uniq
+            category_names.map{ |category_name| item_keywords << category_name }
 
             # Добавляем товар для индексации
             bulk << { index: { _index: new_index_name, _type: 'product', _id: item.id } }
             bulk << {
                 name:             item.name,
+                category_names: category_names.join(' '),
                 suggest_product:  {
                     input: item_keywords << item.name,
                     contexts: {
@@ -295,6 +299,11 @@ module Retailer
                 end
 
                 json.name do
+                  json.type "text"
+                  json.analyzer 'shop_synonyms'
+                end
+
+                json.category_names do
                   json.type "text"
                   json.analyzer 'shop_synonyms'
                 end
@@ -597,7 +606,7 @@ module Retailer
       private
 
       def language_stemmer
-        return "#{shop.search_setting.language}_stemmer" if STEMMING_LANGUAGES.include? shop.search_setting.language
+        return "#{shop.search_setting.language}_stemmer" if STEMMING_LANGUAGES.include? shop.search_setting&.language
       end
 
     end

@@ -37,7 +37,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
             json.array! [ ['multi_match', 'query', params.search_query] ] do |x|
               json.set! x[0] do
                 json.set! x[1], x[2]
-                json.fields ['name', 'brand']
+                json.fields ['name', 'brand', 'category_names']
               end
             end
           end

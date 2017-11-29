@@ -20,7 +20,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
         # json.regex search_query_regex
         json.prefix keyword
         json.completion do
-          json.size  6
+          json.size  40
           json.field "suggest_product"
           json.contexts do
             json.set! 'widgetable', true
