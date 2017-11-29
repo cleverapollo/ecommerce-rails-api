@@ -7,7 +7,6 @@ FactoryGirl.define do
     customer
     restricted false
     use_brb false
-    connected_events_last_track       {{}}
     connected_recommenders_last_track {{}}
     uniqid { SecureRandom.uuid }
     secret { SecureRandom.uuid }
@@ -15,7 +14,6 @@ FactoryGirl.define do
 
     connection_status_last_track do
       {
-        connected_events_last_track: {},
         connected_recommenders_last_track: {}
       }
     end

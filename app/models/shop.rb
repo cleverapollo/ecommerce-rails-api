@@ -19,7 +19,7 @@ class Shop < ActiveRecord::Base
   counter :group_2_count
 
   # Состояние подключения
-  store :connection_status_last_track, accessors: [:connected_events_last_track, :connected_recommenders_last_track], coder: JSON
+  store :connection_status_last_track, accessors: [:connected_recommenders_last_track], coder: JSON
 
   has_many :thematic_collections
   has_many :vendor_campaigns
@@ -91,18 +91,6 @@ class Shop < ActiveRecord::Base
     carted_list + purchased_list
   end
 
-  # Отследить отправленное событие
-  def report_event(event)
-    if connected_events_last_track[event].blank?
-      Event.event_tracked(self) if first_event?
-    end
-    if connected_events_last_track[event].nil? || connected_events_last_track[event].to_i < Time.current.to_i
-      connected_events_last_track[event] = Time.current.to_i
-    end
-    check_connection!
-    atomic_save if changed?
-  end
-
   # Отследить запрошенную рекомендацию
   def report_recommender(recommender)
     if connected_recommenders_last_track[recommender].blank?
@@ -111,7 +99,6 @@ class Shop < ActiveRecord::Base
     if connected_recommenders_last_track[recommender].nil? || connected_recommenders_last_track[recommender].to_i < Time.current.to_i
       connected_recommenders_last_track[recommender] = Time.current.to_i
     end
-    check_connection!
     atomic_save if changed?
   end
 
@@ -233,10 +220,6 @@ class Shop < ActiveRecord::Base
     CatalogImportLog.create shop_id: id, success: false, message: message
   end
 
-  def first_event?
-    connected_events_last_track.values.select{|v| v != nil }.none?
-  end
-
   def first_recommender?
     connected_recommenders_last_track.values.select{|v| v != true }.none?
   end
@@ -245,6 +228,7 @@ class Shop < ActiveRecord::Base
     if self.connected == false && connected_now?
       self.connected = true
       self.connected_at = Time.current
+      atomic_save! if changed?
       Event.connected(self)
     end
   end
@@ -255,14 +239,39 @@ class Shop < ActiveRecord::Base
     query_with_synonyms.any? ? query_with_synonyms : [","]
   end
 
+  # Проверяет подключен ли магазин
+  # @return [Boolean]
+  def events_connected?
+    # Проверяем подключен ли магазин
+    event_connected?('view') && event_connected?('purchase')
+  end
+
+  # Проверяет было ли событие
+  # @param [String] event
+  # @param [Hash]   options
+  # @return [Boolean]
+  def event_connected?(event, options = {})
+    return false if events_connected[event].blank?
+
+    light = options[:light] || false
+    days = options[:days] || (event == 'view' || event == 'cart') ? 7 : 14
+    return 'standby' if light && events_connected[event] <= (Date.current - days)
+    events_connected[event] >= (Date.current - days)
+  end
+
+  # Получаем события магазина
+  # @return [Hash] {"view" => Date, "cart" => Date, ... }
+  def events_connected
+    @events_connected ||= EventsConnected.for_shop(self.id)
+  end
+
   # Проверяет, считается ли магазин подключенным.
   # Подключенным считаем магазины, у которых были события просмотра и покупки не позднее 7 и 14 дней соответственно.
   # Раньше считали еще 3 разных рекомендера, но сейчас это не требуется.
   # IDEA: возможно, стоит добавить проверку YML. Но это отрицательно скажется на иностранных клиентах.
   # @return Boolean
   def connected_now?
-    (connected_events_last_track[:view].present? && connected_events_last_track[:purchase].present? && connected_events_last_track[:cart].present?) &&
-    connected_events_last_track[:view] > (1.day.ago).to_time.to_i && connected_events_last_track[:cart] > (1.day.ago).to_time.to_i && connected_events_last_track[:purchase] > (2.days.ago).to_time.to_i
+    event_connected?('view', days: 1) && event_connected?('cart', days: 1) && event_connected?('purchase', days: 2)
   end
 
   # Оформлена подписка и попап включен?

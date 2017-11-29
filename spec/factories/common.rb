@@ -109,4 +109,9 @@ FactoryGirl.define do
     pager { 0 }
     cursor { 50 }
   end
+
+  factory :events_connected do
+    date { Date.current }
+    created_at { Time.now }
+  end
 end

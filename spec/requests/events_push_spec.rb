@@ -54,6 +54,17 @@ describe 'Pushing an event' do
 
     end
 
+    it 'bulk remove from cart' do
+      @params[:event] = 'cart'
+      @params[:item_id] = []
+
+      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'remove_from_cart')).once
+
+      post '/push', @params
+
+      expect(response.body).to eq({ status: 'success' }.to_json)
+    end
+
     it 'clears supply_trigger_sent for client' do
       @params[:event] = 'purchase'
       @params[:amount] = [1,1]

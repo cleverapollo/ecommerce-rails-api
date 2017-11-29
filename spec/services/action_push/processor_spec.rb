@@ -169,6 +169,27 @@ describe ActionPush::Processor do
 
   end
 
+  context '#check connections' do
+    let!(:shop) { create(:shop, connected: false) }
+    let!(:item) { create(:item, shop: shop) }
+    let!(:user) { create(:user) }
+    let!(:session) { create(:session, code: 'test', user: user) }
+    let!(:view) { create(:events_connected, event: 'view', shop: shop, created_at: 1.hour.ago) }
+    let!(:cart) { create(:events_connected, event: 'cart', shop: shop, created_at: 2.hour.ago) }
+    let!(:remove_from_cart) { create(:events_connected, event: 'remove_from_cart', shop: shop, created_at: 2.hour.ago) }
+    let!(:purchase) { create(:events_connected, event: 'purchase', shop: shop, created_at: 2.hour.ago) }
+
+    it 'connected' do
+
+      params = ActionPush::Params.new({shop_id: shop.uniqid, ssid: session.code, event: 'view', item_id: {'0': item.uniqid}, is_available: {'0': '1'}}).extract
+      params.request = OpenStruct.new({referer: 'test', useragent: 'test'})
+      instance = ActionPush::Processor.new(params)
+      instance.process
+
+      expect(shop.reload.connected).to be_truthy
+    end
+  end
+
 
   describe '#fetch_action_for' do
   end

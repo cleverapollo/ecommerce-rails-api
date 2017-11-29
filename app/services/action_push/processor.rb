@@ -68,14 +68,11 @@ module ActionPush
         ProfileEvent.track_items params.user, params.shop, params.action, params.items, params.niche_attributes
       end
 
-      # Сообщаем, что от магазина пришло событие
-      unless %w(recone_view recone_click).include?(params.action)
-        params.shop.report_event(params.action.to_sym)
-      end
-
       # Если пришла корзина и она пуста или товаров больше одного (используется массовая корзина), сообщаем о событии "удалено из корзины"
-      if params.action.to_sym == :cart && params.items.count != 1
-        params.shop.report_event(:remove_from_cart)
+      if params.action.to_sym == :cart && params.items.count < 1
+        p = params.dup
+        p.action = 'remove_from_cart'
+        Actions::Tracker.new(p).track
       end
 
       # Отмечаем, что пользователь был активен
@@ -86,6 +83,9 @@ module ActionPush
         # Трекаем таксономию в DMP
         UserTaxonomy.track params.user, params.items, params.shop, params.action
       end
+
+      # Проверяем стал ли магазин подключенным
+      params.shop.check_connection!
     end
 
 
