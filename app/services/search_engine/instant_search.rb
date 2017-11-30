@@ -1,4 +1,6 @@
 class SearchEngine::InstantSearch < SearchEngine::Base
+  DEFAULT_RESULT_LIMIT = 6
+  RESULT_LIMIT_WITH_PARTIAL_WORDS = 40
 
   def recommendations
     check_params!
@@ -13,14 +15,14 @@ class SearchEngine::InstantSearch < SearchEngine::Base
     }
   end
 
-  def build_body(keyword=nil)
+  def build_body(keyword = nil, size = DEFAULT_RESULT_LIMIT)
     keyword ||= params.search_query
     Jbuilder.encode do |json|
       json.set! "product" do
         # json.regex search_query_regex
         json.prefix keyword
         json.completion do
-          json.size  40
+          json.size  size
           json.field "suggest_product"
           json.contexts do
             json.set! 'widgetable', true
@@ -54,7 +56,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
       end
     end
 
-    product_ids.any? ? Item.where(id: product_ids).limit(6).to_a : []
+    Item.where(id: product_ids).sort_by { |item| product_ids.index(item.id) }
   end
 
 
@@ -121,14 +123,15 @@ class SearchEngine::InstantSearch < SearchEngine::Base
 
     # Find in Elastic with each keyword
     results = keywords.inject([]) do |results, keyword|
-      results << elastic_client.suggest(index: "shop-#{shop.id}", body: build_body(keyword))
+      results << elastic_client.suggest(index: "shop-#{shop.id}", body: build_body(keyword, RESULT_LIMIT_WITH_PARTIAL_WORDS))
       results
     end
 
     # Get common product ids by comparing results
     ids_collection = results.map{ |result| result['product'][0]['options'].map{ |x| x['_id'] } }
     common_ids = ids_collection[0] & ids_collection[1]
-    ids_collection[2].present? ? (common_ids & ids_collection[2]) : common_ids
+    product_ids = ids_collection[2].present? ? (common_ids & ids_collection[2]) : common_ids
+    product_ids.first(DEFAULT_RESULT_LIMIT)
   end
 
   def result_have_products? result
