@@ -56,23 +56,36 @@ module ActionPush
 
       end
 
-      # Трекаем событие
-      Actions::Tracker.new(params).track
+      # Если пришла корзина и она пуста или товаров больше одного (используется массовая корзина), трекаем добавленные и удаленные товары
+      if params.action.to_sym == :cart && params.items.count != 1
+        p = params.dup
+        # Если товаров вообще нет, то корзина пустая
+        if params.items.count == 0
+          p.items = []
+          p.action = 'remove_from_cart'
+          Actions::Tracker.new(p).track
+        else
 
-      # Это используется в покупках и при передаче полного содержимого корзины
-      # @deprecated
-      # concrete_action_class.mass_process(params)
+          # Находим новые товары, которые еще не трекались
+          new_items = params.items.map(&:id) - (params.client.cart.try(:items) || [])
+          p.items = params.items.select { |i| new_items.include?(i.id) }
+          p.action = 'cart'
+          Actions::Tracker.new(p).track if p.items.any?
+
+          # Находим удаленные товары из корзины
+          removed_items = params.client.cart.items - params.items.map(&:id)
+          p.items = params.items.select { |i| removed_items.include?(i.id) }
+          p.action = 'remove_from_cart'
+          Actions::Tracker.new(p).track if p.items.any?
+        end
+      else
+        # Трекаем событие
+        Actions::Tracker.new(params).track
+      end
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров
       if params.items.any?
         ProfileEvent.track_items params.user, params.shop, params.action, params.items, params.niche_attributes
-      end
-
-      # Если пришла корзина и она пуста или товаров больше одного (используется массовая корзина), сообщаем о событии "удалено из корзины"
-      if params.action.to_sym == :cart && params.items.count < 1
-        p = params.dup
-        p.action = 'remove_from_cart'
-        Actions::Tracker.new(p).track
       end
 
       # Отмечаем, что пользователь был активен

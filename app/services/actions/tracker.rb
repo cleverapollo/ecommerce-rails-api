@@ -172,10 +172,12 @@ class Actions::Tracker
 
   # Убираем из корзины удаленные товары
   def process_remove_from_cart
-    if params.items.any?
-      cart = ClientCart.find_by(shop_id: params.shop.id, user_id: params.user.id)
-      if cart.present?
+    cart = ClientCart.find_by(shop_id: params.shop.id, user_id: params.user.id)
+    if cart.present?
+      if params.items.any?
         cart.remove_from_cart(params.items.map(&:id))
+      else
+        cart.delete
       end
     end
   end

@@ -25,7 +25,7 @@ class Client < ActiveRecord::Base
 
   serialize :audience_sources, Array
   serialize :external_audience_sources, Hash
-  
+
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { where('email IS NOT NULL') }
   scope :email_confirmed, -> { with_email.where('email_confirmed = true') }
@@ -81,6 +81,11 @@ class Client < ActiveRecord::Base
       update_columns(user_id: @user.id)
     end
     @user
+  end
+
+  # @return [ClientCart]
+  def cart
+    @cart ||= ClientCart.find_by(shop: shop, user: user)
   end
 
   # Перенос объекта к указанному юзеру
