@@ -175,8 +175,12 @@ class Actions::Tracker
     cart = ClientCart.find_by(shop_id: params.shop.id, user_id: params.user.id)
     if cart.present?
       if params.items.any?
+        # Удаляем товары из базы
         cart.remove_from_cart(params.items.map(&:id))
       else
+        Item.find(cart.items).each do |i|
+          track_object('Item', i.uniqid)
+        end
         cart.delete
       end
     end

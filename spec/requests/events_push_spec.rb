@@ -25,9 +25,10 @@ describe 'Pushing an event' do
     let!(:item1) { create(:item, shop: @shop, uniqid: '39559') }
     let!(:item2) { create(:item, shop: @shop, uniqid: '15464') }
     let!(:item3) { create(:item, shop: @shop, uniqid: '1') }
+    let(:clickhouse_queue) { ClickhouseQueue }
 
     it 'persists a new view event' do
-      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'view', recommended_by: 'similar')).twice
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'view', recommended_by: 'similar')).twice
 
       post '/push', @params
 
@@ -38,7 +39,7 @@ describe 'Pushing an event' do
     it 'persists a new cart event' do
       @params[:event] = 'cart'
 
-      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'cart', recommended_by: 'similar')).twice
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'cart', recommended_by: 'similar')).twice
 
       post '/push', @params
 
@@ -49,7 +50,7 @@ describe 'Pushing an event' do
     it 'persists a new remove_from_cart event' do
       @params[:event] = 'remove_from_cart'
 
-      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'remove_from_cart', recommended_by: 'similar')).twice
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'remove_from_cart', recommended_by: 'similar')).twice
 
       post '/push', @params
 
@@ -57,13 +58,24 @@ describe 'Pushing an event' do
 
     end
 
-    it 'bulk cart' do
+    it 'bulk cart add' do
       @params[:event] = 'cart'
       @params[:item_id] = [39559, 15464]
       ClientCart.create!(shop: @shop, user: @user, items: [item2.id, item3.id])
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'cart', object_id: '39559')).once
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'remove_from_cart', object_id: '1')).once
 
-      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'remove_from_cart', object_id: '1')).once
-      allow(ClickhouseQueue).to receive(:actions).with(hash_including(event: 'cart', object_id: '39559')).once
+      post '/push', @params
+
+      expect(response.body).to eq({ status: 'success' }.to_json)
+    end
+
+    it 'bulk cart only remove' do
+      @params[:event] = 'cart'
+      @params[:item_id] = nil
+      ClientCart.create!(shop: @shop, user: @user, items: [item2.id])
+
+      expect(clickhouse_queue).to receive(:actions).with(hash_including(event: 'remove_from_cart', object_id: item2.uniqid)).once
 
       post '/push', @params
 

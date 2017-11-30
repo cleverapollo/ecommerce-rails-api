@@ -73,8 +73,8 @@ module ActionPush
           Actions::Tracker.new(p).track if p.items.any?
 
           # Находим удаленные товары из корзины
-          removed_items = params.client.cart.items - params.items.map(&:id)
-          p.items = params.items.select { |i| removed_items.include?(i.id) }
+          removed_items = (params.client.cart.try(:items) || []) - params.items.map(&:id)
+          p.items = Item.find(removed_items)
           p.action = 'remove_from_cart'
           Actions::Tracker.new(p).track if p.items.any?
         end
