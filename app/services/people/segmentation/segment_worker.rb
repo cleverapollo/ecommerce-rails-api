@@ -12,7 +12,8 @@ class People::Segmentation::SegmentWorker
     shop = segment.shop
 
     # Обновляем статистику по сегменту
-    segment.update({
+    Segment.where(id: segment.id).update_all({
+        updated_at: Time.now,
         updating: false,
         client_count: shop.clients.with_segment(segment.id).count,
         with_email_count: shop.clients.with_segment(segment.id).with_email.count,
