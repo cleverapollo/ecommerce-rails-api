@@ -15,6 +15,14 @@ class People::Segmentation::DynamicCalculateWorker
 
     # Ищем сегмент и проверяем его тип
     segment = Segment.find_by id: segment_id
+
+    # Запускаем обычный подсчет для статического сегмента
+    if segment.present? && segment.segment_type == Segment::TYPE_STATIC
+      People::Segmentation::SegmentWorker.new.perform(segment)
+      return
+    end
+
+    # Дальше может идти только динамический сегмент который в текущий момент не обновляется
     return if segment.nil? || segment.segment_type != Segment::TYPE_DYNAMIC || segment.updating?
 
     # @type [Shop] shop

@@ -12,6 +12,11 @@ module People
           end
           Shop.active.connected.each do |shop|
             self.new(shop).update.update_overall
+
+            # Обновляем статические сегменты
+            shop.segments.where(segment_type: Segment::TYPE_STATIC).where("updated_at < now() - INTERVAL '2 DAY'").each do |segment|
+              People::Segmentation::SegmentWorker.new.perform(segment)
+            end
           end
         end
       end
