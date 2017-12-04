@@ -17,6 +17,9 @@ set :deploy_to, "/home/rails/#{fetch(:application)}"
 set :branch, 'master'
 set :rails_env, 'production'
 
+# Whenever
+set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
+
 Rake::Task['deploy:start'].clear_actions
 Rake::Task['deploy:stop'].clear_actions
 Rake::Task['deploy:restart'].clear_actions

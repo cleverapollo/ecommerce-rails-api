@@ -76,6 +76,18 @@ development_clickhouse:
   timeout: 5000
   port: 5432
 
+development_clickhouse_slave:
+  database: rees46_clickhouse
+  host: localhost
+  username:  <%= ENV['PG_USER'] %>
+  password: <%= ENV['PG_PASSWORD'] %>
+  adapter: postgresql
+  encoding: unicode
+  pool: 50
+  timeout: 5000
+  port: 5432
+
+
 test:
   adapter: postgresql
   encoding: unicode
