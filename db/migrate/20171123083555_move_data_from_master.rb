@@ -1601,7 +1601,6 @@ class MoveDataFromMaster < ActiveRecord::Migration
       DROP TABLE active_admin_comments CASCADE;
       DROP TABLE advertiser_vendors CASCADE;
       DROP TABLE advertisers CASCADE;
-      DROP TABLE ar_internal_metadata CASCADE;
       DROP TABLE brand_campaign_item_categories CASCADE;
       DROP TABLE brand_campaign_purchases CASCADE;
       DROP TABLE brand_campaigns CASCADE;
