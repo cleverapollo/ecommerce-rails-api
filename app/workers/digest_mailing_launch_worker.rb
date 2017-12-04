@@ -102,7 +102,7 @@ class DigestMailingLaunchWorker
         end
       else
         if params['test_email'].present?
-          DigestMailingBatchWorker.set(queue: 'mailing_test').perform_async(batch.id)
+          DigestMailingBatchWorker.new.perform(batch.id)
         else
           DigestMailingBatchWorker.perform_async(batch.id)
         end
