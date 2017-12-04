@@ -89,6 +89,7 @@ Rees46Api::Application.routes.draw do
       # Запуск рассылки
       post :launch
     end
+    post :cancel, on: :collection
   end
 
   resources :trigger_mailings, only: [] do
