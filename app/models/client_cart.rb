@@ -39,13 +39,13 @@ class ClientCart < ActiveRecord::Base
 
         # Rewrite cart
         if items.count > 1
-          record.update items: items.map(&:id), segments: segments
+          record.update items: items.map(&:id), segments: segments, date: Date.current
 
         # Update cart or create cart (depends on SDK version)
         elsif items.count == 1
 
           unless record.items.include?(items.first.id)
-            record.update items: (record.items << items.first.id), segments: segments
+            record.update items: (record.items << items.first.id), segments: segments, date: Date.current
           end
 
         elsif items.count == 0
@@ -78,7 +78,7 @@ class ClientCart < ActiveRecord::Base
       destroy
       return
     end
-    update items: (items - ids)
+    update items: (items - ids), date: Date.current
   end
 
 

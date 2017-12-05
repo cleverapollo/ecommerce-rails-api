@@ -46,6 +46,18 @@ describe Item do
 
     end
 
+    context 'update date' do
+      let!(:item) { create(:item, shop: shop, uniqid: '4') }
+      let!(:item2) { create(:item, shop: shop, uniqid: '5') }
+      let!(:client_cart) { create(:client_cart, user: user, shop: shop, items: [item2.id], date: Date.yesterday) }
+
+      it 'updating' do
+        expect(client_cart.date).to eq(Date.yesterday)
+        ClientCart.track(shop, user, [item])
+        expect(client_cart.reload.date).to eq(Date.current)
+      end
+    end
+
 
 
 

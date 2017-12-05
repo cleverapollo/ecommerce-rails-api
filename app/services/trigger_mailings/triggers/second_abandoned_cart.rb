@@ -28,28 +28,12 @@ module TriggerMailings
         # Находим вчерашную не открытую брошеную корзину
         return false unless TriggerMail.where(shop: shop, opened: false, created_at: trigger_time_range, trigger_mailing_id: shop.trigger_second_abandoned_cart_id, client_id: client.id).exists?
 
-        # Смотрим, были ли события добавления / удаление в корзине в указанный промежуток
-        actions = ActionCl.where(event: %w(cart remove_from_cart), shop_id: shop.id, session_id: user.sessions.where('updated_at >= ?', trigger_time_range.first.to_date).pluck(:id), created_at: trigger_time_range)
-                      .where('date >= ?', trigger_time_range.first.to_date)
-                      .order('date DESC, created_at DESC')
-                      .select(:event, :object_id, :created_at)
-                      .limit(100)
-        return false if actions.blank?
-
-        # Собираем массив товаров. Воспроизводим очередность событий, которая оставит то, что было в корзине
-        items = []
-        actions.reverse.each do |action|
-          if action.event == 'cart'
-            items << action.object_id
-          end
-          if action.event == 'remove_from_cart'
-            items -= [action.object_id]
-          end
-        end
+        # Если корзины у клиента нет или она пустая (вдруг баг)
+        return false if client.cart.nil? || client.cart.items.blank?
 
         # Достаем товары
-        @happened_at = actions.first.created_at
-        @source_items = shop.items.widgetable.available.where(uniqid: items)
+        @happened_at = client.cart.date
+        @source_items = shop.items.widgetable.available.where(id: client.cart.items)
         @source_item = @source_items.first
         if @source_item.present?
           return true

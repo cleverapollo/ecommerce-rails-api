@@ -31,7 +31,7 @@ module TriggerMailings
 
         # Ищем текущую корзину
         cart = ClientCart.find_by(shop: shop, user: user)
-        return false if cart.blank?
+        return false if cart.blank? || cart.items.blank?
 
         # Достаем товары из корзины
         @happened_at = action.created_at
