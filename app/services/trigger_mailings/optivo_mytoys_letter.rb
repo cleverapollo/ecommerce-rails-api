@@ -154,6 +154,8 @@ module TriggerMailings
 
       if @trigger.source_items.present? && @trigger.source_items.is_a?(Array)
         data[:source_items] = @trigger.source_items.map(&:uniqid)
+      elsif @trigger.code.underscore == 'abandoned_cart'
+        Rollbar.error 'source_items blank', @trigger
       end
 
       # Может случиться так, что сработает триггер для категории, в которой уже нет товаров.
