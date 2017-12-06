@@ -19,6 +19,13 @@ module Recommender
       # получим товары для взвешивания
       i_w = items_to_weight
 
+      # оставим только id товаров
+      result = sort_items_to_weight(i_w)
+
+      inject_items(result)
+    end
+
+    def sort_items_to_weight(i_w)
       result = []
 
       if i_w.any?
@@ -37,6 +44,7 @@ module Recommender
           y<=>x
         end
       end
+
       # Ограничиваем размер вывода
       result = if result.size > params.limit
                  result.take(params.limit)
@@ -45,9 +53,7 @@ module Recommender
                end
 
       # оставим только id товаров
-      result = result.to_h.keys
-
-      inject_items(result)
+      result.to_h.keys
     end
 
     def rescore(i_w, cf_weighted)

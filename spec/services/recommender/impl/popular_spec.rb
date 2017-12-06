@@ -10,7 +10,7 @@ describe Recommender::Impl::Popular do
 
   10.times do |i|
     let!("user#{i}".to_sym) { u = create(:user); create(:session, user: u, code: SecureRandom.uuid); u }
-    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), category_ids: "{1}") }
+    let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: 100 + i * 10, category_ids: "{1}", price: 10 * i, uniqid: "id#{i * 100}") }
   end
 
   let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'popular') }
@@ -37,6 +37,21 @@ describe Recommender::Impl::Popular do
         end
       end
 
+    end
+
+    context 'when price_sensitive provided' do
+      before {
+        params[:price_sensitive] = 75
+        params[:price_range] = 0.1
+        params[:categories] = [1]
+      }
+      let!(:action1) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item1.uniqid, price: 100) }
+      let!(:action2) { create(:action_cl, session: session, shop: shop, event: 'view', object_type: 'Item', object_id: item2.uniqid, price: 50) }
+
+      it 'returns items' do
+        recommender = Recommender::Impl::Popular.new(params)
+        expect(recommender.recommendations).to eq([item8.uniqid, item7.uniqid, item9.uniqid, item6.uniqid, item5.uniqid, item4.uniqid, item3.uniqid])
+      end
     end
 
 

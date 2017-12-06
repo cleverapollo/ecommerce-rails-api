@@ -26,6 +26,7 @@ module TriggerMailings
         action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.active_session_ids(trigger_time_range.first.to_date))
                      .in_date(trigger_time_range)
                      .order('date DESC, created_at DESC')
+                     .select(:created_at)
                      .limit(1).first
         return false if action.blank?
 

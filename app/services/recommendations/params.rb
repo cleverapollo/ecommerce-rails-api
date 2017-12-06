@@ -58,6 +58,9 @@ module Recommendations
     attr_accessor :brand_promotions
     # @return [Array<ShopInventory>] Список инвентарей для подмешивания в рекомендации. Используется для popup.
     attr_accessor :shop_inventories
+    # @return [Float] Средняя стоимость просматриваемых товаров за неделю
+    attr_accessor :price_sensitive
+    attr_accessor :price_range
 
     # Проверяет и обрабатывает параметры
     #
@@ -83,6 +86,7 @@ module Recommendations
       extract_locations
       extract_brands
       extract_search_query
+      extract_avg_viewed_price
       self
     end
 
@@ -289,6 +293,14 @@ module Recommendations
           @search_query = q
           SearchQuery.find_or_create_by user_id: @user.id, shop_id: @shop.id, date: Date.current, query: @search_query
         end
+      end
+    end
+
+    # Извлекает среднюю ценю просматриваемых товаров за последнюю неделю
+    def extract_avg_viewed_price
+      if raw[:price_sensitive].present? && raw[:price_sensitive] && self.categories.present?
+        self.price_sensitive = ActionCl.in_date(7.days.ago..Time.now).where(shop_id: shop.id, session_id: session.id, object_type: 'Item', event: 'view').average(:price)
+        self.price_range = 0.1 if self.price_sensitive.present?
       end
     end
 

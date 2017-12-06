@@ -52,7 +52,6 @@ module Recommender
         # Находим отсортированные товары
         result = Slavery.on_slave { relation.where('sales_rate is not null and sales_rate > 0').order(sales_rate: :desc).limit(LIMIT_CF_ITEMS).pluck(:id, :sales_rate, :category_ids) }
 
-
         result.to_a.map { |value| [value[0], { sales_rate: value[1], category_ids: (value[2] || []) }] }.to_h
       end
 
@@ -105,7 +104,37 @@ module Recommender
 
       # Популярные в конкретной категории
       def popular_in_category
-        popular_in_all_shop.in_categories(params.categories, any: true)
+        relation = popular_in_all_shop.in_categories(params.categories, any: true)
+
+        # Если в параметрах указан фильтр по средней цене
+        if params.price_sensitive.present? && params.price_sensitive > 0
+          relation = relation.where(price: (params.price_sensitive.to_f * (1.0 - params.price_range))..(params.price_sensitive.to_f * (1.0 + params.price_range)))
+        end
+
+        relation
+      end
+
+      # Переопределили из Recommender::ItemInjector
+      def inject_items(result)
+
+        # Если в параметрах указан фильтр по средней цене
+        if params.price_sensitive.present? && params.price_sensitive > 0
+
+          # И не хватило товаров, уменьшаем диапазон
+          if result.size < params.limit
+            params.price_range = params.price_range * 2
+            result = (result + sort_items_to_weight(items_to_weight)).uniq
+          end
+
+          # И не хватило товаров, отключаем фильтр
+          if result.size < params.limit
+            params.price_sensitive = nil
+            result = (result + sort_items_to_weight(items_to_weight)).uniq
+          end
+
+        end
+
+        super(result)
       end
 
 

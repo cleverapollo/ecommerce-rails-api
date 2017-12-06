@@ -168,5 +168,25 @@ describe Recommendations::Params do
     end
   end
 
+  context '.extract extract_avg_viewed_price' do
+    let!(:action1) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: '1', price: 100) }
+    let!(:action2) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: '2', price: 50) }
+    let(:params) do
+      {
+        ssid: session.code,
+        shop_id: shop.uniqid,
+        recommender_type: 'popular',
+        price_sensitive: 'true',
+        category: '1',
+      }
+    end
+
+    it '.extract' do
+      p = subject
+      expect(p.price_sensitive).to eq(75.0)
+      expect(p.price_range).to eq(0.1)
+    end
+  end
+
 
 end

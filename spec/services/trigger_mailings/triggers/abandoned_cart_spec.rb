@@ -36,6 +36,14 @@ describe TriggerMailings::Triggers::AbandonedCart do
 
     end
 
+    context 'old cart' do
+      let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: 5.hours.ago.to_date, created_at: 5.hours.ago) }
+
+      it 'not happens' do
+        trigger = subject
+        expect( trigger.condition_happened? ).to be_falsey
+      end
+    end
     context 'with time zone' do
       before { allow(Time).to receive(:now).and_return(Time.parse('2016-10-05 05:00:00 UTC +00:00')) }
       let!(:customer) { create(:customer, time_zone: 'Pacific Time (US & Canada)') }
