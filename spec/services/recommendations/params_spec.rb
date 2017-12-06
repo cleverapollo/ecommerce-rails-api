@@ -169,8 +169,12 @@ describe Recommendations::Params do
   end
 
   context '.extract extract_avg_viewed_price' do
-    let!(:action1) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: '1', price: 100) }
-    let!(:action2) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: '2', price: 50) }
+    let!(:item1) { create(:item, shop: shop, price: 100, category_ids: ['1']) }
+    let!(:item2) { create(:item, shop: shop, price: 50, category_ids: ['1']) }
+    let!(:item3) { create(:item, shop: shop, price: 10, category_ids: ['5']) }
+    let!(:action1) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item1.uniqid, price: item1.price) }
+    let!(:action2) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item2.uniqid, price: item2.price) }
+    let!(:action3) { create(:action_cl, shop: shop, session: session, event: 'view', object_type: 'Item', object_id: item3.uniqid, price: item3.price) }
     let(:params) do
       {
         ssid: session.code,

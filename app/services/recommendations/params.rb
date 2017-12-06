@@ -299,7 +299,8 @@ module Recommendations
     # Извлекает среднюю ценю просматриваемых товаров за последнюю неделю
     def extract_avg_viewed_price
       if raw[:price_sensitive].present? && raw[:price_sensitive] && self.categories.present?
-        self.price_sensitive = ActionCl.in_date(7.days.ago..Time.now).where(shop_id: shop.id, session_id: session.id, object_type: 'Item', event: 'view').average(:price)
+        items = ActionCl.in_date(7.days.ago..Time.now).where(shop_id: shop.id, session_id: session.id, object_type: 'Item', event: 'view').distinct.pluck(:object_id)
+        self.price_sensitive = shop.items.recommendable.in_categories(self.categories).where(uniqid: items).average(:price)
         self.price_range = 0.1 if self.price_sensitive.present?
       end
     end
