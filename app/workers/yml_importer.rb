@@ -123,7 +123,7 @@ class YmlImporter
           # Обновялем статистику по товарам
           ShopKPI.new(current_shop).calculate_products
 
-        rescue PG::UniqueViolation => e
+        rescue ActiveRecord::RecordNotUnique => e
           Rollbar.warning(e, "YML bulk operations error, attempt #{attempt}")
           attempt += 1
           retry if attempt < 10

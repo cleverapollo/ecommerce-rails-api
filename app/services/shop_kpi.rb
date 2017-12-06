@@ -47,7 +47,7 @@ class ShopKPI
     @date = date
     begin
       @shop_metric = ShopMetric.find_or_create_by date: date, shop_id: shop.id
-    rescue PG::UniqueViolation => e
+    rescue ActiveRecord::RecordNotUnique => e
       @shop_metric = ShopMetric.find_by date: date, shop_id: shop.id
     end
   end
