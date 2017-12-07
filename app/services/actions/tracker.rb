@@ -99,12 +99,15 @@ class Actions::Tracker
           current_session_code: params.current_session_code,
           shop_id: params.shop.id,
           event: params.action.gsub(/^recone_/, ''),
+          item_id: nil,
           object_type: type,
           object_id: id,
           object_price: object_price,
-          recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
           price: price,
+          amount: 1,
           brand: brand,
+          recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
+          referer: nil,
       })
     rescue StandardError => e
       Rollbar.error 'Clickhouse action insert error', e

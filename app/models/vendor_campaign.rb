@@ -51,8 +51,10 @@ class VendorCampaign < ActiveRecord::Base
           object_type: self.class,
           object_id: id,
           object_price: object_price,
-          recommended_by: params.type,
+          price: nil,
+          amount: 1,
           brand: brand.downcase,
+          recommended_by: params.type,
           referer: params.request.referer,
       })
     rescue StandardError => e
