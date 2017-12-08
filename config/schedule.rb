@@ -1,9 +1,9 @@
 # encoding: UTF-8
 
 # whenever --set 'WHITE_LABEL_PLATFORM='personaclick'' --update-crontab
-if @set_variables.has_key?(:WHITE_LABEL_PLATFORM)
-  job_type :runner,  "cd :path && WHITE_LABEL_PLATFORM=:WHITE_LABEL_PLATFORM bin/rails runner -e :environment ':task' :output"
-end
+# if @set_variables.has_key?(:WHITE_LABEL_PLATFORM)
+#   job_type :runner,  "cd :path && WHITE_LABEL_PLATFORM=:WHITE_LABEL_PLATFORM bin/rails runner -e :environment ':task' :output"
+# end
 
 # Пересчитываем статистику магазинов за 14 дней
 every '0 3 * * *' do

@@ -2,15 +2,15 @@ class WhiteLabel
   class << self
 
     def personaclick?
-      defined?(WHITE_LABEL_PLATFORM) && WHITE_LABEL_PLATFORM == 'personaclick'
+      domain_name == 'personaclick'
     end
 
     def kameleoon?
-      defined?(WHITE_LABEL_PLATFORM) && WHITE_LABEL_PLATFORM == 'kameleoon'
+      domain_name == 'kameleoon'
     end
 
     def default?
-      !defined?(WHITE_LABEL_PLATFORM) || WHITE_LABEL_PLATFORM.blank? || WHITE_LABEL_PLATFORM == 'rees46'
+      domain_name == 'rees46'
     end
 
     def api_domain
@@ -18,5 +18,10 @@ class WhiteLabel
       return 'api.rees46.com'
     end
 
+    private
+
+    def domain_name
+      Rails.application.secrets.domain_name || 'rees46'
+    end
   end
 end
