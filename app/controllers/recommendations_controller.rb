@@ -39,7 +39,7 @@ class RecommendationsController < ApplicationController
       extracted_params.skip_niche_algorithms = false
 
       # Тестовый сервис для демошопа
-      if @shop == 1464 && extracted_params.type == 'popular'
+      if @shop.id == 1464 && extracted_params.type == 'popular'
         result = RecommenderService.instance.recommend(@shop.id, extracted_params.type, extracted_params.user.id, [], extracted_params.exclude_item_ids, extracted_params.limit)
         CustomLogger.logger.warn("RS: #{result.inspect}")
       end
