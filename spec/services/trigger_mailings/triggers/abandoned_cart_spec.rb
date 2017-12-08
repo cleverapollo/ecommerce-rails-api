@@ -19,7 +19,7 @@ describe TriggerMailings::Triggers::AbandonedCart do
     let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
 
     let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: 2.hours.ago.to_date, created_at: 2.hours.ago) }
-    let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: 2.hours.ago.to_date) }
+    let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: 2.hours.ago.to_date, updated_at: 2.hours.ago) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', enabled: true) }
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }
@@ -37,7 +37,7 @@ describe TriggerMailings::Triggers::AbandonedCart do
     end
 
     context 'old cart' do
-      let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: 5.hours.ago.to_date, created_at: 5.hours.ago) }
+      let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: 5.hours.ago.to_date, updated_at: 5.hours.ago) }
 
       it 'not happens' do
         trigger = subject
@@ -49,7 +49,7 @@ describe TriggerMailings::Triggers::AbandonedCart do
       let!(:customer) { create(:customer, time_zone: 'Pacific Time (US & Canada)') }
 
       let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: Time.parse('2016-10-05 03:00:00 UTC +00:00').to_date, created_at: Time.parse('2016-10-05 03:00:00 UTC +00:00')) }
-      let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: Time.parse('2016-10-05 03:00:00 UTC +00:00').to_date) }
+      let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: Time.parse('2016-10-05 03:00:00 UTC +00:00').to_date, updated_at: Time.parse('2016-10-05 03:00:00 UTC +00:00')) }
 
       subject { TriggerMailings::Triggers::AbandonedCart.new(client) }
 
@@ -79,7 +79,7 @@ describe TriggerMailings::Triggers::AbandonedCart do
     let!(:item_6) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
 
     let!(:action) { create(:action_cl, shop: shop, session: session, object_type: 'Item', object_id: item_1.uniqid, event: 'cart', date: 2.hours.ago.to_date, created_at: 2.hours.ago) }
-    let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: 2.hours.ago.to_date) }
+    let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id], date: 2.hours.ago.to_date, updated_at: 2.hours.ago) }
 
     let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', enabled: true) }
     let!(:mailings_settings) { create(:mailings_settings, shop: shop, send_from: 'test@rees46.com') }

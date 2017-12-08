@@ -22,20 +22,14 @@ module TriggerMailings
         # Если в это время был заказ, то не отправлять письмо
         return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
-        # Смотрим, были ли события добавления в корзину в указанный промежуток
-        action = ActionCl.where(event: 'cart', shop_id: shop.id, session_id: user.active_session_ids(trigger_time_range.first.to_date))
-                     .in_date(trigger_time_range)
-                     .order('date DESC, created_at DESC')
-                     .select(:created_at)
-                     .limit(1).first
-        return false if action.blank?
-
         # Ищем текущую корзину
         cart = ClientCart.find_by(shop: shop, user: user)
-        return false if cart.blank? || cart.items.blank?
+
+        # Выходим, если корзины нет или в корзине нет товаров или дата обновления не входит в диапазон
+        return false if cart.blank? || cart.items.blank? || !trigger_time_range.cover?(cart.updated_at)
 
         # Достаем товары из корзины
-        @happened_at = action.created_at
+        @happened_at = cart.updated_at
         @source_items = shop.items.widgetable.available.where(id: cart.items)
         @source_item = @source_items.first
         if @source_item.present?
