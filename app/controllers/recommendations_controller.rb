@@ -41,7 +41,7 @@ class RecommendationsController < ApplicationController
       # Тестовый сервис для демошопа
       if @shop == 1464 && extracted_params.type == 'popular'
         result = RecommenderService.instance.recommend(@shop.id, extracted_params.type, extracted_params.user.id, [], extracted_params.exclude_item_ids, extracted_params.limit)
-        CustomLogger.logger.info("RS: #{result.inspect}")
+        CustomLogger.logger.warn("RS: #{result.inspect}")
       end
 
       # Запускаем процессор с извлеченными данными
