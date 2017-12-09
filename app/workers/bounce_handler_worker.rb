@@ -4,7 +4,7 @@
 class BounceHandlerWorker
 
   # Можно выключать удаление, если требуется перестать удалять обработанные письма для расследования инцидентов со спамом
-  ALLOW_TO_DELETE = false
+  ALLOW_TO_DELETE = true
 
   class << self
 
