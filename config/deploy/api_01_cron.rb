@@ -46,6 +46,13 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.mailing3.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.trigger.service'
       execute 'sudo /bin/systemctl start sidekiq.api.rees46.service'
+
+      # execute 'sudo /usr/bin/supervisorctl start api.rees46.yml.service'
+      # execute 'sudo /usr/bin/supervisorctl start api-sidekiq-mailing1'
+      # execute 'sudo /usr/bin/supervisorctl start api-sidekiq-mailing2'
+      # execute 'sudo /usr/bin/supervisorctl start api-sidekiq-mailing3'
+      # execute 'sudo /usr/bin/supervisorctl start api-trigger'
+      # execute 'sudo /usr/bin/supervisorctl start api-sidekiq'
     end
   end
   task :stop do
@@ -56,6 +63,13 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.mailing3.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.trigger.service'
       execute 'sudo /bin/systemctl stop sidekiq.api.rees46.service'
+
+      # execute 'sudo /usr/bin/supervisorctl stop api.rees46.yml.service'
+      # execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-mailing1'
+      # execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-mailing2'
+      # execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-mailing3'
+      # execute 'sudo /usr/bin/supervisorctl stop api-trigger'
+      # execute 'sudo /usr/bin/supervisorctl stop api-sidekiq'
     end
   end
   task :restart do
@@ -66,6 +80,13 @@ namespace :sidekiq do
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.mailing3.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.trigger.service'
       execute 'sudo /bin/systemctl restart sidekiq.api.rees46.service'
+
+      # execute 'sudo /usr/bin/supervisorctl restart api.rees46.yml.service'
+      # execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-mailing1'
+      # execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-mailing2'
+      # execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-mailing3'
+      # execute 'sudo /usr/bin/supervisorctl restart api-trigger'
+      # execute 'sudo /usr/bin/supervisorctl restart api-sidekiq'
     end
   end
 end
