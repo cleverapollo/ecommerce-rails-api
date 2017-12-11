@@ -38,6 +38,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
               json.set! x[0] do
                 json.set! x[1], x[2]
                 json.fields ['name', 'brand', 'category_names']
+                json.fuzziness 2
               end
             end
           end

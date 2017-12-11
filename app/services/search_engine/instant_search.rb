@@ -27,6 +27,9 @@ class SearchEngine::InstantSearch < SearchEngine::Base
           json.contexts do
             json.set! 'widgetable', true
           end
+          json.fuzzy do
+            json.fuzziness 1
+          end
         end
       end
     end
