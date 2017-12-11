@@ -175,7 +175,7 @@ class Item < ActiveRecord::Base
         location_ids: ValuesHelper.with_contents(new_item, self, :location_ids),
         locations: ValuesHelper.with_contents(new_item, self, :locations),
         name: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :name)),
-        description: '',
+        description: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :description)),
         url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :url)),
         image_url: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :image_url)),
         brand: StringHelper.encode_and_truncate(ValuesHelper.present_one(new_item, self, :brand)),
@@ -319,7 +319,7 @@ class Item < ActiveRecord::Base
   # @param [Rees46ML::Offer] offer
   # @param [String] category
   # @return [Item]
-  def self.build_by_offer(offer, category, wear_types)
+  def self.build_by_offer(offer, category, wear_types, enable_description: false)
     new do
     # @type [Item] item
     |item|
@@ -331,7 +331,12 @@ class Item < ActiveRecord::Base
       end
       item.name = item.name.gsub("\u00A0", "") unless item.name.nil? # Убираем неразрывные пробелы, если есть
       item.name = item.name.truncate(250) if item.name.length > 250
+      if enable_description
+        item.description = offer.description
+        item.description = item.description.gsub("\u00A0", "").truncate(500) unless item.description.nil? # Убираем неразрывные пробелы, если есть
+      else
       item.description = ''
+      end
       item.model = offer.model
       item.price = offer.price
       item.price_margin = offer.price_margin

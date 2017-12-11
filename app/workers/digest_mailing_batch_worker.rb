@@ -227,7 +227,7 @@ class DigestMailingBatchWorker
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
       name: item.name,
-      description: '',
+      description: item.description.to_s,
       price_formatted: ActiveSupport::NumberHelper.number_to_rounded(price, precision: 0, delimiter: " "),
       oldprice_formatted: item.oldprice.present? ? ActiveSupport::NumberHelper.number_to_rounded(item.oldprice, precision: 0, delimiter: " ") : nil,
       price: price.to_i,

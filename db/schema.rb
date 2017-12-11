@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171208091232) do
+ActiveRecord::Schema.define(version: 20171211115154) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1388,6 +1388,7 @@ ActiveRecord::Schema.define(version: 20171208091232) do
     t.integer  "plan_by_mails_min",                         default: 0
     t.integer  "plan_by_mails_count",                       default: 0
     t.integer  "plan_by_mails_extra",                       default: 0
+    t.boolean  "yml_description",                           default: false, null: false
   end
 
   add_index "shops", ["cms_id"], name: "index_shops_on_cms_id", using: :btree

@@ -151,7 +151,7 @@ class TriggersController < ApplicationController
     raise Mailings::NotWidgetableItemError.new(item) unless item.widgetable?
     {
         name: item.name.truncate(40),
-        description: '',
+        description: item.description.to_s.truncate(130),
         price: ActiveSupport::NumberHelper.number_to_rounded(item.price_at_location(location), precision: 0, delimiter: ' '),
         url: UrlParamsHelper.add_params_to(item.url, Mailings::Composer.utm_params(trigger_mail)),
         image_url: item.image_url,
