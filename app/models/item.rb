@@ -541,7 +541,7 @@ class Item < ActiveRecord::Base
   # @param dimension [String]
   # @return String
   def resized_image_by_dimension(dimension = '180x180')
-    "https://pictures.rees46.com/resize-images/#{dimension.split('x')[0]}/#{shop.uniqid}/#{self.id}.jpg"
+    "https://pictures.#{WhiteLabel.master_domain}/resize-images/#{dimension.split('x')[0]}/#{shop.uniqid}/#{self.id}.jpg"
   end
 
 end

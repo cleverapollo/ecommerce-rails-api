@@ -18,6 +18,13 @@ class WhiteLabel
       return 'api.rees46.com'
     end
 
+    def master_domain
+      return 'http://localhost:3000' if Rails.env.development?
+      return 'https://app.personaclick.com' if self.personaclick?
+      'https://app.rees46.com'
+    end
+
+
     private
 
     def domain_name
