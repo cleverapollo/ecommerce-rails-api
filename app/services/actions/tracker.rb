@@ -48,7 +48,7 @@ class Actions::Tracker
     # Для демошопа шлем трекинг данных для обучения нового рекоммендера
     if params.shop.id == 1464 && params.items.present? && %w(view cart purchase remove_from_cart).include?(params.action)
       begin
-        result = RecommenderService.instance.interaction(Time.now.to_i, params.shop.id, params.user.id, params.items.map(&:uniqid), params.event)
+        result = RecommenderService.instance.interaction(Time.now.to_i, params.shop.id, params.user.id, params.items.map(&:uniqid), params.action)
         CustomLogger.logger.warn("RS: #{result.inspect}")
       rescue Exception => e
         Rollbar.error 'RecommenderService track', e

@@ -41,13 +41,13 @@ class RecommenderService
   # @param [Integer] shop_id
   # @param [Integer] user_id
   # @param [Array<Integer>] item_ids код или коды товаров
-  # @param [String] event код события, первый символ должен принимать одно из значений:
+  # @param [String] action код события, первый символ должен принимать одно из значений:
   #     v - view
   #     c - cart
   #     p - purchase
   #     r - remove from cart
   #
-  def interaction(timestamp, shop_id, user_id, item_ids, event)
+  def interaction(timestamp, shop_id, user_id, item_ids, action)
     msg = {
       version: @version,
       client: @instance,
@@ -57,7 +57,7 @@ class RecommenderService
         shop: shop_id,
         user: user_id,
         item: item_ids,
-        event: event,
+        event: action,
       }
     }
     send(msg)
