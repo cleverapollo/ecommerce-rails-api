@@ -36,28 +36,27 @@ class RecommenderService
     send(msg)
   end
 
-  #
   # зарегистрировать в базе данных взаимодействие пользователя и товара
-  #   timestamp: int - timestamp в unix-формате
-  #   shop: int - название магазина
-  #   user: int - код пользователя
-  #   item: int|list[int] - код или коды товаров
-  #   event: str - код события, первый символ должен принимать одно из значений:
+  # @param [Integer] timestamp в unix-формате
+  # @param [Integer] shop_id
+  # @param [Integer] user_id
+  # @param [Array<Integer>] item_ids код или коды товаров
+  # @param [String] event код события, первый символ должен принимать одно из значений:
   #     v - view
   #     c - cart
   #     p - purchase
   #     r - remove from cart
   #
-  def interaction(timestamp, shop, user, item, event)
+  def interaction(timestamp, shop_id, user_id, item_ids, event)
     msg = {
       version: @version,
       client: @instance,
       name: 'interaction',
       args: {
         timestamp: timestamp,
-        shop: shop,
-        user: user,
-        item: item,
+        shop: shop_id,
+        user: user_id,
+        item: item_ids,
         event: event,
       }
     }
