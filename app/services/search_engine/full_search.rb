@@ -70,18 +70,7 @@ class SearchEngine::FullSearch < SearchEngine::Base
     return [] if Rails.env.test?
 
     # Find in Elastic
-    result = elastic_client.search index: "shop-#{shop.id}", type: 'product', body: build_body
-
-    # double find with synonym for Kechinov
-    if result['hits']['hits'].blank?
-      synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
-      if synonym.present?
-        params.search_query = synonym.synonym
-
-        # Find in Elastic
-        result = elastic_client.search index: "shop-#{shop.id}", type: 'product', body: build_body
-      end
-    end
+    result = get_recommended_products
 
     return [] unless result['hits']['hits'].any?
 
@@ -165,6 +154,44 @@ class SearchEngine::FullSearch < SearchEngine::Base
 
     result.values.map { |x| {id: x.external_id, name: x.name, url: x.url} }
 
+  end
+
+
+  private
+
+  def get_recommended_products
+    result = get_result
+
+    # double find with synonym for Kechinov
+    if result['hits']['hits'].blank?
+      synonym = NoResultQuery.where.not(synonym: nil).find_by(shop_id: params.shop.id, query: params.search_query)
+      if synonym.present?
+        params.search_query = synonym.synonym
+        result = get_result
+      end
+    end
+
+    # find with suggested query
+    if result['hits']['hits'].blank?
+      suggested_query = get_suggested_query
+      if suggested_query.present?
+        params.search_query = suggested_query
+        result = get_result
+      end
+    end
+
+    result
+  end
+
+  def get_result
+    # Find in Elastic
+    elastic_client.search index: "shop-#{shop.id}", type: 'product', body: build_body
+  end
+
+  def get_suggested_query
+    words = params.search_query.downcase.split(' ')
+    suggested_query = params.shop.suggested_queries.search_by_keywords(words).order_by_score.first
+    suggested_query.synonym || suggested_query.keyword if suggested_query.present?
   end
 
 end
