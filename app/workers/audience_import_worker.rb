@@ -43,12 +43,6 @@ class AudienceImportWorker
       client.email = email || client.email
       client.external_id = id if client.external_id.blank? && id.present?
 
-      # Активируем подписку для импортируемого пользователя
-      if client.email.present?
-        client.digests_enabled = true
-        client.triggers_enabled = true
-      end
-
       # Добавляем сразу сегмент пользователя
       client.add_segment(segment.id) if segment.present?
 
