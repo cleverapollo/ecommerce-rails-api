@@ -84,7 +84,7 @@ class YmlImporter
 
               offers_count += 1
 
-              new_item = Item.build_by_offer(offer, category, wear_types, enable_description: shop.yml_description)
+              new_item = Item.build_by_offer(offer, category, wear_types, enable_description: current_shop.yml_description)
 
               # if new_item.url.present? && !Item.valid_url?(new_item.url)
               #   raise "Url not valid id: #{new_item.uniqid}, url: #{new_item.url}"
