@@ -12,7 +12,7 @@ describe TriggerMailings::Triggers::SecondAbandonedCart do
 
   let!(:client_cart) { create(:client_cart, shop: shop, user: user, items: [item_1.id]) }
 
-  let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'second_abandoned_cart', subject: 'haha', enabled: true) }
+  let!(:trigger_mailing) { create(:trigger_mailing, shop: shop, trigger_type: 'abandoned_cart', subject: 'haha', enabled: true) }
   let!(:trigger_mail) { create(:trigger_mail, shop: shop, opened: false, created_at: 25.hours.ago, trigger_mailing_id: trigger_mailing.id, client: client) }
 
   subject { TriggerMailings::Triggers::SecondAbandonedCart.new(client) }
