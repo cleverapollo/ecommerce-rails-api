@@ -26,7 +26,7 @@ module TriggerMailings
         return false unless trigger_time_range.cover?(client.last_trigger_mail_sent_at)
 
         # Находим вчерашную не открытую брошеную корзину
-        return false unless TriggerMail.where(shop: shop, opened: false, created_at: trigger_time_range, trigger_mailing_id: shop.trigger_second_abandoned_cart_id, client_id: client.id).exists?
+        return false unless TriggerMail.where(shop: shop, opened: false, created_at: trigger_time_range, trigger_mailing_id: shop.trigger_abandoned_cart_id, client_id: client.id).exists?
 
         # Если корзины у клиента нет или она пустая (вдруг баг)
         return false if client.cart.nil? || client.cart.items.blank?
