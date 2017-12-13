@@ -85,7 +85,8 @@ module ActionPush
 
       # Корректируем характеристики профиля покупателя для отраслевых товаров
       if params.items.any?
-        ProfileEvent.track_items params.user, params.shop, params.action, params.items, params.niche_attributes
+        options = { niche_attributes: params.niche_attributes, session_id: params.session.id, current_session_code: params.current_session_code }
+        ProfileEvent.track_items(params.user, params.shop, params.action, params.items, options)
       end
 
       # Отмечаем, что пользователь был активен

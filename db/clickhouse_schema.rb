@@ -149,4 +149,17 @@ ActiveRecord::Schema.define(version: 0) do
     t.date     "date",                             default: "now()", null: false
   end
 
+  # TABLE: profile_events
+  # SQL: CREATE TABLE rees46.profile_events ( session_id UInt64,  current_session_code String,  shop_id UInt32,  event String,  industry String,  property String,  value String,  created_at DateTime DEFAULT now(),  date Date DEFAULT CAST(now() AS Date)) ENGINE = MergeTree(date, (session_id, shop_id, event, industry, property, date), 8192)
+  create_table "profile_events", id: false, force: :cascade do |t|
+    t.integer  "session_id",           limit: 8,                     null: false
+    t.string   "current_session_code", limit: 255,                   null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "event",                limit: 255,                   null: false
+    t.string   "industry",             limit: 255,                   null: false
+    t.string   "property",             limit: 255,                   null: false
+    t.string   "value",                limit: 255,                   null: false
+    t.datetime "created_at",                       default: "now()", null: false
+    t.date     "date",                             default: "now()", null: false
+  end
 end

@@ -51,6 +51,8 @@ describe ProfileEvent do
     let!(:item_35) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_min: 6500.0, realty_space_max: 28168.0, realty_action: "rent")}
 
     let!(:item_simple) { create(:item, shop: shop ) }
+    let!(:session) { create(:session, user: user) }
+    let(:clickhouse_queue) { ClickhouseQueue }
 
     let!(:action) { 'view' }
 
@@ -209,7 +211,9 @@ describe ProfileEvent do
       it 'saves overrided value if exists' do
         niche_attributes = {}
         niche_attributes[item_5.id] = { fashion_size: '30' }
-        expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5], niche_attributes) }.to change(ProfileEvent, :count).by 1
+        options = { niche_attributes: niche_attributes, session_id: session.id, current_session_code: session.code }
+        expect(clickhouse_queue).to receive(:profile_events).with(hash_including(session_id: session.id, current_session_code: "12345", shop_id: shop.id, event: "cart", industry: "fashion", property: "size_shoe", value: "30")).once
+        expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5], options) }.to change(ProfileEvent, :count).by 1
         expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '30', carts: 1).count ).to eq 1
         expect(user.reload.fashion_sizes['shoe']).to eq [30]
       end

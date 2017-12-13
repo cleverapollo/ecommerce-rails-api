@@ -33,6 +33,10 @@ class ClickhouseQueue
       push('recone_actions', values)
     end
 
+    def profile_events(values)
+      push('profile_events', values)
+    end
+
     # @param [Hash] values
     def visits(values)
       push('visits', values)
