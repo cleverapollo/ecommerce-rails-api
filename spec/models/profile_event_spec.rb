@@ -42,6 +42,14 @@ describe ProfileEvent do
     let!(:item_28) { create(:item, shop: shop, is_cosmetic: true, cosmetic_professional: true) }
 
 
+    let!(:item_29) { create(:item, shop: shop, is_realty: true, realty_type: "office", realty_space_final: 90.0, realty_action: "rent")}
+    let!(:item_30) { create(:item, shop: shop, is_realty: true, realty_type: "office", realty_space_final: 770.0, realty_action: "sale")}
+    let!(:item_31) { create(:item, shop: shop, is_realty: true, realty_type: "custom", realty_space_final: 324.0, realty_action: "rent")}
+    let!(:item_32) { create(:item, shop: shop, is_realty: true, realty_type: "custom", realty_space_final: 160.0, realty_action: "rent")}
+    let!(:item_33) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_min: 230.0, realty_space_max: 691.0, realty_action: "rent")}
+    let!(:item_34) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_final: 1000.0, realty_action: "rent")}
+    let!(:item_35) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_min: 6500.0, realty_space_max: 28168.0, realty_action: "rent")}
+
     let!(:item_simple) { create(:item, shop: shop ) }
 
     let!(:action) { 'view' }
@@ -287,6 +295,23 @@ describe ProfileEvent do
 
     end
 
+    context 'track realty' do
+
+      it 'saves correct realties' do
+        ProfileEvent.track_items(user, shop, 'view', [item_29, item_30, item_31])
+        ProfileEvent.track_items(user, shop, 'cart', [item_32, item_33, item_34, item_35])
+        expect(ProfileEvent.count).to eq 7
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "custom_rent", value: "160.0").carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "460.5").carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "custom_rent", value: "324.0").views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "office_sale", value: "770.0" ).views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "office_rent", value: "90.0").views ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "17334.0").carts ).to eq 1
+        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "1000.0").carts ).to eq 1
+        expect(user.realty).to eq( {"rent"=>{"type"=>"warehouse", "space"=>"460.5"}, "sale"=>{"type"=>"office", "space"=>"770.0"}})
+      end
+
+    end
 
   end
 

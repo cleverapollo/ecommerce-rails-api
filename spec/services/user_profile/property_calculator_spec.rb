@@ -247,6 +247,27 @@ describe UserProfile::PropertyCalculator do
     end
   end
 
+  describe 'real_estate' do
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_realty(user) }
+    before {
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'office_rent', value: "90.0", views: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'office_sale', value: '770.0', views: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'custom_rent', value: '324.0', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'custom_rent', value: '160.0', purchases: 1 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'warehouse_rent', value: '460.5', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'warehouse_rent', value: '17334.0', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'warehouse_rent', value: '1000.0', purchases: 3 )
+    }
+    it 'calculates realties' do
+      expect(subject.size).to eq 2
+      expect(subject['rent']).to eq ({ type: "warehouse", space: "1000.0" })
+      expect(subject['sale']).to eq ({ type: "office", space: "770.0" })
+    end
+  end
+
+
 
   describe 'jewelry' do
     let!(:shop) { create(:shop) }

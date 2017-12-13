@@ -246,7 +246,6 @@ class UserProfile::PropertyCalculator
   def calculate_pets(user)
     properties = ProfileEvent.where(user_id: user.id, industry: 'pets').map { |x| Hash[x.value.split(';').map { |y| y.split(':') }].merge('score' => (x.views.to_i + x.carts.to_i * 2 + x.purchases.to_i * 5)) }.sort_by { |x| x.size }.reverse
     selected = []
-
     # Проверяет схожесть записей
     def _similar(a, b)
       return false if a['type'] != b['type']
@@ -320,5 +319,21 @@ class UserProfile::PropertyCalculator
     score.keys.any? ? score : nil
   end
 
+  def calculate_realty(user)
+    properties = ProfileEvent.where(user_id: user.id, industry: 'real_estate').map(&:attributes).collect do |x|
+                   x = x.extract!("property", "value", "views", "carts", "purchases")
+                   score = (x['views'].to_i + x['carts'].to_i * 2 + x['purchases'].to_i * 5)
+                   type, action = x['property'].split('_')
+                   x.merge({'score' => score, 'type' => type, 'action' => action})
+                 end
+
+    properties = properties.sort_by{|x| x['score']}.reverse.uniq{|x| x['action']}
+
+    calculated_data = properties.inject({}) do  |calculated_data, property|
+      calculated_data[property['action']] = { type: property['type'], space: property['value'] }
+      calculated_data
+    end
+    calculated_data.any? ? calculated_data : nil
+  end
 
 end

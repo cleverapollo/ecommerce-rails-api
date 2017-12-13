@@ -323,6 +323,21 @@ class ProfileEvent < ActiveRecord::Base
 
         end
 
+        if item.is_realty?
+          unless item.realty_type.nil?
+
+            property_value = if item.realty_space_final.present?
+                               item.realty_space_final
+                             else
+                               if item.realty_space_max.present? && item.realty_space_min.present?
+                                 (item.realty_space_max + item.realty_space_min).to_f / 2
+                               else
+                                 item.realty_space_max || item.realty_space_min
+                               end
+                             end
+            ProfileEvent.track_event(user, shop, 'real_estate', "#{item.realty_type}_#{item.realty_action}", property_value, counter_field_name)
+          end
+        end
       end
 
 
@@ -335,6 +350,10 @@ class ProfileEvent < ActiveRecord::Base
       # Если есть ювелирные товары, пересчитываем ювелирный профиль
       if items.select { |x| x.is_jewelry? }.any?
         properties_to_update[:jewelry] = UserProfile::PropertyCalculator.new.calculate_jewelry user
+      end
+
+      if items.select { |x| x.is_realty? }.any?
+        properties_to_update[:realty] = UserProfile::PropertyCalculator.new.calculate_realty user
       end
 
       # Если есть поля для обновления пользователя – обновляем
