@@ -23,7 +23,7 @@ describe Item do
       end
 
       it 'updates existing cart' do
-        item = OpenStruct.new(id: SecureRandom.random_number(1000))
+        item = OpenStruct.new(id: SecureRandom.random_number(1000) + 4)
         ClientCart.track(shop, user, [item])
         expect(ClientCart.first.items).to eq [1,2,3, item.id]
       end
