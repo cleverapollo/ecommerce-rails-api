@@ -17,6 +17,8 @@ module TriggerMailings
 
     # @return [TriggerMail]
     attr_accessor :trigger_mail
+    # @return [ShopEmail]
+    attr_accessor :shop_email
     # @return [Hash]
     attr_accessor :data
 
@@ -26,6 +28,7 @@ module TriggerMailings
     def initialize(client, trigger)
       @client = client
       @shop = @client.shop
+      self.shop_email = ShopEmail.fetch(@shop, @client.email, client: @client, result: true)
       @trigger = trigger
       @mailings_settings = Slavery.on_slave { @shop.mailings_settings }
       @trigger_mail = client.trigger_mails.create!(
@@ -49,12 +52,17 @@ module TriggerMailings
                                     text: text,
                                     type: 'trigger',
                                     code: trigger_mail.code,
-                                    unsubscribe_url: client.trigger_unsubscribe_url(trigger_mail),
+                                    unsubscribe_url: unsubscribe_url(shop_email),
                                     list_id: "<trigger shop-#{@shop.id} type-#{trigger.mailing.trigger_type} date-#{Date.current.strftime('%Y-%m-%d')}>",
                                     feedback_id: "shop#{@shop.id}:mailing_#{trigger.mailing.trigger_type}:trigger:rees46mailer").deliver_now
     end
 
     private
+
+    # @param [ShopEmail] shop_email
+    def unsubscribe_url(shop_email)
+      Routes.unsubscribe_subscriptions_url(type: 'trigger', code: shop_email.try(:code) || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid, mail_code: trigger_mail.code)
+    end
 
     def generate_liquid_letter_body
 
@@ -93,10 +101,10 @@ module TriggerMailings
       end
 
       data[:utm_params] = Mailings::Composer.utm_params(trigger_mail, as: :string)
-      data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: client.trigger_unsubscribe_url(trigger_mail))
+      data[:footer] = Mailings::Composer.footer(email: client.email, tracking_url: trigger_mail.tracking_url, unsubscribe_url: unsubscribe_url(shop_email))
       data[:email] = client.email
       data[:tracking_url] = trigger_mail.tracking_url
-      data[:unsubscribe_url] = client.trigger_unsubscribe_url(trigger_mail)
+      data[:unsubscribe_url] = unsubscribe_url(shop_email)
       data[:tracking_pixel] = "<img src='#{data[:tracking_url]}' alt=''></img>"
 
       if trigger.code == 'RecentlyPurchased' && liquid_template.scan('{% if reputation %}').any?

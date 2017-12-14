@@ -207,7 +207,7 @@ class Client < ActiveRecord::Base
       # Client.where(email: self.email).update_all(email: nil)
 
       # Отключаем все подписки, но email не удаляем, чтобы повторно не включать
-      ShopEmail.where(shop_id: shop_id, email: email).update_all(digests_enabled: false, triggers_enabled: false)
+      ShopEmail.where(shop_id: shop_id, email: email).update_all(digests_enabled: false, triggers_enabled: false, bounced: true)
     end
   end
 

@@ -71,7 +71,7 @@ describe TriggerMailings::Triggers::AbandonedSearch do
     let!(:user_old) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
     let!(:client_old) { create(:client, user: user_old, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100, widgetable: true) }

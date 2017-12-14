@@ -8,7 +8,7 @@ describe TriggerMailings::Triggers::ProductPriceDecrease do
     let!(:user) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1']) }
 
@@ -63,7 +63,7 @@ describe TriggerMailings::Triggers::ProductPriceDecrease do
     let!(:user) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1'], url: '', widgetable: true) }
     let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100, price: 90, category_ids: ['1'], url: '', widgetable: true) }

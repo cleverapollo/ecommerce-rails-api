@@ -10,7 +10,7 @@ describe TriggerMailings::Triggers::AbandonedCategory do
     let!(:user_old) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item_category) { create(:item_category, shop: shop) }
     let!(:item_1) { create(:item, shop: shop, is_available: true, sales_rate: 100, category_ids: [item_category.external_id]) }
@@ -76,7 +76,7 @@ describe TriggerMailings::Triggers::AbandonedCategory do
     let!(:user_old) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item_category) { create(:item_category, shop: shop) }
     let!(:item_1) { create(:item, shop: shop, is_available: true, widgetable: true, sales_rate: 100, category_ids: [item_category.external_id]) }

@@ -9,7 +9,7 @@ describe TriggerMailings::Triggers::Retention do
     let!(:session) { create(:session, user: user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer, supply_available: true) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
     let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
@@ -48,7 +48,7 @@ describe TriggerMailings::Triggers::Retention do
     let!(:session) { create(:session, user: user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }
     let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true) }

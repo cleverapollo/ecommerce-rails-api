@@ -51,7 +51,7 @@ describe TriggerMailings::Triggers::RecentlyPurchased do
     let!(:user) { create(:user) }
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer, supply_available: true) }
-    let!(:client) { create(:client, user: user, shop: shop) }
+    let!(:client) { create(:client, :with_email, user: user, shop: shop) }
 
     let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: true) }
     let!(:item_2) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_fmcg: true, fmcg_periodic: false) }
