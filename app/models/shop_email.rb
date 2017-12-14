@@ -21,7 +21,7 @@ class ShopEmail < ActiveRecord::Base
     def fetch(shop, email, client: nil, result: false)
       segments = [client.try(:segment_ids)].flatten
       ShopEmail.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO shop_emails (shop_id, email, digests_enabled, triggers_enabled, segment_ids) VALUES(?, ?, ?, ?, ?) ON CONFLICT (shop_id, email) DO NOTHING', shop.id, email, client.try(:digests_enabled), client.try(:triggers_enabled), segments.present? ? segments : nil
+          'INSERT INTO shop_emails (shop_id, email, digests_enabled, triggers_enabled, segment_ids) VALUES(?, ?, ?, ?, ?) ON CONFLICT (shop_id, email) DO NOTHING', shop.id, email, client.try(:digests_enabled), client.try(:triggers_enabled), segments.present? ? "{#{segments.join(',')}}" : nil
       ]))
       ShopEmail.find_by!(shop: shop, email: email) if result
     end
