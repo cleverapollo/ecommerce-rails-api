@@ -23,6 +23,8 @@ class DigestMailingLaunchWorker
   #
   # @param params [Hash] входящие параметры.
   def perform(params)
+
+    # @type [Shop] shop
     shop = Shop.find_by!(uniqid: params.fetch('shop_id'), secret: params.fetch('shop_secret'))
     digest_mailing = shop.digest_mailings.find(params.fetch('id'))
     settings = shop.mailings_settings
@@ -58,14 +60,18 @@ class DigestMailingLaunchWorker
 
       else
 
-        # Для всех остальных
         if shop.double_opt_in_by_law?
-          audience_relation = shop.clients.email_confirmed.suitable_for_digest_mailings
-          audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+          # Выбираем только подтвердивших email
+          audience_relation = shop.shop_emails.email_confirmed.suitable_for_digest_mailings
         else
-          audience_relation = shop.clients.suitable_for_digest_mailings
-          audience_relation = audience_relation.with_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+          audience_relation = shop.shop_emails.suitable_for_digest_mailings
         end
+
+        # Добавляем JOIN клиентов
+        audience_relation = audience_relation.with_clients
+
+        # Добавляем фильтрацию по сегменту
+        audience_relation = audience_relation.where('shop_emails.segment_ids @> ARRAY[:segment] OR clients.segment_ids @> ARRAY[:segment]', segment: digest_mailing.segment_id) if digest_mailing.segment_id.present?
 
         if digest_mailing.batches.incomplete.not_test.none?
           Slavery.on_slave do

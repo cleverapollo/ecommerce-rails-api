@@ -31,19 +31,21 @@ module DigestMailings
 
             DigestMailingRecommendationsCalculator.open(shop, recommendations_count) do |calculator|
 
-              clients = shop.clients.suitable_for_digest_mailings.includes(:user)
+              shop_emails = shop.shop_emails.suitable_for_digest_mailings.with_clients
 
               # Для юзера без истории и профиля здесь будем хранить дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
               empty_user_recommendations = nil
 
               begin
                 i = 0
-                clients.find_in_batches do |groups|
+                shop_emails.find_in_batches do |groups|
 
                   # Разбиваем массив по группам
                   groups.each_slice(size) do |group|
                     threads = []
-                    group.each do |client|
+                    group.each do
+                    # @type [ShopEmail] row
+                    |row|
                       i += 1
                       # if ActiveRecord::Base.logger.level > 0
                       #   STDOUT.write "\r".rjust(i.to_s.length + size)
@@ -51,25 +53,27 @@ module DigestMailings
                       # end
 
                       # Проверяем валидность email
-                      if IncomingDataTranslator.email_valid?(client.email)
+                      if IncomingDataTranslator.email_valid?(row.email)
 
                         # Создаем тред
-                        threads << Thread.new(client) do |client|
+                        threads << Thread.new(row) do
+                        # @type [ShopEmail] shop_email
+                        |shop_email|
 
                           # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
-                          if !client.user.orders.where(shop_id: 828).exists? && (client.user.children.nil? || (client.user.children.is_a?(Array) && client.user.children.empty?))
+                          if shop_email.client_id.nil? || !shop_email.client.bought_something? && (shop_email.client.user.children.nil? || (shop_email.user.children.is_a?(Array) && shop_email.user.children.empty?))
                             if empty_user_recommendations.nil?
-                              empty_user_recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+                              empty_user_recommendations = calculator.recommendations_for(nil).map { |r| r.uniqid }
                             end
                             recommendations = empty_user_recommendations
                           else
-                            recommendations = calculator.recommendations_for(client.user).map { |r| r.uniqid }
+                            recommendations = calculator.recommendations_for(shop_email.client.user).map { |r| r.uniqid }
                           end
 
                           # Добавляем строку в файл
                           File.open(path, 'a') do |file_source|
                             file_source.flock(File::LOCK_EX)
-                            file_source.puts "#{client.email};#{recommendations.join(',')}"
+                            file_source.puts "#{shop_email.email};#{recommendations.join(',')}"
                             file_source.flock(File::LOCK_UN)
                           end
 

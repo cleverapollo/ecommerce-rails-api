@@ -19,6 +19,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   let!(:client1) { create(:client, user: user1, shop: shop,
       email: 'test@test.com', bought_something: true, location: 'spb', digest_opened: true, created_at: 1.month.ago
   ) }
+  let!(:shop_email1) { create(:shop_email, shop: shop, email: client1.email, digest_opened: true) }
 
   # User 2
   let!(:user2) { create(:user,
@@ -30,11 +31,13 @@ describe People::Segmentation::DynamicCalculateWorker do
   let!(:client2) { create(:client, user: user2, shop: shop,
       email: 'test2@test.com', bought_something: true, web_push_enabled: true, location: 'spb', digest_opened: true
   ) }
+  let!(:shop_email2) { create(:shop_email, shop: shop, email: client2.email, digest_opened: true) }
 
   # User 3
   let!(:user3) { create(:user) }
   let!(:session3) { create(:session, user: user3, code: 'c3') }
   let!(:client3) { create(:client, user: user3, shop: shop, email: 'test3@test.com') }
+  let!(:shop_email3) { create(:shop_email, shop: shop, email: client3.email) }
 
   # Items
   let!(:item1) { create(:item, :recommendable, :widgetable, shop: shop, price: 150, brand: 'brand1', category_ids: ['1']) }

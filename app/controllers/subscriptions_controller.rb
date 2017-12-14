@@ -37,9 +37,17 @@ class SubscriptionsController < ApplicationController
 
   # Отписка от рассылок в один клик
   def unsubscribe
+
+    # Пробуем найти клиента по коду (старая версия)
     client = Client.find_by(code: params[:code])
     if client.present?
       client.unsubscribe_from(params[:type], false, params[:mail_code])
+    end
+
+    # Пробуем найти email магазина по коду
+    shop_email = ShopEmail.find_by(code: params[:code])
+    if shop_email.present?
+      shop_email.unsubscribe_from(params[:type], false, params[:mail_code])
     end
 
     redirect_to "#{Rees46.site_url}/mailings/unsubscribed?code=#{params[:code]}&type=#{params[:type]}"
@@ -47,9 +55,17 @@ class SubscriptionsController < ApplicationController
 
   # Подписка на рассылоки в один клик
   def subscribe
+
+    # Пробуем найти клиента по коду (старая версия)
     client = Client.find_by(code: params[:code])
     if client.present?
       client.unsubscribe_from(params[:type], true)
+    end
+
+    # Пробуем найти email магазина по коду
+    shop_email = ShopEmail.find_by(code: params[:code])
+    if shop_email.present?
+      shop_email.unsubscribe_from(params[:type], false, params[:mail_code])
     end
 
     redirect_to "#{Rees46.site_url}/mailings/subscribed?code=#{params[:code]}&type=#{params[:type]}"
@@ -95,6 +111,9 @@ class SubscriptionsController < ApplicationController
         if !client.email.present? || client.email != email
           @user = UserMerger.merge_by_mail(shop, client, email)
           client = @user.clients.find_by(shop_id: shop.id, email: email)
+
+          # Добавляем в список email магазина
+          ShopEmail.fetch(shop, email, client: client)
         end
 
         # Клиент подписывается на триггеры
@@ -140,6 +159,9 @@ class SubscriptionsController < ApplicationController
           if !client.email.present? || client.email != email
             @user = UserMerger.merge_by_mail(shop, client, email)
             client = @user.clients.find_by(shop_id: shop.id, email: email)
+
+            # Добавляем в список email магазина
+            ShopEmail.fetch(shop, email, client: client)
           end
 
           # Клиент подписывается на триггеры

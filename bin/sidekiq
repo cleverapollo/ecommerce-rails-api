@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo `ip route get 1 | awk '{print $NF;exit}'`
+RAILS_ENV=production bundle exec rackup sidekiq.ru -E production -p 8080 -o `ip route get 1 | awk '{print $NF;exit}'`

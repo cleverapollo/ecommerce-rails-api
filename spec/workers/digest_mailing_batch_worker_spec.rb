@@ -6,10 +6,10 @@ describe DigestMailingBatchWorker do
   let!(:settings) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:segment) { create(:segment, shop: shop) }
-  let!(:client) { create(:client, shop: shop, email: 'test@rees46demo.com', segment_ids: [segment.id]) }
-  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
-  let!(:batch_without_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop) }
-  let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: client.id, end_id: client.id, shop: shop, segment_id: segment.id) }
+  let!(:shop_email) { create(:shop_email, shop: shop, email: 'test@rees46demo.com', segment_ids: [segment.id]) }
+  let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop) }
+  let!(:batch_without_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop) }
+  let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop, segment_id: segment.id) }
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do
@@ -29,7 +29,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'sent to audience' do
-      expect(letter.to).to include(client.email)
+      expect(letter.to).to include(shop_email.email)
     end
 
     it 'sent from sender from settings' do
@@ -49,11 +49,16 @@ describe DigestMailingBatchWorker do
     end
 
     it 'contains encoded email' do
-      expect(letter_body.to_s).to include("r46_merger=#{CGI.escape(Base64.encode64(client.email).strip)}")
+      expect(letter_body.to_s).to include("r46_merger=#{CGI.escape(Base64.encode64(shop_email.email).strip)}")
     end
 
     it 'contains tracking pixel' do
       expect(letter_body.to_s).to include(DigestMail.first.tracking_url)
+    end
+
+    it 'contains shop email' do
+      subject.perform(batch.id)
+      expect(DigestMail.first.shop_email_id).to eq(shop_email.id)
     end
   end
 
@@ -69,7 +74,7 @@ describe DigestMailingBatchWorker do
     end
 
     it 'does not send an email for client from another segment' do
-      client.update(segment_ids: nil)
+      shop_email.update(segment_ids: nil)
       subject.perform(batch_with_segment.id)
       expect(batch_with_segment.reload.digest_mails.count).to eq(0)
     end
@@ -78,13 +83,9 @@ describe DigestMailingBatchWorker do
 
 
   describe '#letter_body' do
-    let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
     let!(:item) { create(:item, :widgetable, shop: shop) }
     subject do
       s = DigestMailingBatchWorker.new
-      s.current_client = client
-      s.current_digest_mail = digest_mail
-      s.mailing = mailing
       s.perform(batch.id)
       s.liquid_letter_body([item], 'test@rees46demo.com', nil)
     end
@@ -94,20 +95,28 @@ describe DigestMailingBatchWorker do
     end
   end
 
+  describe '#do not send duplicate' do
+    let!(:digest_mail) { create(:digest_mail, shop_email: shop_email, shop: shop, mailing: mailing, batch: batch) }
+
+    it 'not send' do
+      DigestMailingBatchWorker.new.perform(batch.id)
+      expect(DigestMail.count).to eq(1)
+      expect(batch.reload.completed?).to be_truthy
+    end
+  end
+
   describe '#liquid_letter_body' do
     let!(:liquid_shop) { create(:shop, customer: customer) }
     let!(:liquid_settings) { create(:mailings_settings, shop: liquid_shop) }
     let!(:liquid_mailing) { create(:digest_mailing, shop: liquid_shop, liquid_template: '{% for item in recommended_items%}<a href="{{item.url}}">test</a>{% endfor%}') }
     let!(:liquid_segment) { create(:segment, shop: shop) }
     let!(:liquid_client) { create(:client, shop: liquid_shop, email: 'test@rees46demo.com', segment_ids: [liquid_segment.id]) }
-    let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_client.id, end_id: liquid_client.id, shop: liquid_shop) }
-    let!(:liquid_digest_mail) { create(:digest_mail, client: liquid_client, shop: liquid_shop, mailing: liquid_mailing, batch: liquid_batch).reload }
+    let!(:liquid_email) { create(:shop_email, shop: liquid_shop, email: 'test@rees46demo.com', segment_ids: [liquid_segment.id]) }
+    let!(:liquid_batch) { create(:digest_mailing_batch, mailing: liquid_mailing, start_id: liquid_email.id, end_id: liquid_email.id, shop: liquid_shop) }
+    let!(:liquid_digest_mail) { create(:digest_mail, client: liquid_client, shop_email: liquid_email, shop: liquid_shop, mailing: liquid_mailing, batch: liquid_batch).reload }
     let!(:liquid_item) { create(:item, :widgetable, shop: liquid_shop, url: 'http://test.com') }
     subject do
       s = DigestMailingBatchWorker.new
-      s.current_client = liquid_client
-      s.current_digest_mail = liquid_digest_mail
-      s.mailing = liquid_mailing
       s.perform(liquid_batch.id)
       s.liquid_letter_body([liquid_item], 'test@rees46demo.com', nil)
     end
@@ -129,10 +138,7 @@ describe DigestMailingBatchWorker do
     before { allow(Time).to receive(:now).and_return(Time.parse('2016-10-05 05:00:00 UTC +00:00')) }
     let!(:customer) { create(:customer, time_zone: 'Pacific Time (US & Canada)') }
     subject do
-      s = DigestMailingBatchWorker.new
-      s.current_client = client
-      s.mailing = mailing
-      s.perform(batch.id)
+      DigestMailingBatchWorker.new.perform(batch.id)
     end
 
     it 'digest_mail date yesterday for UTC' do
@@ -146,7 +152,7 @@ describe DigestMailingBatchWorker do
   describe '#item_for_letter' do
     context 'when item is widgetable' do
       let!(:item) { create(:item, :widgetable, shop: shop) }
-      let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
+      let!(:digest_mail) { create(:digest_mail, shop: shop, mailing: mailing, batch: batch).reload }
       subject do
         d_m_b_w = DigestMailingBatchWorker.new
         d_m_b_w.shop = shop

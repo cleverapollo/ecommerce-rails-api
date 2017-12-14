@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 0) do
   end
 
   # TABLE: actions
-  # SQL: CREATE TABLE rees46.actions ( session_id UInt64,  current_session_code String,  shop_id UInt32,  event String,  object_type String,  object_id String,  recommended_by Nullable(String),  recommended_code Nullable(String),  price Float32 DEFAULT CAST(0 AS Float32),  brand Nullable(String),  referer Nullable(String),  useragent String,  created_at DateTime DEFAULT now(),  date Date DEFAULT CAST(now() AS Date)) ENGINE = MergeTree(date, (session_id, shop_id, event, object_type, object_id, date), 8192)
+  # SQL: CREATE TABLE rees46.actions ( session_id UInt64,  current_session_code String,  shop_id UInt32,  event String,  object_type String,  object_id String,  recommended_by Nullable(String),  recommended_code Nullable(String),  price Float32 DEFAULT CAST(0 AS Float32),  brand Nullable(String),  referer Nullable(String),  useragent String,  created_at DateTime DEFAULT now(),  date Date DEFAULT CAST(now() AS Date)) ENGINE = ReplicatedMergeTree('/clickhouse/tables/actions/actions', 'server_rtb', date, (session_id, shop_id, event, object_type, object_id, date), 8192)
   create_table "actions", id: false, force: :cascade do |t|
     t.integer  "session_id",           limit: 8,                     null: false
     t.string   "current_session_code", limit: 255,                   null: false
@@ -90,6 +90,20 @@ ActiveRecord::Schema.define(version: 0) do
     t.string   "brand",            limit: 255
     t.datetime "created_at",                   default: "now()", null: false
     t.date     "date",                         default: "now()", null: false
+  end
+
+  # TABLE: profile_events
+  # SQL: CREATE TABLE rees46.profile_events ( session_id UInt64,  current_session_code String,  shop_id UInt32,  event String,  industry String,  property String,  value String,  created_at DateTime DEFAULT now(),  date Date DEFAULT CAST(now() AS Date)) ENGINE = MergeTree(date, (session_id, shop_id, event, industry, property, date), 8192)
+  create_table "profile_events", id: false, force: :cascade do |t|
+    t.integer  "session_id",           limit: 8,                     null: false
+    t.string   "current_session_code", limit: 255,                   null: false
+    t.integer  "shop_id",                                            null: false
+    t.string   "event",                limit: 255,                   null: false
+    t.string   "industry",             limit: 255,                   null: false
+    t.string   "property",             limit: 255,                   null: false
+    t.string   "value",                limit: 255,                   null: false
+    t.datetime "created_at",                       default: "now()", null: false
+    t.date     "date",                             default: "now()", null: false
   end
 
   # TABLE: recone_actions

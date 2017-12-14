@@ -63,6 +63,7 @@ class Shop < ActiveRecord::Base
   has_many :no_result_queries
   has_many :search_query_redirects
   has_many :suggested_queries
+  has_many :shop_emails
 
   has_attached_file :logo, styles: { original: '500x500>', main: '170>x', medium: '130>x', small: '100>x' }
   validates_attachment_content_type :logo, content_type: /\Aimage/

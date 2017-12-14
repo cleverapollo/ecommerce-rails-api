@@ -32,20 +32,26 @@ namespace :sidekiq do
   task :start do
     on roles(:app), in: :sequence, wait: 5 do
 
-      execute "sudo /usr/bin/supervisorctl start api-sidekiq-yaml"
-      execute "sudo /usr/bin/supervisorctl start api-sidekiq"
+      execute 'sudo /usr/bin/supervisorctl start api-sidekiq-yaml'
+      execute 'sudo /usr/bin/supervisorctl start api-sidekiq'
+      execute 'sudo /usr/bin/supervisorctl start api-sidekiq-mailing1'
+      execute 'sudo /usr/bin/supervisorctl start api-sidekiq-mailing2'
     end
   end
   task :stop do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "sudo /usr/bin/supervisorctl stop api-sidekiq-yaml"
-      execute "sudo /usr/bin/supervisorctl stop api-sidekiq"
+      execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-yaml'
+      execute 'sudo /usr/bin/supervisorctl stop api-sidekiq'
+      execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-mailing1'
+      execute 'sudo /usr/bin/supervisorctl stop api-sidekiq-mailing2'
     end
   end
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "sudo /usr/bin/supervisorctl restart api-sidekiq-yaml"
-      execute "sudo /usr/bin/supervisorctl restart api-sidekiq"
+      execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-yaml'
+      execute 'sudo /usr/bin/supervisorctl restart api-sidekiq'
+      execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-mailing1'
+      execute 'sudo /usr/bin/supervisorctl restart api-sidekiq-mailing2'
     end
   end
 end

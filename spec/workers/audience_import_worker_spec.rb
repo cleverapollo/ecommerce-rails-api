@@ -20,13 +20,14 @@ describe AudienceImportWorker do
     context 'works with audience', :user_merge do
       context 'when client does not exists' do
         let(:audience_raw) { { 'id' => '123',
-                               'email' => 'test@rees46demo.com', 
+                               'email' => 'test@rees46demo.com',
                                'audience_sources'  => ["registration_from"],
                                'external_audience_sources' => {'url' => 'www.example.com'} } }
         before { params['audience'] << audience_raw }
 
         it 'creates new client' do
           expect{ subject.perform(params) }.to change(shop.clients, :count).from(0).to(1)
+          expect(ShopEmail.first.email).to eq(audience_raw['email'])
         end
 
         it 'saves new client email' do
@@ -50,6 +51,7 @@ describe AudienceImportWorker do
           subject.perform(params)
           expect(Client.count).to eq(1)
           expect(Client.first.email).to eq(audience_raw['email'])
+          expect(ShopEmail.first.email).to eq(audience_raw['email'])
         end
       end
 
@@ -60,6 +62,7 @@ describe AudienceImportWorker do
 
           it 'does nothing' do
             expect{ subject.perform(params) }.to_not change(Client, :count)
+            expect(ShopEmail.count).to eq(0)
           end
         end
 
@@ -82,6 +85,7 @@ describe AudienceImportWorker do
 
           it 'does nothing' do
             expect{ subject.perform(params) }.to_not change(Client, :count)
+            expect(ShopEmail.count).to eq(0)
           end
         end
 
@@ -103,6 +107,7 @@ describe AudienceImportWorker do
           it 'create one user' do
             subject.perform(params)
             expect(Client.count).to eq(1)
+            expect(ShopEmail.count).to eq(1)
           end
         end
 
@@ -123,6 +128,7 @@ describe AudienceImportWorker do
           it 'create two users' do
             subject.perform(params)
             expect(Client.count).to eq(2)
+            expect(ShopEmail.count).to eq(2)
           end
         end
 
@@ -148,6 +154,8 @@ describe AudienceImportWorker do
             expect(Client.count).to eq(2)
             expect(Client.first.segment_ids).to eq([segment.id])
             expect(Client.last.segment_ids).to eq([segment.id])
+            expect(ShopEmail.find_by(email: audience_raw['email']).segment_ids).to eq([segment.id])
+            expect(ShopEmail.find_by(email: audience_raw_next['email']).segment_ids).to eq([segment.id])
           end
         end
       end

@@ -39,7 +39,6 @@ FactoryGirl.define do
   factory :digest_mail do
     code { SecureRandom.uuid }
     shop
-    client
   end
 
   factory :trigger_mailing do

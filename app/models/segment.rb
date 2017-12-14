@@ -32,9 +32,16 @@ class Segment < ActiveRecord::Base
     shop.clients.with_segment(self.id)
   end
 
+  # Получает список клиентов сегмента
+  # @return [Array<ShopEmail>]
+  def shop_emails
+    shop.shop_emails.with_segment(self.id)
+  end
+
   # Убирает связь у клиента с удаленным сегментом
   # Если у клиента больше не остается сегментов, сохраняем как null
   def remove_segment_from_clients
     self.clients.update_all("segment_ids = CASE COALESCE(array_length(array_remove(segment_ids, #{self.id}), 1), 0) WHEN 0 THEN NULL ELSE array_remove(segment_ids, #{self.id}) END")
+    self.shop_emails.update_all("segment_ids = CASE COALESCE(array_length(array_remove(segment_ids, #{self.id}), 1), 0) WHEN 0 THEN NULL ELSE array_remove(segment_ids, #{self.id}) END")
   end
 end

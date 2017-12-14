@@ -32,6 +32,10 @@ FactoryGirl.define do
   factory :invalid_email do
   end
 
+  factory :shop_email do
+    code { SecureRandom.uuid }
+  end
+
   factory :brand_campaign do
     brand             { Faker::Lorem.word }
     downcase_brand    { brand.downcase }

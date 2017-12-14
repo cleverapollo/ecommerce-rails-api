@@ -5,7 +5,8 @@ describe SubscriptionsController do
   let!(:shop) { create(:shop, customer: customer) }
 
   describe 'GET unsubscribe' do
-    let!(:client) { create(:client, shop: shop).reload }
+    let!(:client) { create(:client, :with_email, shop: shop).reload }
+    let!(:shop_email) { create(:shop_email, shop: shop, email: client.email) }
 
     context 'for trigger mailings' do
       it 'sets client triggers_enabled to false' do
@@ -20,6 +21,15 @@ describe SubscriptionsController do
         expect(client.digests_enabled).to eq(true)
         get :unsubscribe, type: 'digest', code: client.code, shop_id: shop.uniqid
         expect(client.reload.digests_enabled).to eq(false)
+        expect(ShopEmail.find_by(email: client.email).digests_enabled).to be_falsey
+      end
+
+      it 'sets shop_email and client digests_enabled to false by shop_email.code' do
+        expect(client.digests_enabled).to eq(true)
+        expect(shop_email.digests_enabled).to be_truthy
+        get :unsubscribe, type: 'digest', code: shop_email.code, shop_id: shop.uniqid
+        expect(client.reload.digests_enabled).to eq(false)
+        expect(shop_email.reload.digests_enabled).to be_falsey
       end
     end
 

@@ -35,8 +35,9 @@ describe DigestMailingLaunchWorker do
       let(:params_test_email) { base_params.merge({ 'test_email' => test_email }) }
       let(:params) { base_params }
       let!(:segment) { create(:segment, shop: shop) }
-      let!(:client1) { create(:client, :with_email, shop: shop) }
-      let!(:client2) { create(:client, :with_email, shop: shop) }
+      let!(:shop_email1) { create(:shop_email, shop: shop, email: 'test1@gmail.com') }
+      let!(:shop_email2) { create(:shop_email, shop: shop, email: 'test2@gmail.com') }
+      let!(:client1) { create(:client, email: shop_email1.email, shop: shop) }
 
       it 'creates test batch and common batch at once' do
         described_class.new.perform(params_test_email)
@@ -50,8 +51,8 @@ describe DigestMailingLaunchWorker do
         subject
 
         batch = mailing.batches.first
-        expect(batch.start_id).to eq(client1.id)
-        expect(batch.end_id).to eq(client2.id)
+        expect(batch.start_id).to eq(shop_email1.id)
+        expect(batch.end_id).to eq(shop_email2.id)
       end
 
       it 'launches that batch' do
@@ -76,7 +77,7 @@ describe DigestMailingLaunchWorker do
       end
 
       it 'uses activity segments' do
-        client1.update segment_ids: [segment.id]
+        shop_email1.update segment_ids: [segment.id]
         mailing.update segment: segment
         subject
         expect(mailing.reload.total_mails_count).to eq(1)
@@ -84,7 +85,7 @@ describe DigestMailingLaunchWorker do
 
       it 'send only to confirmed email clients' do
         shop.update geo_law: Shop::GEO_LAWS[:eu]
-        client1.update email_confirmed: true
+        shop_email1.update email_confirmed: true
 
         subject
         expect(mailing.reload.total_mails_count).to eq(1)

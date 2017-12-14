@@ -27,8 +27,8 @@ class Client < ActiveRecord::Base
   serialize :external_audience_sources, Hash
 
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
-  scope :with_email, -> { where('email IS NOT NULL') }
-  scope :email_confirmed, -> { with_email.where('email_confirmed = true') }
+  scope :with_email, -> { where.not(email: nil) }
+  scope :email_confirmed, -> { with_email.where(email_confirmed: true) }
   scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
   scope :ready_for_trigger_mailings, -> (shop) do
     if shop.double_opt_in_by_law?
@@ -37,8 +37,8 @@ class Client < ActiveRecord::Base
       with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', 5.weeks.ago.to_date).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     end
   end
-  scope :with_segment, -> (segment_id) { where('segment_ids IS NOT NULL AND segment_ids @> ARRAY[?]', segment_id) }
-  scope :with_segments, -> (segment_ids) { where('segment_ids IS NOT NULL AND segment_ids && ARRAY[?]::int[]', segment_ids) }
+  scope :with_segment, -> (segment_id) { where('clients.segment_ids IS NOT NULL AND clients.segment_ids @> ARRAY[?]', segment_id) }
+  scope :with_segments, -> (segment_ids) { where('clients.segment_ids IS NOT NULL AND clients.segment_ids && ARRAY[?]::int[]', segment_ids) }
 
 
   scope :ready_for_second_abandoned_cart, -> (shop) do
@@ -178,13 +178,23 @@ class Client < ActiveRecord::Base
   # @param [Boolean] subscribe Подписываемся / Отписываемся
   # @param [String] mail_code Код письма
   def unsubscribe_from(mailings_type, subscribe, mail_code = nil)
+    if self.email.present?
+      shop_email = ShopEmail.find_by(shop_id: shop_id, email: email)
+    else
+      shop_email = nil
+    end
+
     case mailings_type.to_sym
       when :digest
         update_columns(digests_enabled: subscribe)
         DigestMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
+        shop_email.update_columns(digests_enabled: subscribe) if shop_email.present?
       when :trigger
         update_columns(triggers_enabled: subscribe)
         TriggerMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
+        shop_email.update_columns(triggers_enabled: subscribe) if shop_email.present?
+      else
+        false
     end
   end
 
@@ -195,6 +205,9 @@ class Client < ActiveRecord::Base
       ]))
       update email: nil
       # Client.where(email: self.email).update_all(email: nil)
+
+      # Отключаем все подписки, но email не удаляем, чтобы повторно не включать
+      ShopEmail.where(shop_id: shop_id, email: email).update_all(digests_enabled: false, triggers_enabled: false)
     end
   end
 

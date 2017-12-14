@@ -11,40 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171211115154) do
+ActiveRecord::Schema.define(version: 20171211143810) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
   enable_extension "intarray"
-  enable_extension "postgres_fdw"
   enable_extension "uuid-ossp"
-
-  create_table "actions", id: :bigserial, force: :cascade do |t|
-    t.integer  "user_id",          limit: 8,                 null: false
-    t.integer  "item_id",          limit: 8,                 null: false
-    t.integer  "view_count",                   default: 0,   null: false
-    t.datetime "view_date"
-    t.integer  "cart_count",                   default: 0,   null: false
-    t.datetime "cart_date"
-    t.integer  "purchase_count",               default: 0,   null: false
-    t.datetime "purchase_date"
-    t.float    "rating",                       default: 0.0
-    t.integer  "shop_id",                                    null: false
-    t.integer  "timestamp",                    default: 0,   null: false
-    t.string   "recommended_by",   limit: 255
-    t.integer  "last_action",      limit: 2,   default: 1,   null: false
-    t.integer  "rate_count",                   default: 0,   null: false
-    t.datetime "rate_date"
-    t.integer  "last_user_rating"
-    t.datetime "recommended_at"
-  end
-
-  add_index "actions", ["item_id"], name: "index_actions_on_item_id", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_purchases", where: "(purchase_count > 0)", using: :btree
-  add_index "actions", ["shop_id", "item_id", "timestamp"], name: "popular_index_by_rating", using: :btree
-  add_index "actions", ["user_id", "item_id"], name: "index_actions_on_user_id_and_item_id", unique: true, using: :btree
+  enable_extension "postgres_fdw"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -98,6 +73,12 @@ ActiveRecord::Schema.define(version: 20171211115154) do
 
   add_index "advertisers", ["email"], name: "index_advertisers_on_email", unique: true, using: :btree
   add_index "advertisers", ["reset_password_token"], name: "index_advertisers_on_reset_password_token", unique: true, using: :btree
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "audience_segment_statistics", id: :bigserial, force: :cascade do |t|
     t.integer "shop_id"
@@ -477,14 +458,14 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text_template"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text_template",                           default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -507,18 +488,20 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.boolean  "opened",                            default: false,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "client_id",               limit: 8,                                null: false
+    t.integer  "client_id",               limit: 8
     t.boolean  "bounced",                           default: false,                null: false
     t.date     "date"
     t.integer  "click_map",                                                                     array: true
     t.integer  "bounce_reason",           limit: 2
     t.boolean  "unsubscribed"
+    t.integer  "shop_email_id"
   end
 
   add_index "digest_mails", ["client_id"], name: "index_digest_mails_on_client_id", using: :btree
   add_index "digest_mails", ["code"], name: "index_digest_mails_on_code", unique: true, using: :btree
   add_index "digest_mails", ["date", "shop_id"], name: "index_digest_mails_on_date_and_shop_id", using: :btree
   add_index "digest_mails", ["digest_mailing_id", "date"], name: "index_digest_mails_on_digest_mailing_id", using: :btree
+  add_index "digest_mails", ["shop_email_id"], name: "index_digest_mails_on_shop_email_id", where: "(shop_email_id IS NOT NULL)", using: :btree
 
   create_table "employees", force: :cascade do |t|
     t.integer  "customer_id",      null: false
@@ -1168,6 +1151,28 @@ ActiveRecord::Schema.define(version: 20171211115154) do
 
   add_index "shop_days_statistics", ["shop_id"], name: "index_shop_days_statistics_on_shop_id", using: :btree
 
+  create_table "shop_emails", force: :cascade do |t|
+    t.integer  "shop_id",                                                  null: false
+    t.uuid     "code",                      default: "uuid_generate_v4()"
+    t.string   "email",                                                    null: false
+    t.boolean  "email_confirmed"
+    t.boolean  "digests_enabled",           default: true,                 null: false
+    t.boolean  "triggers_enabled",          default: true,                 null: false
+    t.boolean  "digest_opened"
+    t.datetime "last_trigger_mail_sent_at"
+    t.integer  "segment_ids",                                                           array: true
+    t.datetime "created_at",                default: "now()",              null: false
+    t.datetime "updated_at",                default: "now()",              null: false
+  end
+
+  add_index "shop_emails", ["code"], name: "index_shop_emails_on_code", unique: true, using: :btree
+  add_index "shop_emails", ["email", "shop_id"], name: "index_shop_emails_on_email_and_shop_id", unique: true, using: :btree
+  add_index "shop_emails", ["shop_id", "email_confirmed", "id"], name: "index_shop_emails_on_shop_id_and_digests_enabled", where: "(digests_enabled = true)", using: :btree
+  add_index "shop_emails", ["shop_id", "email_confirmed", "id"], name: "index_shop_emails_on_shop_id_and_triggers_enabled", where: "(triggers_enabled = true)", using: :btree
+  add_index "shop_emails", ["shop_id", "last_trigger_mail_sent_at"], name: "index_shop_emails_on_shop_id_and_last_trigger_mail_sent_at", where: "((last_trigger_mail_sent_at IS NOT NULL) AND (triggers_enabled = true))", using: :btree
+  add_index "shop_emails", ["shop_id", "segment_ids"], name: "index_shop_emails_on_shop_id_and_segment_ids", where: "(segment_ids IS NOT NULL)", using: :gin
+  add_index "shop_emails", ["shop_id"], name: "index_shop_emails_on_shop_id", using: :btree
+
   create_table "shop_images", force: :cascade do |t|
     t.integer  "shop_id",                null: false
     t.string   "file",                   null: false
@@ -1192,9 +1197,6 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.jsonb    "settings"
     t.boolean  "archive",        default: false, null: false
     t.integer  "payment_type",   default: 0,     null: false
-    t.integer  "timeout"
-    t.integer  "item_count"
-    t.string   "title"
   end
 
   add_index "shop_inventories", ["shop_id", "inventory_type"], name: "index_shop_inventories_on_shop_id_and_inventory_type", using: :btree
@@ -1210,9 +1212,6 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.datetime "updated_at",                       null: false
     t.float    "ratio",              default: 1.0, null: false
     t.integer  "position",           default: 1,   null: false
-    t.decimal  "min_price",          default: 0.0, null: false
-    t.integer  "currency_id"
-    t.jsonb    "prices"
   end
 
   create_table "shop_locations", id: :bigserial, force: :cascade do |t|
@@ -1613,10 +1612,10 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -1719,17 +1718,6 @@ ActiveRecord::Schema.define(version: 20171211115154) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
-  create_table "visits", id: :bigserial, force: :cascade do |t|
-    t.date    "date",                          null: false
-    t.integer "user_id", limit: 8,             null: false
-    t.integer "shop_id",                       null: false
-    t.integer "pages",             default: 1, null: false
-  end
-
-  add_index "visits", ["date", "user_id", "shop_id"], name: "index_visits_on_date_and_user_id_and_shop_id", unique: true, using: :btree
-  add_index "visits", ["shop_id", "date"], name: "index_visits_on_shop_id_and_date", using: :btree
-  add_index "visits", ["user_id"], name: "index_visits_on_user_id", using: :btree
 
   create_table "wear_type_dictionaries", force: :cascade do |t|
     t.string "type_name"

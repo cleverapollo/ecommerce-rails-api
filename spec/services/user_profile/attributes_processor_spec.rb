@@ -20,6 +20,7 @@ describe UserProfile::AttributesProcessor do
     it 'set correct email' do
       subject
       expect { user.reload.clients.first.email = 'test@rees46demo.com' }
+      expect(ShopEmail.first.email).to eq('old@rees46demo.com')
     end
 
     context 'when profile attribute is new' do

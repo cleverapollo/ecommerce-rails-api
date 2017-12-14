@@ -30,6 +30,9 @@ module UserProfile
               client = Client.find_by(shop_id: shop.id, user_id: user.id)
             end
           end
+
+          # Добавляем в список email магазина
+          ShopEmail.fetch(shop, email, client: client)
         end
       end
 

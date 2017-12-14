@@ -4,12 +4,12 @@
 class DigestMail < ActiveRecord::Base
 
   belongs_to :client
+  belongs_to :shop_email
   belongs_to :shop
   belongs_to :mailing, class_name: 'DigestMailing', foreign_key: 'digest_mailing_id'
   belongs_to :batch, class_name: 'DigestMailingBatch', foreign_key: 'digest_mailing_batch_id'
 
   validates :shop, presence: true
-  validates :client, presence: true
   validates :mailing, presence: true
   validates :batch, presence: true
 
@@ -31,7 +31,8 @@ class DigestMail < ActiveRecord::Base
 
       # Отмечаем, что клиент хоть раз открывал дайджестную рассылку.
       # Используется в динамическом сегментаторе
-      client.update_columns(digest_opened: true) unless client.digest_opened?
+      client.update_columns(digest_opened: true) if client_id.present? && !client.digest_opened?
+      shop_email.update_columns(digest_opened: true) if shop_email_id.present? && !shop_email.digest_opened?
     end
   end
 
@@ -49,7 +50,8 @@ class DigestMail < ActiveRecord::Base
   def mark_as_bounced!(reason = nil)
     update_columns(bounced: true, bounce_reason: reason)
 
-    self.client.try(:purge_email!)
+    self.client.try(:purge_email!) if client_id.present?
+    self.shop_email.try(:purge_email!) if shop_email_id.present?
   end
 
 

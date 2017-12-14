@@ -113,6 +113,9 @@ class OrdersImportWorker
 
     if user_email.present?
       user = UserMerger.merge_by_mail(shop, client, user_email)
+
+      # Добавляем в список email магазина
+      ShopEmail.fetch(shop, user_email, client: client)
     end
 
     user

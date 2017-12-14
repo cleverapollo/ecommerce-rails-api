@@ -37,7 +37,9 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Строим список для выборки юзеров
       # CLIENT --->
-      users_relation = shop.clients.where('email IS NOT NULL AND digests_enabled = true OR web_push_enabled = true')
+      # todo убрать проверку digests_enabled у клиента, когда будет удалена колонка
+      users_relation = shop.clients.joins('LEFT JOIN shop_emails ON shop_emails.shop_id = clients.shop_id AND shop_emails.email = clients.email')
+                           .where('clients.email IS NOT NULL AND clients.digests_enabled = true AND shop_emails.digests_enabled = true OR web_push_enabled = true')
 
       # Location
       users_relation = users_relation.where(location: segment.filters[:demography][:locations]) if segment.filters[:demography].present? && segment.filters[:demography][:locations].present?
@@ -59,7 +61,8 @@ class People::Segmentation::DynamicCalculateWorker
 
         # Просматривали рассылку
         if segment.filters[:marketing][:letter_open].to_i == 1
-          users_relation = users_relation.where(digest_opened: true)
+          # todo убрать проверку digest_opened у клиента, когда будет удалена колонка
+          users_relation = users_relation.where('clients.digest_opened = true OR shop_emails.digest_opened = true')
 
           # Добавляем период выборки
           if segment.filters[:marketing][:letter_open_period].present?
@@ -173,7 +176,7 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Достаем id юзеров
       users = relation.pluck(:id)
-      if users.present? || segment.filters[:marketing][:include_from_segments].present?
+      if users.present? || segment.filters[:marketing].present? && segment.filters[:marketing][:include_from_segments].present?
         clients = shop.clients
         values = []
 

@@ -29,28 +29,27 @@ class AudienceImportWorker
       # @type [Client] client
       client = @shop.clients.find_by(email: email)
       if client.blank?
-        # Удалить после 01.01.2018, если не будем клеить юзеров по external_id
-        # if id.present?
-        #   client = @shop.clients.find_by(external_id: id)
-        #   if client.blank? || client.email.present? && client.email != email
-        #     client = @shop.clients.build(external_id: id, user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
-        #   end
-        # else
-          client = @shop.clients.build(user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
-        # end
+        client = @shop.clients.build(user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
       end
 
       client.email = email || client.email
       client.external_id = id if client.external_id.blank? && id.present?
 
+      # Добавляем email в базу к магазину
+      shop_email = ShopEmail.fetch(@shop, email, client: client, result: true)
+
       # Добавляем сразу сегмент пользователя
-      client.add_segment(segment.id) if segment.present?
+      if segment.present?
+        client.add_segment(segment.id)
+        shop_email.add_segment(segment.id)
+      end
 
       # Проверяем, что запись новая
       new_record = client.new_record?
 
       # Сохраняем / создаем
       client.save! if client.changed?
+      shop_email.save! if shop_email.changed?
 
       # Если магазин на Double-Opt In, отправляем письмо
       if new_record && @shop.send_confirmation_email_trigger?
