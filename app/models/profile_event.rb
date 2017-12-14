@@ -147,8 +147,9 @@ class ProfileEvent < ActiveRecord::Base
 
             # Ногти
             if item.cosmetic_nail_type.present?
-              track_event(user, shop, 'cosmetic', 'nail_type', item.cosmetic_nail_type, counter_field_name)
-              # properties_to_update[:cosmetic_nail] = UserProfile::PropertyCalculator.new.calculate_nail user
+              value = item.cosmetic_nail_type
+              value = "#{value}_#{item.cosmetic_nail_color}" if item.cosmetic_nail_color.present?
+              track_event(user, shop, 'cosmetic', 'nail_type', value, counter_field_name)
             end
 
             # Парфюмерия
@@ -326,6 +327,10 @@ class ProfileEvent < ActiveRecord::Base
       # Если есть животные товары, то пересчитать животный профиль
       if items.select { |x| x.is_pets? }.any?
         properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+      end
+
+      if items.select { |x| x.cosmetic_nail_type? }.any?
+        properties_to_update[:cosmetic_nail] = UserProfile::PropertyCalculator.new.calculate_nail user
       end
 
       # Если есть ювелирные товары, пересчитываем ювелирный профиль

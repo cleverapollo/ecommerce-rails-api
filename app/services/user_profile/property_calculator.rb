@@ -153,7 +153,20 @@ class UserProfile::PropertyCalculator
   # @param user [User]
   # @return [Hash | nil]
   def calculate_nail(user)
+    properties = ProfileEvent.where(user_id: user.id, industry: 'cosmetic', property: 'nail_type').map(&:attributes).collect do |x|
+                   x = x.extract!("value", "views", "carts", "purchases")
+                   score = (x['views'].to_i + x['carts'].to_i * 2 + x['purchases'].to_i * 5)
+                   type, color = x['value'].split('_')
+                   x.merge({ 'score' => score, 'type' => type, 'color' => color })
+                 end
 
+    properties = properties.sort_by{|x| x['score']}.reverse.uniq{|x| x['type']}
+
+    calculated_data = properties.inject({}) do  |calculated_data, property|
+      calculated_data[property['type']] = { 'color' => property['color'] }
+      calculated_data
+    end
+    calculated_data.any? ? calculated_data : nil
   end
 
   # Расчитывает парфюмерию

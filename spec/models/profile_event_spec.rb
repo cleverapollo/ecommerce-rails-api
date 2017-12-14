@@ -50,6 +50,11 @@ describe ProfileEvent do
     let!(:item_34) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_final: 1000.0, realty_action: "rent")}
     let!(:item_35) { create(:item, shop: shop, is_realty: true, realty_type: "warehouse", realty_space_min: 6500.0, realty_space_max: 28168.0, realty_action: "rent")}
 
+    let!(:item_36) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'tool') }
+    let!(:item_37) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'tool') }
+    let!(:item_38) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'gel') }
+    let!(:item_39) { create(:item, shop: shop, is_cosmetic: true, cosmetic_nail_type: 'polish', cosmetic_nail_color: 'red') }
+
     let!(:item_simple) { create(:item, shop: shop ) }
     let!(:session) { create(:session, user: user) }
     let(:clickhouse_queue) { ClickhouseQueue }
@@ -137,14 +142,14 @@ describe ProfileEvent do
       end
 
       it 'saves nail for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'view', [item_26, item_simple])
-        ProfileEvent.track_items(user, shop, 'view', [item_26, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_26, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_26, item_simple])
-        expect(ProfileEvent.count).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').views).to eq 2
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').purchases).to eq 1
+        ProfileEvent.track_items(user, shop, 'view', [item_26, item_36, item_37, item_simple])
+        ProfileEvent.track_items(user, shop, 'cart', [item_26, item_38, item_simple])
+        ProfileEvent.track_items(user, shop, 'purchase', [item_26, item_39, item_simple])
+
+        expect(ProfileEvent.count).to eq 3
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').views).to eq 3
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'gel').carts).to eq 1
+        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'polish_red').purchases).to eq 1
       end
 
       it 'saves perfume for cosmetic' do

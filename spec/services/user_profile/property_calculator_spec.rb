@@ -267,6 +267,22 @@ describe UserProfile::PropertyCalculator do
     end
   end
 
+  describe 'calculates cosmetic nails' do
+    let!(:shop) { create(:shop) }
+    let!(:user) { create(:user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_nail(user) }
+    before {
+      create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'polish_red', views: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'tool', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'tool', carts: 2 )
+      create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'gel', views: 3 )
+      create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'gel', purchases: 3 )
+    }
+    it 'calculates nail' do
+      expect(subject.size).to eq 3
+      expect(subject).to eq ({ "gel"=>{"color"=>nil}, "tool"=>{"color"=>nil}, "polish"=>{"color"=>"red"} })
+    end
+  end
 
 
   describe 'jewelry' do
