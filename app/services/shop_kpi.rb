@@ -13,7 +13,7 @@ class ShopKPI
     # А также заказы с рассылок приходят значительно позже после их отправки,
     # нужно пересчитывать старые данные за 14 дней.
     def recalculate_all_for_last_period
-      Shop.on_current_shard.connected.active.unrestricted.each do |shop|
+      Shop.connected.active.unrestricted.each do |shop|
 
         Time.use_zone(shop.customer.time_zone) do
           if shop.track_order_status?
@@ -31,7 +31,7 @@ class ShopKPI
 
     def recalculate_for_today
       return if Slavery.disabled
-      Shop.on_current_shard.connected.active.unrestricted.each do |shop|
+      Shop.connected.active.unrestricted.each do |shop|
         Time.use_zone(shop.customer.time_zone) do
           new(shop).calculate_statistics.calculate_products
         end
