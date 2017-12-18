@@ -31,7 +31,6 @@ class DigestMail < ActiveRecord::Base
 
       # Отмечаем, что клиент хоть раз открывал дайджестную рассылку.
       # Используется в динамическом сегментаторе
-      client.update_columns(digest_opened: true) if client_id.present? && !client.digest_opened?
       shop_email.update_columns(digest_opened: true) if shop_email_id.present? && !shop_email.digest_opened?
     end
   end
@@ -50,7 +49,7 @@ class DigestMail < ActiveRecord::Base
   def mark_as_bounced!(reason = nil)
     update_columns(bounced: true, bounce_reason: reason)
 
-    self.client.try(:purge_email!) if client_id.present?
+    self.client.shop_email.try(:purge_email!) if client_id.present? && client.present?
     self.shop_email.try(:purge_email!) if shop_email_id.present?
   end
 

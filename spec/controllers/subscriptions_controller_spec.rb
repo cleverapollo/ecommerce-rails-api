@@ -10,36 +10,28 @@ describe SubscriptionsController do
 
     context 'for trigger mailings' do
       it 'sets client triggers_enabled to false' do
-        expect(client.triggers_enabled).to eq(true)
-        get :unsubscribe, type: 'trigger', code: client.code, shop_id: shop.uniqid
-        expect(client.reload.triggers_enabled).to eq(false)
+        expect(shop_email.triggers_enabled).to eq(true)
+        get :unsubscribe, type: 'trigger', code: shop_email.code, shop_id: shop.uniqid
+        expect(shop_email.reload.triggers_enabled).to eq(false)
       end
     end
 
     context 'for digest mailings' do
       it 'sets client digests_enabled to false' do
-        expect(client.digests_enabled).to eq(true)
-        get :unsubscribe, type: 'digest', code: client.code, shop_id: shop.uniqid
-        expect(client.reload.digests_enabled).to eq(false)
-        expect(ShopEmail.find_by(email: client.email).digests_enabled).to be_falsey
-      end
-
-      it 'sets shop_email and client digests_enabled to false by shop_email.code' do
-        expect(client.digests_enabled).to eq(true)
-        expect(shop_email.digests_enabled).to be_truthy
+        expect(shop_email.digests_enabled).to eq(true)
         get :unsubscribe, type: 'digest', code: shop_email.code, shop_id: shop.uniqid
-        expect(client.reload.digests_enabled).to eq(false)
-        expect(shop_email.reload.digests_enabled).to be_falsey
+        expect(shop_email.reload.digests_enabled).to eq(false)
+        expect(ShopEmail.find_by(email: client.email).digests_enabled).to be_falsey
       end
     end
 
     context 'for correct message' do
       let!(:mailings_settings) { create(:mailings_settings, shop: shop, unsubscribe_message: 'test') }
-      subject { get :unsubscribe, type: 'trigger', code: client.code, shop_id: shop.uniqid }
+      subject { get :unsubscribe, type: 'trigger', code: shop_email.code, shop_id: shop.uniqid }
       it 'sets client triggers_enabled to false' do
         subject
-        expect(response).to redirect_to("#{Rees46.site_url}/mailings/unsubscribed?code=#{client.code}&type=trigger")
-        expect(client.reload.triggers_enabled).to eq(false)
+        expect(response).to redirect_to("#{Rees46.site_url}/mailings/unsubscribed?code=#{shop_email.code}&type=trigger")
+        expect(shop_email.reload.triggers_enabled).to eq(false)
       end
     end
   end
@@ -48,8 +40,9 @@ describe SubscriptionsController do
     context 'for digest mailings' do
       let!(:mailing) { create(:digest_mailing, shop: shop) }
       let!(:batch) { create(:digest_mailing_batch, mailing: mailing, shop: shop) }
-      let!(:client) { create(:client, shop: shop).reload }
-      let!(:digest_mail) { create(:digest_mail, client: client, shop: shop, mailing: mailing, batch: batch).reload }
+      let!(:client) { create(:client, :with_email, shop: shop).reload }
+      let!(:shop_email) { create(:shop_email, shop: shop, email: client.email) }
+      let!(:digest_mail) { create(:digest_mail, shop_email: shop_email, shop: shop, mailing: mailing, batch: batch).reload }
 
       it 'sets digest_mail opened to true' do
         expect(digest_mail.opened).to eq(false)
@@ -128,6 +121,7 @@ describe SubscriptionsController do
           subject
           expect(response.code).to eq('200')
           expect(TriggerMail.count).to eq 1
+          expect(ShopEmail.first.email_confirmed).to be_falsey
         end
       end
 
@@ -181,7 +175,7 @@ describe SubscriptionsController do
 
   describe 'POST subscribe_for_product_price' do
     let!(:session) { create(:session_with_user) }
-    let!(:client) { create(:client, user: session.user, shop: shop, email: nil, triggers_enabled: false) }
+    let!(:client) { create(:client, user: session.user, shop: shop, email: nil) }
     let!(:item) { create(:item, shop: shop, uniqid: '123') }
     subject { post :subscribe_for_product_price, shop_id: shop.uniqid, ssid: session.code, email: email, item_id: item.uniqid }
 
@@ -191,7 +185,7 @@ describe SubscriptionsController do
       it 'saves email and subscribes to triggers' do
         subject
         expect(client.reload.email).to eq(email)
-        expect(client.reload.triggers_enabled).to be_truthy
+        expect(client.shop_email.triggers_enabled).to be_truthy
       end
 
       it 'saves subscription' do
@@ -253,7 +247,7 @@ describe SubscriptionsController do
 
       let!(:email) { 'some@email.com' }
       let!(:session_2) { create(:session_with_user, code: '321321') }
-      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email, triggers_enabled: false) }
+      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email) }
 
       it 'merges users' do
         subject
@@ -268,7 +262,7 @@ describe SubscriptionsController do
 
   describe 'POST subscribe_for_product_available' do
     let!(:session) { create(:session_with_user) }
-    let!(:client) { create(:client, user: session.user, shop: shop, email: nil, triggers_enabled: false) }
+    let!(:client) { create(:client, user: session.user, shop: shop, email: nil) }
     let!(:item) { create(:item, shop: shop, uniqid: '123', is_available: false) }
     subject { post :subscribe_for_product_available, shop_id: shop.uniqid, ssid: session.code, email: email, item_id: item.uniqid }
 
@@ -279,7 +273,7 @@ describe SubscriptionsController do
       it 'saves email and subscribes to triggers' do
         subject
         expect(client.reload.email).to eq(email)
-        expect(client.reload.triggers_enabled).to be_truthy
+        expect(client.shop_email.triggers_enabled).to be_truthy
       end
 
       it 'saves subscription' do
@@ -341,7 +335,8 @@ describe SubscriptionsController do
 
       let!(:email) { 'some@email.com' }
       let!(:session_2) { create(:session_with_user, code: '321321') }
-      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email, triggers_enabled: false) }
+      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email) }
+      let!(:shop_email) { create(:shop_email, shop: shop, email: email, triggers_enabled: false) }
 
       it 'merges users' do
         subject

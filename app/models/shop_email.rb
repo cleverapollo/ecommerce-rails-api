@@ -16,17 +16,17 @@ class ShopEmail < ActiveRecord::Base
     # Создает или возвращает ранее созданный
     # @param [Shop] shop
     # @param [String] email Сюда должен попадать уже проверенный и валидный email
-    # @param [Client] client
     # @param [Boolean] result
-    def fetch(shop, email, client: nil, result: false)
+    def fetch(shop, email, result: false)
 
-      # Ищем email перед вставкой
-      shop_email = ShopEmail.find_by(shop: shop, email: email)
-      return shop_email if shop_email.present?
+      # Ищем email перед вставкой, возможно он уже есть в базе
+      if result
+        shop_email = ShopEmail.find_by(shop: shop, email: email)
+        return shop_email if shop_email.present?
+      end
 
-      segments = [client.try(:segment_ids)].flatten
       ShopEmail.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO shop_emails (shop_id, email, digests_enabled, triggers_enabled, segment_ids) VALUES(?, ?, ?, ?, ?) ON CONFLICT (shop_id, email) DO NOTHING', shop.id, email, client.try(:digests_enabled), client.try(:triggers_enabled), segments.present? ? "{#{segments.join(',')}}" : nil
+          'INSERT INTO shop_emails (shop_id, email) VALUES(?, ?) ON CONFLICT (shop_id, email) DO NOTHING', shop.id, email
       ]))
       ShopEmail.find_by!(shop: shop, email: email) if result
     end
@@ -37,21 +37,13 @@ class ShopEmail < ActiveRecord::Base
   # @param [Boolean] subscribe Подписываемся / Отписываемся
   # @param [String] mail_code Код письма
   def unsubscribe_from(mailings_type, subscribe, mail_code = nil)
-    client = Client.find_by(email: email, shop_id: shop_id)
-
     case mailings_type.to_sym
       when :digest
         update_columns(digests_enabled: subscribe)
         DigestMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
-
-        # todo удалить, поддержка старой версии
-        client.update_columns(digests_enabled: subscribe) if client.present?
       when :trigger
         update_columns(triggers_enabled: subscribe)
         TriggerMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
-
-        # todo удалить, поддержка старой версии
-        client.update_columns(triggers_enabled: subscribe) if client.present?
       else
         false
     end
@@ -64,7 +56,10 @@ class ShopEmail < ActiveRecord::Base
       ]))
 
       # Отключаем все подписки, но email не удаляем, чтобы повторно не включать
-      update(digests_enabled: false, triggers_enabled: false)
+      update(digests_enabled: false, triggers_enabled: false, bounced: true)
+
+      # Удаляем все email у клиентов
+      Client.where(email: self.email).update_all(email: nil)
     end
   end
 

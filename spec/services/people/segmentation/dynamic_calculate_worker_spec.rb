@@ -17,7 +17,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   ) }
   let!(:session1) { create(:session, user: user1, code: 'c1') }
   let!(:client1) { create(:client, user: user1, shop: shop,
-      email: 'test@test.com', bought_something: true, location: 'spb', digest_opened: true, created_at: 1.month.ago
+      email: 'test@test.com', bought_something: true, location: 'spb', created_at: 1.month.ago
   ) }
   let!(:shop_email1) { create(:shop_email, shop: shop, email: client1.email, digest_opened: true) }
 
@@ -29,7 +29,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   ) }
   let!(:session2) { create(:session, user: user2, code: 'c2') }
   let!(:client2) { create(:client, user: user2, shop: shop,
-      email: 'test2@test.com', bought_something: true, web_push_enabled: true, location: 'spb', digest_opened: true
+      email: 'test2@test.com', bought_something: true, web_push_enabled: true, location: 'spb'
   ) }
   let!(:shop_email2) { create(:shop_email, shop: shop, email: client2.email, digest_opened: true) }
 

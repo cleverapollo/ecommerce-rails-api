@@ -4,6 +4,7 @@ describe DigestMail do
   let!(:shop) { create(:shop, customer: customer) }
   let!(:user) { create(:user) }
   let!(:client) { create(:client, :with_email, shop: shop, user: user) }
+  let!(:shop_email) { create(:shop_email, shop: shop, email: client.email) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, shop: shop) }
 

@@ -23,7 +23,7 @@ module TriggerMailings
         return false if shop.orders.where(user_id: user.id).where('date >= ?', trigger_time_range.first).exists?
 
         # Проверка что последное письмо отправили киленту 1 дня назад
-        return false unless trigger_time_range.cover?(client.last_trigger_mail_sent_at)
+        return false unless trigger_time_range.cover?(client.shop_email.last_trigger_mail_sent_at)
 
         # Находим вчерашную не открытую брошеную корзину
         return false unless TriggerMail.where(shop: shop, opened: false, created_at: trigger_time_range, trigger_mailing_id: shop.trigger_abandoned_cart_id, client_id: client.id).exists?

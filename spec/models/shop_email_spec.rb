@@ -12,4 +12,8 @@ RSpec.describe ShopEmail, :type => :model do
       expect(shop.shop_emails.new.valid?).to be_falsey
     end
   end
+
+  it 'fetch' do
+    expect(ShopEmail.fetch(shop, 'test@test.com', result: true).present?).to be_truthy
+  end
 end

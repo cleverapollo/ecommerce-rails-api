@@ -27,18 +27,17 @@ class Client < ActiveRecord::Base
   serialize :external_audience_sources, Hash
 
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
-  scope :with_email, -> { where.not(email: nil) }
-  scope :email_confirmed, -> { with_email.where(email_confirmed: true) }
-  scope :suitable_for_digest_mailings, -> { with_email.where(digests_enabled: true) }
-  scope :ready_for_trigger_mailings, -> (shop) do
+  scope :with_email, -> { joins('JOIN shop_emails ON shop_emails.email = clients.email AND shop_emails.shop_id = clients.shop_id') }
+  scope :email_confirmed, -> { where(shop_emails: { email_confirmed: true }) }
+  scope :ready_for_trigger_mailings, -> (shop, last_activity = 5.weeks.ago.to_date) do
     if shop.double_opt_in_by_law?
-      email_confirmed.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', 5.weeks.ago.to_date).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
+      email_confirmed.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', last_activity).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     else
-      with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', 5.weeks.ago.to_date).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
+      with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', last_activity).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     end
   end
-  scope :with_segment, -> (segment_id) { where('clients.segment_ids IS NOT NULL AND clients.segment_ids @> ARRAY[?]', segment_id) }
-  scope :with_segments, -> (segment_ids) { where('clients.segment_ids IS NOT NULL AND clients.segment_ids && ARRAY[?]::int[]', segment_ids) }
+  scope :with_segment, -> (segment_id) { where('clients.segment_ids @> ARRAY[?]', segment_id) }
+  scope :with_segments, -> (segment_ids) { where('clients.segment_ids && ARRAY[?]::int[]', segment_ids) }
 
 
   scope :ready_for_second_abandoned_cart, -> (shop) do
@@ -88,6 +87,11 @@ class Client < ActiveRecord::Base
     @cart ||= ClientCart.find_by(shop: shop, user: user)
   end
 
+  # @return [ShopEmail]
+  def shop_email
+    @shop_email ||= ShopEmail.find_by(shop_id: shop_id, email: email) if email.present?
+  end
+
   # Перенос объекта к указанному юзеру
   # @param [User] user
   def merge_to(user)
@@ -119,13 +123,10 @@ class Client < ActiveRecord::Base
       # Если оба client лежат в одном shop, то нужно объединить настройки рассылок и всего такого
       if master_client.shop_id == self.shop_id
         master_client.bought_something = true if self.bought_something?
-        master_client.digests_enabled = self.digests_enabled? && master_client.digests_enabled?
         master_client.subscription_popup_showed = true if self.subscription_popup_showed?
-        master_client.triggers_enabled = self.triggers_enabled? && master_client.triggers_enabled?
         master_client.accepted_subscription = true if self.accepted_subscription?
         master_client.ab_testing_group = self.ab_testing_group if master_client.ab_testing_group != self.ab_testing_group && !self.ab_testing_group.nil?
         master_client.external_id = self.external_id if !self.external_id.blank? && master_client.external_id.blank?
-        master_client.last_trigger_mail_sent_at = self.last_trigger_mail_sent_at if !self.last_trigger_mail_sent_at.nil?
         master_client.location = self.location if !self.location.nil?
         master_client.last_activity_at = self.last_activity_at if master_client.last_activity_at.nil? || (!self.last_activity_at.nil? && master_client.last_activity_at < self.last_activity_at)
         master_client.supply_trigger_sent = self.supply_trigger_sent if self.supply_trigger_sent
@@ -165,50 +166,15 @@ class Client < ActiveRecord::Base
   end
 
   # @param [DigestMail] digest_mail
+  # @deprecated
   def digest_unsubscribe_url(digest_mail)
     Routes.unsubscribe_subscriptions_url(type: 'digest', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid, mail_code: digest_mail.try(:code))
   end
 
   # @param [TriggerMail] trigger_mail
+  # @deprecated
   def trigger_unsubscribe_url(trigger_mail)
     Routes.unsubscribe_subscriptions_url(type: 'trigger', code: self.code || 'test', host: Rees46::HOST, shop_id: self.shop.uniqid, mail_code: trigger_mail.code)
-  end
-
-  # @param [Symbol] mailings_type Тип отписки / подписки
-  # @param [Boolean] subscribe Подписываемся / Отписываемся
-  # @param [String] mail_code Код письма
-  def unsubscribe_from(mailings_type, subscribe, mail_code = nil)
-    if self.email.present?
-      shop_email = ShopEmail.find_by(shop_id: shop_id, email: email)
-    else
-      shop_email = nil
-    end
-
-    case mailings_type.to_sym
-      when :digest
-        update_columns(digests_enabled: subscribe)
-        DigestMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
-        shop_email.update_columns(digests_enabled: subscribe) if shop_email.present?
-      when :trigger
-        update_columns(triggers_enabled: subscribe)
-        TriggerMail.where(code: mail_code).update_all(unsubscribed: subscribe ? nil : true) if mail_code.present?
-        shop_email.update_columns(triggers_enabled: subscribe) if shop_email.present?
-      else
-        false
-    end
-  end
-
-  def purge_email!
-    if self.email.present?
-      InvalidEmail.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO invalid_emails (email, reason, created_at, updated_at) VALUES(?, ?, ?, ?) ON CONFLICT (email) DO NOTHING', self.email, 'mark_as_bounced', Time.now, Time.now
-      ]))
-      update email: nil
-      # Client.where(email: self.email).update_all(email: nil)
-
-      # Отключаем все подписки, но email не удаляем, чтобы повторно не включать
-      ShopEmail.where(shop_id: shop_id, email: email).update_all(digests_enabled: false, triggers_enabled: false, bounced: true)
-    end
   end
 
   def real_accepted_subscription?
@@ -228,9 +194,9 @@ class Client < ActiveRecord::Base
   # Подписывает клиента на триггерные рассылки
   # @return nil
   def subscribe_for_triggers!
-    unless triggers_enabled?
-      assign_attributes triggers_enabled: true
-      atomic_save! if changed?
+    unless shop_email.triggers_enabled?
+      shop_email.assign_attributes triggers_enabled: true
+      shop_email.atomic_save! if shop_email.changed?
     end
     nil
   end

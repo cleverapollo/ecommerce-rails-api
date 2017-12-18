@@ -64,7 +64,7 @@ class InitController < ApplicationController
       client = user.clients.find_by(shop: shop, email: email)
 
       # Добавляем в список email магазина
-      ShopEmail.fetch(shop, email, client: client)
+      ShopEmail.fetch(shop, email)
 
       session.reload
     end

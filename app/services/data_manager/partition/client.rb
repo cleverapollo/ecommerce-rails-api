@@ -41,6 +41,8 @@ class DataManager::Partition::Client
 
     # !!! Удаляет все партиции таблицы clients
     def drop_partitions
+      raise 'Disable for production' if Rails.env.production?
+
       ActiveRecord::Base.logger.level = 0
       ActiveRecord::Base.connection.execute <<-SQL
         DROP RULE IF EXISTS clients_insert ON clients;

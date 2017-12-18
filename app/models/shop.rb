@@ -79,7 +79,6 @@ class Shop < ActiveRecord::Base
   scope :unrestricted, -> { active.where(restricted: false) }
   scope :mailings_unrestricted, -> { active.where(mailings_restricted: false) }
   scope :newbies, -> { unrestricted.where('connected_at >= ? OR created_at >= ?', 3.days.ago, 3.days.ago ) }
-  scope :on_current_shard, -> { where(shard: SHARD_ID) }
   scope :with_tracking_orders_status, -> { where(track_order_status: true) }
 
   # ID товаров, купленных или добавленных в корзину пользователем

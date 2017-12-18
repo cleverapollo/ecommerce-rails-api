@@ -6,7 +6,8 @@ describe TriggerMailings::Triggers::SecondAbandonedCart do
   let!(:session) { create(:session, user: user) }
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
-  let!(:client) { create(:client, user: user, shop: shop, email: 'test@rees46demo.com', last_trigger_mail_sent_at: 25.hours.ago) }
+  let!(:client) { create(:client, user: user, shop: shop, email: 'test@rees46demo.com') }
+  let!(:shop_email) { create(:shop_email, shop: shop, email: client.email, last_trigger_mail_sent_at: 25.hours.ago) }
 
   let!(:item_1) { create(:item, shop: shop, is_available: true, ignored: false, widgetable: true, is_cosmetic: true, cosmetic_periodic: false) }
 

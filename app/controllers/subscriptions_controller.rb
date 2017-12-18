@@ -9,10 +9,8 @@ class SubscriptionsController < ApplicationController
   # Взаимодействие с окном сбора email
   def create
     client = shop.clients.find_or_create_by!(user_id: @user.id)
-
-    if email = IncomingDataTranslator.email(params[:email])
-      client.email = email
-    end
+    client.email = IncomingDataTranslator.email(params[:email]) if params[:email].present?
+    ShopEmail.fetch(shop, client.email) if client.email.present?
 
     # Если params[:declined] == true, значит пользователь отказался
     client.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
@@ -28,7 +26,7 @@ class SubscriptionsController < ApplicationController
       Rollbar.error e
     end
 
-    if client.atomic_save && client.real_accepted_subscription? && @shop.send_confirmation_email_trigger?
+    if client.atomic_save && client.email.present? && client.real_accepted_subscription? && @shop.send_confirmation_email_trigger?
       TriggerMailings::Letter.new(client, TriggerMailings::Triggers::DoubleOptIn.new(client)).send
     end
 
@@ -37,12 +35,6 @@ class SubscriptionsController < ApplicationController
 
   # Отписка от рассылок в один клик
   def unsubscribe
-
-    # Пробуем найти клиента по коду (старая версия)
-    client = Client.find_by(code: params[:code])
-    if client.present?
-      client.unsubscribe_from(params[:type], false, params[:mail_code])
-    end
 
     # Пробуем найти email магазина по коду
     shop_email = ShopEmail.find_by(code: params[:code])
@@ -113,7 +105,7 @@ class SubscriptionsController < ApplicationController
           client = @user.clients.find_by(shop_id: shop.id, email: email)
 
           # Добавляем в список email магазина
-          ShopEmail.fetch(shop, email, client: client)
+          ShopEmail.fetch(shop, email)
         end
 
         # Клиент подписывается на триггеры
@@ -161,7 +153,7 @@ class SubscriptionsController < ApplicationController
             client = @user.clients.find_by(shop_id: shop.id, email: email)
 
             # Добавляем в список email магазина
-            ShopEmail.fetch(shop, email, client: client)
+            ShopEmail.fetch(shop, email)
           end
 
           # Клиент подписывается на триггеры

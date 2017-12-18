@@ -11,15 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171214112651) do
+ActiveRecord::Schema.define(version: 20171215082228) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
   enable_extension "intarray"
-  enable_extension "postgres_fdw"
   enable_extension "uuid-ossp"
+  enable_extension "postgres_fdw"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -256,11 +256,8 @@ ActiveRecord::Schema.define(version: 20171214112651) do
     t.datetime "updated_at"
     t.string   "external_id",                             limit: 255
     t.string   "email",                                   limit: 255
-    t.boolean  "digests_enabled",                                     default: true,                 null: false
     t.uuid     "code",                                                default: "uuid_generate_v4()"
     t.boolean  "subscription_popup_showed",                           default: false,                null: false
-    t.boolean  "triggers_enabled",                                    default: true,                 null: false
-    t.datetime "last_trigger_mail_sent_at"
     t.boolean  "accepted_subscription",                               default: false,                null: false
     t.string   "location"
     t.date     "last_activity_at"
@@ -271,9 +268,7 @@ ActiveRecord::Schema.define(version: 20171214112651) do
     t.boolean  "accepted_web_push_subscription"
     t.integer  "fb_id",                                   limit: 8
     t.integer  "vk_id",                                   limit: 8
-    t.boolean  "email_confirmed"
     t.integer  "segment_ids",                                                                                     array: true
-    t.boolean  "digest_opened"
     t.date     "synced_with_republer_at"
     t.date     "synced_with_advmaker_at"
     t.date     "synced_with_doubleclick_at"
@@ -287,12 +282,8 @@ ActiveRecord::Schema.define(version: 20171214112651) do
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["email", "shop_id", "id"], name: "index_clients_on_email", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
-  add_index "clients", ["shop_id", "email", "digests_enabled", "id"], name: "index_clients_on_shop_id_and_digests_enabled", where: "((email IS NOT NULL) AND (digests_enabled = true))", using: :btree
-  add_index "clients", ["shop_id", "email", "triggers_enabled", "id"], name: "index_clients_on_shop_id_and_triggers_enabled", where: "((email IS NOT NULL) AND (triggers_enabled = true))", using: :btree
-  add_index "clients", ["shop_id", "email_confirmed", "id"], name: "index_clients_on_shop_id_and_email_confirmed", where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "index_client_on_shop_id_and_email_present", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
-  add_index "clients", ["shop_id", "last_activity_at", "last_trigger_mail_sent_at"], name: "index_clients_on_shop_id_and_last_activity_at", where: "((email IS NOT NULL) AND (triggers_enabled = true) AND (last_activity_at IS NOT NULL))", using: :btree
   add_index "clients", ["shop_id", "last_web_push_sent_at", "id"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
   add_index "clients", ["shop_id", "segment_ids"], name: "index_clients_on_shop_id_and_segment_ids", where: "(segment_ids IS NOT NULL)", using: :gin
   add_index "clients", ["shop_id", "subscription_popup_showed", "accepted_subscription"], name: "index_clients_on_shop_id_and_accepted_subscription", where: "((subscription_popup_showed = true) AND (accepted_subscription = true))", using: :btree
@@ -458,14 +449,14 @@ ActiveRecord::Schema.define(version: 20171214112651) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text_template"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text_template",                           default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -1613,10 +1604,10 @@ ActiveRecord::Schema.define(version: 20171214112651) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

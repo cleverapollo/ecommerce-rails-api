@@ -28,7 +28,7 @@ module TriggerMailings
     def initialize(client, trigger)
       @client = client
       @shop = @client.shop
-      self.shop_email = ShopEmail.fetch(@shop, @client.email, client: @client, result: true)
+      self.shop_email = ShopEmail.fetch(@shop, @client.email, result: true)
       @trigger = trigger
       @mailings_settings = Slavery.on_slave { @shop.mailings_settings }
       @trigger_mail = client.trigger_mails.create!(
@@ -131,8 +131,8 @@ module TriggerMailings
 
       if trigger.code == 'DoubleOptIn'
         data[:confirmation_email_url] = "#{Rees46.site_url}/confirm-email?shop=#{@shop.uniqid}&client=#{Base16.encode16([@client.id, @client.email].join(' '))} "
-        trigger.client.email_confirmed = false if trigger.client.email_confirmed.nil?
-        trigger.client.save if trigger.client.changed?
+        trigger.client.shop_email.email_confirmed = false if trigger.client.shop_email.email_confirmed.nil?
+        trigger.client.shop_email.save if trigger.client.shop_email.changed?
       end
 
       template = Liquid::Template.parse liquid_template

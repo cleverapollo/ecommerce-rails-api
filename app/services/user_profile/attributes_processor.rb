@@ -32,7 +32,7 @@ module UserProfile
           end
 
           # Добавляем в список email магазина
-          ShopEmail.fetch(shop, email, client: client)
+          ShopEmail.fetch(shop, email)
         end
       end
 

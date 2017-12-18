@@ -36,7 +36,7 @@ class AudienceImportWorker
       client.external_id = id if client.external_id.blank? && id.present?
 
       # Добавляем email в базу к магазину
-      shop_email = ShopEmail.fetch(@shop, email, client: client, result: true)
+      shop_email = ShopEmail.fetch(@shop, email, result: true)
 
       # Добавляем сразу сегмент пользователя
       if segment.present?
