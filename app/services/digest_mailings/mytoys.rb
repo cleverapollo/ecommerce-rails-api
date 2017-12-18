@@ -61,7 +61,7 @@ module DigestMailings
                         |shop_email|
 
                           # Для юзера без истории и профиля здесь будем использовать дефолтный набор рекомендаций, чтобы каждый раз его не рассчитывать
-                          if shop_email.client_id.nil? || !shop_email.client.bought_something? && (shop_email.client.user.children.nil? || (shop_email.user.children.is_a?(Array) && shop_email.user.children.empty?))
+                          if shop_email.client.nil? || !shop_email.client.bought_something? && (shop_email.client.user.children.nil? || (shop_email.client.user.children.is_a?(Array) && shop_email.client.user.children.empty?))
                             if empty_user_recommendations.nil?
                               empty_user_recommendations = calculator.recommendations_for(nil).map { |r| r.uniqid }
                             end

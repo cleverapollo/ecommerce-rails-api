@@ -33,6 +33,11 @@ class ShopEmail < ActiveRecord::Base
 
   end
 
+  # @return [Client]
+  def client
+    @client ||= Client.find_by(email: self.email, shop: self.shop)
+  end
+
   # @param [Symbol] mailings_type Тип отписки / подписки
   # @param [Boolean] subscribe Подписываемся / Отписываемся
   # @param [String] mail_code Код письма
