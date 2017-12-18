@@ -186,7 +186,12 @@ class ShopKPI
       shop_metric.recommendation_requests = Redis.current.get("recommender.request.#{shop.id}.#{date}")
     end
 
-    shop_metric.save! if shop_metric.changed?
+    begin
+      shop_metric.save! if shop_metric.changed?
+    rescue Exception => e
+      raise e unless Rails.env.production?
+      Rollbar.error(e, shop: shop.id, date: date)
+    end
 
     self
   end
