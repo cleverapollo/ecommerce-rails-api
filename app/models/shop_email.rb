@@ -7,6 +7,7 @@ class ShopEmail < ActiveRecord::Base
 
   scope :email_confirmed, -> { where(email_confirmed: true) }
   scope :with_segment, -> (segment_id) { where('shop_emails.segment_ids @> ARRAY[?]', segment_id) }
+  scope :with_clients_segment, -> (segment_id) { where('shop_emails.segment_ids @> ARRAY[:segment] OR clients.segment_ids @> ARRAY[:segment]', segment: segment_id) }
   scope :with_segments, -> (segment_ids) { where('shop_emails.segment_ids && ARRAY[?]::int[]', segment_ids) }
   scope :suitable_for_digest_mailings, -> { where(digests_enabled: true) }
   scope :with_clients, -> { joins('LEFT JOIN clients ON clients.shop_id = shop_emails.shop_id AND clients.email = shop_emails.email') }
