@@ -7,6 +7,7 @@ class RecommenderBlock < ActiveRecord::Base
   # @param [Hash] params
   # @return [Array]
   def recommends(params)
+    return [] if self.paused?
     RecRule::Base.process(RecRule::Params.new(self, params), rules)
   end
 end
