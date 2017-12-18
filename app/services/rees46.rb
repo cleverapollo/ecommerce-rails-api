@@ -7,7 +7,7 @@ class Rees46
   class << self
     def site_url
       if Rails.env.production?
-        'https://app.rees46.com'
+        "https://app.#{WhiteLabel.master_domain}"
       else
         Rails.env.staging? ? 'http://stage.rees46.com' : 'http://localhost:3000'
       end
