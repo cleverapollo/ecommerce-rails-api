@@ -28,7 +28,7 @@ class Client < ActiveRecord::Base
 
   scope :who_saw_subscription_popup, -> { where(subscription_popup_showed: true) }
   scope :with_email, -> { joins('JOIN shop_emails ON shop_emails.email = clients.email AND shop_emails.shop_id = clients.shop_id') }
-  scope :email_confirmed, -> { where(shop_emails: { email_confirmed: true }) }
+  scope :email_confirmed, -> { with_email.where(shop_emails: { email_confirmed: true }) }
   scope :ready_for_trigger_mailings, -> (shop, last_activity = 5.weeks.ago.to_date) do
     if shop.double_opt_in_by_law?
       email_confirmed.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', last_activity).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)

@@ -71,7 +71,7 @@ class DigestMailingLaunchWorker
         audience_relation = audience_relation.with_clients
 
         # Добавляем фильтрацию по сегменту
-        audience_relation = audience_relation.where('shop_emails.segment_ids @> ARRAY[:segment] OR clients.segment_ids @> ARRAY[:segment]', segment: digest_mailing.segment_id) if digest_mailing.segment_id.present?
+        audience_relation = audience_relation.with_clients_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
 
         if digest_mailing.batches.incomplete.not_test.none?
           Slavery.on_slave do
