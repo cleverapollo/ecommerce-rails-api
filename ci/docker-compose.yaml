@@ -1,0 +1,24 @@
+version: "2"
+services:
+
+  api:
+    image: registry.jeshkov.ru:5000/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
+    restart: always
+    volumes:
+    - ./config:/home/rails/api.rees46.com/current/config
+    #- ./env/production/app/config/config.js:/home/dreamloot/app/config/config.js
+    expose:
+    - "4646"
+    environment:
+    - VIRTUAL_HOST=api.rees46.com
+    - VIRTUAL_PORT=4646
+    - LETSENCRYPT_HOST=api.rees46.com
+    - LETSENCRYPT_EMAIL=d.jeshkov@gmail.com
+
+    networks:
+    - nginx_default
+networks:
+  nginx_default:
+    external: true
+
+
