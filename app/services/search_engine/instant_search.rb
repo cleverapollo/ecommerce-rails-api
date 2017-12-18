@@ -109,7 +109,7 @@ class SearchEngine::InstantSearch < SearchEngine::Base
   # Важно - поисковые запросы, запрошенные один раз, игнорируются
   def recommended_queries
     words = params.search_query.downcase.split(' ')
-    suggested_keywords = params.shop.suggested_queries.search_by_keywords(words).order_by_score.limit(10).select(:keyword, :synonym)
+    suggested_keywords = params.shop.suggested_queries.search_by_keywords(words).order_by_score.limit(5).select(:keyword, :synonym)
     suggested_keywords.map{ |suggested_keyword| suggested_keyword.synonym || suggested_keyword.keyword }.uniq
   end
 
