@@ -143,7 +143,7 @@ module TriggerMailings
           end
         end
         unless shop.mailings_settings.external_mailchimp?
-          client.update_columns(last_trigger_mail_sent_at: Time.now)
+          client.shop_email.update_columns(last_trigger_mail_sent_at: Time.now)
           client.update_columns(supply_trigger_sent: true) if self.class == TriggerMailings::Triggers::LowOnSupply
         end
       end
