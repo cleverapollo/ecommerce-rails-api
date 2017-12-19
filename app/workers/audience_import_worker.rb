@@ -24,31 +24,19 @@ class AudienceImportWorker
       email = IncomingDataTranslator.email(a.fetch('email'))
 
       next if email.blank?
-      id ||= ''
-
-      # @type [Client] client
-      client = @shop.clients.find_by(email: email)
-      if client.blank?
-        client = @shop.clients.build(user: User.create, external_audience_sources: a['external_audience_sources'], audience_sources: a['audience_sources'])
-      end
-
-      client.email = email || client.email
-      client.external_id = id if client.external_id.blank? && id.present?
 
       # Добавляем email в базу к магазину
       shop_email = ShopEmail.fetch(@shop, email, result: true)
 
       # Добавляем сразу сегмент пользователя
       if segment.present?
-        client.add_segment(segment.id)
         shop_email.add_segment(segment.id)
       end
 
       # Проверяем, что запись новая
-      new_record = client.new_record?
+      new_record = shop_email.created_at > 1.minute.ago
 
       # Сохраняем / создаем
-      client.save! if client.changed?
       shop_email.save! if shop_email.changed?
 
       # Если магазин на Double-Opt In, отправляем письмо
