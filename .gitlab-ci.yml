@@ -1,0 +1,19 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.jeshkov.ru:5000
+  script:
+    # Use existing image for build
+    - docker build -f Dockerfile --build-arg branch=$CI_COMMIT_REF_NAME -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - master
+
