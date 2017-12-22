@@ -90,17 +90,17 @@ class UserMerger
     # @param [Integer] fb_id
     # @return [Client]
     def merge_by_facebook(shop, client, fb_id)
-      # Найдем пользователя с тем же в данном магазине
-      client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(fb_id: fb_id)
-      if client_with.present?
-        old_user = client_with.user
-        UserMerger.merge(old_user, client.user)
-      else
+      # # Найдем пользователя с тем же в данном магазине
+      # client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(fb_id: fb_id)
+      # if client_with.present?
+      #   old_user = client_with.user
+      #   UserMerger.merge(old_user, client.user)
+      # else
         # Обновляем текущему клиенту email
         client.fb_id = fb_id
         client.atomic_save!
         client.user
-      end
+      # end
     end
 
     # Склеиваем пользователя по vkontakte
@@ -109,17 +109,17 @@ class UserMerger
     # @param [Integer] vk_id
     # @return [Client]
     def merge_by_vkontakte(shop, client, vk_id)
-      # Найдем пользователя с тем же в данном магазине
-      client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(vk_id: vk_id)
-      if client_with.present?
-        old_user = client_with.user
-        UserMerger.merge(old_user, client.user)
-      else
+      # # Найдем пользователя с тем же в данном магазине
+      # client_with = shop.clients.where.not(id: client.id).order(id: :asc).find_by(vk_id: vk_id)
+      # if client_with.present?
+      #   old_user = client_with.user
+      #   UserMerger.merge(old_user, client.user)
+      # else
         # Обновляем текущему клиенту email
         client.vk_id = vk_id
         client.atomic_save!
         client.user
-      end
+      # end
     end
 
 
