@@ -1,5 +1,4 @@
 FROM registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
-RUN apt-get install -y postgresql-client redis-tools
 ADD . /home/rails/api.rees46.com/current
 RUN chown -R rails /home/rails/api.rees46.com
 USER rails
