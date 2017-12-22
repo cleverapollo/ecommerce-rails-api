@@ -1,5 +1,5 @@
 - name: Run tests
   service: api
-  command: su rails && bash -l -c 'bin/testing'
+  command: su rails -c 'bash -l -c \'bin/testing\''
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
