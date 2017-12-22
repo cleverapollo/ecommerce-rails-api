@@ -6,6 +6,7 @@ api:
   links:
     - postgres
     - redis
+  type: push
 postgres:
    image: postgres:latest
    environment:
