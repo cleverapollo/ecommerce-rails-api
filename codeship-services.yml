@@ -12,4 +12,4 @@ postgres:
      - POSTGRES_PASSWORD=rails
      - POSTGRES_DB=rees46_test
 redis:
-   image: redis:latest
+   image: redis
