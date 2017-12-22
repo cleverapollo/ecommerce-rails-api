@@ -25,6 +25,7 @@ export REES46_SHARD=01
 cp config/database.yml.example config/database.yml
 cp config/secrets.yml.example config/secrets.yml
 sed -i "s|localhost|postgres|" "config/database.yml"
+sed -i "s|localhost|redis|" "config/secrets.yml"
 sed -i "s|redis-cli|redis-cli -h redis|" "bin/testing"
 echo "*:5432:*:rails:rails"  > ~/.pgpass
 ls -la ~/.pgpass
