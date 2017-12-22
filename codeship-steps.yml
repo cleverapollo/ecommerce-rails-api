@@ -1,8 +1,6 @@
 - name: testing
   service: api
+  links: database
   command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
-#export RAILS_ENV=test
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
-  links:
-  - database
