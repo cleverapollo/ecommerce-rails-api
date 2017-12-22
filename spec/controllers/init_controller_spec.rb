@@ -142,6 +142,10 @@ describe InitController do
         expect(response.cookies[Rees46::COOKIE_NAME]).to eq Session.first.code
       end
 
+      it 'client link with session' do
+        expect(Client.first.session_id).to eq(Session.first.id)
+      end
+
       it 'shop save js sdk v3' do
         expect(shop.reload.js_sdk).to eq(3)
       end
@@ -258,21 +262,6 @@ describe InitController do
 
 
     end
-
-    context 'merge user by user_email' do
-      let!(:shop) { create(:shop) }
-      let!(:init_params) { { shop_id: shop.uniqid, user_email: 'test@test.com' } }
-      let!(:user) { create(:user) }
-      let!(:client) { create(:client, email: 'test@test.com', user: user, shop: shop) }
-      before { allow(UserMerger).to receive(:merge_by_mail).and_return(user) }
-
-      it 'merge received' do
-        get :init_script, init_params
-        expect(UserMerger).to have_received(:merge_by_mail).once
-      end
-    end
-
-
 
   end
 

@@ -10,7 +10,6 @@
 # views - количество просмотров такого товара
 # carts - количество добавлений в корзину такого товара
 # purchases - количество покупок такого товара
-
 class ProfileEvent < ActiveRecord::Base
   belongs_to :user
   belongs_to :shop
@@ -88,7 +87,7 @@ class ProfileEvent < ActiveRecord::Base
             # Пол косметики
             if item.cosmetic_gender.present?
               track_event(user, shop, 'cosmetic', 'gender', item.cosmetic_gender, counter_field_name)
-              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user
+              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user.id
             end
 
             # Волосы
@@ -184,7 +183,7 @@ class ProfileEvent < ActiveRecord::Base
             # Пол одежды для взрослых
             if item.fashion_gender.present?
               track_event(user, shop, 'fashion', 'gender', item.fashion_gender, counter_field_name)
-              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user
+              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user.id
             end
 
             # Размеры одежды

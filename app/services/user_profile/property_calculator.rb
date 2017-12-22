@@ -3,11 +3,11 @@ class UserProfile::PropertyCalculator
   include UserProfile::ChildrenCalculator
 
   # Вычисляет пол пользователя по историческим данным
-  # @param user [User]
-  # @return String – m|f
-  def calculate_gender(user)
+  # @param [Number|Array] user_id
+  # @return [String] – m|f
+  def calculate_gender(user_id)
     score = { male: 0, female: 0 }
-    ProfileEvent.where(user_id: user.id, industry: ['fashion', 'cosmetic'], property: 'gender').each do |event|
+    ProfileEvent.where(user_id: user_id, industry: ['fashion', 'cosmetic'], property: 'gender').each do |event|
       if event.value == 'm'
         score[:male] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
       end

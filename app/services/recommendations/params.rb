@@ -185,7 +185,11 @@ module Recommendations
           end
         end
         raise Recommendations::IncorrectParams.new('Client not found') if client.blank?
-        @session = Session.find_by user_id: client.user_id
+        if client.session_id.present?
+          @session = client.session
+        else
+          @session = Session.find_by user_id: client.user_id
+        end
         if @session.nil?
           @session = Session.create user_id: client.user_id
         end

@@ -7,6 +7,7 @@ class Client < ActiveRecord::Base
 
   belongs_to :shop
   belongs_to :user
+  belongs_to :session
   has_many :trigger_mails, dependent: :destroy
   has_many :digest_mails, dependent: :destroy
   has_many :web_push_trigger_messages, dependent: :destroy
@@ -90,6 +91,23 @@ class Client < ActiveRecord::Base
   # @return [ShopEmail]
   def shop_email
     @shop_email ||= ShopEmail.find_by(shop_id: shop_id, email: email) if email.present?
+  end
+
+  # Обновляет email у клиента и запускает сбор профиля, если он изменился
+  # @param [String] email
+  def update_email(email)
+    self.email = email
+
+    # Если запись запись была обновлена
+    if self.email_changed?
+      self.atomic_save!
+
+      # Добавляем в список email магазина
+      ShopEmail.fetch(shop, email)
+
+      # Запускаем сбор информации о профиле пользователя
+      # PropertyCalculatorWorker.perform_async(email)
+    end
   end
 
   # Перенос объекта к указанному юзеру
@@ -267,6 +285,8 @@ class Client < ActiveRecord::Base
         attrs[c] = self[c]
       end
       Client.where(shop_id: self.shop_id, id: self.id).update_all(attrs)
+      changes_applied
+      true
     else
       true
     end

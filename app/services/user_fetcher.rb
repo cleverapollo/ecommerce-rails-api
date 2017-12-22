@@ -16,7 +16,7 @@ class UserFetcher
     @external_id = params[:external_id].to_s if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i > 0
     @session_code = params.fetch(:session_code)
     @shop = params.fetch(:shop)
-    @email = IncomingDataTranslator.email(params[:email])
+    @email = IncomingDataTranslator.email(params[:email]) if params[:email].present?
     @location = params[:location]
   end
 
@@ -27,28 +27,34 @@ class UserFetcher
 
     # Находим или создаем связку пользователя с магазином
     begin
-      self.client = shop.clients.find_or_create_by!(user_id: session.user_id)
+      # Новая версия, ищем клиента по сессии
+      self.client = Client.find_by(session: session, shop: shop)
+
+      # Поддержка старого метода, пробуем найти юзера, если по сессии не нашли
+      if client.nil?
+        self.client = Client.find_by(user: session.user, shop: shop)
+      end
+
+      # Создаем, если не найден
+      if client.nil?
+        self.client = Client.create!(session: session, shop: shop, user: session.user)
+      elsif client.session_id.blank?
+        client.session_id = session.id
+        client.atomic_save!
+      end
     rescue ActiveRecord::RecordNotUnique
-      self.client = shop.clients.find_by!(user_id: session.user_id)
+      self.client = shop.clients.find_by!(session: session)
     end
 
     if location.present? && (client.location.nil? || client.location != location.to_s)
-      client.update(location: location)
+      client.location = location
+      client.atomic_save if client.changed?
     end
 
     user = client.user
 
     if email.present?
-      begin
-        user = UserMerger.merge_by_mail(shop, client, email)
-        self.client = user.clients.find_by!(shop_id: shop.id)
-
-        # Добавляем в список email магазина
-        ShopEmail.fetch(shop, email)
-      rescue ActiveRecord::RecordNotFound => e
-        Rollbar.error(e, shop_id: shop.id, client: client.id, client_email: client.email, email: email, user: client.user_id)
-        return nil
-      end
+      client.update_email(email)
     end
 
     # Удалить после 01.01.2018, если не будем клеить по external_id

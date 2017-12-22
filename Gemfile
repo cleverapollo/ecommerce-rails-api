@@ -44,6 +44,7 @@ gem 'webpush'
 gem 'slack-notifier'
 gem 'grocer' # webpush safari
 gem 'elasticsearch'
+gem 'elasticsearch-persistence'
 gem 'htmlentities'
 
 # Tools

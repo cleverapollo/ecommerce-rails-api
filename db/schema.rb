@@ -11,15 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171218101614) do
+ActiveRecord::Schema.define(version: 20171220084627) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
   enable_extension "dblink"
   enable_extension "intarray"
-  enable_extension "postgres_fdw"
   enable_extension "uuid-ossp"
+  enable_extension "postgres_fdw"
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace",     limit: 255
@@ -278,10 +278,12 @@ ActiveRecord::Schema.define(version: 20171218101614) do
     t.string   "audience_sources"
     t.text     "external_audience_sources"
     t.boolean  "web_push_subscription_permission_showed"
+    t.integer  "session_id",                              limit: 8
   end
 
   add_index "clients", ["code"], name: "index_clients_on_code", unique: true, using: :btree
   add_index "clients", ["email", "shop_id", "id"], name: "index_clients_on_email", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
+  add_index "clients", ["session_id", "shop_id"], name: "index_clients_on_session_id_and_shop_id", unique: true, where: "(session_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "external_id"], name: "index_clients_on_shop_id_and_external_id", where: "(external_id IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "id"], name: "index_client_on_shop_id_and_email_present", order: {"id"=>:desc}, where: "(email IS NOT NULL)", using: :btree
   add_index "clients", ["shop_id", "last_web_push_sent_at", "id"], name: "index_clients_on_shop_id_and_web_push_enabled", where: "(web_push_enabled = true)", using: :btree
@@ -449,14 +451,14 @@ ActiveRecord::Schema.define(version: 20171218101614) do
     t.integer  "total_mails_count"
     t.datetime "started_at"
     t.datetime "finished_at"
-    t.text     "header"
-    t.text     "text_template"
     t.string   "edit_mode",                   limit: 255, default: "simple", null: false
     t.text     "liquid_template"
     t.integer  "amount_of_recommended_items",             default: 9,        null: false
     t.string   "mailchimp_campaign_id"
     t.string   "mailchimp_list_id"
     t.integer  "images_dimension",                        default: 3
+    t.string   "header",                                  default: "",       null: false
+    t.text     "text_template",                           default: "",       null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"
@@ -829,8 +831,10 @@ ActiveRecord::Schema.define(version: 20171218101614) do
     t.string   "reputation_key"
     t.string   "segments",                                                   array: true
     t.string   "segment_ds"
+    t.integer  "client_id",         limit: 8
   end
 
+  add_index "orders", ["client_id"], name: "index_orders_on_client_id", where: "(client_id IS NOT NULL)", using: :btree
   add_index "orders", ["date"], name: "index_orders_on_date", using: :btree
   add_index "orders", ["shop_id", "date", "user_id"], name: "index_orders_on_shop_id_and_date_and_user_id", using: :btree
   add_index "orders", ["shop_id", "source_type", "date"], name: "index_orders_on_shop_id_and_source_type_and_date", where: "(source_type IS NOT NULL)", using: :btree
@@ -1611,10 +1615,10 @@ ActiveRecord::Schema.define(version: 20171218101614) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "liquid_template"
-    t.integer  "amount_of_recommended_items",             default: 9,     null: false
     t.string   "mailchimp_campaign_id"
     t.datetime "activated_at"
-    t.integer  "images_dimension",                        default: 3
+    t.integer  "amount_of_recommended_items",             default: 9,     null: false
+    t.integer  "images_dimension",                        default: 3,     null: false
     t.integer  "theme_id",                    limit: 8
     t.string   "theme_type"
     t.jsonb    "template_data"

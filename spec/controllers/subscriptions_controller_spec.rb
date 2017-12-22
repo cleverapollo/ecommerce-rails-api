@@ -243,21 +243,6 @@ describe SubscriptionsController do
 
     end
 
-    context 'other client with this email' do
-
-      let!(:email) { 'some@email.com' }
-      let!(:session_2) { create(:session_with_user, code: '321321') }
-      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email) }
-
-      it 'merges users' do
-        subject
-        expect{client.reload}.to raise_error(ActiveRecord::RecordNotFound)
-        expect(client_2.reload.email).to eq(email)
-        expect(session.reload.user_id).to eq(session_2.user_id)
-      end
-
-    end
-
   end
 
   describe 'POST subscribe_for_product_available' do
@@ -327,22 +312,6 @@ describe SubscriptionsController do
         client.update email: 'some2@email.com'
         subject
         expect(client.reload.email).to eq(email)
-      end
-
-    end
-
-    context 'other client with this email' do
-
-      let!(:email) { 'some@email.com' }
-      let!(:session_2) { create(:session_with_user, code: '321321') }
-      let!(:client_2) { create(:client, user: session_2.user, shop: shop, email: email) }
-      let!(:shop_email) { create(:shop_email, shop: shop, email: email, triggers_enabled: false) }
-
-      it 'merges users' do
-        subject
-        expect{client.reload}.to raise_error(ActiveRecord::RecordNotFound)
-        expect(client_2.reload.email).to eq(email)
-        expect(session.reload.user_id).to eq(session_2.user_id)
       end
 
     end

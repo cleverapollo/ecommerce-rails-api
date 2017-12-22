@@ -8,9 +8,7 @@ class SubscriptionsController < ApplicationController
 
   # Взаимодействие с окном сбора email
   def create
-    client = shop.clients.find_or_create_by!(user_id: @user.id)
-    client.email = IncomingDataTranslator.email(params[:email]) if params[:email].present?
-    ShopEmail.fetch(shop, client.email) if client.email.present?
+    client = @user_fetcher.client
 
     # Если params[:declined] == true, значит пользователь отказался
     client.accepted_subscription = (params[:declined] != true && params[:declined] != 'true')
@@ -65,7 +63,7 @@ class SubscriptionsController < ApplicationController
 
   # Пользователю было показано окно подписки
   def showed
-    client = shop.clients.find_or_create_by!(user_id: @user.id)
+    client = @user_fetcher.client
     client.subscription_popup_showed = true
     client.save
     render json: {}
@@ -90,23 +88,13 @@ class SubscriptionsController < ApplicationController
   def subscribe_for_product_price
 
     # Если в запросе есть емейл
-    if email = IncomingDataTranslator.email(params[:email])
+    if params[:email].present?
 
       # Если найден требуемый товар
       if params[:item_id].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item_id]))
 
         # Находим клиента
-        client = shop.clients.find_or_create_by!(user_id: @user.id)
-
-        # Устанавливаем клиенту емейл, если не совпадает или отсутствует.
-        # Делаем это безопасно - склейкой пользователей
-        if !client.email.present? || client.email != email
-          @user = UserMerger.merge_by_mail(shop, client, email)
-          client = @user.clients.find_by(shop_id: shop.id, email: email)
-
-          # Добавляем в список email магазина
-          ShopEmail.fetch(shop, email)
-        end
+        client = @user_fetcher.client
 
         # Клиент подписывается на триггеры
         client.subscribe_for_triggers!
@@ -135,7 +123,7 @@ class SubscriptionsController < ApplicationController
   # TODO: перевести на использование respond_with_client_error и кидать 400 в случае любой ошибки
   def subscribe_for_product_available
     # Если в запросе есть емейл
-    if email = IncomingDataTranslator.email(params[:email])
+    if params[:email].present?
 
       # Если найден требуемый товар
       if params[:item_id].present? && (item = Item.find_by(shop_id: shop.id, uniqid: params[:item_id]))
@@ -144,17 +132,7 @@ class SubscriptionsController < ApplicationController
         unless item.is_available?
 
           # Находим клиента
-          client = shop.clients.find_or_create_by!(user_id: @user.id)
-
-          # Устанавливаем клиенту емейл, если не совпадает или отсутствует.
-          # Делаем это безопасно - склейкой пользователей
-          if !client.email.present? || client.email != email
-            @user = UserMerger.merge_by_mail(shop, client, email)
-            client = @user.clients.find_by(shop_id: shop.id, email: email)
-
-            # Добавляем в список email магазина
-            ShopEmail.fetch(shop, email)
-          end
+          client = @user_fetcher.client
 
           # Клиент подписывается на триггеры
           client.subscribe_for_triggers!
@@ -183,6 +161,7 @@ class SubscriptionsController < ApplicationController
   protected
 
   def fetch_user
-    @user = Session.find_by_code!(params[:ssid]).user
+    @user_fetcher = UserFetcher.new(email: params[:email], shop: @shop, session_code: params[:ssid])
+    @user = @user_fetcher.fetch
   end
 end

@@ -4,12 +4,13 @@ describe Order do
   let!(:shop) { create(:shop) }
   let!(:user) { create(:user) }
   let!(:session) { create(:session, user: user) }
+  let!(:client) { create(:client, shop: shop, session: session) }
   let!(:item) { create(:item, shop: shop) }
   let!(:sample_item) { item.amount = 1; item }
 
   describe '.persist' do
 
-    subject { Sidekiq::Testing.inline! { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, items: [sample_item], source: nil, order_price: 18000 })) } }
+    subject { Sidekiq::Testing.inline! { Order.persist(OpenStruct.new({shop: shop, user: user, order_id: '123', session: session, client: client, items: [sample_item], source: nil, order_price: 18000 })) } }
 
     it 'creates order' do
       expect{ subject }.to change(Order, :count).from(0).to(1)
