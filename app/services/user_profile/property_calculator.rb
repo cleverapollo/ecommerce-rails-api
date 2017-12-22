@@ -174,11 +174,10 @@ class UserProfile::PropertyCalculator
   # @return [Hash | nil]
   def calculate_perfume(user)
     perfumes = {}
-    score = {aroma: {}}
+    score = {aroma: {}, family: {}}
 
     # Заполняем хеш сырыми данными
-    # В будущем, property может быть массивом, see #calculate_hair
-    ProfileEvent.where(user_id: user.id, industry: 'cosmetic', property: 'perfume_aroma').each do |event|
+    ProfileEvent.where(user_id: user.id, industry: 'cosmetic', property: %w(perfume_aroma perfume_family)).each do |event|
       key = event.property.gsub('perfume_', '').to_sym
       score[key][event.value] = 0 unless score[key].key?(event.value)
       score[key][event.value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
