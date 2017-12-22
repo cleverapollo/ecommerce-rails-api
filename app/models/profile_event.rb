@@ -10,7 +10,6 @@
 # views - количество просмотров такого товара
 # carts - количество добавлений в корзину такого товара
 # purchases - количество покупок такого товара
-
 class ProfileEvent < ActiveRecord::Base
   belongs_to :user
   belongs_to :shop
