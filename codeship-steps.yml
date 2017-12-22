@@ -1,6 +1,5 @@
 - name: testing
-  services:
-  - api
+  service: api
   command: su rails -c 'bash -l -c "ci/test.sh"'
 #export RAILS_ENV=test
   encrypted_dockercfg_path: dockercfg.encrypted
