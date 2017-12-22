@@ -18,7 +18,7 @@ do
     echo "Services didn't become ready in time"
     exit 1
   fi
-  sleep 0.1
+  sleep 1
 done
 psql -p 5432 -h postgres -c 'create database rees46_clickhouse_test;'
 
