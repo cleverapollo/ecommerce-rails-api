@@ -7,3 +7,6 @@ api:
     - postgres
 postgres:
    image: postgres:latest
+   environment:
+     - POSTGRES_USER=rails
+     - POSTGRES_PASSWORD=rails
