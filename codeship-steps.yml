@@ -1,3 +1,8 @@
+- name: create clickhouse db
+  service: postgres
+  command: su postgres -c 'psql -c \'create database rees46_clickhouse_test;\''`
+  encrypted_dockercfg_path: dockercfg.encrypted
+  cached: true
 - name: testing
   service: api
   command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
