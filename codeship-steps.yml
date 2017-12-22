@@ -1,5 +1,5 @@
-- name: helloworld
-  service: app
+- name: Run tests
+  service: api
   command: echo hw
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
