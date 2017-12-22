@@ -1,5 +1,5 @@
 - name: Run tests
   service: api
-  command: echo hw
+  command: bin/testing
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
