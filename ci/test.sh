@@ -1,5 +1,6 @@
 bundle install
 export RAILS_ENV=test
+export REES46_SHARD=01
 cp config/database.yml.example config/database.yml
 #sed -i "s|localhost|database|" "config/database.yml"
 # psql -c 'create database master_database;'
