@@ -2,3 +2,4 @@
   service: app
   command: echo hw
   encrypted_dockercfg_path: dockercfg.encrypted
+  cached: true
