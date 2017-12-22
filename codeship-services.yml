@@ -1,8 +1,8 @@
+database:
+  image: postgres:latest
 api:
   build:
     image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
     dockerfile: Dockerfile
     encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
-database:
-  image: postgres:latest
