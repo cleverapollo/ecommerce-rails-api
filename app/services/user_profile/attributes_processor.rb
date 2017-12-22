@@ -22,17 +22,10 @@ module UserProfile
           # Если клиента не нашли, создадим
           if client.nil?
             client = shop.clients.create!(user_id: user.id, email: email)
-          else
-
-            # Если мыло отличается, запускаем слияние
-            if client.email != email
-              user = UserMerger.merge_by_mail(shop, client, email)
-              client = Client.find_by(shop_id: shop.id, user_id: user.id)
-            end
           end
 
-          # Добавляем в список email магазина
-          ShopEmail.fetch(shop, email)
+          # Обновляем мыло
+          client.update_email(email)
         end
       end
 

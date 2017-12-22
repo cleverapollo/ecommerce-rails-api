@@ -81,6 +81,18 @@ describe DigestMailingBatchWorker do
 
   end
 
+  describe 'do not send duplicate email' do
+    let!(:user1) { create(:user) }
+    let!(:user2) { create(:user) }
+    let!(:client1) { create(:client, shop: shop, user: user1, email: shop_email.email ) }
+    let!(:client2) { create(:client, shop: shop, user: user2, email: shop_email.email ) }
+
+    it 'make a one letter' do
+      subject.perform(batch_without_segment.id)
+      expect(mailing.reload.mails.count).to eq(1)
+    end
+  end
+
 
   describe '#letter_body' do
     let!(:item) { create(:item, :widgetable, shop: shop) }

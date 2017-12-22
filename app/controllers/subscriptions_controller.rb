@@ -98,15 +98,8 @@ class SubscriptionsController < ApplicationController
         # Находим клиента
         client = shop.clients.find_or_create_by!(user_id: @user.id)
 
-        # Устанавливаем клиенту емейл, если не совпадает или отсутствует.
-        # Делаем это безопасно - склейкой пользователей
-        if !client.email.present? || client.email != email
-          @user = UserMerger.merge_by_mail(shop, client, email)
-          client = @user.clients.find_by(shop_id: shop.id, email: email)
-
-          # Добавляем в список email магазина
-          ShopEmail.fetch(shop, email)
-        end
+        # Устанавливаем клиенту емейл, если отсутствует.
+        client.update_email(email)
 
         # Клиент подписывается на триггеры
         client.subscribe_for_triggers!
@@ -146,15 +139,8 @@ class SubscriptionsController < ApplicationController
           # Находим клиента
           client = shop.clients.find_or_create_by!(user_id: @user.id)
 
-          # Устанавливаем клиенту емейл, если не совпадает или отсутствует.
-          # Делаем это безопасно - склейкой пользователей
-          if !client.email.present? || client.email != email
-            @user = UserMerger.merge_by_mail(shop, client, email)
-            client = @user.clients.find_by(shop_id: shop.id, email: email)
-
-            # Добавляем в список email магазина
-            ShopEmail.fetch(shop, email)
-          end
+          # Устанавливаем клиенту емейл.
+          client.update_email(email)
 
           # Клиент подписывается на триггеры
           client.subscribe_for_triggers!

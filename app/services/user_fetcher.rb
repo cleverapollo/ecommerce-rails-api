@@ -39,16 +39,7 @@ class UserFetcher
     user = client.user
 
     if email.present?
-      begin
-        user = UserMerger.merge_by_mail(shop, client, email)
-        self.client = user.clients.find_by!(shop_id: shop.id)
-
-        # Добавляем в список email магазина
-        ShopEmail.fetch(shop, email)
-      rescue ActiveRecord::RecordNotFound => e
-        Rollbar.error(e, shop_id: shop.id, client: client.id, client_email: client.email, email: email, user: client.user_id)
-        return nil
-      end
+      client.update_email(email)
     end
 
     # Удалить после 01.01.2018, если не будем клеить по external_id

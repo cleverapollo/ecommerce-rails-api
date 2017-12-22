@@ -31,6 +31,7 @@ describe OrdersImportWorker do
     user = s_u.user
     expect(s_u.external_id).to eq(params['orders'][0]['user_id'])
     expect(s_u.email).to eq(params['orders'][0]['user_email'])
+    expect(shop.shop_emails.first.email).to eq(params['orders'][0]['user_email'])
 
     # Check orders
     order = shop.orders.first!

@@ -7,7 +7,7 @@ describe UserProfile::PropertyCalculator do
     let!(:user) { create(:user) }
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
 
-    subject { UserProfile::PropertyCalculator.new.calculate_gender(user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_gender(user.id) }
 
     context 'gender undefined' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }

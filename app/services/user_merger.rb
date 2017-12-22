@@ -2,14 +2,16 @@
 # Класс, сливающий пользователей.
 # Как правило это происходит, когда ранее существующий пользователь логинится в магазине с другого браузера или компа.
 # Происходит перелинковка связанных сущностей.
-#
+# @deprecated
 class UserMerger
   DEPENDENCIES = [Client, MahoutAction, Session, Order, Interaction, ProfileEvent, SubscribeForProductAvailable, SubscribeForProductPrice, ClientCart]
 
   class << self
     # @param [User] master
     # @param [User] slave
+    # @deprecated
     def merge(master, slave)
+      raise 'User merger deprecated'
       raise ArgumentError, "Expected User, got #{master.class}" if master.class != User
       raise ArgumentError, "Expected User, got #{slave.class}" if slave.class != User
 
@@ -68,6 +70,7 @@ class UserMerger
     # @param [Shop] shop
     # @param [Client] client
     # @param [String] user_email
+    # @deprecated
     def merge_by_mail(shop, client, user_email)
       # Найдем пользователя с тем же мылом в данном магазине
       client_with_current_mail = shop.clients.where.not(id: client.id).order(id: :asc).find_by(email: user_email)
@@ -124,7 +127,7 @@ class UserMerger
 
     def update_master(master)
       # Сливаем виртуальный профиль
-      master.gender = UserProfile::PropertyCalculator.new.calculate_gender master
+      master.gender = UserProfile::PropertyCalculator.new.calculate_gender master.id
       master.fashion_sizes = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
       master.cosmetic_hair = UserProfile::PropertyCalculator.new.calculate_hair master
       master.allergy = UserProfile::PropertyCalculator.new.calculate_allergy master

@@ -39,7 +39,6 @@ class InitController < ApplicationController
     end
 
     session = Session.fetch(code: session_id,
-                            email: params[:user_email],
                             location: params[:user_location],
                             city: sanitized_header(:city),
                             country: sanitized_header(:country),
@@ -53,20 +52,33 @@ class InitController < ApplicationController
 
     # Поиск связки пользователя и магазина
     begin
-      client = Client.find_or_create_by!(user_id: session.user_id, shop: shop)
+      client = Client.find_by(user_id: session.user_id, shop: shop)
+
+      # Новая версия, ищем клиента по сессии
+      if client.nil?
+        client = Client.find_by(session: session, shop: shop)
+      end
+
+      # Пробуем найти по email
+      if email.present? && client.nil?
+        client = Client.find_by(email: email, shop: shop)
+      end
+
+      # Создаем, если не найден
+      if client.nil?
+        client = Client.create!(session: session, shop: shop, user_id: session.user_id)
+      elsif client.session_id.blank?
+        client.session_id = session.id
+        client.atomic_save!
+      end
+
     rescue ActiveRecord::RecordNotUnique => e
-      client = Client.find_by!(user_id: session.user_id, shop: shop)
+      client = Client.find_by!(session: session, user_id: session.user_id, shop: shop)
     end
 
-    # Указано мыло и оно не совпадает с мылом пользователя
-    if email.present? && client.email.blank?
-      user = UserMerger.merge_by_mail(shop, client, email)
-      client = user.clients.find_by(shop: shop, email: email)
-
-      # Добавляем в список email магазина
-      ShopEmail.fetch(shop, email)
-
-      session.reload
+    # Указано мыло
+    if email.present?
+      client.update_email(email)
     end
 
     # Сохраняем визит

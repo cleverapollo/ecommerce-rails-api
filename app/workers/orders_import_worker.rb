@@ -51,7 +51,7 @@ class OrdersImportWorker
           # raise OrdersImportError.new("Передан заказ ##{@current_order['id']} без ID пользователя")
         end
 
-        @current_user = fetch_user(@current_shop, @current_order['user_id'], IncomingDataTranslator.email(@current_order['user_email']))
+        @current_user, client = fetch_user(@current_shop, @current_order['user_id'], IncomingDataTranslator.email(@current_order['user_email']))
 
         next if order_already_saved?(order, @current_shop.id)
 
@@ -75,7 +75,7 @@ class OrdersImportWorker
           next
         end
 
-        persist_order(@current_order, items, @current_shop.id, @current_user.id)
+        persist_order(@current_order, items, @current_shop.id, @current_user.id, client.id)
         @orders_count += 1
       end
 
@@ -95,30 +95,28 @@ class OrdersImportWorker
   end
 
   # Упрощенный поиск пользователя для импорта
-  def fetch_user(shop, user_id, user_email = nil)
-    user_id = user_id.to_s
+  # @return [[User,Client]]
+  def fetch_user(shop, external_id, user_email = nil)
+    external_id = external_id.to_s
 
-    client = shop.clients.find_by(external_id: user_id)
+    client = shop.clients.find_by(external_id: external_id)
     if client.present?
-      client.update(email: user_email) if user_email.present?
       user = client.user
-    else
+    elsif user_email.present?
+      client = shop.clients.find_by(email: user_email)
+      user = client.user if client.present?
+    end
+
+    # Если не нашли клиента, создаем новое
+    if client.nil?
       user = User.create
-      begin
-        client = shop.clients.create(external_id: user_id, user_id: user.id, email: user_email)
-      rescue ActiveRecord::RecordNotUnique => e
-        client = shop.clients.find_by(external_id: user_id)
-      end
+      client = shop.clients.create!(external_id: external_id, user_id: user.id)
     end
 
-    if user_email.present?
-      user = UserMerger.merge_by_mail(shop, client, user_email)
+    # Обновляем мыло пользователя
+    client.update_email(user_email) if user_email.present?
 
-      # Добавляем в список email магазина
-      ShopEmail.fetch(shop, user_email)
-    end
-
-    user
+    [user, client]
   end
 
   # Упрощенный поиск товара для импорта
@@ -158,9 +156,10 @@ class OrdersImportWorker
     Order.where(uniqid: order['id'].to_s, shop_id: shop_id).exists?
   end
 
-  def persist_order(order, items, shop_id, user_id)
+  def persist_order(order, items, shop_id, user_id, client_id)
     order = Order.create!(shop_id: shop_id,
                          user_id: user_id,
+                         client_id: client_id,
                          uniqid: order['id'],
                          date: order['date'].present? ? Time.at(order['date'].to_i) : Time.current,
                          recommended: false,
@@ -173,7 +172,7 @@ class OrdersImportWorker
                        shop_id: shop_id,
                        amount: item.amount)
     end
-  rescue
-    ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordNotUnique => e
+    raise e unless Rails.env.production?
   end
 end

@@ -34,14 +34,14 @@ class Order < ActiveRecord::Base
       items = params.items
 
       # Иногда событие заказа приходит несколько раз
-      return nil if uniqid.present? && duplicate?(shop, user, uniqid, items)
+      return nil if uniqid.present? && duplicate?(shop, user, uniqid, params.session)
 
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid(shop.id) if uniqid.blank?
 
       # Используем вставку UPSET для предотвращения конфиктов уникальных значений
       Order.connection.insert(ActiveRecord::Base.send(:sanitize_sql_array, [
-          'INSERT INTO orders (shop_id, uniqid, user_id, "date") VALUES(?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO NOTHING', shop.id, uniqid, user.id, Time.now
+          'INSERT INTO orders (shop_id, uniqid, user_id, client_id, "date") VALUES(?, ?, ?, ?, ?) ON CONFLICT (shop_id, uniqid) DO NOTHING', shop.id, uniqid, user.id, params.client.id, Time.now
       ]))
       order = Order.find_by shop_id: shop.id, uniqid: uniqid
 
@@ -64,20 +64,23 @@ class Order < ActiveRecord::Base
       order
     end
 
-    def duplicate?(shop, user, uniqid, items)
+    # @param [Shop] shop
+    # @param [User] user
+    # @param [String] uniqid
+    # @param [Session] session
+    def duplicate?(shop, user, uniqid, session)
       if uniqid.present?
         # Добавили разницу в 1 месяц для предотвращения пропажи заказов, когда магазин сбросил uniqid
         Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 1.month.ago).exists?
       else
-        Order.where(shop_id: shop.id, user_id: user.id)
-             .where("date > ?", 1.minutes.ago).exists?
+        Order.where(shop_id: shop.id, user_id: user.id).where('date > ?', 1.minutes.ago).exists? || Order.where(shop_id: shop.id, session_id: session.id).where('date > ?', 1.minutes.ago).exists?
       end
     end
 
     def generate_uniqid(shop_id)
       loop do
         uuid = SecureRandom.uuid
-        return uuid if Order.where(uniqid: uuid).where(shop_id: shop_id).none?
+        return uuid if Order.where(uniqid: uuid, shop_id: shop_id).none?
       end
     end
   end
