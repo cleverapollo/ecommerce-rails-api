@@ -6,4 +6,9 @@
 - name: push
   service: api
   type: push
+  image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
+  dockerfile: Dockerfile
+  encrypted_dockercfg_path: dockercfg.encrypted
+
+
 
