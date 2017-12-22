@@ -1,6 +1,5 @@
 - name: testing
   service: api
-  links: database
   command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
