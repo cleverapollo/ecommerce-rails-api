@@ -1,5 +1,11 @@
 - name: Run tests
+- type: serial
   service: api
-  command: su rails -c 'bash -l -c \'bin/testing\''
+  command: su rails -c 'bash -l -c \'bundle install\''
+  command: su rails -c 'bash -l -c \'\'base.yml.example config\/database.yml'
+  #command: su rails -c 'bash -l -c \'bundle install\''
+  #command: su rails -c 'bash -l -c \'bundle install \&\& export RAILS_ENV=test \&\& cp config/database.yml.example config\/database.yml \&\& sed -i \"s\|5432\|5435\|\" \"config\/database.yml\" && psql -p 5435 -c 'create database rees46_clickhouse_test;' && cp config/secrets.yml.example config/secrets.yml && bin/testing\''
+
+# We support all major ruby versions: 1.9.3, 2.0.0, 2.1.0 and JRuby
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
