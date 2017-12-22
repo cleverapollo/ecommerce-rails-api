@@ -285,6 +285,8 @@ class Client < ActiveRecord::Base
         attrs[c] = self[c]
       end
       Client.where(shop_id: self.shop_id, id: self.id).update_all(attrs)
+      changes_applied
+      true
     else
       true
     end
