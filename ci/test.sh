@@ -22,3 +22,4 @@ do
 done
 
 cp config/secrets.yml.example config/secrets.yml
+bin/testing
