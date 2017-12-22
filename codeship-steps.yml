@@ -6,7 +6,7 @@
   - api
   steps:
   - command: su rails -c 'bash -l -c "bundle install"'
-  - command: su rails -c 'bash -l -c "cp config/database.yml.example config/database.yml"'
+  - command: su rails -c 'bash -l -c "cp config\/database.yml.example config\/database.yml"'
   - command: su rails -c 'bash -l -c "sed -i \"s|5432|5435|\" config/database.yml"'
   - command: su rails -c 'bash -l -c "psql -p 5435 -c \'create database rees46_clickhouse_test;\'"'
   - command: su rails -c 'bash -l -c "cp config/secrets.yml.example config/secrets.yml"'
