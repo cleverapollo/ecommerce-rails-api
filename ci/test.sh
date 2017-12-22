@@ -20,6 +20,5 @@ do
   fi
   sleep 1
 done
-psql -p 5432 -h postgres -c 'create database rees46_clickhouse_test;'
 
 cp config/secrets.yml.example config/secrets.yml
