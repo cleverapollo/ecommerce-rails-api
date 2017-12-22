@@ -7,6 +7,7 @@ sed -i "s|localhost|postgres|" "config/database.yml"
 #Wait for pg to come up
 sleep 10
 echo postgres:5432:rees46_test:rails:rails  > ~/.pgpass
+chmod 0600 ~/.pgpass
 
 cp config/secrets.yml.example config/secrets.yml
 bin/testing
