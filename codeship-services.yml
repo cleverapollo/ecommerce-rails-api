@@ -5,6 +5,7 @@ api:
     encrypted_dockercfg_path: dockercfg.encrypted
   links:
     - postgres
+    - redis
 postgres:
    image: postgres:latest
    environment:
@@ -12,4 +13,4 @@ postgres:
      - POSTGRES_PASSWORD=rails
      - POSTGRES_DB=rees46_test
 redis:
-   image: redis
+   image:  redis:2.8
