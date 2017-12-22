@@ -4,3 +4,5 @@ api:
     dockerfile: Dockerfile
     encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
+database:
+  image: postgres:latest

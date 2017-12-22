@@ -4,3 +4,5 @@
 #export RAILS_ENV=test
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
+  links:
+  - database
