@@ -5,8 +5,7 @@ class AddSessionToClient < ActiveRecord::Migration
 
     DataManager::Partition::Client.partitions_size.times do |i|
       if ActiveRecord::Base.connection.table_exists?(DataManager::Partition::Client.table_name(i))
-        add_column DataManager::Partition::Client.table_name(i), :session_id, :integer, limit: 8
-        add_index DataManager::Partition::Client.table_name(i), [:session_id, :shop_id], unique: true, where: 'session_id IS NOT NULL'
+        add_index DataManager::Partition::Client.table_name(i), [:session_id, :shop_id], unique: true, where: 'session_id IS NOT NULL', name: "#{DataManager::Partition::Client.table_name(i)}_session_id_shop_id_idx"
       end
     end
 
@@ -16,13 +15,6 @@ class AddSessionToClient < ActiveRecord::Migration
 
   def down
     remove_column :clients, :session_id
-
-    DataManager::Partition::Client.partitions_size.times do |i|
-      if ActiveRecord::Base.connection.table_exists?(DataManager::Partition::Client.table_name(i))
-        remove_column DataManager::Partition::Client.table_name(i), :session_id
-      end
-    end
-
     remove_column :orders, :client_id
   end
 end
