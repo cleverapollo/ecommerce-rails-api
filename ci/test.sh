@@ -23,7 +23,9 @@ bundle install
 export RAILS_ENV=test
 export REES46_SHARD=01
 cp config/database.yml.example config/database.yml
+cp config/secrets.yml.example config/secrets.yml
 sed -i "s|localhost|postgres|" "config/database.yml"
+sed -i "s|localhost|redis|" "config/secrets.yml"
 echo "*:5432:*:rails:rails"  > ~/.pgpass
 ls -la ~/.pgpass
 echo ~/.pgpass
@@ -31,5 +33,4 @@ chmod 0600 ~/.pgpass
 echo 'Creating database rees46_clickhouse_test'
 psql -h postgres -U rails rees46_test -c 'create database rees46_clickhouse_test;'
 
-cp ci/secrets.yml.example config/secrets.yml
 bin/testing
