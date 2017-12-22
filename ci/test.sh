@@ -31,5 +31,5 @@ chmod 0600 ~/.pgpass
 echo 'Creating database rees46_clickhouse_test'
 psql -h postgres -U rails rees46_test -c 'create database rees46_clickhouse_test;'
 
-cp config/secrets.yml.example config/secrets.yml
+cp test/secrets.yml.example config/secrets.yml
 bin/testing
