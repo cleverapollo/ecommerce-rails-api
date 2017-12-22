@@ -1,5 +1,4 @@
 app:
   build:
-    image: registry.jeshkov.ru:5000/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
+    image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
     dockerfile: Dockerfile
-    args: --insecure-registry
