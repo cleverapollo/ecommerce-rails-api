@@ -52,11 +52,12 @@ class InitController < ApplicationController
 
     # Поиск связки пользователя и магазина
     begin
-      client = Client.find_by(user_id: session.user_id, shop: shop)
-
       # Новая версия, ищем клиента по сессии
+      client = Client.find_by(session: session, shop: shop)
+
+      # Поддержка старого метода, пробуем найти юзера, если по сессии не нашли
       if client.nil?
-        client = Client.find_by(session: session, shop: shop)
+        client = Client.find_by(user: session.user, shop: shop)
       end
 
       # Пробуем найти по email
