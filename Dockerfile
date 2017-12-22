@@ -1,4 +1,4 @@
-FROM registry.jeshkov.ru:5000/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
+FROM registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
 ADD . /home/rails/api.rees46.com/current
 RUN chown -R rails /home/rails/api.rees46.com
 USER rails
