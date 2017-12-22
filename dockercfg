@@ -1,8 +1,0 @@
-{
-	"auths": {
-		"https://registry.jeshkov.ru:5000/": {
-			"auth": "your_auth_string",
-			"email": "your_email"
-		}
-	}
-}
