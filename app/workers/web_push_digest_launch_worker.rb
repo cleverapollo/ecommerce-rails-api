@@ -23,7 +23,7 @@ class WebPushDigestLaunchWorker
     web_push_digest.start!
 
     # Если недостаточно аудитории, отмечаем рассылку проваленной и прекращаем работу
-    if audience_relation.count - web_push_digest.sent_messages_count.to_i > shop.web_push_balance
+    if audience_relation.count - web_push_digest.sent_messages_count.to_i > shop.web_push_balance || (!@shop.subscription_plans.find_by(product: 'digest.webpush') || !@shop.subscription_plans.find_by(product: 'digest.webpush').paid?)
       web_push_digest.fail!
       return
     end

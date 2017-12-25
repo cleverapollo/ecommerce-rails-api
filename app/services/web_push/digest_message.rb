@@ -20,7 +20,7 @@ class WebPush::DigestMessage
     @test = test
 
     # Проверяем наличие баланса у магазина
-    if !test && @shop.web_push_balance < 1
+    if !test && (@shop.web_push_balance < 1 || (!@shop.subscription_plans.find_by(product: 'digest.webpush') || !@shop.subscription_plans.find_by(product: 'digest.webpush').paid?))
       raise NotEnoughMoney
     end
 
