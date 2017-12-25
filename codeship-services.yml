@@ -4,6 +4,7 @@ api:
     dockerfile: Dockerfile
     encrypted_dockercfg_path: dockercfg.encrypted
   type: push
+  encrypted_dockercfg_path: dockercfg.encrypted
   links:
     - postgres
     - redis
