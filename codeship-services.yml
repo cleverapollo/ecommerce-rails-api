@@ -1,6 +1,7 @@
 api:
   build:
     image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
+    registry: https://registry.jeshkov.ru
     dockerfile: Dockerfile
     encrypted_dockercfg_path: dockercfg.encrypted
   type: push

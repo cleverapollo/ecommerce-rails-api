@@ -1,12 +1,13 @@
-- name: testing
-  service: api
-  command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
-  encrypted_dockercfg_path: dockercfg.encrypted
-  cached: true
-- type: push
+#- name: testing
+#  service: api
+#  command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
+#  encrypted_dockercfg_path: dockercfg.encrypted
+#  cached: true
+- name: push
+  type: push
   service: api
   image_name: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api
   image_tag: run
-  registry: registry.jeshkov.ru
   encrypted_dockercfg_path: dockercfg.encrypted
+  registry: https://registry.jeshkov.ru/
 
