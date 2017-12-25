@@ -4,6 +4,7 @@
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
 - name: push_to_registry
+  type: push
   service: api
   image_name: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
   registry: registry.jeshkov.ru
