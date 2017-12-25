@@ -14,7 +14,7 @@ class WebPush::Sender
     # @return Boolean
     def send(client, shop, message, safari_pusher = shop.web_push_subscriptions_settings.safari_config, test = false)
       return false if client.nil?
-      return false if shop.nil? || (shop.web_push_balance < 1 || shop.subscription_plans.paid.where(product: ['digest.webpush', 'trigger.webpush']).count < 1)
+      return false if shop.nil? || (shop.web_push_balance < 1 && shop.subscription_plans.paid.where(product: ['digest.webpush', 'trigger.webpush']).count < 1)
       return false unless client.web_push_enabled?
 
       # send message for all tokens
@@ -46,7 +46,7 @@ class WebPush::Sender
       if client.web_push_tokens.count > 0
         # снимаем с баланса, если остался хотябы один токен -> значит сообщение отправлено успешно
         # и если отправка не тестовая
-        shop.reduce_web_push_balance! unless test || shop.subscription_plans.paid.where(product: ['digest.webpush', 'trigger.webpush']).count > 0
+        shop.reduce_web_push_balance! unless test
       else
         # update user subscription when removed all tokens
         client.clear_web_push_subscription!
