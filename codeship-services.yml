@@ -3,6 +3,7 @@ api:
     image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
     dockerfile: Dockerfile
     encrypted_dockercfg_path: dockercfg.encrypted
+  type: push
   links:
     - postgres
     - redis

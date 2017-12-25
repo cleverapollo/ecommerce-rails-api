@@ -3,14 +3,6 @@
   command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
-- name: push
-  service: api
-  type: push
-  image_name: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api
-  image_tag: latest
-  registry: registry.jeshkov.ru
-  image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:run
-  encrypted_dockercfg_path: dockercfg.encrypted
 
 
 
