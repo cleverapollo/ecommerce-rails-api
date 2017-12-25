@@ -65,7 +65,8 @@ class People::Segmentation::DynamicCalculateWorker
           # Добавляем период выборки
           if segment.filters[:marketing][:letter_open_period].present?
             # Добавляем join с отправленными письмами и указанным переодом
-            users_relation = users_relation.joins('INNER JOIN digest_mails ON digest_mails.client_id = clients.id').where('opened = true AND digest_mails.created_at >= ?', segment.filters[:marketing][:letter_open_period].to_i.days.ago)
+            # todo убрать привязку по клиенту после 30.01.2018 (в это время уже у всех новых писем будет привязка с email табилцей)
+            users_relation = users_relation.joins('INNER JOIN digest_mails ON (digest_mails.client_id = clients.id OR digest_mails.shop_email_id = shop_emails.id)').where('opened = true AND digest_mails.created_at >= ?', segment.filters[:marketing][:letter_open_period].to_i.days.ago)
           end
         end
 
@@ -161,7 +162,8 @@ class People::Segmentation::DynamicCalculateWorker
       # Auto
       if segment.filters[:auto].present?
         %w(brand model).each do |k|
-          relation = relation.where("array(select jsonb_array_elements_text(compatibility->'#{k}')) && ARRAY[?]", segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
+          # todo нужен флаг включения
+          # relation = relation.where("array(select jsonb_array_elements_text(compatibility->'#{k}')) && ARRAY[?]", segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
         end
       end
 

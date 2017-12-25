@@ -18,7 +18,7 @@ class WebPush::TriggersProcessor
           |shop|
 
           # Не даем рассылать триггеры тем магазинам, у кого нет купленных пакетов
-          next if shop.web_push_balance <= 0
+          next if (shop.web_push_balance <= 0 && !shop.subscription_plans.find_by(product: 'trigger.webpush')) || (shop.subscription_plans.find_by(product: 'trigger.webpush') && !shop.subscription_plans.find_by(product: 'trigger.webpush').paid?)
 
           Time.use_zone(shop.customer.time_zone) do
 
