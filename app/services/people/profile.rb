@@ -18,7 +18,7 @@ class People::Profile
         klass People::Profile
 
         # Configure the settings and mappings for the Elasticsearch index
-        settings number_of_shards: 1 do
+        settings number_of_shards: 2 do
           mapping do
             indexes :id, type: 'keyword'
             indexes :gender, type: 'keyword', ignore_above: 1

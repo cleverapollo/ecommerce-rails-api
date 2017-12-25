@@ -5,7 +5,7 @@ class UserProfile::PropertyCalculator
   # Вычисляет пол пользователя по историческим данным
   # @param [Number|Array] user_id
   # @return [String] – m|f
-  def calculate_gender(user_id)
+  def calculate_gender(user_id, sessions: nil)
     score = { male: 0, female: 0 }
     ProfileEvent.where(user_id: user_id, industry: ['fashion', 'cosmetic'], property: 'gender').each do |event|
       if event.value == 'm'
@@ -15,6 +15,12 @@ class UserProfile::PropertyCalculator
         score[:female] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
       end
     end
+
+    # Новый метод расчета пола из кликхауса
+    if sessions.present? && sessions.is_a?(Array)
+
+    end
+
     return nil if score[:male] == score[:female]
     return 'm' if score[:male] > score[:female]
     return 'f' if score[:male] < score[:female]
