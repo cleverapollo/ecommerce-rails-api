@@ -12,6 +12,7 @@ class Order < ActiveRecord::Base
   has_one :reputation, as: :entity
   belongs_to :source, polymorphic: true
   belongs_to :shop
+  belongs_to :client
 
   before_create :record_date
   after_create :set_reputation_key
@@ -34,7 +35,7 @@ class Order < ActiveRecord::Base
       items = params.items
 
       # Иногда событие заказа приходит несколько раз
-      return nil if uniqid.present? && duplicate?(shop, user, uniqid, params.session)
+      return nil if uniqid.present? && duplicate?(shop, user, uniqid, params.client)
 
       # Иногда заказы бывают без ID
       uniqid = generate_uniqid(shop.id) if uniqid.blank?
@@ -67,13 +68,13 @@ class Order < ActiveRecord::Base
     # @param [Shop] shop
     # @param [User] user
     # @param [String] uniqid
-    # @param [Session] session
-    def duplicate?(shop, user, uniqid, session)
+    # @param [Client] client
+    def duplicate?(shop, user, uniqid, client)
       if uniqid.present?
         # Добавили разницу в 1 месяц для предотвращения пропажи заказов, когда магазин сбросил uniqid
         Order.where(uniqid: uniqid, shop_id: shop.id).where('date > ?', 1.month.ago).exists?
       else
-        Order.where(shop_id: shop.id, user_id: user.id).where('date > ?', 1.minutes.ago).exists? || Order.where(shop_id: shop.id, session_id: session.id).where('date > ?', 1.minutes.ago).exists?
+        Order.where(shop_id: shop.id, user_id: user.id).where('date > ?', 1.minutes.ago).exists? || Order.where(shop_id: shop.id, client_id: client.id).where('date > ?', 1.minutes.ago).exists?
       end
     end
 

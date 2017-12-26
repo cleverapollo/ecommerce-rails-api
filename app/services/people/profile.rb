@@ -22,26 +22,26 @@ class People::Profile
           mapping do
             indexes :id, type: 'keyword'
             indexes :gender, type: 'keyword', ignore_above: 1
-            indexes :children, type: 'object', properties: { gender: { type: 'keyword', ignore_above: 1 }, birthday: { type: 'date' }, age: { type: 'float_range' } }
-            indexes :cosmetic_hair, type: 'object', properties: { condition: { type: 'keyword' }, type: { type: 'keyword' } }
-            indexes :cosmetic_skin, type: 'object', properties: Hash[%w(body hand leg).map {|t| [t, {
-                type: 'object',
+            indexes :children, type: 'nested', properties: { gender: { type: 'keyword', ignore_above: 1 }, birthday: { type: 'date' }, age: { type: 'float_range' } }
+            indexes :cosmetic_hair, type: 'nested', properties: { condition: { type: 'keyword' }, type: { type: 'keyword' } }
+            indexes :cosmetic_skin, type: 'nested', properties: Hash[%w(body hand leg).map {|t| [t, {
+                type: 'nested',
                 properties: {
-                  type: { type: 'object', properties: { normal: { type: 'short' }, oily: { type: 'short' } } },
-                  condition: { type: 'object', properties: { damaged: { type: 'short' }, tattoo: { type: 'short' } } },
+                  type: { type: 'nested', properties: { normal: { type: 'short' }, oily: { type: 'short' } } },
+                  condition: { type: 'nested', properties: { damaged: { type: 'short' }, tattoo: { type: 'short' } } },
                 }
             }]}]
-            indexes :cosmetic_perfume, type: 'object', properties: {
-                aroma: { type: 'object', properties: Hash[Rees46ML::Perfume::AROMA_TYPES.map {|t| [t, { type: 'short' }] }] },
-                family: { type: 'object', properties: Hash[Rees46ML::Perfume::FAMILY_TYPES.map {|t| [t, { type: 'short' }] }] }
+            indexes :cosmetic_perfume, type: 'nested', properties: {
+                aroma: { type: 'nested', properties: Hash[Rees46ML::Perfume::AROMA_TYPES.map {|t| [t, { type: 'short' }] }] },
+                family: { type: 'nested', properties: Hash[Rees46ML::Perfume::FAMILY_TYPES.map {|t| [t, { type: 'short' }] }] }
             }
             indexes :allergy, type: 'boolean'
-            indexes :fashion_sizes, type: 'object', properties: Hash[Rees46ML::Fashion::TYPES.map {|t| [t, {type: 'short'}]}]
-            indexes :compatibility, type: 'object', properties: { brand: { type: 'keyword' }, model: { type: 'keyword' } }
+            indexes :fashion_sizes, type: 'nested', properties: Hash[Rees46ML::Fashion::TYPES.map {|t| [t, {type: 'short'}]}]
+            indexes :compatibility, type: 'nested', properties: { brand: { type: 'keyword' }, model: { type: 'keyword' } }
             indexes :vds, type: 'keyword'
-            indexes :pets, type: 'object', properties: { type: { type: 'keyword' }, breed: { type: 'keyword' }, size: { type: 'short' }, age: { type: 'float' }, score: { type: 'short' } }
-            indexes :jewelry, type: 'object', properties: Hash[%w(metal color gem gender).map {|t| [t, { type: 'keyword' }]}].merge(Hash[%w(ring_size bracelet_size chain_size).map {|t| [t, { type: 'float' }]}])
-            indexes :realty, type: 'object', properties: { type: { type: 'keyword' }, space: { type: 'float' } }
+            indexes :pets, type: 'nested', properties: { type: { type: 'keyword' }, breed: { type: 'keyword' }, size: { type: 'short' }, age: { type: 'float' }, score: { type: 'short' } }
+            indexes :jewelry, type: 'nested', properties: Hash[%w(metal color gem gender).map {|t| [t, { type: 'keyword' }]}].merge(Hash[%w(ring_size bracelet_size chain_size).map {|t| [t, { type: 'float' }]}])
+            indexes :realty, type: 'nested', properties: { type: { type: 'keyword' }, space: { type: 'float' } }
           end
         end
 

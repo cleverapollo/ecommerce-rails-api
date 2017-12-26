@@ -3,22 +3,24 @@ class UserProfile::PropertyCalculator
   include UserProfile::ChildrenCalculator
 
   # Вычисляет пол пользователя по историческим данным
-  # @param [Number|Array] user_id
+  # @param [Number|Array] session
   # @return [String] – m|f
-  def calculate_gender(user_id, sessions: nil)
+  def calculate_gender(session)
     score = { male: 0, female: 0 }
-    ProfileEvent.where(user_id: user_id, industry: ['fashion', 'cosmetic'], property: 'gender').each do |event|
-      if event.value == 'm'
-        score[:male] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-      end
-      if event.value == 'f'
-        score[:female] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-      end
-    end
 
     # Новый метод расчета пола из кликхауса
-    if sessions.present? && sessions.is_a?(Array)
-
+    events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
+    events.each do |event|
+      case event[0]
+        when 'cart'
+          i = 2
+        when 'purchase'
+          i = 5
+        else
+          i = 1
+      end
+      score[:male] += event[2] * i if event[1] == 'm'
+      score[:female] += event[2] * i if event[1] == 'f'
     end
 
     return nil if score[:male] == score[:female]
@@ -193,7 +195,7 @@ class UserProfile::PropertyCalculator
 
     # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
     score.each do |perfume, values|
-      median = values.map { |k, v| v }.max / 2.0
+      median = values.map { |k, v| v }.max.to_i / 2.0
       selected = values.select { |k,v| v >= median }.map { |k,v| k }.sort
       perfumes[perfume.to_s] = selected unless selected.empty?
     end

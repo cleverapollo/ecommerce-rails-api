@@ -5,9 +5,22 @@ describe UserProfile::PropertyCalculator do
   describe '.calculate_gender' do
     let!(:shop) { create(:shop) }
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
+    let!(:profile_event_cl_1) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'view') }
+    let!(:profile_event_cl_2) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'cart') }
+    let!(:profile_event_cl_3) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'cart') }
+    let!(:profile_event_cl_4) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'purchase') }
+    let!(:profile_event_cl_5) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'purchase') }
+    let!(:profile_event_cl_6) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'purchase') }
+    let!(:profile_event_cl_2_1) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'view') }
+    let!(:profile_event_cl_2_2) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'cart') }
+    let!(:profile_event_cl_2_3) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'cart') }
+    let!(:profile_event_cl_2_4) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'purchase') }
+    let!(:profile_event_cl_2_5) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'purchase') }
+    let!(:profile_event_cl_2_6) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'purchase') }
 
-    subject { UserProfile::PropertyCalculator.new.calculate_gender(user.id) }
+    subject { UserProfile::PropertyCalculator.new.calculate_gender(user.id, sessions: session) }
 
     context 'gender undefined' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
@@ -22,6 +35,7 @@ describe UserProfile::PropertyCalculator do
     context 'calculates as usual' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
       let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'f', views: 2, carts: 2, purchases: 3) }
+      let!(:profile_event_cl_2_7) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'view') }
 
       it 'returns female' do
         expect(subject).to eq 'f'
@@ -31,6 +45,9 @@ describe UserProfile::PropertyCalculator do
     context 'purchases more important' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'f', carts: 2) }
       let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'gender', value: 'm', purchases: 1) }
+      let!(:profile_event_cl_2_7) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'cart') }
+      let!(:profile_event_cl_2_8) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'cart') }
+      let!(:profile_event_cl_7) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'm', event: 'purchase') }
 
       it 'returns male because purchase more important' do
         expect(subject).to eq 'm'
