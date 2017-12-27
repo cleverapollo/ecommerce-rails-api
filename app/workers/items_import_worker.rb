@@ -81,9 +81,25 @@ class ItemsImportWorker
       end
 
       if item_params[:fashion].present?
-        item_struct.fashion_sizes = item_params.fetch(:fashion)[:sizes]
-        item_struct.fashion_gender = item_params.fetch(:fashion).fetch(:gender) if item_params.fetch(:fashion)[:gender].present?
-        item_struct.fashion_wear_type = item_params.fetch(:fashion).fetch(:type)
+        item_struct.fashion_gender = item_params.fetch(:fashion)[:gender]
+        item_struct.fashion_wear_type = item_params.fetch(:fashion)[:type]
+        fashion_sizes = []
+
+        item_params.fetch(:fashion)[:sizes].each do |fashion_size|
+          converted_size = nil
+          if item_struct.fashion_gender.present? &&  item_struct.fashion_wear_type.present? && fashion_size.to_i.zero?
+            size_table = "SizeTables::#{ item_struct.fashion_wear_type.camelcase }".safe_constantize
+            if size_table
+              table = size_table.new
+              size = Rees46ML::Size.new(value: fashion_size)
+              converted_size = size.ru? ? size.num : table.value(item_struct.fashion_gender, size.region, :adult, size.num)
+            end
+          end
+          fashion_sizes.push(converted_size.present? ? converted_size : fashion_size)
+        end
+
+        item_struct.fashion_sizes = fashion_sizes
+
       end
 
       if item_params[:cosmetic].present?
