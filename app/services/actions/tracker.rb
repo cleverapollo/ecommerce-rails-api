@@ -74,30 +74,49 @@ class Actions::Tracker
     })
   end
 
-  private
-
-  # @param [String] type
-  # @param [String] id
-  def track_object(type, id, price: 0, brand: nil)
+  def self.track_action(session_id, shop_id, seance, request, parameters = { })
+    event, object_type, id, price = parameters[:event], parameters[:object_type], parameters[:object_id], parameters[:price].to_i
+    recommended_by, recommended_code, brand =  parameters[:recommended_by], parameters[:recommended_code], parameters[:brand]
     begin
       ClickhouseQueue.actions({
-          session_id: params.session.id,
-          current_session_code: params.current_session_code,
-          shop_id: params.shop.id,
-          event: params.action,
-          object_type: type,
+          session_id: session_id,
+          current_session_code: seance,
+          shop_id: shop_id,
+          event: event,
+          object_type: object_type,
           object_id: id,
-          recommended_by: params.recommended_by.present? ? params.recommended_by : nil,
-          recommended_code: params.source.present? && params.source['code'].present? ? params.source['code'] : (params.recommended_code || nil),
+          recommended_by: recommended_by,
+          recommended_code: recommended_code,
           price: price,
           brand: brand,
-          referer: params.request.referer,
-          useragent: params.request.user_agent,
+          referer: request.referer,
+          useragent: request.user_agent,
       })
     rescue StandardError => e
       Rollbar.error 'Clickhouse action insert error', e
       raise e unless Rails.env.production?
     end
+  end
+
+  private
+
+  # @param [String] type
+  # @param [String] id
+  def track_object(type, id, price: 0, brand: nil)
+    push_to_actions(params.action, type, id, price, brand)
+  end
+
+  def track_search
+    push_to_actions('view', 'Search', params.raw[:search_query]) if params.raw[:search_query].present?
+  end
+
+  def push_to_actions(event, type, id, price = 0, brand = nil)
+    session_id, seance = params.session.id, params.current_session_code
+    shop_id, request, parameters = params.shop.id, params.request, {}
+    parameters[:event], parameters[:object_type], parameters[:object_id], parameters[:price], parameters[:brand] = event, type, id, price, brand
+    parameters[:recommended_by] = params.recommended_by.present? ? params.recommended_by : nil
+    parameters[:recommended_code] = params.source.present? && params.source['code'].present? ? params.source['code'] : (params.recommended_code || nil)
+    self.class.track_action(session_id, shop_id, seance, request, parameters)
   end
 
   # @param [String] type
@@ -149,16 +168,14 @@ class Actions::Tracker
   # Выполняется по завершению
   def process
     case params.action
-
       when 'cart'
         process_cart
-
       when 'purchase'
         process_purchase
-
+      when 'search'
+        track_search
       when 'remove_from_cart'
         process_remove_from_cart
-
       else
         nil
     end

@@ -30,6 +30,35 @@ describe DigestMailingLaunchWorker do
       end
     end
 
+    context 'include/excluding segments' do
+      let!(:segment1) { create(:segment, shop: shop) }
+      let!(:segment2) { create(:segment, shop: shop) }
+      let!(:segment3) { create(:segment, shop: shop) }
+      let!(:shop_email1) { create(:shop_email, shop: shop, email: 'test1@gmail.com') }
+      let!(:shop_email2) { create(:shop_email, shop: shop, email: 'test2@gmail.com') }
+      let!(:shop_email3) { create(:shop_email, shop: shop, email: 'test3@gmail.com') }
+      let!(:client1) { create(:client, email: shop_email1.email, shop: shop, segment_ids: [segment1.id]) }
+      let!(:client2) { create(:client, email: shop_email2.email, shop: shop, segment_ids: [segment2.id]) }
+      let!(:client3) { create(:client, email: shop_email3.email, shop: shop, segment_ids: [segment3.id]) }
+      let!(:mailing2) { create(:digest_mailing, shop: shop, segment_ids: [segment1.id], exclude_segment_ids: [segment2.id] ) }
+      let!(:mailing3) { create(:digest_mailing, shop: shop, segment_ids: [segment1.id, segment3.id], exclude_segment_ids: [segment2.id] ) }
+
+      it 'create batches excluding segments' do
+        parameters = base_params.merge({ 'id' => mailing2.id })
+        described_class.new.perform(parameters)
+        batch_counter = mailing2.batches.count
+        expect(batch_counter).to eq(1)
+        expect(mailing2.batches.first.client_ids).to eq([shop_email1.id])
+      end
+
+      it 'create batches including segments' do
+        parameters = base_params.merge({ 'id' => mailing3.id })
+        described_class.new.perform(parameters)
+        expect(mailing3.batches.count).to eq(1)
+        expect(mailing3.batches.first.client_ids).to eq([shop_email1.id, shop_email3.id])
+      end
+    end
+
     context 'common mode' do
       let(:test_email) { 'test@rees46demo.com' }
       let(:params_test_email) { base_params.merge({ 'test_email' => test_email }) }
@@ -78,7 +107,7 @@ describe DigestMailingLaunchWorker do
 
       it 'uses activity segments' do
         shop_email1.update segment_ids: [segment.id]
-        mailing.update segment: segment
+        mailing.update segment_ids: [segment.id]
         subject
         expect(mailing.reload.total_mails_count).to eq(1)
       end

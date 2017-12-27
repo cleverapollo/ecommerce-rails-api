@@ -2,9 +2,11 @@
 # Контроллер, обрабатывающий получение результатов поиска
 #
 class SearchController < ApplicationController
+  include ActionController::Cookies
   include ShopFetcher
 
   before_action :fetch_non_restricted_shop
+  after_action :push_search_event, only: :get
 
   def get
 
@@ -22,16 +24,17 @@ class SearchController < ApplicationController
     extracted_params = SearchEngine::Params.new(params)
     extracted_params.shop = @shop
     extracted_params.extract
+    @session = extracted_params.session
 
     # Запускаем процессор с извлеченными данными
     result = SearchEngine::Processor.process(extracted_params)
 
     # Настройки поиска магазина
-    search_setting, search_keyword = shop.search_setting, extracted_params.search_query.downcase.strip
-    NoResultQuery.where(shop_id: extracted_params.shop.id).where('query = ? OR synonym = ?', search_keyword, search_keyword).update_all('query_count = query_count + 1')
+    search_setting, @search_keyword = shop.search_setting, extracted_params.search_query.downcase.strip
+    NoResultQuery.where(shop_id: extracted_params.shop.id).where('query = ? OR synonym = ?', @search_keyword, @search_keyword).update_all('query_count = query_count + 1')
 
-    # Get search query redirect 
-    search_query_redirect = @shop.search_query_redirects.by_query(search_keyword).first
+    # Get search query redirect
+    search_query_redirect = @shop.search_query_redirects.by_query(@search_keyword).first
 
     # JSON body
     body = Jbuilder.encode do |json|
@@ -58,18 +61,17 @@ class SearchController < ApplicationController
         json.id     collection[:id]
         json.name   collection[:name]
       end
-      json.search_query_redirects do 
+      json.search_query_redirects do
         json.query search_query_redirect.query
-        json.redirect_link "#{search_query_redirect.redirect_link}?recommended_by=full_search&r46_search_query=#{search_keyword}"
+        json.redirect_link "#{search_query_redirect.redirect_link}?recommended_by=full_search&r46_search_query=#{@search_keyword}"
       end if search_query_redirect.present?
     end
 
     # Для полного поиска запоминаем для юзера запрос
     if extracted_params.search_query && extracted_params.type == 'full_search'
-      SearchQuery.find_or_create_by user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current, query: search_keyword
-      NoResultQuery.find_or_create_by(shop_id: extracted_params.shop.id, query: search_keyword) unless result.values.flatten.any?
+      SearchQuery.find_or_create_by user_id: extracted_params.user.id, shop_id: extracted_params.shop.id, date: Date.current, query: @search_keyword
+      NoResultQuery.find_or_create_by(shop_id: extracted_params.shop.id, query: @search_keyword) unless result.values.flatten.any?
     end
-
     render json: body
 
   rescue Finances::Error => e
@@ -112,4 +114,11 @@ class SearchController < ApplicationController
   end
 
 
+  private
+
+  def push_search_event
+    seance = cookies['rees46_session_code']
+    parameters = { event: 'view', object_type: 'Search', object_id: @search_keyword }
+    Actions::Tracker.track_action(@session.id, @shop.id, seance, request, parameters) if @search_keyword.present? && params[:type] == 'full_search'
+  end
 end
