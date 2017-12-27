@@ -5,11 +5,18 @@ describe DigestMailingBatchWorker do
   let!(:shop) { create(:shop, customer: customer) }
   let!(:settings) { create(:mailings_settings, shop: shop) }
   let!(:mailing) { create(:digest_mailing, shop: shop) }
-  let!(:segment) { create(:segment, shop: shop) }
-  let!(:shop_email) { create(:shop_email, shop: shop, email: 'test@rees46demo.com', segment_ids: [segment.id]) }
+  let!(:mailing1) { create(:digest_mailing, shop: shop) }
+  let!(:mailing2) { create(:digest_mailing, shop: shop) }
+  let!(:segment1) { create(:segment, shop: shop) }
+  let!(:segment2) { create(:segment, shop: shop) }
+  let!(:shop_email) { create(:shop_email, shop: shop, email: 'test@rees46demo.com', segment_ids: [segment1.id]) }
+  let!(:shop_email1) { create(:shop_email, shop: shop, email: 'test1@rees46demo.com', segment_ids: [segment2.id]) }
   let!(:batch) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop) }
   let!(:batch_without_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop) }
-  let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop, segment_id: segment.id) }
+  let!(:batch_with_segment) { create(:digest_mailing_batch, mailing: mailing, start_id: shop_email.id, end_id: shop_email.id, shop: shop, segment_ids: [segment1.id]) }
+  let!(:batch_with_segment1) { create(:digest_mailing_batch, mailing: mailing1, start_id: shop_email.id, end_id: shop_email1.id, shop: shop, segment_ids: nil, exclude_segment_ids: [segment1.id]) }
+  let!(:batch_with_segment2) { create(:digest_mailing_batch, mailing: mailing2, start_id: shop_email.id, end_id: shop_email1.id, shop: shop, segment_ids: nil, exclude_segment_ids: [segment1.id, segment2.id]) }
+
   subject { DigestMailingBatchWorker.new }
 
   describe '#perform' do
@@ -68,9 +75,17 @@ describe DigestMailingBatchWorker do
     # который исторически сохранился у вас в Redis и не удалился.
     # Нахера вообще такое надо было хранить в Redis?
     # Зайти в redis-cli и выполнить FLUSHALL
+
     it 'sends an email' do
       subject.perform(batch_without_segment.id)
       expect(batch_without_segment.reload.digest_mails.count).to eq(1)
+    end
+
+    it 'exclude segments' do
+      subject.perform(batch_with_segment1.id)
+      expect(mailing1.reload.mails.count).to eq(1)
+      subject.perform(batch_with_segment2.id)
+      expect(mailing2.reload.mails.count).to eq(0)
     end
 
     it 'does not send an email for client from another segment' do
@@ -78,6 +93,8 @@ describe DigestMailingBatchWorker do
       subject.perform(batch_with_segment.id)
       expect(batch_with_segment.reload.digest_mails.count).to eq(0)
     end
+
+
 
   end
 

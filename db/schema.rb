@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171220084627) do
+ActiveRecord::Schema.define(version: 20171225095119) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -436,16 +436,18 @@ ActiveRecord::Schema.define(version: 20171220084627) do
   add_index "digest_mail_statistics", ["shop_id"], name: "index_digest_mail_statistics_on_shop_id", using: :btree
 
   create_table "digest_mailing_batches", id: :bigserial, force: :cascade do |t|
-    t.integer "digest_mailing_id", limit: 8,                   null: false
-    t.integer "end_id",            limit: 8
-    t.boolean "completed",                     default: false, null: false
-    t.integer "start_id",          limit: 8
-    t.string  "test_email",        limit: 255
+    t.integer "digest_mailing_id",   limit: 8,                   null: false
+    t.integer "end_id",              limit: 8
+    t.boolean "completed",                       default: false, null: false
+    t.integer "start_id",            limit: 8
+    t.string  "test_email",          limit: 255
     t.integer "shop_id"
     t.integer "mailchimp_count"
     t.integer "mailchimp_offset"
     t.integer "segment_id"
-    t.integer "client_ids",        limit: 8,                                array: true
+    t.integer "client_ids",          limit: 8,                                array: true
+    t.integer "segment_ids",                                                  array: true
+    t.integer "exclude_segment_ids",                                          array: true
   end
 
   add_index "digest_mailing_batches", ["digest_mailing_id"], name: "index_digest_mailing_batches_on_digest_mailing_id", using: :btree
@@ -486,6 +488,8 @@ ActiveRecord::Schema.define(version: 20171220084627) do
     t.datetime "planing_at"
     t.jsonb    "statistic"
     t.string   "job_id"
+    t.integer  "segment_ids",                                                             array: true
+    t.integer  "exclude_segment_ids",                                                     array: true
   end
 
   add_index "digest_mailings", ["shop_id", "theme_id", "theme_type"], name: "index_digest_mailings_theme", using: :btree
