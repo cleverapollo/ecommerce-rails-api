@@ -96,6 +96,7 @@ class Client < ActiveRecord::Base
   # Обновляет email у клиента и запускает сбор профиля, если он изменился
   # @param [String] email
   def update_email(email)
+    old_email = self.email
     self.email = email
 
     # Если запись запись была обновлена
@@ -103,10 +104,10 @@ class Client < ActiveRecord::Base
       self.atomic_save!
 
       # Добавляем в список email магазина
-      ShopEmail.fetch(shop, email)
+      ShopEmail.fetch(shop, email) if email.present?
 
       # Запускаем сбор информации о профиле пользователя
-      # PropertyCalculatorWorker.perform_async(email)
+      PropertyCalculatorWorker.perform_async(email) if email.present? || old_email.present?
     end
   end
 

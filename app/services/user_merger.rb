@@ -128,7 +128,7 @@ class UserMerger
     def update_master(master)
       # Сливаем виртуальный профиль
       # master.gender = UserProfile::PropertyCalculator.new.calculate_gender master
-      master.fashion_sizes = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
+      # master.fashion_sizes = UserProfile::PropertyCalculator.new.calculate_fashion_sizes master
       master.cosmetic_hair = UserProfile::PropertyCalculator.new.calculate_hair master
       master.allergy = UserProfile::PropertyCalculator.new.calculate_allergy master
       master.cosmetic_skin = UserProfile::PropertyCalculator.new.calculate_skin master

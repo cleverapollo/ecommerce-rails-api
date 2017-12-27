@@ -37,7 +37,7 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Строим список для выборки юзеров
       # CLIENT --->
-      users_relation = shop.shop_emails.joins('LEFT JOIN clients ON shop_emails.shop_id = clients.shop_id AND shop_emails.email = clients.email')
+      users_relation = shop.shop_emails.with_clients
 
       # Location
       users_relation = users_relation.where(clients: { location: segment.filters[:demography][:locations] }) if segment.filters[:demography].present? && segment.filters[:demography][:locations].present?
@@ -148,8 +148,8 @@ class People::Segmentation::DynamicCalculateWorker
         end
       end
 
-      # Достаем список email
-      shop_emails = users_relation.pluck('shop_emails.id, shop_emails.email')
+      # Достаем список email c id
+      shop_emails = users_relation.pluck('DISTINCT shop_emails.id, shop_emails.email')
 
       # INDUSTRIAL FILTERS --->
       # Строим массив запроса
@@ -160,7 +160,6 @@ class People::Segmentation::DynamicCalculateWorker
       }
 
       # Demography
-
       query[:bool][:filter] << {term: {gender: segment.filters[:demography][:gender]}} if segment.filters[:demography].present? && segment.filters[:demography][:gender].present?
 
       # Fashion
@@ -178,9 +177,16 @@ class People::Segmentation::DynamicCalculateWorker
         end
       end
 
-      # Ищем фильтрованные профиля в Elastic
-      filtered_emails = People::Profile.repository.search("_source": ["id"], query: query).to_a.map{|r| r.attributes['id']}
-      raise 'Stop'
+      # ------->
+
+      # Если правила были добавлены, кроме самих email
+      if query[:bool][:filter].count > 1 && shop_emails.present?
+        # Ищем фильтрованные профиля в Elastic
+        filtered_emails = People::Profile.repository.search(_source: ['id'], query: query).to_a.map{|r| r.attributes['id']}
+
+        # Оставляем только отфильтрованные
+        shop_emails = shop_emails.select {|e| filtered_emails.include?(e[1]) }
+      end
 
       # Строим выборку
       # USER --->
@@ -193,9 +199,8 @@ class People::Segmentation::DynamicCalculateWorker
       # ------->
 
       # Достаем email юзеров
-      emails = shop.clients.where(user_id: relation.pluck(:id)).pluck(:email)
-      if emails.present?
-        shop_emails = shop.shop_emails.where(email: emails)
+      if shop_emails.present?
+        shop_emails = shop.shop_emails.where(id: shop_emails.map{|s| s[0]}.uniq)
         values = []
 
         # Добавляем услоие исключения

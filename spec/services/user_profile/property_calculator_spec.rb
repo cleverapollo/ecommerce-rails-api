@@ -20,7 +20,7 @@ describe UserProfile::PropertyCalculator do
     let!(:profile_event_cl_2_5) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'purchase') }
     let!(:profile_event_cl_2_6) { create(:profile_event_cl, shop: shop, session: session, industry: 'fashion', property: 'gender', value: 'f', event: 'purchase') }
 
-    subject { UserProfile::PropertyCalculator.new.calculate_gender(user.id, sessions: session) }
+    subject { UserProfile::PropertyCalculator.new.calculate_gender(session.id) }
 
     context 'gender undefined' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
@@ -59,9 +59,10 @@ describe UserProfile::PropertyCalculator do
 
     let!(:shop) { create(:shop) }
     let!(:user) { create(:user) }
+    let!(:session) { create(:session, user: user) }
 
 
-    subject { UserProfile::PropertyCalculator.new.calculate_fashion_sizes(user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_fashion_sizes(session.id) }
 
     context 'no events' do
 

@@ -11,16 +11,8 @@ class UserProfile::PropertyCalculator
     # Новый метод расчета пола из кликхауса
     events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
     events.each do |event|
-      case event[0]
-        when 'cart'
-          i = 2
-        when 'purchase'
-          i = 5
-        else
-          i = 1
-      end
-      score[:male] += event[2] * i if event[1] == 'm'
-      score[:female] += event[2] * i if event[1] == 'f'
+      score[:male] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'm'
+      score[:female] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'f'
     end
 
     return nil if score[:male] == score[:female]
@@ -30,34 +22,10 @@ class UserProfile::PropertyCalculator
 
 
   # Рассчитывает вероятные размеры одежды по типам одежды
-  # @param user User
+  # @param [Number|Array] session
   # @return Hash | nil
-  def calculate_fashion_sizes(user)
-    wear_sizes = {}
-    score = {}
-
-    # Заполняем хеш сырыми данными
-    # Не забываем, что поле value строковое и его нужно приводить к целым числам
-    ProfileEvent.where(user_id: user.id, industry: ['fashion']).where('property like $$size_%$$').each do |event|
-      wear_type = event.property.gsub('size_', '')
-      size = event.value
-      score[wear_type] = {} unless score.key?(wear_type)
-      score[wear_type][size] = 0 unless score[wear_type].key?(size)
-      score[wear_type][size] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-    end
-
-    return nil if score.empty?
-
-    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
-    # Запоминаем только размеры, а не их вероятность.
-    # На выходе что-то вроде: {'shoe' => [38, 39], 'coat' => [33, 35]}
-    score.each do |wear_type, sizes|
-      median = sizes.map { |k, v| v }.max / 2.0
-      selected_sizes = sizes.select { |k,v| v >= median }.map { |k,v| k.to_i }.sort
-      wear_sizes[wear_type] = selected_sizes unless selected_sizes.empty?
-    end
-
-    wear_sizes.empty? ? nil : wear_sizes
+  def calculate_fashion_sizes(session)
+    calculate_property_like('fashion', 'size', session)
   end
 
 
@@ -206,32 +174,10 @@ class UserProfile::PropertyCalculator
 
 
   # Определяет возможные марки автомобиля
-  # @param user User
+  # @param [Number|Array] session
   # @return Hash | nil
-  def calculate_compatibility(user)
-    compatibilities = {}
-    score = {}
-
-    # Заполняем хеш сырыми данными
-    ProfileEvent.where(user_id: user.id, industry: 'auto').where('property like $$compatibility_%$$').each do |event|
-      compatibility = event.property.gsub('compatibility_', '')
-      value = event.value
-      score[compatibility] = {} unless score.key?(compatibility)
-      score[compatibility][value] = 0 unless score[compatibility].key?(value)
-      score[compatibility][value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-    end
-
-    return nil if score.empty?
-
-    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
-    # На выходе что-то вроде: {'brand' => ['BMW', 'Audi'], 'model' => ['300', 'Aveo']}
-    score.each do |compatibility, values|
-      median = values.map { |k, v| v }.max / 2.0
-      selected = values.select { |k,v| v >= median }.map { |k,v| k }.sort
-      compatibilities[compatibility] = selected unless selected.empty?
-    end
-
-    compatibilities.empty? ? nil : compatibilities
+  def calculate_compatibility(session)
+    calculate_property_like('auto', 'compatibility', session)
   end
 
   # Определяет список VIN номеров
@@ -354,6 +300,53 @@ class UserProfile::PropertyCalculator
       calculated_data
     end
     calculated_data.any? ? calculated_data : nil
+  end
+
+  protected
+
+  # Делает расчеты для отрасли по параметру
+  # На выходе что-то вроде: {'brand' => ['BMW', 'Audi'], 'model' => ['300', 'Aveo']}
+  # @param [String] industry
+  # @param [String] property
+  # @param [Number|Array] session
+  # @return [Hash]
+  def calculate_property_like(industry, property, session)
+    properties = {}
+    score = {}
+
+    # Заполняем хеш сырыми данными
+    # Новый метод расчета из кликхауса
+    events = ProfileEventCl.where(industry: industry, session_id: session, event: %w(view cart purchase)).where("property LIKE '#{property}_%'").group(:event, :value, :property).pluck('event, value, count(*), property')
+    events.each do |event|
+      key = event[3].gsub("#{property}_", '')
+      value = event[1]
+      score[key] = {} unless score.key?(key)
+      score[key][value] = 0 unless score[key].key?(value)
+      score[key][value] += event[2] * calculate_score_for_event(event[0])
+    end
+    return nil if score.empty?
+
+    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
+    # На выходе что-то вроде: {'brand' => ['BMW', 'Audi'], 'model' => ['300', 'Aveo']}
+    score.each do |key, values|
+      median = values.map { |k, v| v }.max / 2.0
+      selected = values.select { |k,v| v >= median }.map { |k,v| k }.sort
+      properties[key] = selected unless selected.empty?
+    end
+
+    properties.empty? ? nil : properties
+  end
+
+  # Возвращает коэфициент для события
+  def calculate_score_for_event(event)
+    case event
+      when 'cart'
+        2
+      when 'purchase'
+        5
+      else
+        1
+    end
   end
 
 end

@@ -197,7 +197,7 @@ class ProfileEvent < ActiveRecord::Base
                   track_event(user, shop, 'fashion', "size_#{item.fashion_wear_type}", size, counter_field_name)
                 end
               end
-              properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
+              properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes @session_id
             end
 
           end
@@ -342,7 +342,13 @@ class ProfileEvent < ActiveRecord::Base
       end
 
       # Если есть поля для обновления пользователя – обновляем
-      user.update properties_to_update unless properties_to_update.empty?
+      if properties_to_update.present?
+        user.update properties_to_update
+
+        # ищем клиента в магазине по сессии (+ поддержка старой версии)
+        client = Client.find_by(shop: shop, session_id: @session_id) || Client.find_by(shop: shop, user: user)
+        PropertyCalculatorWorker.perform_async(email) if client.present? && client.email.present?
+      end
 
       true
     end
