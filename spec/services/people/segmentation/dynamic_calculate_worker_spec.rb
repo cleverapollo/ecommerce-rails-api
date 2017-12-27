@@ -113,13 +113,13 @@ describe People::Segmentation::DynamicCalculateWorker do
   end
 
   # Auto
-  it 'auto filter' do
-    segment.update(filters: { auto: { available: '1', brand: ['audi'], model: %w(a5 x5), year: { to: '2005', from: '1997' } } })
-    subject
-    expect(shop_email1.reload.segment_ids).to include(segment.id)
-    expect(shop_email2.reload.segment_ids).to be_nil
-    expect(shop_email3.reload.segment_ids).to be_nil
-  end
+  # it 'auto filter' do
+  #   segment.update(filters: { auto: { available: '1', brand: ['audi'], model: %w(a5 x5), year: { to: '2005', from: '1997' } } })
+  #   subject
+  #   expect(shop_email1.reload.segment_ids).to include(segment.id)
+  #   expect(shop_email2.reload.segment_ids).to be_nil
+  #   expect(shop_email3.reload.segment_ids).to be_nil
+  # end
 
   # Marketing
   context 'email marketing' do

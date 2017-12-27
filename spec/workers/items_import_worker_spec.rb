@@ -51,6 +51,32 @@ describe ItemsImportWorker do
         },
     ]
   }
+  let!(:items1) {
+    [
+      {
+        id: 2,
+        name: 'Red Shirt',
+        price: 2.0,
+        currency: 'USD',
+        url: 'http://google.com',
+        picture: 'http://google.com/2.png',
+        available: true,
+        categories: [1],
+        locations: [{location: 'spb', price: 2.0}],
+        brand: 'typo',
+        barcode: 'xxx',
+        price_margin: 1,
+        tags: [],
+        is_child: true,
+        is_fashion: true,
+        fashion: {
+          gender: 'm',
+          sizes: ['s', 'm', 'l', 'xxxl'],
+          type: 'jacket'
+        },
+      },
+    ]
+  }
   subject { ItemsImportWorker.new.perform(shop.id, items, 'put') }
 
   it 'valid url' do
@@ -102,7 +128,13 @@ describe ItemsImportWorker do
     expect(CatalogImportLog.count).to eq(1)
   end
 
-  it 'works with empty industries' do
+  it 'converts fashion sizes to number' do
+    ItemsImportWorker.new.perform(shop.id, items1, 'put')
+    item = Item.find_by(uniqid: items1.first[:id])
+    expect(item.fashion_sizes).to eq(["46", "48", "50", "60"])
+  end
+
+  it 'works with  empty industries' do
     ItemsImportWorker.new.perform(shop.id, [{
         id: 1,
         name: 'Shtaniy',

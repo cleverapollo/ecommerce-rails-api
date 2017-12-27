@@ -12,7 +12,7 @@ class DigestMailing < ActiveRecord::Base
   include Redis::Objects
   counter :sent_mails_count
   belongs_to :shop
-  belongs_to :segment
+  # belongs_to :segment
 
   has_many :mails, class_name: 'DigestMail'
   has_many :batches, class_name: 'DigestMailingBatch', dependent: :destroy

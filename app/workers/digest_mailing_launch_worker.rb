@@ -52,7 +52,7 @@ class DigestMailingLaunchWorker
           # Если пачки не были ранее созданы, то создаем пачки на всю аудиторию.
           offset = 0
           while offset < all_audience
-            digest_mailing.batches.create!(mailchimp_count: MAILCHIMP_BATCH_SIZE, mailchimp_offset: offset, shop_id: shop.id, segment_id: digest_mailing.segment_id)
+            digest_mailing.batches.create!(mailchimp_count: MAILCHIMP_BATCH_SIZE, mailchimp_offset: offset, shop_id: shop.id, segment_ids: digest_mailing.segment_ids, exclude_segment_ids: digest_mailing.exclude_segment_ids)
             offset += MAILCHIMP_BATCH_SIZE
           end
         end
@@ -71,7 +71,8 @@ class DigestMailingLaunchWorker
         audience_relation = audience_relation.with_clients
 
         # Добавляем фильтрацию по сегменту
-        audience_relation = audience_relation.with_clients_segment(digest_mailing.segment_id) if digest_mailing.segment_id.present?
+        audience_relation = audience_relation.with_clients_segment(digest_mailing.segment_ids) if digest_mailing.segment_ids.present?
+        audience_relation = audience_relation.without_clients_segment(digest_mailing.exclude_segment_ids) if digest_mailing.exclude_segment_ids.present?
 
         if digest_mailing.batches.incomplete.not_test.none?
           Slavery.on_slave do
@@ -79,7 +80,7 @@ class DigestMailingLaunchWorker
             audience_relation.select(:id).find_in_batches(batch_size: BATCH_SIZE) do |group|
               ids = group.map(&:id)
               Slavery.on_master do
-                digest_mailing.batches.create!(start_id: ids.min, end_id: ids.max, shop_id: shop.id, segment_id: digest_mailing.segment_id, client_ids: ids)
+                digest_mailing.batches.create!(start_id: ids.min, end_id: ids.max, shop_id: shop.id, segment_ids: digest_mailing.segment_ids, exclude_segment_ids: digest_mailing.exclude_segment_ids, client_ids: ids)
               end
             end
           end
