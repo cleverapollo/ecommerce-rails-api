@@ -1,8 +1,8 @@
-#- name: testing
-#  service: api
-#  command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
-#  encrypted_dockercfg_path: dockercfg.encrypted
-#  cached: true
+- name: testing
+  service: api
+  command: su rails -c 'chmod +x ci/test.sh && bash -l -c "ci/test.sh"'
+  encrypted_dockercfg_path: dockercfg.encrypted
+  cached: true
 - name: push
   type: push
   service: api
