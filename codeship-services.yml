@@ -1,3 +1,4 @@
+#основной образ, содержит всё необходимое для работы api
 api:
   build:
     image: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:release
@@ -9,11 +10,13 @@ api:
   links:
     - postgres
     - redis
+#Нужен для тестов
 postgres:
    image: postgres:latest
    environment:
      - POSTGRES_USER=rails
      - POSTGRES_PASSWORD=rails
      - POSTGRES_DB=rees46_test
+#Нужен для тестов
 redis:
    image:  redis:2.8
