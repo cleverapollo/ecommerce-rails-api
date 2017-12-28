@@ -1,15 +1,15 @@
 # IMPORTANT: в качесвте ключей для хешей, которые пойдут в БД, всегда используйте строки. Во избежание путаницы.
 class UserProfile::PropertyCalculator
-  include UserProfile::ChildrenCalculator
+  # include UserProfile::ChildrenCalculator
 
   # Вычисляет пол пользователя по историческим данным
-  # @param [Number|Array] session
+  # @param [Number|Array] session_id
   # @return [String] – m|f
-  def calculate_gender(session)
+  def calculate_gender(session_id)
     score = { male: 0, female: 0 }
 
     # Новый метод расчета пола из кликхауса
-    events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
+    events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session_id, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
     events.each do |event|
       score[:male] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'm'
       score[:female] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'f'
@@ -22,10 +22,12 @@ class UserProfile::PropertyCalculator
 
 
   # Рассчитывает вероятные размеры одежды по типам одежды
-  # @param [Number|Array] session
+  # @param [Number|Array] session_id
   # @return Hash | nil
-  def calculate_fashion_sizes(session)
-    calculate_property_like('fashion', 'size', session)
+  def calculate_fashion_sizes(session_id)
+    sizes = calculate_property_like('fashion', 'size', session_id)
+    sizes = sizes.map{|k,v| {k => v.map{|v| v.to_i}}}.reduce(:merge) if sizes.present?
+    sizes
   end
 
 
@@ -174,35 +176,17 @@ class UserProfile::PropertyCalculator
 
 
   # Определяет возможные марки автомобиля
-  # @param [Number|Array] session
+  # @param [Number|Array] session_id
   # @return Hash | nil
-  def calculate_compatibility(session)
-    calculate_property_like('auto', 'compatibility', session)
+  def calculate_compatibility(session_id)
+    calculate_property_like('auto', 'compatibility', session_id)
   end
 
   # Определяет список VIN номеров
-  # @param user User
+  # @param [Number|Array] session_id
   # @return Hash | nil
-  def calculate_vds(user)
-    score = {}
-
-    # Заполняем хеш сырыми данными
-    ProfileEvent.where(user_id: user.id, industry: 'auto', property: 'vds').each do |event|
-      value = event.value
-      score[value] = 0 unless score.key?(value)
-      score[value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
-    end
-
-    return nil if score.empty?
-
-    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
-    # На выходе массив VDS
-    # @param user User
-    # @return Hash | nil
-    median = score.map { |k, v| v }.max / 2.0
-    selected = score.select { |k,v| v >= median }.map { |k,v| k }.sort
-
-    selected.empty? ? nil : selected
+  def calculate_vds(session_id)
+    calculate_by_property('auto', 'vds', session_id)
   end
 
 
@@ -302,21 +286,124 @@ class UserProfile::PropertyCalculator
     calculated_data.any? ? calculated_data : nil
   end
 
+  # Рассчитывает детей покупателя
+  # Структура возвращаемого массива:
+  # [
+  #   { age: 0.25..2, gender: 'm' }
+  #   { gender: 'f' }
+  # ]
+  # @param [Number] session_id
+  # @return Hash[]
+  def calculate_children(session_id)
+
+    genders_raw_data = {'m' => {}, 'f' => {}, 'u' => {} }
+    kids = []
+
+    events = ProfileEventCl.where(industry: 'child', session_id: session_id, event: %w(view cart purchase), property: 'age').group(:event, :value, :date).pluck('event, value, count(*), date')
+    events.each do |event|
+      age_min, age_max, gender = event[1].split('_', 3)
+      gender = 'u' unless %w(m f).include?(gender)
+
+      if age_min.present? || age_max.present?
+        # Определение минимального и максимального возрастов
+        age_min, age_max = define_ages(event[3], age_min, age_max)
+
+        # Защита от дураков которые указывают отрицателны возраст или больше 20
+        age_min, age_max = dammy_protection(age_min, age_max)
+
+        # Приводим возраст к целочисленным индексам. Так как возраст кратен 0.25, умножаем его на 4, чтобы получить
+        # целый индекс для будущих массивов
+        age_min = (age_min * 4).to_i
+        age_max = (age_max * 4).to_i
+
+        # Расчетная числовая оценка
+        score = event[2] * calculate_score_for_event(event[0])
+
+        # Формируем векторы оценок по возрастам
+        (age_min..age_max).map do |x|
+          if genders_raw_data[gender].key?(x)
+            genders_raw_data[gender][x] += score
+          else
+            genders_raw_data[gender][x] = score
+          end
+        end
+
+      end
+    end
+
+    # todo birthdays не отправляются в кликхаус
+
+    # Для каждого пола убираем низкоприоритетные возрасты, оставляя отрезки
+    genders_raw_data.keys.each do |_gender|
+      if genders_raw_data[_gender].any?
+        genders_raw_data[_gender] = genders_raw_data[_gender].sort
+        median = genders_raw_data[_gender].map { |x| x[1] }.sum / genders_raw_data[_gender].count.to_f
+        genders_raw_data[_gender] = genders_raw_data[_gender].map { |x| x[1] > median ? x : nil }
+
+        # Делим на отрезки
+        genders_raw_data[_gender] = genders_raw_data[_gender].chunk { |x| x.nil? }.select { |x| x[0] == false }.map { |x| x[1] }
+      end
+    end
+
+    # Формируем список детей
+    genders_raw_data.each do |gender, parts|
+      parts.each do |element|
+        kid = { gender: gender }
+        if element.any?
+          if element.length == 1
+            kid[:age] = (element.first[0].to_f / 4.0)..(element.first[0].to_f / 4.0)
+          else
+            kid[:age] = (element.sort.first[0] / 4.0)..(element.sort.reverse.first[0].to_f / 4.0)
+          end
+        end
+        kids << kid
+      end
+    end
+
+    kids
+
+  end
+
   protected
+
+  # Делает расчеты для отрасли по параметру
+  # На выходе что-то вроде: ['BMW', 'Audi']
+  # @param [String] industry
+  # @param [String] property
+  # @param [Number|Array] session_id
+  # @return [Hash]
+  def calculate_by_property(industry, property, session_id)
+    score = {}
+
+    events = ProfileEventCl.where(industry: industry, session_id: session_id, event: %w(view cart purchase), property: property).group(:event, :value).pluck('event, value, count(*)')
+    events.each do |event|
+      value = event[1]
+      score[value] = 0 unless score.key?(value)
+      score[value] += event[2] * calculate_score_for_event(event[0])
+    end
+    return nil if score.empty?
+
+    # Очищаем маловероятные значения: исключаем те, которые встречаются с частотой в два раза меньше максимальной
+    # На выходе массив
+    median = score.map { |k, v| v }.max / 2.0
+    selected = score.select { |k,v| v >= median }.map { |k,v| k }.sort
+
+    selected.empty? ? nil : selected
+  end
 
   # Делает расчеты для отрасли по параметру
   # На выходе что-то вроде: {'brand' => ['BMW', 'Audi'], 'model' => ['300', 'Aveo']}
   # @param [String] industry
   # @param [String] property
-  # @param [Number|Array] session
+  # @param [Number|Array] session_id
   # @return [Hash]
-  def calculate_property_like(industry, property, session)
+  def calculate_property_like(industry, property, session_id)
     properties = {}
     score = {}
 
     # Заполняем хеш сырыми данными
     # Новый метод расчета из кликхауса
-    events = ProfileEventCl.where(industry: industry, session_id: session, event: %w(view cart purchase)).where("property LIKE '#{property}_%'").group(:event, :value, :property).pluck('event, value, count(*), property')
+    events = ProfileEventCl.where(industry: industry, session_id: session_id, event: %w(view cart purchase)).where("property LIKE '#{property}_%'").group(:event, :value, :property).pluck('event, value, count(*), property')
     events.each do |event|
       key = event[3].gsub("#{property}_", '')
       value = event[1]
@@ -347,6 +434,43 @@ class UserProfile::PropertyCalculator
       else
         1
     end
+  end
+
+  # Проверка мин / мак возрастов. Учет даты создания события - старение ребенка.
+  # @param [Date] event_created_at
+  # @param [Number] age_min
+  # @param [Number] age_max
+  def define_ages(event_created_at, age_min, age_max)
+    age_min = age_min.to_f if age_min.present?
+    age_max = age_max.to_f if age_max.present?
+
+    # Если не указана одна из границ, определяем ее как вдвое больше/меньше от присутствующей
+    age_min = age_max / 2.0 unless age_min.present?
+    age_max = age_min * 2.0 unless age_max.present?
+
+    # Сколько месяцев назад было создано событие
+    date = Date.current
+    difference = (date.year * 12 + date.month) - (event_created_at.year * 12 + event_created_at.month)
+
+    # К возрасту добавляем рассчитаную разницу если она есть
+    if difference > 0
+      add = difference.to_f / 12
+      age_min += add
+      age_max += add
+    end
+
+    [age_min, age_max]
+  end
+
+  # Костыль: У MyToys бывает максимальный возраст в 178956970, поэтому делаем дополнительную проверку
+  # И бывают еще отрицательные возрасты.
+  def dammy_protection(age_min, age_max)
+    age_min = 0 unless (0..20).include?(age_min)
+
+    age_max = 0 if age_max < 0
+    age_max = 16 if age_max > 20
+
+    [age_min, age_max]
   end
 
 end

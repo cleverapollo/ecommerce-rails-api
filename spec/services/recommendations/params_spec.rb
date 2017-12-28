@@ -73,24 +73,6 @@ describe Recommendations::Params do
 
   end
 
-
-  describe '.extract by email' do
-    let(:client) { create(:client, user: user, email: 'kechinoff@gmail.com', shop: shop) }
-
-    let(:params) do
-      {
-        email: client.email,
-        shop_id: shop.uniqid,
-        recommender_type: 'interesting'
-      }
-    end
-
-    include_examples "raise error without param", :email
-
-    it{ expect(subject.user).to eq(user) }
-  end
-
-
   describe '.extract search query' do
 
     let!(:params) do
@@ -130,24 +112,6 @@ describe Recommendations::Params do
     it 'without discount' do
       params.delete :discount
       expect(subject.discount).to be_falsey
-    end
-
-  end
-
-  context '.blank user' do
-    let(:params) do
-      {
-        ssid: session.code,
-        shop_id: shop.uniqid,
-        recommender_type: 'interesting',
-        resize_image: '120'
-      }
-    end
-
-    it '.extract and create new user' do
-      user.delete
-      expect(subject.user).not_to be_nil
-      expect(subject.user).not_to eq(user)
     end
 
   end

@@ -2,12 +2,13 @@ require 'rails_helper'
 
 describe Recommender::Impl::SeeAlso do
   let!(:shop) { create(:shop, has_products_jewelry: true, has_products_kids: true, has_products_fashion: true, has_products_pets: true, has_products_cosmetic: true, has_products_fmcg: true, has_products_auto: true) }
-  let!(:user) { create(:user, children: [{'gender' => 'm'}]) }
+  let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
   let!(:item1) { create(:item, shop: shop, category_ids: '{3}') }
   let!(:item2) { create(:item, shop: shop, category_ids: '{3,5}') }
   let!(:item3) { create(:item, shop: shop, category_ids: '{7}') }
   let!(:item4) { create(:item, shop: shop, category_ids: '{12}') }
+  let!(:profile) { People::Profile.new(children: [{'gender' => 'm'}]) }
 
   describe '#recommendations' do
     it 'returns ids of also bought items' do
@@ -68,7 +69,7 @@ describe Recommender::Impl::SeeAlso do
         order.save!
       }
 
-      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'see_also', skip_niche_algorithms: false) }
+      let!(:params) { OpenStruct.new(shop: shop, user: user, item: item1, cart_item_ids: [item2.id], locations: [], limit: 7, type: 'see_also', skip_niche_algorithms: false, profile: profile) }
 
       context 'kids' do
 
@@ -89,7 +90,7 @@ describe Recommender::Impl::SeeAlso do
         end
 
         it 'skips industrial filter for 2 kids of different genders' do
-          user.update children: [{'gender' => 'm'}, {'gender' => 'f'}]
+          params.profile = People::Profile.new(children: [{'gender' => 'm'}, {'gender' => 'f'}])
           item3.update is_child: true, child_gender: 'f'
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
         end
@@ -108,50 +109,50 @@ describe Recommender::Impl::SeeAlso do
         end
 
         it 'checks gender' do
-          user.update jewelry: {'gender' => 'f'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'gender' => 'f'})
           expect( Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'gender' => 'm'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'gender' => 'm'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to_not include(item3.uniqid)
         end
 
         it 'checks materials' do
-          user.update jewelry: {'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'gold', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'gold', 'gem' => 'diamond'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'ruby'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'ruby'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'diamond'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to_not include(item3.uniqid)
         end
 
-        it 'checks sizes' do
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '-', 'chain_size' => '-'}
-          params.user = user
+        it 'checks sizes 1' do
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '-', 'chain_size' => '-'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '16', 'chain_size' => '-'}
-          params.user = user
+        end
+
+        it 'checks sizes 2' do
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '-', 'bracelet_size' => '16', 'chain_size' => '-'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '-', 'chain_size' => '16'}
-          params.user = user
+        end
+
+        it 'checks sizes 3' do
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '-', 'bracelet_size' => '-', 'chain_size' => '16'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '16', 'chain_size' => '16'}
-          params.user = user
+        end
+
+        it 'checks sizes 4' do
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '16', 'chain_size' => '16'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
-          user.update jewelry: {'ring_size' => '15', 'bracelet_size' => '15', 'chain_size' => '15'}
-          params.user = user
+        end
+
+        it 'checks sizes 5' do
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '15', 'bracelet_size' => '15', 'chain_size' => '15'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to_not include(item3.uniqid)
         end
 
         it 'checks full profile' do
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '17', 'chain_size' => '18', 'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond', 'gender' => 'f'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '17', 'chain_size' => '18', 'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond', 'gender' => 'f'})
           expect(Recommender::Impl::SeeAlso.new(params).recommendations).to include(item3.uniqid)
         end
 

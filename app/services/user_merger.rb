@@ -133,9 +133,9 @@ class UserMerger
       master.allergy = UserProfile::PropertyCalculator.new.calculate_allergy master
       master.cosmetic_skin = UserProfile::PropertyCalculator.new.calculate_skin master
       master.cosmetic_perfume = UserProfile::PropertyCalculator.new.calculate_perfume master
-      master.children = UserProfile::PropertyCalculator.new.calculate_children master
+      # master.children = UserProfile::PropertyCalculator.new.calculate_children master
       master.compatibility = UserProfile::PropertyCalculator.new.calculate_compatibility master
-      master.vds = UserProfile::PropertyCalculator.new.calculate_vds master
+      # master.vds = UserProfile::PropertyCalculator.new.calculate_vds master
       master.pets = UserProfile::PropertyCalculator.new.calculate_pets master
       master.realty = UserProfile::PropertyCalculator.new.calculate_realty master
       master.atomic_save! if master.changed?

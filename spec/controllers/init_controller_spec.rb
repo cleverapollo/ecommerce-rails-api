@@ -204,6 +204,25 @@ describe InitController do
       it_behaves_like 'an api initializer'
     end
 
+    context 'user profile' do
+      let!(:customer) { create(:customer) }
+      let!(:shop) { create(:shop, customer: customer) }
+      let!(:user) { create(:user) }
+      let!(:session) { create(:session, user: user) }
+      let!(:client) { create(:client, :with_email, shop: shop, session: session) }
+      let!(:init_params) { { shop_id: shop.uniqid, v: 3, ssid: session.code } }
+
+      before do
+        # Возвращаем структуру ответа из Elastic
+        allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new(id: client.email))
+      end
+
+      it 'exist' do
+        get :init_script, init_params
+        expect(JSON.parse(response.body)['profile']).not_to be_nil
+      end
+    end
+
     context 'mark sources as clicked' do
 
       let!(:customer) { create(:customer) }

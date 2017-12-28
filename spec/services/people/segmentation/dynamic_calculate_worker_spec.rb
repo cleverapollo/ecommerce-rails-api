@@ -16,7 +16,7 @@ describe People::Segmentation::DynamicCalculateWorker do
       compatibility: { brand: %w(audi bmw), model: %w(a5 a1) }
   ) }
   let!(:session1) { create(:session, user: user1, code: 'c1') }
-  let!(:client1) { create(:client, user: user1, shop: shop,
+  let!(:client1) { create(:client, user: user1, shop: shop, session: session1,
       email: 'test@test.com', bought_something: true, location: 'spb', created_at: 1.month.ago
   ) }
   let!(:shop_email1) { create(:shop_email, shop: shop, email: client1.email, digest_opened: true) }
@@ -28,7 +28,7 @@ describe People::Segmentation::DynamicCalculateWorker do
       compatibility: { brand: %w(bmw), model: %w(x5) }
   ) }
   let!(:session2) { create(:session, user: user2, code: 'c2') }
-  let!(:client2) { create(:client, user: user2, shop: shop,
+  let!(:client2) { create(:client, user: user2, shop: shop, session: session2,
       email: 'test2@test.com', bought_something: true, location: 'spb'
   ) }
   let!(:shop_email2) { create(:shop_email, shop: shop, email: client2.email, digest_opened: true) }
@@ -36,7 +36,7 @@ describe People::Segmentation::DynamicCalculateWorker do
   # User 3
   let!(:user3) { create(:user) }
   let!(:session3) { create(:session, user: user3, code: 'c3') }
-  let!(:client3) { create(:client, user: user3, shop: shop, email: 'test3@test.com') }
+  let!(:client3) { create(:client, user: user3, shop: shop, email: 'test3@test.com', session: session3) }
   let!(:shop_email3) { create(:shop_email, shop: shop, email: client3.email) }
 
   # Shop email 4
@@ -64,62 +64,90 @@ describe People::Segmentation::DynamicCalculateWorker do
   let!(:digest_mail2) { create(:digest_mail, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch, client: client2, shop_email: shop_email2, opened: false) }
   let!(:digest_mail3) { create(:digest_mail, shop: shop, mailing: digest_mailing, batch: digest_mailing_batch, shop_email: shop_email4, opened: true, created_at: 1.days.ago) }
 
+  # Emails return
+  let(:emails) { [] }
+
   subject { People::Segmentation::DynamicCalculateWorker.new.perform segment.id }
+
+  before do
+    # Возвращаем структуру ответа из Elastic
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:search).and_return(emails.map{|e| OpenStruct.new(attributes: {'id' => e}) })
+  end
 
   it 'include all clients' do
     subject
     expect(shop_email1.reload.segment_ids).to include(segment.id)
     expect(shop_email2.reload.segment_ids).to include(segment.id)
     expect(shop_email3.reload.segment_ids).to include(segment.id)
-    expect(segment.reload.client_count).to eq(3)
-    expect(segment.reload.with_email_count).to eq(3)
-    expect(segment.reload.digest_client_count).to eq(3)
+    expect(segment.reload.client_count).to eq(4)
+    expect(segment.reload.with_email_count).to eq(4)
+    expect(segment.reload.digest_client_count).to eq(4)
     expect(segment.reload.updating).to be_falsey
   end
 
   # Demography
-  it 'demography filter' do
-    segment.update(filters: { demography: {gender: 'm', locations: ['spb']} })
-    subject
-    expect(shop_email1.reload.segment_ids).to include(segment.id)
-    expect(shop_email2.reload.segment_ids).to be_nil
-    expect(shop_email3.reload.segment_ids).to be_nil
+  context 'demography' do
+    let(:emails) { [shop_email1.email] }
+
+    it 'filter' do
+      segment.update(filters: { demography: {gender: 'm', locations: ['spb']} })
+      subject
+      expect(shop_email1.reload.segment_ids).to include(segment.id)
+      expect(shop_email2.reload.segment_ids).to be_nil
+      expect(shop_email3.reload.segment_ids).to be_nil
+    end
   end
 
   # Fashion
-  it 'fashion filter' do
-    segment.update(filters: { fashion: Hash[WearTypeDictionary.pluck('DISTINCT type_name').map { |t| [t.to_sym, %w(38 40)] }] })
-    subject
-    expect(shop_email1.reload.segment_ids).to include(segment.id)
-    expect(shop_email2.reload.segment_ids).to be_nil
-    expect(shop_email3.reload.segment_ids).to be_nil
+  context 'fashion' do
+    let(:emails) { [shop_email1.email] }
+
+    it 'filter' do
+      segment.update(filters: { fashion: Hash[WearTypeDictionary.pluck('DISTINCT type_name').map { |t| [t.to_sym, %w(38 40)] }] })
+      subject
+      expect(shop_email1.reload.segment_ids).to include(segment.id)
+      expect(shop_email2.reload.segment_ids).to be_nil
+      expect(shop_email3.reload.segment_ids).to be_nil
+    end
   end
 
   # Child
-  it 'child filter' do
-    segment.update(filters: { child: { available: '1', age: { from: '0', to: '14' } } })
-    subject
-    expect(shop_email1.reload.segment_ids).to include(segment.id)
-    expect(shop_email2.reload.segment_ids).to include(segment.id)
-    expect(shop_email3.reload.segment_ids).to be_nil
+  context 'child' do
+    let(:emails) { [shop_email1.email, shop_email2.email] }
+
+    it 'filter' do
+      segment.update(filters: { child: { available: '1', age: { from: '0', to: '14' } } })
+      subject
+      expect(shop_email1.reload.segment_ids).to include(segment.id)
+      expect(shop_email2.reload.segment_ids).to include(segment.id)
+      expect(shop_email3.reload.segment_ids).to be_nil
+    end
   end
 
-  it 'child filter with gender' do
-    segment.update(filters: { child: { available: '1', age: { from: '6', to: '14' }, gender: 'm' } })
-    subject
-    expect(shop_email1.reload.segment_ids).to include(segment.id)
-    expect(shop_email2.reload.segment_ids).to be_nil
-    expect(shop_email3.reload.segment_ids).to be_nil
+  context 'child with gender' do
+    let(:emails) { [shop_email1.email] }
+
+    it 'filter' do
+      segment.update(filters: { child: { available: '1', age: { from: '6', to: '14' }, gender: 'm' } })
+      subject
+      expect(shop_email1.reload.segment_ids).to include(segment.id)
+      expect(shop_email2.reload.segment_ids).to be_nil
+      expect(shop_email3.reload.segment_ids).to be_nil
+    end
   end
 
   # Auto
-  # it 'auto filter' do
-  #   segment.update(filters: { auto: { available: '1', brand: ['audi'], model: %w(a5 x5), year: { to: '2005', from: '1997' } } })
-  #   subject
-  #   expect(shop_email1.reload.segment_ids).to include(segment.id)
-  #   expect(shop_email2.reload.segment_ids).to be_nil
-  #   expect(shop_email3.reload.segment_ids).to be_nil
-  # end
+  context 'auto' do
+    let(:emails) { [shop_email1.email] }
+
+    it 'filter' do
+      segment.update(filters: { auto: { available: '1', brand: ['audi'], model: %w(a5 x5), year: { to: '2005', from: '1997' } } })
+      subject
+      expect(shop_email1.reload.segment_ids).to include(segment.id)
+      expect(shop_email2.reload.segment_ids).to be_nil
+      expect(shop_email3.reload.segment_ids).to be_nil
+    end
+  end
 
   # Marketing
   context 'email marketing' do

@@ -15,6 +15,7 @@ class PropertyCalculatorWorker
     properties[:gender] = UserProfile::PropertyCalculator.new.calculate_gender(sessions)
     properties[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes(sessions)
     properties[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility(sessions)
+    properties[:children] = UserProfile::PropertyCalculator.new.calculate_children (sessions)
 
     # Обновляем профиль в Elastic
     People::Profile.new(properties.compact).save

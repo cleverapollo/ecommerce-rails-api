@@ -99,12 +99,51 @@ class People::Profile
       end
     end
 
+    # Находит профиль юзера
+    # @return [People::Profile]
+    def find(email)
+      begin
+        return People::Profile.repository.find(email) if email.present?
+      rescue Elasticsearch::Persistence::Repository::DocumentNotFound => e
+        Rails.logger.debug e
+      end
+      nil
+    end
+
   end
 
   attr_reader :attributes
 
   def initialize(attributes={})
-    @attributes = attributes
+    @attributes = attributes.with_indifferent_access
+  end
+
+  def gender
+    self.attributes['gender']
+  end
+
+  def jewelry
+    self.attributes['jewelry']
+  end
+
+  def fashion_sizes
+    self.attributes['fashion_sizes']
+  end
+
+  def compatibility
+    self.attributes['compatibility']
+  end
+
+  def vds
+    self.attributes['vds']
+  end
+
+  def pets
+    self.attributes['pets']
+  end
+
+  def children
+    self.attributes['children']
   end
 
   def to_hash

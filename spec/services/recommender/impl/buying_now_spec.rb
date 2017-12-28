@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Recommender::Impl::BuyingNow do
   let!(:shop) { create(:shop, has_products_jewelry: true, has_products_kids: true, has_products_fashion: true, has_products_pets: true, has_products_cosmetic: true, has_products_fmcg: true, has_products_auto: true) }
-  let!(:user) { create(:user, gender: 'm') }
+  let!(:user) { create(:user) }
   let!(:session) { create(:session, user: user) }
   let!(:other_user) { create(:user) }
   let!(:test_item) { create(:item, shop: shop, sales_rate: 10000, discount: true) }
@@ -13,7 +13,7 @@ describe Recommender::Impl::BuyingNow do
     let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), category_ids: "{1}") }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'buying_now') }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 7, type: 'buying_now', profile: People::Profile.new(gender: 'm')) }
 
   def create_action(user_data, item, is_buy = false)
     ActionCl.create!(shop: shop, session: user_data.sessions.first, current_session_code: SecureRandom.uuid, event: is_buy ? 'purchase' : 'cart', object_type: 'Item', object_id: item.uniqid, useragent: 'test', referer: 'test', date: 1.day.ago.to_date, created_at: 1.day.ago)

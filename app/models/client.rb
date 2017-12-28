@@ -37,6 +37,8 @@ class Client < ActiveRecord::Base
       with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', last_activity).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     end
   end
+  # Пока у клиентов не может быть сегментов, т.к. перенесено в ShopEmail
+  # В будущем будут сегменты для вебпушей
   scope :with_segment, -> (segment_id) { where('clients.segment_ids @> ARRAY[?]', segment_id) }
   scope :with_segments, -> (segment_ids) { where('clients.segment_ids && ARRAY[?]::int[]', segment_ids) }
 

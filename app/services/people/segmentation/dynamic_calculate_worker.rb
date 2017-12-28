@@ -10,6 +10,7 @@ class People::Segmentation::DynamicCalculateWorker
     end
   end
 
+  # @param [Number] segment_id
   def perform(segment_id)
     return if segment_id.blank?
 
@@ -145,7 +146,7 @@ class People::Segmentation::DynamicCalculateWorker
           end
 
           # Добавляем фильтр
-          users_relation.where(clients: { session_id: sessions.uniq })
+          users_relation = users_relation.where(clients: { session_id: sessions.uniq })
         end
       end
 
@@ -154,7 +155,7 @@ class People::Segmentation::DynamicCalculateWorker
 
       # INDUSTRIAL FILTERS --->
       # Строим массив запроса
-      query = hash_with_default_hash
+      query = Hash.recursive
       query[:bool][:filter] = []
       query[:bool][:filter] << {
           terms: { id: shop_emails.map{|s| s[1]}.uniq }
@@ -167,15 +168,21 @@ class People::Segmentation::DynamicCalculateWorker
       if segment.filters[:fashion].present?
         wear = WearTypeDictionary.pluck('DISTINCT type_name')
         segment.filters[:fashion].each do |k,v|
-          query[:bool][:filter] << nested_search_hash('fashion_sizes', k, v) if wear.include?(k)
+          query[:bool][:filter] << nested_search_must('fashion_sizes', k, v) if wear.include?(k)
         end
       end
 
       # Auto
       if segment.filters[:auto].present?
         %w(brand model).each do |k|
-          query[:bool][:filter] << nested_search_hash('compatibility', k, segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
+          query[:bool][:filter] << nested_search_must('compatibility', k, segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
         end
+      end
+
+      # Child
+      if segment.filters[:child].present? && segment.filters[:child][:available].to_i == 1
+        query[:bool][:filter] << nested_search_range('children', 'age', segment.filters[:child][:age][:from].to_f..segment.filters[:child][:age][:to].to_f)
+        query[:bool][:filter] << nested_search_must('children', 'gender', segment.filters[:child][:gender]) if segment.filters[:child][:gender].present?
       end
 
       # ------->
@@ -188,16 +195,6 @@ class People::Segmentation::DynamicCalculateWorker
         # Оставляем только отфильтрованные
         shop_emails = shop_emails.select {|e| filtered_emails.include?(e[1]) }
       end
-
-      # Строим выборку
-      # USER --->
-
-      # Child
-      # if segment.filters[:child].present? && segment.filters[:child][:available].to_i == 1
-      #   relation = relation.from('users, jsonb_array_elements(children) child').where('(child.value->>\'age_min\')::FLOAT >= ? AND (child.value->>\'age_max\')::FLOAT < ?', segment.filters[:child][:age][:from], segment.filters[:child][:age][:to])
-      #   relation = relation.where('children @> ?', [{gender: segment.filters[:child][:gender]}].to_json) if segment.filters[:child][:gender].present?
-      # end
-      # ------->
 
       # Достаем email юзеров
       if shop_emails.present?
@@ -219,7 +216,7 @@ class People::Segmentation::DynamicCalculateWorker
         segments = shop.segments.visible.where(id: segment.filters[:marketing][:include_from_segments].map(&:to_i)).pluck(:id)
 
         # Добавляем фильтр в котором email в уже сегменте не попадают в выборку
-        shop_emails = shop.shop_emails.where('NOT (segment_ids && ARRAY[?]::int[])', segment.id).with_segments(segments)
+        shop_emails = shop.shop_emails.where('NOT (segment_ids && ARRAY[?]::int[])', segment.id).with_segment(segments)
 
         # Добавляем услоие исключения
         if segment.filters[:marketing].present? && segment.filters[:marketing][:exclude_from_segments].present?
@@ -243,21 +240,31 @@ class People::Segmentation::DynamicCalculateWorker
 
   private
 
-  def hash_with_default_hash
-    Hash.new { |hash, key| hash[key] = hash_with_default_hash }
-  end
-
   # Добавляет в выборку условие для nested поля
-  def nested_search_hash(path, key, values)
+  def nested_search_hash(path, query)
     {
         nested: {
             path: path,
-            query: {
-                bool: {
-                    must: { "term#{values.is_a?(Array) ? 's' : ''}": {"#{path}.#{key}": values} }
-                }
-            }
+            query: query
         }
     }
+  end
+
+  # Добавляет в выборку условие фильтра для nested поля
+  def nested_search_must(path, key, values)
+    nested_search_hash(path, {
+        bool: {
+            must: { "term#{values.is_a?(Array) ? 's' : ''}": {"#{path}.#{key}": values} }
+        }
+    })
+  end
+
+  # Добавляет в выборку условие фильтра для nested поля c диапазоном
+  def nested_search_range(path, key, range)
+    nested_search_hash(path, {
+        range: {
+            "#{path}.#{key}": { gte: range.first, lte: range.last }
+        }
+    })
   end
 end

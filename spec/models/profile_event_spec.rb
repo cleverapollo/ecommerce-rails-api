@@ -4,6 +4,8 @@ describe ProfileEvent do
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
   let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
+  let!(:client) { create(:client, :with_email, user: user, session: session, shop: shop) }
 
   describe '.track_items' do
 
@@ -57,27 +59,28 @@ describe ProfileEvent do
 
     let!(:item_simple) { create(:item, shop: shop ) }
     let!(:session) { create(:session, user: user) }
-    let(:clickhouse_queue) { ClickhouseQueue }
 
     let!(:action) { 'view' }
 
     context 'common calculations' do
 
       it 'saves 1 event' do
-        expect{ ProfileEvent.track_items(user, shop, action, [item_1]) }.to change(ProfileEvent, :count).by 1
-        profile_event = ProfileEvent.first
-        expect(profile_event.views).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).once
+
+        ProfileEvent.track_items(user, shop, action, [item_1], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves 2 events' do
-        expect{ ProfileEvent.track_items(user, shop, action, [item_2, item_3]) }.to change(ProfileEvent, :count).by 2
+        expect(ClickhouseQueue).to receive(:profile_events).twice
+
+        ProfileEvent.track_items(user, shop, action, [item_2, item_3], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'changes counters' do
-        ProfileEvent.track_items(user, shop, action, [item_1])
-        ProfileEvent.track_items(user, shop, action, [item_1])
-        profile_event = ProfileEvent.first
-        expect(profile_event.views).to eq 2
+        expect(ClickhouseQueue).to receive(:profile_events).twice
+
+        ProfileEvent.track_items(user, shop, action, [item_1], session_id: session.id, current_session_code: SecureRandom.uuid)
+        ProfileEvent.track_items(user, shop, action, [item_1], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
     end
@@ -85,94 +88,57 @@ describe ProfileEvent do
     context 'tracks cosmetic' do
 
       it 'saves customer gender for cosmetic' do
-        ProfileEvent.track_items(user, shop, action, [item_3])
-        profile_event = ProfileEvent.first
-        expect(profile_event.industry).to eq 'cosmetic'
-        expect(profile_event.property).to eq 'gender'
-        expect(profile_event.value).to eq 'm'
-        expect(user.reload.gender).to eq 'm'
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: action, industry: 'cosmetic', property: 'gender', value: 'm')).once
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, action, [item_3], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves hair type and condition for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'view', [item_8, item_9, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_8, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_9, item_simple])
-        expect(ProfileEvent.count).to eq 3
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_condition', value: 'damage').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_condition', value: 'damage').purchases).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_condition', value: 'oily').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_condition', value: 'oily').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').views).to eq 2
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'hair_type', value: 'long').purchases).to eq 1
-        expect(user.reload.cosmetic_hair['condition']).to eq('damage')
-        expect(user.reload.cosmetic_hair['type']).to eq('long')
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'hair_condition', value: 'oily'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'hair_type', value: 'long'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'view', [item_8, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves allergy for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'purchase', [item_7, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_7, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_7, item_simple])
-        expect(ProfileEvent.count).to eq 1
-        profile_event = ProfileEvent.first
-        expect(profile_event.industry).to eq 'cosmetic'
-        expect(profile_event.property).to eq 'hypoallergenic'
-        expect(profile_event.value).to eq '1'
-        expect(profile_event.purchases).to eq 3
-        expect(user.reload.allergy).to be_truthy
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'cosmetic', property: 'hypoallergenic', value: '1'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'purchase', [item_7, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves skin for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'purchase', [item_10, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_11, item_simple])
-        ProfileEvent.track_items(user, shop, 'view', [item_12, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_13, item_simple])
-        expect(ProfileEvent.count).to eq 6
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_body', value: 'oily').purchases).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_body', value: 'damage').purchases).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_hand', value: 'normal').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_hand', value: 'tattoo').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_condition_leg', value: 'tattoo').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'skin_type_hand', value: 'soft').purchases).to eq 1
-        expect(user.reload.cosmetic_skin['leg']['condition']).to eq(['tattoo'])
-        expect(user.reload.cosmetic_skin['hand']['condition']).to eq(['tattoo'])
-        expect(user.reload.cosmetic_skin['hand']['type']).to eq(['soft'])
-        expect(user.reload.cosmetic_skin['body']['type']).to eq(['oily'])
-        expect(user.reload.cosmetic_skin['body']['condition']).to eq(['damage'])
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'cosmetic', property: 'skin_type_body', value: 'oily'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'cosmetic', property: 'skin_condition_body', value: 'damage'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'purchase', [item_10, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves nail for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'view', [item_26, item_36, item_37, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_26, item_38, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_26, item_39, item_simple])
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'nail_type', value: 'tool')).exactly(3).times
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'nail_type', value: 'gel'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'nail_type', value: 'polish_red'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
 
-        expect(ProfileEvent.count).to eq 3
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'tool').views).to eq 3
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'gel').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'nail_type', value: 'polish_red').purchases).to eq 1
+        ProfileEvent.track_items(user, shop, 'view', [item_26, item_36, item_37, item_38, item_39, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves perfume for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'view', [item_27, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_27, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_27, item_simple])
-        expect(ProfileEvent.count).to eq 2
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus').purchases).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'perfume_family', value: 'wood').purchases).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'perfume_family', value: 'wood'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'view', [item_27, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves professional for cosmetic' do
-        ProfileEvent.track_items(user, shop, 'view', [item_28, item_simple])
-        ProfileEvent.track_items(user, shop, 'cart', [item_28, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_28, item_simple])
-        expect(ProfileEvent.count).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').views).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').carts).to eq 1
-        expect(ProfileEvent.find_by(industry: 'cosmetic', property: 'professional', value: '1').purchases).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'cosmetic', property: 'professional', value: '1'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'view', [item_28, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
     end
@@ -180,16 +146,10 @@ describe ProfileEvent do
     context 'tracks fmcg' do
 
       it 'saves allergy for fmcg' do
-        ProfileEvent.track_items(user, shop, 'purchase', [item_6, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_6, item_simple])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_6, item_simple])
-        expect(ProfileEvent.count).to eq 1
-        profile_event = ProfileEvent.first
-        expect(profile_event.industry).to eq 'fmcg'
-        expect(profile_event.property).to eq 'hypoallergenic'
-        expect(profile_event.value).to eq '1'
-        expect(profile_event.purchases).to eq 3
-        expect(user.reload.allergy).to be_truthy
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'fmcg', property: 'hypoallergenic', value: '1'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'purchase', [item_6, item_simple], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
     end
@@ -197,30 +157,28 @@ describe ProfileEvent do
     context 'tracks fashion' do
 
       it 'saves fashion gender' do
-        ProfileEvent.track_items(user, shop, action, [item_1])
-        profile_event = ProfileEvent.first
-        expect(profile_event.industry).to eq 'fashion'
-        expect(profile_event.property).to eq 'gender'
-        expect(profile_event.value).to eq 'm'
-        expect(user.reload.gender).to eq 'm'
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: action, industry: 'fashion', property: 'gender', value: 'm')).once
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, action, [item_1], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves fashion size' do
-        expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5]) }.to change(ProfileEvent, :count).by 3
-        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '38', carts: 1).count ).to eq 1
-        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '39', carts: 1).count ).to eq 1
-        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '40', carts: 1).count ).to eq 1
-        expect(user.reload.fashion_sizes['shoe']).to eq [38, 39, 40]
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'cart', industry: 'fashion', property: 'size_shoe', value: '38'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'cart', industry: 'fashion', property: 'size_shoe', value: '39'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'cart', industry: 'fashion', property: 'size_shoe', value: '40'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'cart', [item_5], session_id: session.id, current_session_code: session.code)
       end
 
       it 'saves overrided value if exists' do
         niche_attributes = {}
         niche_attributes[item_5.id] = { fashion_size: '30' }
         options = { niche_attributes: niche_attributes, session_id: session.id, current_session_code: session.code }
-        expect(clickhouse_queue).to receive(:profile_events).with(hash_including(session_id: session.id, current_session_code: "12345", shop_id: shop.id, event: "cart", industry: "fashion", property: "size_shoe", value: "30")).once
-        expect{ ProfileEvent.track_items(user, shop, 'cart', [item_5], options) }.to change(ProfileEvent, :count).by 1
-        expect( ProfileEvent.where(industry: 'fashion', property: 'size_shoe', value: '30', carts: 1).count ).to eq 1
-        expect(user.reload.fashion_sizes['shoe']).to eq [30]
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(session_id: session.id, current_session_code: session.code, shop_id: shop.id, event: 'cart', industry: 'fashion', property: 'size_shoe', value: '30')).once
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+        ProfileEvent.track_items(user, shop, 'cart', [item_5], options)
       end
 
     end
@@ -228,23 +186,39 @@ describe ProfileEvent do
     context 'tracks child' do
 
       it 'saves fashion gender' do
-        ProfileEvent.track_items(user, shop, action, [item_4])
-        profile_event = ProfileEvent.first
-        expect(profile_event.industry).to eq 'child'
-        expect(profile_event.property).to eq 'gender'
-        expect(profile_event.value).to eq 'm'
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'child', property: 'gender', value: 'm'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, action, [item_4], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
       it 'saves child age' do
-        ProfileEvent.track_items(user, shop, 'view', [item_simple, item_14])
-        ProfileEvent.track_items(user, shop, 'cart', [item_15])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_16])
-        ProfileEvent.track_items(user, shop, 'purchase', [item_17]) # Создает две записи - с возрастом и отдельно с полом
-        expect(ProfileEvent.count).to eq 5
-        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '0.25_2.0_').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '0.25__').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '_2.0_').purchases ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'child', property: 'age', value: '_2.0_m').purchases ).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'child', property: 'age', value: '0.25_2.0_'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'view', [item_simple, item_14], session_id: session.id, current_session_code: SecureRandom.uuid)
+      end
+
+      it 'saves child age 2' do
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'cart', industry: 'child', property: 'age', value: '0.25__'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'cart', [item_15], session_id: session.id, current_session_code: SecureRandom.uuid)
+      end
+
+      it 'saves child age 3' do
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'child', property: 'age', value: '_2.0_'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'purchase', [item_16], session_id: session.id, current_session_code: SecureRandom.uuid)
+      end
+
+      it 'saves child age 4' do
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'child', property: 'age', value: '_2.0_m'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'purchase', industry: 'child', property: 'gender', value: 'm'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'purchase', [item_17], session_id: session.id, current_session_code: SecureRandom.uuid) # Создает две записи - с возрастом и отдельно с полом
       end
 
 
@@ -254,15 +228,12 @@ describe ProfileEvent do
     context 'track pets' do
 
       it 'saves correct pets' do
-        ProfileEvent.track_items(user, shop, 'view', [item_18, item_19, item_20])
-        ProfileEvent.track_items(user, shop, 'cart', [item_21, item_22, item_23])
-        expect(ProfileEvent.count).to eq 4
-        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:dog;age:young;size:medium').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:cat;breed:cat terrier;size:large').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'pets', property: 'type', value: 'type:cat;breed:strange;age:middle').carts ).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'pets', property: 'type', value: 'type:dog;age:young;size:medium'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'pets', property: 'type', value: 'type:cat;breed:cat terrier;size:large'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
 
+        ProfileEvent.track_items(user, shop, 'view', [item_18, item_19, item_20], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
     end
@@ -271,53 +242,39 @@ describe ProfileEvent do
     context 'tracks jewelry' do
 
       it 'saves correct jewelry', :jewelry do
-        ProfileEvent.track_items(user, shop, 'view', [item_24])
-        ProfileEvent.track_items(user, shop, 'cart', [item_25])
-        expect(ProfileEvent.count).to eq 17
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gender', value: 'f').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gender', value: 'm').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'color', value: 'yellow').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'color', value: 'white').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'metal', value: 'gold').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'metal', value: 'silver').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gem', value: 'diamond').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'gem', value: 'ruby').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '3').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '3').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '4').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '4').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '5').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'ring_size', value: '5').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '4').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '4').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '5').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '5').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '6').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'bracelet_size', value: '6').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '6').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '6').carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '7').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '7').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '8').views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'jewelry', property: 'chain_size', value: '8').carts ).to eq 1
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'gender', value: 'f'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'color', value: 'yellow'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'metal', value: 'gold'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'gem', value: 'diamond'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'ring_size', value: '3'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'ring_size', value: '4'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'ring_size', value: '5'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'bracelet_size', value: '4'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'bracelet_size', value: '5'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'bracelet_size', value: '6'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'chain_size', value: '6'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'chain_size', value: '7'))
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'jewelry', property: 'chain_size', value: '8'))
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email)
+
+        ProfileEvent.track_items(user, shop, 'view', [item_24], session_id: session.id, current_session_code: SecureRandom.uuid)
       end
 
     end
 
     context 'track realty' do
 
+      it 'saves count realties' do
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(client.email).twice
+        expect(ClickhouseQueue).to receive(:profile_events).exactly(7).times
+
+        ProfileEvent.track_items(user, shop, 'view', [item_29, item_30, item_31], session_id: session.id, current_session_code: session.code)
+        ProfileEvent.track_items(user, shop, 'cart', [item_32, item_33, item_34, item_35], session_id: session.id, current_session_code: session.code)
+      end
+
       it 'saves correct realties' do
-        ProfileEvent.track_items(user, shop, 'view', [item_29, item_30, item_31])
-        ProfileEvent.track_items(user, shop, 'cart', [item_32, item_33, item_34, item_35])
-        expect(ProfileEvent.count).to eq 7
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "custom_rent", value: "160.0").carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "460.5").carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "custom_rent", value: "324.0").views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "office_sale", value: "770.0" ).views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "office_rent", value: "90.0").views ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "17334.0").carts ).to eq 1
-        expect( ProfileEvent.find_by(industry: 'real_estate', property: "warehouse_rent", value: "1000.0").carts ).to eq 1
-        expect(user.realty).to eq( {"rent"=>{"type"=>"warehouse", "space"=>"460.5"}, "sale"=>{"type"=>"office", "space"=>"770.0"}})
+        expect(ClickhouseQueue).to receive(:profile_events).with(hash_including(event: 'view', industry: 'real_estate', property: 'office_rent', value: '90.0'))
+        ProfileEvent.track_items(user, shop, 'view', [item_29], session_id: session.id, current_session_code: session.code)
       end
 
     end

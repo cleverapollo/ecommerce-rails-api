@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Recommender::Impl::Interesting do
   let!(:shop) { create(:shop, has_products_jewelry: true, has_products_kids: true, has_products_fashion: true, has_products_pets: true, has_products_cosmetic: true, has_products_fmcg: true, has_products_auto: true) }
-  let!(:user) { create(:user, gender: 'm') }
+  let!(:user) { create(:user) }
   let!(:test_item) { create(:item, shop: shop, sales_rate: 10000, discount: true) }
   let!(:test_item_small_sr) { create(:item, shop: shop, sales_rate: 100) }
 
@@ -11,7 +11,7 @@ describe Recommender::Impl::Interesting do
     let!("item#{i}".to_sym) { create(:item, shop: shop, sales_rate: rand(100..200), category_ids: "{1}") }
   end
 
-  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 12, type: 'interesting') }
+  let!(:params) { OpenStruct.new(shop: shop, user: user, limit: 12, type: 'interesting', profile: People::Profile.new(gender: 'm')) }
 
 
   describe '#recommend' do
@@ -66,30 +66,26 @@ describe Recommender::Impl::Interesting do
         end
 
         it 'includes dog product without breed' do
-          user.update pets: [{'type' => 'dog', 'score' => 13}]
+          params.profile = People::Profile.new(pets: [{'type' => 'dog', 'score' => 13}])
           test_item.update pets_breed: nil
-          params.user = user
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'includes dog product with breed' do
-          user.update pets: [{'type' => 'dog', 'breed' => 'terrier', 'score' => 13}]
-          params.user = user
+          params.profile = People::Profile.new(pets: [{'type' => 'dog', 'breed' => 'terrier', 'score' => 13}])
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'skips cat products' do
-          user.update pets: [{'type' => 'cat', 'breed' => 'nordic', 'score' => 13}]
-          params.user = user
+          params.profile = People::Profile.new(pets: [{'type' => 'cat', 'breed' => 'nordic', 'score' => 13}])
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'skips dog products for wrong breed' do
-          user.update pets: [{'type' => 'dog', 'breed' => 'bulldog', 'score' => 13}]
-          params.user = user
+          params.profile = People::Profile.new(pets: [{'type' => 'dog', 'breed' => 'bulldog', 'score' => 13}])
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
@@ -109,61 +105,49 @@ describe Recommender::Impl::Interesting do
         end
 
         it 'checks gender' do
-          user.update jewelry: {'gender' => 'f'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'gender' => 'f'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'gender' => 'm'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'gender' => 'm'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'checks materials' do
-          user.update jewelry: {'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'gold', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'gold', 'gem' => 'diamond'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'ruby'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'ruby'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'diamond'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'color' => 'white', 'metal' => 'silver', 'gem' => 'diamond'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'checks sizes' do
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '-', 'chain_size' => '-'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '-', 'chain_size' => '-'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '16', 'chain_size' => '-'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '-', 'bracelet_size' => '16', 'chain_size' => '-'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'ring_size' => '-', 'bracelet_size' => '-', 'chain_size' => '16'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '-', 'bracelet_size' => '-', 'chain_size' => '16'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '16', 'chain_size' => '16'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '16', 'chain_size' => '16'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
-          user.update jewelry: {'ring_size' => '15', 'bracelet_size' => '15', 'chain_size' => '15'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '15', 'bracelet_size' => '15', 'chain_size' => '15'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'checks full profile' do
-          user.update jewelry: {'ring_size' => '16', 'bracelet_size' => '17', 'chain_size' => '18', 'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond', 'gender' => 'f'}
-          params.user = user
+          params.profile = People::Profile.new(jewelry: {'ring_size' => '16', 'bracelet_size' => '17', 'chain_size' => '18', 'color' => 'yellow', 'metal' => 'silver', 'gem' => 'diamond', 'gender' => 'f'})
           recommender = Recommender::Impl::Interesting.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
@@ -183,71 +167,61 @@ describe Recommender::Impl::Interesting do
         end
 
         it 'includes kid product without gender' do
-          user.update children: [{'age_min' => 1.1, 'age_max' => 1.9}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'age_min' => 1.1, 'age_max' => 1.9}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'includes kid product without min age' do
-          user.update children: [{'gender' => 'm', 'age_max' => 1.9}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_max' => 1.9}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'includes kid product without max age' do
-          user.update children: [{'gender' => 'm', 'age_min' => 1.1}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 1.1}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'all kid data present' do
-          user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'all kid data present min age out of' do
-          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 1.9}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 1.9}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'all kid data present max age out of' do
-          user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 2.1}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 2.1}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'all kid data present max and min age out of' do
-          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 2.1}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 2.1}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to include(test_item.uniqid)
         end
 
         it 'excludes by min age' do
-          user.update children: [{'gender' => 'm', 'age_min' => 2.1, 'age_max' => 2.2}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 2.1, 'age_max' => 2.2}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'excludes by max age' do
-          user.update children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 0.95}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 0.9, 'age_max' => 0.95}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
 
         it 'excludes by gender' do
-          user.update children: [{'gender' => 'f', 'age_min' => 1.1, 'age_max' => 1.9}]
-          params.user = user
+          params.profile = People::Profile.new(children: [{'gender' => 'f', 'age_min' => 1.1, 'age_max' => 1.9}])
           recommender = Recommender::Impl::Popular.new(params)
           expect(recommender.recommendations).to_not include(test_item.uniqid)
         end
@@ -256,15 +230,13 @@ describe Recommender::Impl::Interesting do
         context 'product min or max age is null' do
 
           it 'min age is null' do
-            user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
-            params.user = user
+            params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}])
             test_item.update child_age_min: nil
             recommender = Recommender::Impl::Popular.new(params)
             expect(recommender.recommendations).to include(test_item.uniqid)
           end
           it 'max age is null' do
-            user.update children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}]
-            params.user = user
+            params.profile = People::Profile.new(children: [{'gender' => 'm', 'age_min' => 1.1, 'age_max' => 1.9}])
             test_item.update child_age_max: nil
             recommender = Recommender::Impl::Popular.new(params)
             expect(recommender.recommendations).to include(test_item.uniqid)

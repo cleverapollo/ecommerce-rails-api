@@ -74,7 +74,7 @@ describe ShopKPI do
   let!(:visit_2) { create(:visit_cl, shop: shop, user: user_2, session: user_2.sessions.first, date:  Date.yesterday) }
   let!(:visit_3) { create(:visit_cl, shop: shop, user: user_3, session: user_3.sessions.first, date:  Date.yesterday) }
 
-  let!(:params) { { shop_id: shop.uniqid, email: 'test@test.com', recommender_type: 'interesting' } }
+  let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' } }
 
   describe '.calculate' do
 
