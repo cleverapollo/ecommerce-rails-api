@@ -98,7 +98,7 @@ class RecommenderService
   # Результат:
   #   список рекомендованных id товаров длиной не более limit.
   #
-  def recommend(shop, model, user, include, exclude, limit)
+  def recommend(shop, model, user, session, include, exclude, limit)
     msg = {
       version: @version,
       client: @instance,
@@ -107,6 +107,7 @@ class RecommenderService
         shop: shop,
         model: model,
         user: user,
+        session: session,
         include: include,
         exclude: exclude,
         limit: limit,
@@ -121,7 +122,7 @@ class RecommenderService
   # создаем коннектор
   # @param [String] instance название клиента сервиса (для логирования и мониторинга)
   def initialize(instance)
-    @version = '1.0'
+    @version = '1.1'
     @instance = instance
   end
 
