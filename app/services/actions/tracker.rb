@@ -74,6 +74,22 @@ class Actions::Tracker
     })
   end
 
+  def self.track_recommender_block_request(session_id, shop_id, seance, block_id, result)
+    begin
+      ClickhouseQueue.recommender_block_requests({
+        session_id: session_id,
+        current_session_code: seance,
+        shop_id: shop_id,
+        recommender_block_id: block_id,
+        recommendations_count: result.size,
+        recommended_ids: result
+      })
+    rescue StandardError => e
+      Rollbar.error 'Clickhouse recommender_block_requests insert error', e
+      raise e unless Rails.env.production?
+    end
+  end
+
   def self.track_action(session_id, shop_id, seance, request, parameters = { })
     event, object_type, id, price = parameters[:event], parameters[:object_type], parameters[:object_id], parameters[:price].to_i
     recommended_by, recommended_code, brand =  parameters[:recommended_by], parameters[:recommended_code], parameters[:brand]

@@ -33,8 +33,14 @@ class ClickhouseQueue
       push('recone_actions', values)
     end
 
+    # @param [Hash] values
     def profile_events(values)
       push('profile_events', values)
+    end
+
+    # @param [Hash] values
+    def recommender_block_requests(values)
+      push('recommender_block_requests', values)
     end
 
     # @param [Hash] values

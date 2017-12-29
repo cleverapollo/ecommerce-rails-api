@@ -176,4 +176,19 @@ ActiveRecord::Schema.define(version: 0) do
     t.datetime "created_at",                       default: "now()", null: false
     t.date     "date",                             default: "now()", null: false
   end
+
+  # TABLE: recommender_block_requests
+  # SQL: CREATE TABLE rees46.recommender_block_requests ( session_id UInt64,  current_session_code String,  shop_id UInt32, recommender_block_id UInt32, recommendations_count UInt32,  recommended_ids Array(String), created_at DateTime DEFAULT now(),  date Date DEFAULT CAST(now() AS Date)) ENGINE = MergeTree(date, (session_id, shop_id, recommendations_count, recommended_ids, date), 8192)
+
+  create_table "recommender_block_requests", id: false, force: :cascade do |t|
+    t.integer  "session_id",            limit: 8,                     null: false
+    t.string   "current_session_code",  limit: 255,                   null: false
+    t.integer  "shop_id",                                             null: false
+    t.integer  "recommender_block_id",                                             null: false
+    t.integer  "recommendations_count", limit: 3,                     null: false
+    t.string   "recommended_ids",                                     array: true
+    t.datetime "created_at",                        default: "now()", null: false
+    t.date     "date",                              default: "now()", null: false
+  end
+
 end

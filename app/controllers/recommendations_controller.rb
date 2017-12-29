@@ -19,18 +19,20 @@ class RecommendationsController < ApplicationController
       raise Finances::Error.new('Your store is in Restricted Mode. Please contact our support team at desk@rees46.com')
     end
 
+    current_session_code = cookies['rees46_session_code'] || params[:seance]
+
     # Для блоков рекомендаций другая реализация
     if params[:recommender_type] == 'dynamic'
       # @type [RecommenderBlock] recommender_block
       recommender_block = @shop.recommender_blocks.find_by(code: params[:recommender_code])
       raise Recommendations::Error.new('Incorrect recommender code') if recommender_block.nil?
-      recommendations = recommender_block.recommends(params)
+      recommendations = recommender_block.recommends(params, current_session_code)
     else
 
       # Извлекаем данные из входящих параметров
       extracted_params = Recommendations::Params.new(params)
       extracted_params.shop = @shop
-      extracted_params.current_session_code = cookies['rees46_session_code'] || params[:seance]
+      extracted_params.current_session_code = current_session_code
       extracted_params.request = request
       extracted_params.brand_promotions = true
       extracted_params.extract
