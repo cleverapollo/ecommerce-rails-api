@@ -1,12 +1,7 @@
 # In the future make redis database equal shard id
 require 'sidekiq/middleware/i18n'
 redis_db = 0
-if SHARD_ID == '01'
-  # На 01 шарде редис перенесен на сервер с крон тасками
-  host = '88.99.193.211:7000'
-else
-  host = 'localhost:6379'
-end
+host = Rails.application.secrets.redis_host
 
 Sidekiq.configure_server do |config|
   config.failures_max_count = 5000
