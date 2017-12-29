@@ -45,8 +45,8 @@ class WebPush::Sender
 
       if client.web_push_tokens.count > 0
         # снимаем с баланса, если остался хотябы один токен -> значит сообщение отправлено успешно
-        # и если отправка не тестовая
-        shop.reduce_web_push_balance! unless test
+        # и если отправка не тестовая или нет подписок
+        shop.reduce_web_push_balance! unless test || shop.subscription_plans.paid.where(product: ['digest.webpush', 'trigger.webpush']).count > 0
       else
         # update user subscription when removed all tokens
         client.clear_web_push_subscription!
