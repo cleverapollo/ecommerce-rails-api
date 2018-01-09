@@ -16,4 +16,3 @@ postgres:
 #Нужен для тестов
 redis:
    image:  redis:2.8
-
