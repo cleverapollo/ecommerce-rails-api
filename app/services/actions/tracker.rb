@@ -82,7 +82,6 @@ class Actions::Tracker
         shop_id: shop_id,
         recommender_block_id: block_id,
         recommendations_count: result.size,
-        recommended_ids: result
       })
     rescue StandardError => e
       Rollbar.error 'Clickhouse recommender_block_requests insert error', e
