@@ -12,7 +12,7 @@ api:
     - redis
 #Нужен для тестов
 postgres:
-   image: postgres:latest
+   image: postgres:9.6
    environment:
      - POSTGRES_USER=rails
      - POSTGRES_PASSWORD=rails
