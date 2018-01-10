@@ -1,7 +1,7 @@
 #основной образ, содержит всё необходимое для работы api
 api:
   build:
-    image: djeshkov/rails46_api:release
+    image: djeshkov/rails46_api:latest
     dockerfile: Dockerfile
   links:
     - postgres
