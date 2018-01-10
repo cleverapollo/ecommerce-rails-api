@@ -10,5 +10,5 @@
   image_name: registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api
   image_tag: release
   encrypted_dockercfg_path: dockercfg.encrypted
-  registry: https://registry.jeshkov.ru/
+  registry: https://registry.jeshkov.ru
 
