@@ -207,7 +207,7 @@ class DigestMailingBatchWorker
     # "Зашифрованный" e-mail для вшивания в ссылки для того, чтобы после перехода склеить пользователя
     track_email = Base64.encode64( (current_email.try(:email) || email).to_s ).strip
 
-    template = mailing.text_template.dup
+    template = mailing.text_template.present? ? mailing.text_template.dup : ''
     data = {
       utm_params: "utm_source=rees46&utm_medium=digest_mail&utm_campaign=digest_mail_#{Time.current.strftime('%d.%m.%Y')}&recommended_by=digest_mail&rees46_digest_mail_code=#{current_digest_mail.try(:code) || 'test'}&r46_merger=#{track_email}",
       logo_url: (shop.fetch_logo_url.blank? ? '' : shop.fetch_logo_url),

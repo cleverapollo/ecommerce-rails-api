@@ -141,7 +141,7 @@ module TriggerMailings
 
     # Формирует текстовую версию
     def text_version
-      template = Liquid::Template.parse trigger.settings[:text_template].dup
+      template = Liquid::Template.parse (trigger.settings[:text_template].present? ? trigger.settings[:text_template].dup : '')
       template.render data.deep_stringify_keys
     end
 
