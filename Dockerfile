@@ -1,4 +1,4 @@
-FROM registry.jeshkov.ru/jeshkov.ru/puppet/environment_ketchinov/rails46_api:build
+FROM djeshkov/rails46_api:build
 COPY . /home/rails/api/current
 RUN chown -R rails /home/rails
 USER rails
