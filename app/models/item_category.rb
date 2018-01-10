@@ -16,6 +16,8 @@ class ItemCategory < ActiveRecord::Base
   class << self
 
     def bulk_update(shop_id, categories_tree)
+      raise I18n.t('rees46_ml.error.invalid_categories') if categories_tree.nil?
+
       transaction do
         categories_tree.each do |yml_category|
 

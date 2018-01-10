@@ -51,6 +51,9 @@ class YmlImporter
       brands_usage = [] # Это для подсчета используемых брендов в каталоге магазина для модели ShopBrand
       offers_count = 0
 
+      # Выходим, если не указан тег магазина в yml
+      raise I18n.t('rees46_ml.error.invalid_shop', locale: current_shop.customer.language) if shop.nil?
+
       # Костыль, пропускаем магазины, в которых не указан available в YML
       skip_shop_items_available = []
 

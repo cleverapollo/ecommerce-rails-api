@@ -10,6 +10,8 @@ class ShopLocation < ActiveRecord::Base
     # @param [Integer] shop_id
     # @param [Rees46ML::Tree] locations_tree
     def bulk_update(shop_id, locations_tree)
+      raise I18n.t('rees46_ml.error.invalid_locations') if locations_tree.nil?
+
       transaction do
         locations_tree.each do |yml_location|
 
