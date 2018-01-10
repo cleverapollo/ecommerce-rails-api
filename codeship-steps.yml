@@ -8,6 +8,6 @@
   type: push
   service: api
   image_name: djeshkov/rails46_api
-  image_tag: release
+  image_tag: latest
   encrypted_dockercfg_path: dockercfg.encrypted
 
