@@ -29,6 +29,7 @@ de:
     no_files_in_archive: Archive contains no XML-files
     no_xml_file: File is not a XML format.
     no_uniq_ids: File contains two or more identical Product IDs. Each product must have its own unique Product ID.
+    no_shop_section: Section `shop` missed in XML.
 
   email_settings:
     products_title: Recently viewed

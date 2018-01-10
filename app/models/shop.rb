@@ -182,6 +182,10 @@ class Shop < ActiveRecord::Base
       return true
     rescue PG::TRDeadlockDetected => e
       Rollbar.warning(e, 'Perhaps there was a backup', shop_id: id)
+    rescue Yml::InvalidYMLSyntax => e
+      ErrorsMailer.yml_syntax_error(self, e.message).deliver_now
+      update_columns(yml_loaded: false, yml_state: 'failed')
+      import_error(e, e.message)
     rescue Yml::NoXMLFileInArchiveError => e
       import_error(e, 'Incorrect YML archive')
     rescue Yml::NotXMLFile => e

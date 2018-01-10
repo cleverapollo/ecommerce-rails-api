@@ -45,6 +45,7 @@ class YmlImporter
 
       # @type shop [Rees46ML::Shop]
       shop = yml.shop
+      fail Yml::InvalidYMLSyntax.new(I18n.t('yml_errors.no_shop_section')) if shop.nil?
       wear_types = WearTypeDictionary.index
       brands = Brand.all
       brands_usage = [] # Это для подсчета используемых брендов в каталоге магазина для модели ShopBrand

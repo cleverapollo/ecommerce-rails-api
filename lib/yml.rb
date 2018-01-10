@@ -8,6 +8,7 @@ class Yml < Struct.new(:path, :locale)
   NotRespondingError = Class.new(StandardError)
   NoXMLFileInArchiveError = Class.new(StandardError)
   NotXMLFile = Class.new(StandardError)
+  InvalidYMLSyntax = Class.new(StandardError)
 
   def_delegators :io, :read, :readpartial, :rewind, :close
 
