@@ -54,7 +54,7 @@ module TriggerMailings
                                     code: trigger_mail.code,
                                     unsubscribe_url: unsubscribe_url(shop_email),
                                     list_id: "<trigger shop-#{@shop.id} type-#{trigger.mailing.trigger_type} date-#{Date.current.strftime('%Y-%m-%d')}>",
-                                    feedback_id: "shop#{@shop.id}:mailing_#{trigger.mailing.trigger_type}:trigger:rees46mailer").deliver_now
+                                    feedback_id: "shop#{@shop.id}:mailing_#{trigger.mailing.trigger_type}:trigger:rees46mailer").deliver_now!
     end
 
     private
