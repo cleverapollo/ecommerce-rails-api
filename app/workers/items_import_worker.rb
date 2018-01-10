@@ -89,6 +89,9 @@ class ItemsImportWorker
         item_struct.fashion_wear_type = item_params.fetch(:fashion)[:type]
         fashion_sizes = []
 
+        # Проверяем наличие размеров
+        raise I18n.t('yml_errors.no_fashion_sizes') if item_params.fetch(:fashion)[:sizes].nil?
+
         item_params.fetch(:fashion)[:sizes].each do |fashion_size|
           converted_size = nil
           if item_struct.fashion_gender.present? &&  item_struct.fashion_wear_type.present? && fashion_size.to_i.zero?
