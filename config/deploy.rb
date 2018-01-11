@@ -1,6 +1,8 @@
 lock '3.7.2'
 
 set :application, 'api.rees46.com'
+###Needed for codeship to use capistrano
+set :format, :pretty
 
 set :repo_url, 'git@rees46_api.bitbucket.org:mkechinov/rees46_api.git'
 # set :scm, :git
