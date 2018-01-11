@@ -6,7 +6,7 @@ require "benchmark"
 require "open-uri"
 require "pry"
 
-xml = open("/Users/andi/dev/ruby/mk/rees/api/vendor/gems/rees46_ml/example.yml")
+xml = open("spec/files/rees.xml")
 
 a = Rees46ML::File.new(xml)
 
