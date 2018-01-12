@@ -6,11 +6,13 @@
   cached: true
 #Deploy to bs and personaclick with capistrano
 - name: deploy_bs_persona
+  tag: master
   service: api
   command: su - rails -c 'cd /home/rails/api/current &&   /home/rails/.rvm/bin/rvm default do bundle exec cap api_01_cron deploy && /home/rails/.rvm/bin/rvm default do bundle exec cap personaclick  deploy'
   encrypted_dockercfg_path: dockercfg.encrypted
   cached: true
 - name: push
+  tag: master
   type: push
   service: api
   image_name: djeshkov/rails46_api
