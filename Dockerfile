@@ -1,4 +1,4 @@
-FROM djeshkov/rails46_api:build
+FROM rees46com/api:builded_with_puppet
 COPY . /home/rails/api/current
 RUN chown -R rails /home/rails
 USER rails
