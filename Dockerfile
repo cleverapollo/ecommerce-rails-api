@@ -5,7 +5,6 @@ USER rails
 RUN mkdir -p "${HOME}/.ssh"
 RUN cp "${HOME}/api/current/keyfile.rsa" "${HOME}/.ssh/id_rsa"
 RUN chmod 600 "${HOME}/.ssh/id_rsa"
-RUN cat ${HOME}/.ssh/id_rsa
 RUN cd /home/rails/api/current && bash -l -c 'bundler'
 USER root
 ENTRYPOINT []
