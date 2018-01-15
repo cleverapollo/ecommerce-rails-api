@@ -317,7 +317,7 @@ class UserProfile::PropertyCalculator
         age_max = (age_max * 4).to_i
 
         # Расчетная числовая оценка
-        score = event[2] * calculate_score_for_event(event[0])
+        score = event[2].to_i * calculate_score_for_event(event[0])
 
         # Формируем векторы оценок по возрастам
         (age_min..age_max).map do |x|
@@ -379,7 +379,7 @@ class UserProfile::PropertyCalculator
     events.each do |event|
       value = event[1]
       score[value] = 0 unless score.key?(value)
-      score[value] += event[2] * calculate_score_for_event(event[0])
+      score[value] += event[2].to_i * calculate_score_for_event(event[0])
     end
     return nil if score.empty?
 
@@ -409,7 +409,7 @@ class UserProfile::PropertyCalculator
       value = event[1]
       score[key] = {} unless score.key?(key)
       score[key][value] = 0 unless score[key].key?(value)
-      score[key][value] += event[2] * calculate_score_for_event(event[0])
+      score[key][value] += event[2].to_i * calculate_score_for_event(event[0])
     end
     return nil if score.empty?
 
