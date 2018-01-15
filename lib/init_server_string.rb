@@ -132,7 +132,8 @@ module InitServerString
           ssid: session.code,
           seance: options.fetch(:seance),
           currency: shop.currency,
-          profile: user_profile,
+          # todo после 01.02.18 оставить только hash
+          profile: user_profile.to_json,
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
           has_email: client.email.present?,
           sync: get_sync_pixels(client, shop),
