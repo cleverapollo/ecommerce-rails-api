@@ -10,6 +10,7 @@ class People::Segmentation::DynamicCalculateWorker
     end
   end
 
+  # @param [Number] segment_id
   def perform(segment_id)
     return if segment_id.blank?
 
@@ -37,15 +38,14 @@ class People::Segmentation::DynamicCalculateWorker
 
       # Строим список для выборки юзеров
       # CLIENT --->
-      users_relation = shop.clients.joins('LEFT JOIN shop_emails ON shop_emails.shop_id = clients.shop_id AND shop_emails.email = clients.email')
-                           .where('clients.email IS NOT NULL AND shop_emails.digests_enabled = true OR web_push_enabled = true')
+      users_relation = shop.shop_emails.with_clients
 
       # Location
-      users_relation = users_relation.where(location: segment.filters[:demography][:locations]) if segment.filters[:demography].present? && segment.filters[:demography][:locations].present?
+      users_relation = users_relation.where(clients: { location: segment.filters[:demography][:locations] }) if segment.filters[:demography].present? && segment.filters[:demography][:locations].present?
 
       # Purchase
       if segment.filters[:marketing].present? && segment.filters[:marketing][:category_purchased].present? && segment.filters[:marketing][:category_purchased].to_i == 1
-        users_relation = users_relation.where(bought_something: true).joins(:orders).where('orders.status != ?', Order::STATUS_CANCELLED)
+        users_relation = users_relation.where(clients: { bought_something: true }).joins('JOIN orders ON orders.client_id = clients.id').where('orders.status != ?', Order::STATUS_CANCELLED)
 
         # Покупали в указанный период
         users_relation = users_relation.where('orders.date >= ?', Time.current - segment.filters[:marketing][:category_purchase_period].to_i.days)
@@ -81,15 +81,21 @@ class People::Segmentation::DynamicCalculateWorker
           end
         end
 
+        # Для подписанных
+        if segment.filters[:marketing][:subscription].to_i > 0
+          v = segment.filters[:marketing][:subscription].to_i
+          # Для подписки на дайджесты
+          users_relation = users_relation.where('shop_emails.digests_enabled = ?', v == 1) if v == 1 || v == 2
+          # Для подписки на триггеры
+          users_relation = users_relation.where('shop_emails.triggers_enabled = ?', v == 3) if v == 3 || v == 4
+        end
+
         # Фильтруем по дате регистрации
         if segment.filters[:marketing][:new_users_period].to_i > 0
           users_relation = users_relation.where('clients.created_at >= ?', segment.filters[:marketing][:new_users_period].to_i.days.ago)
         end
       end
       # ---------->
-
-      # Достаем весь список юзеров, доступных для рассылок
-      users = Slavery.on_slave { users_relation.pluck('DISTINCT "clients".user_id') }
 
       # Фильтруем список дополнительно по просмотрам
       if segment.filters[:marketing].present?
@@ -101,105 +107,124 @@ class People::Segmentation::DynamicCalculateWorker
 
           # Просмотр в категории
           if filter[:category_viewed].present? && filter[:category_viewed].to_i == 1
-            users_relation = ActionCl.where(shop_id: shop.id, object_type: 'Item')
+            actions = ActionCl.where(shop_id: shop.id, object_type: 'Item')
             # Если указаны категории
-            users_relation = users_relation.where(object_id: shop.items.recommendable.in_categories(filter[:category_view], { any: true }).pluck(:uniqid)) if filter[:category_view].present?
+            actions = actions.where(object_id: shop.items.recommendable.in_categories(filter[:category_view], { any: true }).pluck(:uniqid)) if filter[:category_view].present?
 
             # Если указаны бренды
-            users_relation = users_relation.where(brand: filter[:category_view_brand].map(&:downcase)) if filter[:category_view_brand].present?
+            actions = actions.where(brand: filter[:category_view_brand].map(&:downcase)) if filter[:category_view_brand].present?
 
             # Добавляем дату просмотра
-            users_relation = users_relation.where(event: 'view').where('date >= ?', filter[:category_view_period].to_i.days.ago.to_date)
+            actions = actions.where(event: 'view').where('date >= ?', filter[:category_view_period].to_i.days.ago.to_date)
 
             # Добавляем стоимость товара
-            users_relation = users_relation.where('price >= ? AND price <= ?', filter[:category_view_price][:from].to_f, filter[:category_view_price][:to].to_f)
+            actions = actions.where('price >= ? AND price <= ?', filter[:category_view_price][:from].to_f, filter[:category_view_price][:to].to_f)
 
             # Достаем список сессий
-            sessions += users_relation.pluck('DISTINCT session_id')
+            sessions += actions.pluck('DISTINCT session_id')
           end
 
           # Покупка в категории
           if filter[:category_purchased].present? && filter[:category_purchased].to_i == 1
-            users_relation = ActionCl.where(shop_id: shop.id, object_type: 'Item')
+            actions = ActionCl.where(shop_id: shop.id, object_type: 'Item')
             # Если указаны категории
-            users_relation = users_relation.where(object_id: shop.items.recommendable.in_categories(filter[:category_purchase], { any: true }).pluck(:uniqid)) if filter[:category_purchase].present?
+            actions = actions.where(object_id: shop.items.recommendable.in_categories(filter[:category_purchase], { any: true }).pluck(:uniqid)) if filter[:category_purchase].present?
 
             # Если указаны бренды
-            users_relation = users_relation.where(brand: filter[:category_purchase_brand].map(&:downcase)) if filter[:category_purchase_brand].present?
+            actions = actions.where(brand: filter[:category_purchase_brand].map(&:downcase)) if filter[:category_purchase_brand].present?
 
             # Добавляем дату просмотра
-            users_relation = users_relation.where(event: 'purchase').where('date >= ?', filter[:category_purchase_period].to_i.days.ago.to_date)
+            actions = actions.where(event: 'purchase').where('date >= ?', filter[:category_purchase_period].to_i.days.ago.to_date)
 
             # Достаем список сессий
             if sessions.present?
               # Если массив уже был добавлен в выборке view делаем пересечение массивов
-              sessions = sessions & users_relation.pluck('DISTINCT session_id')
+              sessions = sessions & actions.pluck('DISTINCT session_id')
             else
-              sessions += users_relation.pluck('DISTINCT session_id')
+              sessions += actions.pluck('DISTINCT session_id')
             end
           end
 
-          # Достаем список юзеров
-          users = Slavery.on_slave { Session.where(id: sessions.uniq, user_id: users).pluck('DISTINCT user_id') }
+          # Добавляем фильтр
+          users_relation = users_relation.where(clients: { session_id: sessions.uniq })
         end
       end
 
-      # Строим выборку
-      # USER --->
-      relation = User.where(id: users)
+      # Достаем список email c id
+      shop_emails = users_relation.pluck('DISTINCT shop_emails.id, shop_emails.email')
 
-      # Демография
-      relation = relation.where(gender: segment.filters[:demography][:gender]) if segment.filters[:demography].present? && segment.filters[:demography][:gender].present?
+      # INDUSTRIAL FILTERS --->
+      # Строим массив запроса
+      query = Hash.recursive
+      query[:bool][:filter] = []
+      query[:bool][:filter] << {
+          terms: { id: shop_emails.map{|s| s[1]}.uniq }
+      }
+
+      # Demography
+      query[:bool][:filter] << {term: {gender: segment.filters[:demography][:gender]}} if segment.filters[:demography].present? && segment.filters[:demography][:gender].present?
 
       # Fashion
       if segment.filters[:fashion].present?
         wear = WearTypeDictionary.pluck('DISTINCT type_name')
         segment.filters[:fashion].each do |k,v|
-          relation = relation.where("array(select jsonb_array_elements_text(fashion_sizes->'#{k}')) && ARRAY[?]", v) if wear.include?(k)
+          query[:bool][:filter] << nested_search_must('fashion_sizes', k, v) if wear.include?(k)
         end
       end
 
       # Auto
       if segment.filters[:auto].present?
         %w(brand model).each do |k|
-          # todo нужен флаг включения
-          # relation = relation.where("array(select jsonb_array_elements_text(compatibility->'#{k}')) && ARRAY[?]", segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
+          query[:bool][:filter] << nested_search_must('compatibility', k, segment.filters[:auto][k.to_sym]) if segment.filters[:auto][k.to_sym].present?
         end
       end
 
       # Child
       if segment.filters[:child].present? && segment.filters[:child][:available].to_i == 1
-        relation = relation.from('users, jsonb_array_elements(children) child').where('(child.value->>\'age_min\')::FLOAT >= ? AND (child.value->>\'age_max\')::FLOAT < ?', segment.filters[:child][:age][:from], segment.filters[:child][:age][:to])
-        relation = relation.where('children @> ?', [{gender: segment.filters[:child][:gender]}].to_json) if segment.filters[:child][:gender].present?
+        query[:bool][:filter] << nested_search_range('children', 'age', segment.filters[:child][:age][:from].to_f..segment.filters[:child][:age][:to].to_f)
+        query[:bool][:filter] << nested_search_must('children', 'gender', segment.filters[:child][:gender]) if segment.filters[:child][:gender].present?
       end
+
       # ------->
 
-      # Достаем id юзеров
-      users = relation.pluck(:id)
-      if users.present? || segment.filters[:marketing].present? && segment.filters[:marketing][:include_from_segments].present?
-        clients = shop.clients
+      # Если правила были добавлены, кроме самих email
+      if query[:bool][:filter].count > 1 && shop_emails.present?
+        # Ищем фильтрованные профиля в Elastic
+        filtered_emails = People::Profile.repository.search(_source: ['id'], query: query).to_a.map{|r| r.attributes['id']}
+
+        # Оставляем только отфильтрованные
+        shop_emails = shop_emails.select {|e| filtered_emails.include?(e[1]) }
+      end
+
+      # Достаем email юзеров
+      if shop_emails.present?
+        shop_emails = shop.shop_emails.where(id: shop_emails.map{|s| s[0]}.uniq)
         values = []
-
-        # Добавляем в выборку список юзеров
-        values << "user_id IN (#{users.join(',')})" if users.present?
-
-        # Добавляем в выборку сегменты
-        if segment.filters[:marketing].present? && segment.filters[:marketing][:include_from_segments].present?
-          segments = shop.segments.visible.where(id: segment.filters[:marketing][:include_from_segments].map(&:to_i)).pluck(:id)
-          values << "segment_ids && ARRAY[#{segments.join(',')}]::int[]" if segments.present?
-        end
-
-        # Добавляем условия выборки
-        clients = clients.where(values.join(' OR ')) if values.present?
 
         # Добавляем услоие исключения
         if segment.filters[:marketing].present? && segment.filters[:marketing][:exclude_from_segments].present?
           segments = shop.segments.visible.where(id: segment.filters[:marketing][:exclude_from_segments].map(&:to_i)).pluck(:id)
-          clients = clients.where('segment_ids IS NULL OR NOT (segment_ids && ARRAY[?]::int[])', segments) if segments.present?
+          shop_emails = shop_emails.where('segment_ids IS NULL OR NOT (segment_ids && ARRAY[?]::int[])', segments) if segments.present?
         end
 
         # Добавляем сегмент к клиентам
-        clients.update_all("segment_ids = array_append(segment_ids, #{segment_id})")
+        shop_emails.update_all("segment_ids = array_append(segment_ids, #{segment_id})")
+      end
+
+      # Добавляем в выборку сегменты
+      if segment.filters[:marketing].present? && segment.filters[:marketing][:include_from_segments].present?
+        segments = shop.segments.visible.where(id: segment.filters[:marketing][:include_from_segments].map(&:to_i)).pluck(:id)
+
+        # Добавляем фильтр в котором email в уже сегменте не попадают в выборку
+        shop_emails = shop.shop_emails.where('NOT (segment_ids && ARRAY[?]::int[])', segment.id).with_segment(segments)
+
+        # Добавляем услоие исключения
+        if segment.filters[:marketing].present? && segment.filters[:marketing][:exclude_from_segments].present?
+          segments = shop.segments.visible.where(id: segment.filters[:marketing][:exclude_from_segments].map(&:to_i)).pluck(:id)
+          shop_emails = shop_emails.where('segment_ids IS NULL OR NOT (segment_ids && ARRAY[?]::int[])', segments) if segments.present?
+        end
+
+        shop_emails.update_all("segment_ids = array_append(segment_ids, #{segment_id})")
       end
 
       # Обновляем статистику сегмента
@@ -211,5 +236,35 @@ class People::Segmentation::DynamicCalculateWorker
   ensure
     ActiveRecord::Base.clear_active_connections!
     ActiveRecord::Base.connection.close
+  end
+
+  private
+
+  # Добавляет в выборку условие для nested поля
+  def nested_search_hash(path, query)
+    {
+        nested: {
+            path: path,
+            query: query
+        }
+    }
+  end
+
+  # Добавляет в выборку условие фильтра для nested поля
+  def nested_search_must(path, key, values)
+    nested_search_hash(path, {
+        bool: {
+            must: { "term#{values.is_a?(Array) ? 's' : ''}": {"#{path}.#{key}": values} }
+        }
+    })
+  end
+
+  # Добавляет в выборку условие фильтра для nested поля c диапазоном
+  def nested_search_range(path, key, range)
+    nested_search_hash(path, {
+        range: {
+            "#{path}.#{key}": { gte: range.first, lte: range.last }
+        }
+    })
   end
 end

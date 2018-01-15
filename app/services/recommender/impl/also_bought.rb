@@ -17,11 +17,11 @@ module Recommender
           if shop.has_products_kids?
 
             # Если у юзера есть дети
-            if user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
+            if params.profile.try(:children).present? && params.profile.children.is_a?(Array) && params.profile.children.any?
 
               # Если у юзера дети одного пола, тогда имеет смысл исключать товары противоположного пола
-              if user.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
-                result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', user.children.map { |kid| kid['gender'] }.compact.uniq.first)
+              if params.profile.children.map { |kid| kid['gender'] }.compact.uniq.count == 1
+                result = result.where('(is_child IS TRUE AND (child_gender IS NULL OR child_gender = ?)) OR is_child IS NULL', params.profile.children.map { |kid| kid['gender'] }.compact.uniq.first)
               end
             end
           end

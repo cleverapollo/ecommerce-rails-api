@@ -28,11 +28,11 @@ describe People::Segmentation::SegmentWorker do
 
       People::Segmentation::SegmentWorker.new.perform(segment)
 
-      expect(segment.reload.client_count).to be(4)
+      expect(segment.reload.client_count).to be(2)
       expect(segment.reload.with_email_count).to be(2)
       expect(segment.reload.trigger_client_count).to be(1)
       expect(segment.reload.digest_client_count).to be(1)
-      expect(segment.reload.web_push_client_count).to be(1)
+      expect(segment.reload.web_push_client_count).to be(0)
     end
 
 

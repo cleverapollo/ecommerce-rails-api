@@ -6,12 +6,20 @@ describe RecommendationsController do
   let!(:session) { create(:session, code: rand.to_s, user: user) }
   let!(:subscription_plan) { create(:subscription_plan, shop: shop, paid_till: 1.month.from_now, product: 'product.recommendations', price: 100) }
   # let!(:extracted_params) { {recommender_type: 'interesting' } }
-  let!(:extracted_params) { Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' }) }
+  let!(:extracted_params) {
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new)
+    Recommendations::Params.extract({ shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' })
+  }
   let!(:sample_recommendations) { [1, 2, 3] }
   let!(:item) { create(:item, shop: shop) }
   before { allow(Recommendations::Params).to receive(:extract).and_return(extracted_params) }
   before { allow(Recommendations::Processor).to receive(:process).and_return(sample_recommendations) }
   let!(:params) { { shop_id: shop.uniqid } }
+
+  before do
+    # Возвращаем структуру ответа из Elastic
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new)
+  end
 
   context 'when all goes fine' do
     let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' } }

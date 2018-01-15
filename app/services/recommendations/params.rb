@@ -7,8 +7,14 @@ module Recommendations
     # Входящие параметры
     attr_accessor :raw
     # Пользователь
+    # @deprecated
     # @return [User]
     attr_accessor :user
+    # Профиль клиента
+    # @return [People::Profile]
+    attr_accessor :profile
+    # @return [Client]
+    attr_accessor :client
     # Сессия
     # @return [Session]
     attr_accessor :session
@@ -174,34 +180,15 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] в случае, если не удалось найти сессию.
     def extract_user
-      if raw[:email].present?
-        email = IncomingDataTranslator.email(raw[:email])
-        client = Client.find_by email: email, shop_id: @shop.id
-        if client.nil?
-          begin
-            client = Client.create!(shop_id: @shop.id, email: email, user_id: User.create.id)
-          rescue # Concurrency?
-            client =  Client.find_by email: email, shop_id: @shop.id
-          end
-        end
-        raise Recommendations::IncorrectParams.new('Client not found') if client.blank?
-        if client.session_id.present?
-          @session = client.session
-        else
-          @session = Session.find_by user_id: client.user_id
-        end
-        if @session.nil?
-          @session = Session.create user_id: client.user_id
-        end
-      else
-        @session = Session.find_by_code(raw[:ssid])
-        raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
-      end
-      # Убедиться, что у сессии есть юзер.
-      if @session.user.blank?
-        @session.create_user
-      end
-      @user = @session.user
+      user_fetcher = UserFetcher.new(session_code: raw[:ssid], shop: @shop, email: raw[:email])
+      @user = user_fetcher.fetch
+      @session = user_fetcher.session
+      @client = user_fetcher.client
+      raise Recommendations::IncorrectParams.new('Client not found') if @client.blank?
+      raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
+
+      # Достаем профиль юзера
+      @profile = client.profile
     end
 
     # Извлекает текущий товар

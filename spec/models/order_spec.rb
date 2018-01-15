@@ -29,13 +29,13 @@ describe Order do
 
     context 'for orders with given uniqid' do
       it 'returns true if duplicate exists' do
-        expect(Order.duplicate?(shop, user, order.uniqid, [])).to eq(true)
+        expect(Order.duplicate?(shop, user, order.uniqid, client)).to eq(true)
       end
     end
 
     context 'for orders without uniqid' do
       it 'returns true if user made order less than 5 minutes ago' do
-        expect(Order.duplicate?(shop, user, nil, [])).to eq(true)
+        expect(Order.duplicate?(shop, user, nil, client)).to eq(true)
       end
     end
   end

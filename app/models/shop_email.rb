@@ -6,7 +6,7 @@ class ShopEmail < ActiveRecord::Base
   before_save :fix_empty_segment
 
   scope :email_confirmed, -> { where(email_confirmed: true) }
-  scope :with_segment, -> (segment_id) { where('shop_emails.segment_ids @> ARRAY[?]', segment_id) }
+  scope :with_segment, -> (segment_ids) { where('shop_emails.segment_ids && ARRAY[?]', segment_ids) }
   scope :with_clients_segment, -> (segment_ids) { where('shop_emails.segment_ids && ARRAY[:segment] OR clients.segment_ids && ARRAY[:segment]', segment: segment_ids) }
   scope :without_clients_segment, -> (segment_ids) { where('NOT(shop_emails.segment_ids && ARRAY[:segment]) OR NOT(clients.segment_ids && ARRAY[:segment])', segment: segment_ids) }
   scope :suitable_for_digest_mailings, -> { where(digests_enabled: true) }

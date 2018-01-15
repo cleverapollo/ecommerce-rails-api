@@ -57,6 +57,7 @@ class ProfileEvent < ActiveRecord::Base
 
       # Хеш обновлений свойств пользователя
       properties_to_update = Hash.recursive
+      for_update = false
 
       # Для каждого товара записываем событие, если товар отраслевой
       items.each do |item|
@@ -69,12 +70,14 @@ class ProfileEvent < ActiveRecord::Base
           # Пол ребенка
           if item.child_gender.present?
             track_event(user, shop, 'child', 'gender', item.child_gender, counter_field_name)
+            for_update = true
           end
 
           # Детский возраст (минимум, максимум)
           if item.child_age_min.present? || item.child_age_max.present?
             track_event(user, shop, 'child', 'age', "#{item.child_age_min}_#{item.child_age_max}_#{item.child_gender}", counter_field_name)
-            properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children user
+            #properties_to_update[:children] = UserProfile::PropertyCalculator.new.calculate_children @session_id
+            for_update = true
           end
 
         else
@@ -87,7 +90,8 @@ class ProfileEvent < ActiveRecord::Base
             # Пол косметики
             if item.cosmetic_gender.present?
               track_event(user, shop, 'cosmetic', 'gender', item.cosmetic_gender, counter_field_name)
-              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user.id
+              # properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender @session_id
+              for_update = true
             end
 
             # Волосы
@@ -97,6 +101,7 @@ class ProfileEvent < ActiveRecord::Base
               if item.cosmetic_hair_type.present? && item.cosmetic_hair_type.try(:any?)
                 item.cosmetic_hair_type.each do |value|
                   track_event(user, shop, 'cosmetic', 'hair_type', value, counter_field_name)
+                  for_update = true
                 end
               end
 
@@ -104,11 +109,12 @@ class ProfileEvent < ActiveRecord::Base
               if item.cosmetic_hair_condition.present? && item.cosmetic_hair_condition.try(:any?)
                 item.cosmetic_hair_condition.each do |value|
                   track_event(user, shop, 'cosmetic', 'hair_condition', value, counter_field_name)
+                  for_update = true
                 end
               end
 
               # Рассчитываем волосы для обновления пользователя
-              properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair user
+              # properties_to_update[:cosmetic_hair] = UserProfile::PropertyCalculator.new.calculate_hair user
 
             end
 
@@ -120,6 +126,7 @@ class ProfileEvent < ActiveRecord::Base
                 item.cosmetic_skin_part.each do |part|
                   item.cosmetic_skin_type.each do |type|
                     track_event(user, shop, 'cosmetic', "skin_type_#{part}", type, counter_field_name)
+                    for_update = true
                   end
                 end
               end
@@ -129,19 +136,21 @@ class ProfileEvent < ActiveRecord::Base
                 item.cosmetic_skin_part.each do |part|
                   item.cosmetic_skin_condition.each do |condition|
                     track_event(user, shop, 'cosmetic', "skin_condition_#{part}", condition, counter_field_name)
+                    for_update = true
                   end
                 end
               end
 
               # Рассчитываем кожу для обновления пользователя
-              properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin user
+              # properties_to_update[:cosmetic_skin] = UserProfile::PropertyCalculator.new.calculate_skin user
 
             end
 
             # Гипоаллергенность
             if item.cosmetic_hypoallergenic?
               track_event(user, shop, 'cosmetic', 'hypoallergenic', '1', counter_field_name)
-              properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+              # properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+              for_update = true
             end
 
             # Ногти
@@ -155,12 +164,14 @@ class ProfileEvent < ActiveRecord::Base
             track_event(user, shop, 'cosmetic', 'perfume_aroma', item.cosmetic_perfume_aroma, counter_field_name) if item.cosmetic_perfume_aroma.present?
             track_event(user, shop, 'cosmetic', 'perfume_family', item.cosmetic_perfume_family, counter_field_name) if item.cosmetic_perfume_family.present?
             if item.cosmetic_perfume_aroma.present? || item.cosmetic_perfume_family.present?
-              properties_to_update[:cosmetic_perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
+              # properties_to_update[:cosmetic_perfume] = UserProfile::PropertyCalculator.new.calculate_perfume user
+              for_update = true
             end
 
             # Товар для профессионалов
             if item.cosmetic_professional?
               track_event(user, shop, 'cosmetic', 'professional', '1', counter_field_name)
+              for_update = true
             end
 
           end
@@ -172,7 +183,8 @@ class ProfileEvent < ActiveRecord::Base
             # Гипоаллергенность
             if item.fmcg_hypoallergenic?
               track_event(user, shop, 'fmcg', 'hypoallergenic', '1', counter_field_name)
-              properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+              # properties_to_update[:allergy] = UserProfile::PropertyCalculator.new.calculate_allergy user
+              for_update = true
             end
 
           end
@@ -183,9 +195,9 @@ class ProfileEvent < ActiveRecord::Base
             # Пол одежды для взрослых
             if item.fashion_gender.present?
               track_event(user, shop, 'fashion', 'gender', item.fashion_gender, counter_field_name)
-              properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender user.id
+              # properties_to_update[:gender] = UserProfile::PropertyCalculator.new.calculate_gender @session_id
+              for_update = true
             end
-
             # Размеры одежды
             if item.fashion_wear_type.present? && item.fashion_sizes.present? && item.fashion_sizes.any?
               # Если есть override размера одежды из корзины или покупки, используем его, иначе берем все размеры
@@ -197,7 +209,8 @@ class ProfileEvent < ActiveRecord::Base
                   track_event(user, shop, 'fashion', "size_#{item.fashion_wear_type}", size, counter_field_name)
                 end
               end
-              properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes user
+              # properties_to_update[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes @session_id
+              for_update = true
             end
 
           end
@@ -225,7 +238,8 @@ class ProfileEvent < ActiveRecord::Base
                 end
               end
             end
-            properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility user
+            # properties_to_update[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility user
+            for_update = true
           end
 
           # VIN
@@ -234,7 +248,8 @@ class ProfileEvent < ActiveRecord::Base
               # Марка
               track_event(user, shop, 'auto', 'vds', vds, counter_field_name)
             end
-            properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds user
+            # properties_to_update[:vds] = UserProfile::PropertyCalculator.new.calculate_vds @session_id
+            for_update = true
           end
 
         end
@@ -325,24 +340,35 @@ class ProfileEvent < ActiveRecord::Base
 
       # Если есть животные товары, то пересчитать животный профиль
       if items.select { |x| x.is_pets? }.any?
-        properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+        # properties_to_update[:pets] = UserProfile::PropertyCalculator.new.calculate_pets user
+        for_update = true
       end
 
       if items.select { |x| x.cosmetic_nail_type? }.any?
-        properties_to_update[:cosmetic_nail] = UserProfile::PropertyCalculator.new.calculate_nail user
+        # properties_to_update[:cosmetic_nail] = UserProfile::PropertyCalculator.new.calculate_nail user
+        for_update = true
       end
 
       # Если есть ювелирные товары, пересчитываем ювелирный профиль
       if items.select { |x| x.is_jewelry? }.any?
-        properties_to_update[:jewelry] = UserProfile::PropertyCalculator.new.calculate_jewelry user
+        # properties_to_update[:jewelry] = UserProfile::PropertyCalculator.new.calculate_jewelry user
+        for_update = true
       end
 
       if items.select { |x| x.is_realty? }.any?
-        properties_to_update[:realty] = UserProfile::PropertyCalculator.new.calculate_realty user
+        # properties_to_update[:realty] = UserProfile::PropertyCalculator.new.calculate_realty user
+        for_update = true
       end
 
       # Если есть поля для обновления пользователя – обновляем
-      user.update properties_to_update unless properties_to_update.empty?
+      if for_update
+        # user.update properties_to_update
+
+        # ищем клиента в магазине по сессии (+ поддержка старой версии)
+        client = Client.find_by(shop: shop, session_id: @session_id) || Client.find_by(shop: shop, user: user)
+        # Отправляем в работу таск с ключом (email или код сессии)
+        PropertyCalculatorWorker.perform_async(client.email.present? ? client.email : client.session.code) if client.present? && (client.email.present? || client.session.present?)
+      end
 
       true
     end
@@ -355,11 +381,11 @@ class ProfileEvent < ActiveRecord::Base
     # @param value [String]
     # @param counter_field_name [Symbol]
     def track_event(user, shop, industry, property, value, counter_field_name)
-      profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: industry, property: property, value: value
-      profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
+      # profile_event = ProfileEvent.find_or_create_by user_id: user.id, shop_id: shop.id, industry: industry, property: property, value: value
+      # profile_event.update counter_field_name => profile_event.public_send(counter_field_name).to_i + 1
       if @session_id.present? && @current_session_code.present?
         event = counter_field_name.to_s.classify.downcase
-        push_clickhouse(shop, user, industry, property, value, event)
+        push_clickhouse(shop, user, industry, property, value.to_s, event)
       end
     end
 

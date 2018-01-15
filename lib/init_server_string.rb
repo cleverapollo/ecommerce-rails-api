@@ -124,11 +124,14 @@ module InitServerString
         }
       end
 
+      # Получаем профиль юзера
+      user_profile = client.profile.try(:to_hash)
+
       result = {
           ssid: session.code,
           seance: options.fetch(:seance),
           currency: shop.currency,
-          profile: session.user.profile_to_json,
+          profile: user_profile,
           experiments: shop.experiments.active.map { |x| {id: x.id, segments: x.segments } },
           has_email: client.email.present?,
           sync: get_sync_pixels(client, shop),

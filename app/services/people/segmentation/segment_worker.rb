@@ -12,17 +12,20 @@ class People::Segmentation::SegmentWorker
     shop = segment.shop
 
     # Нужно выбрать и клиентов и email, т.к. динамические сегменты пишут только клиентам
-    relation = shop.shop_emails.with_clients.where('shop_emails.segment_ids @> ARRAY[:segment] OR clients.segment_ids @> ARRAY[:segment]', segment: segment.id)
+    relation = shop.shop_emails.with_segment(segment.id)
+    client_count = relation.count
 
     # Обновляем статистику по сегменту
     Segment.where(id: segment.id).update_all({
         updated_at: Time.now,
         updating: false,
-        client_count: relation.count + shop.clients.where(email: nil).with_segment(segment.id).count,
-        with_email_count: relation.count,
+        client_count: client_count,
+        with_email_count: client_count,
         trigger_client_count: relation.where(triggers_enabled: true).count,
         digest_client_count: relation.where(digests_enabled: true).count,
-        web_push_client_count: shop.clients.with_segment(segment.id).where(web_push_enabled: true).count,
+        # Веб пуш пока не работает в сегментах и смысла их считать нет
+        web_push_client_count: 0,
+        # web_push_client_count: shop.clients.with_segment(segment.id).where(web_push_enabled: true).count,
     })
   end
 end

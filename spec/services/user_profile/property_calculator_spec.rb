@@ -2,12 +2,23 @@ require 'rails_helper'
 
 describe UserProfile::PropertyCalculator do
 
-  describe '.calculate_gender' do
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
+  let!(:shop) { create(:shop) }
+  let!(:user) { create(:user) }
+  let!(:session) { create(:session, user: user) }
 
-    subject { UserProfile::PropertyCalculator.new.calculate_gender(user.id) }
+  def create_profile_event(industry, property, value, views: 0, carts: 0, purchases: 0)
+    views.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'view') }
+    carts.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'cart') }
+    purchases.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'purchase') }
+  end
+
+  describe '.calculate_gender' do
+    before do
+      create_profile_event('fashion', 'gender', 'm', views: 1, carts: 2, purchases: 3)
+      create_profile_event('fashion', 'gender', 'f', views: 1, carts: 2, purchases: 3)
+    end
+
+    subject { UserProfile::PropertyCalculator.new.calculate_gender(session.id) }
 
     context 'gender undefined' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
@@ -22,6 +33,7 @@ describe UserProfile::PropertyCalculator do
     context 'calculates as usual' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'm', views: 1, carts: 2, purchases: 3) }
       let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'f', views: 2, carts: 2, purchases: 3) }
+      before { create_profile_event('fashion', 'gender', 'f', views: 1) }
 
       it 'returns female' do
         expect(subject).to eq 'f'
@@ -31,6 +43,10 @@ describe UserProfile::PropertyCalculator do
     context 'purchases more important' do
       let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'gender', value: 'f', carts: 2) }
       let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'gender', value: 'm', purchases: 1) }
+      before do
+        create_profile_event('fashion', 'gender', 'f', carts: 2)
+        create_profile_event('fashion', 'gender', 'm', purchases: 1)
+      end
 
       it 'returns male because purchase more important' do
         expect(subject).to eq 'm'
@@ -40,11 +56,7 @@ describe UserProfile::PropertyCalculator do
 
   describe '.calculate_fashion_sizes' do
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-
-
-    subject { UserProfile::PropertyCalculator.new.calculate_fashion_sizes(user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_fashion_sizes(session.id) }
 
     context 'no events' do
 
@@ -55,11 +67,12 @@ describe UserProfile::PropertyCalculator do
     end
 
     context 'with valid events' do
-
-      let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '38', purchases: 3) }
-      let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '39', views: 1, carts: 2, purchases: 2) }
-      let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_shoe', value: '40', views: 1, carts: 1) }
-      let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'fashion', property: 'size_coat', value: '33', views: 1) }
+      before do
+        create_profile_event('fashion', 'size_shoe', '38', purchases: 3)
+        create_profile_event('fashion', 'size_shoe', '39', views: 2, carts: 2, purchases: 2)
+        create_profile_event('fashion', 'size_shoe', '40', views: 1, carts: 1)
+        create_profile_event('fashion', 'size_coat', '33', views: 1)
+      end
 
       it 'calculates two sizes' do
         expect(subject['shoe']).to eq [38, 39]
@@ -73,9 +86,6 @@ describe UserProfile::PropertyCalculator do
 
 
   describe 'calculate hair' do
-
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
 
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_type', value: 'long', carts: 2) }
     let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hair_type', value: 'short', purchases: 2) }
@@ -92,9 +102,6 @@ describe UserProfile::PropertyCalculator do
   end
 
   describe 'calculate skin' do
-
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
 
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_type_body', value: 'dry', purchases: 2 ) }
     let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'skin_type_body', value: 'normal', views: 1, carts: 2 ) }
@@ -115,9 +122,6 @@ describe UserProfile::PropertyCalculator do
 
   describe 'calculate perfume' do
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'floral', purchases: 2 ) }
     let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'citrus', views: 1, carts: 2 ) }
     let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'perfume_aroma', value: 'woody', carts: 1 ) }
@@ -133,9 +137,6 @@ describe UserProfile::PropertyCalculator do
 
   describe 'calculate allergy' do
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-
     let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'fmcg', property: 'hypoallergenic', value: '1', carts: 2) }
     let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'hypoallergenic', value: '1', purchases: 1, carts: 1) }
 
@@ -150,56 +151,63 @@ describe UserProfile::PropertyCalculator do
 
 
   describe 'calculate children' do
+    before do
+      create_profile_event('child', 'age', '0.25_2.0_m', purchases: 2)
+      create_profile_event('child', 'age', '_3.0_f', views: 1, carts: 2)
+      create_profile_event('child', 'age', '3_5_f', carts: 1)
+      create_profile_event('child', 'age', '3_5_', carts: 2)
+      create_profile_event('child', 'age', '0.5__m', carts: 2)
+    end
+    subject { UserProfile::PropertyCalculator.new.calculate_children(session.id) }
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-
-    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '0.25_2.0_m', purchases: 2 ) }
-    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '_3.0_f', views: 1, carts: 2 ) }
-    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '3_5_f', carts: 1 ) }
-    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '3_5_', carts: 2 ) }
-    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'age', value: '0.5__m', carts: 2 ) }
-
-    describe 'without "push_attributes_children (birthdays)"' do
-      subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
+    context 'without "push_attributes_children (birthdays)"' do
 
       it 'calculates children' do
-        expect(subject.count).to eq 2
-        expect(subject.first).to eq ({gender: "m", age_min: 0.5, age_max: 1.0})
-        expect(subject.last).to eq ({gender: "f", age_min: 1.5, age_max: 3.0})
+        result = subject
+        expect(result.count).to eq 2
+        expect(result.first).to eq ({gender: 'm', age: 0.5..1.0})
+        expect(result.last).to eq ({gender: 'f', age: 1.5..3.0})
       end
     end
 
-    describe 'with "push_attributes_children (birthdays)"' do
-      let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2010-01-01' ) }
-      let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2016-11-01' ) }
-
-      subject { UserProfile::PropertyCalculator.new.calculate_children(user) }
+    context 'child growing up' do
+      before do
+        5.times { create(:profile_event_cl, shop: shop, session: session, industry: 'child', property: 'age', value: '0.25_2.0_m', event: 'purchase', date: 1.year.ago.to_date, created_at: 1.year.ago) }
+      end
 
       it 'calculates children' do
-        expect(subject.count).to eq 4
-        expect(subject.first).to eq ({ gender: "m", age_min: 0.5, age_max: 1.0 })
-        expect(subject.last).to eq ({ gender: "f", age_min: 1.5, age_max: 3.0 })
+        result = subject
+        expect(result.count).to eq 2
+        expect(result.first).to eq ({gender: 'm', age: 1.25..3.0})
+        expect(result.last).to eq ({gender: 'f', age: 1.5..3.0})
       end
     end
+
+    # describe 'with "push_attributes_children (birthdays)"' do
+    #   let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2010-01-01' ) }
+    #   let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'child', property: 'push_attributes_children', value: 'gender:m;birthday:2016-11-01' ) }
+    #
+    #   subject { UserProfile::PropertyCalculator.new.calculate_children(session.id) }
+    #
+    #   it 'calculates children' do
+    #     expect(subject.count).to eq 4
+    #     expect(subject.first).to eq ({ gender: "m", age_min: 0.5, age_max: 1.0 })
+    #     expect(subject.last).to eq ({ gender: "f", age_min: 1.5, age_max: 3.0 })
+    #   end
+    # end
 
   end
 
   describe 'calculate compatibility' do
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
+    before do
+      create_profile_event('auto', 'compatibility_brand', 'Audi', purchases: 2)
+      create_profile_event('auto', 'compatibility_brand', 'BMW', views: 1, carts: 2)
+      create_profile_event('auto', 'compatibility_model', 'A4', carts: 2)
+      create_profile_event('auto', 'compatibility_model', 'W300', carts: 2)
+    end
 
-    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Audi', purchases: 2 ) }
-    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'BMW', views: 1, carts: 2 ) }
-    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_brand', value: 'Toyota', carts: 1 ) }
-    let!(:profile_event_4) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'A4', carts: 2 ) }
-    let!(:profile_event_5) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'compatibility_model', value: 'W300', carts: 2 ) }
-    let!(:profile_event_6) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
-    let!(:profile_event_7) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
-    let!(:profile_event_8) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
-
-    subject { UserProfile::PropertyCalculator.new.calculate_compatibility(user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_compatibility(session.id) }
 
     it 'calculates compatibility' do
       expect(subject.count).to eq 2
@@ -208,15 +216,13 @@ describe UserProfile::PropertyCalculator do
   end
 
   describe 'calculate vds' do
+    before do
+      create_profile_event('auto', 'vds', 'W300', carts: 2)
+      create_profile_event('auto', 'vds', 'A4345G', purchases: 1)
+      create_profile_event('auto', 'vds', 'AFR3', views: 10)
+    end
 
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
-
-    let!(:profile_event_1) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'W300', carts: 2 ) }
-    let!(:profile_event_2) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'A4345G', purchases: 1 ) }
-    let!(:profile_event_3) { create(:profile_event, shop: shop, user: user, industry: 'auto', property: 'vds', value: 'AFR3', views: 10 ) }
-
-    subject { UserProfile::PropertyCalculator.new.calculate_vds(user) }
+    subject { UserProfile::PropertyCalculator.new.calculate_vds(session.id) }
 
     it 'calculates vds' do
       expect(subject.count).to eq 2
@@ -226,8 +232,6 @@ describe UserProfile::PropertyCalculator do
 
 
   describe 'pets' do
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
     subject { UserProfile::PropertyCalculator.new.calculate_pets(user) }
     before {
       create(:profile_event, shop: shop, user: user, industry: 'pets', property: 'type', value: 'type:dog;breed:strange;age:old;size:small', views: 1 )
@@ -248,8 +252,6 @@ describe UserProfile::PropertyCalculator do
   end
 
   describe 'real_estate' do
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
     subject { UserProfile::PropertyCalculator.new.calculate_realty(user) }
     before {
       create(:profile_event, shop: shop, user: user, industry: 'real_estate', property: 'office_rent', value: "90.0", views: 1 )
@@ -268,8 +270,6 @@ describe UserProfile::PropertyCalculator do
   end
 
   describe 'calculates cosmetic nails' do
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
     subject { UserProfile::PropertyCalculator.new.calculate_nail(user) }
     before {
       create(:profile_event, shop: shop, user: user, industry: 'cosmetic', property: 'nail_type', value: 'polish_red', views: 2 )
@@ -286,8 +286,6 @@ describe UserProfile::PropertyCalculator do
 
 
   describe 'jewelry' do
-    let!(:shop) { create(:shop) }
-    let!(:user) { create(:user) }
     subject { UserProfile::PropertyCalculator.new.calculate_jewelry(user) }
     before {
       create(:profile_event, shop: shop, user: user, industry: 'jewelry', property: 'metal', value: 'gold', views: 1 )

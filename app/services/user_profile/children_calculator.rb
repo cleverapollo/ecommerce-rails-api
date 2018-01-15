@@ -1,4 +1,5 @@
 module UserProfile
+  # @deprecated
   module ChildrenCalculator
     # Рассчитывает детей покупателя
     # Структура возвращаемого массива:

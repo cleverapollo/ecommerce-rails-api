@@ -37,6 +37,8 @@ class Client < ActiveRecord::Base
       with_email.where('triggers_enabled = true AND last_activity_at IS NOT NULL AND last_activity_at >= ?', last_activity).where('((last_trigger_mail_sent_at is null) OR last_trigger_mail_sent_at < ? )', shop.trigger_pause.days.ago)
     end
   end
+  # Пока у клиентов не может быть сегментов, т.к. перенесено в ShopEmail
+  # В будущем будут сегменты для вебпушей
   scope :with_segment, -> (segment_id) { where('clients.segment_ids @> ARRAY[?]', segment_id) }
   scope :with_segments, -> (segment_ids) { where('clients.segment_ids && ARRAY[?]::int[]', segment_ids) }
 
@@ -96,6 +98,7 @@ class Client < ActiveRecord::Base
   # Обновляет email у клиента и запускает сбор профиля, если он изменился
   # @param [String] email
   def update_email(email)
+    old_email = self.email
     self.email = email
 
     # Если запись запись была обновлена
@@ -103,11 +106,20 @@ class Client < ActiveRecord::Base
       self.atomic_save!
 
       # Добавляем в список email магазина
-      ShopEmail.fetch(shop, email)
+      ShopEmail.fetch(shop, email) if email.present?
+
+      # Удаляем старую запись по коду сессии
+      People::Profile.repository.delete(self.session.code) if self.session.present? && old_email.blank?
 
       # Запускаем сбор информации о профиле пользователя
-      # PropertyCalculatorWorker.perform_async(email)
+      PropertyCalculatorWorker.perform_async(email.present? ? email : self.session.code)
     end
+  end
+
+  # Находит профиль юзера
+  # @return [People::Profile]
+  def profile
+    @profile ||= People::Profile.find(email.present? ? email : self.session.code)
   end
 
   # Перенос объекта к указанному юзеру

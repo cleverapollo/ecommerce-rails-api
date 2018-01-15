@@ -136,25 +136,26 @@ module Recommender
     # @return ActiveRecord::Relation
     def apply_jewelry_industrial_filter(relation)
 
-      if shop.has_products_jewelry? && user.try(:jewelry).present? && user.jewelry.is_a?(Hash) && user.jewelry.keys.any?
+      if shop.has_products_jewelry? && params.profile.try(:jewelry).present? && params.profile.jewelry.is_a?(Hash) && params.profile.jewelry.keys.any?
+        jewelry = params.profile.jewelry
 
         # Физические характеристики по ИЛИ
         materials = []
-        materials << " (jewelry_metal IS NOT NULL AND jewelry_metal = $$#{user.jewelry['metal']}$$) " if user.jewelry['metal'].present?
-        materials << " (jewelry_color IS NOT NULL AND jewelry_color = $$#{user.jewelry['color']}$$) " if user.jewelry['color'].present?
-        materials << " (jewelry_gem IS NOT NULL AND jewelry_gem = $$#{user.jewelry['gem']}$$) " if user.jewelry['gem'].present?
+        materials << " (jewelry_metal IS NOT NULL AND jewelry_metal = $$#{jewelry['metal']}$$) " if jewelry['metal'].present?
+        materials << " (jewelry_color IS NOT NULL AND jewelry_color = $$#{jewelry['color']}$$) " if jewelry['color'].present?
+        materials << " (jewelry_gem IS NOT NULL AND jewelry_gem = $$#{jewelry['gem']}$$) " if jewelry['gem'].present?
 
         # Размеры
         sizes = []
-        sizes << " (ring_sizes IS NOT NULL AND ring_sizes ? $$#{user.jewelry['ring_size']}$$::varchar) " if user.jewelry['ring_size'].present?
-        sizes << " (bracelet_sizes IS NOT NULL AND bracelet_sizes ? $$#{user.jewelry['bracelet_size']}$$::varchar) " if user.jewelry['bracelet_size'].present?
-        sizes << " (chain_sizes IS NOT NULL AND chain_sizes ? $$#{user.jewelry['chain_size']}$$::varchar) " if user.jewelry['chain_size'].present?
+        sizes << " (ring_sizes IS NOT NULL AND ring_sizes ? $$#{jewelry['ring_size']}$$::varchar) " if jewelry['ring_size'].present?
+        sizes << " (bracelet_sizes IS NOT NULL AND bracelet_sizes ? $$#{jewelry['bracelet_size']}$$::varchar) " if jewelry['bracelet_size'].present?
+        sizes << " (chain_sizes IS NOT NULL AND chain_sizes ? $$#{jewelry['chain_size']}$$::varchar) " if jewelry['chain_size'].present?
 
         # Группируем фильтры
         filters = []
         filters << " ( #{materials.join(' OR ')} ) " if materials.any?
         filters << " ( #{sizes.join(' OR ')} ) " if sizes.any?
-        filters << " ( jewelry_gender IS NULL OR jewelry_gender = $$#{user.jewelry['gender']}$$ ) " if user.jewelry['gender'].present?
+        filters << " ( jewelry_gender IS NULL OR jewelry_gender = $$#{jewelry['gender']}$$ ) " if jewelry['gender'].present?
 
         relation = relation.where("is_jewelry IS NULL OR (is_jewelry IS TRUE AND #{filters.join(' AND ')} )" )
       end
@@ -169,17 +170,17 @@ module Recommender
     def apply_industrial_filter(relation)
 
       # Фильтрация по полу
-      if user.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
+      if params.profile.try(:gender).present? && (shop.has_products_fashion? || shop.has_products_kids? || shop.has_products_cosmetic?)
         # Пропускаем товары с противоположным полом, но не детские. Но если товаров совсем не найдено, то не применять фильтр
-        relation = relation.where("is_child = TRUE OR ( (fashion_gender = ? OR fashion_gender IS NULL) AND (cosmetic_gender = ? OR cosmetic_gender IS NULL) )", user.gender, user.gender )
+        relation = relation.where('is_child = TRUE OR ( (fashion_gender = :gender OR fashion_gender IS NULL) AND (cosmetic_gender = :gender OR cosmetic_gender IS NULL) )', gender: params.profile.gender)
       end
 
       # Фильтрация по размеру взрослой одежды
-      if shop.has_products_fashion? && user.try(:gender).present? && user.fashion_sizes.is_a?(Hash) && user.fashion_sizes.keys.any?
+      if shop.has_products_fashion? && params.profile.try(:gender).present? && params.profile.try(:fashion_sizes).is_a?(Hash) && params.profile.fashion_sizes.keys.any?
         conditions = []
         conditions << '(is_fashion != TRUE OR fashion_gender IS NULL OR fashion_wear_type IS NULL)'
-        user.fashion_sizes.each do |type, sizes|
-          conditions << "(is_fashion = TRUE AND fashion_gender = '#{user.gender}' AND (fashion_wear_type = '#{type}' OR fashion_wear_type IS NULL) AND (fashion_sizes && ARRAY['#{sizes.join("','")}']::varchar[] OR fashion_sizes IS NULL))"
+        params.profile.fashion_sizes.each do |type, sizes|
+          conditions << "(is_fashion = TRUE AND fashion_gender = '#{params.profile.gender}' AND (fashion_wear_type = '#{type}' OR fashion_wear_type IS NULL) AND (fashion_sizes && ARRAY['#{sizes.join("','")}']::varchar[] OR fashion_sizes IS NULL))"
         end
         # TODO Не забыть добавить условие про детские товары, что к ним не применяются эти ограничения
         if conditions.count > 1
@@ -190,25 +191,25 @@ module Recommender
       if shop.has_products_auto?
 
         # Фильтрация по маркам авто
-        if user.try(:compatibility).present?
+        if params.profile.try(:compatibility).present?
           relation = relation.where("
-              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{user.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
+              (is_auto = true AND (auto_compatibility->'brands' ?| ARRAY[:brand] #{params.profile.compatibility['model'].present? ? "OR auto_compatibility->'models' ?| ARRAY[:model]" : ''}))
               OR
               (is_auto = true AND auto_compatibility IS NULL)
               OR is_auto IS NULL
-          ", brand: user.compatibility['brand'], model: user.compatibility['model'])
+          ", brand: params.profile.compatibility['brand'], model: params.profile.compatibility['model'])
         end
 
         # Фильтрация по VIN авто
-        if user.try(:vds).present?
-          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', user.vds)
+        if params.profile.try(:vds).present?
+          relation = relation.where('(is_auto = true AND auto_vds @> ARRAY[?]) OR (is_auto = true AND auto_vds IS NULL) OR is_auto IS NULL', params.profile.vds)
         end
 
       end
 
       # Фильтрация по животным.
-      if shop.has_products_pets? && user.try(:pets).present? && user.pets.is_a?(Array) && user.pets.any?
-        subconditions = user.pets.map do |pet|
+      if shop.has_products_pets? && params.profile.try(:pets).present? && params.profile.pets.is_a?(Array) && params.profile.pets.any?
+        subconditions = params.profile.pets.map do |pet|
           if pet['type'] && pet['breed']
             " OR (is_pets IS TRUE AND pets_type = $$#{pet['type']}$$ AND pets_breed = $$#{pet['breed']}$$)"
           elsif pet['type']
@@ -227,8 +228,8 @@ module Recommender
       # Оставляем:
       # - не детские товары
       # - детские товары без указания пола
-      if shop.has_products_kids? && user.try(:children).present? && user.children.is_a?(Array) && user.children.any?
-        subconditions = user.children.map do |kid|
+      if shop.has_products_kids? && params.profile.try(:children).present? && params.profile.children.is_a?(Array) && params.profile.children.any?
+        subconditions = params.profile.children.map do |kid|
           if kid.is_a?(Hash) && kid.keys.any?
           partial_subcondition = ' OR ( is_child IS TRUE '
           if kid['gender'].present?

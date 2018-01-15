@@ -3,6 +3,10 @@ require 'rails_helper'
 describe UserFetcher do
   let!(:shop) { create(:shop) }
 
+  before do
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:delete)
+  end
+
   describe '#fetch' do
     let!(:user) { create(:user) }
     let!(:session) { create(:session, user: user, code: '12345678') }
