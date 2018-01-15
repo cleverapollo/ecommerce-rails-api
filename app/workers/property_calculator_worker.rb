@@ -4,14 +4,21 @@ class PropertyCalculatorWorker
 
   # Собирает всю информацию о профиле юзера по email
   # todo Возможно нужно вынести в отдельный сервис, который будет только этим и заниматься
-  def perform(email)
+  def perform(key)
 
-    # Находим все сессии клиента по email
-    sessions = Client.where(email: email).where.not(session_id: nil).pluck(:session_id)
-    return if sessions.blank?
+    # Если ключ состоит из email
+    if key.include?('@')
+      # Находим все сессии клиента по email
+      sessions = Client.where(email: key).where.not(session_id: nil).pluck(:session_id)
+      return if sessions.blank?
+    else
+      # Находим сессию по коду
+      sessions = Session.find_by_code(key).try(:id)
+      return if sessions.blank?
+    end
 
-    properties = hash_with_default_hash
-    properties[:id] = email
+    properties = Hash.recursive
+    properties[:id] = key
     properties[:gender] = UserProfile::PropertyCalculator.new.calculate_gender(sessions)
     properties[:fashion_sizes] = UserProfile::PropertyCalculator.new.calculate_fashion_sizes(sessions)
     properties[:compatibility] = UserProfile::PropertyCalculator.new.calculate_compatibility(sessions)
@@ -24,10 +31,4 @@ class PropertyCalculatorWorker
     ActiveRecord::Base.connection.close
   end
 
-  private
-
-  # Динамическое создание ключей в кеше, как это реализовано в нормальных языках
-  def hash_with_default_hash
-    Hash.new { |hash, key| hash[key] = hash_with_default_hash }
-  end
 end

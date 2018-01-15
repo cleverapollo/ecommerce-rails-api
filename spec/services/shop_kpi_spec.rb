@@ -76,6 +76,11 @@ describe ShopKPI do
 
   let!(:params) { { shop_id: shop.uniqid, ssid: session.code, recommender_type: 'interesting' } }
 
+  before do
+    # Возвращаем структуру ответа из Elastic
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new)
+  end
+
   describe '.calculate' do
 
     subject { ShopKPI.new(shop, Date.yesterday).calculate_statistics }

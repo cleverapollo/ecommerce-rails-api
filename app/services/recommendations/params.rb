@@ -188,7 +188,7 @@ module Recommendations
       raise Recommendations::IncorrectParams.new('Invalid session') if @session.blank?
 
       # Достаем профиль юзера
-      @profile = People::Profile.find(client.email) if client.email.present?
+      @profile = client.profile
     end
 
     # Извлекает текущий товар

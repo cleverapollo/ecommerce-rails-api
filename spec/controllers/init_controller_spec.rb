@@ -2,6 +2,11 @@ require 'rails_helper'
 
 describe InitController do
 
+  before do
+    # Возвращаем структуру ответа из Elastic
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new)
+  end
+
   describe 'GET check' do
     let!(:customer) { create(:customer) }
     let!(:shop) { create(:shop, customer: customer) }
@@ -211,11 +216,6 @@ describe InitController do
       let!(:session) { create(:session, user: user) }
       let!(:client) { create(:client, :with_email, shop: shop, session: session) }
       let!(:init_params) { { shop_id: shop.uniqid, v: 3, ssid: session.code } }
-
-      before do
-        # Возвращаем структуру ответа из Elastic
-        allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new(id: client.email))
-      end
 
       it 'exist' do
         get :init_script, init_params

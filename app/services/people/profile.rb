@@ -18,7 +18,7 @@ class People::Profile
         klass People::Profile
 
         # Configure the settings and mappings for the Elasticsearch index
-        settings number_of_shards: 2 do
+        settings number_of_shards: 10 do
           mapping do
             indexes :id, type: 'keyword'
             indexes :gender, type: 'keyword', ignore_above: 1
@@ -101,13 +101,13 @@ class People::Profile
 
     # Находит профиль юзера
     # @return [People::Profile]
-    def find(email)
+    def find(key)
       begin
-        return People::Profile.repository.find(email) if email.present?
+        return People::Profile.repository.find(key) if key.present?
       rescue Elasticsearch::Persistence::Repository::DocumentNotFound => e
         Rails.logger.debug e
       end
-      nil
+      People::Profile.new(id: key)
     end
 
   end

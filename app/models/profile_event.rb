@@ -366,7 +366,8 @@ class ProfileEvent < ActiveRecord::Base
 
         # ищем клиента в магазине по сессии (+ поддержка старой версии)
         client = Client.find_by(shop: shop, session_id: @session_id) || Client.find_by(shop: shop, user: user)
-        PropertyCalculatorWorker.perform_async(client.email) if client.present? && client.email.present?
+        # Отправляем в работу таск с ключом (email или код сессии)
+        PropertyCalculatorWorker.perform_async(client.email.present? ? client.email : client.session.code) if client.present? && (client.email.present? || client.session.present?)
       end
 
       true

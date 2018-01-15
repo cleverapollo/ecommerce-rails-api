@@ -125,8 +125,7 @@ module InitServerString
       end
 
       # Получаем профиль юзера
-      user_profile = nil
-      user_profile = People::Profile.find(client.email).try(:to_hash) if client.email.present?
+      user_profile = client.profile.try(:to_hash)
 
       result = {
           ssid: session.code,

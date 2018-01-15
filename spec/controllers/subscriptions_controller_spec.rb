@@ -4,6 +4,10 @@ describe SubscriptionsController do
   let!(:customer) { create(:customer) }
   let!(:shop) { create(:shop, customer: customer) }
 
+  before do
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:delete)
+  end
+
   describe 'GET unsubscribe' do
     let!(:client) { create(:client, :with_email, shop: shop).reload }
     let!(:shop_email) { create(:shop_email, shop: shop, email: client.email) }

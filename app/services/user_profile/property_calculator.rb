@@ -41,7 +41,7 @@ class UserProfile::PropertyCalculator
 
     # Заполняем хеш сырыми данными
     # Не забываем, что поле value строковое и его нужно приводить к целым числам
-    ProfileEvent.where(user_id: user.id, industry: 'cosmetic').where(property: ['hair_type', 'hair_condition']).each do |event|
+    ProfileEvent.where(user_id: user.id, industry: 'cosmetic').where(property: %w(hair_type hair_condition)).each do |event|
       score[event.property.to_sym][event.value] = 0 unless score[event.property.to_sym].key?(event.value)
       score[event.property.to_sym][event.value] += event.views.to_i + event.carts.to_i * 2 + event.purchases.to_i * 5
     end
@@ -58,7 +58,7 @@ class UserProfile::PropertyCalculator
   # @return Boolean | nil
   def calculate_allergy(user)
     sum = 0
-    ProfileEvent.where(user_id: user.id, industry: ['cosmetic', 'fmcg']).where(property: 'hypoallergenic').each do |event|
+    ProfileEvent.where(user_id: user.id, industry: %w(cosmetic fmcg)).where(property: 'hypoallergenic').each do |event|
       # Учитываем только корзины и покупки
       sum += event.carts.to_i * 2 + event.purchases.to_i * 5
     end

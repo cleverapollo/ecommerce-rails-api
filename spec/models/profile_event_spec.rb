@@ -279,6 +279,15 @@ describe ProfileEvent do
 
     end
 
+    context '.client without email' do
+      let!(:client) { create(:client, user: user, session: session, shop: shop) }
+
+      it 'key with session code' do
+        expect(PropertyCalculatorWorker).to receive(:perform_async).with(session.code)
+        ProfileEvent.track_items(user, shop, 'view', [item_29, item_30, item_31], session_id: session.id, current_session_code: session.code)
+      end
+    end
+
   end
 
   describe '.track_push_attributes' do

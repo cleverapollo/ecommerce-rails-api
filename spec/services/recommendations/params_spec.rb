@@ -5,6 +5,11 @@ describe Recommendations::Params do
   let(:session) { create(:session, :uniq, :with_user) }
   let(:user)    { session.user }
 
+  before do
+    # Возвращаем структуру ответа из Elastic
+    allow_any_instance_of(Elasticsearch::Persistence::Repository::Class).to receive(:find).and_return(People::Profile.new)
+  end
+
   subject { Recommendations::Params.extract(params) }
 
   shared_examples "raise error without param" do |attr|
