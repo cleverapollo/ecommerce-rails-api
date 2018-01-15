@@ -15,7 +15,7 @@
   tag: master
   type: push
   service: api
-  image_name: djeshkov/rails46_api
+  image_name: rees46com/api
   image_tag: latest
   encrypted_dockercfg_path: dockercfg.encrypted
 
