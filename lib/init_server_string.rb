@@ -126,6 +126,7 @@ module InitServerString
 
       # Получаем профиль юзера
       user_profile = client.profile.try(:to_hash)
+      user_profile.delete(:id) if user_profile.present?
 
       result = {
           ssid: session.code,
