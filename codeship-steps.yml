@@ -16,6 +16,6 @@
   type: push
   service: api
   image_name: rees46com/api
-  image_tag: latest
+  image_tag: release
   encrypted_dockercfg_path: dockercfg.encrypted
 
