@@ -109,7 +109,11 @@ class Client < ActiveRecord::Base
       ShopEmail.fetch(shop, email) if email.present?
 
       # Удаляем старую запись по коду сессии
-      People::Profile.repository.delete(self.session.code) if self.session.present? && old_email.blank?
+      begin
+        People::Profile.repository.delete(self.session.code) if self.session.present? && old_email.blank?
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+        Rails.logger.debug e
+      end
 
       # Запускаем сбор информации о профиле пользователя
       PropertyCalculatorWorker.perform_async(email.present? ? email : self.session.code)
