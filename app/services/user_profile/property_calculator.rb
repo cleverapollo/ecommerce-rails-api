@@ -443,6 +443,7 @@ class UserProfile::PropertyCalculator
   def define_ages(event_created_at, age_min, age_max)
     age_min = age_min.to_f if age_min.present?
     age_max = age_max.to_f if age_max.present?
+    event_created_at = Date.parse(event_created_at) if event_created_at.is_a?(String)
 
     # Если не указана одна из границ, определяем ее как вдвое больше/меньше от присутствующей
     age_min = age_max / 2.0 unless age_min.present?
