@@ -11,8 +11,8 @@ class UserProfile::PropertyCalculator
     # Новый метод расчета пола из кликхауса
     events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session_id, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
     events.each do |event|
-      score[:male] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'm'
-      score[:female] += event[2] * calculate_score_for_event(event[0]) if event[1] == 'f'
+      score[:male] += event[2].to_i * calculate_score_for_event(event[0]) if event[1] == 'm'
+      score[:female] += event[2].to_i * calculate_score_for_event(event[0]) if event[1] == 'f'
     end
 
     return nil if score[:male] == score[:female]
