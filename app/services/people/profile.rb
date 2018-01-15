@@ -107,7 +107,7 @@ class People::Profile
       rescue Elasticsearch::Persistence::Repository::DocumentNotFound => e
         Rails.logger.debug e
       end
-      People::Profile.new(id: key)
+      nil
     end
 
   end

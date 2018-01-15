@@ -119,7 +119,8 @@ class Client < ActiveRecord::Base
   # Находит профиль юзера
   # @return [People::Profile]
   def profile
-    @profile ||= People::Profile.find(email.present? ? email : self.session.code)
+    key = email.present? ? email : self.session.code
+    @profile ||= (People::Profile.find(key) || People::Profile.new(id: key))
   end
 
   # Перенос объекта к указанному юзеру
