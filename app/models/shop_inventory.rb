@@ -6,7 +6,7 @@ class ShopInventory < ActiveRecord::Base
   validates :min_cpc_price, :currency_id, :shop_id, :inventory_type, :name, presence: true
   validates :min_cpc_price, numericality: { greater_than: 0 }
 
-  TYPES = [:banner, :sponsored, :recommendations, :popup]
+  TYPES = [:banner, :recommendations, :popup, :sponsored]
   enum inventory_type: TYPES
 
   PAYMENT_TYPES = { cpc: 0, cpm: 1 }
