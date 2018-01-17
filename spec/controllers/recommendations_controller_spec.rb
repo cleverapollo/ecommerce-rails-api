@@ -36,6 +36,38 @@ describe RecommendationsController do
     end
   end
 
+  context 'with only email and client' do
+    let!(:extracted_params) {}
+    let!(:client) { create(:client, shop: shop, session: session, user: user, email: 'test@test.com') }
+    let!(:params) { { shop_id: shop.uniqid, email: client.email, recommender_type: 'interesting' } }
+
+    it 'works' do
+      get :get, params
+
+      expect(Recommendations::Processor).to have_received(:process)
+      expect(Session.count).to eq(1)
+      client = Client.find_by(email: 'test@test.com')
+      expect(client).to_not be_nil
+      expect(client.user).to_not be_nil
+      expect(client.user.sessions.first).to_not be_nil
+    end
+  end
+
+  context 'with only email and not client' do
+    let!(:params) { { shop_id: shop.uniqid, email: 'test@test.com', recommender_type: 'interesting' } }
+
+    it 'works' do
+      get :get, params
+
+      expect(Recommendations::Processor).to have_received(:process)
+      expect(Session.count).to eq(2)
+      client = Client.find_by(email: 'test@test.com')
+      expect(client).to_not be_nil
+      expect(client.user).to_not be_nil
+      expect(client.user.sessions.first).to_not be_nil
+    end
+  end
+
   context 'when error happens' do
     before { allow(Recommendations::Params).to receive(:extract).and_raise(Recommendations::IncorrectParams.new) }
 

@@ -114,6 +114,7 @@ class RecommendationsController < ApplicationController
     log_client_error(e)
     respond_with_client_error(e)
   rescue Recommendations::Error => e
+    raise e unless Rails.env.production?
     log_client_error(e)
     respond_with_client_error(e)
   end

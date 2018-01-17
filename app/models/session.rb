@@ -157,7 +157,12 @@ class Session < ActiveRecord::Base
   end
 
   def set_code
-    self.code = SecureRandom.uuid if self.code.blank?
+    if self.code.blank?
+      loop do
+        self.code = SecureRandom.uuid
+        break if Session.find_by_code(code).blank?
+      end
+    end
   end
 
 end
