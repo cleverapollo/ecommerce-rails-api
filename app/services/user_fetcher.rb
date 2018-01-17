@@ -14,7 +14,7 @@ class UserFetcher
   def initialize(params)
     # Если external_id указан, он корректный
     @external_id = params[:external_id].to_s if params[:external_id].present? && params[:external_id].to_s != '0' && params[:external_id].to_i > 0
-    @session_code = params.fetch(:session_code)
+    @session_code = params.fetch(:ssid)
     @shop = params.fetch(:shop)
     @email = IncomingDataTranslator.email(params[:email]) if params[:email].present?
     @location = params[:location]
@@ -27,8 +27,10 @@ class UserFetcher
 
     # Если не нашли сессию и есть email ищем клиента (или создаем нового)
     if session.nil? && email.present?
+      # Ищем клиента по email
       self.client = Client.find_by(shop: shop, email: email)
       if client.nil?
+        # Создаем нового
         begin
           self.client = Client.create!(shop: shop, user: User.create)
         rescue # Concurrency?
@@ -36,6 +38,10 @@ class UserFetcher
         end
         self.client.update(user: User.create) if client.user.nil?
         self.session = Session.find_or_create_by!(user_id: client.user_id)
+      else
+        # Находим его сессии
+        self.session = client.session
+        self.session = Session.find_or_create_by!(user_id: client.user_id) if self.session.nil?
       end
     else
 
