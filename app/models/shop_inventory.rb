@@ -9,7 +9,7 @@ class ShopInventory < ActiveRecord::Base
   TYPES = [:banner, :recommendations, :popup, :sponsored]
   enum inventory_type: TYPES
 
-  PAYMENT_TYPES = { cpc: 0, cpm: 1 }
+  PAYMENT_TYPES = { cpc: 0, cpm: 1, pph: 2 }
   enum payment_type: PAYMENT_TYPES
 
   scope :active, -> { where(active: true) }

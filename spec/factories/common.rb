@@ -118,4 +118,26 @@ FactoryGirl.define do
     date { Date.current }
     created_at { Time.now }
   end
+
+  factory :shop_inventory do
+    inventory_type 0
+    active true
+    currency
+    name 'test'
+  end
+
+  factory :shop_inventory_banner do
+    image { File.new("#{Rails.root}/spec/fixtures/files/rees46.png") }
+    url 'http://test.com'
+    min_price 100
+  end
+
+  factory :vendor do
+    name 'Test vendor'
+  end
+
+  factory :vendor_campaign do
+    name 'Test campaign'
+    brand 'test'
+  end
 end

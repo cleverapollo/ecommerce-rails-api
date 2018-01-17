@@ -161,7 +161,7 @@ class SubscriptionsController < ApplicationController
   protected
 
   def fetch_user
-    @user_fetcher = UserFetcher.new(email: params[:email], shop: @shop, session_code: params[:ssid])
+    @user_fetcher = UserFetcher.new(email: params[:email], shop: @shop, ssid: params[:ssid])
     @user = @user_fetcher.fetch
   end
 end

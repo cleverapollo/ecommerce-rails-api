@@ -182,7 +182,7 @@ module ActionPush
                                      email: raw[:user_email],
                                      location: raw[:user_location],
                                      shop: shop,
-                                     session_code: raw[:ssid])
+                                     ssid: raw[:ssid])
       @user = user_fetcher.fetch
       @client = user_fetcher.client
       self.session = user_fetcher.session

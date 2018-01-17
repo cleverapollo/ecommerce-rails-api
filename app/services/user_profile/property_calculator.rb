@@ -366,6 +366,18 @@ class UserProfile::PropertyCalculator
 
   protected
 
+  # Получает сумму событий из кликхауса. Разбивает список сессий на группы по 100 записей.
+  # @param [String] industry
+  # @param [String] property
+  # @param [Number|Array] session_id
+  def events_by_property(industry, property, session_id)
+    events = []
+    [session_id].flatten.each_slice(100) do |sessions|
+      group_events = []
+      event, value, count = ProfileEventCl.where(industry: industry, session_id: sessions, event: %w(view cart purchase), property: property).group(:event, :value).pluck('event, value, count(*)').transpose
+    end
+  end
+
   # Делает расчеты для отрасли по параметру
   # На выходе что-то вроде: ['BMW', 'Audi']
   # @param [String] industry

@@ -180,7 +180,7 @@ module Recommendations
     # @private
     # @raise [Recommendations::IncorrectParams] в случае, если не удалось найти сессию.
     def extract_user
-      user_fetcher = UserFetcher.new(session_code: raw[:ssid], shop: @shop, email: raw[:email])
+      user_fetcher = UserFetcher.new(ssid: raw[:ssid], shop: @shop, email: raw[:email])
       @user = user_fetcher.fetch
       @session = user_fetcher.session
       @client = user_fetcher.client

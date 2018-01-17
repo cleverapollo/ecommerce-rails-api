@@ -2,9 +2,12 @@ class VendorCampaign < ActiveRecord::Base
   belongs_to :shop
   belongs_to :shop_inventory
   belongs_to :currency
+  belongs_to :vendor
   validates :vendor_id, :shop_id, :currency_id, presence: true, numericality: { only_integer: true }
   validates :max_cpc_price, presence: true, numericality: { greater_than: 0 }
   validates :name, presence: true
+
+  serialize :filters, HashSerializer
 
   has_attached_file :image
   validates_attachment_content_type :image, content_type: /\Aimage/
@@ -61,6 +64,18 @@ class VendorCampaign < ActiveRecord::Base
       raise e unless Rails.env.production?
       Rollbar.error 'Clickhouse action insert error', e
     end
+  end
+
+  # Проверяет, подходит ли кампания для показа текущему клиенту
+  # @param [Client] client
+  def available_for_client(client)
+
+    if self.filters[:demography].present?
+      # gender
+      return false if client.profile.gender.present? && client.profile.gender != self.filters[:demography][:gender]
+    end
+
+    true
   end
 
   private

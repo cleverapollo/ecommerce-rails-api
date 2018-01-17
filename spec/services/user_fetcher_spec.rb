@@ -14,7 +14,7 @@ describe UserFetcher do
 
 
     context 'first visit' do
-      let!(:params) { { session_code: session.code, shop: shop, location: "3" } }
+      let!(:params) { { ssid: session.code, shop: shop, location: "3" } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -49,7 +49,7 @@ describe UserFetcher do
 
     context 'second visit' do
       let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
-      let!(:params) { { session_code: session.code, shop: shop } }
+      let!(:params) { { ssid: session.code, shop: shop } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -71,7 +71,7 @@ describe UserFetcher do
     context 'when external_id is passed' do
       let!(:external_id) { '256' }
       let!(:client) { create(:client, shop: shop, user: session.user, external_id: nil) }
-      let!(:params) { { session_code: session.code, shop: shop, external_id: external_id, email: 'test@rees46demo.com', location: '256' } }
+      let!(:params) { { ssid: session.code, shop: shop, external_id: external_id, email: 'test@rees46demo.com', location: '256' } }
 
       it "returns session's user" do
         expect(subject).to eq(session.user)
@@ -105,7 +105,7 @@ describe UserFetcher do
     #   let!(:old_user) { create(:user) }
     #   let!(:old_session) { create(:session, code: '1234567890', user: old_user) }
     #   let!(:old_client) { create(:client, shop: shop, user: old_user, external_id: external_id) }
-    #   let!(:params) { { session_code: session.code, shop: shop, external_id: external_id } }
+    #   let!(:params) { { ssid: session.code, shop: shop, external_id: external_id } }
     #
     #   it "returns old session's user" do
     #     expect(subject).to eq(old_session.user)
@@ -123,7 +123,7 @@ describe UserFetcher do
 
     context 'when had mail' do
 
-      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
+      let!(:params) { { ssid: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
 
       let!(:first_mail_user) { create(:user) }
       let!(:second_mail_user) { create(:user) }
@@ -141,7 +141,7 @@ describe UserFetcher do
 
     context 'when mail not in base' do
 
-      let!(:params) { { session_code: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
+      let!(:params) { { ssid: session.code, shop: shop, location: '256', email: 'old@rees46demo.com' } }
 
       it 're-links by mail' do
         subject

@@ -5,6 +5,10 @@ class BannersController < ApplicationController
 
   def get
 
+    # Находим сессию
+    user_fetcher = UserFetcher.new(ssid: params[:ssid], shop: @shop)
+    user_fetcher.fetch
+
     # Ищем инвентарь магазина
     # @type [ShopInventory] shop_inventory
     shop_inventory = @shop.shop_inventories.banner.find(params[:id])
@@ -29,7 +33,8 @@ class BannersController < ApplicationController
       banner = {inventory: shop_inventory_banner.id, image: "#{Rees46.site_url}#{shop_inventory_banner.image.url}", url: shop_inventory_banner.url, position: shop_inventory_banner.position}
 
       # Пробуем найти вендора подходящего под ставку
-      vendor_campaign = vendor_campaigns.select { |v| v.max_cpc_price >= shop_inventory_banner.ratio * shop_inventory.min_cpc_price.to_f }.first
+      # Проверяем, что клиент подходит под фильтры кампании
+      vendor_campaign = vendor_campaigns.select { |v| v.max_cpc_price >= shop_inventory_banner.min_price && v.available_for_client(user_fetcher.client) }.first
       if vendor_campaign.present?
 
         # Используем баннер вендора
@@ -44,5 +49,8 @@ class BannersController < ApplicationController
     end
 
     render json: { settings: { width: shop_inventory.image_width, height: shop_inventory.image_height, timeout: (shop_inventory.settings['timeout'] || 5).to_i }, banners: banners }
+  rescue UserFetcher::SessionNotFoundError => e
+    raise e if Rails.env.test?
+    respond_with_client_error(e)
   end
 end

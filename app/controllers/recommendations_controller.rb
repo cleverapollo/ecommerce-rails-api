@@ -161,7 +161,7 @@ class RecommendationsController < ApplicationController
 
     ids = []
 
-    user_fetcher = UserFetcher.new(shop: @shop, session_code: params[:ssid])
+    user_fetcher = UserFetcher.new(shop: @shop, ssid: params[:ssid])
     user = user_fetcher.fetch
     session = user_fetcher.session
 
