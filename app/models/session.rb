@@ -29,6 +29,7 @@ class Session < ActiveRecord::Base
 
   # Для партицируемых таблиц необходимо сначала получить ID, а потом создавать запись
   before_create :fetch_nextval
+  before_validation :set_code, if: :new_record?
 
   validates :code, presence: true
 
@@ -153,6 +154,10 @@ class Session < ActiveRecord::Base
 
   def fetch_nextval
     self.id = Session.connection.select_value("SELECT nextval('sessions_id_seq')") unless self.id
+  end
+
+  def set_code
+    self.code = SecureRandom.uuid if self.code.blank?
   end
 
 end
