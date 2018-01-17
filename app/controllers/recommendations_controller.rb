@@ -157,8 +157,8 @@ class RecommendationsController < ApplicationController
     end
 
     # Находим инвентарь магазина
-    shop_inventory = @shop.shop_inventories.sponsored.find(params[:id])
-    return render json: {} if shop_inventory.blank?
+    shop_inventory = @shop.shop_inventories.sponsored.find_by(id: params[:id])
+    return render json: {error: 'Inventory not found'}, status: 404 if shop_inventory.blank?
 
     ids = []
 
