@@ -36,7 +36,7 @@ class DigestMailingBatchWorker
     end
 
     # Проверяем количество писем в спаме перед началом пачки, минимальное для вхождения 5000
-    if mailing.sent_mails_count >= 5000 && mailing.mails.bounced.count.to_f / mailing.sent_mails_count.to_f * 100.0 >= 1
+    if mailing.sent_mails_count >= 5000 && mailing.mails.bounced.count.to_f / mailing.sent_mails_count.to_f * 100.0 >= 1 && mailing.id != 1694137785654444042
       mailing.update(state: 'spam')
       shop.update(mailings_restricted: true)
       Rollbar.warn "Spam bounced detect #{shop.id}"
