@@ -9,7 +9,7 @@ class UserProfile::PropertyCalculator
     score = { male: 0, female: 0 }
 
     # Новый метод расчета пола из кликхауса
-    events = ProfileEventCl.where(industry: %w(fashion cosmetic), property: 'gender', session_id: session_id, event: %w(view cart purchase)).group(:event, :value).pluck('event, value, count(*)')
+    events = events_by_property(%w(fashion cosmetic), 'gender', session_id)
     events.each do |event|
       score[:male] += event[2].to_i * calculate_score_for_event(event[0]) if event[1] == 'm'
       score[:female] += event[2].to_i * calculate_score_for_event(event[0]) if event[1] == 'f'
@@ -299,7 +299,12 @@ class UserProfile::PropertyCalculator
     genders_raw_data = {'m' => {}, 'f' => {}, 'u' => {} }
     kids = []
 
-    events = ProfileEventCl.where(industry: 'child', session_id: session_id, event: %w(view cart purchase), property: 'age').group(:event, :value, :date).pluck('event, value, count(*), date')
+    events = []
+    [session_id].flatten.each_slice(100) do |sessions|
+      events = ProfileEventCl.where(industry: 'child', session_id: sessions, event: %w(view cart purchase), property: 'age').group(:event, :value, :date).pluck('event, value, count(*), date')
+      # Соммируем массивы по группе: event, value
+      events = events.group_by {|v| [v[0], v[1], v[3]] }.map {|_,v| v.inject {|c, h| c[2] = c[2] + h[2]; c } }
+    end
     events.each do |event|
       age_min, age_max, gender = event[1].split('_', 3)
       gender = 'u' unless %w(m f).include?(gender)
@@ -373,9 +378,12 @@ class UserProfile::PropertyCalculator
   def events_by_property(industry, property, session_id)
     events = []
     [session_id].flatten.each_slice(100) do |sessions|
-      group_events = []
-      event, value, count = ProfileEventCl.where(industry: industry, session_id: sessions, event: %w(view cart purchase), property: property).group(:event, :value).pluck('event, value, count(*)').transpose
+      events += ProfileEventCl.where(industry: industry, session_id: sessions, event: %w(view cart purchase), property: property).group(:event, :value).pluck('event, value, count(*)')
+      # Соммируем массивы по группе: event, value
+      events = events.group_by {|v| [v[0], v[1]] }.map {|_,v| v.inject {|c, h| c[2] = c[2] + h[2]; c } }
     end
+
+    events
   end
 
   # Делает расчеты для отрасли по параметру
@@ -387,8 +395,7 @@ class UserProfile::PropertyCalculator
   def calculate_by_property(industry, property, session_id)
     score = {}
 
-    events = ProfileEventCl.where(industry: industry, session_id: session_id, event: %w(view cart purchase), property: property).group(:event, :value).pluck('event, value, count(*)')
-    events.each do |event|
+    events_by_property(industry, property, session_id).each do |event|
       value = event[1]
       score[value] = 0 unless score.key?(value)
       score[value] += event[2].to_i * calculate_score_for_event(event[0])
@@ -415,7 +422,12 @@ class UserProfile::PropertyCalculator
 
     # Заполняем хеш сырыми данными
     # Новый метод расчета из кликхауса
-    events = ProfileEventCl.where(industry: industry, session_id: session_id, event: %w(view cart purchase)).where("property LIKE '#{property}_%'").group(:event, :value, :property).pluck('event, value, count(*), property')
+    events = []
+    [session_id].flatten.each_slice(100) do |sessions|
+      events = ProfileEventCl.where(industry: industry, session_id: sessions, event: %w(view cart purchase)).where("property LIKE '#{property}_%'").group(:event, :value, :property).pluck('event, value, count(*), property')
+      # Соммируем массивы по группе: event, value
+      events = events.group_by {|v| [v[0], v[1], v[3]] }.map {|_,v| v.inject {|c, h| c[2] = c[2] + h[2]; c } }
+    end
     events.each do |event|
       key = event[3].gsub("#{property}_", '')
       value = event[1]

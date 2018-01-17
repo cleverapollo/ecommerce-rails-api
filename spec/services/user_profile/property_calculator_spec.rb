@@ -6,10 +6,10 @@ describe UserProfile::PropertyCalculator do
   let!(:user) { create(:user) }
   let!(:session) { create(:session, user: user) }
 
-  def create_profile_event(industry, property, value, views: 0, carts: 0, purchases: 0)
-    views.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'view') }
-    carts.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'cart') }
-    purchases.times { |i| create(:profile_event_cl, shop: shop, session: session, industry: industry, property: property, value: value, event: 'purchase') }
+  def create_profile_event(industry, property, value, views: 0, carts: 0, purchases: 0, s: session)
+    views.times { |i| create(:profile_event_cl, shop: shop, session: s, industry: industry, property: property, value: value, event: 'view') }
+    carts.times { |i| create(:profile_event_cl, shop: shop, session: s, industry: industry, property: property, value: value, event: 'cart') }
+    purchases.times { |i| create(:profile_event_cl, shop: shop, session: s, industry: industry, property: property, value: value, event: 'purchase') }
   end
 
   describe '.calculate_gender' do
@@ -50,6 +50,22 @@ describe UserProfile::PropertyCalculator do
 
       it 'returns male because purchase more important' do
         expect(subject).to eq 'm'
+      end
+    end
+
+    context 'for a more sessions' do
+      before do
+        99.times do |i|
+          session = Session.create!(user: user)
+        end
+        s = Session.create!(user: user)
+        create_profile_event('fashion', 'gender', 'f', views: 1, s: s)
+      end
+
+      it 'for 101 sessions' do
+        sessions = user.sessions.pluck(:id).sort
+        expect(sessions.count).to eq(101)
+        expect(UserProfile::PropertyCalculator.new.calculate_gender(sessions)).to eq('f')
       end
     end
   end
