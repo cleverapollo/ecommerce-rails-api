@@ -23,7 +23,7 @@ class UserFetcher
   def fetch
     # Сессия должна существовать
     self.session = Session.find_by_code(session_code)
-    raise SessionNotFoundError if self.session.blank? && email.blank?
+    return if self.session.blank? && email.blank?
 
     # Если не нашли сессию и есть email ищем клиента (или создаем нового)
     if session.nil? && email.present?
